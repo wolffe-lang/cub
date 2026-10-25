@@ -1,0 +1,179 @@
+//! controls — cub's key vocabulary over the engine's decoder (the campaign's
+//! controls table and the design bible's section 4). The engine (`input`)
+//! turns the terminal's bytes into the terminal's keys; this module says
+//! what each means to cub, in the numbers the simulation and the replay
+//! file use. Every key below is recorded in a replay (`vocab`), so a run's
+//! file is complete from the first build on; what the simulation applies
+//! grows with the lanes (cb00: the moves of the feet and the quit; cb01:
+//! bite, lunge, parry, dodge, lock-on, water, rest).
+//!
+//! The table: the arrows move (the cub turns toward the held direction at
+//! its turn rate, never pivots); Shift+arrow sneaks that way (half speed,
+//! no trail: the bible's section 4 — so Shift+Down is a sneak here, not
+//! pack's parry; cub's parry is `z` alone, R-cb00-4 A); Space bites; `x`
+//! lunges; `z` parries; `c` dodges; Tab locks on; `w` drinks; `r` rests at a
+//! den; `q` or Esc quits; Ctrl-C interrupts.
+
+use input
+use replay
+
+/// No key (never pushed; the zero value).
+pub const KEY_NONE: int = 0
+
+/// Up: move north.
+pub const KEY_UP: int = 1
+
+/// Down: move south.
+pub const KEY_DOWN: int = 2
+
+/// Left: move west.
+pub const KEY_LEFT: int = 3
+
+/// Right: move east.
+pub const KEY_RIGHT: int = 4
+
+/// Shift+Up: sneak north.
+pub const KEY_SNEAK_UP: int = 5
+
+/// Shift+Down: sneak south.
+pub const KEY_SNEAK_DOWN: int = 6
+
+/// Shift+Left: sneak west.
+pub const KEY_SNEAK_LEFT: int = 7
+
+/// Shift+Right: sneak east.
+pub const KEY_SNEAK_RIGHT: int = 8
+
+/// Space: bite (cb01).
+pub const KEY_BITE: int = 9
+
+/// `x`: lunge (cb01).
+pub const KEY_LUNGE: int = 10
+
+/// `z`: parry (cb01).
+pub const KEY_PARRY: int = 11
+
+/// `c`: dodge (cb01).
+pub const KEY_DODGE: int = 12
+
+/// Tab: lock on the nearest foe (cb01).
+pub const KEY_LOCK: int = 13
+
+/// `w`: a mouthful of water (cb01).
+pub const KEY_WATER: int = 14
+
+/// `r`: rest at a den (cb01).
+pub const KEY_REST: int = 15
+
+/// `q` or Esc: quit.
+pub const KEY_QUIT: int = 16
+
+/// Ctrl-C as a byte: interrupt (the signal path is the terminal's).
+pub const KEY_INTERRUPT: int = 17
+
+/// The number of keys (every id below this).
+pub const KEY_COUNT: int = 18
+
+/// What a character means, or `KEY_NONE`.
+fn char_key(b: int) -> int {
+    if b == 32 {
+        return KEY_BITE
+    }
+    if b == 120 || b == 88 {
+        return KEY_LUNGE
+    }
+    if b == 122 || b == 90 {
+        return KEY_PARRY
+    }
+    if b == 99 || b == 67 {
+        return KEY_DODGE
+    }
+    if b == 119 || b == 87 {
+        return KEY_WATER
+    }
+    if b == 114 || b == 82 {
+        return KEY_REST
+    }
+    if b == 113 || b == 81 {
+        return KEY_QUIT
+    }
+    KEY_NONE
+}
+
+/// cub's key for one of the engine's, or `KEY_NONE` for one cub does not
+/// read.
+pub fn map(k: int) -> int {
+    if k == input.KEY_UP {
+        return KEY_UP
+    }
+    if k == input.KEY_DOWN {
+        return KEY_DOWN
+    }
+    if k == input.KEY_LEFT {
+        return KEY_LEFT
+    }
+    if k == input.KEY_RIGHT {
+        return KEY_RIGHT
+    }
+    if k == input.KEY_SHIFT_UP {
+        return KEY_SNEAK_UP
+    }
+    if k == input.KEY_SHIFT_DOWN {
+        return KEY_SNEAK_DOWN
+    }
+    if k == input.KEY_SHIFT_LEFT {
+        return KEY_SNEAK_LEFT
+    }
+    if k == input.KEY_SHIFT_RIGHT {
+        return KEY_SNEAK_RIGHT
+    }
+    if k == input.KEY_TAB {
+        return KEY_LOCK
+    }
+    if k == input.KEY_ESC {
+        return KEY_QUIT
+    }
+    if k == input.KEY_INTERRUPT {
+        return KEY_INTERRUPT
+    }
+    let ch = input.char_of(k)
+    if ch >= 0 then char_key(ch) else KEY_NONE
+}
+
+/// Every key of `raw` mapped and pushed onto `keys`, in order, the ones
+/// cub does not read dropped.
+pub fn map_all(raw: List[int], mut keys: List[int]) {
+    for k in raw {
+        let m = map(k)
+        if m != KEY_NONE {
+            (mut keys).push(m)
+        }
+    }
+}
+
+/// Whether `k` is one of the eight movement keys.
+pub fn is_move(k: int) -> bool {
+    k >= KEY_UP && k <= KEY_SNEAK_RIGHT
+}
+
+/// The key's name in a replay file (lair's `docs/REPLAY.md`; cub's words).
+pub fn key_name(k: int) -> str {
+    replay.key_name(vocab(), k)
+}
+
+/// The key a replay file's name means; `parse` for a name that is none.
+pub fn key_of(name: str) -> int ! {parse} {
+    replay.key_of(vocab(), name)
+}
+
+/// cub's words for the replay file: the seventeen keys by number, and no
+/// numeric event yet (cb01's `health` and `scent`).
+pub fn vocab() -> replay.Vocab {
+    var names = List[str]()
+    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt".
+        words() {
+        (mut names).push(w)
+    }
+    var args = List[str]()
+    replay.vocab(take names, take args)
+}
