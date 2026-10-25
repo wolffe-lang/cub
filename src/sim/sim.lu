@@ -639,7 +639,7 @@ pub fn hurt(mut s: Sim, damage: int) {
         s.mark = true
         s.mark_x = s.x
         s.mark_y = s.y
-        s.mark_scent = s.scent
+        s.mark_scent += s.scent
         s.scent = 0
         s.locked = -1
         s.speed = 0
