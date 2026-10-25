@@ -122,3 +122,33 @@ fn test_cb02a_rich_props_emit_scalar_glyphs_not_utf8_bytes() {
         assert(cell.cp < 128 || cell.cp >= 160, "no split UTF-8 continuation byte")
     }
 }
+
+fn test_cb02a_branches_join_the_shore_without_an_origin_seam() {
+    var seed = 0
+    while seed < 50 {
+        var cache = 0
+        while cache < 2 {
+            var at = -10
+            while at <= forest.coast_end(seed, cache) {
+                let x = forest.coast_branch_x(seed, cache, at)
+                let y = forest.origin(seed, 0) + at
+                if y >= terrain.bank(seed, x) + terrain.REED_ROWS {
+                    assert(!forest.blocked(seed, 0, x, y), "branch meets actual shore")
+                }
+                at += 1
+            }
+            cache += 1
+        }
+        seed += 1
+    }
+}
+
+fn test_cb02a_guard_does_not_hide_the_treasure_sprite() {
+    var s = sim.new(1, 80, 24)
+    let (x, y) = forest.cache_position(s.seed, 0, 0)
+    s.x = x - 8 * sim.FP
+    s.y = y
+    var g = grid.new(24, 80)
+    art.render(s, tier.RICH, mut g)
+    assert(grid.at(g, 12, 48).cp == 88, "bundle binding remains visible beside guard")
+}

@@ -1409,7 +1409,7 @@ pub fn area_foes(seed: int, area: int) -> List[Foe] {
     while cache < 2 {
         let (x, cy) = forest.cache_position(seed, area, cache)
         if area == forest.SHINGLE {
-            var foe = make_foe(FOX, x, cy + FP)
+            var foe = make_foe(FOX, x, cy - 3 * FP)
             foe.health = 40
             (mut foes).push(foe)
             cache += 1
