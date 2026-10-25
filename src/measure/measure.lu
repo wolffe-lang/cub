@@ -143,8 +143,8 @@ fn tail_key(s: sim.Sim) -> str {
 
 /// The wag over `n` ticks of a gait (`k` the key held each tick, 0
 /// standing; `paw` the cub's paw), after a settling run: the period in
-/// hundredths of a tick (the mean gap between the tail's returns to its
-/// first frame; 0 when it never leaves it) and the distinct tail frames.
+/// hundredths of a tick (0 when the tail never moves) and the distinct
+/// tail frames.
 fn wag_of(k: int, paw: int, settle: int, n: int) -> (int, int) {
     var s = shore_cub()
     s.paw = paw
@@ -160,19 +160,29 @@ fn wag_of(k: int, paw: int, settle: int, n: int) -> (int, int) {
         add_once(mut seen, key)
         i += 1
     }
-    var first = -1
-    var last = -1
-    var returns = 0
-    i = 1
-    while i < n {
-        if keys[i] == keys[0] && keys[i - 1] != keys[0] {
-            if first < 0 { first = i }
-            last = i
-            returns += 1
+    // The period: the mean gap between entries into the frame entered
+    // least often (a frame the wag passes twice a cycle, such as the
+    // middle, would halve it), at least twice in the window.
+    var period = 0
+    var best = 1000000
+    for f in seen {
+        var first = -1
+        var last = -1
+        var entries = 0
+        i = 1
+        while i < n {
+            if keys[i] == f && keys[i - 1] != f {
+                if first < 0 { first = i }
+                last = i
+                entries += 1
+            }
+            i += 1
         }
-        i += 1
+        if entries >= 2 && entries < best {
+            best = entries
+            period = (last - first) * 100 / (entries - 1)
+        }
     }
-    let period = if returns >= 2 then (last - first) * 100 / (returns - 1) else 0
     (period, seen.len)
 }
 
@@ -459,12 +469,36 @@ fn census_of(path: str) -> census.Counts ! {io, parse} {
     c
 }
 
+/// The rich tier's code points (`sprites.rich_code_points`), counted and
+/// listed in hex: what `docs/GLYPHS.md` must name.
+pub fn glyphs() -> str {
+    let cps = sprites.rich_code_points()
+    var out = "glyphs {cps.len}"
+    for cp in cps { out += " " + hex(cp) }
+    out
+}
+
+fn hex(v: int) -> str {
+    let digits = "0123456789ABCDEF"
+    var out = ""
+    var n = v
+    var i = 0
+    while i < 4 {
+        let d = n % 16
+        out = digits[d..d + 1] + out
+        n = n / 16
+        i += 1
+    }
+    out
+}
+
 /// Everything, then one census line a script and the total.
 pub fn report(paths_in: List[str]) -> int {
     print(pace())
     print(wag())
     print(chases())
     print_raw(paths())
+    print(glyphs())
     var total = census.counts()
     for p in paths_in {
         let c = census_of(p) else |e| {
