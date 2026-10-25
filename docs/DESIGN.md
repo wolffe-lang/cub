@@ -124,3 +124,15 @@ lock overrides arrows. Each accepted attack commits its aim; arrows after
 the key do not bend it. A queued recovery bite captures its own aim.
 Movement still uses the engine's shorter Hold lifetime and turn rate.
 Bite/lunge reach, cone, timings and damage stay the bible's.
+
+## Leaping presentation, 2026-10-25
+
+The maintainer's word: "Attacks should be leaping jumps, not a '>' that
+appears and disappears." `BITE_ARC = 1 cell`, `LUNGE_ARC = 3 cells`:
+an integer out-and-back triangle over the unchanged active ticks, returning
+at recovery. It is pack's triangular routine shape, owned here because the
+engine has no game-arc API. Eighth-cell path samples clip against terrain
+and two-cell live body footprints. An already crowded encounter may shorten
+a hop to zero. The camera and ground body never move with this offset.
+A one-tick `*` marks contact at the foe (or empty apex); no attack arrow
+remains. These are presentation proposals, not changes to what hits.

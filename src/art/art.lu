@@ -83,16 +83,31 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
     draw_world_marks(s, t, mut g)
     // The rich cub's two rows sit on the cub's cell and the one above, so
     // its body is at the centre; the plain cub's mark is left of the centre.
-    let r = sim.screen_row(s)
-    let c = sim.screen_col(s)
+    let (ox, oy) = sim.attack_offset(s)
+    let r = sim.screen_row(s) + sim.floor_div(s.y + oy, sim.FP) - sim.cell_y(s)
+    let c = sim.screen_col(s) + sim.floor_div(s.x + ox, sim.FP) - sim.cell_x(s)
     draw_pose(
         mut g,
         t,
         r - 1,
         c,
-        sim.facing(s),
+        if s.action == sim.BITE || s.action == sim.LUNGE {
+            (s.attack_heading + 32) % sim.TURN / 64
+        } else {
+            sim.facing(s)
+        },
         band(s.stamina, sim.stamina_max(s.wind)),
-        if s.exhausted then 3 else if s.sneaking then 2 else if s.speed > 0 then 1 else 0,
+        if s.exhausted {
+            3
+        } else if s.sneaking ||
+            s.action == sim.BITE && s.tick - s.started < 3 ||
+            s.action == sim.LUNGE && s.tick - s.started < 9 {
+            2
+        } else if s.speed > 0 {
+            1
+        } else {
+            0
+        },
         s.tick,
     )
     draw_posture(s, t, mut g)
@@ -270,16 +285,13 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
 }
 
 fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
-    let r = sim.screen_row(s)
-    let c = sim.screen_col(s)
+    let (ox, oy) = sim.attack_offset(s)
+    let r = sim.screen_row(s) + sim.floor_div(s.y + oy, sim.FP) - sim.cell_y(s)
+    let c = sim.screen_col(s) + sim.floor_div(s.x + ox, sim.FP) - sim.cell_x(s)
     let health = band(s.health, sim.health_max(s.heart))
     let tail = if health == 0 then "/" else if health == 1 then "-" else "_"
     draw.put_text(mut g, r + 1, c - 1, tail, ink(t, health == 0))
-    let posture = if s.action == sim.BITE {
-        ">"
-    } else if s.action == sim.LUNGE {
-        ">>"
-    } else if s.action == sim.PARRY {
+    let posture = if s.action == sim.PARRY {
         "]"
     } else if s.action == sim.DODGE {
         "o"
@@ -293,8 +305,9 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
         ""
     }
     draw.put_text(mut g, r, c + 2, posture, ink(t, true))
-    if s.action == sim.LUNGE && s.tick - s.started >= 9 && s.tick - s.started < 12 {
-        draw.put_text(mut g, r - 2, c + 1, "'", ink(t, true))
+    if sim.landing(s) {
+        let (x, y) = sim.landing_point(s)
+        at_world(s, t, mut g, sim.floor_div(x, sim.FP), sim.floor_div(y, sim.FP) + 1, "*", true)
     }
     if s.action == sim.FALL {
         // Thirty ticks: progressively erase the field in a deterministic dissolve.

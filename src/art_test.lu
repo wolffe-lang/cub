@@ -88,6 +88,8 @@ fn test_every_combat_posture_on_both_tiers_is_valid_and_distinct() {
     var previous = grid.new(24, 80)
     while action <= sim.FALL {
         s.action = action
+        s.tick = if action == sim.BITE then 3 else if action == sim.LUNGE then 10 else 0
+        if action == sim.BITE || action == sim.LUNGE { s.attack_heading = 64 }
         var plain = grid.new(24, 80)
         art.render(s, tier.PLAIN, mut plain)
         assert(grid.plain_ok(plain), "combat plain tier {action}")
