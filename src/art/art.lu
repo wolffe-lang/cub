@@ -180,36 +180,54 @@ fn fur(t: int, band: int) -> grid.Cell {
 
 /// The plain tier's cub, the rich footprint in ASCII: four cells by four
 /// north and south (ears, shoulders, body, tail), eight by two east and
-/// west (the head leading, the tail trailing).
-fn plain_cub(facing: int, pose: int) -> List[str] {
+/// west (the head leading, the tail trailing). The tail `,` sits on the
+/// side the rich tail swings to (`tail` the wag's offset; at the middle
+/// the side it swings toward next, `rising`), so the plain tail wags on
+/// the gait too, one cell each side.
+fn plain_cub(facing: int, pose: int, tail: int, rising: bool) -> List[str] {
     var rows = List[str]()
     let low = pose == 2 || pose == 3
+    // The tail's side seen from above, the cub's own right positive.
+    let right = tail > 0 || tail == 0 && rising
     if facing == 0 {
         (mut rows).push(if low then ".__." else ".^^.")
         (mut rows).push("####")
         (mut rows).push("####")
-        (mut rows).push(".,..")
+        (mut rows).push(if right then "..,." else ".,..")
     } else if facing == 2 {
-        (mut rows).push("..,.")
+        (mut rows).push(if right then ".,.." else "..,.")
         (mut rows).push("####")
         (mut rows).push("####")
         (mut rows).push(if low then ".__." else ".vv.")
     } else if facing == 1 {
-        (mut rows).push(if low then ".=####_." else ".=####^.")
-        (mut rows).push(",=####>.")
+        (mut rows).push(
+            if low {
+                (if right then ".=####_." else ",=####_.")
+            } else {
+                (if right then ".=####^." else ",=####^.")
+            },
+        )
+        (mut rows).push(if right then ",=####>." else ".=####>.")
     } else {
-        (mut rows).push(if low then "._####=." else ".^####=.")
-        (mut rows).push(".<####=,")
+        (mut rows).push(
+            if low {
+                (if right then "._####=," else "._####=.")
+            } else {
+                (if right then ".^####=," else ".^####=.")
+            },
+        )
+        (mut rows).push(if right then ".<####=." else ".<####=,")
     }
     rows
 }
 
 /// Draw the cub at its own cell `(row, col)` facing `facing` (0 north, 1
-/// east, 2 south, 3 west) with stamina `band`, in `pose` at `tick`. Rich:
+/// east, 2 south, 3 west) with stamina `band`, standing (or panting when
+/// spent), the paws and tail at rest. Rich:
 /// one silhouette turned to the facing (`silhouette.cub`); plain: the
 /// same footprint in ASCII. The ground shows through unlit cells.
 pub fn draw_cub(mut g: grid.Grid, t: int, row: int, col: int, facing: int, band: int) {
-    draw_pose(mut g, t, row, col, facing, band, if band == 2 then 3 else 0, 0)
+    draw_pose(mut g, t, row, col, facing, band, if band == 2 then 3 else 0, 0, 0, true)
 }
 
 /// The whole frame: the ground on every row, then the cub at the centre.
@@ -251,13 +269,24 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
         // one cell across the aim (a column north or south, a row east or
         // west), the same silhouette in two parts.
         let style = fur(t, band(s.stamina, sim.stamina_max(s.wind)))
-        let body = silhouette.cub(pose, s.tick)
+        let body = silhouette.cub(pose, sim.legs(s), silhouette.wag(sim.tail_phase(s), pose == 1))
         silhouette.draw_at(mut g, r, c, silhouette.strip(body, false), facing, style)
         let dr = if facing % 2 == 0 then 0 else shake
         let dc = if facing % 2 == 0 then shake else 0
         silhouette.draw_at(mut g, r + dr, c + dc, silhouette.strip(body, true), facing, style)
     } else {
-        draw_pose(mut g, t, r, c, facing, band(s.stamina, sim.stamina_max(s.wind)), pose, s.tick)
+        draw_pose(
+            mut g,
+            t,
+            r,
+            c,
+            facing,
+            band(s.stamina, sim.stamina_max(s.wind)),
+            pose,
+            sim.legs(s),
+            silhouette.wag(sim.tail_phase(s), pose == 1),
+            sim.tail_phase(s) < 4,
+        )
         if shake != 0 {
             // Plain: the ears row shifts across the aim.
             let dr = if facing == 0 then -1 else if facing == 2 then 2 else shake
@@ -330,7 +359,18 @@ pub fn sheet(t: int) -> grid.Grid {
     while pose < 4 {
         var f = 0
         while f < 4 {
-            draw_pose(mut g, t, 8 + pose * 5, 10 + f * 11, f, if pose == 3 then 2 else 0, pose, 0)
+            draw_pose(
+                mut g,
+                t,
+                8 + pose * 5,
+                10 + f * 11,
+                f,
+                if pose == 3 then 2 else 0,
+                pose,
+                0,
+                0,
+                true,
+            )
             f += 1
         }
         draw.put_text(
@@ -349,6 +389,14 @@ pub fn sheet(t: int) -> grid.Grid {
             ink(t, true),
         )
         pose += 1
+    }
+    // The wag's frames (cb02c): the walking cub facing north with its tail
+    // at each offset the gait passes, -2 to 2 pixels; the paws' two frames.
+    draw.put_text(mut g, 6, 51, "wag: -2  -1   0  +1  +2", ink(t, true))
+    var tail = -2
+    while tail <= 2 {
+        draw_pose(mut g, t, 13, 54 + (tail + 2) * 5, 0, 0, 1, (tail + 2) % 2, tail, true)
+        tail += 1
     }
     var kind = 0
     while kind < 3 {
@@ -737,7 +785,10 @@ fn at_log_hint(s: sim.Sim) -> bool { sim.at_den(s) && !s.den && s.action != sim.
 
 /// Four poses of one silhouette, turned to the facing on the rich tier
 /// (`silhouette.cub`), the same footprint in ASCII on the plain. `(row,
-/// col)` is the cub's own cell.
+/// col)` is the cub's own cell; `legs` the paws' frame, `tail` the wag's
+/// offset and `rising` its direction through the middle (the gait's,
+/// `sim.legs` and `sim.tail_phase`). Every mark stays inside the rich
+/// footprint, so the plain cub never covers a cell the rich one leaves.
 pub fn draw_pose(
     mut g: grid.Grid,
     t: int,
@@ -746,14 +797,16 @@ pub fn draw_pose(
     facing: int,
     band: int,
     pose: int,
-    tick: int,
+    legs: int,
+    tail: int,
+    rising: bool,
 ) {
     let style = fur(t, band)
     if t == tier.RICH {
-        silhouette.draw_at(mut g, row, col, silhouette.cub(pose, tick), facing, style)
+        silhouette.draw_at(mut g, row, col, silhouette.cub(pose, legs, tail), facing, style)
         return
     }
-    let rows = plain_cub(facing, pose)
+    let rows = plain_cub(facing, pose, tail, rising)
     let top = if facing % 2 == 0 then row - 1 else row
     let left = if facing % 2 == 0 then col - 1 else col - 3
     var i = 0
@@ -761,9 +814,11 @@ pub fn draw_pose(
         put_over(mut g, top + i, left, rows[i], style)
         i += 1
     }
-    if pose == 1 && tick % 2 == 1 && facing % 2 == 0 {
-        // The walk alternates a paw out at the shoulders.
-        put_over(mut g, row, if facing == 0 then col - 2 else col + 3, "'", style)
+    if pose == 1 && facing % 2 == 0 {
+        // The walk sets a hind paw out, one each half stride, at the
+        // haunches' corner (inside the footprint, beside the tail).
+        let paw_row = if facing == 0 then row + 2 else row - 1
+        put_over(mut g, paw_row, if legs == 0 then col - 1 else col + 2, "'", style)
     }
 }
 
