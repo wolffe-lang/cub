@@ -1,0 +1,435 @@
+//! silhouette — solid sprites from pixels (cb02b). A silhouette is a bitmap
+//! at the rich tier's finest grain, two pixels across and four down a
+//! cell: the braille grid, whose pixels are square at a 1:2 cell. One
+//! drawing per creature, facing north; east, south and west are the same
+//! bitmap turned a quarter, a half and three quarters (the maintainer's
+//! word, 2026-10-25: "it should look the same, just rotated"; R-cb02b-2
+//! A), so a creature is never a different drawing when it turns, and a
+//! bitmap of 4 by 12 pixels is 2 by 3 cells north and 6 by 1 east.
+//!
+//! Each cell of a bitmap becomes one glyph: the full block where all eight
+//! pixels are lit, a half block where exactly one half is, the braille
+//! pattern of the lit pixels otherwise, and nothing where none are. The
+//! shapes are original; pack's wolf (ears, head, a long body) was read for
+//! its silhouette only.
+
+use grid
+
+/// A bitmap: `w` pixels across (a multiple of 2), `h` down (a multiple of
+/// 4), row-major, 1 lit.
+pub struct Bitmap {
+    w: int,
+    h: int,
+    px: List[int],
+}
+
+/// The bitmap drawn by `rows`: `#` lit, anything else dark. Every row has
+/// the first row's length (`assert`).
+pub fn parse(rows: List[str]) -> Bitmap {
+    assert(rows.len > 0, "silhouette.parse: a bitmap has rows")
+    let w = rows[0].len
+    var px = List[int]()
+    for row in rows {
+        assert(row.len == w, "silhouette.parse: ragged rows")
+        for b in row.bytes() {
+            (mut px).push(if b as int == 35 then 1 else 0)
+        }
+    }
+    Bitmap { w: w, h: rows.len, px: px }
+}
+
+/// The pixel at `(r, c)`, 0 outside the bitmap.
+pub fn at(b: Bitmap, r: int, c: int) -> int {
+    if r < 0 || c < 0 || r >= b.h || c >= b.w { return 0 }
+    b.px[r * b.w + c]
+}
+
+/// The bitmap turned to `facing`: 0 as drawn (north), 1 a quarter turn
+/// clockwise (east), 2 a half turn (south), 3 a quarter turn anticlockwise
+/// (west). Pixel for pixel: nothing is redrawn.
+pub fn turned(b: Bitmap, facing: int) -> Bitmap {
+    let f = (facing % 4 + 4) % 4
+    if f == 0 { return copy b }
+    let w = if f == 2 then b.w else b.h
+    let h = if f == 2 then b.h else b.w
+    var px = List[int]()
+    var r = 0
+    while r < h {
+        var c = 0
+        while c < w {
+            // The source pixel that lands at (r, c) after the turn.
+            let v = if f == 1 {
+                at(b, b.h - 1 - c, r)
+            } else if f == 2 {
+                at(b, b.h - 1 - r, b.w - 1 - c)
+            } else {
+                at(b, c, b.w - 1 - r)
+            }
+            (mut px).push(v)
+            c += 1
+        }
+        r += 1
+    }
+    Bitmap { w: w, h: h, px: px }
+}
+
+/// Cells across a bitmap draws.
+pub fn cols(b: Bitmap) -> int {
+    (b.w + 1) / 2
+}
+
+/// Cells down a bitmap draws.
+pub fn rows(b: Bitmap) -> int {
+    (b.h + 3) / 4
+}
+
+/// The code point for cell `(cr, cc)` of a bitmap: 32 (nothing) when no
+/// pixel of the cell is lit, U+2588 when all eight are, U+2580 / U+2584
+/// for exactly the upper / lower half, U+258C / U+2590 for exactly the
+/// left / right half, else the braille pattern of the lit pixels
+/// (U+2800 + the dot bits: the left column dots 1 2 3 7, the right 4 5 6 8).
+pub fn cell_cp(b: Bitmap, cr: int, cc: int) -> int {
+    var bits = 0
+    var lit = 0
+    var r = 0
+    while r < 4 {
+        var c = 0
+        while c < 2 {
+            if at(b, cr * 4 + r, cc * 2 + c) == 1 {
+                lit += 1
+                let dot = if c == 0 {
+                    (if r == 3 then 64 else 1 * (if r == 0 then 1 else if r == 1 then 2 else 4))
+                } else {
+                    (if r == 3 then 128 else 8 * (if r == 0 then 1 else if r == 1 then 2 else 4))
+                }
+                bits += dot
+            }
+            c += 1
+        }
+        r += 1
+    }
+    if lit == 0 { return 32 }
+    if lit == 8 { return 9608 }
+    if bits == 1 + 2 + 8 + 16 { return 9600 }
+    if bits == 4 + 64 + 32 + 128 { return 9604 }
+    if bits == 1 + 2 + 4 + 64 { return 9612 }
+    if bits == 8 + 16 + 32 + 128 { return 9616 }
+    10240 + bits
+}
+
+/// Draw a bitmap with its top-left cell at `(row, col)` in `style`'s
+/// colours; cells with no lit pixel are left as they are.
+pub fn draw(mut g: grid.Grid, row: int, col: int, b: Bitmap, style: grid.Cell) {
+    var cr = 0
+    while cr < rows(b) {
+        var cc = 0
+        while cc < cols(b) {
+            let cp = cell_cp(b, cr, cc)
+            if cp != 32 {
+                var cell = copy style
+                cell.cp = cp
+                // A default background lets the ground show behind the body.
+                if cell.bg == grid.COLOR_DEFAULT { cell.bg = grid.at(g, row + cr, col + cc).bg }
+                grid.put(mut g, row + cr, col + cc, cell)
+            }
+            cc += 1
+        }
+        cr += 1
+    }
+}
+
+/// Where a bitmap's top-left cell sits so that its anchor (the creature's
+/// own cell) is at `(row, col)`: the middle cell, rounded up and left (a
+/// 4 by 4 cell silhouette spans rows -1..2 and columns -1..2 about it, its
+/// 8 by 2 turn rows 0..1 and columns -3..4).
+pub fn anchor(b: Bitmap, facing: int) -> (int, int) {
+    let t = turned(b, facing)
+    (0 - (rows(t) - 1) / 2, 0 - (cols(t) - 1) / 2)
+}
+
+/// Draw a creature at its cell `(row, col)` facing `facing`.
+pub fn draw_at(mut g: grid.Grid, row: int, col: int, b: Bitmap, facing: int, style: grid.Cell) {
+    let t = turned(b, facing)
+    let (dr, dc) = anchor(b, facing)
+    draw(mut g, row + dr, col + dc, t, style)
+}
+
+/// Every code point a bitmap can produce facing each of the four ways,
+/// appended to `cps` once each (32 excluded).
+pub fn code_points(b: Bitmap, mut cps: List[int]) {
+    var f = 0
+    while f < 4 {
+        let t = turned(b, f)
+        var cr = 0
+        while cr < rows(t) {
+            var cc = 0
+            while cc < cols(t) {
+                let cp = cell_cp(t, cr, cc)
+                var seen = cp == 32
+                for k in cps { if k == cp { seen = true } }
+                if !seen { (mut cps).push(cp) }
+                cc += 1
+            }
+            cr += 1
+        }
+        f += 1
+    }
+}
+
+/// The bitmap with only its head (the first four pixel rows, one cell
+/// row north) kept, or only the rest: the two parts a head shake draws.
+pub fn strip(b: Bitmap, head: bool) -> Bitmap {
+    var out = copy b
+    var i = 0
+    while i < out.px.len {
+        if (i / out.w < 4) != head { out.px[i] = 0 }
+        i += 1
+    }
+    out
+}
+
+/// Whether two bitmaps are the same size with the same pixels.
+pub fn same(a: Bitmap, b: Bitmap) -> bool {
+    if a.w != b.w || a.h != b.h { return false }
+    var i = 0
+    while i < a.px.len {
+        if a.px[i] != b.px[i] { return false }
+        i += 1
+    }
+    true
+}
+
+/// Lit pixels.
+pub fn count(b: Bitmap) -> int {
+    var n = 0
+    for p in b.px { n += p }
+    n
+}
+
+fn row(s: str, mut out: List[str]) {
+    (mut out).push(s)
+}
+
+// The creatures, each facing north (the head up the screen). Eight pixels
+// across and sixteen down is four cells by four north and eight by two
+// east; the weasel is four across (two cells by three, six by one).
+
+/// The cub, a wolf from above: a nose, a muzzle, the head with its ears
+/// out, a neck, shoulders, a long body, haunches and a tail trailing
+/// south. `pose` 0 stands, 1 walks (`tick` swings the tail and sets the
+/// paws), 2 sneaks (the muzzle tucked, the ears back), 3 pants (ears flat,
+/// the mouth open).
+pub fn cub(pose: int, tick: int) -> Bitmap {
+    var r = List[str]()
+    let swing = tick / 2 % 2 == 0
+    let low = pose == 2 || pose == 3
+    row(if pose == 3 then "..#..#.." else if low then "........" else "...##...", mut r)
+    row(if low then "...##..." else "..####..", mut r)
+    row(if pose == 3 then "..#..#.." else "..####..", mut r)
+    row(if low then "..####.." else ".######.", mut r)
+    row(if low then ".######." else "#.####.#", mut r)
+    row("..####..", mut r)
+    row(".######.", mut r)
+    row(
+        if pose == 1 && swing then "########" else if pose == 1 then "#######." else ".######.",
+        mut r,
+    )
+    row("########", mut r)
+    row("########", mut r)
+    row(
+        if pose == 1 && !swing then "########" else if pose == 1 then ".#######" else ".######.",
+        mut r,
+    )
+    row(".######.", mut r)
+    row("..####..", mut r)
+    row("...##...", mut r)
+    row(if pose == 1 && swing then "....##.." else "...##...", mut r)
+    row(if pose == 1 && swing then ".....##." else "..##....", mut r)
+    parse(r)
+}
+
+/// Foe species the sheet and the frame draw: 0 weasel, 1 fox, 3 deer
+/// (the simulation's numbers); 2, the hawk, has `hawk`. Phases are the
+/// simulation's: 0 hunt, 1 crouch, 2 strike, 3 retreat, 4 stagger, 5
+/// feint, 6 pause; a crouch tucks the head, a strike thrusts it, a flight
+/// streams the tail, a stagger splits the body, a feint curls the tail.
+pub fn foe(kind: int, phase: int, fade: int) -> Bitmap {
+    var r = List[str]()
+    let crouch = phase == 1 || phase == 5
+    let strike = phase == 2
+    let stagger = phase == 4
+    let flee = phase == 3
+    let feint = phase == 5
+    if kind == 3 {
+        row("#.#..#.#", mut r)
+        row(".#.##.#.", mut r)
+        row("..####..", mut r)
+        row("..####..", mut r)
+        row("...##...", mut r)
+        row(".######.", mut r)
+        row("########", mut r)
+        row("########", mut r)
+        row("########", mut r)
+        row("########", mut r)
+        row(".######.", mut r)
+        row(".######.", mut r)
+        row("..####..", mut r)
+        row("...##...", mut r)
+        row("........", mut r)
+        row("........", mut r)
+    } else if kind == 1 {
+        row(if strike then "...##..." else if crouch then "........" else "....#...", mut r)
+        row(if crouch then "........" else "...##...", mut r)
+        row(if crouch then "...##..." else if stagger then "#.#..#.#" else "#.####.#", mut r)
+        row(if stagger then ".#....#." else ".######.", mut r)
+        row("..####..", mut r)
+        row(if stagger then "##....##" else ".######.", mut r)
+        row(if stagger then "##....##" else ".######.", mut r)
+        row("..####..", mut r)
+        row(if feint then "...#####" else if flee then ".####..." else "..####..", mut r)
+        row(if feint then "......##" else if flee then "..######" else ".######.", mut r)
+        row(if feint then "....####" else if flee then "....####" else ".######.", mut r)
+        row(if feint then "...##..." else if flee then "......##" else "..####..", mut r)
+    } else {
+        row(if strike then ".##." else if crouch then "...." else ".##.", mut r)
+        row(if crouch then ".##." else "####", mut r)
+        row(if stagger then "#..#" else ".##.", mut r)
+        row(".##.", mut r)
+        row(".##.", mut r)
+        row(if stagger then "#..#" else ".##.", mut r)
+        row(".##.", mut r)
+        row(".##.", mut r)
+        row(if flee then "..##" else "..#.", mut r)
+        row(if flee then "...#" else "..#.", mut r)
+        row(if feint then ".#.." else "..#.", mut r)
+        row(if feint then "##.." else if flee then "...#" else ".#..", mut r)
+    }
+    var b = parse(r)
+    // A death erodes from the head: the head at five ticks, the body at ten.
+    if fade >= 5 {
+        var i = 0
+        while i < b.px.len {
+            let pr = i / b.w
+            if pr < 4 || fade >= 10 && pr < 9 { b.px[i] = 0 }
+            i += 1
+        }
+    }
+    b
+}
+
+/// The hawk's shadow on the ground, 8 pixels across (4 cells by 1), wings
+/// out while it circles (0), spread wide at the stop (1), folded in the
+/// stoop (2), half open recovering (3).
+pub fn hawk(phase: int, fade: int) -> Bitmap {
+    var r = List[str]()
+    if phase == 2 {
+        row("...##...", mut r)
+        row("..####..", mut r)
+        row("...##...", mut r)
+        row("...##...", mut r)
+    } else if phase == 1 {
+        row("##....##", mut r)
+        row("########", mut r)
+        row(".######.", mut r)
+        row("...##...", mut r)
+    } else if phase == 3 {
+        row("........", mut r)
+        row(".##..##.", mut r)
+        row("..####..", mut r)
+        row("...##...", mut r)
+    } else {
+        row("#......#", mut r)
+        row(".######.", mut r)
+        row("..####..", mut r)
+        row("...##...", mut r)
+    }
+    var b = parse(r)
+    if fade >= 5 {
+        var i = 0
+        while i < b.px.len {
+            if i / b.w < 2 || fade >= 10 && i / b.w < 3 { b.px[i] = 0 }
+            i += 1
+        }
+    }
+    b
+}
+
+/// A wrapped bundle (10 by 12 pixels, 5 by 3 cells): a knot above a round
+/// parcel with its cord crossing; opened, the loose binding alone.
+pub fn bundle(opened: bool) -> Bitmap {
+    var r = List[str]()
+    if opened {
+        row("..........", mut r)
+        row("..........", mut r)
+        row("..........", mut r)
+        row("..........", mut r)
+        row("..........", mut r)
+        row("..........", mut r)
+        row("..........", mut r)
+        row("..........", mut r)
+        row("..#....#..", mut r)
+        row("...#..#...", mut r)
+        row("##########", mut r)
+        row("..........", mut r)
+    } else {
+        row("....##....", mut r)
+        row("...####...", mut r)
+        row(".###..###.", mut r)
+        row("###....###", mut r)
+        row("###....###", mut r)
+        row("####..####", mut r)
+        row("####..####", mut r)
+        row("###....###", mut r)
+        row("###....###", mut r)
+        row(".###..###.", mut r)
+        row("..######..", mut r)
+        row("...####...", mut r)
+    }
+    parse(r)
+}
+
+/// Every code point every silhouette can draw, facing each way, each once,
+/// ascending: what `docs/GLYPHS.md` must list for them.
+pub fn all_code_points() -> List[int] {
+    var cps = List[int]()
+    var pose = 0
+    while pose < 4 {
+        code_points(cub(pose, 0), mut cps)
+        code_points(cub(pose, 2), mut cps)
+        pose += 1
+    }
+    var kind = 0
+    while kind < 4 {
+        if kind != 2 {
+            var phase = 0
+            while phase < 7 {
+                code_points(foe(kind, phase, -1), mut cps)
+                code_points(foe(kind, phase, 5), mut cps)
+                code_points(foe(kind, phase, 10), mut cps)
+                phase += 1
+            }
+        }
+        kind += 1
+    }
+    var phase = 0
+    while phase < 4 {
+        code_points(hawk(phase, -1), mut cps)
+        code_points(hawk(phase, 5), mut cps)
+        code_points(hawk(phase, 10), mut cps)
+        phase += 1
+    }
+    code_points(bundle(false), mut cps)
+    code_points(bundle(true), mut cps)
+    var i = 1
+    while i < cps.len {
+        var j = i
+        while j > 0 && cps[j - 1] > cps[j] {
+            let t = cps[j]
+            cps[j] = cps[j - 1]
+            cps[j - 1] = t
+            j -= 1
+        }
+        i += 1
+    }
+    cps
+}
