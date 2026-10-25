@@ -65,6 +65,8 @@ fn test_cb01b_aim_window_event_order_duplicates_and_fallback() {
 
 fn test_cb01b_lock_overrides_arrow_aim() {
     var s = sim.new(7, 80, 24)
+    s.foes[0].x = s.x + 2 * sim.FP
+    s.foes[0].y = s.y
     s.locked = 0
     sim.step(mut s, keys(controls.KEY_LEFT, controls.KEY_LUNGE, 0))
     assert(s.attack_heading == 64, "lock overrides west arrow toward east foe")
@@ -169,6 +171,7 @@ fn test_cb01b_combo_arcs_lean_and_finish_without_extra_damage() {
         var f = sim.new(7, 80, 24)
         f.x = 5 * sim.FP
         f.foes[0].x = f.x + sim.FP * 3 / 2
+        f.foes[0].y = f.y
         f.foes[0].health = 100
         f.foes[0].phase = sim.STAGGER
         f.heading = 64
@@ -207,6 +210,7 @@ fn test_cb01b_heavy_cost_damage_stagger_and_refusal() {
     var s = sim.new(7, 80, 24)
     s.heading = 64
     s.foes[0].x = s.x + 2 * sim.FP
+    s.foes[0].y = s.y
     s.foes[0].health = 100
     s.foes[0].phase = sim.STAGGER
     sim.step(mut s, keys(controls.KEY_HEAVY, 0, 0))

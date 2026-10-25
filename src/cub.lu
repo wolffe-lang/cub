@@ -14,17 +14,21 @@
 //! and the areas are cb01's and cb02's.
 
 use art
+use forest
+use journey
 use clock
 use controls
 use grid
 use headless
 use input
 use probe
+use proof
 use replay
 use sim
 use sprites
 use std.env
 use std.fs
+use terrain
 use term
 use tier
 
@@ -54,6 +58,11 @@ struct Options {
     version: bool,
     bench: bool,
     ghost_dir: str,
+    save_path: str,
+    save_cut: bool,
+    save_delay: int,
+    world_audit: bool,
+    make_proof: str,
 }
 
 fn usage_text() -> str {
@@ -70,6 +79,11 @@ fn usage_text() -> str {
         "        Space bite/combo, x lunge, s heavy, z parry, c dodge, Tab lock, Esc release, q quit,\n" +
         "        w water, r rest; at the den 1–5 grow heart, wind, fang, paw, nose\n" +
         "  --bench                           render/diff timings for the performance gate\n" +
+        "  --save PATH                       journey file (live default ~/.cub/save)\n" +
+        "  --save-cut                        test a cut write; previous save stays intact\n" +
+        "  --save-delay N                    ticks between staging and replacement (test witness)\n" +
+        "  --make-world-proof DIR             generate real-key world test scripts\n" +
+        "  --world-audit                     graph/density census over seeds 0..49\n" +
         "  --ghost-dir DIR                   override live death archive; enable it headless\n" +
         "  --truecolor / --no-truecolor      override COLORTERM\n" +
         "  --ticks N                         quit after N ticks\n" +
@@ -103,6 +117,11 @@ fn options_default() -> Options {
         version: false,
         bench: false,
         ghost_dir: "",
+        save_path: "",
+        save_cut: false,
+        save_delay: 1,
+        world_audit: false,
+        make_proof: "",
     }
 }
 
@@ -112,7 +131,21 @@ fn parse_args(args: List[str]) -> Options ! {usage, parse} {
     while i < args.len {
         let a = args[i]
         let more = i + 1 < args.len
-        if a == "--headless" {
+        if more && a == "--make-world-proof" {
+            i += 1
+            o.make_proof = args[i]
+        } else if a == "--world-audit" {
+            o.world_audit = true
+        } else if a == "--save-cut" {
+            o.save_cut = true
+        } else if more && a == "--save" {
+            i += 1
+            o.save_path = args[i]
+        } else if more && a == "--save-delay" {
+            i += 1
+            o.save_delay = args[i].to_int()?
+            if o.save_delay < 1 || o.save_delay > 300 { return usage }
+        } else if a == "--headless" {
             o.headless = true
         } else if a == "--bench" {
             o.bench = true
@@ -185,7 +218,11 @@ fn parse_args(args: List[str]) -> Options ! {usage, parse} {
         }
         i += 1
     }
-    if o.frames < 1 || o.every < 1 || o.from_tick < 0 {
+    if o.frames < 1 ||
+        o.every < 1 ||
+        o.from_tick < 0 ||
+        o.seed < -1000000000 ||
+        o.seed > 1000000000 {
         return usage
     }
     o
@@ -245,11 +282,17 @@ fn run_headless(o: Options, args: List[str]) -> int {
         eprint("cub: cannot create {o.dump}")
         return 2
     }
-    var s = sim.new(r.seed, r.cols, r.rows)
+    var s = if o.save_path != "" {
+        journey.load(o.save_path, r.seed, r.cols, r.rows) else |e| { eprint("cub: {e}"); return 2 }
+    } else {
+        sim.new(r.seed, r.cols, r.rows)
+    }
+    s = replay_initial(r, s) else |e| { eprint("cub: {e}"); return 2 }
+    if o.script == "" && o.replay_path == "" { sim.opening(mut s) }
     var g = grid.new(r.rows, r.cols)
     var keys = List[int]()
     var k = 0
-    var archived = 0
+    var archived = s.deaths
     while k < o.frames {
         (mut keys).reset()
         let (c, rows, health) = replay.at(r, k, mut keys)
@@ -258,6 +301,7 @@ fn run_headless(o: Options, args: List[str]) -> int {
             g = grid.new(rows, c)
         }
         replay_numbers(mut s, health, replay.args_at(r, k, 1))
+        if replay.args_at(r, k, 2) == 1 { sim.opening(mut s) }
         sim.step(mut s, keys)
         if s.deaths > archived {
             archived = s.deaths
@@ -274,6 +318,11 @@ fn run_headless(o: Options, args: List[str]) -> int {
             }
         }
         k += 1
+    }
+    if o.save_path != "" {
+        journey.prepare(o.save_path, s, o.save_cut) else |e| { eprint("cub: {e}"); return 2 }
+        journey.commit(o.save_path) else |e| { eprint("cub: {e}"); return 2 }
+        s.save_status = 2
     }
     // The last frame is always `final` (the pty runner compares it).
     art.render(s, r.tier, mut g)
@@ -317,9 +366,9 @@ fn run_art_study(o: Options) -> int {
     headless.write_frame(o.dump, "sheet-rich", art.sheet(tier.RICH)) else |_| {
         return 2
     }
-    headless.write_frame(o.dump, "sheet-plain", art.sheet(tier.PLAIN)) else |_| {
-        return 2
-    }
+    headless.write_frame(o.dump, "sheet-plain", art.sheet(tier.PLAIN)) else |_| { return 2 }
+    headless.write_frame(o.dump, "hawk-rich", art.hawk_sheet(tier.RICH)) else |_| { return 2 }
+    headless.write_frame(o.dump, "hawk-plain", art.hawk_sheet(tier.PLAIN)) else |_| { return 2 }
     0
 }
 
@@ -462,7 +511,39 @@ fn run_live(o: Options, args: List[str]) -> int {
     }
     var rec = replay.new(rp.seed, rp.tier, cols, rows)
     let dialect = tier.dialect(rp.tier, truecolor)
-    var s = sim.new(rp.seed, cols, rows)
+    let save_path = if o.save_path != "" {
+        o.save_path
+    } else {
+        (env.get("HOME") else ".") + "/.cub/save"
+    }
+    var s = if !replaying {
+        journey.load(save_path, rp.seed, cols, rows) else |e| {
+            eprint("cub: {e}: {save_path}")
+            return 2
+        }
+    } else {
+        sim.new(rp.seed, cols, rows)
+    }
+    if !replaying {
+        if seed_given(args) && s.seed != o.seed {
+            eprint("cub: save_seed_conflict: choose another --save path")
+            return 2
+        }
+        rp.seed = s.seed
+        rec.seed = s.seed
+        s.entered = 0
+        let initial = journey.snapshot(s)
+        replay.push_arg(mut rec, 0, 3, 1)
+        var part = 0
+        while part < initial.len { replay.push_arg(mut rec, 0, 4 + part, initial[part]); part += 1 }
+        sim.opening(mut s)
+        if s.scene != 0 { replay.push_arg(mut rec, 0, 2, 1) }
+    }
+    if replaying { s = replay_initial(rp, s) else |e| { eprint("cub: {e}"); return 2 } }
+    var saved = journey.encode(s)
+    var pending = ""
+    var pending_at = 0
+    var save_error = false
     var front = grid.new(rows, cols)
     var back = grid.new(rows, cols)
     var pen = grid.pen_new()
@@ -475,6 +556,18 @@ fn run_live(o: Options, args: List[str]) -> int {
         eprint(term.message("io", "cub"))
         return 3
     }
+    if !replaying && !fs.exists(save_path) {
+        journey.prepare(save_path, s, o.save_cut) else |e| {
+            term.leave(mut t)
+            eprint("cub: {e}")
+            return 2
+        }
+        journey.commit(save_path) else |e| {
+            term.leave(mut t)
+            eprint("cub: {e}")
+            return 2
+        }
+    }
     var c = clock.new(clock.now_ns())
     var full = true
     var quit = false
@@ -484,7 +577,7 @@ fn run_live(o: Options, args: List[str]) -> int {
     var ended = "the loop"
     let t0_ns = clock.now_ns()
     var ghost_error = false
-    var archived = 0
+    var archived = s.deaths
     let ghost_dir = if o.ghost_dir != "" {
         o.ghost_dir
     } else {
@@ -550,6 +643,7 @@ fn run_live(o: Options, args: List[str]) -> int {
             if replaying {
                 let (rc, rr, health) = replay.at(rp, s.tick, mut tick_keys)
                 replay_numbers(mut s, health, replay.args_at(rp, s.tick, 1))
+                if replay.args_at(rp, s.tick, 2) == 1 { sim.opening(mut s) }
                 if rc > 0 {
                     sim.resize(mut s, rc, rr)
                     front = grid.new(rr, rc)
@@ -590,6 +684,35 @@ fn run_live(o: Options, args: List[str]) -> int {
                 }
             }
             sim.step(mut s, tick_keys)
+            if !replaying && !quit {
+                if pending != "" && s.tick - pending_at >= o.save_delay {
+                    journey.commit(save_path) else |e| {
+                        eprint("cub: {e}")
+                        save_error = true
+                        quit = true
+                        ended = "a failed save"
+                    }
+                    if !save_error {
+                        saved = pending
+                        pending = ""
+                        s.save_status = 2
+                    }
+                }
+                let current = journey.encode(s)
+                if !quit && pending == "" && current != saved {
+                    journey.prepare(save_path, s, o.save_cut) else |e| {
+                        eprint("cub: {e}")
+                        save_error = true
+                        quit = true
+                        ended = "a failed save"
+                    }
+                    if !save_error {
+                        pending = current
+                        pending_at = s.tick
+                        s.save_status = 1
+                    }
+                }
+            }
             if (!replaying || o.ghost_dir != "") && s.deaths > archived {
                 archived = s.deaths
                 write_ghost(if replaying then copy rp else copy rec, s, ghost_dir) else |_| {
@@ -646,6 +769,13 @@ fn run_live(o: Options, args: List[str]) -> int {
             break
         }
     }
+    if pending != "" {
+        journey.abort(save_path) else |e| {
+            eprint("cub: {e} while cancelling save")
+            save_error = true
+        }
+        eprint("cub: pending save cancelled; previous journey preserved")
+    }
     term.leave(mut t)
     if o.record_path != "" {
         var text = List[byte]()
@@ -658,7 +788,7 @@ fn run_live(o: Options, args: List[str]) -> int {
     eprint(
         "cub: ended by {ended}; {s.tick} ticks, {frames} frames, {c.dropped} dropped, {c.waits} waits, {sim.distance_cells(s)} cells, blocked {s.blocked}; heading {s.heading} at {sim.cell_x(s)},{sim.cell_y(s)}; render avg {avg_us} us max {render_max_ns / 1000} us; seed {rp.seed} tier {tier.name(rp.tier)} {cols}x{rows}",
     )
-    if ghost_error then 2 else 0
+    if ghost_error || save_error then 2 else 0
 }
 
 fn main() -> int {
@@ -667,12 +797,14 @@ fn main() -> int {
         eprint(usage_text())
         return 2
     }
+    if o.make_proof != "" { return proof.generate(o.make_proof) }
+    if o.world_audit { return run_world_audit() }
     if o.help {
         print(usage_text())
         return 0
     }
     if o.version {
-        print("cub 0.2.0 (the Shingle fight and recovery loop)")
+        print("cub 0.2.0 (the connected forest and persistent journey)")
         return 0
     }
     if o.apply_path != "" {
@@ -705,7 +837,7 @@ fn replay_numbers(mut s: sim.Sim, health: int, scent: int) {
 }
 
 fn state_text(s: sim.Sim) -> str {
-    var text = "tick {s.tick} x {s.x} y {s.y} heading {s.heading} action {s.action} started {s.started} health {s.health} stamina {s.stamina} flasks {s.flasks} scent {s.scent} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_scent {s.mark_scent} gate {if s.gate_open then 1 else 0} trail {s.trail.len} lock {s.locked} aim {s.attack_heading} combo {s.combo}\n"
+    var text = "tick {s.tick} area {s.area} den_id {s.last_den} shortcuts {s.shortcuts} caches {s.caches} scene {s.scene} drops {s.drops.len} mark_area {s.mark_area} x {s.x} y {s.y} heading {s.heading} action {s.action} started {s.started} health {s.health} stamina {s.stamina} flasks {s.flasks} scent {s.scent} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_scent {s.mark_scent} gate {if s.gate_open then 1 else 0} trail {s.trail.len} lock {s.locked} aim {s.attack_heading} combo {s.combo}\n"
     var i = 0
     while i < s.foes.len {
         let f = copy s.foes[i]
@@ -796,5 +928,80 @@ fn run_bench(o: Options) -> int {
     print(
         "bench {cols}x{rows} {tier.name(t)} frames {o.frames} avg_us {sum / o.frames / 1000} p99_us {samples[(samples.len - 1) * 99 / 100] / 1000} max_us {maximum / 1000}",
     )
+    0
+}
+
+fn replay_initial(r: replay.Replay, fallback: sim.Sim) -> sim.Sim ! {
+    save_corrupt,
+    save_version,
+    save_difficulty,
+} {
+    let version = replay.args_at(r, 0, 3)
+    if version == 0 { return copy fallback }
+    if version != 1 { return save_version }
+    var values = List[int]()
+    var i = 0
+    while i < 24 { (mut values).push(replay.args_at(r, 0, 4 + i)); i += 1 }
+    journey.from_snapshot(values, r.cols, r.rows)?
+}
+
+fn run_world_audit() -> int {
+    print("seed area reached required longest_straight min_foe_cells caches bank_straight")
+    var seed = 0
+    while seed < 50 {
+        var bank_run = 1
+        var bank_max = 1
+        var bx = 1
+        while bx <= forest.LENGTH {
+            if terrain.bank(seed, bx) == terrain.bank(seed, bx - 1) {
+                bank_run += 1
+            } else {
+                bank_run = 1
+            }
+            if bank_run > bank_max { bank_max = bank_run }
+            bx += 1
+        }
+        var area = 0
+        while area < 3 {
+            let reached = forest.reach_count(seed, area)
+            let required = if area == 1 then 8 else 5
+            let straight = forest.straight_run(seed, area)
+            let foes = sim.area_foes(seed, area)
+            var closest = 1000000
+            for foe in foes {
+                if forest.blocked(
+                    seed,
+                    area,
+                    sim.floor_div(foe.x, sim.FP),
+                    sim.floor_div(foe.y, sim.FP),
+                ) {
+                    eprint("world: blocked spawn {seed} {area}")
+                    return 1
+                }
+                var den = 0
+                while den < 4 {
+                    if forest.den_area(den) == area {
+                        let (x, y) = forest.den_position(seed, den)
+                        let dx = (foe.x - x) / sim.FP
+                        let dy = (foe.y - y) / sim.FP
+                        let distance2 = dx * dx + dy * dy
+                        if distance2 < closest { closest = distance2 }
+                    }
+                    den += 1
+                }
+            }
+            var distance = 0
+            while (distance + 1) * (distance + 1) <= closest { distance += 1 }
+            print("{seed} {area} {reached} {required} {straight} {distance} 2 {bank_max}")
+            if reached != required ||
+                straight > forest.STRAIGHT_MAX ||
+                bank_max > forest.STRAIGHT_MAX ||
+                distance < forest.FIRST_FOE_CELLS {
+                return 1
+            }
+            area += 1
+        }
+        seed += 1
+    }
     0
 }

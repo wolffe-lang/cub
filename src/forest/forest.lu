@@ -1,0 +1,249 @@
+//! Seeded curved routes over the fixed three-area graph. Terrain decoration
+//! cannot occupy a carved route, den, cache or portal approach.
+
+use terrain
+use world
+
+/// Area identities are stable save-format values.
+pub const SHINGLE: int = 0
+
+/// The dense thicket.
+pub const BRAMBLEHOLD: int = 1
+
+/// Open ground at dusk.
+pub const LARKMEADOW: int = 2
+
+/// Half-width of each bounded area, cells.
+pub const HALF_WIDTH: int = 40
+
+/// Distance along each area, cells.
+pub const LENGTH: int = 160
+
+/// Fixed-point units per cell.
+pub const FP: int = 256
+
+/// Longest permitted equal-centre run in the 50-seed census.
+pub const STRAIGHT_MAX: int = 12
+
+/// Every initial enemy is at least this far from every den in its area.
+pub const FIRST_FOE_CELLS: int = 30
+
+/// The area entry line.
+pub fn name(area: int) -> str {
+    if area == SHINGLE {
+        "The Shingle"
+    } else if area == BRAMBLEHOLD {
+        "Bramblehold"
+    } else {
+        "Larkmeadow"
+    }
+}
+
+/// Area containing a persistent den id.
+pub fn den_area(den: int) -> int {
+    if den == 0 then SHINGLE else if den == 3 then LARKMEADOW else BRAMBLEHOLD
+}
+
+/// Display name of a persistent den id.
+pub fn den_name(den: int) -> str {
+    match den {
+        0 => "The hollow log",
+        1 => "The split roots",
+        2 => "The briar hollow",
+        _ => "The grass nest",
+    }
+}
+
+/// The area's local coordinate origin is its entry row.
+pub fn origin(seed: int, area: int) -> int {
+    if area == SHINGLE {
+        let (_, y) = terrain.start(seed)
+        return (y - FP / 2) / FP
+    }
+    0
+}
+
+/// Layered value noise, as pack's centre/width model, plus a seeded short
+/// wave whose alternating anchors prevent quantised plateaus. Every point
+/// is queried independently; no random stream or host floating point.
+pub fn curve(seed: int, ch: int, at: int) -> int { terrain.meander(seed, ch, at) }
+
+/// Path centre in cells. The first den and final exit remain fixed, with
+/// short tapered approaches rather than a long straight corridor.
+pub fn spine(seed: int, area: int, at: int) -> int {
+    let c = curve(seed, 31 + area, at)
+    if at < 8 { return c * at / 8 }
+    if at > LENGTH - 8 { return c * (LENGTH - at) / 8 }
+    c
+}
+
+/// The path half-width breathes from a separate noise ch, 3..5 cells.
+pub fn half(seed: int, area: int, at: int) -> int {
+    3 + world.noise(seed, 45 + area, at * 3) * 2 / FP
+}
+
+/// Den locations vary with the seed while preserving their graph roles.
+pub fn den_position(seed: int, den: int) -> (int, int) {
+    if den == 0 { return terrain.start(seed) }
+    let area = den_area(den)
+    let y = (if den == 2 then 90 else 7) + world.hash(seed, den, 92, 4)
+    ((spine(seed, area, y) + world.hash(seed, den, 91, 3) - 1) * FP + FP / 2, y * FP + FP / 2)
+}
+
+/// Two finite caches per area, reached by curved side branches.
+pub fn cache_position(seed: int, area: int, cache: int) -> (int, int) {
+    let x = (if cache == 0 then -1 else 1) * (27 + world.hash(seed, area, cache + 62, 4))
+    let y = origin(seed, area) +
+        (if cache == 0 then 52 else 132) +
+        curve(seed, 61 + area + cache, x) / 2
+    (x * FP + FP / 2, y * FP + FP / 2)
+}
+
+/// The row of a side branch as it approaches its cache.
+pub fn branch(seed: int, area: int, cache: int, x: int) -> int {
+    (if cache == 0 then 52 else 132) + curve(seed, 61 + area + cache, x) / 2
+}
+
+/// Seeded collision tile after route carving.
+pub fn kind(seed: int, area: int, x: int, y: int) -> int {
+    let at = y - origin(seed, area)
+    // The bank and river themselves meander across the whole screen.
+    if area == SHINGLE && at < 0 {
+        let b = terrain.bank(seed, x)
+        if y < b { return terrain.WATER }
+        if y < b + terrain.REED_ROWS { return terrain.REEDS }
+        return terrain.GRAVEL
+    }
+    if x < 0 - HALF_WIDTH || x > HALF_WIDTH || at < 0 || at > LENGTH { return terrain.DARK }
+    if area == SHINGLE && x * x + at * at <= 100 { return terrain.GRAVEL }
+    let c = spine(seed, area, at)
+    let w = half(seed, area, at)
+    if x >= c - w && x <= c + w { return if area == SHINGLE then terrain.GRAVEL else terrain.GRASS }
+    // A small quiet starting clearing, not a straight combat strip.
+    if area == SHINGLE && x * x + at * at <= 100 { return terrain.GRAVEL }
+    var cache = 0
+    while cache < 2 {
+        let (cx, _) = cache_position(seed, area, cache)
+        if x >= (if cache == 0 then cx / FP - 2 else -10) &&
+            x <= (if cache == 0 then 10 else cx / FP + 2) {
+            let by = branch(seed, area, cache, x)
+            if at >= by - 2 && at <= by + 2 { return terrain.GRASS }
+        }
+        cache += 1
+    }
+    // Shortcut branches also curve, each toward its fixed graph mouth.
+    if at >= 18 && at <= 27 {
+        let by = 22 + curve(seed, area + 71, x) / 2
+        if at >= by - 2 && at <= by + 2 { return terrain.GRASS }
+    }
+    // The thorn wall sits at the end of a deliberate treeless branch.
+    if area == SHINGLE && at >= 140 && at <= LENGTH {
+        let exit_centre = if at < 150 then spine(seed, area, 140) * (150 - at) / 10 else 0
+        if x >= exit_centre - 2 && x <= exit_centre + 2 { return terrain.GRAVEL }
+    }
+    let n = terrain.noise2(seed + area * 101, 5, x, y)
+    let h = world.hash(seed + area * 79, x, y, 100)
+    if area == LARKMEADOW {
+        return if h < 3 then terrain.TRUNK else if h < 15 then terrain.REEDS else terrain.GRASS
+    }
+    if h < 16 then terrain.TRUNK else if n > 130 then terrain.DARK else terrain.CANOPY
+}
+
+/// Terrain collision, shared by actors and the independent reachability flood.
+pub fn blocked(seed: int, area: int, x: int, y: int) -> bool {
+    let k = kind(seed, area, x, y)
+    k == terrain.TRUNK || k == terrain.DARK || k == terrain.WATER
+}
+
+/// Portals: thorn path, meadow path, fallen log, hedge tunnel.
+pub fn portal(seed: int, area: int, edge: int) -> (int, int) {
+    let o = origin(seed, area)
+    if edge == 0 { return if area == SHINGLE then (0, (o + LENGTH - 1) * FP) else (0, FP) }
+    if edge == 1 { return if area == BRAMBLEHOLD then (0, (LENGTH - 1) * FP) else (0, FP) }
+    let x = if edge == 2 then -32 else 32
+    (x * FP, (o + 22 + curve(seed, area + 71, x) / 2) * FP)
+}
+
+/// Other area for an incident edge, -1 otherwise.
+pub fn other(area: int, edge: int) -> int {
+    if edge == 0 || edge == 2 {
+        return if area == SHINGLE then BRAMBLEHOLD else if area == BRAMBLEHOLD then SHINGLE else -1
+    }
+    if area == BRAMBLEHOLD then LARKMEADOW else if area == LARKMEADOW then BRAMBLEHOLD else -1
+}
+
+/// Longest quantised straight run of centre positions in an area.
+pub fn straight_run(seed: int, area: int) -> int {
+    var longest = 1
+    var run = 1
+    var y = 1
+    while y <= LENGTH {
+        if spine(seed, area, y) == spine(seed, area, y - 1) { run += 1 } else { run = 1 }
+        if run > longest { longest = run }
+        y += 1
+    }
+    longest
+}
+
+/// BFS of actual tiles, independent of path-carving logic. Returns the
+/// number of reached required destinations: dens + incident portals + caches.
+pub fn reach_count(seed: int, area: int) -> int {
+    let width = HALF_WIDTH * 2 + 1
+    let o = origin(seed, area)
+    var seen = List[int]()
+    var queue = List[int]()
+    var i = 0
+    while i < width * (LENGTH + 1) { (mut seen).push(0); i += 1 }
+    let start = HALF_WIDTH
+    seen[start] = 1
+    (mut queue).push(start)
+    var head = 0
+    while head < queue.len {
+        let cell = queue[head]
+        let x = cell % width - HALF_WIDTH
+        let y = cell / width
+        var d = 0
+        while d < 4 {
+            let nx = x + (if d == 0 then -1 else if d == 1 then 1 else 0)
+            let ny = y + (if d == 2 then -1 else if d == 3 then 1 else 0)
+            if nx >= 0 - HALF_WIDTH && nx <= HALF_WIDTH && ny >= 0 && ny <= LENGTH {
+                let at = ny * width + nx + HALF_WIDTH
+                if seen[at] == 0 && !blocked(seed, area, nx, ny + o) {
+                    seen[at] = 1
+                    (mut queue).push(at)
+                }
+            }
+            d += 1
+        }
+        head += 1
+    }
+    var count = 0
+    var den = 0
+    while den < 4 {
+        if den_area(den) == area {
+            let (x, y) = den_position(seed, den)
+            count += seen[((y - FP / 2) / FP - o) * width + (x - FP / 2) / FP + HALF_WIDTH]
+        }
+        den += 1
+    }
+    var edge = 0
+    while edge < 4 {
+        if other(area, edge) >= 0 {
+            let (x, y) = portal(seed, area, edge)
+            count += seen[(y / FP - o) * width + x / FP + HALF_WIDTH]
+        }
+        edge += 1
+    }
+    var cache = 0
+    while cache < 2 {
+        let (x, y) = cache_position(seed, area, cache)
+        count += seen[((y - FP / 2) / FP - o) * width + (x - FP / 2) / FP + HALF_WIDTH]
+        cache += 1
+    }
+    count
+}
+
+/// Every den, incident edge and cache is reachable in this area.
+pub fn reachable(seed: int, area: int) -> bool {
+    reach_count(seed, area) == (if area == BRAMBLEHOLD then 8 else if area == SHINGLE then 5 else 5)
+}

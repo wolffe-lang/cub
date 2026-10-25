@@ -1,0 +1,39 @@
+//! member: false
+
+use art
+use sprites
+use tier
+
+fn test_cb02_thorn_pair_is_not_a_wall_or_label() {
+    var t = 0
+    while t < 2 {
+        var v = 0
+        while v < 2 {
+            let thorn = art.thorn_cell(t, v)
+            assert(thorn.cp != 35 && thorn.cp != 47, "not hash or slash")
+            assert(
+                thorn.fg != sprites.palette(t, sprites.C_FUR) &&
+                    thorn.fg != sprites.palette(t, sprites.C_FUR_DIM),
+                "not label ink",
+            )
+            var sprite = 0
+            while sprite < 7 {
+                var variant = 0
+                while variant < 4 {
+                    let wall = sprites.glyph(t, sprite, variant)
+                    assert(
+                        thorn.cp != wall.cp || thorn.fg != wall.fg,
+                        "not a terrain glyph/colour pair",
+                    )
+                    variant += 1
+                }
+                sprite += 1
+            }
+            if t == tier.PLAIN { assert(thorn.cp < 256 && thorn.fg < 16, "plain hazard") }
+            v += 1
+        }
+        let shadow = art.exit_shadow(t)
+        assert(shadow.cp != art.thorn_cell(t, 0).cp, "exit shade distinct from closed hazard")
+        t += 1
+    }
+}

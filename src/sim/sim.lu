@@ -14,6 +14,7 @@
 //! heart, wind, fang, paw and nose at 1; the fight, den and scent loop follows below.
 
 use controls
+use forest
 use input
 use terrain
 use world
@@ -214,6 +215,26 @@ pub struct Sim {
     mark_y: int,
     mark_scent: int,
     gate_open: bool,
+    area: int,
+    last_den: int,
+    lit_dens: int,
+    shortcuts: int,
+    story: int,
+    difficulty: int,
+    flask_max: int,
+    mark_area: int,
+    entered: int,
+    edge_ready: bool,
+    save_status: int,
+    gate_hint_until: int,
+    drops: List[Drop],
+    caches: int,
+    yarrow: int,
+    marrow: int,
+    opening_seen: bool,
+    scene: int,
+    scene_started: int,
+    cue: int,
     foes: List[Foe],
     trail: List[Trail],
 }
@@ -273,7 +294,27 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         mark_y: 0,
         mark_scent: 0,
         gate_open: false,
-        foes: spawn_foes(seed),
+        area: forest.SHINGLE,
+        last_den: 0,
+        lit_dens: 1,
+        shortcuts: 0,
+        story: 0,
+        difficulty: 0,
+        flask_max: FLASKS,
+        mark_area: 0,
+        entered: -120,
+        edge_ready: true,
+        save_status: 0,
+        gate_hint_until: 0,
+        drops: List[Drop](),
+        caches: 0,
+        yarrow: 0,
+        marrow: 0,
+        opening_seen: false,
+        scene: 0,
+        scene_started: 0,
+        cue: 0,
+        foes: area_foes(seed, forest.SHINGLE),
         trail: List[Trail](),
     }
 }
@@ -524,6 +565,8 @@ pub struct Foe {
     since: int,
     target_x: int,
     target_y: int,
+    home_x: int,
+    home_y: int,
     hit: bool,
     last_hit: int,
     died: int,
@@ -545,7 +588,7 @@ pub fn near(x: int, y: int, tx: int, ty: int, radius: int) -> bool {
     dx * dx + dy * dy <= radius * radius
 }
 
-/// The seeded Shingle pair and fox at their initial positions.
+/// Close-quarters unit-fixture foes; live encounters use area_foes.
 pub fn spawn_foes(seed: int) -> List[Foe] {
     let (_, y) = terrain.start(seed)
     var foes = List[Foe]()
@@ -564,6 +607,8 @@ pub fn spawn_foes(seed: int) -> List[Foe] {
             since: 0,
             target_x: x,
             target_y: y,
+            home_x: x,
+            home_y: y,
             hit: false,
             last_hit: -1,
             died: -1,
@@ -576,12 +621,13 @@ pub fn spawn_foes(seed: int) -> List[Foe] {
 /// World row of the southern thorn gate.
 pub fn gate_y(s: Sim) -> int {
     let (_, y) = terrain.start(s.seed)
-    floor_div(y, FP) + 10
+    floor_div(y, FP) + forest.LENGTH - 3
 }
 
 /// Terrain and unopened thorns block a world cell.
 pub fn blocked(s: Sim, x: int, y: int) -> bool {
-    !s.gate_open && y == gate_y(s) && x >= -2 && x <= 2 || terrain.blocked(s.seed, x, y)
+    s.area == forest.SHINGLE && !s.gate_open && y == gate_y(s) && x >= -2 && x <= 2 ||
+        forest.blocked(s.seed, s.area, x, y)
 }
 
 /// Occlusion is integer sampled at half-cell intervals, including the endpoint.
@@ -622,7 +668,7 @@ fn in_front(x: int, y: int, heading: int, tx: int, ty: int) -> bool {
 
 /// Cone, range and occlusion jointly determine foe sight.
 pub fn can_see(s: Sim, f: Foe) -> bool {
-    near(f.x, f.y, s.x, s.y, SIGHT * FP) &&
+    near(f.x, f.y, s.x, s.y, (if s.area == forest.BRAMBLEHOLD then 5 else SIGHT) * FP) &&
         in_front(f.x, f.y, f.heading, s.x, s.y) &&
         visible(s, f.x, f.y, s.x, s.y)
 }
@@ -650,6 +696,7 @@ pub fn hurt(mut s: Sim, damage: int) {
         s.deaths += 1
         // Replace, never accumulate: a second death destroys the first mark.
         s.mark = true
+        s.mark_area = s.area
         s.mark_x = s.x
         s.mark_y = s.y
         s.mark_scent = s.scent
@@ -662,7 +709,7 @@ pub fn hurt(mut s: Sim, damage: int) {
 fn reset_world(mut s: Sim) {
     s.health = health_max(s.heart)
     s.stamina = stamina_max(s.wind)
-    s.flasks = FLASKS
+    s.flasks = s.flask_max
     s.action = IDLE
     s.speed = 0
     s.exhausted = false
@@ -671,7 +718,8 @@ fn reset_world(mut s: Sim) {
     s.riposte_foe = -1
     s.chained = false
     s.combo = 0
-    s.foes = spawn_foes(s.seed)
+    s.foes = area_foes(s.seed, s.area)
+    (mut s.drops).reset()
     (mut s.trail).reset()
     var i = 0
     while i < s.holds.len { s.holds[i] = input.hold_new(); i += 1 }
@@ -679,8 +727,7 @@ fn reset_world(mut s: Sim) {
 
 /// Whether the hollow log is within resting reach.
 pub fn at_den(s: Sim) -> bool {
-    let (x, y) = terrain.start(s.seed)
-    near(s.x, s.y, x, y, FP)
+    den_here(s) >= 0
 }
 
 /// Spend scent on the selected stat only at a den; capped at ten.
@@ -755,10 +802,13 @@ fn action_keys(mut s: Sim, keys: List[int]) {
         if k == controls.KEY_LOCK { lock_next(mut s) }
         if k >= controls.KEY_HEART && k <= controls.KEY_NOSE { grow(mut s, k - controls.KEY_HEART) }
         if k == controls.KEY_REST && at_den(s) {
+            s.last_den = den_here(s)
+            s.lit_dens = light_den(s.lit_dens, s.last_den)
             reset_world(mut s)
             s.den = !s.den
         }
         if s.den { continue }
+        if k == controls.KEY_REST && !at_den(s) { cache_key(mut s); shortcut_key(mut s) }
         if k == controls.KEY_BITE {
             if s.action == BITE && s.tick - s.started >= 5 && s.tick - s.started < 11 {
                 s.chained = true
@@ -784,17 +834,26 @@ fn strike_foes(mut s: Sim) {
         s.action == HEAVY && age >= HEAVY_WINDUP && age < HEAVY_WINDUP + HEAVY_ACTIVE
     if !active { return }
     let reach = if s.action == LUNGE || s.action == HEAVY then 4 else 2
-    let gate_x = if s.x < -2 * FP then -2 * FP else if s.x > 2 * FP then 2 * FP else s.x
+    let (gate_x, gate_target_y) = gate_target(s)
     if s.action == LUNGE &&
+        s.area == forest.SHINGLE &&
         !s.gate_open &&
-        near(s.x, s.y, gate_x, gate_y(s) * FP, 4 * FP) &&
-        in_front(s.x, s.y, s.attack_heading, gate_x, gate_y(s) * FP) {
+        near(s.x, s.y, gate_x, gate_target_y, 4 * FP) &&
+        in_front(s.x, s.y, s.attack_heading, gate_x, gate_target_y) {
         s.gate_open = true
+    }
+    if s.action == BITE &&
+        s.area == forest.SHINGLE &&
+        !s.gate_open &&
+        near(s.x, s.y, gate_x, gate_target_y, 2 * FP) &&
+        in_front(s.x, s.y, s.attack_heading, gate_x, gate_target_y) {
+        s.gate_hint_until = s.tick + ENTRY_TICKS
     }
     var i = 0
     while i < s.foes.len {
         let f = copy s.foes[i]
         if f.health > 0 &&
+            f.kind != HAWK &&
             f.last_hit != s.started &&
             near(s.x, s.y, f.x, f.y, reach * FP) &&
             in_front(s.x, s.y, s.attack_heading, f.x, f.y) &&
@@ -810,7 +869,12 @@ fn strike_foes(mut s: Sim) {
             s.foes[i].last_hit = s.started
             if s.foes[i].health <= 0 {
                 s.foes[i].died = s.tick
-                s.scent += if f.kind == FOX then 20 else 8
+                leave_drop(
+                    mut s,
+                    f.x,
+                    f.y,
+                    if f.kind == FOX then 20 else if f.kind == DEER then 5 else 8,
+                )
             } else if s.action == LUNGE || s.action == HEAVY {
                 s.foes[i].phase = STAGGER
                 s.foes[i].since = s.tick
@@ -840,7 +904,10 @@ fn move_foe(mut s: Sim, i: int, away: bool) {
     var stops = blocked(s, floor_div(nx, FP), floor_div(ny, FP)) || near(nx, ny, s.x, s.y, FP)
     var j = 0
     while j < s.foes.len {
-        if j != i && s.foes[j].health > 0 && near(nx, ny, s.foes[j].x, s.foes[j].y, FP) {
+        if j != i &&
+            s.foes[j].health > 0 &&
+            s.foes[j].kind != HAWK &&
+            near(nx, ny, s.foes[j].x, s.foes[j].y, FP) {
             stops = true
         }
         j += 1
@@ -855,6 +922,20 @@ fn foes_step(mut s: Sim) {
     while i < s.foes.len && s.action != FALL {
         let f = copy s.foes[i]
         if f.health <= 0 { i += 1; continue }
+        if f.kind == HAWK {
+            hawk_step(mut s, i)
+            i += 1
+            continue
+        }
+        if f.kind == DEER {
+            if near(f.x, f.y, s.x, s.y, 7 * FP) {
+                s.foes[i].target_x = s.x
+                s.foes[i].target_y = s.y
+                move_foe(mut s, i, true)
+            }
+            i += 1
+            continue
+        }
         let age = s.tick - f.since
         if f.phase == HUNT {
             var tracks = can_see(s, f)
@@ -959,8 +1040,7 @@ fn action_step(mut s: Sim, want: int) {
         let distance = (age + 1) * 3 * FP / frames - age * 3 * FP / frames
         let nx = s.x + distance * sin(h) / FP
         let ny = s.y - distance * cos(h) / FP
-        var body = false
-        for f in s.foes { if f.health > 0 && near(nx, ny, f.x, f.y, FP) { body = true } }
+        let body = body_at(s, nx, ny)
         if !body && !blocked(s, floor_div(nx, FP), floor_div(ny, FP)) { s.x = nx; s.y = ny }
     }
     if s.action == DRINK && age >= 15 && age < 30 {
@@ -1010,9 +1090,20 @@ fn trail_step(mut s: Sim, ox: int, oy: int) {
 /// foe attack, trail, recovery. Actions use half-open tick intervals.
 pub fn step(mut s: Sim, keys: List[int]) {
     s.tick += 1
+    s.cue = 0
+    if s.scene != 0 {
+        if keys.len > 0 || s.tick - s.scene_started >= SCENE_TICKS * 3 {
+            s.scene = 0
+            s.opening_seen = true
+            s.entered = s.tick
+        }
+        return
+    }
     if s.action == FALL {
         if s.tick - s.started >= 30 {
-            let (x, y) = terrain.start(s.seed)
+            s.area = forest.den_area(s.last_den)
+            s.entered = s.tick
+            let (x, y) = forest.den_position(s.seed, s.last_den)
             s.x = x
             s.y = y
             reset_world(mut s)
@@ -1046,8 +1137,10 @@ pub fn step(mut s: Sim, keys: List[int]) {
     action_step(mut s, want)
     foes_step(mut s)
     if s.action == FALL { return }
+    if transitions(mut s) { return }
     trail_step(mut s, ox, oy)
-    if s.mark && near(s.x, s.y, s.mark_x, s.mark_y, FP) {
+    drops_step(mut s)
+    if s.mark && s.mark_area == s.area && near(s.x, s.y, s.mark_x, s.mark_y, FP) {
         s.scent += s.mark_scent
         s.mark = false
         s.mark_scent = 0
@@ -1061,7 +1154,7 @@ pub fn step(mut s: Sim, keys: List[int]) {
 
 fn body_at(s: Sim, x: int, y: int) -> bool {
     for f in s.foes {
-        if f.health > 0 && near(x, y, f.x, f.y, FP) { return true }
+        if f.health > 0 && f.kind != HAWK && near(x, y, f.x, f.y, FP) { return true }
     }
     false
 }
@@ -1131,7 +1224,9 @@ pub fn clip_arc(s: Sim, ox: int, oy: int) -> (int, int) {
         let ny = s.y + dy
         var stops = blocked(s, floor_div(nx, FP), floor_div(ny, FP))
         for f in s.foes {
-            if (f.health > 0 || f.died >= 0 && s.tick - f.died < FOE_FADE_TICKS) &&
+            if (
+                f.health > 0 && f.kind != HAWK || f.died >= 0 && s.tick - f.died < FOE_FADE_TICKS
+            ) &&
                 abs(nx - f.x) < 2 * FP &&
                 abs(ny - f.y) < 2 * FP {
                 stops = true
@@ -1249,3 +1344,353 @@ pub fn burst_point(s: Sim) -> (int, int) {
 
 /// A defeated foe dissolves over fifteen ticks, retaining its sprite briefly.
 pub const FOE_FADE_TICKS: int = 15
+
+/// The meadow's aerial foe. Values are proposed in DESIGN.md.
+pub const HAWK: int = 2
+
+/// Ticks for which the shadow stops before striking.
+pub const HAWK_TELL: int = 18
+
+/// Ticks before the hawk circles again.
+pub const HAWK_RECOVERY: int = 36
+
+/// Damage of an unanswered stoop.
+pub const HAWK_DAMAGE: int = 14
+
+/// Ticks for the unobtrusive area entry line.
+pub const ENTRY_TICKS: int = 90
+
+/// Set the selected den bit, leaving other lit dens unchanged.
+pub fn light_den(bits: int, den: int) -> int {
+    let mask = if den == 0 then 1 else if den == 1 then 2 else if den == 2 then 4 else 8
+    if bits / mask % 2 == 0 then bits + mask else bits
+}
+
+/// The den in resting reach, or -1.
+pub fn den_here(s: Sim) -> int {
+    var den = 0
+    while den < 4 {
+        let (x, y) = forest.den_position(s.seed, den)
+        if s.area == forest.den_area(den) && near(s.x, s.y, x, y, FP) { return den }
+        den += 1
+    }
+    -1
+}
+
+/// Initial encounters for one seeded area.
+pub fn area_foes(seed: int, area: int) -> List[Foe] {
+    var foes = List[Foe]()
+    var group = 0
+    while group < 3 {
+        let at = (if group == 0 then 52 else if group == 1 then 76 else 134) +
+            world.hash(seed, area, group + 131, 5)
+        // The second thicket den sits at 90..93: do not spawn near it.
+        if area != forest.BRAMBLEHOLD || group != 1 {
+            let count = if area == forest.LARKMEADOW then 2 else if group == 1 then 1 else 2
+            var member = 0
+            while member < count {
+                let kind = if area == forest.LARKMEADOW {
+                    (if member == 0 then HAWK else DEER)
+                } else if group == 1 {
+                    FOX
+                } else {
+                    WEASEL
+                }
+                let x = (forest.spine(seed, area, at) + member * 2 - 1) * FP
+                let y = (forest.origin(seed, area) + at) * FP
+                (mut foes).push(make_foe(kind, x, y))
+                member += 1
+            }
+        }
+        group += 1
+    }
+    // The two side branches end in harder, finite cache guards.
+    var cache = 0
+    while cache < 2 {
+        let (x, _) = forest.cache_position(seed, area, cache)
+        var guard = 0
+        while guard < (if cache == 0 then 3 else 2) {
+            let gx = x + (guard - 1) * FP
+            let gy = (
+                forest.origin(seed, area) + forest.branch(seed, area, cache, floor_div(gx, FP)) + 1
+            ) *
+                FP +
+                FP / 2
+            (mut foes).push(make_foe(if cache == 0 then WEASEL else FOX, gx, gy))
+            guard += 1
+        }
+        cache += 1
+    }
+    foes
+}
+
+fn make_foe(kind: int, x: int, y: int) -> Foe {
+    Foe {
+        kind: kind,
+        x: x,
+        y: y,
+        heading: 0,
+        speed: 0,
+        stamina: 60,
+        health: if kind == FOX then 24 else 8,
+        phase: HUNT,
+        since: 0,
+        target_x: x,
+        target_y: y,
+        home_x: x,
+        home_y: y,
+        hit: false,
+        last_hit: -1,
+        died: -1,
+    }
+}
+
+/// Travel resets only local encounter state, never health, water or currency.
+pub fn enter_area(mut s: Sim, area: int, x: int, y: int) {
+    s.area = area
+    s.x = x
+    s.y = y
+    s.entered = s.tick
+    s.edge_ready = false
+    s.foes = area_foes(s.seed, area)
+    (mut s.drops).reset()
+    (mut s.trail).reset()
+    s.locked = -1
+    s.riposte = 0
+    s.riposte_foe = -1
+    s.action = IDLE
+    s.speed = 0
+    s.chained = false
+    s.combo = 0
+    s.den = false
+    var i = 0
+    while i < s.holds.len {
+        s.holds[i] = input.hold_new()
+        s.aim_order[i] = 0
+        i += 1
+    }
+}
+
+/// Traverse an unlocked incident edge; false for unavailable edges.
+pub fn cross_edge(mut s: Sim, edge: int) -> bool {
+    let to = forest.other(s.area, edge)
+    if to < 0 || edge == 0 && !s.gate_open { return false }
+    if edge == 2 && s.shortcuts % 2 == 0 || edge == 3 && s.shortcuts / 2 % 2 == 0 { return false }
+    let (x, y) = forest.portal(s.seed, to, edge)
+    // Arrival is off the trigger; a return requires walking back to it.
+    enter_area(
+        mut s,
+        to,
+        x,
+        y +
+            (
+                if edge == 0 && to == forest.SHINGLE || edge == 1 && to == forest.BRAMBLEHOLD {
+                    -2 * FP
+                } else {
+                    2 * FP
+                }
+            ),
+    )
+    true
+}
+
+fn shortcut_key(mut s: Sim) {
+    var edge = 2
+    while edge < 4 {
+        if forest.other(s.area, edge) >= 0 {
+            let (x, y) = forest.portal(s.seed, s.area, edge)
+            if near(s.x, s.y, x, y, 2 * FP) {
+                // Open only from the far side, then either side can traverse it.
+                if edge == 2 && s.area == forest.BRAMBLEHOLD && s.shortcuts % 2 == 0 {
+                    s.cue = 1
+                    s.shortcuts += 1
+                }
+                if edge == 3 && s.area == forest.LARKMEADOW && s.shortcuts / 2 % 2 == 0 {
+                    s.cue = 2
+                    s.shortcuts += 2
+                }
+                let _ = cross_edge(mut s, edge)
+                return
+            }
+        }
+        edge += 1
+    }
+}
+
+fn transitions(mut s: Sim) -> bool {
+    var close = false
+    var edge = 0
+    while edge < 2 {
+        if forest.other(s.area, edge) >= 0 {
+            let (x, y) = forest.portal(s.seed, s.area, edge)
+            if near(s.x, s.y, x, y, FP) {
+                close = true
+                if s.edge_ready && cross_edge(mut s, edge) { return true }
+            }
+        }
+        edge += 1
+    }
+    if !close { s.edge_ready = true }
+    if s.area == forest.BRAMBLEHOLD && near(s.x, s.y, -10 * FP, 24 * FP, 3 * FP) { s.story = 1 }
+    false
+}
+
+/// Airborne until the stoop: the stopping shadow fixes the target for the
+/// whole tell. A straight-line dive hits only that committed target.
+fn hawk_step(mut s: Sim, i: int) {
+    let f = copy s.foes[i]
+    let age = s.tick - f.since
+    if f.phase == HUNT {
+        if near(f.x, f.y, s.x, s.y, 10 * FP) {
+            s.foes[i].phase = CROUCH
+            s.foes[i].since = s.tick
+            s.foes[i].target_x = s.x
+            s.foes[i].target_y = s.y
+            s.foes[i].x = s.x
+            s.foes[i].y = s.y
+        } else {
+            // A bounded diamond shadow orbit, fixed around the meadow clearing.
+            let phase = s.tick % 120
+            s.foes[i].x = f.home_x + sin(phase * TURN / 120) * 2
+            s.foes[i].y = f.home_y + cos(phase * TURN / 120) * 2
+        }
+    } else if f.phase == CROUCH && age >= HAWK_TELL {
+        s.foes[i].phase = STRIKE
+        s.foes[i].since = s.tick
+        if near(s.x, s.y, f.target_x, f.target_y, FP) {
+            if parrying(s) {
+                s.foes[i].health = 0
+                s.foes[i].died = s.tick
+                leave_drop(mut s, f.target_x, f.target_y, 12)
+            } else {
+                hurt(mut s, HAWK_DAMAGE)
+            }
+        }
+    } else if f.phase == STRIKE && age >= 3 {
+        s.foes[i].phase = RETREAT
+        s.foes[i].since = s.tick
+    } else if f.phase == RETREAT && age >= HAWK_RECOVERY {
+        s.foes[i].phase = HUNT
+        s.foes[i].since = s.tick
+    }
+}
+
+/// Resume and death share the same den and reset rules.
+pub fn wake(mut s: Sim) {
+    s.area = forest.den_area(s.last_den)
+    let (x, y) = forest.den_position(s.seed, s.last_den)
+    s.x = x
+    s.y = y
+    reset_world(mut s)
+    s.den = false
+    s.edge_ready = true
+}
+
+/// Nearest point of the complete five-cell collision rectangle, including
+/// the fractional span of its last cell. Never aim at a cell origin instead.
+pub fn gate_target(s: Sim) -> (int, int) {
+    let left = -2 * FP
+    let right = 3 * FP - 1
+    let top = gate_y(s) * FP
+    let bottom = top + FP - 1
+    (
+        if s.x < left then left else if s.x > right then right else s.x,
+        if s.y < top then top else if s.y > bottom then bottom else s.y,
+    )
+}
+
+/// Prey leaves five scent, and eating it heals first (bible §6).
+pub const DEER: int = 3
+
+/// A visible pickup remains for this many simulation ticks.
+pub const DROP_TICKS: int = 300
+
+/// Each opening frame lasts this many ticks unless any key skips it.
+pub const SCENE_TICKS: int = 90
+
+/// A local, transient scent pickup, distinct from the persistent death mark.
+pub struct Drop { x: int, y: int, value: int, until: int }
+
+fn leave_drop(mut s: Sim, x: int, y: int, value: int) {
+    (mut s.drops).push(Drop { x: x, y: y, value: value, until: s.tick + DROP_TICKS })
+}
+
+fn drops_step(mut s: Sim) {
+    var keep = List[Drop]()
+    for drop in s.drops {
+        if drop.until > s.tick {
+            if near(s.x, s.y, drop.x, drop.y, FP) {
+                s.scent += drop.value
+                if drop.value == 5 {
+                    s.health += 10
+                    if s.health > health_max(s.heart) { s.health = health_max(s.heart) }
+                }
+            } else {
+                (mut keep).push(copy drop)
+            }
+        }
+    }
+    s.drops = keep
+}
+
+/// Start the opening only for a new journey. Keys/skips live in the normal
+/// simulation event stream, so the scene needs no wall-clock or second loop.
+pub fn opening(mut s: Sim) {
+    if !s.opening_seen { s.scene = 1; s.scene_started = s.tick }
+}
+
+/// Names reserved for the score and later story scenes, not played audio.
+pub fn scene_hook(scene: int) -> str {
+    match scene {
+        1 => "scene.opening",
+        2 => "scene.den.first",
+        3 => "scene.elk.choice",
+        4 => "scene.alpha.offer",
+        5 => "scene.ending.home",
+        6 => "scene.ending.alone",
+        7 => "scene.ending.shadow",
+        _ => "",
+    }
+}
+
+/// Whether a seeded cache has already been opened during this journey.
+pub fn cache_open(s: Sim, cache: int) -> bool {
+    var mask = 1
+    var i = 0
+    while i < s.area * 2 + cache { mask *= 2; i += 1 }
+    s.caches / mask % 2 == 1
+}
+
+fn cache_key(mut s: Sim) {
+    var cache = 0
+    while cache < 2 {
+        let (x, y) = forest.cache_position(s.seed, s.area, cache)
+        if near(s.x, s.y, x, y, 2 * FP) && !cache_open(s, cache) {
+            for foe in s.foes {
+                if foe.health > 0 && near(foe.x, foe.y, x, y, 6 * FP) { return }
+            }
+            var mask = 1
+            var i = 0
+            while i < s.area * 2 + cache { mask *= 2; i += 1 }
+            s.caches += mask
+            if cache == 1 {
+                if s.area == forest.LARKMEADOW { s.yarrow += 1 } else { s.marrow += 1 }
+            }
+            s.cue = 3
+        }
+        cache += 1
+    }
+}
+
+/// Reserved score hooks emitted once on the corresponding interaction.
+pub fn cue_hook(cue: int) -> str {
+    if cue == 1 {
+        "shortcut.log.push"
+    } else if cue == 2 {
+        "shortcut.hedge.dig"
+    } else if cue == 3 {
+        "cache.open"
+    } else {
+        ""
+    }
+}

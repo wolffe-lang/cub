@@ -1,0 +1,123 @@
+//! member: false
+
+use forest
+use sim
+use controls
+
+fn test_cb02_seeded_centres_are_walkable_and_meander() {
+    var seed = 0
+    while seed < 3 {
+        var area = 0
+        while area < 3 {
+            assert(forest.straight_run(seed, area) <= forest.STRAIGHT_MAX, "meander bound")
+            var y = 0
+            while y <= forest.LENGTH {
+                assert(
+                    !forest.blocked(
+                        seed,
+                        area,
+                        forest.spine(seed, area, y),
+                        forest.origin(seed, area) + y,
+                    ),
+                    "clear path seed {seed} area {area} row {y}",
+                )
+                y += 1
+            }
+            area += 1
+        }
+        seed += 1
+    }
+}
+
+fn test_cb02_shortcut_round_trips() {
+    var s = sim.new(7, 80, 24)
+    assert(!sim.cross_edge(mut s, 0), "thorn gate is the way in")
+    s.gate_open = true
+    assert(sim.cross_edge(mut s, 0) && s.area == 1, "bank to brush")
+    assert(!sim.cross_edge(mut s, 2), "closed log")
+    let (x, y) = forest.portal(s.seed, 1, 2)
+    s.x = x
+    s.y = y
+    var keys = List[int]()
+    (mut keys).push(controls.KEY_REST)
+    sim.step(mut s, keys)
+    assert(s.shortcuts == 1 && s.area == 0, "push log to bank")
+    assert(sim.cross_edge(mut s, 2) && s.area == 1, "log back")
+    assert(sim.cross_edge(mut s, 1) && s.area == 2, "meadow")
+    let (hx, hy) = forest.portal(s.seed, 2, 3)
+    s.x = hx
+    s.y = hy
+    sim.step(mut s, keys)
+    assert(s.shortcuts == 3 && s.area == 1, "dig hedge to brush")
+    assert(sim.cross_edge(mut s, 3) && s.area == 2, "hedge back")
+}
+
+fn test_cb02_death_and_mark_cross_area() {
+    var s = sim.new(2, 80, 24)
+    s.gate_open = true
+    let _ = sim.cross_edge(mut s, 0)
+    s.scent = 31
+    sim.hurt(mut s, 100)
+    assert(s.mark_area == 1 && s.mark_scent == 31, "mark in thicket")
+    var keys = List[int]()
+    var n = 0
+    while n < 30 { sim.step(mut s, keys); n += 1 }
+    assert(s.area == 0 && s.last_den == 0, "wake across edge")
+    let _ = sim.cross_edge(mut s, 0)
+    s.x = s.mark_x
+    s.y = s.mark_y
+    sim.step(mut s, keys)
+    assert(!s.mark && s.scent == 31, "recover across edge")
+    let (x, y) = forest.den_position(s.seed, 2)
+    s.x = x
+    s.y = y
+    (mut keys).push(controls.KEY_REST)
+    sim.step(mut s, keys)
+    assert(s.last_den == 2 && s.lit_dens == 5 && s.den, "second thicket den")
+}
+
+fn test_cb02_hawk_stopping_shadow_and_parry() {
+    var s = sim.new(1, 80, 24)
+    sim.enter_area(mut s, 2, 8 * sim.FP, 24 * sim.FP)
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y
+    var keys = List[int]()
+    sim.step(mut s, keys)
+    let x = s.foes[0].x
+    let y = s.foes[0].y
+    var n = 0
+    while n < sim.HAWK_TELL - 1 {
+        sim.step(mut s, keys)
+        assert(
+            s.foes[0].x == x && s.foes[0].y == y && s.foes[0].phase == sim.CROUCH,
+            "shadow stops for tell",
+        )
+        n += 1
+    }
+    (mut keys).push(controls.KEY_PARRY)
+    sim.step(mut s, keys)
+    assert(s.foes[0].health == 0 && s.health == 52 && s.scent == 12, "parry kills hawk")
+}
+
+fn test_cb02_hawk_airborne_and_committed_strike() {
+    var s = sim.new(1, 80, 24)
+    sim.enter_area(mut s, 2, 8 * sim.FP, 24 * sim.FP)
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y
+    var keys = List[int]()
+    (mut keys).push(controls.KEY_BITE)
+    sim.step(mut s, keys)
+    (mut keys).reset()
+    var n = 0
+    while n < sim.HAWK_TELL { sim.step(mut s, keys); n += 1 }
+    assert(s.foes[0].health == 8 && s.health == 38, "bite cannot interrupt stoop")
+    var d = sim.new(1, 80, 24)
+    sim.enter_area(mut d, 2, 8 * sim.FP, 24 * sim.FP)
+    d.foes[0].x = d.x
+    d.foes[0].y = d.y
+    sim.step(mut d, keys)
+    d.x += 3 * sim.FP
+    n = 0
+    while n < sim.HAWK_TELL { sim.step(mut d, keys); n += 1 }
+    assert(d.health == 52, "hawk does not retarget after stopping")
+}

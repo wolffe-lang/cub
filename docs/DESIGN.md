@@ -1,10 +1,10 @@
 # Design constants
 
-Every tuning number in cub is a named constant in `src/sim/sim.lu` or `src/terrain/terrain.lu`, mirrored
-here with the date it was set and by whom. The design bible (`sprints/lair/cub/design.md` in the planning
+Tuning values in `src/sim/sim.lu`, `src/terrain/terrain.lu` and `src/forest/forest.lu` are mirrored
+here with the date they were set and their source; named constants hold the gameplay bars. The design bible (`sprints/lair/cub/design.md` in the planning
 repo) is the oracle; a number is **proposed** until the maintainer's play says otherwise (R-CB-7), and new proposals here are submitted for review; the private bible is not edited by this lane.
 
-The Shingle now has a fight, rest and recovery loop. The rest of the area graph follows next.
+The connected Shingle, Bramblehold and Larkmeadow share one fight, rest, death and persistent-journey loop.
 
 ## The cub's stats (`src/sim/sim.lu`; the bible's section 3)
 
@@ -65,7 +65,7 @@ cub toward the foe. First Tab selects nearest visible foe, then stable spawn
 order; Esc releases, death releases, sixty unseen ticks release. Range is
 8 + nose cells. R-cb01-2 recommendation A: the next bite on the parried foe
 before its 30-tick stagger expires deals double damage, once; parry itself
-never damages. These are recommendations, not decisions by this implementation.
+never damages ground foes; the meadow hawk has its distinct parry-kill answer. These are recommendations, not decisions by this implementation.
 
 R-cb01-3 recommendation: the bible gives 30 ticks to drink and 40 health over
 15 ticks. Prepare for the first 15, heal by exact integer instalments during
@@ -84,13 +84,13 @@ Additional proposed values, all 2026-10-25:
 | trail | 300-tick lifetime (bible); one sample per changed cell, none sneaking; old trail remains until expiry |
 | water and death | 3 mouthfuls; 40 healed; 30-tick death fade (bible); mark recovery within 1 cell |
 | growth | each stat starts 1, cap 10; next level costs 40 × next level (80 for level 2), only at den |
-| den | within 1 cell of start; reset health, stamina, water, foes, trail and holds; gate and dropped mark persist |
+| den | within 1 cell of a seeded den; reset health, stamina, water, foes, trail and holds; gate, caches, shortcuts and mark persist |
 | collision | ground bodies remain at least 1 cell apart; attack envelope and visual arc are separate |
-| Shingle layout | den at seeded start; weasels x=9,13 and fox x=20 at start y; open fight strip x=3..22, y=start-1..start+2; southern path x=-2..2 through start+16; gate across path at start+10 |
+| Shingle layout | den at seeded start; the connected-world table below supersedes the close-spawn preview and straight strip; the thorn branch now ends at start+157 |
 
 The fox on the Shingle is a combat preview, not the later named fox's story
-state. Bleeding, cold, further areas, save persistence and the difficulty
-selector are not in this pass. It implements the default wolf rules.
+state. Bleeding, cold, areas beyond the meadow and the difficulty selector are not
+implemented. The connected journey currently uses the default wolf rules.
 
 Presentation proposals (2026-10-25): a trail is bright enough to read as `:`
 for 150 ticks, then `.` until expiry; a dropped mark is visible within
@@ -199,3 +199,92 @@ A lunge at the face of the thorn row now targets its nearest thorn rather
 than an off-axis centre point (which could miss from two FP units away).
 The natural-death fixture re-approaches the fox after its second retreat:
 the faster approach otherwise lets the old scent expire before re-engagement.
+
+## The connected world, 2026-10-25 (proposed)
+
+Three fixed nodes now connect: the Shingle, Bramblehold and Larkmeadow.
+A lunge opens the thorn route; walking through its exit enters Bramblehold,
+then the next path reaches the meadow. Press `r` to push the fallen log
+from the thicket or dig the hedge from the meadow. Both shortcuts become
+bidirectional. `shortcut.log.push` and `shortcut.hedge.dig` reserve score
+hooks; no audio plays yet. Old Snag's clearing and Whisper's scent-marked
+tree are reservations, not bosses or open later areas. Ember's warning
+is separate from the Shingle combat fox.
+
+All values below are proposed 2026-10-25:
+
+| layout or mechanic | value |
+|---|---|
+| area bounds | x=-40..40, 160 cells along the route; local origin at the seeded bank den or the new area's north edge |
+| centre curve | engine value noise on channels 31..33, sampled at 2× distance, plus eight-cell smoothstep anchors alternating seeded magnitudes 3..5; taper over eight cells at entrances |
+| path width | half-width 3..5, separate channels 45..47 sampled at 3× distance |
+| straight limit | `STRAIGHT_MAX=12` equal consecutive centre cells; path and river bank measured over 50 seeds |
+| river bank | base -16, swing envelope 20; the same curve family on channel 9; no long quantised straight shore |
+| dens | stable ids 0 hollow log, 1 split roots, 2 briar hollow, 3 grass nest; new dens at rows 7..10 or 90..93, x within one cell of the seeded path |
+| first foes | `FIRST_FOE_CELLS=30` minimum initial distance from every den in the area, checked independently of spawning |
+| branches | two curved cache branches around rows 52 and 132, ending at seeded x=±27..30; two-cell half-width; shortcut branches curve around row 22 toward x=±32 |
+| gate | at bank origin+157; five full collision cells, including their fractional spans; a carved branch leaves the main route at 140 and tapers into the gate; exit at 159 |
+| portals | one-cell normal trigger, two-cell shortcut reach; arrival two cells inside the destination; exit shadow seven cells by three |
+| thicket | sight five cells; presentation radius twelve; 16% trunks, canopy/brush threshold 130/256 |
+| meadow | open sight; 3% trunks, 12% tall grass; distinct dusk colours |
+| entry / bite hint | 90 ticks, one line rather than a card |
+| hawk | 18-tick stopped shadow, three active ticks, 36 recovery; 14 damage; 10-cell detection; two-cell seeded-home orbit over 120 ticks |
+| pickups | `DROP_TICKS=300`, one-cell collection radius; bright `*` for the first half, dim `.` after; expired scent is lost |
+| deer | flee within seven cells, ordinary 8 health; eating the drop heals 10 first and gives the bible's 5 scent |
+| caches | two per area; first a lore hollow, second an herb burrow; a weasel trio or fox pair guards it; dig within two cells only with no live guard within six; one yarrow in the meadow, one marrow elsewhere |
+| opening | three original frames, 90 ticks each; any decoded key skips without also performing a move |
+
+| area | path groups | side-branch guards |
+|---|---|---|
+| Shingle | weasel pair at 52..56, fox at 76..80, weasel pair at 134..138 | trio and fox pair |
+| Bramblehold | weasel pairs down the route, outside both den safety radii | trio and fox pair; boar sign, no boar yet |
+| Larkmeadow | hawk and deer at each of 52..56, 76..80, 134..138 | trio and fox pair |
+
+The density table describes initial positions, not an invisible spawn timer.
+Rest and death reset the current area's encounters. Entry resets local foes,
+trails and uncollected ordinary drops, but preserves health, water, growth,
+currency, the last den, opened caches/shortcuts and the death mark. Caches
+never refill on a rest. A mark in another area's coordinates cannot be
+collected locally. Each hawk's shadow is non-solid: dodge can leave it.
+The stopped target does not follow the cub. A parry kills the stooping hawk
+for the bible's 12 scent; bite, lunge and heavy cannot hit it in the air.
+
+Recommendations implemented, not decisions: R-cb02-1 A persists the mark's
+area/position/scent; R-cb02-2 A requires parry or evasion for the hawk;
+R-cb02-3 A requires walking over the visible scent drop.
+
+## Journey files and scenes, 2026-10-25
+
+`--save PATH` overrides the live default `~/.cub/save`. Headless/replay
+runs write no journey unless explicitly given `--save`. Schema 1 records
+seed, wolf difficulty, five growth levels, water capacity, carried scent,
+last/lit dens, shortcuts, gate/story flags, deaths, the mark, cache bits,
+pouch counts and opening progress. Current health and charges are transient:
+resume wakes at the last den, healed and refilled, with reset encounters.
+The difficulty selector is not added here: non-wolf saves fail by name,
+rather than silently playing wolf rules. Future boss/NPC states require a
+new validated schema rather than accepting unknown bits now.
+
+The canonical text has a non-cryptographic rolling checksum (seed 7,
+multiplier 31, modulus 1000000007). The parser caps text at 1024 bytes;
+seed and counters are bounded to ±1000000000 and 0..1000000000 respectively,
+growth to 1..10, den/area ids to known values and cache bits to six entries.
+Unknown versions, malformed or inconsistent fields and unsupported difficulty
+have distinct failure names. Corruption never silently creates a new game.
+
+Saving creates an exclusive sibling `.pending`, writes and syncs it,
+closes it, then replaces the destination and syncs the directory. The
+same-directory rename is atomic on the supported macOS/Linux hosts. A
+post-rename directory-sync failure is named `save_committed_unsynced`,
+not misreported as an untouched old save. A stale or concurrent stage is
+`save_busy`; the game never deletes another writer's stage. The normal
+live delay before replacement is one tick. `--save-delay 1..300` and
+`--save-cut` are explicit test witnesses. Quit/interrupt while a stage is
+pending cancels only that owned stage, preserving the previous journey.
+
+A resumed recording carries all 24 initial journey fields as versioned
+numeric replay events. Playback and death archives therefore need no
+external save. The opening is an `opening 1` event; its keys and skip are
+the ordinary replay stream. Reserved scene hooks are `scene.den.first`,
+`scene.elk.choice`, `scene.alpha.offer`, and `scene.ending.home`, `.alone`,
+`.shadow`; those later scenes are not implemented here.

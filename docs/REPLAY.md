@@ -26,7 +26,7 @@ test/debug deltas, not enemy actions: negative health is ordinary interruptible
 damage; positive health is clamped to maximum. Health deltas precede scent
 deltas, before the tick. These events are accepted in both replay paths.
 
-Thirty scripts cover movement, each combat move, the fox's two tells,
+The scripts cover movement, each combat move, the fox's two tells,
 trail expiry, resting and growth, death and scent recovery, and the thorn gate.
 Goldens include `final.state`, an integer simulation snapshot, alongside the
 cell text and styles. The native and release backends must agree on both
@@ -47,3 +47,26 @@ The `heavy` event names the `s` fallback attack (2026-10-25). Space remains
 `bite`; recovery presses advance the three-bite combo without a separate
 combo key. Recent arrows and lock are sampled in event order, so records
 retain the order of same-tick movement and attack events.
+
+## Connected-journey events (schema 1)
+
+`opening 1` starts the three timed opening frames. `skip` is any decoded
+key with no gameplay binding; any ordinary key also skips while a scene
+is active, without also performing its gameplay action. A new live journey
+records the opening; old scripts without that event keep their start.
+
+A live recording begins with `journey 1` and `saved-0` through `saved-23`:
+seed, difficulty, heart, wind, fang, paw, nose, water capacity, scent,
+last den, lit dens, shortcuts, gate, story, deaths, mark present, mark area,
+mark x, mark y, mark scent, caches, yarrow, marrow, opening seen. These
+fields use the same validator as the save file. A resumed recording or
+death archive is therefore self-contained; it never reads `~/.cub/save`.
+
+`--make-world-proof DIR` generates reproducible real-key encounter and
+world scripts. The long journey grants 10000 scent as an explicit numeric
+fixture, spends it normally at the first den to grow heart/wind/fang, then
+walks all three areas, opens both shortcuts, fights a hawk and recovers a
+forced death's mark across an area edge. The shorter encounter scripts use
+default growth, no injected health/scent, and include a natural death.
+The independent `--world-audit` flood checks all den/portal/cache targets,
+path and bank straight runs, and enemy distances over seeds 0..49.

@@ -1,0 +1,287 @@
+//! A deterministic real-key route witness. The only numeric fixture inputs
+//! are starting scent for growth and the deliberate cross-area death.
+
+use controls
+use forest
+use replay
+use sim
+use std.fs
+
+fn press(mut s: sim.Sim, mut r: replay.Replay, keys: List[int]) {
+    for key in keys { replay.push_key(mut r, s.tick, key) }
+    sim.step(mut s, keys)
+}
+
+fn key(k: int) -> List[int] {
+    var keys = List[int]()
+    if k > 0 { (mut keys).push(k) }
+    keys
+}
+
+fn aim(mut keys: List[int], x: int, y: int) {
+    if y < -sim.FP / 4 { (mut keys).push(controls.KEY_UP) }
+    if y > sim.FP / 4 { (mut keys).push(controls.KEY_DOWN) }
+    if x < -sim.FP / 4 { (mut keys).push(controls.KEY_LEFT) }
+    if x > sim.FP / 4 { (mut keys).push(controls.KEY_RIGHT) }
+}
+
+fn drive(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int) {
+    var keys = List[int]()
+    var fighting = false
+    var i = 0
+    while i < s.foes.len {
+        let foe = copy s.foes[i]
+        if foe.health > 0 {
+            if foe.kind == sim.HAWK &&
+                foe.phase == sim.CROUCH &&
+                sim.near(s.x, s.y, foe.target_x, foe.target_y, sim.FP) {
+                fighting = true
+                if s.action == sim.IDLE && s.tick - foe.since >= sim.HAWK_TELL - 6 {
+                    (mut keys).push(controls.KEY_PARRY)
+                }
+                break
+            }
+            if foe.kind != sim.HAWK && sim.near(s.x, s.y, foe.x, foe.y, 2 * sim.FP) {
+                fighting = true
+                if s.action == sim.IDLE {
+                    aim(mut keys, foe.x - s.x, foe.y - s.y)
+                    (mut keys).push(controls.KEY_BITE)
+                }
+                break
+            }
+        }
+        i += 1
+    }
+    if !fighting { aim(mut keys, x - s.x, y - s.y) }
+    press(mut s, mut r, keys)
+}
+
+/// Follow a BFS route by ordinary directional keys, with combat keys when
+/// threatened. No teleport, collision override, heal or state mutation.
+fn walk(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int) -> bool {
+    walk_stop(mut s, mut r, tx, ty, -1)
+}
+
+fn walk_stop(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int, stop_foe: int) -> bool {
+    let area = s.area
+    let width = forest.HALF_WIDTH * 2 + 1
+    let origin = forest.origin(s.seed, area)
+    let sx = sim.cell_x(s)
+    let sy = sim.cell_y(s) - origin
+    let gx = sim.floor_div(tx, sim.FP)
+    let gy = sim.floor_div(ty, sim.FP) - origin
+    if sx < 0 - forest.HALF_WIDTH || sx > forest.HALF_WIDTH || sy < 0 || sy > forest.LENGTH {
+        return false
+    }
+    var parent = List[int]()
+    var queue = List[int]()
+    var i = 0
+    while i < width * (forest.LENGTH + 1) { (mut parent).push(-1); i += 1 }
+    let start = sy * width + sx + forest.HALF_WIDTH
+    let goal = gy * width + gx + forest.HALF_WIDTH
+    parent[start] = start
+    (mut queue).push(start)
+    var head = 0
+    while head < queue.len && parent[goal] < 0 {
+        let at = queue[head]
+        let x = at % width - forest.HALF_WIDTH
+        let y = at / width
+        var d = 0
+        while d < 4 {
+            let nx = x + (if d == 0 then -1 else if d == 1 then 1 else 0)
+            let ny = y + (if d == 2 then -1 else if d == 3 then 1 else 0)
+            if nx >= 0 - forest.HALF_WIDTH &&
+                nx <= forest.HALF_WIDTH &&
+                ny >= 0 &&
+                ny <= forest.LENGTH {
+                let next = ny * width + nx + forest.HALF_WIDTH
+                if parent[next] < 0 && !sim.blocked(s, nx, ny + origin) {
+                    parent[next] = at
+                    (mut queue).push(next)
+                }
+            }
+            d += 1
+        }
+        head += 1
+    }
+    if parent[goal] < 0 { return false }
+    var path = List[int]()
+    var at = goal
+    while at != start { (mut path).push(at); at = parent[at] }
+    i = path.len - 1
+    let until = s.tick + 18000
+    while i >= 0 {
+        let cell = path[i]
+        let x = (cell % width - forest.HALF_WIDTH) * sim.FP + sim.FP / 2
+        let y = (cell / width + origin) * sim.FP + sim.FP / 2
+        while !sim.near(s.x, s.y, x, y, sim.FP / 2) {
+            if s.tick > until || s.action == sim.FALL { return false }
+            if stop_foe >= 0 &&
+                sim.near(s.x, s.y, s.foes[stop_foe].x, s.foes[stop_foe].y, 4 * sim.FP) {
+                var keys = List[int]()
+                aim(mut keys, s.foes[stop_foe].x - s.x, s.foes[stop_foe].y - s.y)
+                press(mut s, mut r, keys)
+            } else {
+                drive(mut s, mut r, x, y)
+            }
+            if stop_foe >= 0 &&
+                (s.foes[stop_foe].phase == sim.CROUCH || s.foes[stop_foe].phase == sim.FEINT) {
+                return true
+            }
+            if s.area != area { return true }
+        }
+        i -= 1
+    }
+    true
+}
+
+fn snapshot(dir: str, name: str, s: sim.Sim, r: replay.Replay) -> () ! {io} {
+    var bytes = List[byte]()
+    replay.format(r, controls.vocab(), mut bytes)
+    fs.write_bytes(dir + "/" + name + ".pk", bytes) else |_| { return io }
+    fs.append_text(dir + "/" + name + ".pk", "\n# frames {s.tick} every {s.tick}\n") else |_| {
+        return io
+    }
+    print(
+        "witness {name} tick {s.tick} area {s.area} scent {s.scent} mark {s.mark_scent} shortcuts {s.shortcuts}",
+    )
+}
+
+/// Generate replayable key witnesses for the whole connected journey.
+pub fn generate(dir: str) -> int {
+    fs.create_dir_all(dir) else |_| { return 2 }
+    var s = sim.new(1, 80, 24)
+    var r = replay.new(1, 1, 80, 24)
+    replay.push_arg(mut r, 0, 1, 10000)
+    s.scent = 10000
+    press(mut s, mut r, key(controls.KEY_REST))
+    var stat = controls.KEY_HEART
+    while stat <= controls.KEY_FANG {
+        var n = 0
+        while n < 9 { press(mut s, mut r, key(stat)); n += 1 }
+        stat += 1
+    }
+    press(mut s, mut r, key(controls.KEY_RELEASE))
+    if !walk(mut s, mut r, 0, (sim.gate_y(s) - 2) * sim.FP) {
+        eprint("proof: gate approach at {sim.cell_x(s)},{sim.cell_y(s)} tick {s.tick}")
+        return 1
+    }
+    snapshot(dir, "world-gate", s, r) else |_| { return 2 }
+    var keys = key(controls.KEY_DOWN)
+    (mut keys).push(controls.KEY_BITE)
+    press(mut s, mut r, keys)
+    var n = 0
+    while n < 16 { press(mut s, mut r, key(0)); n += 1 }
+    snapshot(dir, "world-thorns", s, r) else |_| { return 2 }
+    keys = key(controls.KEY_DOWN)
+    (mut keys).push(controls.KEY_LUNGE)
+    press(mut s, mut r, keys)
+    n = 0
+    while n < 25 { press(mut s, mut r, key(0)); n += 1 }
+    if !s.gate_open { eprint("proof: gate did not open"); return 1 }
+    snapshot(dir, "world-open", s, r) else |_| { return 2 }
+    let (ex, ey) = forest.portal(s.seed, 0, 0)
+    if !walk(mut s, mut r, ex, ey) || s.area != 1 { eprint("proof: thicket edge"); return 1 }
+    let (dx, dy) = forest.den_position(s.seed, 1)
+    if !walk(mut s, mut r, dx, dy) { eprint("proof: thicket den"); return 1 }
+    press(mut s, mut r, key(controls.KEY_REST))
+    if !s.den || s.last_den != 1 { eprint("proof: no rest"); return 1 }
+    snapshot(dir, "world-den", s, r) else |_| { return 2 }
+    press(mut s, mut r, key(controls.KEY_RELEASE))
+    let (mx, my) = forest.portal(s.seed, 1, 1)
+    if !walk(mut s, mut r, mx, my) || s.area != 2 { eprint("proof: meadow edge"); return 1 }
+    snapshot(dir, "world-meadow", s, r) else |_| { return 2 }
+    let hawk_x = s.foes[0].x
+    let hawk_y = s.foes[0].y
+    if !walk(mut s, mut r, hawk_x, hawk_y) { eprint("proof: hawk approach"); return 1 }
+    n = 0
+    while s.foes[0].health > 0 && n < 300 { drive(mut s, mut r, hawk_x, hawk_y); n += 1 }
+    if s.foes[0].health > 0 { eprint("proof: hawk unanswered"); return 1 }
+    snapshot(dir, "world-hawk", s, r) else |_| { return 2 }
+    replay.push_arg(mut r, s.tick, 0, -1000)
+    sim.hurt(mut s, 1000)
+    press(mut s, mut r, key(0))
+    n = 0
+    while n < 30 { press(mut s, mut r, key(0)); n += 1 }
+    if s.area != 1 || !s.mark || s.mark_area != 2 { eprint("proof: cross-area death"); return 1 }
+    if !walk(mut s, mut r, mx, my) || s.area != 2 { eprint("proof: return to mark area"); return 1 }
+    if !walk(mut s, mut r, s.mark_x, s.mark_y) { eprint("proof: reach mark"); return 1 }
+    press(mut s, mut r, key(0))
+    if s.mark { eprint("proof: mark not recovered"); return 1 }
+    snapshot(dir, "world-recovered", s, r) else |_| { return 2 }
+    let (hx, hy) = forest.portal(s.seed, 2, 3)
+    if !walk(mut s, mut r, hx, hy) { eprint("proof: hedge approach"); return 1 }
+    press(mut s, mut r, key(controls.KEY_REST))
+    if s.area != 1 || s.shortcuts != 2 { eprint("proof: hedge not opened"); return 1 }
+    let (lx, ly) = forest.portal(s.seed, 1, 2)
+    if !walk(mut s, mut r, lx, ly) { eprint("proof: log approach"); return 1 }
+    press(mut s, mut r, key(controls.KEY_REST))
+    if s.area != 0 || s.shortcuts != 3 { eprint("proof: log not opened"); return 1 }
+    snapshot(dir, "world-return", s, r) else |_| { return 2 }
+    encounters(dir)
+}
+
+fn approach(mut s: sim.Sim, mut r: replay.Replay, foe: int) -> bool {
+    walk_stop(mut s, mut r, s.foes[foe].x, s.foes[foe].y, foe) &&
+        s.foes[foe].health > 0 &&
+        s.action != sim.FALL
+}
+
+/// Refresh the original combat scripts at the new down-path encounters.
+/// These scripts use default growth and no numeric health or scent inputs.
+pub fn encounters(dir: str) -> int {
+    var kind = 0
+    while kind < 7 {
+        var s = sim.new(1, 80, 24)
+        var r = replay.new(1, 1, 80, 24)
+        let foe = if kind == 4 then 2 else 0
+        if !approach(mut s, mut r, foe) { eprint("proof: encounter approach {kind}"); return 1 }
+        var n = 0
+        if kind == 0 {
+            while s.foes[0].health > 0 && n < 120 {
+                drive(mut s, mut r, s.foes[0].x, s.foes[0].y)
+                n += 1
+            }
+            if !walk(mut s, mut r, s.foes[0].x, s.foes[0].y) { return 1 }
+        } else if kind == 1 || kind == 2 {
+            while n < 10 { press(mut s, mut r, key(0)); n += 1 }
+            var keys = List[int]()
+            if kind == 2 { (mut keys).push(controls.KEY_LEFT) }
+            (mut keys).push(if kind == 1 then controls.KEY_PARRY else controls.KEY_DODGE)
+            press(mut s, mut r, keys)
+            n = 0
+            while n < 5 { press(mut s, mut r, key(0)); n += 1 }
+        } else if kind == 3 {
+            while n < 16 { press(mut s, mut r, key(0)); n += 1 }
+        } else if kind == 4 {
+            while n < 30 { press(mut s, mut r, key(0)); n += 1 }
+        } else if kind == 5 {
+            while s.action != sim.FALL && n < 1200 {
+                var keys = List[int]()
+                aim(mut keys, s.foes[0].x - s.x, s.foes[0].y - s.y)
+                press(mut s, mut r, keys)
+                n += 1
+            }
+            if s.action != sim.FALL { eprint("proof: natural death never happened"); return 1 }
+        } else {
+            var keys = key(controls.KEY_RIGHT)
+            (mut keys).push(controls.KEY_LOCK)
+            (mut keys).push(controls.KEY_LUNGE)
+            press(mut s, mut r, keys)
+            n = 0
+            while n < 12 { press(mut s, mut r, key(0)); n += 1 }
+        }
+        let name = match kind {
+            0 => "bite",
+            1 => "parry",
+            2 => "dodge",
+            3 => "weasel-retreat",
+            4 => "fox-feint",
+            5 => "natural-death",
+            _ => "aim-lock",
+        }
+        snapshot(dir, name, s, r) else |_| { return 2 }
+        kind += 1
+    }
+    0
+}

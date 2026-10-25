@@ -1,0 +1,114 @@
+//! member: false
+
+use sim
+use forest
+use controls
+use journey
+use art
+use grid
+use tier
+
+fn key(k: int) -> List[int] {
+    var keys = List[int]()
+    if k > 0 { (mut keys).push(k) }
+    keys
+}
+
+fn test_cb02_scent_pickup_expires_and_never_double_collects() {
+    var s = sim.new(1, 80, 24)
+    (mut s.drops).push(sim.Drop { x: s.x + 2 * sim.FP, y: s.y, value: 8, until: 2 })
+    sim.step(mut s, key(0))
+    assert(s.drops.len == 1 && s.scent == 0, "visible before expiry")
+    sim.step(mut s, key(0))
+    assert(s.drops.len == 0 && s.scent == 0, "lost at exclusive expiry")
+    (mut s.drops).push(sim.Drop { x: s.x, y: s.y, value: 12, until: 500 })
+    sim.step(mut s, key(0))
+    sim.step(mut s, key(0))
+    assert(s.scent == 12 && s.drops.len == 0, "collected once on overlap")
+}
+
+fn test_cb02_hawk_shadow_does_not_pin_a_dodge() {
+    var s = sim.new(1, 80, 24)
+    sim.enter_area(mut s, 2, 0, 52 * sim.FP)
+    s.x = forest.spine(s.seed, 2, 52) * sim.FP
+    var i = 1
+    while i < s.foes.len { s.foes[i].health = 0; i += 1 }
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y
+    sim.step(mut s, key(0))
+    let y = s.y
+    var n = 0
+    while n < sim.HAWK_TELL - 2 { sim.step(mut s, key(0)); n += 1 }
+    var keys = key(controls.KEY_DOWN)
+    (mut keys).push(controls.KEY_DODGE)
+    sim.step(mut s, keys)
+    n = 0
+    while n < 8 { sim.step(mut s, key(0)); n += 1 }
+    assert(s.y > y + sim.FP && s.health == 52, "dodge escapes an airborne shadow")
+}
+
+fn test_cb02_cache_is_guarded_finite_and_persisted() {
+    var s = sim.new(1, 80, 24)
+    let (x, y) = forest.cache_position(s.seed, 0, 1)
+    s.x = x
+    s.y = y
+    sim.step(mut s, key(controls.KEY_REST))
+    assert(s.caches == 0 && s.marrow == 0, "guards prevent digging")
+    var i = 0
+    while i < s.foes.len { s.foes[i].health = 0; i += 1 }
+    sim.step(mut s, key(controls.KEY_REST))
+    sim.step(mut s, key(controls.KEY_REST))
+    assert(s.caches == 2 && s.marrow == 1, "one finite reward")
+    let resumed = journey.decode(journey.encode(s), 80, 24) else |_| {
+        assert(false, "cache save")
+        return
+    }
+    assert(resumed.caches == 2 && resumed.marrow == 1, "cache and pouch survive reset")
+}
+
+fn test_cb02_opening_is_timed_skippable_and_pure_on_both_tiers() {
+    var s = sim.new(1, 80, 24)
+    sim.opening(mut s)
+    var n = 0
+    while n < sim.SCENE_TICKS * 3 - 1 { sim.step(mut s, key(0)); n += 1 }
+    assert(s.scene == 1 && !s.opening_seen && s.health == 52, "scene suspends play")
+    var g = grid.new(24, 80)
+    art.render(s, tier.PLAIN, mut g)
+    assert(grid.plain_ok(g), "plain opening")
+    sim.step(mut s, key(0))
+    assert(s.scene == 0 && s.opening_seen, "timed ending")
+    var skipped = sim.new(1, 80, 24)
+    sim.opening(mut skipped)
+    sim.step(mut skipped, key(controls.KEY_SKIP))
+    assert(
+        skipped.scene == 0 && skipped.opening_seen && skipped.action == sim.IDLE,
+        "unknown key skips without attack",
+    )
+    assert(
+        sim.scene_hook(3) == "scene.elk.choice" && sim.scene_hook(4) == "scene.alpha.offer",
+        "story hooks named",
+    )
+}
+
+fn test_cb02_spawned_bodies_stand_on_passable_ground() {
+    var seed = 0
+    while seed < 8 {
+        var area = 0
+        while area < 3 {
+            let foes = sim.area_foes(seed, area)
+            for f in foes {
+                assert(
+                    !forest.blocked(
+                        seed,
+                        area,
+                        sim.floor_div(f.x, sim.FP),
+                        sim.floor_div(f.y, sim.FP),
+                    ),
+                    "spawn in terrain {seed} {area}",
+                )
+            }
+            area += 1
+        }
+        seed += 1
+    }
+}

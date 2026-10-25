@@ -68,13 +68,13 @@ fn test_the_bands_lie_in_order() {
     }
 }
 
-fn test_the_woods_thicken_with_cover() {
+fn woods_range(first: int) {
     var grass = 0
     var trunks = 0
     var dark = 0
     var canopy = 0
-    var x = 0
-    while x < 400 {
+    var x = first
+    while x < first + 100 {
         var y = 20
         while y < 60 {
             let k = terrain.kind(6, x, y)
@@ -118,3 +118,11 @@ fn test_the_start_is_open_ground() {
     )
     assert(world.FP == terrain.FP, "one fixed point")
 }
+
+fn test_woods_cover_0() { woods_range(0) }
+
+fn test_woods_cover_1() { woods_range(100) }
+
+fn test_woods_cover_2() { woods_range(200) }
+
+fn test_woods_cover_3() { woods_range(300) }

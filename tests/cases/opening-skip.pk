@@ -1,0 +1,7 @@
+pk 1
+seed 1
+tier rich
+size 80x24
+t 0 opening 1
+t 100 skip
+# frames 102 every 102

@@ -8,6 +8,7 @@
 //! the terrain's kind at each world cell with the seed's texture.
 
 use draw
+use forest
 use grid
 use sim
 use sprites
@@ -19,9 +20,9 @@ fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
     var col = 0
     while col < s.cols {
         let (x, y) = sim.world_cell(s, row, col)
-        let k = terrain.kind(s.seed, x, y)
+        let k = forest.kind(s.seed, s.area, x, y)
         let v = sim.variant(s, x, y, 4)
-        let cell = if k == terrain.GRAVEL {
+        var cell = if k == terrain.GRAVEL {
             sprites.glyph(
                 t,
                 sprites.SP_GRAVEL,
@@ -43,6 +44,20 @@ fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
             sprites.glyph(t, sprites.SP_REEDS, v)
         } else {
             sprites.glyph(t, sprites.SP_DARK, 0)
+        }
+        if s.area != forest.SHINGLE {
+            cell.bg = if t == tier.RICH {
+                (if s.area == forest.BRAMBLEHOLD then 233 else 235)
+            } else {
+                0
+            }
+            cell.fg = if t == tier.RICH {
+                if k == terrain.TRUNK then 95 else if s.area == forest.BRAMBLEHOLD then 29 else 137
+            } else if k == terrain.TRUNK then 3 else if s.area == forest.BRAMBLEHOLD then 2 else 3
+            if s.area == forest.BRAMBLEHOLD &&
+                !sim.near(s.x, s.y, x * sim.FP, y * sim.FP, 12 * sim.FP) {
+                cell.cp = 32
+            }
         }
         grid.put(mut g, row, col, cell)
         col += 1
@@ -75,11 +90,13 @@ pub fn draw_cub(mut g: grid.Grid, t: int, row: int, col: int, facing: int, band:
 /// `g` must be the simulation's size (`assert`).
 pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
     assert(g.rows == s.rows && g.cols == s.cols, "art.render: the grid is the simulation's size")
+    if s.scene != 0 { opening_frame(s, t, mut g); return }
     var row = 0
     while row < s.rows {
         terrain_row(s, t, row, mut g)
         row += 1
     }
+    shade_exits(s, t, mut g)
     draw_world_marks(s, t, mut g)
     // The rich cub's two rows sit on the cub's cell and the one above, so
     // its body is at the centre; the plain cub's mark is left of the centre.
@@ -128,6 +145,10 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
     }
     draw_posture(s, t, mut g)
     draw_hud(s, t, mut g)
+    world_lines(s, t, mut g)
+    if s.gate_hint_until > s.tick {
+        draw.put_text(mut g, s.rows - 2, 1, "the thorns need a lunge", ink(t, true))
+    }
 }
 
 /// The art study's sheet (`docs/ART.md`): the cub facing each of the four
@@ -259,6 +280,54 @@ fn at_world(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, text: str, bri
 }
 
 fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
+    for drop in s.drops {
+        at_world(
+            s,
+            t,
+            mut g,
+            sim.floor_div(drop.x, sim.FP),
+            sim.floor_div(drop.y, sim.FP),
+            if drop.until - s.tick > sim.DROP_TICKS / 2 then "*" else ".",
+            drop.until - s.tick > sim.DROP_TICKS / 2,
+        )
+    }
+    var cache = 0
+    while cache < 2 {
+        let (x, y) = forest.cache_position(s.seed, s.area, cache)
+        at_world(
+            s,
+            t,
+            mut g,
+            sim.floor_div(x, sim.FP) - 2,
+            sim.floor_div(y, sim.FP),
+            if sim.cache_open(s, cache) {
+                "( empty )"
+            } else if cache == 0 {
+                "( hollow )"
+            } else {
+                "( burrow )"
+            },
+            false,
+        )
+        if sim.near(s.x, s.y, x, y, 2 * sim.FP) && !s.den {
+            draw.put_text(
+                mut g,
+                s.rows - 2,
+                1,
+                if sim.cache_open(s, cache) {
+                    if cache == 0 {
+                        "Old bones. Nothing here carries a scent."
+                    } else {
+                        "The burrow is empty; its herb is in your pouch."
+                    }
+                } else {
+                    "r dig; the guards must be gone"
+                },
+                ink(t, true),
+            )
+        }
+        cache += 1
+    }
     for tr in s.trail {
         at_world(
             s,
@@ -270,19 +339,63 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
             false,
         )
     }
-    let (dx, dy) = terrain.start(s.seed)
-    at_world(
-        s,
-        t,
-        mut g,
-        sim.floor_div(dx, sim.FP) - 3,
-        sim.floor_div(dy, sim.FP) + 1,
-        "( hollow log )",
-        false,
-    )
-    at_world(s, t, mut g, -2, sim.gate_y(s), if s.gate_open then "  /  " else "#X#X#", true)
-    at_world(s, t, mut g, -5, sim.gate_y(s) + 2, "Bramblehold", false)
-    if s.mark && sim.near(s.x, s.y, s.mark_x, s.mark_y, (8 + s.nose * 2) * sim.FP) {
+    var den = 0
+    while den < 4 {
+        if forest.den_area(den) == s.area {
+            let (dx, dy) = forest.den_position(s.seed, den)
+            at_world(
+                s,
+                t,
+                mut g,
+                sim.floor_div(dx, sim.FP) - 3,
+                sim.floor_div(dy, sim.FP) + 1,
+                if den == 0 then "( hollow log )" else "( " + forest.den_name(den) + " )",
+                false,
+            )
+        }
+        den += 1
+    }
+    if s.area == forest.SHINGLE {
+        if !s.gate_open {
+            var gx = -2
+            while gx <= 2 {
+                grid.put(
+                    mut g,
+                    sim.gate_y(s) - sim.cell_y(s) + sim.screen_row(s),
+                    gx - sim.cell_x(s) + sim.screen_col(s),
+                    thorn_cell(t, gx + 2),
+                )
+                gx += 1
+            }
+        }
+        at_world(s, t, mut g, -5, sim.gate_y(s) - 3, "Bramblehold", false)
+    } else if s.area == forest.BRAMBLEHOLD {
+        at_world(s, t, mut g, -3, forest.LENGTH - 3, "Larkmeadow", false)
+        at_world(s, t, mut g, 7, 24, "Old Snag's clearing", false)
+        at_world(s, t, mut g, -11, 24, "Ember", true)
+        at_world(s, t, mut g, -7, 18, "bones, no scent", false)
+    } else {
+        at_world(s, t, mut g, 7, 24, "scent-marked tree", false)
+    }
+    var edge = 2
+    while edge < 4 {
+        if forest.other(s.area, edge) >= 0 {
+            let (x, y) = forest.portal(s.seed, s.area, edge)
+            at_world(
+                s,
+                t,
+                mut g,
+                sim.floor_div(x, sim.FP) - 3,
+                sim.floor_div(y, sim.FP),
+                if edge == 2 then "[ log ]" else "[ hedge ]",
+                true,
+            )
+        }
+        edge += 1
+    }
+    if s.mark &&
+        s.mark_area == s.area &&
+        sim.near(s.x, s.y, s.mark_x, s.mark_y, (8 + s.nose * 2) * sim.FP) {
         at_world(
             s,
             t,
@@ -303,7 +416,8 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
         } else {
             sim.FOE_FADE_TICKS
         }
-        if fade < sim.FOE_FADE_TICKS {
+        if fade < sim.FOE_FADE_TICKS &&
+            (s.area != forest.BRAMBLEHOLD || sim.visible(s, s.x, s.y, f.x, f.y)) {
             let r = sim.floor_div(f.y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
             let c = sim.floor_div(f.x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
             draw_foe(mut g, t, r, c, f.kind, f.phase, f.heading, fade)
@@ -365,7 +479,13 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
         draw.put_text(mut g, r, c - 4, "fallen - scent lost {s.mark_scent}", ink(t, false))
     }
     if at_log_hint(s) {
-        draw.put_text(mut g, s.rows - 1, 1, "r rest at the hollow log", ink(t, false))
+        draw.put_text(
+            mut g,
+            s.rows - 1,
+            1,
+            "r rest at " + forest.den_name(sim.den_here(s)),
+            ink(t, false),
+        )
     }
     if s.den {
         let style = ink(t, true)
@@ -380,7 +500,7 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
             )
             row += 1
         }
-        draw.put_text(mut g, 3, 4, "The hollow log", style)
+        draw.put_text(mut g, 3, 4, forest.den_name(s.last_den), style)
         draw.put_text(
             mut g,
             5,
@@ -403,7 +523,21 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
             style,
         )
         draw.put_text(mut g, 9, 4, "5 nose {s.nose} (next {40 * (s.nose + 1)})", style)
+        draw.put_text(mut g, 10, 4, "pouch: yarrow {s.yarrow}  marrow {s.marrow}", style)
         draw.put_text(mut g, 11, 4, "r or Esc leave; a stat cannot grow past ten", style)
+        draw.put_text(
+            mut g,
+            12,
+            4,
+            if s.save_status == 1 {
+                "Saving journey... q cancels this pending write"
+            } else if s.save_status == 2 {
+                "Journey saved; resume at this den"
+            } else {
+                "Journey not written in this replay"
+            },
+            style,
+        )
     }
 }
 
@@ -445,6 +579,14 @@ pub fn draw_foe(
     heading: int,
     fade: int,
 ) {
+    if kind == sim.DEER {
+        if fade >= sim.FOE_FADE_TICKS { return }
+        draw.put_text(mut g, row - 1, col, "Y Y", ink(t, fade < 0))
+        draw.put_text(mut g, row, col, if fade < 5 then "dd" else "..", ink(t, fade < 0))
+        draw.put_text(mut g, row + 1, col, "||", ink(t, fade < 0))
+        return
+    }
+    if kind == sim.HAWK { draw_hawk(mut g, t, row, col, phase, fade); return }
     if fade >= sim.FOE_FADE_TICKS { return }
     let colour = sprites.palette(t, if kind == sim.FOX then sprites.C_FOX else sprites.C_WEASEL)
     let style = grid.cell(
@@ -511,4 +653,212 @@ pub fn hud_text(s: sim.Sim) -> str {
 
 fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
     draw.put_text(mut g, 0, 1, hud_text(s), ink(t, true))
+}
+
+/// Hazard-only thorn pair, disjoint from wall and label glyph/colour pairs.
+pub fn thorn_cell(t: int, variant: int) -> grid.Cell {
+    grid.cell(
+        if t == tier.RICH {
+            (if variant % 2 == 0 then 10478 else 10486)
+        } else {
+            (if variant % 2 == 0 then 37 else 38)
+        },
+        if t == tier.RICH then 196 else 12,
+        if t == tier.RICH then 234 else 0,
+        grid.ATTR_BOLD,
+    )
+}
+
+/// Every exit and shortcut has this dim ground band, not a text label.
+pub fn exit_shadow(t: int) -> grid.Cell {
+    grid.cell(
+        if t == tier.RICH then 183 else 46,
+        if t == tier.RICH then 238 else 8,
+        if t == tier.RICH then 232 else 0,
+        0,
+    )
+}
+
+fn world_lines(s: sim.Sim, t: int, mut g: grid.Grid) {
+    if s.tick - s.entered < sim.ENTRY_TICKS {
+        draw.put_text(mut g, 1, 1, forest.name(s.area), ink(t, true))
+    }
+    if s.den || s.action == sim.FALL { return }
+    if s.area == forest.BRAMBLEHOLD && sim.near(s.x, s.y, -10 * sim.FP, 24 * sim.FP, 3 * sim.FP) {
+        draw.put_text(
+            mut g,
+            s.rows - 2,
+            1,
+            "Ember: Keep out of the clearing. Old Snag hears the roots.",
+            ink(t, true),
+        )
+    }
+    var edge = 2
+    while edge < 4 {
+        if forest.other(s.area, edge) >= 0 {
+            let (x, y) = forest.portal(s.seed, s.area, edge)
+            if sim.near(s.x, s.y, x, y, 2 * sim.FP) {
+                draw.put_text(
+                    mut g,
+                    s.rows - 1,
+                    1,
+                    if edge == 2 {
+                        if s.shortcuts % 2 == 1 {
+                            "r cross the fallen log"
+                        } else if s.area == forest.BRAMBLEHOLD {
+                            "r push the fallen log toward the bank"
+                        } else {
+                            "The log must be pushed from Bramblehold"
+                        }
+                    } else if s.shortcuts / 2 % 2 == 1 {
+                        "r crawl through the hedge"
+                    } else if s.area == forest.LARKMEADOW {
+                        "r dig under the hedge"
+                    } else {
+                        "The roots yield from the meadow side"
+                    },
+                    ink(t, true),
+                )
+            }
+        }
+        edge += 1
+    }
+}
+
+/// Both-tier hawk postures: orbit, stopped wings, straight stoop, recovery,
+/// and the same three-stage death fade used by the other foes.
+pub fn draw_hawk(mut g: grid.Grid, t: int, row: int, col: int, phase: int, fade: int) {
+    if fade >= sim.FOE_FADE_TICKS { return }
+    let style = grid.cell(
+        32,
+        if t == tier.RICH then 181 else 13,
+        if t == tier.RICH then 235 else 0,
+        if fade < 0 then grid.ATTR_BOLD else 0,
+    )
+    let wings = if phase == sim.CROUCH {
+        "\\_/"
+    } else if phase == sim.STRIKE {
+        " | "
+    } else if phase == sim.RETREAT {
+        "/v\\"
+    } else {
+        "-v-"
+    }
+    draw.put_text(mut g, row - 3, col - 1, wings, style)
+    draw.put_text(mut g, row - 2, col, if phase == sim.STRIKE then "v" else "o", style)
+    draw.put_text(
+        mut g,
+        row,
+        col - 1,
+        if phase == sim.CROUCH then "(_)" else if phase == sim.STRIKE then " * " else " . ",
+        style,
+    )
+    if t == tier.RICH && phase == sim.CROUCH {
+        var wing = copy style
+        wing.cp = 9624
+        grid.put(mut g, row - 3, col - 1, wing)
+        wing.cp = 9629
+        grid.put(mut g, row - 3, col + 1, wing)
+    }
+    if fade >= 0 {
+        draw.put_text(mut g, row - 3, col - 1, if fade < 5 then "..." else "   ", style)
+        if fade >= 10 { draw.put_text(mut g, row - 2, col, " ", style) }
+    }
+}
+
+/// Separate hawk study keeps every posture and fade readable on both tiers.
+pub fn hawk_sheet(t: int) -> grid.Grid {
+    var g = grid.new(12, 80)
+    draw.put_text(
+        mut g,
+        1,
+        1,
+        "hawk: circle   stop     stoop    recover   fade0    fade5    fade10",
+        ink(t, true),
+    )
+    var i = 0
+    while i < 7 {
+        draw_hawk(
+            mut g,
+            t,
+            7,
+            8 + i * 10,
+            if i < 4 then i else sim.HUNT,
+            if i < 4 then -1 else (i - 4) * 5,
+        )
+        i += 1
+    }
+    g
+}
+
+/// Original opening frames: the crossing, the break, the bank. Scene time
+/// is simulation time; no renderer or wall clock can advance it.
+pub fn opening_frame(s: sim.Sim, t: int, mut g: grid.Grid) {
+    let age = s.tick - s.scene_started
+    let frame = age / sim.SCENE_TICKS
+    let style = grid.cell(
+        32,
+        if t == tier.RICH then 153 else 7,
+        if t == tier.RICH then 17 else 4,
+        0,
+    )
+    var row = 0
+    while row < s.rows {
+        var col = 0
+        while col < s.cols {
+            var cell = copy style
+            if row > s.rows / 2 && (row * 7 + col + age / 6) % 9 == 0 {
+                cell.cp = if t == tier.RICH then 8776 else 126
+            }
+            grid.put(mut g, row, col, cell)
+            col += 1
+        }
+        row += 1
+    }
+    let mid = s.cols / 2
+    if frame == 0 {
+        var wolf = 0
+        while wolf < 4 {
+            draw_cub(mut g, t, s.rows / 2 - 2, mid - 12 + wolf * 5, 1, 0)
+            wolf += 1
+        }
+        draw.put_text(mut g, 3, 4, "Late winter. The pack crosses the frozen Ashwater.", style)
+        draw.put_text(mut g, 4, 4, "The smallest follows the tracks it knows.", style)
+        draw.put_text(mut g, s.rows / 2 + 1, mid - 15, "_____  ______  ______  _____", style)
+    } else if frame == 1 {
+        draw.put_text(mut g, 3, 4, "The ice gives beneath the last of the line.", style)
+        draw.put_text(mut g, 4, 4, "A cry, then water. The tracks are gone.", style)
+        draw_cub(mut g, t, s.rows / 2 + 2, mid, 2, 2)
+        draw.put_text(mut g, s.rows / 2, mid - 8, "__   _     __   _", style)
+    } else {
+        draw.put_text(
+            mut g,
+            3,
+            4,
+            "Dawn. Gravel beneath its paws. Its mother's scent gone cold.",
+            style,
+        )
+        draw.put_text(mut g, 4, 4, "Home is upstream, and up.", style)
+        draw_cub(mut g, t, s.rows / 2 - 2, mid, 0, 1)
+        draw.put_text(mut g, s.rows / 2 + 1, mid - 8, ". , . , . , . , .", style)
+    }
+    draw.put_text(mut g, s.rows - 2, 4, "Any key skips", style)
+}
+
+fn shade_exits(s: sim.Sim, t: int, mut g: grid.Grid) {
+    var edge = 0
+    while edge < 4 {
+        if forest.other(s.area, edge) >= 0 {
+            let (x, y) = forest.portal(s.seed, s.area, edge)
+            let row = sim.floor_div(y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
+            let col = sim.floor_div(x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
+            var dy = -1
+            while dy <= 1 {
+                var dx = -3
+                while dx <= 3 { grid.put(mut g, row + dy, col + dx, exit_shadow(t)); dx += 1 }
+                dy += 1
+            }
+        }
+        edge += 1
+    }
 }

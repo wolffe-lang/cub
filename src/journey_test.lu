@@ -1,0 +1,93 @@
+//! member: false
+
+use journey
+use sim
+use forest
+
+fn test_cb02_save_canonical_round_trip_at_last_den() {
+    var s = sim.new(17, 80, 24)
+    s.gate_open = true
+    s.shortcuts = 3
+    s.last_den = 2
+    s.lit_dens = 15
+    s.story = 1
+    s.heart = 3
+    s.scent = 119
+    s.flasks = 1
+    s.mark = true
+    s.mark_area = 2
+    let (mx, my) = forest.den_position(s.seed, 3)
+    s.mark_x = mx
+    s.mark_y = my
+    s.mark_scent = 87
+    let text = journey.encode(s)
+    let resumed = journey.decode(text, 80, 24) else |e| { assert(false, "valid save {e}"); return }
+    assert(journey.encode(resumed) == text, "byte-identical persistent state")
+    assert(
+        resumed.area == 1 && resumed.last_den == 2 && resumed.health == 76 && resumed.flasks == 3,
+        "den resets transient world",
+    )
+    assert(resumed.mark_area == 2 && resumed.mark_scent == 87, "cross-area mark persisted")
+    assert(
+        resumed.foes.len == sim.area_foes(s.seed, 1).len && resumed.trail.len == 0,
+        "fresh encounters",
+    )
+    assert(text.len < 512, "short text save")
+}
+
+fn test_cb02_save_rejects_unknown_corrupt_and_inconsistent_data() {
+    var s = sim.new(1, 80, 24)
+    let text = journey.encode(s)
+    var rejected = false
+    let _ = journey.decode(text + "junk", 80, 24) else |_| { rejected = true; sim.new(1, 80, 24) }
+    assert(rejected, "trailing corruption")
+    rejected = false
+    let _ = journey.decode("CUB 9\n", 80, 24) else |e| {
+        rejected = "{e}" == "save_version"
+        sim.new(1, 80, 24)
+    }
+    assert(rejected, "named unknown version")
+    s.heart = 11
+    rejected = false
+    let _ = journey.decode(journey.encode(s), 80, 24) else |_| {
+        rejected = true
+        sim.new(1, 80, 24)
+    }
+    assert(rejected, "invalid growth")
+    s.heart = 1
+    s.last_den = 3
+    rejected = false
+    let _ = journey.decode(journey.encode(s), 80, 24) else |_| {
+        rejected = true
+        sim.new(1, 80, 24)
+    }
+    assert(rejected, "unlit and inaccessible den")
+    s.gate_open = true
+    s.lit_dens = 9
+    s.mark = true
+    s.mark_area = 2
+    s.mark_x = 1000 * sim.FP
+    rejected = false
+    let _ = journey.decode(journey.encode(s), 80, 24) else |_| {
+        rejected = true
+        sim.new(1, 80, 24)
+    }
+    assert(rejected, "mark outside playable area")
+}
+
+fn test_cb02_all_dens_restore_with_growth_and_water() {
+    var den = 0
+    while den < 4 {
+        var s = sim.new(5, 80, 24)
+        s.gate_open = true
+        s.lit_dens = 15
+        s.last_den = den
+        let resumed = journey.decode(journey.encode(s), 80, 24) else |_| {
+            assert(false, "den {den}")
+            return
+        }
+        let (x, y) = forest.den_position(5, den)
+        assert(resumed.x == x && resumed.y == y && sim.at_den(resumed), "resume at den {den}")
+        den += 1
+    }
+}

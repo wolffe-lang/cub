@@ -1,0 +1,33 @@
+//! member: false
+
+use sim
+use controls
+
+fn test_cb02_lunge_hits_whole_rightmost_thorn_cell() {
+    var s = sim.new(7, 80, 24)
+    s.x = 2 * sim.FP + sim.FP * 3 / 4
+    s.y = sim.gate_y(s) * sim.FP - 1
+    s.heading = 128
+    s.heading_target = 128
+    var keys = List[int]()
+    (mut keys).push(controls.KEY_LUNGE)
+    sim.step(mut s, keys)
+    (mut keys).reset()
+    var i = 0
+    while i < 10 { sim.step(mut s, keys); i += 1 }
+    assert(s.gate_open, "right fractional edge of collision cell must break")
+}
+
+fn test_cb02_bite_names_the_lunge_at_thorns() {
+    var s = sim.new(7, 80, 24)
+    s.x = 2 * sim.FP + sim.FP * 3 / 4
+    s.y = sim.gate_y(s) * sim.FP - 1
+    s.heading = 128
+    var keys = List[int]()
+    (mut keys).push(controls.KEY_BITE)
+    sim.step(mut s, keys)
+    (mut keys).reset()
+    var n = 0
+    while n < 4 { sim.step(mut s, keys); n += 1 }
+    assert(!s.gate_open && s.gate_hint_until > s.tick, "bite gives lunge tell, not an opening")
+}

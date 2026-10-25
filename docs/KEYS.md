@@ -15,7 +15,7 @@ remain unmeasured. The decoder selftest checks every split of each sequence.
 | c | `63` | dodge |
 | Tab | `09` | lock nearest, then cycle |
 | w | `77` | drink |
-| r | `72` | rest at the hollow log; leave its screen |
+| r | `72` | rest at a nearby den; interact with a shortcut or cache |
 | 1 / 2 / 3 / 4 / 5 | `31` / `32` / `33` / `34` / `35` | grow heart / wind / fang / paw / nose at the den |
 | q | `71` | quit |
 
@@ -42,3 +42,10 @@ The pinned engine explicitly ignores CSI-u / kitty and tilde forms in
 `input/input.lu` (lines 16–18 and 173). Enhanced protocol negotiation and
 restoration on every exit path, with protocol-restore pty rows, must land
 in lair before cub can bind the chord. No protocol is enabled by this build.
+
+In connected areas, `r` rests at any den, pushes/crosses the fallen log,
+digs/crosses the hedge, or digs an unguarded cache. Context chooses the
+operation; stat growth remains den-only. Any decoded key skips the opening
+scene. Otherwise unused keys are recorded as `skip` and do nothing during
+play. The new pty save rows use `q` and the engine's typed byte `03` while
+a real save stage exists; neither row sends a signal from a script.

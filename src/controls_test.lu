@@ -90,7 +90,10 @@ fn test_the_moves_and_the_quit() {
     check("q", one(controls.KEY_QUIT), "q quits")
     check("\x1b", one(controls.KEY_RELEASE), "Esc releases")
     check("\x03", one(controls.KEY_INTERRUPT), "Ctrl-C")
-    check("abg\r\x7f", List[int](), "letters cub does not read, Enter and Backspace are dropped")
+    var skipped = List[int]()
+    var n = 0
+    while n < 5 { (mut skipped).push(controls.KEY_SKIP); n += 1 }
+    check("abg\r\x7f", skipped, "otherwise unused keys skip a scene and are inert during play")
     var want = List[int]()
     (mut want).push(controls.KEY_RELEASE)
     (mut want).push(controls.KEY_BITE)
@@ -120,5 +123,5 @@ fn test_key_names_round_trip() {
         "the movement keys",
     )
     let v = controls.vocab()
-    assert(v.keys.len == controls.KEY_COUNT && v.args.len == 2, "the vocabulary")
+    assert(v.keys.len == controls.KEY_COUNT && v.args.len == 28, "the vocabulary")
 }

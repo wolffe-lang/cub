@@ -93,7 +93,7 @@ pub const KEY_NOSE: int = 23
 pub const KEY_HEAVY: int = 24
 
 /// Number of replay key identifiers.
-pub const KEY_COUNT: int = 25
+pub const KEY_COUNT: int = 26
 
 /// What a character means, or `KEY_NONE`.
 fn char_key(b: int) -> int {
@@ -162,7 +162,8 @@ pub fn map(k: int) -> int {
         return KEY_INTERRUPT
     }
     let ch = input.char_of(k)
-    if ch >= 0 then char_key(ch) else KEY_NONE
+    let mapped = if ch >= 0 then char_key(ch) else KEY_NONE
+    if mapped == KEY_NONE then KEY_SKIP else mapped
 }
 
 /// Every key of `raw` mapped and pushed onto `keys`, in order, the ones
@@ -195,12 +196,19 @@ pub fn key_of(name: str) -> int ! {parse} {
 /// numeric event yet (cb01's `health` and `scent`).
 pub fn vocab() -> replay.Vocab {
     var names = List[str]()
-    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt release heart wind fang paw nose heavy".
+    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt release heart wind fang paw nose heavy skip".
         words() {
         (mut names).push(w)
     }
     var args = List[str]()
     (mut args).push("health")
     (mut args).push("scent")
+    (mut args).push("opening")
+    (mut args).push("journey")
+    var part = 0
+    while part < 24 { (mut args).push("saved-{part}"); part += 1 }
     replay.vocab(take names, take args)
 }
+
+/// An otherwise unused decoded key; skips scenes, inert during play.
+pub const KEY_SKIP: int = 25

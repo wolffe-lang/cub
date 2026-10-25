@@ -82,28 +82,39 @@ fn test_the_sheet() {
     assert(!grid.plain_ok(r), "the rich sheet uses the rich glyphs")
 }
 
-fn test_every_combat_posture_on_both_tiers_is_valid_and_distinct() {
+fn posture_pair(action: int) {
     var s = sim.new(7, 80, 24)
-    var action = sim.IDLE
-    var previous = grid.new(24, 80)
-    while action <= sim.FALL {
-        s.action = action
-        s.tick = if action == sim.BITE then 3 else if action == sim.LUNGE then 10 else 0
-        if action == sim.BITE || action == sim.LUNGE { s.attack_heading = 64 }
-        var plain = grid.new(24, 80)
-        art.render(s, tier.PLAIN, mut plain)
-        assert(grid.plain_ok(plain), "combat plain tier {action}")
-        var different = false
-        var i = 0
-        while i < plain.cells.len {
-            if !grid.same(plain.cells[i], previous.cells[i]) { different = true }
-            i += 1
-        }
-        assert(different, "action {action} has a distinct glyph")
-        previous = plain
-        action += 1
+    var before = grid.new(24, 80)
+    s.action = if action > 0 then action - 1 else sim.FALL
+    art.render(s, tier.PLAIN, mut before)
+    s.action = action
+    s.tick = if action == sim.BITE then 3 else if action == sim.LUNGE then 10 else 0
+    if action == sim.BITE || action == sim.LUNGE { s.attack_heading = 64 }
+    var after = grid.new(24, 80)
+    art.render(s, tier.PLAIN, mut after)
+    assert(grid.plain_ok(after), "plain posture")
+    var different = false
+    var i = 0
+    while i < after.cells.len {
+        if !grid.same(after.cells[i], before.cells[i]) { different = true }
+        i += 1
     }
+    assert(different, "distinct posture {action}")
 }
+
+fn test_combat_posture_0() { posture_pair(0) }
+
+fn test_combat_posture_1() { posture_pair(1) }
+
+fn test_combat_posture_2() { posture_pair(2) }
+
+fn test_combat_posture_3() { posture_pair(3) }
+
+fn test_combat_posture_4() { posture_pair(4) }
+
+fn test_combat_posture_5() { posture_pair(5) }
+
+fn test_combat_posture_6() { posture_pair(6) }
 
 fn test_cb01b_sideways_silhouette_keeps_body_cells() {
     var t = tier.PLAIN
@@ -169,7 +180,11 @@ fn test_cb01b_scent_hud_updates_on_kill_death_and_recovery() {
     sim.step(mut s, one(controls.KEY_BITE))
     var n = 0
     while n < 3 { sim.step(mut s, none_keys()); n += 1 }
-    assert(s.scent == 8 && art.hud_text(s).contains("scent 8"), "kill updates counter")
+    assert(s.scent == 0 && s.drops.len == 1, "kill leaves a visible pickup")
+    s.x = s.foes[0].x
+    s.y = s.foes[0].y
+    sim.step(mut s, none_keys())
+    assert(s.scent == 8 && art.hud_text(s).contains("scent 8"), "pickup updates counter")
     sim.hurt(mut s, 100)
     assert(art.hud_text(s).contains("scent 0") && s.mark_scent == 8, "death drops carried scent")
     var t = tier.PLAIN
@@ -181,7 +196,10 @@ fn test_cb01b_scent_hud_updates_on_kill_death_and_recovery() {
         t += 1
     }
     n = 0
-    while n < 31 { sim.step(mut s, none_keys()); n += 1 }
+    while n < 30 { sim.step(mut s, none_keys()); n += 1 }
+    s.x = s.mark_x
+    s.y = s.mark_y
+    sim.step(mut s, none_keys())
     assert(
         !s.mark && s.scent == 8 && art.hud_text(s).contains("scent 8"),
         "mark recovery updates HUD",

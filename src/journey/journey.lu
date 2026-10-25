@@ -1,0 +1,299 @@
+//! Versioned journey data, independent of frames and wall time. A save is
+//! canonical text plus a checksum, bounded and validated before it is used.
+
+use forest
+use sim
+use std.fs
+
+/// Named failures for DecodeErrors.
+pub error DecodeErrors = {save_corrupt, save_version, save_difficulty}
+
+/// Named failures for LoadErrors.
+pub error LoadErrors = {save_io, save_corrupt, save_version, save_difficulty}
+
+/// Named failures for PrepareErrors.
+pub error PrepareErrors = {
+    save_io,
+    save_busy,
+    save_cut,
+    save_corrupt,
+    save_version,
+    save_difficulty,
+}
+
+/// Named failures for CommitErrors.
+pub error CommitErrors = {save_io, save_committed_unsynced}
+
+/// Save schema identity. Unsupported versions are named errors.
+pub const VERSION: int = 1
+
+/// Canonical persistent state; transient health/foes reset at the last den.
+pub fn payload(s: sim.Sim) -> str {
+    "CUB {VERSION}\n" +
+        "seed {s.seed} difficulty {s.difficulty}\n" +
+        "growth {s.heart} {s.wind} {s.fang} {s.paw} {s.nose}\n" +
+        "water {s.flask_max} scent {s.scent}\n" +
+        "den {s.last_den} lit {s.lit_dens} shortcuts {s.shortcuts}\n" +
+        "gate {if s.gate_open then 1 else 0} story {s.story} deaths {s.deaths}\n" +
+        "mark {if s.mark then 1 else 0} {s.mark_area} {s.mark_x} {s.mark_y} {s.mark_scent}\n" +
+        "cache {s.caches} pouch {s.yarrow} {s.marrow} opening {if s.opening_seen then 1 else 0}\n"
+}
+
+/// Small non-cryptographic corruption check; intermediate products fit int64.
+pub fn checksum(text: str) -> int {
+    var h = 7
+    var i = 0
+    while i < text.len { h = (h * 31 + text.bytes()[i] as int) % 1000000007; i += 1 }
+    h
+}
+
+/// Byte-identical encoding for the same persistent journey.
+pub fn encode(s: sim.Sim) -> str {
+    let text = payload(s)
+    text + "check {checksum(text)}\n"
+}
+
+/// Reject malformed, unsupported, out-of-range and inconsistent data.
+/// Only default wolf difficulty is playable in this build.
+pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
+    if text.len > 1024 { return save_corrupt }
+    var words = List[str]()
+    for word in text.words() { (mut words).push(word) }
+    if words.len < 2 || words[0] != "CUB" { return save_corrupt }
+    if words[1] != "1" { return save_version }
+    if words.len != 43 { return save_corrupt }
+    var values = List[int]()
+    var i = 0
+    while i < words.len {
+        if i == 1 ||
+            i == 3 ||
+            i == 5 ||
+            i >= 7 && i <= 11 ||
+            i == 13 ||
+            i == 15 ||
+            i == 17 ||
+            i == 19 ||
+            i == 21 ||
+            i == 23 ||
+            i == 25 ||
+            i == 27 ||
+            i >= 29 && i <= 33 ||
+            i == 35 ||
+            i == 37 ||
+            i == 38 ||
+            i == 40 ||
+            i == 42 {
+            (mut values).push(words[i].to_int() else |_| { return save_corrupt })
+        }
+        i += 1
+    }
+    // Shape is verified by re-encoding too: unknown keys, trailing data and
+    // alternative numeric spellings cannot sneak past the checksum.
+    if values[1] < -1000000000 || values[1] > 1000000000 { return save_corrupt }
+    var s = sim.new(values[1], cols, rows)
+    s.difficulty = values[2]
+    if s.difficulty != 0 { return save_difficulty }
+    s.heart = values[3]
+    s.wind = values[4]
+    s.fang = values[5]
+    s.paw = values[6]
+    s.nose = values[7]
+    s.flask_max = values[8]
+    s.scent = values[9]
+    s.last_den = values[10]
+    s.lit_dens = values[11]
+    s.shortcuts = values[12]
+    s.gate_open = values[13] == 1
+    s.story = values[14]
+    s.deaths = values[15]
+    s.mark = values[16] == 1
+    s.mark_area = values[17]
+    s.mark_x = values[18]
+    s.mark_y = values[19]
+    s.mark_scent = values[20]
+    s.caches = values[21]
+    s.yarrow = values[22]
+    s.marrow = values[23]
+    s.opening_seen = values[24] == 1
+    if s.caches < 0 ||
+        s.caches > 63 ||
+        s.yarrow < 0 ||
+        s.yarrow > 6 ||
+        s.marrow < 0 ||
+        s.marrow > 6 ||
+        values[24] < 0 ||
+        values[24] > 1 {
+        return save_corrupt
+    }
+    i = 3
+    while i <= 7 { if values[i] < 1 || values[i] > 10 { return save_corrupt }; i += 1 }
+    if s.seed < -1000000000 ||
+        s.seed > 1000000000 ||
+        s.flask_max != 3 ||
+        s.scent < 0 ||
+        s.scent > 1000000000 ||
+        s.last_den < 0 ||
+        s.last_den > 3 ||
+        s.lit_dens < 1 ||
+        s.lit_dens > 15 ||
+        s.shortcuts < 0 ||
+        s.shortcuts > 3 ||
+        values[13] < 0 ||
+        values[13] > 1 ||
+        s.story < 0 ||
+        s.story > 1 ||
+        s.deaths < 0 ||
+        s.deaths > 1000000000 ||
+        values[16] < 0 ||
+        values[16] > 1 ||
+        s.mark_area < 0 ||
+        s.mark_area > 2 ||
+        s.mark_x < -1000000000 ||
+        s.mark_x > 1000000000 ||
+        s.mark_y < -1000000000 ||
+        s.mark_y > 1000000000 ||
+        s.mark_scent < 0 ||
+        s.mark_scent > 1000000000 {
+        return save_corrupt
+    }
+    if sim.light_den(s.lit_dens, s.last_den) != s.lit_dens ||
+        s.lit_dens % 2 != 1 ||
+        !s.gate_open &&
+            (s.last_den != 0 || s.shortcuts != 0 || s.story != 0 || s.mark && s.mark_area != 0) ||
+        !s.mark && s.mark_scent != 0 {
+        return save_corrupt
+    }
+    if s.mark &&
+        forest.blocked(
+            s.seed,
+            s.mark_area,
+            sim.floor_div(s.mark_x, sim.FP),
+            sim.floor_div(s.mark_y, sim.FP),
+        ) {
+        return save_corrupt
+    }
+    if encode(s) != text { return save_corrupt }
+    sim.wake(mut s)
+    s.save_status = 2
+    s.entered = 0
+    s
+}
+
+/// Missing saves alone mean new journey; every other read failure is named.
+pub fn load(path: str, seed: int, cols: int, rows: int) -> sim.Sim ! LoadErrors {
+    let text = fs.read_text(path) else |e| match e {
+        not_found => { return sim.new(seed, cols, rows) },
+        denied => { return save_io },
+        io => { return save_io },
+        utf8 => { return save_corrupt },
+    }
+    decode(text, cols, rows)?
+}
+
+/// Stage exclusively in the destination directory, sync and close before
+/// replacement. A stale/concurrent stage is a named failure, never truncated.
+/// `cut` is the explicit fault witness: stop after half the bytes.
+pub fn prepare(path: str, s: sim.Sim, cut: bool) -> () ! PrepareErrors {
+    let text = encode(s)
+    let _ = decode(text, s.cols, s.rows)?
+    let parent = fs.parent(path) else "."
+    fs.create_dir_all(parent) else |_| { return save_io }
+    let temp = path + ".pending"
+    var file = fs.create_new(temp) else |e| match e {
+        exists => { return save_busy },
+        not_found => { return save_io },
+        denied => { return save_io },
+        io => { return save_io },
+    }
+    var bytes = List[byte]()
+    var i = 0
+    let count = if cut then text.len / 2 else text.len
+    while i < count { (mut bytes).push(text.bytes()[i]); i += 1 }
+    fs.write_chunk(mut file, bytes) else |_| {
+        fs.close(take file) else |_| {}
+        fs.remove(temp) else |_| {}
+        return save_io
+    }
+    fs.sync(mut file) else |_| {
+        fs.close(take file) else |_| {}
+        fs.remove(temp) else |_| {}
+        return save_io
+    }
+    fs.close(take file) else |_| { fs.remove(temp) else |_| {}; return save_io }
+    if cut { fs.remove(temp) else |_| {}; return save_cut }
+}
+
+/// Cancel only this session's successfully prepared stage.
+pub fn abort(path: str) -> () ! {save_io} {
+    fs.remove(path + ".pending") else |_| { return save_io }
+}
+
+/// Same-directory rename is atomic on the supported Unix hosts. A directory
+/// sync failure AFTER replacement is distinguished from an uncommitted save.
+pub fn commit(path: str) -> () ! CommitErrors {
+    fs.move_file(path + ".pending", path) else |_| { return save_io }
+    fs.sync_dir(fs.parent(path) else ".") else |_| { return save_committed_unsynced }
+}
+
+/// Versioned replay snapshot uses the same validated journey representation.
+pub fn snapshot(s: sim.Sim) -> List[int] {
+    var values = List[int]()
+    (mut values).push(s.seed)
+    (mut values).push(s.difficulty)
+    (mut values).push(s.heart)
+    (mut values).push(s.wind)
+    (mut values).push(s.fang)
+    (mut values).push(s.paw)
+    (mut values).push(s.nose)
+    (mut values).push(s.flask_max)
+    (mut values).push(s.scent)
+    (mut values).push(s.last_den)
+    (mut values).push(s.lit_dens)
+    (mut values).push(s.shortcuts)
+    (mut values).push(if s.gate_open then 1 else 0)
+    (mut values).push(s.story)
+    (mut values).push(s.deaths)
+    (mut values).push(if s.mark then 1 else 0)
+    (mut values).push(s.mark_area)
+    (mut values).push(s.mark_x)
+    (mut values).push(s.mark_y)
+    (mut values).push(s.mark_scent)
+    (mut values).push(s.caches)
+    (mut values).push(s.yarrow)
+    (mut values).push(s.marrow)
+    (mut values).push(if s.opening_seen then 1 else 0)
+    values
+}
+
+/// Validate a complete initial replay journey before applying it.
+pub fn from_snapshot(v: List[int], cols: int, rows: int) -> sim.Sim ! DecodeErrors {
+    if v.len != 24 || v[0] < -1000000000 || v[0] > 1000000000 { return save_corrupt }
+    var s = sim.new(v[0], cols, rows)
+    s.difficulty = v[1]
+    s.heart = v[2]
+    s.wind = v[3]
+    s.fang = v[4]
+    s.paw = v[5]
+    s.nose = v[6]
+    s.flask_max = v[7]
+    s.scent = v[8]
+    s.last_den = v[9]
+    s.lit_dens = v[10]
+    s.shortcuts = v[11]
+    if v[12] < 0 || v[12] > 1 || v[15] < 0 || v[15] > 1 || v[23] < 0 || v[23] > 1 {
+        return save_corrupt
+    }
+    s.gate_open = v[12] == 1
+    s.story = v[13]
+    s.deaths = v[14]
+    s.mark = v[15] == 1
+    s.mark_area = v[16]
+    s.mark_x = v[17]
+    s.mark_y = v[18]
+    s.mark_scent = v[19]
+    s.caches = v[20]
+    s.yarrow = v[21]
+    s.marrow = v[22]
+    s.opening_seen = v[23] == 1
+    decode(encode(s), cols, rows)?
+}

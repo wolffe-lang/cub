@@ -40,7 +40,7 @@ deep forest, with the foe study below the cub poses.
 
 ## What is owed
 
-Dusk and night palettes follow with the other areas. Combat posture, foes and the den are covered by the game-frame goldens below.
+The thicket and meadow now have dusk palettes. Night and the later areas remain ahead. Combat posture, foes and dens are covered by game-frame goldens.
 
 ## Combat sheet vocabulary (2026-10-25)
 
@@ -65,3 +65,38 @@ heavy back-steps and leaves a four-tick punctuation burst. Parry `]`, dodge
 Scent is a dim `:` then `.`, the dropped mark a bright `*`; the hollow log
 is labelled, and the thorn row is `#X#X#` until broken. Scent is numeric in the top-row HUD at all times; other stat numbers remain
 in the den. The death card shows scent lost. Every action and encounter has a replay golden on both tiers.
+
+## Thorn hazards and exits (2026-10-25)
+
+The thorn gate is a collision wall, not lettering. Rich thorns alternate
+braille thorn clusters in hazard red 196; plain uses `%` and `&` in bright
+red 12. Neither tier uses `#` or `/` for the wall. Their glyph/colour pairs
+are disjoint from labels and terrain walls. A bite gives the line
+“the thorns need a lunge”; an active lunge targets the nearest point of
+the full five-cell collision rectangle, including fractional cell spans.
+The old wall's target stopped at the rightmost cell's origin: an approach
+inside that cell's right half could miss despite facing the wall.
+
+Every area exit and shortcut mouth has a three-row dim ground band,
+seven cells wide, not a label or a card. Rich uses middle dots in 238 on
+232; plain uses dots in 8 on 0. This exit shadow says that the path leaves
+the area. Closed gates retain their hazard colour over the route; opening
+one leaves the shadow readable. The approach is a deliberately carved,
+treeless path branch, never an accidental gap between tree glyphs.
+
+
+## The connected forest and opening
+
+The bank and path bend from seeded noise. Bramblehold's dense canopy and
+short visibility contrast with the meadow's long, brown-gold dusk view.
+A hollow and a burrow sit at the ends of side branches, with empty forms
+after digging; guards remain ordinary creatures, never disguised caches.
+The meadow hawk has its own seven-column posture/fade sheet on both tiers.
+A scent pickup shares the death mark's star, fades to a dot, and disappears
+on collection or expiry.
+
+The opening uses three original compositions: the pack over broken bands
+of river ice, the cub below the split crossing, and the gravel bank at dawn.
+Each carries no more than two lines of story. Simulation ticks select the
+frame; skipping is an ordinary recorded key. Later story scenes use the
+named hooks documented in DESIGN.md, not borrowed art or text.
