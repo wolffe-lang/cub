@@ -1,0 +1,146 @@
+//! terrain — the Shingle, the first ground the cub stands on (the design
+//! bible's section 2): the Ashwater along the north, a band of reeds at
+//! its edge, a strip of gravel, and Thornmere's forest closing in beyond
+//! it. Every answer is a pure function of the seed and a world cell, read
+//! through the engine's noise and hash (`world`), so the camera can ask
+//! for any cell at any time and the same seed is the same bank on every
+//! machine. The area graph and the other areas are cb02's; this is the one
+//! screen the scaffold draws.
+//!
+//! The forest's cover is a two-dimensional value noise built from the
+//! engine's hash (lattice points every `LATTICE` cells in both directions,
+//! a smoothstep blend between them), so the woods thicken in patches, not
+//! in rows as pack's path-side forest does.
+
+use world
+
+/// Fixed-point units a cell (the engine's).
+pub const FP: int = 256
+
+/// Cells between the cover's lattice points in both directions.
+pub const LATTICE: int = 24
+
+/// Gravel: the bank's open ground (the marks are the seed's).
+pub const GRAVEL: int = 0
+
+/// Grass.
+pub const GRASS: int = 1
+
+/// A trunk: blocks.
+pub const TRUNK: int = 2
+
+/// Canopy: under the trees, slow going but open.
+pub const CANOPY: int = 3
+
+/// Deep forest: blocks (the cub cannot push through the Dark Wood's brush).
+pub const DARK: int = 4
+
+/// Water: the Ashwater, cold and fast; blocks (section 5: the cub crosses
+/// at shallows only, and there are none at the Shingle).
+pub const WATER: int = 5
+
+/// Reeds: the water's edge, open.
+pub const REEDS: int = 6
+
+/// The water's edge: the river occupies world rows below `bank(x)`; the
+/// bank wanders about this row by `BANK_SWING`.
+pub const BANK_ROW: int = -8
+
+/// The bank's wander, cells.
+pub const BANK_SWING: int = 4
+
+/// Rows of reeds along the water's edge.
+pub const REED_ROWS: int = 2
+
+/// Rows of gravel below the reeds before the grass begins.
+pub const SHINGLE_ROWS: int = 5
+
+/// Cover under this is grass (and the odd trunk).
+pub const COVER_GRASS: int = 120
+
+/// Cover under this (and over `COVER_GRASS`) is the woods: canopy with
+/// trunks.
+pub const COVER_WOODS: int = 190
+
+/// Smoothstep of `t` in `[0, FP]`, in `[0, FP]`.
+fn smooth(t: int) -> int {
+    t * t / FP * (3 * FP - 2 * t) / FP
+}
+
+/// Two-dimensional value noise in `[0, FP]` on channel `ch` at cell
+/// `(x, y)`: the four lattice corners hashed, blended by smoothstep in
+/// both directions.
+pub fn noise2(seed: int, ch: int, x: int, y: int) -> int {
+    var kx = x / LATTICE
+    var rx = x - kx * LATTICE
+    if rx < 0 {
+        rx += LATTICE
+        kx -= 1
+    }
+    var ky = y / LATTICE
+    var ry = y - ky * LATTICE
+    if ry < 0 {
+        ry += LATTICE
+        ky -= 1
+    }
+    let a = world.hash(seed, ch * 100003 + kx, ky, FP + 1)
+    let b = world.hash(seed, ch * 100003 + kx + 1, ky, FP + 1)
+    let c = world.hash(seed, ch * 100003 + kx, ky + 1, FP + 1)
+    let d = world.hash(seed, ch * 100003 + kx + 1, ky + 1, FP + 1)
+    let sx = smooth(rx * FP / LATTICE)
+    let sy = smooth(ry * FP / LATTICE)
+    let top = a + (b - a) * sx / FP
+    let bottom = c + (d - c) * sx / FP
+    top + (bottom - top) * sy / FP
+}
+
+/// The forest's cover at a cell, `[0, FP]`.
+pub fn cover(seed: int, x: int, y: int) -> int {
+    noise2(seed, 1, x, y)
+}
+
+/// The world row the water ends at in column `x` (the first row that is
+/// not water): the bank's line, wandering along the river.
+pub fn bank(seed: int, x: int) -> int {
+    BANK_ROW + world.noise(seed, 9, x) * BANK_SWING / FP
+}
+
+/// The kind of ground at world cell `(x, y)`.
+pub fn kind(seed: int, x: int, y: int) -> int {
+    let b = bank(seed, x)
+    if y < b {
+        return WATER
+    }
+    if y < b + REED_ROWS {
+        return if world.hash(seed + 11, x, y, 3) == 0 then GRASS else REEDS
+    }
+    if y < b + REED_ROWS + SHINGLE_ROWS {
+        return GRAVEL
+    }
+    let c = cover(seed, x, y)
+    let h = world.hash(seed + 13, x, y, 100)
+    if c < COVER_GRASS {
+        return if h < 2 then TRUNK else GRASS
+    }
+    if c < COVER_WOODS {
+        return if h < 9 then TRUNK else if h < 70 then CANOPY else GRASS
+    }
+    if h < 12 then TRUNK else if h < 55 then CANOPY else DARK
+}
+
+/// Whether a cell stops the cub: trunks, deep forest and water.
+pub fn blocked(seed: int, x: int, y: int) -> bool {
+    let k = kind(seed, x, y)
+    k == TRUNK || k == DARK || k == WATER
+}
+
+/// A variant for a cell's texture, in `[0, n)`.
+pub fn variant(seed: int, x: int, y: int, n: int) -> int {
+    world.hash(seed + 31, x, y, n)
+}
+
+/// Where the cub wakes: on the gravel at column 0, two rows below the
+/// reeds, in fixed-point.
+pub fn start(seed: int) -> (int, int) {
+    (0, (bank(seed, 0) + REED_ROWS + 2) * FP + FP / 2)
+}
