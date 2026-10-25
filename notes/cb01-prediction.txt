@@ -1,0 +1,8 @@
+cb01 prediction — 2026-10-25, before implementation
+The fox-feint golden is the likeliest cross-host first failure, although I expect integer-only simulation to keep all frames identical.
+Parry edge script: active ages 0 and 8 succeed, age 9 fails (2/3 successes); same on both tiers.
+Weasel crouch to bite: proposed 12 ticks (400 ms at 30 Hz).
+Bench prediction: 30–34 idle wakes/s, median key-to-frame under 34 ms; within pack's bars.
+Prediction: about 1,100 added wolf source/test lines, excluding fixtures.
+Implementation directive: contract items 1–7 in order, tests with each coherent chunk; goldens regenerated with visual changes; three named draft plants; both host checks; final release binary and PR handoff.
+R-cb01-1 A recommended: camera stays on cub. R-cb01-2 A recommended: next bite within stagger interval doubles damage. Neither is a lane ruling.
