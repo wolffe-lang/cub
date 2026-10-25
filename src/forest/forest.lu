@@ -136,6 +136,7 @@ pub fn coast_branch(seed: int, cache: int, x: int, at: int) -> bool {
 
 /// A jetty beyond each branch mouth, varied by the seed.
 pub fn jetty_x(seed: int, side: int) -> int {
+    if side == 0 { return 0 }
     (if side == 0 then -1 else 1) * (35 + world.hash(seed, 211, side, 3))
 }
 
