@@ -33,7 +33,7 @@ visual tiers, and the semantic gate asserts events actually occurred.
 
 A live death writes the complete run through the fall to `~/.cub/ghosts/`.
 `--ghost-dir DIR` overrides that path, and explicitly enables archive writes
-for headless tests. Replaying a file live does not write another archive.
+for headless tests. Replaying a file live writes no archive unless `--ghost-dir` explicitly requests it.
 A zero health event fixes the exact death tick even when no input arrived
 there. The filename is seed, final tick and a collision counter, created exclusively;
 concurrent games never truncate an earlier archive. `tools/gameplay.py` replays a natural death archive and compares its

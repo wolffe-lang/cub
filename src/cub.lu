@@ -590,9 +590,9 @@ fn run_live(o: Options, args: List[str]) -> int {
                 }
             }
             sim.step(mut s, tick_keys)
-            if !replaying && s.deaths > archived {
+            if (!replaying || o.ghost_dir != "") && s.deaths > archived {
                 archived = s.deaths
-                write_ghost(rec, s, ghost_dir) else |_| {
+                write_ghost(if replaying then copy rp else copy rec, s, ghost_dir) else |_| {
                     ghost_error = true
                     ended = "a failed death archive"
                     quit = true

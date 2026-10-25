@@ -707,7 +707,7 @@ fn lock_next(mut s: Sim) {
         if f.health > 0 &&
             near(s.x, s.y, f.x, f.y, (SIGHT + s.nose) * FP) &&
             visible(s, s.x, s.y, f.x, f.y) {
-            let d = abs(s.x - f.x) + abs(s.y - f.y)
+            let d = (s.x - f.x) * (s.x - f.x) + (s.y - f.y) * (s.y - f.y)
             if s.locked >= 0 { best = j; break }
             if d < distance { best = j; distance = d }
         }

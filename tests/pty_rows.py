@@ -48,4 +48,19 @@ def death_agree(binary, ctx):
         problems.append('death and recovery differ between live and headless paths')
     return s, problems
 
-ROWS = {'den-keys': den_keys, 'death-agree': death_agree}
+def archive_failure(binary, ctx):
+    root = Path(ctx.ROOT)
+    dest = root / 'target' / 'pty'
+    dest.mkdir(parents=True, exist_ok=True)
+    invalid = dest / 'archive-not-a-directory'
+    invalid.write_text('fixture')
+    s = ctx.Session([binary, '--replay', str(root / 'tests/cases/death-recovery.pk'),
+                     '--ghost-dir', str(invalid), '--ticks', '120'], 24, 80, ctx.env_for())
+    s.finish()
+    problems = []
+    ctx.common_checks(s, 2, problems)
+    if b'failed death archive' not in s.err:
+        problems.append('archive failure was not reported after restoring the terminal')
+    return s, problems
+
+ROWS = {'den-keys': den_keys, 'death-agree': death_agree, 'archive-failure': archive_failure}

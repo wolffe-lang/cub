@@ -289,3 +289,15 @@ fn test_lunge_staggers_a_surviving_foe_and_hits_once() {
     ticks(mut s, 11)
     assert(s.foes[0].health == 56 && s.foes[0].phase == sim.STAGGER, "one triple bite and stagger")
 }
+
+fn test_first_lock_uses_geometric_nearest_then_cycles() {
+    var s = arena()
+    s.foes[0].x = s.x + 3 * sim.FP
+    s.foes[1].health = 8
+    s.foes[1].x = s.x + 2 * sim.FP
+    s.foes[1].y = s.y + 2 * sim.FP
+    sim.step(mut s, keys(controls.KEY_LOCK))
+    assert(s.locked == 1, "diagonal foe is geometrically nearer")
+    sim.step(mut s, keys(controls.KEY_LOCK))
+    assert(s.locked == 0, "next press cycles")
+}
