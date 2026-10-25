@@ -1103,7 +1103,7 @@ pub fn attack_aim(s: Sim) -> int {
 }
 
 /// The bite and lunge's presentation distances; hit reaches remain 2 and 4.
-pub const BITE_ARC: int = FP
+pub const BITE_ARC: int = 0
 
 /// Long leap distance in fixed point, before collision clipping.
 pub const LUNGE_ARC: int = 3 * FP
