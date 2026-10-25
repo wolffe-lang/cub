@@ -1407,7 +1407,14 @@ pub fn area_foes(seed: int, area: int) -> List[Foe] {
     // The two side branches end in harder, finite cache guards.
     var cache = 0
     while cache < 2 {
-        let (x, _) = forest.cache_position(seed, area, cache)
+        let (x, cy) = forest.cache_position(seed, area, cache)
+        if area == forest.SHINGLE {
+            var foe = make_foe(FOX, x, cy + FP)
+            foe.health = 40
+            (mut foes).push(foe)
+            cache += 1
+            continue
+        }
         var guard = 0
         while guard < (if cache == 0 then 3 else 2) {
             let gx = x + (guard - 1) * FP

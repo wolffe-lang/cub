@@ -92,6 +92,13 @@ pub fn den_position(seed: int, den: int) -> (int, int) {
 
 /// Two finite caches per area, reached by curved side branches.
 pub fn cache_position(seed: int, area: int, cache: int) -> (int, int) {
+    if area == SHINGLE {
+        let at = coast_end(seed, cache)
+        return (
+            coast_branch_x(seed, cache, at) * FP + FP / 2,
+            (origin(seed, area) + at) * FP + FP / 2,
+        )
+    }
     let x = (if cache == 0 then -1 else 1) * (27 + world.hash(seed, area, cache + 62, 4))
     let y = origin(seed, area) +
         (if cache == 0 then 52 else 132) +
@@ -104,25 +111,51 @@ pub fn branch(seed: int, area: int, cache: int, x: int) -> int {
     (if cache == 0 then 52 else 132) + curve(seed, 61 + area + cache, x) / 2
 }
 
+/// Seeded end of a shore offshoot, well beyond the den's quiet radius.
+pub fn coast_end(seed: int, cache: int) -> int {
+    40 + world.hash(seed, 201, cache, 6)
+}
+
+/// Each offshoot turns independently of the thorn route. The eight-cell
+/// bends use the full curve, rather than the old half-amplitude branches.
+pub fn coast_branch_x(seed: int, cache: int, at: int) -> int {
+    (if cache == 0 then -25 else 25) + curve(seed, 203 + cache, at)
+}
+
+/// True inside a shore branch or its rounded terminal clearing.
+pub fn coast_branch(seed: int, cache: int, x: int, at: int) -> bool {
+    let end = coast_end(seed, cache)
+    let cx = coast_branch_x(seed, cache, end)
+    let dx = x - cx
+    let dy = at - end
+    if dx * dx + dy * dy <= 16 { return true }
+    if at < -10 || at > end { return false }
+    let c = coast_branch_x(seed, cache, at)
+    x >= c - 2 && x <= c + 2
+}
+
 /// Seeded collision tile after route carving.
 pub fn kind(seed: int, area: int, x: int, y: int) -> int {
     let at = y - origin(seed, area)
-    // The bank and river themselves meander across the whole screen.
-    if area == SHINGLE && at < 0 {
+    // Water, one clean bank row, and a constant-width horizontal path.
+    // Never clip these bands at the den's local y=0.
+    if area == SHINGLE {
         let b = terrain.bank(seed, x)
         if y < b { return terrain.WATER }
         if y < b + terrain.REED_ROWS { return terrain.REEDS }
-        return terrain.GRAVEL
+        if y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS { return terrain.GRAVEL }
     }
     if x < 0 - HALF_WIDTH || x > HALF_WIDTH || at < 0 || at > LENGTH { return terrain.DARK }
-    if area == SHINGLE && x * x + at * at <= 100 { return terrain.GRAVEL }
     let c = spine(seed, area, at)
     let w = half(seed, area, at)
     if x >= c - w && x <= c + w { return if area == SHINGLE then terrain.GRAVEL else terrain.GRASS }
-    // A small quiet starting clearing, not a straight combat strip.
-    if area == SHINGLE && x * x + at * at <= 100 { return terrain.GRAVEL }
     var cache = 0
     while cache < 2 {
+        if area == SHINGLE {
+            if coast_branch(seed, cache, x, at) { return terrain.GRASS }
+            cache += 1
+            continue
+        }
         let (cx, _) = cache_position(seed, area, cache)
         if x >= (if cache == 0 then cx / FP - 2 else -10) &&
             x <= (if cache == 0 then 10 else cx / FP + 2) {
