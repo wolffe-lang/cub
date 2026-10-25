@@ -1,0 +1,4 @@
+cb02a: pid 57008; memory floor met; env WOLF_STD=/Users/mfwolffe/lanes/cb02a/cub/.wolf-bin/std .wolf-bin/wolf test --deny-warnings --nocapture src/coast_test.lu
+test src/coast_test.lu::test_cb02a_forest_fill_is_visible_beyond_area_bounds ... FAILED (trap(assert))
+test src/coast_test.lu::test_cb02a_bank_has_no_sawtooth_steps ... ok
+wolf test: 1 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out

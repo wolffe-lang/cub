@@ -1,0 +1,104 @@
+{
+  "source_head": "4e53ad99a1fb55d6199a2979d055652976efc7ff",
+  "tests": {
+    "checked": 144,
+    "failed": 0,
+    "rejected": 0,
+    "unsupported": 0,
+    "skips": 0,
+    "pty_rows": 12
+  },
+  "goldens": {
+    "directories": 91,
+    "files": 1674,
+    "sha256": "cc587e875248810f085a6ad329485e66a539b5c8087476ac68b0ccf5db31a130",
+    "both_hosts_and_backends": true
+  },
+  "census": {
+    "seeds": 50,
+    "areas": 3,
+    "sizes": [
+      "80x24",
+      "200x60"
+    ],
+    "tiers": [
+      "plain",
+      "rich"
+    ],
+    "all_150_destination_rows_reached": true,
+    "max_blank_forest": 0,
+    "blank_bar_N": 0,
+    "max_bank_step": 1,
+    "max_path_straight": 7,
+    "min_foe_cells": 34,
+    "max_useful_steps": 132,
+    "step_bar_K": 200
+  },
+  "macos": {
+    "avg_us_small_rich_plain": [
+      98,
+      98
+    ],
+    "avg_us_wide_rich_plain": [
+      455,
+      455
+    ],
+    "latency_median_p90_ms": [
+      22.8,
+      33.3
+    ],
+    "latency_repeat_ms": [
+      11.2,
+      33.3
+    ],
+    "idle": "loud Linux-only skip"
+  },
+  "linux": {
+    "avg_us_small_rich_plain": [
+      158,
+      154
+    ],
+    "avg_us_wide_rich_plain": [
+      710,
+      717
+    ],
+    "latency_median_p90_ms": [
+      23.2,
+      33.6
+    ],
+    "latency_repeat_ms": [
+      14.4,
+      33.5
+    ],
+    "idle_switches_10s": [
+      300,
+      301
+    ],
+    "slack": 1
+  },
+  "plants": [
+    {
+      "pr": 15,
+      "head": "548b9ee540c2c4b1e51f992c52875fb934ecfdde",
+      "run": 40231575421,
+      "row": "test_cb02a_forest_fill_is_visible_beyond_area_bounds"
+    },
+    {
+      "pr": 16,
+      "head": "2ab9f1c08cd22613661d044d8352386b84f5a724",
+      "run": 40231627302,
+      "row": "test_cb02a_each_branch_ends_in_an_alcove"
+    },
+    {
+      "pr": 17,
+      "head": "5653e9bca05ac615e3fe74dc4ab431eff4c3b043",
+      "run": 40231670604,
+      "row": "test_cb02a_jetties_never_cut_den_from_thorn_route"
+    }
+  ],
+  "plant_ci_provenance": "Lane read each run list once immediately: all returned []. Coordinator supplied run ids and observed each named red; lane did not reread or poll.",
+  "reboot": "nomad reboot at 2026-10-25 16:21 EDT interrupted proof3 memory-floor waiting at 7 GB, before the heavy command. No Linux job existed then. The complete final gates above ran after reboot.",
+  "linux_lock": "/home/mfwolffe/lanes/kasumi-cores-4-7.lock",
+  "linux_cpus": "4-7",
+  "play_binary_sha256": "2a0f890da8e752ce125ed1e1409af43233d48b15635a8499953b0e4a651ff1d2"
+}

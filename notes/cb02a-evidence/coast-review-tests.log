@@ -1,0 +1,10 @@
+cb02a: pid 20436; memory floor met; env WOLF_STD=/Users/mfwolffe/lanes/cb02a/cub/.wolf-bin/std .wolf-bin/wolf test --deny-warnings --nocapture src/coast_test.lu
+test src/coast_test.lu::test_cb02a_forest_fill_is_visible_beyond_area_bounds ... ok
+test src/coast_test.lu::test_cb02a_bank_has_no_sawtooth_steps ... ok
+test src/coast_test.lu::test_cb02a_each_branch_ends_in_an_alcove ... ok
+test src/coast_test.lu::test_cb02a_jetties_never_cut_den_from_thorn_route ... ok
+test src/coast_test.lu::test_cb02a_coast_sheet_keeps_plain_tier_and_sprite_footprints ... ok
+test src/coast_test.lu::test_cb02a_rich_props_emit_scalar_glyphs_not_utf8_bytes ... ok
+test src/coast_test.lu::test_cb02a_branches_join_the_shore_without_an_origin_seam ... ok
+test src/coast_test.lu::test_cb02a_guard_does_not_hide_the_treasure_sprite ... ok
+wolf test: 8 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out

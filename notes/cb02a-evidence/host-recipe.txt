@@ -1,0 +1,20 @@
+Mac: /Users/mfwolffe/lanes/cb02a/heavy.sh tools/check
+Before every heavy launch the wrapper reads vm_stat and waits 180 seconds
+until free+inactive+speculative >=8 GB, then execs the command.
+TMPDIR=/Users/mfwolffe/lanes/cb02a/tmp; LAIR_LANE_HOST=nomad.
+
+Linux: /home/mfwolffe/lanes/cb02a/linux-final-check.sh
+flock /home/mfwolffe/lanes/kasumi-cores-4-7.lock (fd 9, held through wait)
+LAIR_CPUS=4-7 .lair/tools/in-container tools/check-linux
+LAIR_CPUS=4-7 .lair/tools/in-container env LAIR_PERF_SLACK=1 tools/check-perf
+Container memory limit 12 GB, taskset inside. No package installed.
+Launch through ssh kasumi bash -s, setsid --fork --wait, recorded pid files,
+wait for every child. No process killed. Source imported by git bundle.
+The cb02 directory was read-only; it retained no launcher or lock record.
+The shared cores-4-7 lock convention is now explicit here.
+
+Reproduction: target/cub --headless --script tests/cases/stand.pk --seed N
+  --frames 1 --every 1 --size WxH --tier T --dump DIR
+N=0..4, WxH=80x24 or 200x60, T=rich or plain. No play seed was supplied.
+The first attempt without a script drew the opening; retained before/after
+frames use stand.pk and show actual Shingle ground.

@@ -1,0 +1,18 @@
+cb02a: pid 21593; memory floor met; target/cub --make-world-proof /Users/mfwolffe/lanes/cb02a/proof
+witness world-gate tick 1135 area 0 scent 3572 mark 0 shortcuts 0
+witness world-thorns tick 1152 area 0 scent 3572 mark 0 shortcuts 0
+witness world-open tick 1178 area 0 scent 3572 mark 0 shortcuts 0
+witness world-den tick 1251 area 1 scent 3572 mark 0 shortcuts 0
+witness world-meadow tick 2303 area 2 scent 3580 mark 0 shortcuts 0
+witness world-hawk tick 2656 area 2 scent 3592 mark 0 shortcuts 0
+witness world-recovered tick 4093 area 2 scent 3612 mark 0 shortcuts 0
+witness world-return tick 4878 area 0 scent 3612 mark 0 shortcuts 3
+witness coast-cache-0 tick 5108 area 0 scent 3632 mark 0 shortcuts 3
+witness coast-cache-1 tick 5720 area 0 scent 3652 mark 0 shortcuts 3
+witness bite tick 383 area 0 scent 16 mark 0 shortcuts 0
+witness parry tick 372 area 0 scent 8 mark 0 shortcuts 0
+witness dodge tick 372 area 0 scent 8 mark 0 shortcuts 0
+witness weasel-retreat tick 372 area 0 scent 8 mark 0 shortcuts 0
+witness fox-feint tick 583 area 0 scent 16 mark 0 shortcuts 0
+witness natural-death tick 757 area 0 scent 0 mark 16 shortcuts 0
+witness aim-lock tick 369 area 0 scent 8 mark 0 shortcuts 0
