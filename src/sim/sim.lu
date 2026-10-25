@@ -242,7 +242,18 @@ pub fn screen_col(s: Sim) -> int {
 /// The world cell under screen `(row, col)`: the camera's corner plus the
 /// offset, the cub's own cell at the centre.
 pub fn world_cell(s: Sim, row: int, col: int) -> (int, int) {
-    (cell_x(s) - screen_col(s) + col, cell_y(s) - screen_row(s) + row)
+    // PLANT (cb00-plant-camera): the camera stops following the cub twenty
+    // columns from the start (a camera fixed once the cub walks off its
+    // first screen: the scroll golden is the gate that must see it).
+    let (x0, _) = terrain.start(s.seed)
+    var cx = cell_x(s)
+    if cx < x0 / FP - 20 {
+        cx = x0 / FP - 20
+    }
+    if cx > x0 / FP + 20 {
+        cx = x0 / FP + 20
+    }
+    (cx - screen_col(s) + col, cell_y(s) - screen_row(s) + row)
 }
 
 /// The cub's world column.
