@@ -147,15 +147,16 @@ fn test_the_camera_keeps_the_cub_at_the_centre() {
 fn test_the_stats_give_the_bars() {
     assert(sim.health_max(1) == 52 && sim.health_max(7) == 124, "heart")
     assert(sim.stamina_max(1) == 70 && sim.stamina_max(6) == 120, "wind")
-    assert(sim.trot_at(1) == 42 && sim.trot_at(4) == 48, "paw")
+    assert(sim.trot_at(1) == 63 && sim.trot_at(4) == 73, "paw")
     let s = sim.new(1, 80, 24)
     assert(s.health == 52 && s.stamina == 70, "a fresh cub")
 }
 
 fn test_cb01b_speed_scaling_keeps_the_weasel_bars() {
-    assert(sim.WALK_PERCENT == 110, "ten percent increase")
-    assert(sim.trot_at(1) == (38 * 110 + 50) / 100, "walk rounded to nearest FP unit")
-    assert(sim.SNEAK_V == (19 * 110 + 50) / 100, "sneak rounded to nearest FP unit")
+    // cb01b's bars at cb02c's pace (R-cb02c-1 A: the dial at 165).
+    assert(sim.WALK_PERCENT == 165, "half as fast again as cb01b's 110")
+    assert(sim.trot_at(1) == (38 * 165 + 50) / 100, "walk rounded to nearest FP unit")
+    assert(sim.SNEAK_V == sim.trot_at(1) / 2, "sneak half the walk")
     assert(sim.FOE_STALK_V > sim.trot_at(1), "weasel outruns starting cub")
     assert(sim.SNEAK_V < sim.FOE_STALK_V, "sneak below stalk")
     var s = sim.new(7, 80, 24)

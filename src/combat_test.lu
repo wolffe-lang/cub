@@ -279,7 +279,7 @@ fn test_foe_windup_turns_without_pivoting() {
     while i < 13 {
         sim.step(mut s, keys(0))
         let turn = sim.turn_toward(old, s.foes[0].heading)
-        assert(sim.abs(turn) <= sim.TURN_RATE, "foe pivoted during windup")
+        assert(sim.abs(turn) <= sim.FOE_TURN_RATE, "foe pivoted during windup")
         old = s.foes[0].heading
         i += 1
     }
