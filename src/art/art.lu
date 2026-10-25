@@ -64,6 +64,14 @@ pub fn draw_cub(mut g: grid.Grid, t: int, row: int, col: int, facing: int, band:
     } else {
         copy e0
     }
+    // Deliberate regression: the old east-facing vertical body strip.
+    if facing == 1 && t == tier.RICH {
+        grid.put(mut g, row, col, body)
+        grid.put(mut g, row, col + 1, e0)
+        grid.put(mut g, row + 1, col, body)
+        grid.put(mut g, row + 1, col + 1, e1)
+        return
+    }
     // One body, every heading: ears above the same two body cells.
     grid.put(mut g, row, col, e0)
     grid.put(mut g, row, col + 1, e1)
