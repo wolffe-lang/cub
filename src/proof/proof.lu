@@ -66,31 +66,34 @@ fn walk_stop(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int, stop_foe: i
     let area = s.area
     let w = forest.bound(s.field, area)
     let width = w * 2 + 1
+    // The coast's rows run from the river (the bank wanders north of the
+    // spawn's row); an inland area's from its entry row.
+    let top = if area == forest.SHINGLE then forest.COAST_TOP else 0
     let origin = forest.origin(s.seed, area)
     let sx = sim.cell_x(s)
     let sy = sim.cell_y(s) - origin
     let gx = sim.floor_div(tx, sim.FP)
     let gy = sim.floor_div(ty, sim.FP) - origin
-    if sx < 0 - w || sx > w || sy < 0 || sy > forest.LENGTH { return false }
+    if sx < 0 - w || sx > w || sy < top || sy > forest.LENGTH { return false }
     var parent = List[int]()
     var queue = List[int]()
     var i = 0
-    while i < width * (forest.LENGTH + 1) { (mut parent).push(-1); i += 1 }
-    let start = sy * width + sx + w
-    let goal = gy * width + gx + w
+    while i < width * (forest.LENGTH - top + 1) { (mut parent).push(-1); i += 1 }
+    let start = (sy - top) * width + sx + w
+    let goal = (gy - top) * width + gx + w
     parent[start] = start
     (mut queue).push(start)
     var head = 0
     while head < queue.len && parent[goal] < 0 {
         let at = queue[head]
         let x = at % width - w
-        let y = at / width
+        let y = at / width + top
         var d = 0
         while d < 4 {
             let nx = x + (if d == 0 then -1 else if d == 1 then 1 else 0)
             let ny = y + (if d == 2 then -1 else if d == 3 then 1 else 0)
-            if nx >= 0 - w && nx <= w && ny >= 0 && ny <= forest.LENGTH {
-                let next = ny * width + nx + w
+            if nx >= 0 - w && nx <= w && ny >= top && ny <= forest.LENGTH {
+                let next = (ny - top) * width + nx + w
                 if parent[next] < 0 && !sim.blocked(s, nx, ny + origin) {
                     parent[next] = at
                     (mut queue).push(next)
@@ -109,7 +112,7 @@ fn walk_stop(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int, stop_foe: i
     while i >= 0 {
         let cell = path[i]
         let x = (cell % width - w) * sim.FP + sim.FP / 2
-        let y = (cell / width + origin) * sim.FP + sim.FP / 2
+        let y = (cell / width + top + origin) * sim.FP + sim.FP / 2
         while !sim.near(s.x, s.y, x, y, sim.FP / 2) {
             if s.tick > until || s.action == sim.FALL { return false }
             if stop_foe >= 0 &&
@@ -217,7 +220,12 @@ pub fn generate(dir: str) -> int {
     var cache = 0
     while cache < forest.cache_count(0) {
         let (cx, cy) = forest.cache_position(s.seed, s.field, 0, cache)
-        if !walk(mut s, mut r, cx, cy) { eprint("proof: coast cache {cache}"); return 1 }
+        if !walk(mut s, mut r, cx, cy) {
+            eprint(
+                "proof: coast cache {cache} tick {s.tick} action {s.action} health {s.health} at {sim.cell_x(s)},{sim.cell_y(s)} goal {sim.floor_div(cx, sim.FP)},{sim.floor_div(cy, sim.FP)}",
+            )
+            return 1
+        }
         press(mut s, mut r, key(controls.KEY_REST))
         if !sim.cache_open(s, cache) { eprint("proof: cache remains guarded {cache}"); return 1 }
         snapshot(dir, "coast-cache-{cache}", s, r) else |_| { return 2 }
