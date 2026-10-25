@@ -1,0 +1,53 @@
+pace trot_fp 42 to_trot_ticks 11 to_stop_ticks 5 straight_cps 4.92 clear true diagonal_cps 4.80 quarter_turn_ticks 4 turning_cps 4.83 turn_radius_cells 0.41 sneak_fp 21 foe_stalk_fp 44 foe_retreat_fp 48
+wag standing_ticks 1 sneaking_ticks 1 walking_ticks 4 standing_frames 1 walking_frames 2
+chase straight_start 5.00 straight_end 4.53 straight_caught -1 turns_start 5.00 turns_end 2.89 turns_caught -1
+paths rich shore 247/240 glyphs 32,183,9617,8228 route 247/240 glyphs 32,9617,183,8228 branches 64/234 glyphs 10262,10294 log_branch 64/234 glyphs 10262,10294
+paths plain shore 7/8 glyphs 32,46,58,44 route 7/8 glyphs 32,58,46,44 branches 2/0 glyphs 39,34 log_branch 2/0 glyphs 39,34
+census tests/cases/aim-e.pk ticks 26 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/aim-lock.pk ticks 370 overlap_ticks 23 overlap 23 overlap_unreachable 12 overlap_behind 3 contact 62 contact_unreachable 47 contact_behind 10 foe_overlap 14
+census tests/cases/aim-n.pk ticks 26 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/aim-ne.pk ticks 26 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/aim-nw.pk ticks 26 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/aim-s.pk ticks 26 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/aim-se.pk ticks 26 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/aim-sw.pk ticks 26 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/aim-w.pk ticks 26 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/bite-arc.pk ticks 13 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/bite.pk ticks 379 overlap_ticks 17 overlap 17 overlap_unreachable 12 overlap_behind 3 contact 56 contact_unreachable 47 contact_behind 10 foe_overlap 14
+census tests/cases/coast-cache-0.pk ticks 5664 overlap_ticks 134 overlap 142 overlap_unreachable 87 overlap_behind 31 contact 293 contact_unreachable 224 contact_behind 55 foe_overlap 10975
+census tests/cases/coast-cache-1.pk ticks 6775 overlap_ticks 227 overlap 235 overlap_unreachable 138 overlap_behind 59 contact 391 contact_unreachable 280 contact_behind 85 foe_overlap 10975
+census tests/cases/coast-cache-2.pk ticks 8106 overlap_ticks 251 overlap 259 overlap_unreachable 146 overlap_behind 69 contact 429 contact_unreachable 302 contact_behind 95 foe_overlap 10975
+census tests/cases/coast-cache-3.pk ticks 9914 overlap_ticks 307 overlap 315 overlap_unreachable 183 overlap_behind 91 contact 532 contact_unreachable 363 contact_behind 129 foe_overlap 10975
+census tests/cases/death-recovery.pk ticks 120 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/diagonal.pk ticks 120 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/dodge.pk ticks 373 overlap_ticks 30 overlap 30 overlap_unreachable 12 overlap_behind 3 contact 69 contact_unreachable 47 contact_behind 10 foe_overlap 14
+census tests/cases/fox-feint.pk ticks 585 overlap_ticks 59 overlap 59 overlap_unreachable 24 overlap_behind 17 contact 103 contact_unreachable 64 contact_behind 24 foe_overlap 14
+census tests/cases/hawk-shadow.pk ticks 2569 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/hawk-stoop.pk ticks 2572 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/heavy.pk ticks 41 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/natural-death.pk ticks 759 overlap_ticks 227 overlap 227 overlap_unreachable 32 overlap_behind 20 contact 276 contact_unreachable 77 contact_behind 27 foe_overlap 14
+census tests/cases/opening-skip.pk ticks 102 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/opening.pk ticks 269 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/parry.pk ticks 373 overlap_ticks 30 overlap 30 overlap_unreachable 12 overlap_behind 3 contact 69 contact_unreachable 47 contact_behind 10 foe_overlap 14
+census tests/cases/resize.pk ticks 90 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/rest.pk ticks 45 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/saved-den.pk ticks 1 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/scroll.pk ticks 300 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/sneak.pk ticks 120 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/stand.pk ticks 60 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/thorn-gate.pk ticks 1178 overlap_ticks 40 overlap 40 overlap_unreachable 27 overlap_behind 3 contact 95 contact_unreachable 75 contact_behind 9 foe_overlap 14
+census tests/cases/three-bites.pk ticks 36 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/trail-fading.pk ticks 360 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/turn-east.pk ticks 120 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/walk-north.pk ticks 120 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/weasel-retreat.pk ticks 373 overlap_ticks 30 overlap 30 overlap_unreachable 12 overlap_behind 3 contact 69 contact_unreachable 47 contact_behind 10 foe_overlap 14
+census tests/cases/wide.pk ticks 60 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 0 contact_unreachable 0 contact_behind 0 foe_overlap 0
+census tests/cases/world-den.pk ticks 1248 overlap_ticks 42 overlap 42 overlap_unreachable 29 overlap_behind 19 contact 102 contact_unreachable 81 contact_behind 26 foe_overlap 170
+census tests/cases/world-gate.pk ticks 1132 overlap_ticks 42 overlap 42 overlap_unreachable 29 overlap_behind 19 contact 102 contact_unreachable 81 contact_behind 26 foe_overlap 23
+census tests/cases/world-hawk.pk ticks 2652 overlap_ticks 70 overlap 74 overlap_unreachable 48 overlap_behind 25 contact 174 contact_unreachable 137 contact_behind 39 foe_overlap 4395
+census tests/cases/world-meadow.pk ticks 2299 overlap_ticks 70 overlap 74 overlap_unreachable 48 overlap_behind 25 contact 174 contact_unreachable 137 contact_behind 39 foe_overlap 3336
+census tests/cases/world-open.pk ticks 1175 overlap_ticks 42 overlap 42 overlap_unreachable 29 overlap_behind 19 contact 102 contact_unreachable 81 contact_behind 26 foe_overlap 23
+census tests/cases/world-recovered.pk ticks 4086 overlap_ticks 98 overlap 106 overlap_unreachable 67 overlap_behind 31 contact 246 contact_unreachable 193 contact_behind 52 foe_overlap 8623
+census tests/cases/world-return.pk ticks 4871 overlap_ticks 98 overlap 106 overlap_unreachable 67 overlap_behind 31 contact 246 contact_unreachable 193 contact_behind 52 foe_overlap 10975
+census tests/cases/world-thorns.pk ticks 1149 overlap_ticks 42 overlap 42 overlap_unreachable 29 overlap_behind 19 contact 102 contact_unreachable 81 contact_behind 26 foe_overlap 23
+census total ticks 60787 overlap_ticks 1879 overlap 1935 overlap_unreachable 1043 overlap_behind 493 contact 3692 contact_unreachable 2604 contact_behind 760 foe_overlap 71580
