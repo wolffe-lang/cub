@@ -1,0 +1,5 @@
+23:test src/coast_test.lu::test_cb02a_each_branch_ends_in_an_alcove ... FAILED (trap(assert))
+27:test src/coast_test.lu::test_cb02a_branches_join_the_shore_without_an_origin_seam ... FAILED (trap(assert))
+90:test src/grove_test.lu::test_cb02b_four_branches_leave_the_coast ... FAILED (trap(assert))
+151:test src/world_rules_test.lu::test_cb02_spawned_bodies_stand_on_passable_ground ... FAILED (trap(assert))
+152:wolf test: 146 passed; 4 failed; 0 rejected; 0 unsupported; 0 filtered out

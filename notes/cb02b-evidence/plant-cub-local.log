@@ -1,0 +1,5 @@
+13:test src/art_test.lu::test_cb01b_sideways_silhouette_keeps_body_cells ... FAILED (trap(assert))
+71:test src/glyphs_test.lu::test_glyphs_doc_matches_the_tier ... FAILED (trap(assert))
+93:test src/grove_test.lu::test_cb02b_cub_east_is_the_north_cub_turned ... FAILED (trap(assert))
+129:test src/sprites_test.lu::test_the_cub_is_one_silhouette_turned_to_face_the_way ... FAILED (trap(assert))
+152:wolf test: 146 passed; 4 failed; 0 rejected; 0 unsupported; 0 filtered out
