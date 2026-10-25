@@ -1,0 +1,53 @@
+# frames 120 every 20 — Shift+Right held: half speed, the same ground
+pk 1
+seed 1
+tier rich
+size 80x24
+t 5 sneak-right
+t 7 sneak-right
+t 9 sneak-right
+t 11 sneak-right
+t 13 sneak-right
+t 15 sneak-right
+t 17 sneak-right
+t 19 sneak-right
+t 21 sneak-right
+t 23 sneak-right
+t 25 sneak-right
+t 27 sneak-right
+t 29 sneak-right
+t 31 sneak-right
+t 33 sneak-right
+t 35 sneak-right
+t 37 sneak-right
+t 39 sneak-right
+t 41 sneak-right
+t 43 sneak-right
+t 45 sneak-right
+t 47 sneak-right
+t 49 sneak-right
+t 51 sneak-right
+t 53 sneak-right
+t 55 sneak-right
+t 57 sneak-right
+t 59 sneak-right
+t 61 sneak-right
+t 63 sneak-right
+t 65 sneak-right
+t 67 sneak-right
+t 69 sneak-right
+t 71 sneak-right
+t 73 sneak-right
+t 75 sneak-right
+t 77 sneak-right
+t 79 sneak-right
+t 81 sneak-right
+t 83 sneak-right
+t 85 sneak-right
+t 87 sneak-right
+t 89 sneak-right
+t 91 sneak-right
+t 93 sneak-right
+t 95 sneak-right
+t 97 sneak-right
+t 99 sneak-right

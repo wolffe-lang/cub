@@ -1,0 +1,34 @@
+# frames 90 every 30 — a resize at tick 40 keeps the cub at the centre
+pk 1
+seed 1
+tier rich
+size 80x24
+t 5 up
+t 7 up
+t 9 up
+t 11 up
+t 13 up
+t 15 up
+t 17 up
+t 19 up
+t 40 size 100x30
+t 41 up
+t 43 up
+t 45 up
+t 47 up
+t 49 up
+t 51 up
+t 53 up
+t 55 up
+t 57 up
+t 59 up
+t 61 up
+t 63 up
+t 65 up
+t 67 up
+t 69 up
+t 71 up
+t 73 up
+t 75 up
+t 77 up
+t 79 up

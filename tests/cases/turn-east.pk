@@ -1,0 +1,43 @@
+# frames 120 every 20 — Up held, then Right: the heading turns at the turn rate, never pivots
+pk 1
+seed 1
+tier rich
+size 80x24
+t 5 up
+t 7 up
+t 9 up
+t 11 up
+t 13 up
+t 15 up
+t 17 up
+t 19 up
+t 21 up
+t 23 up
+t 25 up
+t 27 up
+t 29 up
+t 30 right
+t 32 right
+t 34 right
+t 36 right
+t 38 right
+t 40 right
+t 42 right
+t 44 right
+t 46 right
+t 48 right
+t 50 right
+t 52 right
+t 54 right
+t 56 right
+t 58 right
+t 60 right
+t 62 right
+t 64 right
+t 66 right
+t 68 right
+t 70 right
+t 72 right
+t 74 right
+t 76 right
+t 78 right
