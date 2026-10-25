@@ -180,3 +180,48 @@ fn test_cb01b_combo_arcs_lean_and_finish_without_extra_damage() {
         combo += 1
     }
 }
+
+fn test_cb01b_heavy_backsteps_leap_burst_and_recovery() {
+    var s = empty()
+    s.heading = 64
+    sim.step(mut s, keys(controls.KEY_HEAVY, 0, 0))
+    let x = s.x
+    assert(s.action == sim.HEAVY && s.stamina == 70 - sim.HEAVY_COST, "heavy accepted once")
+    var age = 0
+    while age <= 39 {
+        let (dx, dy) = sim.attack_offset(s)
+        if age == 5 { assert(dx == 0 - sim.FP && dy == 0, "first back-step") }
+        if age == 10 { assert(dx == 0 - 2 * sim.FP && dy == 0, "second back-step") }
+        if age == 17 { assert(dx == sim.HEAVY_ARC && dy == 0, "long heavy apex") }
+        if age >= 21 { assert(dx == 0 && dy == 0, "returns for recovery") }
+        assert((sim.burst_age(s) >= 0) == (age >= 17 && age < 21), "four-tick particle fade")
+        assert(s.x == x, "heavy never displaces ground physics")
+        if age < 39 { assert(s.action == sim.HEAVY, "not out of recovery early") }
+        sim.step(mut s, keys(0, 0, 0))
+        age += 1
+    }
+    assert(s.action == sim.IDLE, "39 ticks complete")
+}
+
+fn test_cb01b_heavy_cost_damage_stagger_and_refusal() {
+    var s = sim.new(7, 80, 24)
+    s.heading = 64
+    s.foes[0].x = s.x + 2 * sim.FP
+    s.foes[0].health = 100
+    s.foes[0].phase = sim.STAGGER
+    sim.step(mut s, keys(controls.KEY_HEAVY, 0, 0))
+    var n = 0
+    while n < 14 { sim.step(mut s, keys(0, 0, 0)); n += 1 }
+    assert(s.foes[0].health == 100, "no windup damage")
+    sim.step(mut s, keys(0, 0, 0))
+    assert(s.foes[0].health == 100 - sim.HEAVY_DAMAGE * sim.bite_damage(1), "four bites of damage")
+    assert(s.foes[0].phase == sim.STAGGER && s.foes[0].since == s.tick, "stagger refreshed")
+    var t = empty()
+    t.stamina = sim.HEAVY_COST - 1
+    sim.step(mut t, keys(controls.KEY_HEAVY, 0, 0))
+    assert(t.action == sim.IDLE, "insufficient stamina refuses heavy")
+    t.stamina = 70
+    t.exhausted = true
+    sim.step(mut t, keys(controls.KEY_HEAVY, 0, 0))
+    assert(t.action == sim.IDLE, "pant refuses heavy")
+}

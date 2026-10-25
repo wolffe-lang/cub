@@ -147,3 +147,26 @@ left-right on landing." Accepted recovery chains cycle 1 → 2 → 3 → 1.
 retain cost 12, 3/2/6 timing and the same damage. Third-hit recovery ages
 5 and 6 shake the ears left then right, on both tiers. A lapsed window,
 rest or another action resets the combo. Refused attacks cannot advance it.
+
+## Heavy attack, 2026-10-25 (proposed)
+
+The maintainer's word: "Shift+Space should unleash a heavy attack: step
+back two steps, then leap forward with a particle effect." R-cb01b-3 A:
+`s` is the recommended fallback, implemented because the physical terminal
+reports Shift+Space as plain Space. No decoder is copied into cub.
+
+| constant | proposal | compared with lunge |
+|---|---|---|
+| `HEAVY_COST` | 42 stamina | 30 |
+| `HEAVY_WINDUP / ACTIVE / RECOVERY` | 15 / 6 / 18 ticks | 9 / 3 / 12 |
+| `HEAVY_DAMAGE` | 4 × bite | 3 × bite |
+| reach | 4 cells, same cone | unchanged |
+| `HEAVY_ARC` | 4 cells, presentation only | 3 cells |
+| back-step | 1 cell at age 5, 2 at age 10 | none |
+| burst | four ticks from apex, punctuation expands 1 → 2 cells and dims | one contact mark |
+
+Surviving ordinary foes stagger for the existing 30 ticks; no boss poise
+rule is added. The back-steps and leap clip against terrain and bodies,
+never changing ground position or camera. The heavy cannot chain, does not
+break the tutorial gate (the lunge still teaches that), and is refused
+while panting. These tuning numbers await play.

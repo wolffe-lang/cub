@@ -27,3 +27,18 @@ only the engine pty row typing byte `03` into its own game session.
 
 Shift+Down remains sneak, never parry. No Shift+Space or sprint binding is
 claimed: ordinary terminal byte streams cannot distinguish Shift+Space.
+
+## Physical Shift+Space probe, 2026-10-25
+
+In the maintainer's play terminal, `TERM=xterm-256color`, the pinned engine
+keyprobe received `20  b' '` for Shift+Space, then `71  b'q'`. This is a
+physical-key measurement supplied from that session, not injected pty
+input; the terminal application name was not supplied, so it is not a
+claim about both Terminal.app and iTerm2. Shift+Space is indistinguishable
+from Space there. Heavy attack uses `s` (`73`; `S` also accepted), while
+Space continues to bite.
+
+The pinned engine explicitly ignores CSI-u / kitty and tilde forms in
+`input/input.lu` (lines 16–18 and 173). Enhanced protocol negotiation and
+restoration on every exit path, with protocol-restore pty rows, must land
+in lair before cub can bind the chord. No protocol is enabled by this build.

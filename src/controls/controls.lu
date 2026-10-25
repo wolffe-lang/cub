@@ -90,7 +90,10 @@ pub const KEY_PAW: int = 22
 pub const KEY_NOSE: int = 23
 
 /// Input identifier: count.
-pub const KEY_COUNT: int = 24
+pub const KEY_HEAVY: int = 24
+
+/// Number of replay key identifiers.
+pub const KEY_COUNT: int = 25
 
 /// What a character means, or `KEY_NONE`.
 fn char_key(b: int) -> int {
@@ -100,6 +103,7 @@ fn char_key(b: int) -> int {
     if b == 32 {
         return KEY_BITE
     }
+    if b == 115 || b == 83 { return KEY_HEAVY }
     if b == 120 || b == 88 {
         return KEY_LUNGE
     }
@@ -191,7 +195,7 @@ pub fn key_of(name: str) -> int ! {parse} {
 /// numeric event yet (cb01's `health` and `scent`).
 pub fn vocab() -> replay.Vocab {
     var names = List[str]()
-    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt release heart wind fang paw nose".
+    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt release heart wind fang paw nose heavy".
         words() {
         (mut names).push(w)
     }
