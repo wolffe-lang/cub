@@ -214,14 +214,65 @@ fn row(s: str, mut out: List[str]) {
 // across and sixteen down is four cells by four north and eight by two
 // east; the weasel is four across (two cells by three, six by one).
 
+/// The tail's offset at eighth `phase` of a wag (cb02c, R-cb02c-2 A):
+/// walking the full swing, two pixels each side, through the middle;
+/// standing (or sneaking, panting, winding up) a slow sway of one pixel.
+/// Eight steps a wag, so the tail passes through every intermediate frame.
+pub fn wag(phase: int, walking: bool) -> int {
+    let p = (phase % 8 + 8) % 8
+    if walking {
+        return match p {
+            0 => 0,
+            1 => 1,
+            2 => 2,
+            3 => 1,
+            4 => 0,
+            5 => -1,
+            6 => -2,
+            _ => -1,
+        }
+    }
+    match p {
+        0 => 0,
+        1 => 0,
+        2 => 1,
+        3 => 1,
+        4 => 0,
+        5 => 0,
+        6 => -1,
+        _ => -1,
+    }
+}
+
+/// The tail's two pixel rows at offset `tail` (-2..2): the base row moves
+/// at the full swing only, the tip one pixel further than the base.
+fn tail_rows(tail: int, mut r: List[str]) {
+    row(if tail >= 2 then "....##.." else if tail <= -2 then "..##...." else "...##...", mut r)
+    row(
+        if tail >= 2 {
+            ".....##."
+        } else if tail == 1 {
+            "....##.."
+        } else if tail == 0 {
+            "...##..."
+        } else if tail == -1 {
+            "..##...."
+        } else {
+            ".##....."
+        },
+        mut r,
+    )
+}
+
 /// The cub, a wolf from above: a nose, a muzzle, the head with its ears
 /// out, a neck, shoulders, a long body, haunches and a tail trailing
-/// south. `pose` 0 stands, 1 walks (`tick` swings the tail and sets the
-/// paws), 2 sneaks (the muzzle tucked, the ears back), 3 pants (ears flat,
-/// the mouth open).
-pub fn cub(pose: int, tick: int) -> Bitmap {
+/// south. `pose` 0 stands, 1 walks (`legs` 0 or 1 sets the paws), 2
+/// sneaks (the muzzle tucked, the ears back), 3 pants (ears flat, the
+/// mouth open); `tail` is the tail's offset (`wag`), -2 to 2 pixels, in
+/// every pose. One drawing: the frames differ in the paws and the tail.
+pub fn cub(pose: int, legs: int, tail: int) -> Bitmap {
     var r = List[str]()
-    let swing = tick / 2 % 2 == 0
+    let swing = legs % 2 == 0
     let low = pose == 2 || pose == 3
     row(if pose == 3 then "..#..#.." else if low then "........" else "...##...", mut r)
     row(if low then "...##..." else "..####..", mut r)
@@ -243,8 +294,7 @@ pub fn cub(pose: int, tick: int) -> Bitmap {
     row(".######.", mut r)
     row("..####..", mut r)
     row("...##...", mut r)
-    row(if pose == 1 && swing then "....##.." else "...##...", mut r)
-    row(if pose == 1 && swing then ".....##." else "..##....", mut r)
+    tail_rows(tail, mut r)
     parse(r)
 }
 
@@ -394,8 +444,15 @@ pub fn all_code_points() -> List[int] {
     var cps = List[int]()
     var pose = 0
     while pose < 4 {
-        code_points(cub(pose, 0), mut cps)
-        code_points(cub(pose, 2), mut cps)
+        var legs = 0
+        while legs < 2 {
+            var tail = -2
+            while tail <= 2 {
+                code_points(cub(pose, legs, tail), mut cps)
+                tail += 1
+            }
+            legs += 1
+        }
         pose += 1
     }
     var kind = 0
