@@ -59,6 +59,20 @@ fn shore_cub() -> sim.Sim {
     s
 }
 
+/// Ticks from a stand to the trot, and from the trot (the keys let go,
+/// the hold expired) to a stop.
+fn start_stop() -> (int, int) {
+    var s = shore_cub()
+    var up = 0
+    while s.speed < sim.trot_at(1) && up < 100 { press(mut s, controls.KEY_RIGHT); up += 1 }
+    var i = 0
+    while i < 10 { press(mut s, controls.KEY_RIGHT); i += 1 }
+    while s.moving && i < 100 { press(mut s, 0); i += 1 }
+    var down = 0
+    while s.speed > 0 && down < 100 { press(mut s, 0); down += 1 }
+    (up, down)
+}
+
 /// The pace: cells a second at the trot on the straight (east along the
 /// shore), on the diagonal, and through a quarter turn (east to south):
 /// the ticks the turn takes, the path speed during it and the radius.
@@ -97,7 +111,8 @@ pub fn pace() -> str {
     di = 0
     while di < 8 { press2(mut d, controls.KEY_RIGHT, controls.KEY_DOWN); di += 1 }
     let diag = cps100(isqrt((d.x - dx1) * (d.x - dx1) + (d.y - dy1) * (d.y - dy1)), 8)
-    "pace trot_fp {sim.trot_at(1)} straight_cps {hundredths(straight)} clear {clear} diagonal_cps {hundredths(diag)} quarter_turn_ticks {turn_ticks} turning_cps {hundredths(turning)} turn_radius_cells {hundredths(radius)} sneak_fp {sim.trot_at(1) / 2} foe_stalk_fp {sim.FOE_STALK_V} foe_retreat_fp {sim.FOE_RETREAT_V}"
+    let (up, down) = start_stop()
+    "pace trot_fp {sim.trot_at(1)} to_trot_ticks {up} to_stop_ticks {down} straight_cps {hundredths(straight)} clear {clear} diagonal_cps {hundredths(diag)} quarter_turn_ticks {turn_ticks} turning_cps {hundredths(turning)} turn_radius_cells {hundredths(radius)} sneak_fp {sim.trot_at(1) / 2} foe_stalk_fp {sim.FOE_STALK_V} foe_retreat_fp {sim.FOE_RETREAT_V}"
 }
 
 /// A key for the frame's tail cells: the two west columns of an
@@ -268,14 +283,24 @@ pub fn style_at(seed: int, area: int, t: int, x: int, y: int) -> grid.Cell {
     grid.at(g, 0, 0)
 }
 
-fn style_text(c: grid.Cell) -> str {
-    "{c.fg}/{c.bg}"
+/// The colours and the glyphs a set of cells drew in, each once.
+struct Styles {
+    colours: List[str],
+    glyphs: List[str],
 }
 
-fn add_style(mut seen: List[str], c: grid.Cell) {
-    let k = style_text(c)
-    for x in seen { if x == k { return } }
-    (mut seen).push(k)
+fn styles() -> Styles {
+    Styles { colours: List[str](), glyphs: List[str]() }
+}
+
+fn add_once(mut xs: List[str], k: str) {
+    for x in xs { if x == k { return } }
+    (mut xs).push(k)
+}
+
+fn add_style(mut st: Styles, c: grid.Cell) {
+    add_once(mut st.colours, "{c.fg}/{c.bg}")
+    add_once(mut st.glyphs, "{c.cp}")
 }
 
 fn joined(xs: List[str]) -> str {
@@ -284,18 +309,22 @@ fn joined(xs: List[str]) -> str {
     out
 }
 
-/// The colours (fg/bg) every path kind's cells draw in, seed 1 at field
-/// 80, each tier: the shore, the thorn route, the four coast branches,
-/// the coast's log branch.
+fn styles_text(st: Styles) -> str {
+    "{joined(st.colours)} glyphs {joined(st.glyphs)}"
+}
+
+/// The colours (fg/bg) and glyphs every path kind's cells draw in, seed
+/// 1 at field 80, each tier: the shore, the thorn route, the four coast
+/// branches, the coast's log branch.
 pub fn paths() -> str {
     var out = ""
     var t = 0
     while t < 2 {
         let tr = if t == 0 then tier.RICH else tier.PLAIN
-        var shore = List[str]()
-        var route = List[str]()
-        var branch = List[str]()
-        var log = List[str]()
+        var shore = styles()
+        var route = styles()
+        var branch = styles()
+        var log = styles()
         let o = forest.origin(1, forest.SHINGLE)
         var x = -60
         while x <= 60 {
@@ -336,7 +365,7 @@ pub fn paths() -> str {
             add_style(mut log, style_at(1, forest.SHINGLE, tr, x, o + by))
             x += 1
         }
-        out += "paths {if t == 0 then "rich" else "plain"} shore {joined(shore)} route {joined(route)} branches {joined(branch)} log_branch {joined(log)}\n"
+        out += "paths {if t == 0 then "rich" else "plain"} shore {styles_text(shore)} route {styles_text(route)} branches {styles_text(branch)} log_branch {styles_text(log)}\n"
         t += 1
     }
     out
