@@ -1,0 +1,9 @@
+cb02 prediction — 2026-10-25, before implementation
+Base 56f11cf; pinned lair aa6c4dc0bc5071d3c07121451d913a8837cd2a6a.
+The baseline has no Bramblehold/meadow graph: all 50 seeds lack those dens.
+Explicitly carved graph corridors should leave zero unreachable dens/routes over seeds 0–49.
+The versioned text journey should remain below 512 bytes (estimated 180–300).
+Integer simulation should keep both-host goldens identical; a dusk palette frame is the likeliest first mismatch if one occurs.
+Proposed hawk stopping tell: 18 ticks (600 ms), with parry pressed in the last nine ticks answering the stoop.
+Estimate 1,600 added wolf source/test lines and 400 tooling lines.
+Recommendations implemented, not rulings: R-cb02-1 A persist area/position/scent of the mark; R-cb02-2 A airborne hawk cannot be interrupted by bite or lunge, parry/dodge answer its strike.
