@@ -1,0 +1,95 @@
+cb02b — prediction, written before the first code change (2026-10-25 17:12 EDT, head 62db9f35)
+
+Reproduction. Both screenshots reproduce headlessly on cb02a's head with the
+release binary: `target/cub --headless --script tests/cases/stand.pk --seed N
+--frames 1 --every 1 --size WxH --tier T --dump DIR` (the Shingle, seeds 0-4;
+the maintainer's live save ~/.cub/save names seed 1, the default), and
+`--script tests/cases/world-den.pk --frames 1210|1251` (Bramblehold at its
+entry and at the split-roots den) and `--script tests/cases/world-meadow.pk
+--frames 2303` (Larkmeadow at its entry), each at 200x60 and 80x24, rich and
+plain: notes/cb02b-evidence/before-*/final.{txt,sty,state}. Measured by
+notes/cb02b-evidence/flatness.py (a flat run = identical adjacent forest
+cells; flat share = forest cells inside runs longer than 4):
+  Shingle 200x60 rich seeds 0-4: flat share 76.0-77.7 %, longest run 62-76
+  Shingle 80x24 rich: 11.0-32.8 %, longest run 9-15
+  Bramblehold entry 200x60 rich: 85.1 %, longest run 200 (whole rows)
+  Bramblehold entry 80x24 rich: 59.9 %, longest run 80
+  Larkmeadow entry 200x60 rich: 89.7 % (plain 98.1 %), longest run 200
+
+Cause 1, the flat green fill. `forest.kind` answers `terrain.DARK` for every
+cell outside the generated rectangle (|x| > HALF_WIDTH = 40, local row < 0
+or > LENGTH = 160) and for the shore beyond the jetties, and inside the
+rectangle wherever the fill noise `n > 130` (about half the forest cells);
+`SP_DARK` has one variant on each tier (U+28FF in colour 22 on 234; plain
+`&`), so every DARK region is one glyph repeated in one colour. cb02a made
+DARK visible (it was spaces before) but uniform; the full braille cell reads
+as a solid green tile. At 200 columns 119 of the 200 columns are outside the
+rectangle, hence the measured 76 % flat share and the 62-76 cell runs (jetty
+to screen edge). Both jetties are in view because jetty_x = +-(35..37) while
+the view spans +-100.
+
+Cause 2, Bramblehold's centred rectangle. The same bound: `forest.kind`
+textures only x in [-40, 40] by local row 0..160; the cub arrives at local
+row ~3, so the 28 screen rows above it are row < 0 and DARK, and every
+column beyond +-40 is DARK; `art.terrain_row` then paints every non-trunk
+thicket cell in one foreground (29), so inside and outside differ by glyph
+mix only. The horizontal shortcut path (`at 18..27`, `by = 22 + curve/2`)
+has no x bound and is carved across the whole rectangle to x = +-40, where
+the DARK wall begins: the path that ends at the rectangle's edge. Larkmeadow
+shares the bound and recolours the fill gold (137), so its DARK is a flat
+gold field (89.7 % flat).
+
+What I will change (each its own commit) and what I expect:
+1. Texture everywhere: `forest.kind` returns the forest's own mix beyond the
+   bounds (TRUNK at h < 16, else DARK; collision unchanged, every such cell
+   still blocks); SP_DARK gets four variants (U+28FF U+28F6 U+28EE U+2836 in
+   22; plain & % * ;); CANOPY and DARK variants are chosen as
+   `2 * ((x + y) mod 2) + hash(x, y, 2)`, so two horizontally or vertically
+   adjacent foliage cells are never the same glyph set: the longest run of
+   identical foliage cells is 1 by construction, and FLAT_MAX = 2 is the
+   bar; the textured share (forest cells outside any run > FLAT_MAX) is
+   100 % against a 90 % bar. The thicket keeps two tones (29 / 23) and the
+   meadow's surrounding forest gets dusk greens (trunk 95, 58 / 22)
+   instead of the gold recolour (R-cb02b-7 A).
+2. The field width is a journey property: `field` = the terminal's columns
+   at the journey's start (floor 80), saved as schema 2 (`field N`), carried
+   as the 25th replay snapshot value, never changed by a resize or a
+   resume in another terminal (R-cb02b-4 A). The coast extends to
+   E = max(120, 3 * field / 2) each way (R-cb02b-1 A): jetties at
+   +-(E + 0..2); at 200 columns E = 300 and the jetty enters view after a
+   200-cell walk, at 80 columns E = 120 after 80. The inland areas' half
+   width becomes field / 2 + 8 (48 at 80 columns, 108 at 200; R-cb02b-6
+   A), the shortcut path is bounded to the portals at +-32, and the inland
+   cache branches reach +-(W - 13 .. W - 10).
+3. Four coast branches (R-cb02b-3 A): mouths at +-E/3 and +-2E/3 with a
+   seeded jitter, each with the full curve amplitude, each ending in a
+   radius-four alcove with one 40-health fox and a bundle (R-cb02b-5 A: no
+   new consumable; Shingle cache 1 keeps its marrow). Cache bits move to
+   4 + 2 + 2 (Shingle bits 0-3), so the save's `cache` field ranges 0..255.
+   The 50-seed flood covers all four alcoves; WALK_MAX stays 200 and I
+   expect the measured maximum near 150 at 200 columns.
+4. Sprites: a pixel silhouette at braille resolution (2 x 4 pixels a cell,
+   square pixels at a 1:2 cell), encoded cell by cell as a block element
+   where a half or whole cell is lit and as braille elsewhere. The cub is
+   4 x 12 pixels facing north (2 x 3 cells: muzzle, head with ears,
+   neck, shoulders, body, haunches, tail), and east/west is the SAME bitmap
+   rotated a quarter turn (12 x 4 pixels, 6 x 1 cells) (R-cb02b-2 A): at a
+   1:2 cell the pixels are square so the rotation is exact; I predict it
+   reads, and the test asserts the east bitmap is the rotated north one
+   pixel for pixel. The weasel, fox, deer and hawk, and the wrapped bundle
+   (the ASCII `\|/ (:X:) ---` the maintainer read as an enemy), get the same
+   treatment with phase frames; the plain tier gets ASCII of the same
+   footprints. Hit envelopes untouched (combat tests unchanged).
+5. Goldens: every one of the 91 directories moves (terrain under every
+   frame, the cub in every frame including the opening); I expect about
+   six new directories (a wide Bramblehold case, the far branches' cases,
+   the sheets grow in place). GLYPHS.md gains the block elements and
+   braille patterns the silhouettes use (an estimated 25-40 code points).
+6. Plants: cb02b-plant-fill (SP_DARK back to one variant: the texture test
+   red), cb02b-plant-branch (branch 3 not carved: the alcove flood red),
+   cb02b-plant-cub (east drawn from its own bitmap: the rotation test red).
+
+Risks named now: the save schema change touches journey's strict decoder
+and tools/world_checks.py (CUB 2, 44 words, 25 snapshot values); the
+widened Shingle flood is 603 x 177 cells and I expect it to stay under a
+second per seed in the release binary.
