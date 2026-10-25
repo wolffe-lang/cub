@@ -54,7 +54,7 @@ pub fn cub_box(s: sim.Sim) -> Box {
     let (ox, oy) = sim.attack_offset(s)
     let facing = cub_facing(s)
     var b = placed(
-        silhouette.cub(0, 0),
+        silhouette.cub(0, 0, 0),
         facing,
         sim.floor_div(s.x + ox, sim.FP),
         sim.floor_div(s.y + oy, sim.FP),

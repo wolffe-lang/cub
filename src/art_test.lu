@@ -37,7 +37,7 @@ fn test_the_cub_is_at_the_centre_on_both_tiers() {
     art.render(s, tier.RICH, mut g)
     // The cub's own cell is the silhouette's second cell row and column
     // (four by four about it: rows 11..14, columns 39..42).
-    let b = silhouette.turned(silhouette.cub(0, 0), 0)
+    let b = silhouette.turned(silhouette.cub(0, 0, 0), 0)
     assert(
         grid.at(g, 12, 40).cp == silhouette.cell_cp(b, 1, 1) &&
             grid.at(g, 12, 41).cp == silhouette.cell_cp(b, 1, 2) &&
@@ -72,7 +72,10 @@ fn test_the_cub_turns_on_the_screen() {
     // from c-3 to c+4, the head in the last cells, the same pose the frame
     // drew (walking while the key is held, standing otherwise).
     let pose = if s.speed > 0 then 1 else 0
-    let east = silhouette.turned(silhouette.cub(pose, s.tick), 1)
+    let east = silhouette.turned(
+        silhouette.cub(pose, sim.legs(s), silhouette.wag(sim.tail_phase(s), pose == 1)),
+        1,
+    )
     assert(
         grid.at(g, 12, 44).cp == silhouette.cell_cp(east, 0, 7) &&
             grid.at(g, 12, 37).cp == silhouette.cell_cp(east, 0, 0) &&
@@ -137,7 +140,7 @@ fn test_cb01b_sideways_silhouette_keeps_body_cells() {
     // east and west eight by two; the plain tier keeps the same footprints.
     var pose = 0
     while pose < 4 {
-        let north = silhouette.cub(pose, 0)
+        let north = silhouette.cub(pose, 0, 0)
         assert(north.w == 8 && north.h == 16, "eight by sixteen pixels")
         var f = 0
         while f < 4 {
@@ -154,7 +157,7 @@ fn test_cb01b_sideways_silhouette_keeps_body_cells() {
             var t = tier.PLAIN
             while t <= tier.RICH {
                 var g = grid.new(8, 14)
-                art.draw_pose(mut g, t, 3, 6, f, 0, pose, 0)
+                art.draw_pose(mut g, t, 3, 6, f, 0, pose, 0, 0, true)
                 var lit = 0
                 var row = 0
                 while row < 8 {
@@ -182,7 +185,7 @@ fn test_cb01b_sideways_silhouette_keeps_body_cells() {
         pose += 1
     }
     // East is north turned clockwise; west anticlockwise; south twice.
-    let b = silhouette.cub(0, 0)
+    let b = silhouette.cub(0, 0, 0)
     assert(
         silhouette.same(silhouette.turned(silhouette.turned(b, 1), 1), silhouette.turned(b, 2)) &&
             silhouette.same(

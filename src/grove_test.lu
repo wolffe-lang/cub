@@ -225,7 +225,7 @@ fn test_cb02b_cub_east_is_the_north_cub_turned() {
     // facing south and (7 - c, r) facing west.
     var pose = 0
     while pose < 4 {
-        let n = silhouette.cub(pose, 1)
+        let n = silhouette.cub(pose, 1, 1)
         let e = silhouette.turned(n, 1)
         let s = silhouette.turned(n, 2)
         let w = silhouette.turned(n, 3)
@@ -245,8 +245,8 @@ fn test_cb02b_cub_east_is_the_north_cub_turned() {
     }
     // And the frame draws the east cub from exactly that turn.
     var g = grid.new(10, 16)
-    art.draw_pose(mut g, tier.RICH, 4, 7, 1, 0, 0, 0)
-    let east = silhouette.turned(silhouette.cub(0, 0), 1)
+    art.draw_pose(mut g, tier.RICH, 4, 7, 1, 0, 0, 0, 0, true)
+    let east = silhouette.turned(silhouette.cub(0, 0, 0), 1)
     var cc = 0
     while cc < 8 {
         assert(grid.at(g, 4, 4 + cc).cp == silhouette.cell_cp(east, 0, cc), "east cell {cc}")

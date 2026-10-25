@@ -37,11 +37,11 @@ fn test_the_cub_is_one_silhouette_turned_to_face_the_way() {
     // North as drawn: the nose at the top, an ear out at each side, the
     // tail at the bottom, eight pixels across and sixteen down; east the
     // quarter turn, the nose on the right; every facing the same pixels.
-    let b = silhouette.cub(0, 0)
+    let b = silhouette.cub(0, 0, 0)
     assert(b.w == 8 && b.h == 16, "eight by sixteen")
     assert(silhouette.at(b, 0, 3) == 1 && silhouette.at(b, 0, 0) == 0, "the nose at the top")
     assert(silhouette.at(b, 4, 0) == 1 && silhouette.at(b, 4, 1) == 0, "an ear out at the side")
-    assert(silhouette.at(b, 15, 2) == 1 && silhouette.at(b, 15, 7) == 0, "the tail at the bottom")
+    assert(silhouette.at(b, 15, 3) == 1 && silhouette.at(b, 15, 7) == 0, "the tail at the bottom")
     let e = silhouette.turned(b, 1)
     assert(e.w == 16 && e.h == 8, "sixteen by eight facing east")
     assert(silhouette.at(e, 3, 15) == 1 && silhouette.at(e, 0, 15) == 0, "the nose on the right")
