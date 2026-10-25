@@ -66,6 +66,42 @@ pub const FOE_TURN_V: int = FOE_STALK_V / 2
 /// up on the straight and loses in the turns.
 pub const FOE_TURN_RATE: int = 16
 
+/// A stride, fixed-point units of travel: both paws' frames once (cb02c).
+/// At the trot (63 a tick) a stride takes 13 ticks, a trot's cadence of
+/// about two strides a second; the cub's body is four cells, a stride a
+/// little under it.
+pub const STRIDE: int = 832
+
+/// One wag of the tail: two strides (R-cb02c-2 A, the maintainer's word,
+/// 2026-10-25: "its tail oscillates too quickly. Make it natural."). The
+/// tail is tied to the gait, never to the tick: 26 ticks (0.9 s) at the
+/// trot, 18 at half as fast again.
+pub const GAIT_CYCLE: int = 2 * STRIDE
+
+/// The gait's floor, units a tick: below it (standing, the windups, the
+/// first ticks of a start) the tail still sways, one wag in 59 ticks
+/// (2 s), so a standing cub's tail is slow, never still.
+pub const SWAY_V: int = 28
+
+/// Advance the gait by the ground covered this tick, never less than
+/// the standing sway.
+fn gait_step(mut s: Sim) {
+    let v = if s.speed > SWAY_V then s.speed else SWAY_V
+    s.gait = (s.gait + v) % GAIT_CYCLE
+}
+
+/// The paws' frame, 0 or 1: it flips every half stride, so each stride
+/// shows both.
+pub fn legs(s: Sim) -> int {
+    s.gait / (STRIDE / 2) % 2
+}
+
+/// The tail's eighth of a wag, 0..7 (`silhouette.wag` turns it into the
+/// tail's offset).
+pub fn tail_phase(s: Sim) -> int {
+    s.gait * 8 / GAIT_CYCLE
+}
+
 /// Heart, wind, fang, paw and nose at the start (section 3): 1 each.
 pub const STAT_START: int = 1
 
@@ -258,6 +294,7 @@ pub struct Sim {
     cue: int,
     foes: List[Foe],
     trail: List[Trail],
+    gait: int,
 }
 
 /// A new cub at the Shingle's start, facing north toward the water, still.
@@ -338,6 +375,7 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         cue: 0,
         foes: area_foes(seed, forest.field_of(cols), forest.SHINGLE),
         trail: List[Trail](),
+        gait: 0,
     }
 }
 
@@ -1173,6 +1211,7 @@ pub fn step(mut s: Sim, keys: List[int]) {
     let ox = s.x
     let oy = s.y
     locomotion(mut s)
+    gait_step(mut s)
     let want = heading_of(
         input.held(s.holds[0], s.tick) || input.held(s.holds[4], s.tick),
         input.held(s.holds[1], s.tick) || input.held(s.holds[5], s.tick),
