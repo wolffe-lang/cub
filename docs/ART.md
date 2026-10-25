@@ -18,25 +18,55 @@ Thornmere's woods to the south and the sides.
 ## The cub
 
 2026-10-25 — the maintainer's word: "The sprite when moving sideways should look the same as its north-south orientation."
+2026-10-25 (cb02b) — the maintainer's word: "make the wolf cub sprite more shaped like a wolf — currently it looks like a guy
+holding a sword — and changing to left/right motion still distorts the sprite past recognizability from the north/south
+orientation; it should look the same, just rotated."
 
-The cub keeps two body cells on the lower row and two ear cells above in
-all four headings. Only ear glyphs turn; east and west never rotate the
-body into a vertical strip. Plain uses the same two-by-two footprint:
-two `C` body cells and two facing ears. Rich uses quadrant ears and blocks.
-Stand, alternating walk foot, lowered sneak ears and flat-eared pant share
-this footprint. The sheet shows every heading crossed with all four poses
-on both tiers. Health tails and stamina colours remain in game frames.
+The cub is one drawing: a pixel silhouette eight pixels across and sixteen down at the rich tier's finest
+grain (two pixels across and four down a cell, the braille grid, square pixels at a 1:2 cell), a wolf from
+above facing north: the nose, the muzzle, the head with an ear out each side, the neck, the shoulders, a
+long body, the haunches and a tail trailing south (`src/silhouette/silhouette.lu`, `cub`). Facing east,
+south or west the frame draws the same bitmap turned a quarter, a half or three quarters, pixel for pixel:
+four cells by four north and south, eight by two east and west, the cub's own cell the second row and
+column of the four (R-cb02b-2 A; `grove_test` holds the east drawing to the north one pixel by pixel).
+Each cell becomes the full block where all eight pixels are lit, a half block where exactly one half is,
+and the braille pattern of its lit pixels otherwise, so the silhouette is solid where it is thick and
+drawn where it is thin; the ground shows through its unlit cells. The poses are frames of the same
+drawing: a walk swings the tail and sets a paw out, a sneak tucks the muzzle and lays the ears back, a
+pant lays them flat and opens the mouth. Stamina is the fur: fresh, dim when tired or spent. The plain
+tier keeps the footprints in ASCII (`.^^.` over `####` over `.,..` north; `.=####^.` over `,=####>.`
+east). The health tail and the posture marks sit clear of the silhouette in every facing.
+
+## The foes and the bundle
+
+Every foe is the same kind of drawing: the weasel four pixels across (two cells by three north, six by
+one east), the fox eight by twelve (four by three, six by two), the deer eight by sixteen; the hawk's
+ground shadow eight by four, wings out while it circles, spread wide at the stop, folded in the stoop. The
+tell is a posture of the one drawing: a crouch tucks the head (fewer pixels), a strike thrusts it, a
+flight streams the tail, a stagger splits the body, a feint curls the tail; a death erodes the head at
+five ticks and the body at ten. The wrapped bundle, which read as an enemy in ASCII, is a silhouette too
+(ten by twelve pixels: a knot above a round parcel with its cord crossing; opened, the loose binding).
+The plain tier keeps a head, body and tail in ASCII with the same footprints and the same tells
+(`_` crouch, `!` stagger, `~` flight, `?` feint, `'` strike).
 
 ## The Shingle
 
 From the north: the Ashwater (blue, ripples `≈` here and there; plain `~`), one row of reeds at the edge
 (`⠇` and `⠖` in reed green on the water; plain `|` and `!`), five rows of gravel (grey 240 with the odd
 mark `·` `․` `░`; plain bright black with `.` `,` `:`), then grass and Thornmere's woods from pack's forest
-texture (grass `⠖⠶`, trunks `┃`, canopy `⣿⣶⣮⠶`, deep forest dense `⣿` / `&`) on the forest floor. Trunks, deep forest
-and water stop the cub; grass, gravel, reeds and canopy are open ground.
+texture (grass `⠖⠶`, trunks `┃`, canopy `⣿⣶⣮⠶` in two greens) on the forest floor. The deep forest is the
+same four glyphs in the deep green alone, with the same trunks among them (plain `& % * ;` and `|`),
+everywhere: beyond an area's bounds, beyond the jetties, in the thicket's dense patches, so there is no
+flat fill anywhere on the screen (cb02b; the maintainer's word: "fix the forest to use the forest
+texture throughout"). Two adjacent foliage cells are never the same glyph: the variant alternates its
+glyph set by the cell's parity (`art.terrain_row`), which the census holds (`coast.texture`, FLAT_MAX 2,
+TEXTURED_MIN 90 %). Trunks, deep forest and water stop the cub; grass, gravel, reeds and canopy are open
+ground. The coast runs a screen past the initial view each way to its jetties (`docs/DESIGN.md`), and four
+branches leave it for their alcoves, two each side of the thorn path.
 
-Sheet rows 0-2 the water, 3-4 the reeds, 5-10 the gravel, 11-14 the grass, 15-19 the woods, 20 onward the
-deep forest, with the foe study below the cub poses.
+Sheet rows 0-2 the water, 3-4 the reeds, 5-10 the gravel, 11-14 the grass, 15-24 the woods, 25-27 the
+deep forest, with the cub's four poses by four facings over them and the foe study (every phase and fade
+facing north, the east form of each) on gravel below; the sheet is 56 rows.
 
 ## What is owed
 
@@ -48,11 +78,11 @@ The thicket and meadow now have dusk palettes. Night and the later areas remain 
 
 Every foe has a sprite on both tiers, with its windup tell as a posture.
 This rule applies to later foes and bosses, not just the weasel and fox.
-Both current foes have a two-cell body, a readable head above and a tail
-below: a narrow `==` weasel and a broad `##` fox. Crouch lowers the head
-to `__`; a feint curls the tail `?`; flee trails `~`; stagger lifts `!!`.
-Rich adds directional quadrant ears, plain keeps punctuation. Foe palette
-roles are red/brown, distinct from cub fur and the dim scent trail.
+Both tiers give every foe a head, body and tail; the plain tier in ASCII (a
+narrow `==` weasel, a `####` fox under `/^^\`): crouch lowers the head to
+`_`, a feint curls the tail `?`, flight trails `~`, stagger lifts `!`. The
+rich tier draws the silhouettes above. Foe palette roles are red/brown,
+distinct from cub fur and the dim scent trail.
 A death sprite dims and erodes over 15 ticks (proposal), never disappearing
 on the hit tick. The expanded 80×40 sheet covers each species × phase and
 three fade stages, beside the cub's four headings × four postures.
@@ -116,8 +146,9 @@ footprint is gravel. They are decoration, not collision or pickups.
 Rich grain/folds use scalar grid cells; the engine text helper is ASCII.
 The rocky texture belongs to the jetties, never the ordinary bank.
 
-Deep forest keeps visible foliage beyond collision bounds and through
-dense patches. The plain tier uses green on black, not black on black.
-Bramblehold still hides unseen creatures, but no longer erases distant
-terrain. Empty-forest regression checks use the same terrain renderer as
-the actual frame, before deliberate HUD/actor overlays.
+Deep forest keeps visible, textured foliage beyond collision bounds and
+through dense patches. The plain tier uses green on black, not black on
+black. Bramblehold still hides unseen creatures, but no longer erases
+distant terrain. The texture census uses the same terrain renderer as the
+actual frame, before deliberate HUD/actor overlays, over every camera
+position of every area at both fields and on both tiers.
