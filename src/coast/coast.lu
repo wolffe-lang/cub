@@ -24,21 +24,19 @@ pub const TEXTURED_MIN: int = 90
 /// Maximum cardinal distance from den-reachable ground to a useful route.
 pub const WALK_MAX: int = 200
 
-const TOP: int = -16
-
 /// Flood actual collision cells over the coast's extent. Targets are the
 /// thorn-route centreline, the four branches' centrelines and the cache
 /// centres: the useful routes, not the generator's connectivity promises.
 fn distances(seed: int, field: int, targets: bool) -> List[int] {
     let e = forest.coast_extent(field)
     let width = 2 * e + 3
-    let height = forest.LENGTH - TOP + 1
+    let height = forest.LENGTH - forest.COAST_TOP + 1
     var dist = List[int]()
     var queue = List[int]()
     var i = 0
     while i < width * height { (mut dist).push(-1); i += 1 }
     let o = forest.origin(seed, 0)
-    var y = TOP
+    var y = forest.COAST_TOP
     while y <= forest.LENGTH {
         var x = 0 - e - 1
         while x <= e + 1 {
@@ -60,7 +58,7 @@ fn distances(seed: int, field: int, targets: bool) -> List[int] {
                 }
             }
             if source && !forest.blocked(seed, field, 0, x, y + o) {
-                let at = (y - TOP) * width + x + e + 1
+                let at = (y - forest.COAST_TOP) * width + x + e + 1
                 dist[at] = 0
                 (mut queue).push(at)
             }
@@ -72,13 +70,13 @@ fn distances(seed: int, field: int, targets: bool) -> List[int] {
     while head < queue.len {
         let cell = queue[head]
         let x = cell % width - e - 1
-        let y = cell / width + TOP
+        let y = cell / width + forest.COAST_TOP
         var d = 0
         while d < 4 {
             let nx = x + (if d == 0 then -1 else if d == 1 then 1 else 0)
             let ny = y + (if d == 2 then -1 else if d == 3 then 1 else 0)
-            if nx >= 0 - e - 1 && nx <= e + 1 && ny >= TOP && ny <= forest.LENGTH {
-                let at = (ny - TOP) * width + nx + e + 1
+            if nx >= 0 - e - 1 && nx <= e + 1 && ny >= forest.COAST_TOP && ny <= forest.LENGTH {
+                let at = (ny - forest.COAST_TOP) * width + nx + e + 1
                 if dist[at] < 0 && !forest.blocked(seed, field, 0, nx, ny + o) {
                     dist[at] = dist[cell] + 1
                     (mut queue).push(at)
@@ -109,13 +107,13 @@ pub fn walk_bound(seed: int, field: int) -> int {
             var dy = -3
             while dy <= 3 {
                 if dx * dx + dy * dy <= 16 {
-                    if den[(cy + dy - TOP) * width + cx + dx + e + 1] < 0 {
+                    if den[(cy + dy - forest.COAST_TOP) * width + cx + dx + e + 1] < 0 {
                         eprint(
                             "coast: seed {seed} field {field} cache {cache} cell {cx + dx},{cy + dy} kind {forest.kind(seed, field, 0, cx + dx, cy + dy + o)}",
                         )
                     }
                     assert(
-                        den[(cy + dy - TOP) * width + cx + dx + e + 1] >= 0,
+                        den[(cy + dy - forest.COAST_TOP) * width + cx + dx + e + 1] >= 0,
                         "cb02b branch alcove unreachable seed {seed} field {field} cache {cache}",
                     )
                 }
