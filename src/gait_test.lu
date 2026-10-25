@@ -4,9 +4,11 @@
 //! gait, and bodies that never overlap.
 
 use art
+use controls
 use forest
 use grid
 use measure
+use silhouette
 use sim
 use sprites
 use terrain
@@ -159,4 +161,123 @@ fn test_cb02c_the_fox_keeps_up_on_the_straight_and_loses_in_the_turns() {
     assert(ahead > 0, "the fox keeps up on the straight: {ahead}")
     let (_, lost) = measure.duel(8, 12)
     assert(lost > 25, "the fox loses in the turn: {lost}")
+}
+
+fn shore(paw: int) -> sim.Sim {
+    var s = sim.new(1, 80, 24)
+    (mut s.foes).reset()
+    s.y = (terrain.bank(1, 0) + terrain.REED_ROWS) * sim.FP + sim.FP / 2
+    s.heading = 64
+    s.heading_target = 64
+    s.paw = paw
+    s
+}
+
+fn step_key(mut s: sim.Sim, k: int) {
+    var keys = List[int]()
+    if k > 0 { (mut keys).push(k) }
+    sim.step(mut s, keys)
+}
+
+/// Ticks between two returns of the gait to the start of a wag, holding
+/// `k` (0: standing) after `settle` ticks, and the tail offsets and paw
+/// flips seen over that wag.
+fn one_wag(paw: int, k: int, settle: int) -> (int, int, int, int, int) {
+    var s = shore(paw)
+    var i = 0
+    while i < settle { step_key(mut s, k); i += 1 }
+    var wraps = 0
+    var start = 0
+    var period = 0
+    var lo = 0
+    var hi = 0
+    var flips = 0
+    var n = 0
+    while wraps < 2 && n < 400 {
+        let before = s.gait
+        let legs = sim.legs(s)
+        step_key(mut s, k)
+        n += 1
+        if s.gait < before {
+            wraps += 1
+            if wraps == 1 { start = n } else { period = n - start }
+        }
+        if wraps == 1 {
+            let o = silhouette.wag(sim.tail_phase(s), s.speed > 0)
+            if o < lo { lo = o }
+            if o > hi { hi = o }
+            if sim.legs(s) != legs { flips += 1 }
+        }
+    }
+    (period, lo, hi, flips, s.speed)
+}
+
+fn test_cb02c_the_tail_wags_on_the_gait_not_the_tick() {
+    // R-cb02c-2 A: one wag per two strides; ~0.9 s at the trot, ~2 s
+    // standing, ~0.6 s at the fastest trot the game grants (paw 10).
+    let (stand, slo, shi, _, _) = one_wag(1, 0, 0)
+    assert(stand >= 59 && stand <= 60, "a standing sway of two seconds: {stand}")
+    assert(slo == -1 && shi == 1, "the sway passes one pixel each side")
+    let (walk, wlo, whi, flips, v) = one_wag(1, controls.KEY_RIGHT, 30)
+    assert(v == sim.trot_at(1), "at the trot")
+    assert(walk >= 26 && walk <= 27, "a wag of 0.9 s at the trot: {walk}")
+    assert(wlo == -2 && whi == 2, "the walking wag passes every frame, two pixels each side")
+    assert(flips == 4, "two strides a wag, both paws each stride: {flips}")
+    let (fast, _, _, _, fv) = one_wag(10, controls.KEY_RIGHT, 40)
+    assert(fv == sim.trot_at(10), "at a grown paw's trot")
+    assert(fast >= 18 && fast <= 19, "0.6 s at the fastest trot: {fast}")
+    // No sprint is bound (DESIGN.md): the gait answers any pace, so a
+    // sprint at half as fast again as the trot would wag in 0.6 s.
+    let sprint = sim.trot_at(1) * 3 / 2
+    let ticks = (sim.GAIT_CYCLE + sprint - 1) / sprint
+    assert(ticks >= 17 && ticks <= 19, "a sprint's wag: {ticks}")
+}
+
+fn test_cb02c_the_tail_holds_still_between_its_frames() {
+    // Walking, the tail's frame changes at most every third tick: the
+    // wag is slow enough to read, never the old two-tick flicker.
+    var s = shore(1)
+    var i = 0
+    while i < 30 { step_key(mut s, controls.KEY_RIGHT); i += 1 }
+    var last = sim.tail_phase(s)
+    var held = 0
+    var shortest = 1000
+    var changes = 0
+    i = 0
+    while i < 60 {
+        step_key(mut s, controls.KEY_RIGHT)
+        held += 1
+        if sim.tail_phase(s) != last {
+            // The first frame was joined part way through: not a whole one.
+            if changes > 0 && held < shortest { shortest = held }
+            changes += 1
+            held = 0
+            last = sim.tail_phase(s)
+        }
+        i += 1
+    }
+    assert(shortest >= 3, "a tail frame lasts three ticks or more: {shortest}")
+}
+
+fn test_cb02c_the_frame_draws_the_gait() {
+    // Two cubs with one gait and different ticks draw one tail: the frame
+    // reads the gait, never the clock.
+    var a = shore(1)
+    var b = shore(1)
+    a.gait = 700
+    b.gait = 700
+    b.tick = 13
+    var ga = grid.new(24, 80)
+    var gb = grid.new(24, 80)
+    art.render(a, tier.RICH, mut ga)
+    art.render(b, tier.RICH, mut gb)
+    var r = 10
+    while r < 15 {
+        var c = 36
+        while c < 45 {
+            assert(grid.same(grid.at(ga, r, c), grid.at(gb, r, c)), "cell {r},{c}")
+            c += 1
+        }
+        r += 1
+    }
 }
