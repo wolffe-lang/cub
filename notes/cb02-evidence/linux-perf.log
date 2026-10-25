@@ -1,0 +1,21 @@
+pid 1's current affinity list: 4-7
+build: target/release/cub
+perf: host Linux x86_64, slack x1, bench args: (none)
+bench 80x24 rich frames 300 avg_us 179 p99_us 230 max_us 250
+perf: 80x24 rich avg 179 us < 1000 us ok
+bench 80x24 plain frames 300 avg_us 178 p99_us 232 max_us 242
+perf: 80x24 plain avg 178 us < 1000 us ok
+bench 200x60 rich frames 300 avg_us 775 p99_us 893 max_us 913
+perf: 200x60 rich avg 775 us < 4000 us ok
+bench 200x60 plain frames 300 avg_us 774 p99_us 916 max_us 963
+perf: 200x60 plain avg 774 us < 4000 us ok
+perf-idle: idle 301 voluntary context switches in 10 s at a standstill (bar 240..360) ok
+perf-idle: latency samples ms (key write to the carrying frame's trace line): 14 33 14 33 14 14 13 14 14 14 14 14 14 14 13 14 14 14 14 14
+perf-idle: latency inner ms (the key's read to the frame's write): 13.4 32.4 13.3 33.4 13.3 13.3 13.3 13.3 13.3 13.3 13.3 13.3 13.3 13.4 13.3 13.3 13.3 13.3 13.3 13.3
+perf-idle: latency run's closing line: cub: ended by the quit key; 225 ticks, 225 frames, 0 dropped, 246 waits, 9 cells, blocked 0; heading 192 at -10,4; render avg 212 us max 438 us; seed 7 tier rich 80x24
+perf-idle: latency median 13.5 ms p90 13.6 ms max 33.5 ms over 20 keys (bars median 40, p90 70 ms) ok
+perf-idle: idle 300 voluntary context switches in 10 s at a standstill (bar 240..360) ok
+perf-idle: latency samples ms (key write to the carrying frame's trace line): 14 13 34 14 33 13 14 13 13 14 12 14 14 14 14 14 14 14 13 33
+perf-idle: latency inner ms (the key's read to the frame's write): 13.5 12.4 33.3 13.3 33.3 13.3 13.3 13.3 13.3 13.4 12.3 13.3 13.4 13.4 13.3 13.3 13.3 13.4 12.3 32.3
+perf-idle: latency run's closing line: cub: ended by the quit key; 225 ticks, 225 frames, 0 dropped, 246 waits, 9 cells, blocked 0; heading 192 at -10,4; render avg 195 us max 291 us; seed 7 tier rich 80x24
+perf-idle: latency median 13.5 ms p90 32.6 ms max 33.5 ms over 20 keys (bars median 40, p90 70 ms) ok

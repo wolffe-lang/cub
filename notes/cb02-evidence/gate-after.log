@@ -1,0 +1,4 @@
+test src/gate_art_test.lu::test_cb02_thorn_pair_is_not_a_wall_or_label ... ok
+test src/gate_test.lu::test_cb02_lunge_hits_whole_rightmost_thorn_cell ... ok
+test src/gate_test.lu::test_cb02_bite_names_the_lunge_at_thorns ... ok
+wolf test: 3 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out

@@ -1,0 +1,15 @@
+witness world-gate tick 1126 area 0 scent 3552 mark 0 shortcuts 0
+witness world-thorns tick 1143 area 0 scent 3552 mark 0 shortcuts 0
+witness world-open tick 1169 area 0 scent 3552 mark 0 shortcuts 0
+witness world-den tick 1242 area 1 scent 3552 mark 0 shortcuts 0
+witness world-meadow tick 2294 area 2 scent 3560 mark 0 shortcuts 0
+witness world-hawk tick 2647 area 2 scent 3572 mark 0 shortcuts 0
+witness world-recovered tick 4084 area 2 scent 3592 mark 0 shortcuts 0
+witness world-return tick 4869 area 0 scent 3592 mark 0 shortcuts 3
+witness bite tick 373 area 0 scent 16 mark 0 shortcuts 0
+witness parry tick 365 area 0 scent 8 mark 0 shortcuts 0
+witness dodge tick 365 area 0 scent 8 mark 0 shortcuts 0
+witness weasel-retreat tick 365 area 0 scent 8 mark 0 shortcuts 0
+witness fox-feint tick 589 area 0 scent 16 mark 0 shortcuts 0
+witness natural-death tick 573 area 0 scent 0 mark 8 shortcuts 0
+witness aim-lock tick 362 area 0 scent 8 mark 0 shortcuts 0

@@ -1,0 +1,2 @@
+test src/gate_test.lu::test_cb02_lunge_hits_whole_rightmost_thorn_cell ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out

@@ -1,0 +1,17 @@
+{
+  "source_head": "d224e8e095c5586c7f45926041fdbff918d7d54c",
+  "wolf_lines_added": 2389,
+  "wolf_lines_removed": 84,
+  "wolf_lines_net": 2305,
+  "save_bytes": 172,
+  "seeds": 50,
+  "area_rows": 150,
+  "all_required_reached": true,
+  "longest_path_straight": 7,
+  "longest_bank_straight": 5,
+  "closest_initial_foe_cells": 34,
+  "cache_destinations_reached": 300,
+  "script_count": 43,
+  "golden_directories": 87,
+  "golden_files": 1658
+}
