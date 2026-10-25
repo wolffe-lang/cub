@@ -63,5 +63,5 @@ heavy back-steps and leaves a four-tick punctuation burst. Parry `]`, dodge
 `o`, water `~`, fall `_`, pant `:` and the health tail remain readable.
 
 Scent is a dim `:` then `.`, the dropped mark a bright `*`; the hollow log
-is labelled, and the thorn row is `#X#X#` until broken. Only the den shows
-numbers. Every action and encounter has a replay golden on both tiers.
+is labelled, and the thorn row is `#X#X#` until broken. Scent is numeric in the top-row HUD at all times; other stat numbers remain
+in the den. The death card shows scent lost. Every action and encounter has a replay golden on both tiers.
