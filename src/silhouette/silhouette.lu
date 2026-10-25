@@ -59,7 +59,7 @@ pub fn turned(b: Bitmap, facing: int) -> Bitmap {
         while c < w {
             // The source pixel that lands at (r, c) after the turn.
             let v = if f == 1 {
-                at(b, b.h - 1 - c, r)
+                at(b, b.h - 1 - c, b.w - 1 - r)
             } else if f == 2 {
                 at(b, b.h - 1 - r, b.w - 1 - c)
             } else {
