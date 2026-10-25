@@ -147,7 +147,28 @@ fn test_the_camera_keeps_the_cub_at_the_centre() {
 fn test_the_stats_give_the_bars() {
     assert(sim.health_max(1) == 52 && sim.health_max(7) == 124, "heart")
     assert(sim.stamina_max(1) == 70 && sim.stamina_max(6) == 120, "wind")
-    assert(sim.trot_at(1) == 38 && sim.trot_at(4) == 44, "paw")
+    assert(sim.trot_at(1) == 42 && sim.trot_at(4) == 48, "paw")
     let s = sim.new(1, 80, 24)
     assert(s.health == 52 && s.stamina == 70, "a fresh cub")
+}
+
+fn test_cb01b_speed_scaling_keeps_the_weasel_bars() {
+    assert(sim.WALK_PERCENT == 110, "ten percent increase")
+    assert(sim.trot_at(1) == (38 * 110 + 50) / 100, "walk rounded to nearest FP unit")
+    assert(sim.SNEAK_V == (19 * 110 + 50) / 100, "sneak rounded to nearest FP unit")
+    assert(sim.FOE_STALK_V > sim.trot_at(1), "weasel outruns starting cub")
+    assert(sim.SNEAK_V < sim.FOE_STALK_V, "sneak below stalk")
+    var s = sim.new(7, 80, 24)
+    (mut s.foes).reset()
+    s.heading = 64
+    s.heading_target = 64
+    hold_then_rest(mut s, controls.KEY_RIGHT, 30, 0)
+    assert(s.speed == sim.trot_at(1), "actual walk reaches new speed")
+    hold_then_rest(mut s, controls.KEY_SNEAK_RIGHT, 30, 0)
+    assert(s.speed == sim.SNEAK_V, "actual sneak reaches new speed")
+    let x = s.x
+    sim.step(mut s, one(controls.KEY_DODGE))
+    var i = 1
+    while i < sim.dodge_iframes(s.paw) { sim.step(mut s, none()); i += 1 }
+    assert(s.x - x == 3 * sim.FP, "dodge stays three cells")
 }

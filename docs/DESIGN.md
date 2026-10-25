@@ -13,14 +13,14 @@ The Shingle now has a fight, rest and recovery loop. The rest of the area graph 
 | `STAT_START` | 1 | heart, wind, fang, paw and nose at the start; each 1-10, grown at dens with scent (cb01) | 2026-10-25 proposed |
 | `health_max(heart)` | `40 + 12 × heart` | health at a heart level: 52 at the start | 2026-10-25 proposed (the bible) |
 | `stamina_max(wind)` | `60 + 10 × wind` | stamina at a wind level: 70 at the start; moves spend it | 2026-10-25 proposed (the bible) |
-| `trot_at(paw)` | `TROT_V + 2 × paw` | the trot at a paw level: 38 at the start | 2026-10-25 proposed (the bible) |
+| `trot_at(paw)` | `round((TROT_V + 2 × paw) × 1.10)` | the trot at a paw level: 42 at the start | 2026-10-25 proposed (the bible) |
 
 ## The cub's motion (`src/sim/sim.lu`)
 
 | constant | value | meaning | set |
 |---|---|---|---|
 | `TROT_V` | 36 | the trot's base, fixed-point units a tick (256 a cell): 0.15 cells a tick, 4.4 a second, a cub's pace under pack's wolves' 40 | 2026-10-25 proposed |
-| `SNEAK_V` | 19 | a sneak (Shift+arrow): half the current paw-dependent trot; no trail is laid and foes perceive by sight only | 2026-10-25 proposed (the bible, section 4) |
+| `SNEAK_V` | 21 | a sneak (Shift+arrow): half the current paw-dependent trot; no trail is laid and foes perceive by sight only | 2026-10-25 proposed (the bible, section 4) |
 | `ACCEL` | 4 | acceleration, FP units a tick each tick: the trot from a stop in 9 ticks | 2026-10-25 proposed |
 | `BRAKE` | 8 | braking: a stop from the trot in 5 ticks; a cub stops faster than it starts | 2026-10-25 proposed |
 | `TURN` | 256 | heading units a full turn: 0 north, 64 east, 128 south, 192 west; the diagonals between when two arrows are held | 2026-10-25 cb00 |
@@ -98,3 +98,17 @@ for 150 ticks, then `.` until expiry; a dropped mark is visible within
 including negative coordinates. A death dissolve erases cells when
 (row × 7 + column × 11) mod 30 is below the fade age; the multipliers are
 presentation texture, not gameplay randomness.
+
+## Speed revision, 2026-10-25
+
+The maintainer's word: "Bump cub speed by 10 %." `WALK_PERCENT = 110`
+scales `TROT_V + 2 × paw`, rounding to the nearest integer FP unit;
+`TROT_V = 36` stays the unscaled stat base. At paw 1, walk 38 → 42
+(the exact product is 41.8), sneak 19 → 21 (20.9). This quantisation is
+proposed, not an extra tuning increase. Actual start-level walk is
+4.921875 cells/s, sneak 2.4609375. `FOE_STALK_V = 44` and
+`FOE_RETREAT_V = 48` are unchanged: a starting cub cannot outrun a weasel,
+and sneak is below stalk. Paw growth may eventually outrun it as before.
+Dodge remains three cells; no run binding or run speed exists yet.
+Acceleration 4 and brake 8 remain: walk reaches the cap in 11 ticks and
+stops in 6, rather than the old 10 and 5.

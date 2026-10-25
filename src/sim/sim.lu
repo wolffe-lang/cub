@@ -30,7 +30,10 @@ pub const TURN: int = 256
 pub const TROT_V: int = 36
 
 /// A sneak's speed: half the trot (section 4).
-pub const SNEAK_V: int = 19
+pub const SNEAK_V: int = 21
+
+/// Walk and sneak multiplier, rounded to the nearest fixed-point unit.
+pub const WALK_PERCENT: int = 110
 
 /// Acceleration, FP units a tick each tick: the trot from a stop in 9 ticks.
 pub const ACCEL: int = 4
@@ -57,7 +60,7 @@ pub fn stamina_max(wind: int) -> int {
 
 /// The trot at paw `p`.
 pub fn trot_at(paw: int) -> int {
-    TROT_V + 2 * paw
+    ((TROT_V + 2 * paw) * WALK_PERCENT + 50) / 100
 }
 
 /// The quarter sine, 65 entries of `[0, 256]` over `[0, 64]` heading units.
@@ -805,7 +808,7 @@ fn move_foe(mut s: Sim, i: int, away: bool) {
             TURN
     ) %
         TURN
-    let speed = toward(f.speed, if away then 48 else 44, ACCEL)
+    let speed = toward(f.speed, if away then FOE_RETREAT_V else FOE_STALK_V, ACCEL)
     let nx = f.x + speed * sin(heading) / FP
     let ny = f.y - speed * cos(heading) / FP
     var stops = blocked(s, floor_div(nx, FP), floor_div(ny, FP)) || near(nx, ny, s.x, s.y, FP)
@@ -1028,3 +1031,9 @@ fn body_at(s: Sim, x: int, y: int) -> bool {
     }
     false
 }
+
+/// Foe pursuit and retreat speeds, unchanged by the cub speed increase.
+pub const FOE_STALK_V: int = 44
+
+/// Retreat remains faster than a fresh cub walk.
+pub const FOE_RETREAT_V: int = 48
