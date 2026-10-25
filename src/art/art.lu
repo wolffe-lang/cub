@@ -1020,9 +1020,12 @@ pub fn draw_flotsam(mut g: grid.Grid, t: int, row: int, col: int, kind: int) {
 
 fn shore_finds(s: sim.Sim, t: int, mut g: grid.Grid) {
     if s.area != forest.SHINGLE { return }
+    // Finds lie along the whole shore, eleven cells a slot, the seed
+    // jittering each; none within eight cells of the spawn.
+    let reach = forest.coast_extent(s.field)
     var slot = 0
-    while slot < 6 {
-        let x = -32 + slot * 11 + terrain.variant(s.seed, slot, 211, 3)
+    while slot * 11 < 2 * reach - 10 {
+        let x = 4 - reach + slot * 11 + terrain.variant(s.seed, slot, 211, 3)
         let y = terrain.bank(s.seed, x) + terrain.REED_ROWS + 1
         var clear = x < -8 || x > 7
         var dx = 0
