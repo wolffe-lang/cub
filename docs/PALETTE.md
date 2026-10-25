@@ -17,12 +17,12 @@ unseen interpolation in this build.
 | water / ripple | 24 / 31 | 4 / 6 |
 | reeds | 65 | 2 |
 
-Combat accents use fur colours so they remain legible on gravel without
-introducing a new palette: bright for a real crouch, strike, lock and mark;
-dim for scent and the den. The fox's false tell is `~`, its real tell `_`.
-The trail changes from `:` to `.` after 150 ticks, disappearing at 300.
-Death dissolves cells over 30 ticks; it never depends on wall-clock time.
+| weasel | 130 | 1 |
+| fox | 166 | 9 |
 
-Both tiers use the same ground envelope. A leap's raised apostrophe is an
-arc accent, not a displaced collision body. Rich and plain frame goldens
-cover the same ticks of every encounter.
+Foes have their own threat colours (proposed 2026-10-25), distinct from
+cub fur and scent. Crouch changes the whole head posture, not just colour.
+The trail changes from `:` to `.` after 150 ticks, disappearing at 300.
+Foe death sprites dim and erode over 15 ticks; cub death dissolves over 30.
+Both use simulation ticks, never wall-clock time. The leap displaces only
+presentation, not its collision body. Both tiers cover identical sim ticks.

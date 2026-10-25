@@ -134,12 +134,12 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
 /// woods, the deep forest), on a 24 by 60 grid. Committed as a golden on
 /// both tiers.
 pub fn sheet(t: int) -> grid.Grid {
-    var g = grid.new(24, 60)
+    var g = grid.new(40, 80)
     // Bands of ground, top to bottom.
     var row = 0
-    while row < 24 {
+    while row < 40 {
         var col = 0
-        while col < 60 {
+        while col < 80 {
             let v = (row * 7 + col * 13) % 4
             let cell = if row < 3 {
                 sprites.glyph(
@@ -202,6 +202,35 @@ pub fn sheet(t: int) -> grid.Grid {
         "N        E        S        W",
         sprites.glyph(t, sprites.SP_GRAVEL, 0),
     )
+    var kind = 0
+    while kind < 2 {
+        var phase = 0
+        while phase < 10 {
+            draw_foe(
+                mut g,
+                t,
+                27 + kind * 6,
+                5 + phase * 7,
+                kind,
+                if phase < 7 then phase else sim.HUNT,
+                64,
+                if phase < 7 then -1 else (phase - 7) * 5,
+            )
+            phase += 1
+        }
+        draw.put_text(
+            mut g,
+            24 + kind * 6,
+            2,
+            if kind == 0 {
+                "weasel: hunt crouch strike flee stagger feint pause fade0 fade5 fade10"
+            } else {
+                "fox:    hunt crouch strike flee stagger feint pause fade0 fade5 fade10"
+            },
+            ink(t, true),
+        )
+        kind += 1
+    }
     g
 }
 
@@ -266,35 +295,18 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
     var i = 0
     while i < s.foes.len {
         let f = copy s.foes[i]
-        if f.health > 0 {
+        let fade = if f.health > 0 {
+            -1
+        } else if f.died >= 0 {
+            s.tick - f.died
+        } else {
+            sim.FOE_FADE_TICKS
+        }
+        if fade < sim.FOE_FADE_TICKS {
             let r = sim.floor_div(f.y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
             let c = sim.floor_div(f.x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
-            let glyph = if f.kind == sim.FOX then "f" else "w"
-            let tell = if f.phase == sim.CROUCH {
-                "_"
-            } else if f.phase == sim.FEINT {
-                "~"
-            } else if f.phase == sim.STRIKE {
-                ">"
-            } else if f.phase == sim.STAGGER {
-                "!"
-            } else if f.phase == sim.RETREAT {
-                "<"
-            } else {
-                "^"
-            }
-            draw.put_text(
-                mut g,
-                r,
-                c,
-                glyph + tell,
-                ink(t, f.phase == sim.CROUCH || f.phase == sim.STRIKE),
-            )
-            if f.phase == sim.STRIKE {
-                // Presentation only: airborne accent over the ground envelope.
-                draw.put_text(mut g, r - 1, c, "'", ink(t, true))
-            }
-            if s.locked == i { draw.put_text(mut g, r + 1, c, "[]", ink(t, true)) }
+            draw_foe(mut g, t, r, c, f.kind, f.phase, f.heading, fade)
+            if s.locked == i { draw.put_text(mut g, r + 2, c, "[]", ink(t, true)) }
         }
         i += 1
     }
@@ -417,5 +429,61 @@ pub fn draw_pose(
     if pose == 3 {
         draw.put_text(mut g, row, col, "__", ink(t, false))
         draw.put_text(mut g, row + 1, col + 2, ":", ink(t, false))
+    }
+}
+
+/// Every foe is a body, head and tail on both tiers, not a letter plus tell.
+/// Crouching flattens the head; fleeing trails the tail away from its head.
+pub fn draw_foe(
+    mut g: grid.Grid,
+    t: int,
+    row: int,
+    col: int,
+    kind: int,
+    phase: int,
+    heading: int,
+    fade: int,
+) {
+    if fade >= sim.FOE_FADE_TICKS { return }
+    let colour = sprites.palette(t, if kind == sim.FOX then sprites.C_FOX else sprites.C_WEASEL)
+    let style = grid.cell(
+        32,
+        colour,
+        sprites.palette(t, sprites.C_GRAVEL),
+        if fade < 0 then grid.ATTR_BOLD else 0,
+    )
+    let crouch = phase == sim.CROUCH || phase == sim.FEINT
+    let left = heading >= 128
+    let head_row = row - 1
+    let head = if crouch {
+        "__"
+    } else if phase == sim.STAGGER {
+        "!!"
+    } else if kind == sim.FOX {
+        "/\\"
+    } else {
+        "oo"
+    }
+    draw.put_text(mut g, head_row, col, head, style)
+    if t == tier.RICH && !crouch && phase != sim.STAGGER {
+        var ear = copy style
+        ear.cp = if left then 9624 else 9629
+        grid.put(mut g, head_row, col + (if left then 0 else 1), ear)
+    }
+    draw.put_text(mut g, row, col, if kind == sim.FOX then "##" else "==", style)
+    if phase == sim.STRIKE { draw.put_text(mut g, row - 2, col, "'", style) }
+    let tail = if phase == sim.RETREAT {
+        "~"
+    } else if phase == sim.FEINT {
+        "?"
+    } else if kind == sim.FOX {
+        "/"
+    } else {
+        ","
+    }
+    draw.put_text(mut g, row + 1, col + (if left then 1 else 0), tail, style)
+    if fade >= 5 {
+        draw.put_text(mut g, head_row, col, "..", style)
+        if fade >= 10 { draw.put_text(mut g, row, col, ". ", style) }
     }
 }

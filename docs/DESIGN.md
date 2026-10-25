@@ -170,3 +170,11 @@ rule is added. The back-steps and leap clip against terrain and bodies,
 never changing ground position or camera. The heavy cannot chain, does not
 break the tutorial gate (the lunge still teaches that), and is refused
 while panting. These tuning numbers await play.
+
+## Foe sprites, 2026-10-25 (proposed)
+
+`FOE_FADE_TICKS = 15`: a dead weasel or fox retains its head, two-cell body
+and tail briefly, dimming at death, eroding head at age 5 and body at age
+10, gone at 15. The fading footprint also clips presentation arcs.
+Its collision/damage health is already zero: it cannot bite or award scent
+again. `C_WEASEL` and `C_FOX` are palette roles, documented in PALETTE.md.

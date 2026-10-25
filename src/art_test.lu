@@ -77,7 +77,7 @@ fn none_keys() -> List[int] {
 fn test_the_sheet() {
     let r = art.sheet(tier.RICH)
     let p = art.sheet(tier.PLAIN)
-    assert(r.rows == 24 && r.cols == 60 && p.rows == 24 && p.cols == 60, "24 by 60")
+    assert(r.rows == 40 && r.cols == 80 && p.rows == 40 && p.cols == 80, "40 by 80")
     assert(grid.plain_ok(p), "the plain sheet keeps the promise")
     assert(!grid.plain_ok(r), "the rich sheet uses the rich glyphs")
 }
@@ -122,6 +122,40 @@ fn test_cb01b_sideways_silhouette_keeps_body_cells() {
                 pose += 1
             }
             f += 1
+        }
+        t += 1
+    }
+}
+
+fn test_cb01b_each_foe_has_head_body_tail_tell_and_fade_on_both_tiers() {
+    var t = tier.PLAIN
+    while t <= tier.RICH {
+        var kind = sim.WEASEL
+        while kind <= sim.FOX {
+            var phase = sim.HUNT
+            while phase <= sim.PAUSE {
+                var g = grid.new(10, 14)
+                art.draw_foe(mut g, t, 4, 5, kind, phase, 64, -1)
+                assert(grid.at(g, 4, 5).cp != 32 && grid.at(g, 4, 6).cp != 32, "two body cells")
+                assert(grid.at(g, 3, 5).cp != 32 && grid.at(g, 5, 5).cp != 32, "head and tail")
+                assert(
+                    grid.at(g, 4, 5).fg != sprites.palette(t, sprites.C_FUR),
+                    "foe colour not cub/trail",
+                )
+                if phase == sim.CROUCH {
+                    assert(grid.at(g, 3, 5).cp == 95, "crouching head is tell")
+                }
+                if phase == sim.RETREAT { assert(grid.at(g, 5, 5).cp == 126, "fleeing tail") }
+                if t == tier.PLAIN { assert(grid.plain_ok(g), "plain foe") }
+                phase += 1
+            }
+            var fading = grid.new(10, 14)
+            art.draw_foe(mut fading, t, 4, 5, kind, sim.HUNT, 64, 10)
+            assert(grid.at(fading, 4, 5).cp == 46, "late fade")
+            var gone = grid.new(10, 14)
+            art.draw_foe(mut gone, t, 4, 5, kind, sim.HUNT, 64, sim.FOE_FADE_TICKS)
+            assert(grid.at(gone, 4, 5).cp == 32, "fade ends")
+            kind += 1
         }
         t += 1
     }

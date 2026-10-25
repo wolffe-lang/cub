@@ -97,7 +97,13 @@ pub const C_RIPPLE: int = 10
 pub const C_REED: int = 11
 
 /// The number of palette roles.
-pub const ROLE_COUNT: int = 12
+pub const C_WEASEL: int = 12
+
+/// Fox threat colour, separate from cub and trail.
+pub const C_FOX: int = 13
+
+/// Number of named colour roles.
+pub const ROLE_COUNT: int = 14
 
 /// The colour index a palette role has on a tier (the afternoon; the dusk
 /// and night keyframes come with the areas, cb02).
@@ -115,6 +121,8 @@ pub fn palette(t: int, role: int) -> int {
             8 => 137,  // C_FUR_DIM
             9 => 24,  // C_WATER
             10 => 31,  // C_RIPPLE
+            12 => 130,
+            13 => 166,
             11 => 65,  // C_REED
             _ => grid.COLOR_DEFAULT,
         }
@@ -131,6 +139,8 @@ pub fn palette(t: int, role: int) -> int {
         8 => 3,  // C_FUR_DIM
         9 => 4,  // C_WATER
         10 => 6,  // C_RIPPLE
+        12 => 1,
+        13 => 9,
         11 => 2,  // C_REED
         _ => grid.COLOR_DEFAULT,
     }
