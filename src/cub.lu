@@ -705,7 +705,7 @@ fn replay_numbers(mut s: sim.Sim, health: int, scent: int) {
 }
 
 fn state_text(s: sim.Sim) -> str {
-    var text = "tick {s.tick} x {s.x} y {s.y} heading {s.heading} action {s.action} started {s.started} health {s.health} stamina {s.stamina} flasks {s.flasks} scent {s.scent} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_scent {s.mark_scent} gate {if s.gate_open then 1 else 0} trail {s.trail.len} lock {s.locked}\n"
+    var text = "tick {s.tick} x {s.x} y {s.y} heading {s.heading} action {s.action} started {s.started} health {s.health} stamina {s.stamina} flasks {s.flasks} scent {s.scent} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_scent {s.mark_scent} gate {if s.gate_open then 1 else 0} trail {s.trail.len} lock {s.locked} aim {s.attack_heading}\n"
     var i = 0
     while i < s.foes.len {
         let f = copy s.foes[i]

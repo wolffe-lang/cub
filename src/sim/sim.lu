@@ -191,6 +191,10 @@ pub struct Sim {
     health: int,
     stamina: int,
     holds: List[input.Hold],
+    aim_order: List[int],
+    aim_serial: int,
+    attack_heading: int,
+    chained_heading: int,
     action: int,
     started: int,
     chained: bool,
@@ -217,9 +221,11 @@ pub struct Sim {
 pub fn new(seed: int, cols: int, rows: int) -> Sim {
     let (x, y) = terrain.start(seed)
     var holds = List[input.Hold]()
+    var aim_order = List[int]()
     var i = 0
     while i < 8 {
         (mut holds).push(input.hold_new())
+        (mut aim_order).push(0)
         i += 1
     }
     Sim {
@@ -243,6 +249,10 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         health: health_max(STAT_START),
         stamina: stamina_max(STAT_START),
         holds: holds,
+        aim_order: aim_order,
+        aim_serial: 0,
+        attack_heading: 0,
+        chained_heading: 0,
         action: IDLE,
         started: 0,
         chained: false,
@@ -344,12 +354,7 @@ pub fn heading_of(up: bool, down: bool, left: bool, right: bool) -> int {
 /// One tick: the keys pressed this tick (cub's numbers), the holds read,
 /// the heading turned, the speed changed, the cub moved where the ground
 /// lets it.
-fn locomotion(mut s: Sim, keys: List[int]) {
-    for k in keys {
-        if controls.is_move(k) {
-            input.hold_press(mut s.holds[k - controls.KEY_UP], s.tick)
-        }
-    }
+fn locomotion(mut s: Sim) {
     var held = List[bool]()
     var i = 0
     while i < 8 {
@@ -725,6 +730,7 @@ fn start_action(mut s: Sim, action: int, cost: int) {
     if s.exhausted && (action == LUNGE || action == DODGE) { return }
     s.stamina -= cost
     if s.stamina == 0 { s.exhausted = true }
+    s.attack_heading = attack_aim(s)
     s.action = action
     s.started = s.tick
     s.speed = 0
@@ -733,6 +739,12 @@ fn start_action(mut s: Sim, action: int, cost: int) {
 
 fn action_keys(mut s: Sim, keys: List[int]) {
     for k in keys {
+        if controls.is_move(k) {
+            let i = k - controls.KEY_UP
+            if s.holds[i].last != s.tick { input.hold_press(mut s.holds[i], s.tick) }
+            s.aim_serial += 1
+            s.aim_order[i] = s.aim_serial
+        }
         if k == controls.KEY_RELEASE { s.locked = -1; s.den = false }
         if k == controls.KEY_LOCK { lock_next(mut s) }
         if k >= controls.KEY_HEART && k <= controls.KEY_NOSE { grow(mut s, k - controls.KEY_HEART) }
@@ -742,7 +754,10 @@ fn action_keys(mut s: Sim, keys: List[int]) {
         }
         if s.den { continue }
         if k == controls.KEY_BITE {
-            if s.action == BITE && s.tick - s.started >= 5 { s.chained = true }
+            if s.action == BITE && s.tick - s.started >= 5 && s.tick - s.started < 11 {
+                s.chained = true
+                s.chained_heading = attack_aim(s)
+            }
             start_action(mut s, BITE, 12)
         }
         if k == controls.KEY_LUNGE { start_action(mut s, LUNGE, 30) }
@@ -764,7 +779,7 @@ fn strike_foes(mut s: Sim) {
     if s.action == LUNGE &&
         !s.gate_open &&
         near(s.x, s.y, 0, gate_y(s) * FP, 4 * FP) &&
-        in_front(s.x, s.y, s.heading, 0, gate_y(s) * FP) {
+        in_front(s.x, s.y, s.attack_heading, 0, gate_y(s) * FP) {
         s.gate_open = true
     }
     var i = 0
@@ -773,7 +788,7 @@ fn strike_foes(mut s: Sim) {
         if f.health > 0 &&
             f.last_hit != s.started &&
             near(s.x, s.y, f.x, f.y, reach * FP) &&
-            in_front(s.x, s.y, s.heading, f.x, f.y) &&
+            in_front(s.x, s.y, s.attack_heading, f.x, f.y) &&
             visible(s, s.x, s.y, f.x, f.y) {
             var damage = bite_damage(s.fang)
             if s.action == LUNGE { damage *= 3 }
@@ -959,7 +974,11 @@ fn action_step(mut s: Sim, want: int) {
     if s.action != IDLE && age >= duration {
         let chain = s.action == BITE && s.chained
         s.action = IDLE
-        if chain { start_action(mut s, BITE, 12) }
+        if chain {
+            let aim = s.chained_heading
+            start_action(mut s, BITE, 12)
+            if s.action == BITE { s.attack_heading = aim }
+        }
     }
 }
 
@@ -1002,7 +1021,7 @@ pub fn step(mut s: Sim, keys: List[int]) {
     }
     let ox = s.x
     let oy = s.y
-    locomotion(mut s, keys)
+    locomotion(mut s)
     let want = heading_of(
         input.held(s.holds[0], s.tick) || input.held(s.holds[4], s.tick),
         input.held(s.holds[1], s.tick) || input.held(s.holds[5], s.tick),
@@ -1037,3 +1056,33 @@ pub const FOE_STALK_V: int = 44
 
 /// Retreat remains faster than a fresh cub walk.
 pub const FOE_RETREAT_V: int = 48
+
+/// Arrow aim memory shared in name and duration with pack pk06b (500 ms).
+pub const AIM_WINDOW_TICKS: int = 15
+
+fn aim_axis_order(s: Sim, axis: int) -> int {
+    var order = 0
+    var i = axis
+    while i < 8 {
+        if (input.held(s.holds[i], s.tick) || s.tick - s.holds[i].last <= AIM_WINDOW_TICKS) &&
+            s.aim_order[i] > order {
+            order = s.aim_order[i]
+        }
+        i += 4
+    }
+    order
+}
+
+/// Lock wins; otherwise latest opposing arrow wins per axis, then facing.
+pub fn attack_aim(s: Sim) -> int {
+    if s.locked >= 0 && s.locked < s.foes.len && s.foes[s.locked].health > 0 {
+        let h = heading_to(s.x, s.y, s.foes[s.locked].x, s.foes[s.locked].y)
+        if h >= 0 { return h }
+    }
+    let up = aim_axis_order(s, 0)
+    let down = aim_axis_order(s, 1)
+    let left = aim_axis_order(s, 2)
+    let right = aim_axis_order(s, 3)
+    let h = heading_of(up > down, down > up, left > right, right > left)
+    if h >= 0 then h else s.heading
+}

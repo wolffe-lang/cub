@@ -112,3 +112,15 @@ and sneak is below stalk. Paw growth may eventually outrun it as before.
 Dodge remains three cells; no run binding or run speed exists yet.
 Acceleration 4 and brake 8 remain: walk reaches the cap in 11 ticks and
 stops in 6, rather than the old 10 and 5.
+
+## Directional attacks, 2026-10-25
+
+The maintainer's word: "Leaps should be directional — pack pulled this off mostly."
+`AIM_WINDOW_TICKS = 15` (500 ms, inclusive), the same name/value as pack's
+pk06b proposal. Arrows held or pressed in the window before the attack
+are sampled in byte order; latest opposite wins on each axis, including
+Shift+arrows. No arrow means facing. R-cb01b-1 A recommended and implemented:
+lock overrides arrows. Each accepted attack commits its aim; arrows after
+the key do not bend it. A queued recovery bite captures its own aim.
+Movement still uses the engine's shorter Hold lifetime and turn rate.
+Bite/lunge reach, cone, timings and damage stay the bible's.
