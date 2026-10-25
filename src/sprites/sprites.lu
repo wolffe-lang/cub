@@ -32,7 +32,8 @@ pub const SP_TRUNK: int = 2
 /// Canopy (variant 0-3, lighter to darker).
 pub const SP_CANOPY: int = 3
 
-/// Deep forest: visible dense foliage, still impassable.
+/// Deep forest: the canopy's four glyphs in the deep green (variant 0-3),
+/// visible and textured everywhere, still impassable.
 pub const SP_DARK: int = 4
 
 /// The Ashwater (variant 0-3: still, three ripples).
@@ -217,7 +218,22 @@ fn rich(sprite: int, v: int) -> grid.Cell {
                 C_FLOOR,
                 0,
             ),  // SP_CANOPY
-        4 => c(t, 10495, C_CANOPY_DARK, C_FLOOR, 0),  // SP_DARK
+        4 =>
+            c(
+                t,
+                if v % 4 == 0 {
+                    10495
+                } else if v % 4 == 1 {
+                    10486
+                } else if v % 4 == 2 {
+                    10478
+                } else {
+                    10294
+                },
+                C_CANOPY_DARK,
+                C_FLOOR,
+                0,
+            ),  // SP_DARK: the canopy's four glyphs in the deep green
         5 => c(t, if v % 4 == 0 then 32 else 8776, C_RIPPLE, C_WATER, 0),  // SP_WATER
         6 => c(t, if v % 2 == 0 then 10247 else 10262, C_REED, C_WATER, 0),  // SP_REEDS
         7 => c(t, 9608, C_FUR, C_GRAVEL, 0),  // SP_CUB_BODY
@@ -256,7 +272,14 @@ fn plain(sprite: int, v: int) -> grid.Cell {
                 C_FLOOR,
                 if v % 4 < 2 then grid.ATTR_BOLD else 0,
             ),  // SP_CANOPY
-        4 => c(t, 38, C_CANOPY_DARK, C_FLOOR, 0),  // SP_DARK
+        4 =>
+            c(
+                t,
+                if v % 4 == 0 then 38 else if v % 4 == 1 then 37 else if v % 4 == 2 then 42 else 59,
+                C_CANOPY_DARK,
+                C_FLOOR,
+                0,
+            ),  // SP_DARK
         5 => c(t, if v % 4 == 0 then 32 else 126, C_RIPPLE, C_WATER, 0),  // SP_WATER
         6 => c(t, if v % 2 == 0 then 124 else 33, C_REED, C_WATER, 0),  // SP_REEDS
         7 => c(t, 67, C_FUR, C_GRAVEL, grid.ATTR_BOLD),  // SP_CUB_BODY

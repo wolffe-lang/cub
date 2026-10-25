@@ -22,6 +22,10 @@ pub fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
         let (x, y) = sim.world_cell(s, row, col)
         let k = forest.kind(s.seed, s.area, x, y)
         let v = sim.variant(s, x, y, 4)
+        // Foliage variants alternate their glyph set by the cell's parity,
+        // so two adjacent canopy or deep-forest cells are never identical:
+        // the forest reads as texture, never as a run of one tile.
+        let foliage = 2 * (((x + y) % 2 + 2) % 2) + sim.variant(s, x, y, 2)
         var cell = if k == terrain.GRAVEL {
             sprites.glyph(
                 t,
@@ -33,7 +37,7 @@ pub fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
         } else if k == terrain.TRUNK {
             sprites.glyph(t, sprites.SP_TRUNK, 0)
         } else if k == terrain.CANOPY {
-            sprites.glyph(t, sprites.SP_CANOPY, v)
+            sprites.glyph(t, sprites.SP_CANOPY, foliage)
         } else if k == terrain.WATER {
             sprites.glyph(
                 t,
@@ -45,7 +49,7 @@ pub fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
         } else if k == terrain.REEDS {
             sprites.glyph(t, sprites.SP_REEDS, v)
         } else {
-            sprites.glyph(t, sprites.SP_DARK, 0)
+            sprites.glyph(t, sprites.SP_DARK, foliage)
         }
         if s.area != forest.SHINGLE {
             cell.bg = if t == tier.RICH {
@@ -53,9 +57,7 @@ pub fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
             } else {
                 0
             }
-            cell.fg = if t == tier.RICH {
-                if k == terrain.TRUNK then 95 else if s.area == forest.BRAMBLEHOLD then 29 else 137
-            } else if k == terrain.TRUNK then 3 else if s.area == forest.BRAMBLEHOLD then 2 else 3
+            cell.fg = dusk_ink(s.area, t, k, foliage)
             // Sight hides creatures, never the forest itself.
             if s.area == forest.BRAMBLEHOLD &&
                 !sim.near(s.x, s.y, x * sim.FP, y * sim.FP, 12 * sim.FP) {
@@ -65,6 +67,30 @@ pub fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
         grid.put(mut g, row, col, cell)
         col += 1
     }
+}
+
+/// The dusk keyframes (`docs/PALETTE.md`): the thicket's two foliage
+/// greens over its floor, the meadow's gold grass and tall grass with the
+/// dusk woods closing round it; trunks share one dusk brown. Two tones
+/// per foliage kind keep the forest's texture under the recolour.
+fn dusk_ink(area: int, t: int, k: int, foliage: int) -> int {
+    let thicket = area == forest.BRAMBLEHOLD
+    if t != tier.RICH {
+        if k == terrain.TRUNK { return 3 }
+        if k == terrain.GRASS || k == terrain.REEDS { return if thicket then 2 else 3 }
+        return 2
+    }
+    if k == terrain.TRUNK { return 95 }
+    if k == terrain.GRASS { return if thicket then 65 else 137 }
+    if k == terrain.REEDS { return if thicket then 65 else 143 }
+    if k == terrain.CANOPY {
+        return if thicket {
+            (if foliage % 4 < 2 then 29 else 23)
+        } else {
+            (if foliage % 4 < 2 then 58 else 22)
+        }
+    }
+    if thicket then 23 else 58
 }
 
 /// Draw the cub at screen `row`, `col` (its top-left cell) facing
