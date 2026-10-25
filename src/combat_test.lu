@@ -101,10 +101,20 @@ fn test_dodge_edges_and_three_cell_hop() {
 
 fn test_dodge_avoids_a_bite_not_a_body() {
     var s = arena()
+    // cb02c: the weasel on the contact ring dead ahead (its body touching
+    // the cub's east-facing one), not inside the cub's drawing.
+    s.foes[0].x = s.x + 7 * sim.FP
     strike_at(mut s)
     sim.step(mut s, keys(controls.KEY_DODGE))
     assert(s.health == 52 && s.foes[0].hit, "bite consumed without damage")
-    assert(s.x == 0, "body stops the hop; no teleport through a foe")
+    sim.step(mut s, keys(0))
+    assert(s.x < sim.FP, "the body stops the hop inside the cub's own cell; no teleport")
+    var n = 0
+    while n < sim.dodge_iframes(s.paw) {
+        assert(!sim.overlap(sim.cub_body(s), sim.foe_body(s.foes[0])), "no hop through a body")
+        sim.step(mut s, keys(0))
+        n += 1
+    }
 }
 
 fn test_exhaustion_blocks_heavy_moves_until_recovered() {
@@ -251,11 +261,18 @@ fn test_lunge_breaks_gate_and_rest_keeps_it_open() {
 
 fn test_ordinary_motion_cannot_cross_a_foe_body() {
     var s = arena()
+    // cb02c: a still weasel in the cub's row, a cell clear of its body.
+    s.foes[0].x = s.x + 8 * sim.FP
     s.foes[0].phase = sim.STAGGER
     s.foes[0].since = 1000
     var i = 0
-    while i < 40 { sim.step(mut s, keys(controls.KEY_RIGHT)); i += 1 }
+    while i < 40 {
+        sim.step(mut s, keys(controls.KEY_RIGHT))
+        assert(!sim.overlap(sim.cub_body(s), sim.foe_body(s.foes[0])), "never inside the body")
+        i += 1
+    }
     assert(s.x < s.foes[0].x - sim.FP, "a body is not a passable tile")
+    assert(sim.body_gap(s, 0) == 0, "the cub stops against it, bodies touching")
 }
 
 fn test_sight_is_occluded_by_closed_thorns() {
