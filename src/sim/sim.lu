@@ -616,7 +616,7 @@ pub fn can_see(s: Sim, f: Foe) -> bool {
 
 /// Whether the current tick is inside the half-open parry window.
 pub fn parrying(s: Sim) -> bool {
-    s.action == PARRY && s.tick - s.started < PARRY_WINDOW
+    s.action == PARRY && s.tick - s.started <= PARRY_WINDOW
 }
 
 /// Whether the current tick is inside the dodge iframe window.
