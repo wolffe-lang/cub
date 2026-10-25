@@ -164,7 +164,10 @@ pub fn kind(seed: int, area: int, x: int, y: int) -> int {
         let b = terrain.bank(seed, x)
         if jetty(seed, x, y) { return terrain.ROCK }
         if y < b { return terrain.WATER }
-        if x <= jetty_x(seed, 0) || x >= jetty_x(seed, 1) { return terrain.DARK }
+        if (x <= jetty_x(seed, 0) || x >= jetty_x(seed, 1)) &&
+            y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS {
+            return terrain.DARK
+        }
         if y < b + terrain.REED_ROWS { return terrain.REEDS }
         if y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS { return terrain.GRAVEL }
     }
