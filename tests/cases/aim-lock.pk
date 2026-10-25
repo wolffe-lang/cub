@@ -365,11 +365,8 @@ t 342 down
 t 343 down
 t 344 down
 t 345 down
-t 345 left
 t 346 down
-t 346 left
 t 347 down
-t 347 left
 t 348 down
 t 348 left
 t 349 down
@@ -386,8 +383,10 @@ t 354 down
 t 354 left
 t 355 down
 t 355 left
-t 356 right
-t 356 lock
-t 356 lunge
+t 356 down
+t 356 left
+t 357 right
+t 357 lock
+t 357 lunge
 
-# frames 369 every 369
+# frames 370 every 370
