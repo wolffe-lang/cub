@@ -217,7 +217,7 @@ fn rich(sprite: int, v: int) -> grid.Cell {
                 C_FLOOR,
                 0,
             ),  // SP_CANOPY
-        4 => c(t, 10495, C_CANOPY_DARK, C_FLOOR, 0),  // SP_DARK
+        4 => c(t, 32, C_CANOPY_DARK, C_FLOOR, 0),  // SP_DARK
         5 => c(t, if v % 4 == 0 then 32 else 8776, C_RIPPLE, C_WATER, 0),  // SP_WATER
         6 => c(t, if v % 2 == 0 then 10247 else 10262, C_REED, C_WATER, 0),  // SP_REEDS
         7 => c(t, 9608, C_FUR, C_GRAVEL, 0),  // SP_CUB_BODY
