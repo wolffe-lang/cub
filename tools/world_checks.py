@@ -38,6 +38,12 @@ def check(binary):
     words = (out / 'resume-den/final.state').read_text().splitlines()[0].split()
     state = dict(zip(words[::2], map(int, words[1::2])))
     assert state['area'] == 1 and state['den_id'] == 1 and state['health'] == 160 and state['flasks'] == 3
+    conflict = run('seed-conflict', save, extra=['--seed', '2'], want=2)
+    assert 'save_seed_conflict' in conflict.stderr and save.read_bytes() == before
+    conflict = subprocess.run([str(binary), '--headless', '--script', str(ROOT / 'tests/cases/saved-den.pk'),
+                               '--seed', '2', '--frames', '1', '--dump', str(out / 'record-seed-conflict')],
+                              capture_output=True, text=True)
+    assert conflict.returncode == 2 and 'save_seed_conflict' in conflict.stderr, 'checkpoint seed override was silently ignored'
     cut = run('cut', save, extra=['--save-cut'], want=2)
     assert 'save_cut' in cut.stderr and save.read_bytes() == before, 'cut write lost old save'
     pending = Path(str(save) + '.pending')

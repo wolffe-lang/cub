@@ -70,3 +70,8 @@ forced death's mark across an area edge. The shorter encounter scripts use
 default growth, no injected health/scent, and include a natural death.
 The independent `--world-audit` flood checks all den/portal/cache targets,
 path and bank straight runs, and enemy distances over seeds 0..49.
+
+A saved journey keeps its seed. An explicit conflicting `--seed` is a named
+`save_seed_conflict`, not a silently ignored override. A replay header that
+disagrees with its initial journey snapshot is corrupt and is rejected.
+Ordinary scripts without a snapshot still accept a seed override.

@@ -287,6 +287,11 @@ fn run_headless(o: Options, args: List[str]) -> int {
     } else {
         sim.new(r.seed, r.cols, r.rows)
     }
+    if seed_given(args) &&
+        (s.seed != o.seed || replay.args_at(r, 0, 3) == 1 && replay.args_at(r, 0, 4) != o.seed) {
+        eprint("cub: save_seed_conflict: a saved journey keeps its seed")
+        return 2
+    }
     s = replay_initial(r, s) else |e| { eprint("cub: {e}"); return 2 }
     if o.script == "" && o.replay_path == "" { sim.opening(mut s) }
     var g = grid.new(r.rows, r.cols)
@@ -942,7 +947,9 @@ fn replay_initial(r: replay.Replay, fallback: sim.Sim) -> sim.Sim ! {
     var values = List[int]()
     var i = 0
     while i < 24 { (mut values).push(replay.args_at(r, 0, 4 + i)); i += 1 }
-    journey.from_snapshot(values, r.cols, r.rows)?
+    let initial = journey.from_snapshot(values, r.cols, r.rows)?
+    if initial.seed != r.seed { return save_corrupt }
+    initial
 }
 
 fn run_world_audit() -> int {
