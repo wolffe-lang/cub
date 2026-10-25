@@ -53,35 +53,22 @@ fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
 /// `facing` (0 north, 1 east, 2 south, 3 west) with stamina `band`. Rich:
 /// two by two, the ears on the facing side; plain: the mark then `C`.
 pub fn draw_cub(mut g: grid.Grid, t: int, row: int, col: int, facing: int, band: int) {
-    if t == tier.RICH {
-        let body = sprites.glyph(t, sprites.SP_CUB_BODY, 0)
-        let e0 = sprites.glyph(t, sprites.SP_CUB_EAR, band * 8 + facing * 2)
-        let e1 = sprites.glyph(t, sprites.SP_CUB_EAR, band * 8 + facing * 2 + 1)
-        if facing == 0 {
-            grid.put(mut g, row, col, e0)
-            grid.put(mut g, row, col + 1, e1)
-            grid.put(mut g, row + 1, col, body)
-            grid.put(mut g, row + 1, col + 1, body)
-        } else if facing == 2 {
-            grid.put(mut g, row, col, body)
-            grid.put(mut g, row, col + 1, body)
-            grid.put(mut g, row + 1, col, e0)
-            grid.put(mut g, row + 1, col + 1, e1)
-        } else if facing == 3 {
-            grid.put(mut g, row, col, e0)
-            grid.put(mut g, row, col + 1, body)
-            grid.put(mut g, row + 1, col, e1)
-            grid.put(mut g, row + 1, col + 1, body)
-        } else {
-            grid.put(mut g, row, col, body)
-            grid.put(mut g, row, col + 1, e0)
-            grid.put(mut g, row + 1, col, body)
-            grid.put(mut g, row + 1, col + 1, e1)
-        }
-        return
+    let body = sprites.glyph(t, sprites.SP_CUB_BODY, 0)
+    let e0 = if t == tier.RICH {
+        sprites.glyph(t, sprites.SP_CUB_EAR, band * 8 + facing * 2)
+    } else {
+        sprites.glyph(t, sprites.SP_CUB_MARK, facing)
     }
-    grid.put(mut g, row, col, sprites.glyph(t, sprites.SP_CUB_MARK, facing))
-    grid.put(mut g, row, col + 1, sprites.glyph(t, sprites.SP_CUB_BODY, 0))
+    let e1 = if t == tier.RICH {
+        sprites.glyph(t, sprites.SP_CUB_EAR, band * 8 + facing * 2 + 1)
+    } else {
+        copy e0
+    }
+    // One body, every heading: ears above the same two body cells.
+    grid.put(mut g, row, col, e0)
+    grid.put(mut g, row, col + 1, e1)
+    grid.put(mut g, row + 1, col, body)
+    grid.put(mut g, row + 1, col + 1, body)
 }
 
 /// The whole frame: the ground on every row, then the cub at the centre.
@@ -98,11 +85,16 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
     // its body is at the centre; the plain cub's mark is left of the centre.
     let r = sim.screen_row(s)
     let c = sim.screen_col(s)
-    if t == tier.RICH {
-        draw_cub(mut g, t, r - 1, c, sim.facing(s), band(s.stamina, sim.stamina_max(s.wind)))
-    } else {
-        draw_cub(mut g, t, r, c - 1, sim.facing(s), band(s.stamina, sim.stamina_max(s.wind)))
-    }
+    draw_pose(
+        mut g,
+        t,
+        r - 1,
+        c,
+        sim.facing(s),
+        band(s.stamina, sim.stamina_max(s.wind)),
+        if s.exhausted then 3 else if s.sneaking then 2 else if s.speed > 0 then 1 else 0,
+        s.tick,
+    )
     draw_posture(s, t, mut g)
 }
 
@@ -148,15 +140,33 @@ pub fn sheet(t: int) -> grid.Grid {
         }
         row += 1
     }
-    // The cub facing north, east, south, west on the gravel.
-    var f = 0
-    while f < 4 {
-        draw_cub(mut g, t, 7, 14 + f * 9, f, 0)
-        f += 1
+    var pose = 0
+    while pose < 4 {
+        var f = 0
+        while f < 4 {
+            draw_pose(mut g, t, 6 + pose * 4, 14 + f * 9, f, if pose == 3 then 2 else 0, pose, 0)
+            f += 1
+        }
+        draw.put_text(
+            mut g,
+            6 + pose * 4,
+            1,
+            if pose == 0 {
+                "stand"
+            } else if pose == 1 {
+                "walk"
+            } else if pose == 2 {
+                "sneak"
+            } else {
+                "pant"
+            },
+            sprites.glyph(t, sprites.SP_GRAVEL, 0),
+        )
+        pose += 1
     }
     draw.put_text(
         mut g,
-        6,
+        5,
         13,
         "N        E        S        W",
         sprites.glyph(t, sprites.SP_GRAVEL, 0),
@@ -263,18 +273,8 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
     let r = sim.screen_row(s)
     let c = sim.screen_col(s)
     let health = band(s.health, sim.health_max(s.heart))
-    let stamina = band(s.stamina, sim.stamina_max(s.wind))
     let tail = if health == 0 then "/" else if health == 1 then "-" else "_"
     draw.put_text(mut g, r + 1, c - 1, tail, ink(t, health == 0))
-    if t == tier.PLAIN {
-        draw.put_text(
-            mut g,
-            r - 1,
-            c,
-            if stamina == 0 then "^" else if stamina == 1 then "<" else "_",
-            ink(t, stamina == 0),
-        )
-    }
     let posture = if s.action == sim.BITE {
         ">"
     } else if s.action == sim.LUNGE {
@@ -355,3 +355,27 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
 }
 
 fn at_log_hint(s: sim.Sim) -> bool { sim.at_den(s) && !s.den && s.action != sim.FALL }
+
+/// Four posture silhouettes, invariant under heading on either glyph tier.
+pub fn draw_pose(
+    mut g: grid.Grid,
+    t: int,
+    row: int,
+    col: int,
+    facing: int,
+    band: int,
+    pose: int,
+    tick: int,
+) {
+    draw_cub(mut g, t, row, col, facing, band)
+    if pose == 2 {
+        draw.put_text(mut g, row, col, "__", ink(t, false))
+    }
+    if pose == 1 {
+        draw.put_text(mut g, row + 2, col + tick % 2, "'", ink(t, false))
+    }
+    if pose == 3 {
+        draw.put_text(mut g, row, col, "__", ink(t, false))
+        draw.put_text(mut g, row + 1, col + 2, ":", ink(t, false))
+    }
+}

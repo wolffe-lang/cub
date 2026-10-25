@@ -17,34 +17,15 @@ Thornmere's woods to the south and the sides.
 
 ## The cub
 
-Rich: two cells wide, two tall, the ears on the side it faces as quadrant blocks over or beside a full-block
-body. Smaller than pack's three-cell wolves, as a cub is.
+2026-10-25 — the maintainer's word: "The sprite when moving sideways should look the same as its north-south orientation."
 
-```
-▝▘   facing north: the ears up and out, the body below
-██
-
-██   facing south: the body, the ears below pointing down and out
-▗▖
-
-▘█   facing west: the two left quadrants beside the body
-▖█
-
-█▝   facing east: the two right quadrants
-█▗
-```
-
-The facing is the nearest quarter of the heading, which turns at the turn rate (`docs/DESIGN.md`), so the
-sprite turns a quarter at a time while the motion underneath is smooth. Fur is 180 (a tawny sand) on the
-gravel's 240.
-
-**Posture is the HUD** (the design bible's section 3): the ears carry the stamina band (fresh, tired, spent)
-and the tail the health band, a limp under a third of health, panting when spent. The ear sprite variant carries the band (`8 × band`), with the tail alongside.
-
-The plain cub is a bold `C` in bright yellow with a facing mark in the cell to its left: `^` north, `>`
-east, `v` south, `<` west.
-
-Sheet row 7: the cub facing N, E, S, W on the gravel.
+The cub keeps two body cells on the lower row and two ear cells above in
+all four headings. Only ear glyphs turn; east and west never rotate the
+body into a vertical strip. Plain uses the same two-by-two footprint:
+two `C` body cells and two facing ears. Rich uses quadrant ears and blocks.
+Stand, alternating walk foot, lowered sneak ears and flat-eared pant share
+this footprint. The sheet shows every heading crossed with all four poses
+on both tiers. Health tails and stamina colours remain in game frames.
 
 ## The Shingle
 
