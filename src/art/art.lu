@@ -15,59 +15,133 @@ use sim
 use sprites
 use terrain
 use tier
+use world
 
 /// The terrain of screen row `row` into `g` on tier `t`.
 pub fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
     var col = 0
     while col < s.cols {
         let (x, y) = sim.world_cell(s, row, col)
-        let k = forest.kind(s.seed, s.field, s.area, x, y)
-        let v = sim.variant(s, x, y, 4)
-        // Foliage variants alternate their glyph set by the cell's parity,
-        // so two adjacent canopy or deep-forest cells are never identical:
-        // the forest reads as texture, never as a run of one tile.
-        let foliage = 2 * (((x + y) % 2 + 2) % 2) + sim.variant(s, x, y, 2)
-        var cell = if k == terrain.GRAVEL {
-            sprites.glyph(
-                t,
-                sprites.SP_GRAVEL,
-                if terrain.variant(s.seed, x, y, 7) == 0 then 1 + v % 3 else 0,
-            )
-        } else if k == terrain.GRASS {
-            sprites.glyph(t, sprites.SP_GRASS, v)
-        } else if k == terrain.TRUNK {
-            sprites.glyph(t, sprites.SP_TRUNK, 0)
-        } else if k == terrain.CANOPY {
-            sprites.glyph(t, sprites.SP_CANOPY, foliage)
-        } else if k == terrain.WATER {
-            sprites.glyph(
-                t,
-                sprites.SP_WATER,
-                if terrain.variant(s.seed, x, y, 5) == 0 then 1 + v % 3 else 0,
-            )
-        } else if k == terrain.ROCK {
-            sprites.glyph(t, sprites.SP_ROCK, v)
-        } else if k == terrain.REEDS {
-            sprites.glyph(t, sprites.SP_REEDS, v)
-        } else {
-            sprites.glyph(t, sprites.SP_DARK, foliage)
-        }
-        if s.area != forest.SHINGLE {
-            cell.bg = if t == tier.RICH {
-                (if s.area == forest.BRAMBLEHOLD then 233 else 235)
-            } else {
-                0
-            }
-            cell.fg = dusk_ink(s.area, t, k, foliage)
-            // Sight hides creatures, never the forest itself.
-            if s.area == forest.BRAMBLEHOLD &&
-                !sim.near(s.x, s.y, x * sim.FP, y * sim.FP, 12 * sim.FP) {
-                cell.attrs = 0
-            }
+        var cell = ground_at(s.seed, s.field, s.area, t, x, y)
+        // Sight hides creatures, never the forest itself.
+        if s.area == forest.BRAMBLEHOLD &&
+            !sim.near(s.x, s.y, x * sim.FP, y * sim.FP, 12 * sim.FP) {
+            cell.attrs = 0
         }
         grid.put(mut g, row, col, cell)
         col += 1
     }
+}
+
+/// The ground world cell `(x, y)` of an area draws on tier `t`: its kind's
+/// sprite with the seed's texture, under the area's keyframe.
+pub fn ground_at(seed: int, field: int, area: int, t: int, x: int, y: int) -> grid.Cell {
+    let k = forest.kind(seed, field, area, x, y)
+    let v = world.hash(seed + 31, x, y, 4)
+    // Foliage variants alternate their glyph set by the cell's parity,
+    // so two adjacent canopy or deep-forest cells are never identical:
+    // the forest reads as texture, never as a run of one tile.
+    let foliage = 2 * (((x + y) % 2 + 2) % 2) + world.hash(seed + 31, x, y, 2)
+    let variant = if k == terrain.GRAVEL {
+        if terrain.variant(seed, x, y, 7) == 0 then 1 + v % 3 else 0
+    } else if k == terrain.WATER {
+        if terrain.variant(seed, x, y, 5) == 0 then 1 + v % 3 else 0
+    } else if k == terrain.TRUNK {
+        0
+    } else if k == terrain.CANOPY || k == terrain.DARK {
+        foliage
+    } else {
+        v
+    }
+    kind_cell(area, t, k, variant, foliage)
+}
+
+/// The sprite a terrain kind draws.
+fn sprite_of(k: int) -> int {
+    if k == terrain.GRAVEL {
+        sprites.SP_GRAVEL
+    } else if k == terrain.GRASS {
+        sprites.SP_GRASS
+    } else if k == terrain.TRUNK {
+        sprites.SP_TRUNK
+    } else if k == terrain.CANOPY {
+        sprites.SP_CANOPY
+    } else if k == terrain.WATER {
+        sprites.SP_WATER
+    } else if k == terrain.ROCK {
+        sprites.SP_ROCK
+    } else if k == terrain.REEDS {
+        sprites.SP_REEDS
+    } else {
+        sprites.SP_DARK
+    }
+}
+
+/// A terrain kind's cell in an area on a tier, at a variant: the sprite,
+/// then the area's dusk keyframe over it inland.
+pub fn kind_cell(area: int, t: int, k: int, variant: int, foliage: int) -> grid.Cell {
+    var cell = sprites.glyph(t, sprite_of(k), variant)
+    if area != forest.SHINGLE {
+        cell.bg = if t == tier.RICH {
+            (if area == forest.BRAMBLEHOLD then 233 else 235)
+        } else {
+            0
+        }
+        cell.fg = dusk_ink(area, t, k, foliage)
+    }
+    cell
+}
+
+/// Every style a path cell of an area draws on a tier (cb02c): the area's
+/// one path kind (`forest.path_kind`) at each of its texture variants.
+/// A path cell in any other style is a path drawn in the wrong colour.
+pub fn path_styles(area: int, t: int) -> List[grid.Cell] {
+    var out = List[grid.Cell]()
+    var v = 0
+    while v < sprites.VARIANT_COUNT {
+        (mut out).push(kind_cell(area, t, forest.path_kind(area), v, 0))
+        v += 1
+    }
+    out
+}
+
+/// Whether a cell's style is one of a path's.
+pub fn is_path_style(area: int, t: int, c: grid.Cell) -> bool {
+    among(path_styles(area, t), c)
+}
+
+/// Path cells of an area drawn outside its path styles, on either tier:
+/// every walkable cell `forest.on_path` names, the coast's rows from the
+/// river, the whole width of the field. Zero is the bar (cb02c).
+pub fn path_audit(seed: int, field: int, area: int) -> int {
+    let w = forest.bound(field, area)
+    let o = forest.origin(seed, area)
+    let top = if area == forest.SHINGLE then forest.COAST_TOP else 0
+    let rich = path_styles(area, tier.RICH)
+    let plain = path_styles(area, tier.PLAIN)
+    var off = 0
+    var y = o + top
+    while y <= o + forest.LENGTH {
+        var x = 0 - w
+        while x <= w {
+            if forest.on_path(seed, field, area, x, y) && !forest.blocked(seed, field, area, x, y) {
+                if !among(rich, ground_at(seed, field, area, tier.RICH, x, y)) ||
+                    !among(plain, ground_at(seed, field, area, tier.PLAIN, x, y)) {
+                    off += 1
+                }
+            }
+            x += 1
+        }
+        y += 1
+    }
+    off
+}
+
+fn among(styles: List[grid.Cell], c: grid.Cell) -> bool {
+    for p in styles {
+        if grid.same(p, c) { return true }
+    }
+    false
 }
 
 /// The dusk keyframes (`docs/PALETTE.md`): the thicket's two foliage

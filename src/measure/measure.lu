@@ -269,18 +269,10 @@ pub fn chases() -> str {
     "chase straight_start {hundredths(a0)} straight_end {hundredths(a1)} straight_caught {ac} turns_start {hundredths(b0)} turns_end {hundredths(b1)} turns_caught {bc}"
 }
 
-/// The style a world cell draws in on a tier (`art.terrain_row` on a
-/// one-cell screen whose camera is that cell).
+/// The style a world cell draws in on a tier (`art.ground_at`, what
+/// `art.terrain_row` puts on the screen).
 pub fn style_at(seed: int, area: int, t: int, x: int, y: int) -> grid.Cell {
-    var s = sim.new(seed, 80, 24)
-    s.area = area
-    s.cols = 1
-    s.rows = 1
-    s.x = x * sim.FP + sim.FP / 2
-    s.y = y * sim.FP + sim.FP / 2
-    var g = grid.new(1, 1)
-    art.terrain_row(s, t, 0, mut g)
-    grid.at(g, 0, 0)
+    art.ground_at(seed, 80, area, t, x, y)
 }
 
 /// The colours and the glyphs a set of cells drew in, each once.
