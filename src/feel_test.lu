@@ -225,3 +225,14 @@ fn test_cb01b_heavy_cost_damage_stagger_and_refusal() {
     sim.step(mut t, keys(controls.KEY_HEAVY, 0, 0))
     assert(t.action == sim.IDLE, "pant refuses heavy")
 }
+
+fn test_cb01b_lunge_breaks_nearest_thorn_at_the_gate_face() {
+    var s = empty()
+    s.x = sim.FP / 3
+    s.y = sim.gate_y(s) * sim.FP - 2
+    s.heading = 128
+    sim.step(mut s, keys(controls.KEY_LUNGE, 0, 0))
+    var n = 0
+    while n < 9 { sim.step(mut s, keys(0, 0, 0)); n += 1 }
+    assert(s.gate_open, "point-blank gate uses nearest thorn, not an off-axis centre point")
+}

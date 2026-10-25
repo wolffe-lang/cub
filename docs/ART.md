@@ -35,8 +35,8 @@ mark `·` `․` `░`; plain bright black with `.` `,` `:`), then grass and Thor
 texture (grass `⠖⠶`, trunks `┃`, canopy `⣿⣶⣮⠶`, deep forest blank) on the forest floor. Trunks, deep forest
 and water stop the cub; grass, gravel, reeds and canopy are open ground.
 
-Sheet rows 0-2 the water, 3-4 the reeds, 5-10 the gravel, 11-14 the grass, 15-19 the woods, 20-23 the
-deep forest.
+Sheet rows 0-2 the water, 3-4 the reeds, 5-10 the gravel, 11-14 the grass, 15-19 the woods, 20 onward the
+deep forest, with the foe study below the cub poses.
 
 ## What is owed
 

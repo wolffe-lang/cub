@@ -10,6 +10,7 @@ the numeric events, the `# score` comment). cub's words in it are its vocabulary
 | Shift+Up, Shift+Down, Shift+Left, Shift+Right | `sneak-up`, `sneak-down`, `sneak-left`, `sneak-right` |
 | Space | `bite` |
 | `x` | `lunge` |
+| `s` | `heavy` |
 | `z` | `parry` |
 | `c` | `dodge` |
 | Tab | `lock` |
@@ -25,7 +26,7 @@ test/debug deltas, not enemy actions: negative health is ordinary interruptible
 damage; positive health is clamped to maximum. Health deltas precede scent
 deltas, before the tick. These events are accepted in both replay paths.
 
-Seventeen scripts cover movement, each combat move, the fox's two tells,
+Thirty scripts cover movement, each combat move, the fox's two tells,
 trail expiry, resting and growth, death and scent recovery, and the thorn gate.
 Goldens include `final.state`, an integer simulation snapshot, alongside the
 cell text and styles. The native and release backends must agree on both
@@ -41,3 +42,8 @@ entire cub state at that tick. Ghost display and hostile ghosts follow later.
 
 Archive write failures return exit 2 (the live path restores the terminal
 first). Files are not pruned or overwritten by this build.
+
+The `heavy` event names the `s` fallback attack (2026-10-25). Space remains
+`bite`; recovery presses advance the three-bite combo without a separate
+combo key. Recent arrows and lock are sampled in event order, so records
+retain the order of same-tick movement and attack events.

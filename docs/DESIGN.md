@@ -19,10 +19,10 @@ The Shingle now has a fight, rest and recovery loop. The rest of the area graph 
 
 | constant | value | meaning | set |
 |---|---|---|---|
-| `TROT_V` | 36 | the trot's base, fixed-point units a tick (256 a cell): 0.15 cells a tick, 4.4 a second, a cub's pace under pack's wolves' 40 | 2026-10-25 proposed |
+| `TROT_V` | 36 | the unscaled stat base, fixed-point units a tick (256 a cell); `trot_at` applies the speed revision below | 2026-10-25 proposed |
 | `SNEAK_V` | 21 | a sneak (Shift+arrow): half the current paw-dependent trot; no trail is laid and foes perceive by sight only | 2026-10-25 proposed (the bible, section 4) |
-| `ACCEL` | 4 | acceleration, FP units a tick each tick: the trot from a stop in 9 ticks | 2026-10-25 proposed |
-| `BRAKE` | 8 | braking: a stop from the trot in 5 ticks; a cub stops faster than it starts | 2026-10-25 proposed |
+| `ACCEL` | 4 | acceleration, FP units a tick each tick: the starting trot from a stop in 11 ticks | 2026-10-25 proposed |
+| `BRAKE` | 8 | braking: a stop from the starting trot in 6 ticks; a cub stops faster than it starts | 2026-10-25 proposed |
 | `TURN` | 256 | heading units a full turn: 0 north, 64 east, 128 south, 192 west; the diagonals between when two arrows are held | 2026-10-25 cb00 |
 | `TURN_RATE` | 16 | the maximum turn rate, heading units a tick: a quarter turn in 4 ticks, about in 8 (267 ms); the cub turns, never pivots | 2026-10-25 proposed |
 | the held key | the engine's `input.Hold` | a press holds `HOLD_TAP_TICKS` 12; an autorepeat run holds one interval plus `HOLD_MARGIN` past its last press (pack's pk01 model, in the engine) | 2026-10-25 the engine's |
@@ -187,3 +187,13 @@ bar is eight cells (proposed), filled by the positive fraction of its stat.
 The death card names scent lost; recovery and kills update the same state
 the HUD reads. Spending remains den-only. The larger posture bands, reticle,
 water mouthfuls and area name are reserved for the next HUD pass.
+
+## Encounter witness adjustment, 2026-10-25
+
+The faster approach reaches the first weasel's crouch at tick 40 instead of
+42; its unchanged 12-tick tell lands at 52 rather than 54. Parry/dodge
+fixture inputs move two ticks earlier; no combat window is widened.
+A lunge at the face of the thorn row now targets its nearest thorn rather
+than an off-axis centre point (which could miss from two FP units away).
+The natural-death fixture re-approaches the fox after its second retreat:
+the faster approach otherwise lets the old scent expire before re-engagement.

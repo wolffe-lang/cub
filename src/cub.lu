@@ -67,7 +67,7 @@ fn usage_text() -> str {
         "  cub --probe-glyphs                measure the rich glyphs' widths here\n" +
         "  cub --selftest                    the decoder table and the diff property, on THIS binary\n\n" +
         "  keys: arrows walk (the cub turns at its turn rate), Shift+arrow sneaks,\n" +
-        "        Space bite, x lunge, z parry, c dodge, Tab lock, Esc release, q quit,\n" +
+        "        Space bite/combo, x lunge, s heavy, z parry, c dodge, Tab lock, Esc release, q quit,\n" +
         "        w water, r rest; at the den 1–5 grow heart, wind, fang, paw, nose\n" +
         "  --bench                           render/diff timings for the performance gate\n" +
         "  --ghost-dir DIR                   override live death archive; enable it headless\n" +
@@ -600,7 +600,7 @@ fn run_live(o: Options, args: List[str]) -> int {
             }
             if o.trace {
                 eprint(
-                    "trace tick {s.tick} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} wall_us {(clock.now_ns() - t0_ns) / 1000}",
+                    "trace tick {s.tick} action {s.action} aim {s.attack_heading} combo {s.combo} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} wall_us {(clock.now_ns() - t0_ns) / 1000}",
                 )
                 trace_bytes = 0
             }

@@ -784,10 +784,11 @@ fn strike_foes(mut s: Sim) {
         s.action == HEAVY && age >= HEAVY_WINDUP && age < HEAVY_WINDUP + HEAVY_ACTIVE
     if !active { return }
     let reach = if s.action == LUNGE || s.action == HEAVY then 4 else 2
+    let gate_x = if s.x < -2 * FP then -2 * FP else if s.x > 2 * FP then 2 * FP else s.x
     if s.action == LUNGE &&
         !s.gate_open &&
-        near(s.x, s.y, 0, gate_y(s) * FP, 4 * FP) &&
-        in_front(s.x, s.y, s.attack_heading, 0, gate_y(s) * FP) {
+        near(s.x, s.y, gate_x, gate_y(s) * FP, 4 * FP) &&
+        in_front(s.x, s.y, s.attack_heading, gate_x, gate_y(s) * FP) {
         s.gate_open = true
     }
     var i = 0

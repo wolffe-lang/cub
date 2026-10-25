@@ -46,14 +46,14 @@ def check(binary):
             if name == 'bite':
                 assert final['health'] == 52 and final['scent'] == 8 and foes[50][0]['health'] <= 0
             elif name == 'parry':
-                assert states[54]['health'] == 52 and foes[54][0]['phase'] == 4
+                assert states[52]['health'] == 52 and foes[52][0]['phase'] == 4
                 assert final['scent'] == 8
             elif name == 'dodge':
-                assert states[54]['health'] == 52 and states[54]['action'] == 4
+                assert states[52]['health'] == 52 and states[52]['action'] == 4
                 assert final['health'] == 52
             elif name == 'weasel-retreat':
-                assert foes[42][0]['phase'] == 1 and states[53]['health'] == 52
-                assert states[54]['health'] == 42 and foes[56][0]['phase'] == 3
+                assert foes[40][0]['phase'] == 1 and states[51]['health'] == 52
+                assert states[52]['health'] == 42 and foes[54][0]['phase'] == 3
             elif name == 'fox-feint':
                 false = next(t for t, fs in foes.items() if fs[2]['phase'] == 5)
                 real = next(t for t, fs in foes.items() if fs[2]['phase'] == 1)
@@ -75,15 +75,31 @@ def check(binary):
             else:
                 assert expected[name] == state_bytes, (name, 'tier changed the simulation')
             print('gameplay:', Path(binary).parent.name, name, tier, 'ok')
+    # The new controls must really commit their aim/action on shipping binaries.
+    for tier in ('rich', 'plain'):
+        for name, aim in [('n', 0), ('ne', 32), ('e', 64), ('se', 96), ('s', 128),
+                          ('sw', 160), ('w', 192), ('nw', 224), ('lock', 64)]:
+            _, states, _ = run(binary, 'aim-' + name, tier)
+            assert all(state['aim'] == aim for state in states.values()), ('aim', name)
+            assert states[1]['action'] == 2, 'aim fixture did not attack'
+        dest, states, _ = run(binary, 'three-bites', tier)
+        starts = [(n, v['combo']) for n, v in states.items()
+                  if v['action'] == 1 and v['started'] == n]
+        assert starts == [(1, 1), (12, 2), (23, 3)], starts
+        assert states[34]['combo'] == 0, 'lapsed chain failed to reset'
+        _, states, _ = run(binary, 'heavy', tier)
+        assert states[1]['action'] == 7 and states[1]['stamina'] == 28
+        assert states[39]['action'] == 7 and states[40]['action'] == 0
+        print('gameplay:', Path(binary).parent.name, 'aim/combo/heavy', tier, 'ok')
     # A natural, unassisted death: defeat the pair, approach the fox, then stand still.
     ghosts = OUT / (Path(binary).parent.name + '-ghosts')
     ghosts.mkdir(parents=True, exist_ok=True)
     before = set(ghosts.glob('*.pk'))
-    _, states, _ = run(binary, 'fox-feint', frames=600, ghosts=ghosts)
+    _, states, _ = run(binary, 'natural-death', frames=600, ghosts=ghosts)
     files = set(ghosts.glob('*.pk')) - before
     assert files, 'natural death did not write a ghost'
     preserved = {p: p.read_bytes() for p in ghosts.glob('*.pk')}
-    run(binary, 'fox-feint', frames=600, ghosts=ghosts)
+    run(binary, 'natural-death', frames=600, ghosts=ghosts)
     assert all(p.read_bytes() == data for p, data in preserved.items()), 'archive was overwritten'
     assert len(set(ghosts.glob('*.pk')) - set(preserved)) == len(files), 'repeat death reused a filename'
     for path in sorted(files):
