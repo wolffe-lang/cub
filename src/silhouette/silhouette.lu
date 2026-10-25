@@ -147,6 +147,31 @@ pub fn anchor(b: Bitmap, facing: int) -> (int, int) {
     (0 - (rows(t) - 1) / 2, 0 - (cols(t) - 1) / 2)
 }
 
+/// The cells a drawing `w` by `h` pixels covers facing `facing`, from its
+/// anchor cell, without building it: `(dc, dr, cols, rows)`, the left
+/// column and top row offsets and the size, as `draw_at` places it (cb02c:
+/// the simulation's bodies are these rectangles; `gait_test` holds them to
+/// the drawings).
+pub fn footprint(w: int, h: int, facing: int) -> (int, int, int, int) {
+    let f = (facing % 4 + 4) % 4
+    let tw = if f % 2 == 0 then w else h
+    let th = if f % 2 == 0 then h else w
+    let cols = (tw + 1) / 2
+    let rows = (th + 3) / 4
+    (0 - (cols - 1) / 2, 0 - (rows - 1) / 2, cols, rows)
+}
+
+/// The cub's drawing's size in pixels, north: eight across, sixteen down.
+pub fn cub_size() -> (int, int) {
+    (8, 16)
+}
+
+/// A ground foe's drawing's size in pixels, north (the simulation's
+/// kinds: 0 weasel, 1 fox, 3 deer).
+pub fn foe_size(kind: int) -> (int, int) {
+    if kind == 0 then (4, 12) else if kind == 1 then (8, 12) else (8, 16)
+}
+
 /// Draw a creature at its cell `(row, col)` facing `facing`.
 pub fn draw_at(mut g: grid.Grid, row: int, col: int, b: Bitmap, facing: int, style: grid.Cell) {
     let t = turned(b, facing)
