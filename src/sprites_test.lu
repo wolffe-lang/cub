@@ -1,0 +1,97 @@
+//! member: false
+//!
+//! The sprite table's promises: the plain tier inside Latin-1 and the
+//! sixteen colours for every sprite and variant; the rich tier's colours
+//! indices; the cub's ears face the way it does; the ground's backgrounds.
+
+use grid
+use sprites
+use tier
+
+fn test_plain_tier_keeps_its_promise() {
+    var s = 0
+    while s < sprites.SPRITE_COUNT {
+        var v = 0
+        while v < sprites.VARIANT_COUNT {
+            let c = sprites.glyph(tier.PLAIN, s, v)
+            assert(c.cp >= 32 && c.cp <= 255, "sprite {s} variant {v}: cp {c.cp}")
+            assert(c.fg <= 15 || c.fg == grid.COLOR_DEFAULT, "sprite {s}: fg {c.fg}")
+            assert(c.bg <= 15 || c.bg == grid.COLOR_DEFAULT, "sprite {s}: bg {c.bg}")
+            v += 1
+        }
+        s += 1
+    }
+}
+
+fn test_rich_tier_colours_are_indices() {
+    var s = 0
+    while s < sprites.SPRITE_COUNT {
+        let c = sprites.glyph(tier.RICH, s, 0)
+        assert(c.fg >= 0 && c.fg <= 255 && c.bg >= 0 && c.bg <= 255, "sprite {s}")
+        s += 1
+    }
+}
+
+fn test_the_cub_sits_on_the_gravel_and_its_ears_face_the_way() {
+    let g = sprites.glyph(tier.RICH, sprites.SP_GRAVEL, 0)
+    assert(
+        sprites.glyph(tier.RICH, sprites.SP_CUB_BODY, 0).bg == g.bg,
+        "the cub's background is the gravel's",
+    )
+    assert(
+        sprites.glyph(tier.PLAIN, sprites.SP_CUB_BODY, 0).bg ==
+            sprites.glyph(tier.PLAIN, sprites.SP_GRAVEL, 0).bg,
+        "plain too",
+    )
+    // North: the upper quadrants pointing out; south: the lower ones.
+    assert(
+        sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 0).cp == 9629 &&
+            sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 1).cp == 9624,
+        "north",
+    )
+    assert(
+        sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 4).cp == 9623 &&
+            sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 5).cp == 9622,
+        "south",
+    )
+    // West: the two left quadrants; east: the two right.
+    assert(
+        sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 6).cp == 9624 &&
+            sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 7).cp == 9622,
+        "west",
+    )
+    assert(
+        sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 2).cp == 9629 &&
+            sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 3).cp == 9623,
+        "east",
+    )
+    // The plain marks point the four ways.
+    assert(
+        sprites.glyph(tier.PLAIN, sprites.SP_CUB_MARK, 0).cp == 94 &&
+            sprites.glyph(tier.PLAIN, sprites.SP_CUB_MARK, 2).cp == 118,
+        "^ and v",
+    )
+    assert(
+        sprites.glyph(tier.PLAIN, sprites.SP_CUB_MARK, 1).cp == 62 &&
+            sprites.glyph(tier.PLAIN, sprites.SP_CUB_MARK, 3).cp == 60,
+        "> and <",
+    )
+}
+
+fn test_water_and_floor_backgrounds_differ_from_the_gravel() {
+    let gravel = sprites.glyph(tier.RICH, sprites.SP_GRAVEL, 0).bg
+    assert(
+        sprites.glyph(tier.RICH, sprites.SP_WATER, 0).bg != gravel,
+        "water reads against the shingle",
+    )
+    assert(
+        sprites.glyph(tier.RICH, sprites.SP_GRASS, 0).bg != gravel,
+        "the forest floor reads against the shingle",
+    )
+    assert(
+        sprites.glyph(tier.RICH, sprites.SP_REEDS, 0).bg ==
+            sprites.glyph(tier.RICH, sprites.SP_WATER, 0).bg,
+        "reeds stand in the water",
+    )
+    assert(sprites.rich_code_points().len >= 12, "a dozen glyphs at least")
+}
