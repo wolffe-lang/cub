@@ -1,0 +1,656 @@
+//! member: false
+//!
+//! cub — a cub, separated from its pack, finds its way home through
+//! Thornmere. The entry: the command line, the live loop (one wait a tick
+//! on the terminal and the signals, the simulation stepped once a tick,
+//! the screen diffed once a frame), the headless run that writes frames
+//! for the goldens, the replay and record paths, and the tools the pty
+//! runner and the art study need (`--apply`, `--art-study`,
+//! `--probe-glyphs`, `--selftest`).
+//!
+//! Track 19 of the wolffe-lang planning repo, the cub track (ruling #130).
+//! cb00 is the scaffold on the lair engine (M-CB0): the Shingle, a cub
+//! that walks and turns, the camera on it. The moves, the foes, the dens
+//! and the areas are cb01's and cb02's.
+
+use art
+use clock
+use controls
+use grid
+use headless
+use input
+use probe
+use replay
+use sim
+use sprites
+use std.env
+use std.fs
+use term
+use tier
+
+/// What the command line asked for.
+struct Options {
+    headless: bool,
+    seed: int,
+    script: str,
+    frames: int,
+    every: int,
+    from_tick: int,
+    tier: int,
+    cols: int,
+    rows: int,
+    dump: str,
+    replay_path: str,
+    record_path: str,
+    trap_at: int,
+    ticks: int,
+    truecolor: int,
+    apply_path: str,
+    art_study: bool,
+    probe_glyphs: bool,
+    selftest: bool,
+    trace: bool,
+    help: bool,
+    version: bool,
+}
+
+fn usage_text() -> str {
+    "cub — a cub finds its way home through Thornmere\n\n" +
+        "  cub [--seed N] [--tier rich|plain] [--record FILE]\n" +
+        "  cub --replay FILE                 reproduce a recorded run\n" +
+        "  cub --headless --seed N [--script FILE] --frames N [--every K] [--from T]\n" +
+        "      --tier T --size WxH --dump DIR\n" +
+        "  cub --apply CAPTURE --size WxH    a captured byte stream as a frame\n" +
+        "  cub --art-study --dump DIR        the sprite sheets, both tiers\n" +
+        "  cub --probe-glyphs                measure the rich glyphs' widths here\n" +
+        "  cub --selftest                    the decoder table and the diff property, on THIS binary\n\n" +
+        "  keys: arrows walk (the cub turns at its turn rate), Shift+arrow sneaks,\n" +
+        "        q or Esc quits; Space, x, z, c, Tab, w and r are recorded for the moves to come\n" +
+        "  --truecolor / --no-truecolor      override COLORTERM\n" +
+        "  --ticks N                         quit after N ticks\n" +
+        "  --trace                           one line a tick on standard error: the bytes read, the keys\n" +
+        "                                    applied, the heading and the position\n"
+}
+
+fn options_default() -> Options {
+    Options {
+        headless: false,
+        seed: 1,
+        script: "",
+        frames: 60,
+        every: 1,
+        from_tick: 0,
+        tier: -1,
+        cols: 0,
+        rows: 0,
+        dump: "",
+        replay_path: "",
+        record_path: "",
+        trap_at: 0,
+        ticks: 0,
+        truecolor: -1,
+        apply_path: "",
+        art_study: false,
+        probe_glyphs: false,
+        selftest: false,
+        trace: false,
+        help: false,
+        version: false,
+    }
+}
+
+fn parse_args(args: List[str]) -> Options ! {usage, parse} {
+    var o = options_default()
+    var i = 0
+    while i < args.len {
+        let a = args[i]
+        let more = i + 1 < args.len
+        if a == "--headless" {
+            o.headless = true
+        } else if a == "--help" || a == "-h" {
+            o.help = true
+        } else if a == "--version" {
+            o.version = true
+        } else if a == "--art-study" {
+            o.art_study = true
+        } else if a == "--probe-glyphs" {
+            o.probe_glyphs = true
+        } else if a == "--selftest" {
+            o.selftest = true
+        } else if a == "--trace" {
+            o.trace = true
+        } else if a == "--truecolor" {
+            o.truecolor = 1
+        } else if a == "--no-truecolor" {
+            o.truecolor = 0
+        } else if more && a == "--seed" {
+            i += 1
+            o.seed = args[i].to_int()?
+        } else if more && a == "--frames" {
+            i += 1
+            o.frames = args[i].to_int()?
+        } else if more && a == "--every" {
+            i += 1
+            o.every = args[i].to_int()?
+        } else if more && a == "--from" {
+            i += 1
+            o.from_tick = args[i].to_int()?
+        } else if more && a == "--trap-at" {
+            i += 1
+            o.trap_at = args[i].to_int()?
+        } else if more && a == "--ticks" {
+            i += 1
+            o.ticks = args[i].to_int()?
+        } else if more && a == "--tier" {
+            i += 1
+            o.tier = tier.of_name(args[i]) else |_| {
+                return usage
+            }
+        } else if more && a == "--size" {
+            i += 1
+            let (c, r) = replay.parse_size(args[i]) else |_| {
+                return usage
+            }
+            o.cols = c
+            o.rows = r
+        } else if more && a == "--script" {
+            i += 1
+            o.script = args[i]
+        } else if more && a == "--dump" {
+            i += 1
+            o.dump = args[i]
+        } else if more && a == "--replay" {
+            i += 1
+            o.replay_path = args[i]
+        } else if more && a == "--record" {
+            i += 1
+            o.record_path = args[i]
+        } else if more && a == "--apply" {
+            i += 1
+            o.apply_path = args[i]
+        } else {
+            return usage
+        }
+        i += 1
+    }
+    if o.frames < 1 || o.every < 1 || o.from_tick < 0 {
+        return usage
+    }
+    o
+}
+
+/// The replay a run follows: the file named by `--script` or `--replay`,
+/// or an empty one from the options. Flags given on the command line
+/// override the file's header.
+fn load_replay(o: Options, want_cols: int, want_rows: int) -> replay.Replay ! {parse, io} {
+    let path = if o.script != "" then o.script else o.replay_path
+    var r = replay.new(o.seed, if o.tier < 0 then tier.RICH else o.tier, want_cols, want_rows)
+    if path != "" {
+        let text = fs.read_text(path) else |_| {
+            return io
+        }
+        r = replay.from_text(text, controls.vocab())?
+        if o.cols > 0 {
+            r.cols = o.cols
+            r.rows = o.rows
+        }
+        if o.tier >= 0 {
+            r.tier = o.tier
+        }
+    }
+    r
+}
+
+fn seed_given(args: List[str]) -> bool {
+    for a in args {
+        if a == "--seed" {
+            return true
+        }
+    }
+    false
+}
+
+/// The headless run: `frames` ticks from the script, every `every`th
+/// frame from tick `from_tick` on and the final one written to `dump` as
+/// cell text and styles (the engine's formats).
+fn run_headless(o: Options, args: List[str]) -> int {
+    var r = load_replay(
+        o,
+        if o.cols > 0 then o.cols else 80,
+        if o.rows > 0 then o.rows else 24,
+    ) else |e| {
+        eprint("cub: the script could not be read ({e})")
+        return 2
+    }
+    if seed_given(args) {
+        r.seed = o.seed
+    }
+    if o.dump == "" {
+        eprint("cub: --headless needs --dump DIR")
+        return 2
+    }
+    fs.create_dir_all(o.dump) else |_| {
+        eprint("cub: cannot create {o.dump}")
+        return 2
+    }
+    var s = sim.new(r.seed, r.cols, r.rows)
+    var g = grid.new(r.rows, r.cols)
+    var keys = List[int]()
+    var k = 0
+    while k < o.frames {
+        (mut keys).reset()
+        let (c, rows, _) = replay.at(r, k, mut keys)
+        if c > 0 {
+            sim.resize(mut s, c, rows)
+            g = grid.new(rows, c)
+        }
+        sim.step(mut s, keys)
+        if k + 1 >= o.from_tick && (k + 1) % o.every == 0 && k + 1 < o.frames {
+            art.render(s, r.tier, mut g)
+            headless.write_frame(o.dump, "frame-{headless.pad4(k + 1)}", g) else |_| {
+                eprint("cub: cannot write into {o.dump}")
+                return 2
+            }
+        }
+        k += 1
+    }
+    // The last frame is always `final` (the pty runner compares it).
+    art.render(s, r.tier, mut g)
+    headless.write_frame(o.dump, "final", g) else |_| {
+        eprint("cub: cannot write into {o.dump}")
+        return 2
+    }
+    0
+}
+
+/// `--apply`: a captured byte stream through the terminal model, written
+/// to standard output as text then styles (the pty runner compares it with
+/// the headless `final`).
+fn run_apply(o: Options) -> int {
+    if o.cols == 0 {
+        eprint("cub: --apply needs --size WxH")
+        return 2
+    }
+    let bytes = fs.read_bytes(o.apply_path) else |_| {
+        eprint("cub: cannot read {o.apply_path}")
+        return 2
+    }
+    var tout = fs.stdout()
+    fs.write_chunk(mut tout, headless.apply(bytes, o.cols, o.rows)) else |_| {
+        return 2
+    }
+    0
+}
+
+/// `--art-study`: the sprite sheets on both tiers into `dump`.
+fn run_art_study(o: Options) -> int {
+    if o.dump == "" {
+        eprint("cub: --art-study needs --dump DIR")
+        return 2
+    }
+    fs.create_dir_all(o.dump) else |_| {
+        eprint("cub: cannot create {o.dump}")
+        return 2
+    }
+    headless.write_frame(o.dump, "sheet-rich", art.sheet(tier.RICH)) else |_| {
+        return 2
+    }
+    headless.write_frame(o.dump, "sheet-plain", art.sheet(tier.PLAIN)) else |_| {
+        return 2
+    }
+    0
+}
+
+/// The environment's tier and colour depth, where the flags left them.
+fn pick_tier(o: Options) -> (int, bool) {
+    var t = o.tier
+    if t < 0 {
+        let lang = env.get("LC_ALL") else (env.get("LANG") else "")
+        t = tier.detect(env.get("TERM") else "", lang)
+    }
+    var truecolor = o.truecolor == 1
+    if o.truecolor < 0 {
+        truecolor = tier.truecolor_of(env.get("COLORTERM") else "")
+    }
+    (t, truecolor)
+}
+
+fn bytes_of(s: str) -> List[byte] {
+    var v = List[byte]()
+    for b in s.bytes() {
+        (mut v).push(b)
+    }
+    v
+}
+
+fn decode_all(s: str, split_at: int) -> List[int] {
+    var d = input.new()
+    var raw = List[int]()
+    let bs = bytes_of(s)
+    var i = 0
+    while i < bs.len {
+        input.feed(mut d, bs[i], if i < split_at then 1000 else 1010, mut raw)
+        i += 1
+    }
+    input.flush(mut d, 1010 + input.ESC_TIMEOUT_MS, mut raw)
+    var keys = List[int]()
+    controls.map_all(raw, mut keys)
+    keys
+}
+
+fn keys_text(keys: List[int]) -> str {
+    var t = ""
+    for k in keys {
+        t = "{t} {k}"
+    }
+    t
+}
+
+fn describe(seq: str) -> str {
+    var t = ""
+    for b in seq.bytes() {
+        t = "{t} {b as int}"
+    }
+    "bytes{t}"
+}
+
+/// `--selftest`: cub's controls through the engine's decoder (every
+/// control, whole and split at every byte) and the diff property, on THIS
+/// binary, the tier that ships (pack's pk00 found the release tier's
+/// mid-end miscompiling the decoder while the unit tests passed). Exit 1
+/// on any mismatch.
+fn run_selftest() -> int {
+    var bad = 0
+    var rows = List[str]()
+    (mut rows).push("\x1b[A|1")
+    (mut rows).push("\x1b[B|2")
+    (mut rows).push("\x1b[D|3")
+    (mut rows).push("\x1b[C|4")
+    (mut rows).push("\x1bOA|1")
+    (mut rows).push("\x1b[1;2A|5")
+    (mut rows).push("\x1b[1;2B|6")
+    (mut rows).push("\x1b[1;2D|7")
+    (mut rows).push("\x1b[1;2C|8")
+    (mut rows).push("\x1b[1;5B|2")
+    (mut rows).push(" |9")
+    (mut rows).push("x|10")
+    (mut rows).push("z|11")
+    (mut rows).push("c|12")
+    (mut rows).push("\t|13")
+    (mut rows).push("w|14")
+    (mut rows).push("r|15")
+    (mut rows).push("q|16")
+    (mut rows).push("Q|16")
+    (mut rows).push("\x1b|16")
+    (mut rows).push("\x03|17")
+    (mut rows).push("\x1b |16 9")
+    (mut rows).push("\x1b[57;2u|")
+    (mut rows).push("\x1b[5~|")
+    (mut rows).push("\x1b[D\x1b[1;2B |3 6 9")
+    for row in rows {
+        let (seq, want_raw) = row.split_once("|") else (row, "")
+        let want = if want_raw.len == 0 then "" else " {want_raw}"
+        var at = 0
+        while at <= seq.len {
+            let got = keys_text(decode_all(seq, at))
+            if got != want {
+                print("selftest: decoder: {describe(seq)} split at {at}: got{got}, want{want}")
+                bad += 1
+            }
+            at += 1
+        }
+    }
+    bad += headless.diff_property()
+    if bad == 0 {
+        print(
+            "selftest: ok (the controls table whole and split at every byte; the diff property over 12 frames)",
+        )
+        return 0
+    }
+    print("selftest: {bad} FAILED")
+    1
+}
+
+/// The live game: the terminal opened and entered, one run, the terminal
+/// left on every path out.
+fn run_live(o: Options, args: List[str]) -> int {
+    var t = term.open() else |e| {
+        eprint(term.message("{e}", "cub"))
+        return 2
+    }
+    let (tr, truecolor) = pick_tier(o)
+    var rp = load_replay(o, t.cols, t.rows) else |e| {
+        eprint("cub: the replay could not be read ({e})")
+        return 2
+    }
+    let replaying = o.replay_path != ""
+    if !replaying {
+        rp.tier = tr
+        if seed_given(args) {
+            rp.seed = o.seed
+        }
+    }
+    var cols = t.cols
+    var rows = t.rows
+    if replaying {
+        // The replay's size is the field's; the terminal must be at least
+        // that (the pty runner sizes it so).
+        cols = rp.cols
+        rows = rp.rows
+    }
+    var rec = replay.new(rp.seed, rp.tier, cols, rows)
+    let dialect = tier.dialect(rp.tier, truecolor)
+    var s = sim.new(rp.seed, cols, rows)
+    var front = grid.new(rows, cols)
+    var back = grid.new(rows, cols)
+    var pen = grid.pen_new()
+    var out = List[byte]()
+    var keys = List[int]()
+    var raw = List[int]()
+    var tick_keys = List[int]()
+    var d = input.new()
+    term.enter(mut t) else |_| {
+        eprint(term.message("io", "cub"))
+        return 3
+    }
+    var c = clock.new(clock.now_ns())
+    var full = true
+    var quit = false
+    var frames = 0
+    var render_ns = 0
+    var render_max_ns = 0
+    var ended = "the loop"
+    let t0_ns = clock.now_ns()
+    var trace_bytes = 0
+    var trace_first_key_ns = 0
+    loop {
+        var deadline = clock.next_due_ns(c)
+        if input.esc_pending(d) {
+            let esc = input.esc_deadline_ms(d) * 1000000
+            if esc < deadline {
+                deadline = esc
+            }
+        }
+        let w = clock.wait_until(mut c, deadline, term.signal_set()) else |_| {
+            ended = "a failed wait"
+            quit = true
+            break
+        }
+        let now = clock.now_ns()
+        let now_ms = now / 1000000
+        if w.meaning != 0 {
+            if w.meaning == 16384 {
+                if term.resize(mut t) && !replaying {
+                    cols = t.cols
+                    rows = t.rows
+                    sim.resize(mut s, cols, rows)
+                    front = grid.new(rows, cols)
+                    back = grid.new(rows, cols)
+                    pen = grid.pen_new()
+                    full = true
+                    replay.push_size(mut rec, s.tick, cols, rows)
+                }
+            } else {
+                ended = if w.meaning == 16 then "the interrupt" else "a signal ({w.meaning})"
+                quit = true
+            }
+        }
+        if w.input_ready {
+            let got = term.read_keys(64) else |e| {
+                eprint("cub: standard input: {e}")
+                ended = "standard input ({e})"
+                quit = true
+                List[byte]()
+            }
+            let before = keys.len
+            input.feed_all(mut d, got, now_ms, mut raw)
+            controls.map_all(raw, mut keys)
+            (mut raw).reset()
+            trace_bytes += got.len
+            if keys.len > before && trace_first_key_ns == 0 {
+                trace_first_key_ns = now
+            }
+        }
+        input.flush(mut d, now_ms, mut raw)
+        controls.map_all(raw, mut keys)
+        (mut raw).reset()
+        let due = clock.advance(mut c, now)
+        var n = 0
+        while n < due {
+            (mut tick_keys).reset()
+            if replaying {
+                let (rc, rr, _) = replay.at(rp, s.tick, mut tick_keys)
+                if rc > 0 {
+                    sim.resize(mut s, rc, rr)
+                    front = grid.new(rr, rc)
+                    back = grid.new(rr, rc)
+                    pen = grid.pen_new()
+                    full = true
+                }
+                if s.tick > replay.last_tick(rp) && o.ticks == 0 {
+                    ended = "the replay's end"
+                    quit = true
+                }
+                if n == 0 {
+                    for k in keys {
+                        if k == controls.KEY_QUIT || k == controls.KEY_INTERRUPT {
+                            ended = if k == controls.KEY_QUIT {
+                                "the quit key"
+                            } else {
+                                "Ctrl-C as a byte"
+                            }
+                            quit = true
+                        }
+                    }
+                }
+            } else if n == 0 {
+                for k in keys {
+                    if k == controls.KEY_QUIT || k == controls.KEY_INTERRUPT {
+                        ended = if k == controls.KEY_QUIT {
+                            "the quit key"
+                        } else {
+                            "Ctrl-C as a byte"
+                        }
+                        quit = true
+                        replay.push_key(mut rec, s.tick, k)
+                    } else {
+                        (mut tick_keys).push(k)
+                        replay.push_key(mut rec, s.tick, k)
+                    }
+                }
+            }
+            sim.step(mut s, tick_keys)
+            if o.trace {
+                eprint(
+                    "trace tick {s.tick} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} wall_us {(clock.now_ns() - t0_ns) / 1000}",
+                )
+                trace_bytes = 0
+            }
+            if o.trap_at > 0 && s.tick == o.trap_at {
+                // The planted trap: a broken contract, as any trap would be.
+                // The runtime restores the terminal (`[os.term.restore]`).
+                assert(false, "cub: --trap-at {o.trap_at} (a planted trap)")
+            }
+            if o.ticks > 0 && s.tick >= o.ticks {
+                ended = "--ticks"
+                quit = true
+            }
+            n += 1
+        }
+        if due > 0 {
+            (mut keys).reset()
+            let r0 = clock.now_ns()
+            art.render(s, rp.tier, mut back)
+            grid.diff(front, back, full, mut pen, mut out, dialect)
+            let r1 = clock.now_ns()
+            render_ns += r1 - r0
+            if r1 - r0 > render_max_ns {
+                render_max_ns = r1 - r0
+            }
+            term.write(out) else |_| {
+                ended = "a failed write"
+                quit = true
+            }
+            (mut out).reset()
+            let tmp = front
+            front = back
+            back = tmp
+            full = false
+            frames += 1
+            if o.trace && trace_first_key_ns != 0 {
+                eprint(
+                    "trace frame {frames} tick {s.tick} carries_key inner_us {(clock.now_ns() - trace_first_key_ns) / 1000} wall_us {(clock.now_ns() - t0_ns) / 1000}",
+                )
+                trace_first_key_ns = 0
+            }
+        }
+        if quit {
+            break
+        }
+    }
+    term.leave(mut t)
+    if o.record_path != "" {
+        var text = List[byte]()
+        replay.format(rec, controls.vocab(), mut text)
+        fs.write_bytes(o.record_path, text) else |_| {
+            eprint("cub: cannot write {o.record_path}")
+        }
+    }
+    let avg_us = if frames > 0 then render_ns / frames / 1000 else 0
+    eprint(
+        "cub: ended by {ended}; {s.tick} ticks, {frames} frames, {c.dropped} dropped, {c.waits} waits, {sim.distance_cells(s)} cells, blocked {s.blocked}; heading {s.heading} at {sim.cell_x(s)},{sim.cell_y(s)}; render avg {avg_us} us max {render_max_ns / 1000} us; seed {rp.seed} tier {tier.name(rp.tier)} {cols}x{rows}",
+    )
+    0
+}
+
+fn main() -> int {
+    let args = env.args()
+    let o = parse_args(args) else |_| {
+        eprint(usage_text())
+        return 2
+    }
+    if o.help {
+        print(usage_text())
+        return 0
+    }
+    if o.version {
+        print("cub 0.1.0 (cb00: the scaffold on the lair engine)")
+        return 0
+    }
+    if o.apply_path != "" {
+        return run_apply(o)
+    }
+    if o.art_study {
+        return run_art_study(o)
+    }
+    if o.probe_glyphs {
+        return probe.run("cub", sprites.rich_code_points())
+    }
+    if o.selftest {
+        return run_selftest()
+    }
+    if o.headless {
+        return run_headless(o, args)
+    }
+    run_live(o, args)
+}
