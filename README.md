@@ -9,19 +9,20 @@ where you fell, four bosses on the way home, and at the end a wolf, not a cub, t
 The second game of the lair, the wolf games collection, on the collection's shared engine
 (`wolffe-lang/lair`, pinned in `lair.pin`); the first is `pack`.
 
-**What is in this build:** the scaffold on the engine (cb00). One screen, the Shingle: the Ashwater to the
-north with reeds at its edge, a strip of gravel, and Thornmere's woods closing in beyond, from a seed. A cub
-that walks with the arrows and sneaks with Shift+arrow, turning at its turn rate (never a pivot), stopped by
-trunks, deep forest and water; the camera follows it, so the forest scrolls in every direction. `q` quits
-with the terminal restored. Nothing bites yet: the moves, the weasel and the fox, the den, scent and death
-are the next build (cb01), the area graph and the shortcuts after that (cb02). Every number is in
-`docs/DESIGN.md` and is the maintainer's to tune by play.
+**What is in this build:** the Shingle fight and recovery loop. Bite, lunge,
+parry and dodge a weasel pair and a fox, follow the fading scent trail,
+rest at the hollow log and spend scent on growth. Death drops a recoverable
+mark; a second death replaces it. A lunge breaks the southern thorn gate
+onto the approach to Bramblehold. The connected areas and save file are
+still to come: leaving this build does not persist growth or gate state.
+Live deaths leave replay files under `~/.cub/ghosts/`; ghost display comes
+later. Every tuning proposal is in `docs/DESIGN.md`.
 
 ## Where it runs
 
 | machine | tier | state |
 |---|---|---|
-| macOS, Terminal.app or iTerm2 (arm64) | rich: block elements, braille, 256 colours, true colour where `COLORTERM` says so | the maintainer's play; the pty rows run on every push to trunk |
+| macOS, Terminal.app or iTerm2 (arm64) | rich: block elements, braille, 256 colours, true colour where `COLORTERM` says so | pty-tested; physical-terminal glyph measurements remain open |
 | Linux, any UTF-8 terminal emulator (x86-64) | rich | the pty rows run on every pull request, inside a container |
 | a Linux virtual terminal (`TERM=linux`) | plain: code points 0-255 and the sixteen colours | detected from `TERM`; untested on a VT itself |
 | PAX's console | plain today; rich once PAX's font draws `docs/GLYPHS.md` | the installer row and the font row are the cb05 lane's, with pack's pk04 |
@@ -33,9 +34,12 @@ The terminal must be at least 80 columns by 24 rows; the field grows to fill a l
 | key | action |
 |---|---|
 | arrows | walk; two together for a diagonal; the cub turns toward the held direction at its turn rate |
-| Shift+arrow | sneak that way: half speed (no trail, from cb01) |
-| Space, `x`, `z`, `c`, Tab, `w`, `r` | bite, lunge, parry, dodge, lock on, drink, rest: recorded in a replay now, acting from cb01 |
-| `q` or Esc | quit; the terminal is restored on every exit |
+| Shift+arrow | sneak that way: half speed, no new trail |
+| Space / `x` / `z` / `c` | bite / lunge / parry / dodge |
+| Tab / Esc | lock nearest then cycle / release lock or leave den |
+| `w` / `r` | drink / rest at the hollow log |
+| 1–5 at the den | grow heart, wind, fang, paw, nose |
+| `q` | quit; the terminal is restored on every exit |
 
 ## Build and run
 
@@ -48,28 +52,32 @@ target/cub --record run.pk     save the run; --replay run.pk plays it back
 ```
 
 `cub --help` lists the rest: the headless mode that writes frames for the goldens, `--trace` (one line a
-tick on standard error), `--apply`, the glyph probe, the selftest.
+tick on standard error), `--apply`, the glyph probe, the selftest, and `--bench` for render/diff timings.
 
 ## Tests
 
-Determinism is the oracle. A run is a pure function of the seed, the inputs, the tier and the size, so
-`tests/cases/*.pk` (eight cases, `docs/REPLAY.md`) are run headless on both tiers and diffed against
-`tests/goldens/` cell for cell (`.lair/tools/goldens`), with the art study's sheets. The unit tests
-(`.lair/tools/test`, 75 of them: cub's 23 and the pinned engine's 61, less the overlap, run through the
-symlinked module directories) cover the cub's bars (deterministic, the turn rate, the speed's steps, the
-tap, the sneak, the water that stops it, the camera, the stats), the Shingle (the noise in range and
-smooth, the bank's swing, the bands in order, the open start), the sprite table's promises, the frame, the
-controls through the engine's decoder, and the glyph list against `docs/GLYPHS.md`. The pty runner (the
-engine's `.lair/tools/pty`) drives the real binary in a pseudo-terminal: raw mode undone and the alternate
-screen left on `q`, on Ctrl-C and on a planted trap, and the captured bytes of a replayed case, through the
-terminal model, equal to its headless final frame on both tiers. `.lair/tools/check` runs all of it; CI
-runs it on Linux for every pull request and on macOS as well for trunk.
+`tools/check` runs the complete local gate: formatting, 97 checked-machine
+tests, native and release builds, decoder selftest, 17 replay cases on rich
+and plain tiers plus the art sheets (35 golden directories), shipping-binary
+gameplay assertions, pty restoration and replay agreement, and performance.
+`tools/check-linux` runs the correctness gates inside `.lair/tools/in-container`;
+`tools/check-perf` measures rendering, idle wakes and key-to-frame latency.
+
+The two compiler backends and both hosts must reproduce the same glyphs,
+styles and integer state snapshots. Gameplay checks assert that each named
+encounter really happened and replay a natural death file to the same state.
+Repeated deaths cannot overwrite an earlier file. The pty tests cover quit,
+Ctrl-C, a trap, both visual tiers, den keys, death recovery, and archive-write
+failure with the terminal restored. macOS loudly skips the Linux-only idle
+counter; Linux measures it. CI runs Linux correctness on every PR and adds
+macOS and performance in the full tier.
 
 ## Documents
 
-`docs/DESIGN.md` the first constants; `docs/ART.md` the sprites; `docs/GLYPHS.md` every code point the
+`docs/DESIGN.md` the tuning proposals; `docs/ART.md` the sprites; `docs/GLYPHS.md` every code point the
 rich tier uses (PAX's font specification for cub); `docs/REPLAY.md` cub's words in the engine's replay
-format. The design bible is in the planning repository (`sprints/lair/cub/design.md`).
+format; `docs/PALETTE.md` the daylight colours; `docs/KEYS.md` the measured
+pty bytes and the still-unmeasured physical terminals. The design bible is in the planning repository (`sprints/lair/cub/design.md`).
 
 ## Licence
 
