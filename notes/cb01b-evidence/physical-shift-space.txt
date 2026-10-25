@@ -1,0 +1,7 @@
+2026-10-25 — supplied by the coordinator from the maintainer's physical play terminal.
+TERM=xterm-256color; application name not supplied.
+Pinned engine keyprobe output for Shift+Space, then q:
+20  b' '
+71  b'q'
+
+Not an injected pty measurement. Shift+Space and Space are indistinguishable.

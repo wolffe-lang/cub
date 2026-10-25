@@ -1,0 +1,7 @@
+Attempt 1: goldens: REFUSED on nomad: 1 GB free+inactive+speculative, the floor is 8 GB (RULES section 4)
+Attempt 2: check: REFUSED on nomad: 7 GB free+inactive+speculative, the floor is 8 GB (RULES section 4)
+Attempt 3: perf: REFUSED on nomad: 4 GB free+inactive+speculative, the floor is 8 GB (RULES section 4)
+Attempt 4: goldens: REFUSED on nomad: 2 GB free+inactive+speculative, the floor is 8 GB (RULES section 4)
+Attempt 5: pty: REFUSED on nomad: 3.1 GB free+inactive+speculative, the floor is 8 GB (RULES section 4)
+Attempt 5: pty: REFUSED on nomad: 2.7 GB free+inactive+speculative, the floor is 8 GB (RULES section 4)
+Attempt 6: complete tools/check green at the same source head; no gate changed.
