@@ -41,11 +41,10 @@ fn drive(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int) {
                 }
                 break
             }
-            // A foe in reach and in sight is fought; one behind a trunk is
-            // walked round (the planned path avoids its body).
-            if foe.kind != sim.HAWK &&
-                sim.near(s.x, s.y, foe.x, foe.y, 2 * sim.FP) &&
-                sim.visible(s, s.x, s.y, foe.x, foe.y) {
+            // A foe in reach (two cells from the bodies, cb02c) is fought;
+            // one behind a trunk is walked round (the planned path avoids
+            // its body).
+            if foe.kind != sim.HAWK && sim.in_reach(s, i, 2) {
                 fighting = true
                 if s.action == sim.IDLE {
                     aim(mut keys, foe.x - s.x, foe.y - s.y)
@@ -57,7 +56,7 @@ fn drive(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int) {
             // stands still against it: close on it rather than wait.
             if (foe.kind == sim.WEASEL || foe.kind == sim.FOX) &&
                 s.speed == 0 &&
-                sim.near(s.x, s.y, foe.x, foe.y, 3 * sim.FP) &&
+                sim.body_gap(s, i) <= 2 &&
                 sim.visible(s, s.x, s.y, foe.x, foe.y) {
                 fighting = true
                 aim(mut keys, foe.x - s.x, foe.y - s.y)
@@ -76,15 +75,13 @@ fn walk(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int) -> bool {
     walk_stop(mut s, mut r, tx, ty, -1)
 }
 
-/// Whether a live ground foe stands on a cell: the walker routes round
-/// bodies as it routes round trunks.
+/// Whether the cub standing on a cell, facing as it faces, would share a
+/// cell with a live ground foe's body: the walker routes round bodies as
+/// it routes round trunks (cb02c: bodies are the drawings' footprints).
 fn body_on(s: sim.Sim, x: int, y: int) -> bool {
+    let b = sim.cub_body_at(x * sim.FP + sim.FP / 2, y * sim.FP + sim.FP / 2, s.body_facing)
     for f in s.foes {
-        if f.health > 0 &&
-            f.kind != sim.HAWK &&
-            sim.near(x * sim.FP + sim.FP / 2, y * sim.FP + sim.FP / 2, f.x, f.y, sim.FP) {
-            return true
-        }
+        if sim.solid(f) && sim.overlap(b, sim.foe_body(f)) { return true }
     }
     false
 }
@@ -101,26 +98,24 @@ fn walk_stop(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int, stop_foe: i
     false
 }
 
-/// One planned walk: 1 arrived (or stopped as asked), 0 failed, 2 stuck.
-fn walk_once(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int, stop_foe: int) -> int {
-    let area = s.area
-    let w = forest.bound(s.field, area)
+/// A breadth-first plan over the area's cells from `start` toward `goal`
+/// (indices into the area's rows from `top`): the parents, -1 unreached.
+/// With `bodies` the cells where the cub's body would meet a foe's are
+/// closed as trunks are.
+fn plan(
+    s: sim.Sim,
+    w: int,
+    top: int,
+    origin: int,
+    start: int,
+    goal: int,
+    bodies: bool,
+) -> List[int] {
     let width = w * 2 + 1
-    // The coast's rows run from the river (the bank wanders north of the
-    // spawn's row); an inland area's from its entry row.
-    let top = if area == forest.SHINGLE then forest.COAST_TOP else 0
-    let origin = forest.origin(s.seed, area)
-    let sx = sim.cell_x(s)
-    let sy = sim.cell_y(s) - origin
-    let gx = sim.floor_div(tx, sim.FP)
-    let gy = sim.floor_div(ty, sim.FP) - origin
-    if sx < 0 - w || sx > w || sy < top || sy > forest.LENGTH { return 0 }
     var parent = List[int]()
     var queue = List[int]()
     var i = 0
     while i < width * (forest.LENGTH - top + 1) { (mut parent).push(-1); i += 1 }
-    let start = (sy - top) * width + sx + w
-    let goal = (gy - top) * width + gx + w
     parent[start] = start
     (mut queue).push(start)
     var head = 0
@@ -136,7 +131,7 @@ fn walk_once(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int, stop_foe: i
                 let next = (ny - top) * width + nx + w
                 if parent[next] < 0 &&
                     !sim.blocked(s, nx, ny + origin) &&
-                    (next == goal || !body_on(s, nx, ny + origin)) {
+                    (next == goal || !bodies || !body_on(s, nx, ny + origin)) {
                     parent[next] = at
                     (mut queue).push(next)
                 }
@@ -145,12 +140,40 @@ fn walk_once(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int, stop_foe: i
         }
         head += 1
     }
+    parent
+}
+
+/// One planned walk: 1 arrived (or stopped as asked), 0 failed, 2 stuck.
+fn walk_once(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int, stop_foe: int) -> int {
+    let area = s.area
+    let w = forest.bound(s.field, area)
+    let width = w * 2 + 1
+    // The coast's rows run from the river (the bank wanders north of the
+    // spawn's row); an inland area's from its entry row.
+    let top = if area == forest.SHINGLE then forest.COAST_TOP else 0
+    let origin = forest.origin(s.seed, area)
+    let sx = sim.cell_x(s)
+    let sy = sim.cell_y(s) - origin
+    let gx = sim.floor_div(tx, sim.FP)
+    let gy = sim.floor_div(ty, sim.FP) - origin
+    if sx < 0 - w || sx > w || sy < top || sy > forest.LENGTH { return 0 }
+    let start = (sy - top) * width + sx + w
+    let goal = (gy - top) * width + gx + w
+    // Round the bodies where there is room; where a body closes the way
+    // (a foe as wide as the path, cb02c), plan through it and fight it.
+    var parent = plan(s, w, top, origin, start, goal, true)
+    if parent[goal] < 0 { parent = plan(s, w, top, origin, start, goal, false) }
     if parent[goal] < 0 { return 0 }
+    var i = 0
     var path = List[int]()
     var at = goal
     while at != start { (mut path).push(at); at = parent[at] }
     i = path.len - 1
     let until = s.tick + 18000
+    // Ticks left of following the plan rather than closing straight on the
+    // foe (cb02c: a trunk between two bodies can stop the straight line).
+    var detour = 0
+    var stalled = 0
     while i >= 0 {
         let cell = path[i]
         let x = (cell % width - w) * sim.FP + sim.FP / 2
@@ -160,12 +183,19 @@ fn walk_once(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int, stop_foe: i
         var last_y = s.y
         while !sim.near(s.x, s.y, x, y, sim.FP / 2) {
             if s.tick > until || s.action == sim.FALL { return 0 }
-            if stop_foe >= 0 &&
-                sim.near(s.x, s.y, s.foes[stop_foe].x, s.foes[stop_foe].y, 4 * sim.FP) {
+            if stop_foe >= 0 && sim.body_gap(s, stop_foe) <= 3 && detour == 0 {
+                let bx = s.x
+                let by = s.y
                 var keys = List[int]()
                 aim(mut keys, s.foes[stop_foe].x - s.x, s.foes[stop_foe].y - s.y)
                 press(mut s, mut r, keys)
+                if s.x == bx && s.y == by { stalled += 1 } else { stalled = 0 }
+                if stalled >= 10 {
+                    detour = 30
+                    stalled = 0
+                }
             } else {
+                if detour > 0 { detour -= 1 }
                 drive(mut s, mut r, x, y)
             }
             if stop_foe >= 0 &&
