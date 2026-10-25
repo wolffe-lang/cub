@@ -211,7 +211,8 @@ fn open_square(s: sim.Sim, x0: int, y0: int, w: int, h: int) -> bool {
     true
 }
 
-/// A fox five cells behind (west of) a trotting cub, both at full speed;
+/// A fox nine cells behind (west of) a trotting cub on its trail, two
+/// cells clear of its reach, both at full speed;
 /// the cub then runs `legs` legs of `leg` ticks, east and south
 /// alternately. One leg is the straight, along the shore's middle row;
 /// the turns are run in the first open stretch of the meadow. The
@@ -227,8 +228,8 @@ fn chase(legs: int, leg: int) -> (int, int, int) {
         while y < 140 && !found {
             var x = -40
             while x < 30 && !found {
-                if open_square(s, x, y, 14, 12) {
-                    s.x = (x + 6) * sim.FP + sim.FP / 2
+                if open_square(s, x, y, 20, 12) {
+                    s.x = (x + 11) * sim.FP + sim.FP / 2
                     s.y = (y + 1) * sim.FP + sim.FP / 2
                     found = true
                 }
@@ -239,18 +240,25 @@ fn chase(legs: int, leg: int) -> (int, int, int) {
         if !found { return (-1, -1, -1) }
     } else {
         let b = terrain.bank(1, 0)
-        s.x = 6 * sim.FP + sim.FP / 2
+        s.x = 11 * sim.FP + sim.FP / 2
         s.y = (b + terrain.REED_ROWS + 2) * sim.FP + sim.FP / 2
     }
     s.heading = 64
     s.heading_target = 64
     s.speed = sim.trot_at(1)
     var fox = sim.spawn_foes(1)[2]
-    fox.x = s.x - 5 * sim.FP
+    fox.x = s.x - 9 * sim.FP
     fox.y = s.y
     fox.heading = 64
     fox.speed = sim.FOE_STALK_V
     (mut s.foes).push(fox)
+    // The cub came this way: its scent lies from the fox to it, a sample a
+    // cell, so the fox has the trail as well as the sight to run on.
+    var tx = fox.x + sim.FP
+    while tx <= s.x {
+        (mut s.trail).push(sim.Trail { x: tx, y: s.y, until: sim.TRAIL_TICKS })
+        tx += sim.FP
+    }
     let start = s.x - fox.x
     var caught = -1
     var leg_i = 0
