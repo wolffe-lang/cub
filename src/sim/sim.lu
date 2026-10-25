@@ -198,6 +198,7 @@ pub struct Sim {
     action: int,
     started: int,
     chained: bool,
+    combo: int,
     exhausted: bool,
     locked: int,
     unseen: int,
@@ -256,6 +257,7 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         action: IDLE,
         started: 0,
         chained: false,
+        combo: 0,
         exhausted: false,
         locked: -1,
         unseen: 0,
@@ -666,6 +668,7 @@ fn reset_world(mut s: Sim) {
     s.riposte = 0
     s.riposte_foe = -1
     s.chained = false
+    s.combo = 0
     s.foes = spawn_foes(s.seed)
     (mut s.trail).reset()
     var i = 0
@@ -732,6 +735,7 @@ fn start_action(mut s: Sim, action: int, cost: int) {
     if s.stamina == 0 { s.exhausted = true }
     s.attack_heading = attack_aim(s)
     s.action = action
+    s.combo = if action == BITE then 1 else 0
     s.started = s.tick
     s.speed = 0
     s.chained = false
@@ -973,11 +977,13 @@ fn action_step(mut s: Sim, want: int) {
     }
     if s.action != IDLE && age >= duration {
         let chain = s.action == BITE && s.chained
+        let next_combo = s.combo % 3 + 1
+        s.combo = 0
         s.action = IDLE
         if chain {
             let aim = s.chained_heading
             start_action(mut s, BITE, 12)
-            if s.action == BITE { s.attack_heading = aim }
+            if s.action == BITE { s.attack_heading = aim; s.combo = next_combo }
         }
     }
 }
@@ -1130,8 +1136,18 @@ pub fn clip_arc(s: Sim, ox: int, oy: int) -> (int, int) {
 pub fn attack_offset(s: Sim) -> (int, int) {
     let age = s.tick - s.started
     if s.action == BITE {
-        let (x, y) = leap_arc(s.attack_heading, age - 2, 3, BITE_ARC)
-        return clip_arc(s, x, y)
+        let distance = if s.combo == 3 then COMBO_FINISH_ARC else BITE_ARC
+        let (x, y) = leap_arc(s.attack_heading, age - 2, 3, distance)
+        let lean = if age >= 3 && age < 5 {
+            if s.combo == 1 then 0 - COMBO_LEAN else if s.combo == 2 then COMBO_LEAN else 0
+        } else {
+            0
+        }
+        return clip_arc(
+            s,
+            x + cos(s.attack_heading) * lean / FP,
+            y + sin(s.attack_heading) * lean / FP,
+        )
     }
     if s.action == LUNGE {
         let (x, y) = leap_arc(s.attack_heading, age - 8, 4, LUNGE_ARC)
@@ -1152,4 +1168,17 @@ pub fn landing_point(s: Sim) -> (int, int) {
     }
     let (dx, dy) = attack_offset(s)
     (s.x + dx, s.y + dy)
+}
+
+/// First/second bite lean, in fixed point perpendicular to the aim.
+pub const COMBO_LEAN: int = FP / 2
+
+/// Third bite's longer presentation arc; its reach and damage stay unchanged.
+pub const COMBO_FINISH_ARC: int = 2 * FP
+
+/// Two recovery ticks shaking the third bite's head left and right.
+pub fn head_shake(s: Sim) -> int {
+    if s.action != BITE || s.combo != 3 { return 0 }
+    let age = s.tick - s.started
+    if age == 5 then -1 else if age == 6 then 1 else 0
 }

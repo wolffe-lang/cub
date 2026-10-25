@@ -110,6 +110,22 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
         },
         s.tick,
     )
+    let shake = sim.head_shake(s)
+    if shake != 0 {
+        draw.put_text(mut g, r - 1, c, "  ", ink(t, false))
+        var ear = sprites.glyph(
+            t,
+            if t == tier.RICH then sprites.SP_CUB_EAR else sprites.SP_CUB_MARK,
+            if t == tier.RICH {
+                (s.attack_heading + 32) % sim.TURN / 64 * 2
+            } else {
+                (s.attack_heading + 32) % sim.TURN / 64
+            },
+        )
+        grid.put(mut g, r - 1, c + shake, ear)
+        ear.cp = if t == tier.RICH then 9624 else 94
+        grid.put(mut g, r - 1, c + shake + 1, ear)
+    }
     draw_posture(s, t, mut g)
 }
 

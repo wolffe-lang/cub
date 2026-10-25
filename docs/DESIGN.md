@@ -136,3 +136,14 @@ and two-cell live body footprints. An already crowded encounter may shorten
 a hop to zero. The camera and ground body never move with this offset.
 A one-tick `*` marks contact at the foe (or empty apex); no attack arrow
 remains. These are presentation proposals, not changes to what hits.
+
+## Three-Space combo, 2026-10-25
+
+The maintainer's word: "The first jump leans slightly left ... the second
+attack leans right ... the third attack flies forward with the head shaking
+left-right on landing." Accepted recovery chains cycle 1 → 2 → 3 → 1.
+`COMBO_LEAN = FP/2`, perpendicular to aim; `COMBO_FINISH_ARC = 2 cells`
+(proposed) is longer visually, not a longer hit reach. All three bites
+retain cost 12, 3/2/6 timing and the same damage. Third-hit recovery ages
+5 and 6 shake the ears left then right, on both tiers. A lapsed window,
+rest or another action resets the combo. Refused attacks cannot advance it.
