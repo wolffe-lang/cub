@@ -218,6 +218,15 @@ pub fn generate(dir: str) -> int {
     press(mut s, mut r, key(controls.KEY_REST))
     if s.area != 0 || s.shortcuts != 3 { eprint("proof: log not opened"); return 1 }
     snapshot(dir, "world-return", s, r) else |_| { return 2 }
+    var cache = 0
+    while cache < 2 {
+        let (cx, cy) = forest.cache_position(s.seed, 0, cache)
+        if !walk(mut s, mut r, cx, cy) { eprint("proof: coast cache {cache}"); return 1 }
+        press(mut s, mut r, key(controls.KEY_REST))
+        if !sim.cache_open(s, cache) { eprint("proof: cache remains guarded {cache}"); return 1 }
+        snapshot(dir, "coast-cache-{cache}", s, r) else |_| { return 2 }
+        cache += 1
+    }
     encounters(dir)
 }
 
@@ -234,7 +243,7 @@ pub fn encounters(dir: str) -> int {
     while kind < 7 {
         var s = sim.new(1, 80, 24)
         var r = replay.new(1, 1, 80, 24)
-        let foe = if kind == 4 then 2 else 0
+        let foe = if kind == 4 || kind == 5 then 2 else 0
         if !approach(mut s, mut r, foe) { eprint("proof: encounter approach {kind}"); return 1 }
         var n = 0
         if kind == 0 {
@@ -258,8 +267,11 @@ pub fn encounters(dir: str) -> int {
         } else if kind == 5 {
             while s.action != sim.FALL && n < 1200 {
                 var keys = List[int]()
-                aim(mut keys, s.foes[0].x - s.x, s.foes[0].y - s.y)
+                aim(mut keys, s.foes[foe].x - s.x, s.foes[foe].y - s.y)
                 press(mut s, mut r, keys)
+                if n % 60 == 59 && s.action != sim.FALL {
+                    let _ = approach(mut s, mut r, foe)
+                }
                 n += 1
             }
             if s.action != sim.FALL { eprint("proof: natural death never happened"); return 1 }
