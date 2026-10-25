@@ -10,7 +10,10 @@ The second game of the lair, the wolf games collection, on the collection's shar
 (`wolffe-lang/lair`, pinned in `lair.pin`); the first is `pack`.
 
 **What is in this build:** the Shingle fight and recovery loop. Bite, lunge,
-parry and dodge a weasel pair and a fox, follow the fading scent trail,
+parry and dodge a weasel pair and a fox. Aim with recent arrows or lock;
+chain three bites, or use `s` for a back-step heavy leap. The cub keeps its
+body shape in every heading, foes have readable posture sprites, and scent
+stays visible beside health and stamina. Follow the fading scent trail,
 rest at the hollow log and spend scent on growth. Death drops a recoverable
 mark; a second death replaces it. A lunge breaks the southern thorn gate
 onto the approach to Bramblehold. The connected areas and save file are
@@ -35,11 +38,16 @@ The terminal must be at least 80 columns by 24 rows; the field grows to fill a l
 |---|---|
 | arrows | walk; two together for a diagonal; the cub turns toward the held direction at its turn rate |
 | Shift+arrow | sneak that way: half speed, no new trail |
-| Space / `x` / `z` / `c` | bite / lunge / parry / dodge |
+| Space / `x` / `s` / `z` / `c` | bite/combo / lunge / heavy / parry / dodge |
 | Tab / Esc | lock nearest then cycle / release lock or leave den |
 | `w` / `r` | drink / rest at the hollow log |
 | 1–5 at the den | grow heart, wind, fang, paw, nose |
 | `q` | quit; the terminal is restored on every exit |
+
+Arrows held or pressed within 500 ms before an attack aim it; lock wins.
+Press Space during bite recovery to chain left, right, then a longer forward
+hop. Shift+Space sent plain Space in the measured play terminal, so heavy
+uses `s` rather than an indistinguishable chord. See `docs/KEYS.md`.
 
 ## Build and run
 
@@ -56,9 +64,9 @@ tick on standard error), `--apply`, the glyph probe, the selftest, and `--bench`
 
 ## Tests
 
-`tools/check` runs the complete local gate: formatting, 97 checked-machine
-tests, native and release builds, decoder selftest, 17 replay cases on rich
-and plain tiers plus the art sheets (35 golden directories), shipping-binary
+`tools/check` runs the complete local gate: formatting, 111 checked-machine
+tests, native and release builds, decoder selftest, 30 replay cases on rich
+and plain tiers plus the art sheets (61 golden directories), shipping-binary
 gameplay assertions, pty restoration and replay agreement, and performance.
 `tools/check-linux` runs the correctness gates inside `.lair/tools/in-container`;
 `tools/check-perf` measures rendering, idle wakes and key-to-frame latency.
@@ -68,7 +76,9 @@ styles and integer state snapshots. Gameplay checks assert that each named
 encounter really happened and replay a natural death file to the same state.
 Repeated deaths cannot overwrite an earlier file. The pty tests cover quit,
 Ctrl-C, a trap, both visual tiers, den keys, death recovery, and archive-write
-failure with the terminal restored. macOS loudly skips the Linux-only idle
+failure with the terminal restored. A feel-controls row also exercises all
+eight aims, lock override, three-hit combos and the heavy fallback on both
+glyph tiers. macOS loudly skips the Linux-only idle
 counter; Linux measures it. CI runs Linux correctness on every PR and adds
 macOS and performance in the full tier.
 
@@ -77,7 +87,7 @@ macOS and performance in the full tier.
 `docs/DESIGN.md` the tuning proposals; `docs/ART.md` the sprites; `docs/GLYPHS.md` every code point the
 rich tier uses (PAX's font specification for cub); `docs/REPLAY.md` cub's words in the engine's replay
 format; `docs/PALETTE.md` the daylight colours; `docs/KEYS.md` the measured
-pty bytes and the still-unmeasured physical terminals. The design bible is in the planning repository (`sprints/lair/cub/design.md`).
+pty bytes, the physical Shift+Space result, and the remaining terminal rows. The design bible is in the planning repository (`sprints/lair/cub/design.md`).
 
 ## Licence
 
