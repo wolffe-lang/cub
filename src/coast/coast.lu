@@ -27,8 +27,8 @@ pub const WALK_MAX: int = 200
 const TOP: int = -16
 
 /// Flood actual collision cells over the coast's extent. Targets are the
-/// thorn-route centreline and the cache centres, not the generator's
-/// connectivity promises.
+/// thorn-route centreline, the four branches' centrelines and the cache
+/// centres: the useful routes, not the generator's connectivity promises.
 fn distances(seed: int, field: int, targets: bool) -> List[int] {
     let e = forest.coast_extent(field)
     let width = 2 * e + 3
@@ -49,6 +49,11 @@ fn distances(seed: int, field: int, targets: bool) -> List[int] {
                 while cache < forest.cache_count(0) {
                     let (cx, cy) = forest.cache_position(seed, field, 0, cache)
                     if x == sim.floor_div(cx, sim.FP) && y == sim.floor_div(cy, sim.FP) - o {
+                        source = true
+                    }
+                    if y >= 0 &&
+                        y <= forest.coast_end(seed, cache) &&
+                        x == forest.coast_branch_x(seed, field, cache, y) {
                         source = true
                     }
                     cache += 1
