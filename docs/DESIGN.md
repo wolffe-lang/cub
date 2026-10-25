@@ -36,8 +36,8 @@ other axis still slides, so a wall is followed, not stuck to.
 | constant | value | meaning | set |
 |---|---|---|---|
 | `LATTICE` | 24 | cells between the cover noise's lattice points, both ways: the woods thicken in patches about this size | 2026-10-25 proposed |
-| `BANK_ROW`, `BANK_SWING` | -8, 4 | the Ashwater's edge wanders between world rows -8 and -4 (the cub starts at row 0) | 2026-10-25 proposed |
-| `REED_ROWS` | 2 | rows of reeds at the water's edge (open ground) | 2026-10-25 proposed |
+| `BANK_ROW`, `BANK_SWING` | -8, 8 | the Ashwater's edge lies between rows -8 and 0; start follows the bank | 2026-10-25 proposed |
+| `REED_ROWS` | 1 | row of reeds at the water's edge (open ground) | 2026-10-25 proposed |
 | `SHINGLE_ROWS` | 5 | rows of gravel below the reeds before the grass | 2026-10-25 proposed |
 | `COVER_GRASS` | 120 | cover (of 256) under this is grass with the odd trunk (2 in 100 cells) | 2026-10-25 proposed |
 | `COVER_WOODS` | 190 | cover under this (and over `COVER_GRASS`) is the woods: canopy with trunks (9 in 100); above it deep forest with canopy and more trunks (12 in 100) | 2026-10-25 proposed |
@@ -218,14 +218,14 @@ All values below are proposed 2026-10-25:
 | area bounds | x=-40..40, 160 cells along the route; local origin at the seeded bank den or the new area's north edge |
 | centre curve | engine value noise on channels 31..33, sampled at 2× distance, plus eight-cell smoothstep anchors alternating seeded magnitudes 3..5; taper over eight cells at entrances |
 | path width | half-width 3..5, separate channels 45..47 sampled at 3× distance |
-| straight limit | `STRAIGHT_MAX=12` equal consecutive centre cells; path and river bank measured over 50 seeds |
-| river bank | base -16, swing envelope 20; the same curve family on channel 9; no long quantised straight shore |
+| straight limit | `STRAIGHT_MAX=12` equal consecutive centre cells; path measured over 50 seeds; the bank uses the coast slope bar below |
+| river bank | base -8, swing envelope 8; engine noise channel 9 at cell scale; adjacent bank rows differ by at most one |
 | dens | stable ids 0 hollow log, 1 split roots, 2 briar hollow, 3 grass nest; new dens at rows 7..10 or 90..93, x within one cell of the seeded path |
 | first foes | `FIRST_FOE_CELLS=30` minimum initial distance from every den in the area, checked independently of spawning |
 | branches | two curved cache branches around rows 52 and 132, ending at seeded x=±27..30; two-cell half-width; shortcut branches curve around row 22 toward x=±32 |
 | gate | at bank origin+157; five full collision cells, including their fractional spans; a carved branch leaves the main route at 140 and tapers into the gate; exit at 159 |
 | portals | one-cell normal trigger, two-cell shortcut reach; arrival two cells inside the destination; exit shadow seven cells by three |
-| thicket | sight five cells; presentation radius twelve; 16% trunks, canopy/brush threshold 130/256 |
+| thicket | sight five cells; creature visibility remains limited, distant foliage stays drawn; 16% trunks, canopy/brush threshold 130/256 |
 | meadow | open sight; 3% trunks, 12% tall grass; distinct dusk colours |
 | entry / bite hint | 90 ticks, one line rather than a card |
 | hawk | 18-tick stopped shadow, three active ticks, 36 recovery; 14 damage; 10-cell detection; two-cell seeded-home orbit over 120 ticks |
@@ -288,3 +288,34 @@ external save. The opening is an `opening 1` event; its keys and skip are
 the ordinary replay stream. Reserved scene hooks are `scene.den.first`,
 `scene.elk.choice`, `scene.alpha.offer`, and `scene.ending.home`, `.alone`,
 `.shadow`; those later scenes are not implemented here.
+
+
+## The coast, 2026-10-25 (proposed)
+
+The Shingle is a horizontal five-row path between water and forest, with
+one bank row. The shoreline follows long-wave engine noise, not the
+alternating short anchors used by inland paths. Quantisation can make a
+level stretch; that is preferable to forcing a sawtooth. Rock jetties sit
+at independently seeded x=-(35..37) and +(35..37), beyond both shore
+branches. Each is three cells wide and extends six cells into the water
+and three cells past the path. Rock is solid; shore beyond it is closed.
+
+Two offshoots turn from the shore around x=±25, with the full inland
+curve amplitude and a two-cell half-width. They end at local rows 40..45
+in radius-four alcoves. Each has one 40-health fox, using its existing
+false/real tell and damage, guarding a wrapped bundle. Existing finite
+Shingle cache bits record the bundles; the den shows their count as
+“a bundle”. The second cache still gives its marrow, preserving schema-1
+pouch semantics. No new consumable effect or save version is invented.
+
+These implement recommendations R-cb02a-1 A, R-cb02a-2 A, R-cb02a-3 A,
+and R-cb02a-4 A (bundle identity from finite cache bits), not decisions.
+
+`--world-audit` checks 50 seeds. Its terrain-layer sweep covers the full
+area lengths at 80×24 and 200×60, both tiers, including the collision
+bounds' forest fill. `EMPTY_MAX=0` forbids blank or foreground-equals-
+background forest cells. A separate tile flood from the first den reaches
+every alcove cell and checks every reachable cell is within `WALK_MAX=200`
+cardinal steps of the thorn-route centreline or a cache. The bank step
+bar is one cell; the inland straight-run bar remains twelve. These are
+proposed regression limits, not a claim about the time a fight takes.

@@ -29,10 +29,10 @@ on both tiers. Health tails and stamina colours remain in game frames.
 
 ## The Shingle
 
-From the north: the Ashwater (blue, ripples `≈` here and there; plain `~`), two rows of reeds at the edge
+From the north: the Ashwater (blue, ripples `≈` here and there; plain `~`), one row of reeds at the edge
 (`⠇` and `⠖` in reed green on the water; plain `|` and `!`), five rows of gravel (grey 240 with the odd
 mark `·` `․` `░`; plain bright black with `.` `,` `:`), then grass and Thornmere's woods from pack's forest
-texture (grass `⠖⠶`, trunks `┃`, canopy `⣿⣶⣮⠶`, deep forest blank) on the forest floor. Trunks, deep forest
+texture (grass `⠖⠶`, trunks `┃`, canopy `⣿⣶⣮⠶`, deep forest dense `⣿` / `&`) on the forest floor. Trunks, deep forest
 and water stop the cub; grass, gravel, reeds and canopy are open ground.
 
 Sheet rows 0-2 the water, 3-4 the reeds, 5-10 the gravel, 11-14 the grass, 15-19 the woods, 20 onward the
@@ -63,7 +63,7 @@ heavy back-steps and leaves a four-tick punctuation burst. Parry `]`, dodge
 `o`, water `~`, fall `_`, pant `:` and the health tail remain readable.
 
 Scent is a dim `:` then `.`, the dropped mark a bright `*`; the hollow log
-is labelled, and the thorn row is `#X#X#` until broken. Scent is numeric in the top-row HUD at all times; other stat numbers remain
+has a cut-timber sprite, and the thorn row uses the hazard glyphs below. Scent is numeric in the top-row HUD at all times; other stat numbers remain
 in the den. The death card shows scent lost. Every action and encounter has a replay golden on both tiers.
 
 ## Thorn hazards and exits (2026-10-25)
@@ -100,3 +100,24 @@ of river ice, the cub below the split crossing, and the gravel bank at dawn.
 Each carries no more than two lines of story. Simulation ticks select the
 frame; skipping is an ordinary recorded key. Later story scenes use the
 named hooks documented in DESIGN.md, not borrowed art or text.
+
+
+## Coast sprites
+
+`coast-rich` and `coast-plain` in the art goldens show the hollow log's
+open end grain, a fallen log's lengthwise passage and direction marks,
+a wrapped treasure bundle and its loose opened binding. The hollow log
+remains the first den; the fallen log remains the Bramblehold shortcut.
+The interaction hints still name their roles.
+
+Five original two-row shore finds—driftwood, a broken crate, kelp, a
+bottle and a net—are placed from the seed only where their complete
+footprint is gravel. They are decoration, not collision or pickups.
+Rich grain/folds use scalar grid cells; the engine text helper is ASCII.
+The rocky texture belongs to the jetties, never the ordinary bank.
+
+Deep forest keeps visible foliage beyond collision bounds and through
+dense patches. The plain tier uses green on black, not black on black.
+Bramblehold still hides unseen creatures, but no longer erases distant
+terrain. Empty-forest regression checks use the same terrain renderer as
+the actual frame, before deliberate HUD/actor overlays.

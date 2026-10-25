@@ -69,9 +69,18 @@ walks all three areas, opens both shortcuts, fights a hawk and recovers a
 forced death's mark across an area edge. The shorter encounter scripts use
 default growth, no injected health/scent, and include a natural death.
 The independent `--world-audit` flood checks all den/portal/cache targets,
-path and bank straight runs, and enemy distances over seeds 0..49.
+path straight runs, gentle bank steps, visible forest fill and useful walking distances, and enemy distances over seeds 0..49.
 
 A saved journey keeps its seed. An explicit conflicting `--seed` is a named
 `save_seed_conflict`, not a silently ignored override. A replay header that
 disagrees with its initial journey snapshot is corrupt and is rejected.
 Ordinary scripts without a snapshot still accept a seed override.
+
+
+The coast refresh also produces `coast-cache-0` and `coast-cache-1`:
+ordinary movement, combat and interaction after the connected-journey
+witness, collecting both finite bundles. They inherit that witness's
+explicit growth-scent fixture, not extra health or teleports. The default-
+growth natural-death witness re-engages the fox after retreats. Source
+replays are regenerated when routes change; semantic gates still require
+the fights, gate opening, deaths, shortcuts and cache collection to occur.

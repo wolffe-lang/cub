@@ -10,7 +10,7 @@ indices; the plain tier uses the sixteen console colours. These are proposed
 | gravel marks | 247 | 7 |
 | grass | 64 | 2 |
 | trunk | 94 | 3 |
-| canopy / deep canopy | 28 / 22 | 2 / 0 |
+| canopy / deep canopy | 28 / 22 | 2 / 2 |
 | forest floor | 234 | 0 |
 | cub fur / dim fur | 180 / 137 | 11 / 3 |
 | water / ripple | 24 / 31 | 4 / 6 |
@@ -38,8 +38,8 @@ presentation, not its collision body. Both tiers cover identical sim ticks.
 | exit shadow ink / ground | 238 / 232 | 8 / 0 |
 | opening river ink / ground | 153 / 17 | 7 / 4 |
 
-The thicket hides distant ground beyond twelve cells; the meadow keeps
-long views. Exit mouths share one shadow band on both tiers. Thorn hazard
+The thicket keeps distant foliage visible while sight still limits creatures;
+the meadow keeps long views. Exit mouths share one shadow band on both tiers. Thorn hazard
 ink is never label ink, and neither tier uses hash or slash as a gate.
 Scent drops share the mark's star, dimming to a dot halfway through their
 300-tick lifetime; expiry and collection are simulation events, not colour
