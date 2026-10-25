@@ -14,6 +14,7 @@ use grid
 use journey
 use replay
 use sim
+use sprites
 use std.fs
 use terrain
 use tier
@@ -116,18 +117,23 @@ pub fn pace() -> str {
 }
 
 /// A key for the frame's tail cells: the two west columns of an
-/// east-facing cub (the north drawing's last cell row, turned).
+/// east-facing cub (the north drawing's last cell row, turned), each the
+/// silhouette's glyph where the fur is drawn, else nothing (the ground
+/// passing under the cub is not the tail moving).
 fn tail_key(s: sim.Sim) -> str {
     var g = grid.new(s.rows, s.cols)
     art.render(s, tier.RICH, mut g)
     let r = sim.screen_row(s)
     let c = sim.screen_col(s)
+    let fur = sprites.palette(tier.RICH, sprites.C_FUR)
+    let dim = sprites.palette(tier.RICH, sprites.C_FUR_DIM)
     var key = ""
     var dr = 0
     while dr < 2 {
         var dc = -3
         while dc < -1 {
-            key += "{grid.at(g, r + dr, c + dc).cp},"
+            let cell = grid.at(g, r + dr, c + dc)
+            key += if cell.fg == fur || cell.fg == dim then "{cell.cp}," else "_,"
             dc += 1
         }
         dr += 1
@@ -135,58 +141,50 @@ fn tail_key(s: sim.Sim) -> str {
     key
 }
 
-/// The wag: the period, in ticks, of the frame's tail cells over `n`
-/// ticks of a gait (`k` the key held, 0 standing), after a settling run.
-fn wag_period(k: int, settle: int, n: int) -> int {
+/// The wag over `n` ticks of a gait (`k` the key held each tick, 0
+/// standing; `paw` the cub's paw), after a settling run: the period in
+/// hundredths of a tick (the mean gap between the tail's returns to its
+/// first frame; 0 when it never leaves it) and the distinct tail frames.
+fn wag_of(k: int, paw: int, settle: int, n: int) -> (int, int) {
     var s = shore_cub()
+    s.paw = paw
     var i = 0
     while i < settle { press(mut s, k); i += 1 }
     var keys = List[str]()
-    i = 0
-    while i < n {
-        press(mut s, k)
-        (mut keys).push(tail_key(s))
-        i += 1
-    }
-    // The least period p for which the sequence repeats itself.
-    var p = 1
-    while p < n {
-        var same = true
-        var j = 0
-        while j + p < n {
-            if keys[j] != keys[j + p] { same = false; break }
-            j += 1
-        }
-        if same { return p }
-        p += 1
-    }
-    0
-}
-
-/// Distinct tail frames over the same run.
-fn wag_frames(k: int, settle: int, n: int) -> int {
-    var s = shore_cub()
-    var i = 0
-    while i < settle { press(mut s, k); i += 1 }
     var seen = List[str]()
     i = 0
     while i < n {
         press(mut s, k)
         let key = tail_key(s)
-        var have = false
-        for x in seen { if x == key { have = true } }
-        if !have { (mut seen).push(key) }
+        (mut keys).push(key)
+        add_once(mut seen, key)
         i += 1
     }
-    seen.len
+    var first = -1
+    var last = -1
+    var returns = 0
+    i = 1
+    while i < n {
+        if keys[i] == keys[0] && keys[i - 1] != keys[0] {
+            if first < 0 { first = i }
+            last = i
+            returns += 1
+        }
+        i += 1
+    }
+    let period = if returns >= 2 then (last - first) * 100 / (returns - 1) else 0
+    (period, seen.len)
 }
 
-/// The wag period standing, sneaking and walking (0: the tail never moves).
+/// The wag period standing, sneaking, walking, and walking at a full-grown
+/// paw (paw 10, the fastest trot the game grants: there is no sprint), in
+/// ticks, with the tail frames seen.
 pub fn wag() -> str {
-    let stand = wag_period(0, 0, 150)
-    let sneak = wag_period(controls.KEY_SNEAK_RIGHT, 30, 60)
-    let walk = wag_period(controls.KEY_RIGHT, 30, 60)
-    "wag standing_ticks {stand} sneaking_ticks {sneak} walking_ticks {walk} standing_frames {wag_frames(0, 0, 150)} walking_frames {wag_frames(controls.KEY_RIGHT, 30, 60)}"
+    let (stand, stand_frames) = wag_of(0, 1, 0, 300)
+    let (sneak, sneak_frames) = wag_of(controls.KEY_SNEAK_RIGHT, 1, 30, 240)
+    let (walk, walk_frames) = wag_of(controls.KEY_RIGHT, 1, 30, 240)
+    let (fast, fast_frames) = wag_of(controls.KEY_RIGHT, 10, 30, 160)
+    "wag standing_ticks {hundredths(stand)} standing_frames {stand_frames} sneaking_ticks {hundredths(sneak)} sneaking_frames {sneak_frames} walking_ticks {hundredths(walk)} walking_frames {walk_frames} paw10_ticks {hundredths(fast)} paw10_frames {fast_frames} paw10_trot_fp {sim.trot_at(10)}"
 }
 
 /// Whether a meadow rectangle holds no blocked cell.
