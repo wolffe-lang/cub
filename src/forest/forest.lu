@@ -272,7 +272,7 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
     var cache = 0
     while cache < cache_count(area) {
         if area == SHINGLE {
-            if coast_branch(seed, field, cache, x, at) { return terrain.GRASS }
+            if cache != 3 && coast_branch(seed, field, cache, x, at) { return terrain.GRASS }
             cache += 1
             continue
         }
