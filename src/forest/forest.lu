@@ -107,6 +107,7 @@ pub fn branch(seed: int, area: int, cache: int, x: int) -> int {
 /// Seeded collision tile after route carving.
 pub fn kind(seed: int, area: int, x: int, y: int) -> int {
     let at = y - origin(seed, area)
+    if at == 80 { return terrain.DARK }
     // The bank and river themselves meander across the whole screen.
     if area == SHINGLE && at < 0 {
         let b = terrain.bank(seed, x)
