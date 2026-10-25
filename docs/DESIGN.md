@@ -117,7 +117,9 @@ stops in 6, rather than the old 10 and 5.
 
 The maintainer's word: "Leaps should be directional — pack pulled this off mostly."
 `AIM_WINDOW_TICKS = 15` (500 ms, inclusive), the same name/value as pack's
-pk06b proposal. Arrows held or pressed in the window before the attack
+pk06b measurement (pack#33, `43e2b683`, `notes/pk06b-aim-window.txt`):
+48/48 diagonal orders hit on both tiers at 200/300/400 ms delays, versus
+0/48 before, in a real pty. Arrows held or pressed in the window before the attack
 are sampled in byte order; latest opposite wins on each axis, including
 Shift+arrows. No arrow means facing. R-cb01b-1 A recommended and implemented:
 lock overrides arrows. Each accepted attack commits its aim; arrows after
