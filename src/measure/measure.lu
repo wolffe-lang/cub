@@ -262,11 +262,63 @@ fn chase(legs: int, leg: int) -> (int, int, int) {
     (start * 100 / sim.FP, end * 100 / sim.FP, caught)
 }
 
-/// The fox's chase on the straight and through turns.
+/// A duel of gaits on the shore: the cub and a fox, each alone in its own
+/// world from the same start on the shore's top row, both at full speed
+/// east; for `east` ticks both run on, then both are turned south (the
+/// cub by its key, the fox steered at a point far south of it, its own
+/// hunt held off) for `south` ticks. The answer, hundredths of a cell:
+/// how much further east the fox ran than the cub, and how much further
+/// south the cub got than the fox once the turn was called.
+pub fn duel(east: int, south: int) -> (int, int) {
+    var s = shore_cub()
+    s.x = 6 * sim.FP + sim.FP / 2
+    s.speed = sim.trot_at(1)
+    var w = shore_cub()
+    var fox = sim.spawn_foes(1)[2]
+    fox.x = s.x
+    fox.y = s.y
+    fox.heading = 64
+    fox.speed = sim.FOE_STALK_V
+    // Held out of its own hunt (a stagger that never ends): only the
+    // duel's steering moves it, and its world's cub stands far off.
+    fox.phase = sim.STAGGER
+    fox.since = 1000000
+    (mut w.foes).push(fox)
+    w.x = -90 * sim.FP
+    let cx0 = s.x
+    let fx0 = w.foes[0].x
+    var n = 0
+    while n < east {
+        press(mut s, controls.KEY_RIGHT)
+        sim.run_foe(mut w, 0, w.foes[0].x + 40 * sim.FP, w.foes[0].y)
+        press(mut w, 0)
+        n += 1
+    }
+    let ahead = w.foes[0].x - fx0 - (s.x - cx0)
+    let cy0 = s.y
+    let fy0 = w.foes[0].y
+    n = 0
+    while n < south {
+        press(mut s, controls.KEY_DOWN)
+        sim.run_foe(mut w, 0, w.foes[0].x, w.foes[0].y + 40 * sim.FP)
+        press(mut w, 0)
+        n += 1
+    }
+    let behind = s.y - cy0 - (w.foes[0].y - fy0)
+    (ahead * 100 / sim.FP, behind * 100 / sim.FP)
+}
+
+fn signed(v: int) -> str {
+    if v < 0 then "-" + hundredths(0 - v) else hundredths(v)
+}
+
+/// The fox's chase on the straight and through turns, and the duel.
 pub fn chases() -> str {
     let (a0, a1, ac) = chase(1, 60)
     let (b0, b1, bc) = chase(6, 8)
-    "chase straight_start {hundredths(a0)} straight_end {hundredths(a1)} straight_caught {ac} turns_start {hundredths(b0)} turns_end {hundredths(b1)} turns_caught {bc}"
+    let (ahead, _) = duel(30, 0)
+    let (_, lost) = duel(8, 12)
+    "chase straight_start {hundredths(a0)} straight_end {hundredths(a1)} straight_caught {ac} zigzag_start {hundredths(b0)} zigzag_end {hundredths(b1)} zigzag_caught {bc} duel_fox_gains_on_straight_30 {signed(ahead)} duel_fox_loses_in_turn_12 {signed(lost)}"
 }
 
 /// The style a world cell draws in on a tier (`art.ground_at`, what
