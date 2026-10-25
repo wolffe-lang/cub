@@ -7,3 +7,7 @@ Integer simulation should keep both-host goldens identical; a dusk palette frame
 Proposed hawk stopping tell: 18 ticks (600 ms), with parry pressed in the last nine ticks answering the stoop.
 Estimate 1,600 added wolf source/test lines and 400 tooling lines.
 Recommendations implemented, not rulings: R-cb02-1 A persist area/position/scent of the mark; R-cb02-2 A airborne hawk cannot be interrupted by bite or lunge, parry/dodge answer its strike.
+
+Amendment, 2026-10-25, before items 7–11 changes:
+The rightmost thorn cell's right fractional half should reproduce a failed southward lunge because the target clamps to x=2*FP rather than the full cell rectangle. A near-gate bite should give an explicit lunge hint. Gate glyph/colour pairs should be disjoint from labels and walls on both tiers.
+Expanded layout prediction: at most 12 equal consecutive centre cells, first foe at least 30 cells from every den; 2 guarded caches per area, all reachable over 50 seeds. Drops require overlap within 300 ticks. Opening frames/skips should replay byte-identically. Expanded estimate: 2,800 added wolf lines, 700 tooling lines; save below 512 bytes including cache/story flags.
