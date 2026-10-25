@@ -1,0 +1,17 @@
+2026-10-25, before implementation
+
+Integer presentation offsets should keep every host/backend golden equal.
+All existing frame goldens will move when the scent HUD lands; the four
+heading sheet and turn-east should first move for the silhouette. No engine
+change is needed for aim, arcs, combos, sprites or HUD. The pinned decoder
+ignores enhanced Shift+Space; s is the recommended heavy fallback pending
+physical terminal measurement and a separately reviewed engine change.
+
+Walk and sneak scaled by 110/100 with integer rounding should still fit
+below weasel pursuit 44 at paw 1, with dodge unchanged. Propose a 15-tick
+ATTACK_AIM_TICKS window unless pk06b supplies a measured constant first.
+Bite's 3/2/6 and lunge's 9/3/12 hit windows and damage should be unchanged;
+combo counters 1,2,3,1 and expired-window reset should hold. Presentation
+must clip before both terrain and creature bodies without moving physics.
+Expect 125-145 checked tests, zero skips; performance stays below engine
+bars (80x24 under 1ms, 200x60 under 4ms, input median under 34ms).
