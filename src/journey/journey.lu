@@ -24,8 +24,13 @@ pub error PrepareErrors = {
 /// Named failures for CommitErrors.
 pub error CommitErrors = {save_io, save_committed_unsynced}
 
-/// Save schema identity. Unsupported versions are named errors.
-pub const VERSION: int = 1
+/// Save schema identity. Unsupported versions are named errors. Schema 2
+/// (cb02b) adds the journey's field width; a schema-1 file is refused by
+/// name as any unknown version is.
+pub const VERSION: int = 2
+
+/// The widest field a save may name.
+pub const FIELD_MAX: int = 10000
 
 /// Canonical persistent state; transient health/foes reset at the last den.
 pub fn payload(s: sim.Sim) -> str {
@@ -36,7 +41,8 @@ pub fn payload(s: sim.Sim) -> str {
         "den {s.last_den} lit {s.lit_dens} shortcuts {s.shortcuts}\n" +
         "gate {if s.gate_open then 1 else 0} story {s.story} deaths {s.deaths}\n" +
         "mark {if s.mark then 1 else 0} {s.mark_area} {s.mark_x} {s.mark_y} {s.mark_scent}\n" +
-        "cache {s.caches} pouch {s.yarrow} {s.marrow} opening {if s.opening_seen then 1 else 0}\n"
+        "cache {s.caches} pouch {s.yarrow} {s.marrow} opening {if s.opening_seen then 1 else 0}\n" +
+        "field {s.field}\n"
 }
 
 /// Small non-cryptographic corruption check; intermediate products fit int64.
@@ -60,8 +66,8 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     var words = List[str]()
     for word in text.words() { (mut words).push(word) }
     if words.len < 2 || words[0] != "CUB" { return save_corrupt }
-    if words[1] != "1" { return save_version }
-    if words.len != 43 { return save_corrupt }
+    if words[1] != "2" { return save_version }
+    if words.len != 45 { return save_corrupt }
     var values = List[int]()
     var i = 0
     while i < words.len {
@@ -82,7 +88,8 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
             i == 37 ||
             i == 38 ||
             i == 40 ||
-            i == 42 {
+            i == 42 ||
+            i == 44 {
             (mut values).push(words[i].to_int() else |_| { return save_corrupt })
         }
         i += 1
@@ -91,6 +98,8 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     // alternative numeric spellings cannot sneak past the checksum.
     if values[1] < -1000000000 || values[1] > 1000000000 { return save_corrupt }
     var s = sim.new(values[1], cols, rows)
+    if values[25] < forest.FIELD_MIN || values[25] > FIELD_MAX { return save_corrupt }
+    s.field = values[25]
     s.difficulty = values[2]
     if s.difficulty != 0 { return save_difficulty }
     s.heart = values[3]
@@ -166,6 +175,7 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     if s.mark &&
         forest.blocked(
             s.seed,
+            s.field,
             s.mark_area,
             sim.floor_div(s.mark_x, sim.FP),
             sim.floor_div(s.mark_y, sim.FP),
@@ -262,13 +272,16 @@ pub fn snapshot(s: sim.Sim) -> List[int] {
     (mut values).push(s.yarrow)
     (mut values).push(s.marrow)
     (mut values).push(if s.opening_seen then 1 else 0)
+    (mut values).push(s.field)
     values
 }
 
 /// Validate a complete initial replay journey before applying it.
 pub fn from_snapshot(v: List[int], cols: int, rows: int) -> sim.Sim ! DecodeErrors {
-    if v.len != 24 || v[0] < -1000000000 || v[0] > 1000000000 { return save_corrupt }
+    if v.len != 25 || v[0] < -1000000000 || v[0] > 1000000000 { return save_corrupt }
     var s = sim.new(v[0], cols, rows)
+    if v[24] < forest.FIELD_MIN || v[24] > FIELD_MAX { return save_corrupt }
+    s.field = v[24]
     s.difficulty = v[1]
     s.heart = v[2]
     s.wind = v[3]

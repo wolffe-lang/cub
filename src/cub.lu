@@ -948,7 +948,7 @@ fn replay_initial(r: replay.Replay, fallback: sim.Sim) -> sim.Sim ! {
     if version != 1 { return save_version }
     var values = List[int]()
     var i = 0
-    while i < 24 { (mut values).push(replay.args_at(r, 0, 4 + i)); i += 1 }
+    while i < 25 { (mut values).push(replay.args_at(r, 0, 4 + i)); i += 1 }
     let initial = journey.from_snapshot(values, r.cols, r.rows)?
     if initial.seed != r.seed { return save_corrupt }
     initial
@@ -956,54 +956,60 @@ fn replay_initial(r: replay.Replay, fallback: sim.Sim) -> sim.Sim ! {
 
 fn run_world_audit() -> int {
     print(
-        "seed area reached required longest_straight min_foe_cells caches bank_step empty_forest useful_steps",
+        "seed field area reached required longest_straight min_foe_cells caches bank_step flat_run textured_pct useful_steps",
     )
     var seed = 0
     while seed < 50 {
-        let bank_max = coast.bank_step(seed)
-        let empty = coast.empty_run(seed)
-        let steps = coast.walk_bound(seed)
-        var area = 0
-        while area < 3 {
-            let reached = forest.reach_count(seed, area)
-            let required = if area == 1 then 8 else 5
-            let straight = forest.straight_run(seed, area)
-            let foes = sim.area_foes(seed, area)
-            var closest = 1000000
-            for foe in foes {
-                if forest.blocked(
-                    seed,
-                    area,
-                    sim.floor_div(foe.x, sim.FP),
-                    sim.floor_div(foe.y, sim.FP),
-                ) {
-                    eprint("world: blocked spawn {seed} {area}")
+        var size = 0
+        while size < 2 {
+            let field = if size == 0 then 80 else 200
+            let bank_max = coast.bank_step(seed, field)
+            let (flat, textured) = coast.texture(seed, field)
+            let steps = coast.walk_bound(seed, field)
+            var area = 0
+            while area < 3 {
+                let reached = forest.reach_count(seed, field, area)
+                let required = forest.required(area)
+                let straight = forest.straight_run(seed, area)
+                let foes = sim.area_foes(seed, field, area)
+                var closest = 1000000
+                for foe in foes {
+                    if forest.blocked(
+                        seed,
+                        field,
+                        area,
+                        sim.floor_div(foe.x, sim.FP),
+                        sim.floor_div(foe.y, sim.FP),
+                    ) {
+                        eprint("world: blocked spawn {seed} {field} {area}")
+                        return 1
+                    }
+                    var den = 0
+                    while den < 4 {
+                        if forest.den_area(den) == area {
+                            let (x, y) = forest.den_position(seed, den)
+                            let dx = (foe.x - x) / sim.FP
+                            let dy = (foe.y - y) / sim.FP
+                            let distance2 = dx * dx + dy * dy
+                            if distance2 < closest { closest = distance2 }
+                        }
+                        den += 1
+                    }
+                }
+                var distance = 0
+                while (distance + 1) * (distance + 1) <= closest { distance += 1 }
+                print(
+                    "{seed} {field} {area} {reached} {required} {straight} {distance} {forest.cache_count(area)} {bank_max} {flat} {textured} {steps}",
+                )
+                if reached != required ||
+                    straight > forest.STRAIGHT_MAX ||
+                    bank_max > 1 ||
+                    distance < forest.FIRST_FOE_CELLS {
                     return 1
                 }
-                var den = 0
-                while den < 4 {
-                    if forest.den_area(den) == area {
-                        let (x, y) = forest.den_position(seed, den)
-                        let dx = (foe.x - x) / sim.FP
-                        let dy = (foe.y - y) / sim.FP
-                        let distance2 = dx * dx + dy * dy
-                        if distance2 < closest { closest = distance2 }
-                    }
-                    den += 1
-                }
+                area += 1
             }
-            var distance = 0
-            while (distance + 1) * (distance + 1) <= closest { distance += 1 }
-            print(
-                "{seed} {area} {reached} {required} {straight} {distance} 2 {bank_max} {empty} {steps}",
-            )
-            if reached != required ||
-                straight > forest.STRAIGHT_MAX ||
-                bank_max > 1 ||
-                distance < forest.FIRST_FOE_CELLS {
-                return 1
-            }
-            area += 1
+            size += 1
         }
         seed += 1
     }

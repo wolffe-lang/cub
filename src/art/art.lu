@@ -20,7 +20,7 @@ pub fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
     var col = 0
     while col < s.cols {
         let (x, y) = sim.world_cell(s, row, col)
-        let k = forest.kind(s.seed, s.area, x, y)
+        let k = forest.kind(s.seed, s.field, s.area, x, y)
         let v = sim.variant(s, x, y, 4)
         // Foliage variants alternate their glyph set by the cell's parity,
         // so two adjacent canopy or deep-forest cells are never identical:
@@ -323,7 +323,7 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
     }
     var cache = 0
     while cache < 2 {
-        let (x, y) = forest.cache_position(s.seed, s.area, cache)
+        let (x, y) = forest.cache_position(s.seed, s.field, s.area, cache)
         if s.area == forest.SHINGLE {
             draw_bundle(
                 mut g,
@@ -1029,7 +1029,9 @@ fn shore_finds(s: sim.Sim, t: int, mut g: grid.Grid) {
         while dx < 5 {
             var dy = 0
             while dy < 2 {
-                if forest.kind(s.seed, s.area, x + dx, y + dy) != terrain.GRAVEL { clear = false }
+                if forest.kind(s.seed, s.field, s.area, x + dx, y + dy) != terrain.GRAVEL {
+                    clear = false
+                }
                 dy += 1
             }
             dx += 1

@@ -1,5 +1,12 @@
 //! Seeded curved routes over the fixed three-area graph. Terrain decoration
 //! cannot occupy a carved route, den, cache or portal approach.
+//!
+//! Every area is sized by the journey's **field**: the terminal's columns
+//! when the journey began (floor 80), saved with it and never moved by a
+//! resize or a resume in another terminal (cb02b, R-cb02b-4 A). The coast
+//! reaches `coast_extent` cells each way from the spawn, the inland areas
+//! `half_width` each side of their spine, so the world fills the screen it
+//! was made for and the shore is a screen's walk long before its jetty.
 
 use terrain
 use world
@@ -13,8 +20,8 @@ pub const BRAMBLEHOLD: int = 1
 /// Open ground at dusk.
 pub const LARKMEADOW: int = 2
 
-/// Half-width of each bounded area, cells.
-pub const HALF_WIDTH: int = 40
+/// The smallest field: the engine's minimum terminal width.
+pub const FIELD_MIN: int = 80
 
 /// Distance along each area, cells.
 pub const LENGTH: int = 160
@@ -27,6 +34,35 @@ pub const STRAIGHT_MAX: int = 12
 
 /// Every initial enemy is at least this far from every den in its area.
 pub const FIRST_FOE_CELLS: int = 30
+
+/// The coast's least reach each way from the spawn, cells (R-cb02b-1 A).
+pub const COAST_MIN: int = 120
+
+/// The field a terminal of `cols` columns starts: never below `FIELD_MIN`.
+pub fn field_of(cols: int) -> int {
+    if cols < FIELD_MIN then FIELD_MIN else cols
+}
+
+/// An inland area's half width, cells: half the field and a margin, so
+/// the grove covers the screen it was made for (48 at 80 columns, 108 at
+/// 200; R-cb02b-6 A).
+pub fn half_width(field: int) -> int {
+    field / 2 + 8
+}
+
+/// The coast's reach each way from the spawn, cells: one screen past the
+/// initial view's edge (three halves of the field), floor `COAST_MIN`
+/// (R-cb02b-1 A): 120 at 80 columns, 300 at 200.
+pub fn coast_extent(field: int) -> int {
+    let e = field * 3 / 2
+    if e < COAST_MIN then COAST_MIN else e
+}
+
+/// An area's half width: the coast's extent on the Shingle, `half_width`
+/// inland.
+pub fn bound(field: int, area: int) -> int {
+    if area == SHINGLE then coast_extent(field) else half_width(field)
+}
 
 /// The area entry line.
 pub fn name(area: int) -> str {
@@ -90,12 +126,13 @@ pub fn den_position(seed: int, den: int) -> (int, int) {
     ((spine(seed, area, y) + world.hash(seed, den, 91, 3) - 1) * FP + FP / 2, y * FP + FP / 2)
 }
 
-/// Two finite caches per area, reached by curved side branches.
-pub fn cache_position(seed: int, area: int, cache: int) -> (int, int) {
+/// Finite caches in an area: two inland, reached by curved side branches;
+/// on the Shingle the coast's offshoots (`cache_count`).
+pub fn cache_position(seed: int, field: int, area: int, cache: int) -> (int, int) {
     if area == SHINGLE {
         let at = coast_end(seed, cache)
         return (
-            coast_branch_x(seed, cache, at) * FP + FP / 2,
+            coast_branch_x(seed, field, cache, at) * FP + FP / 2,
             (origin(seed, area) + at) * FP + FP / 2,
         )
     }
@@ -118,32 +155,40 @@ pub fn coast_end(seed: int, cache: int) -> int {
 
 /// Each offshoot turns independently of the thorn route. The eight-cell
 /// bends use the full curve, rather than the old half-amplitude branches.
-pub fn coast_branch_x(seed: int, cache: int, at: int) -> int {
-    (if cache == 0 then -25 else 25) + curve(seed, 203 + cache, at)
+pub fn coast_branch_x(seed: int, field: int, cache: int, at: int) -> int {
+    coast_mouth(seed, field, cache) + curve(seed, 203 + cache, at)
+}
+
+/// Where an offshoot leaves the shore path, cells from the spawn.
+pub fn coast_mouth(seed: int, field: int, cache: int) -> int {
+    let _ = field
+    let _ = seed
+    if cache == 0 then -25 else 25
 }
 
 /// True inside a shore branch or its rounded terminal clearing.
-pub fn coast_branch(seed: int, cache: int, x: int, at: int) -> bool {
+pub fn coast_branch(seed: int, field: int, cache: int, x: int, at: int) -> bool {
     let end = coast_end(seed, cache)
-    let cx = coast_branch_x(seed, cache, end)
+    let cx = coast_branch_x(seed, field, cache, end)
     let dx = x - cx
     let dy = at - end
     if dx * dx + dy * dy <= 16 { return true }
     if at < -10 || at > end { return false }
-    let c = coast_branch_x(seed, cache, at)
+    let c = coast_branch_x(seed, field, cache, at)
     x >= c - 2 && x <= c + 2
 }
 
 /// A jetty beyond each branch mouth, varied by the seed.
-pub fn jetty_x(seed: int, side: int) -> int {
+pub fn jetty_x(seed: int, field: int, side: int) -> int {
+    let _ = field
     (if side == 0 then -1 else 1) * (35 + world.hash(seed, 211, side, 3))
 }
 
 /// Rocks cross the complete shore path and lap six cells into the river.
-pub fn jetty(seed: int, x: int, y: int) -> bool {
+pub fn jetty(seed: int, field: int, x: int, y: int) -> bool {
     var side = 0
     while side < 2 {
-        let c = jetty_x(seed, side)
+        let c = jetty_x(seed, field, side)
         if x >= c - 1 && x <= c + 1 {
             let b = terrain.bank(seed, x)
             if y >= b - 6 && y <= b + terrain.REED_ROWS + terrain.SHINGLE_ROWS + 3 {
@@ -155,43 +200,43 @@ pub fn jetty(seed: int, x: int, y: int) -> bool {
     false
 }
 
+/// The closed forest beyond an area's bounds and beyond the jetties: the
+/// forest's own texture (trunks among the deep canopy), every cell solid.
+fn closed(seed: int, area: int, x: int, y: int) -> int {
+    if world.hash(seed + area * 79, x, y, 100) < 16 then terrain.TRUNK else terrain.DARK
+}
+
 /// Seeded collision tile after route carving.
-pub fn kind(seed: int, area: int, x: int, y: int) -> int {
+pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
     let at = y - origin(seed, area)
     // Water, one clean bank row, and a constant-width horizontal path.
     // Never clip these bands at the den's local y=0.
     if area == SHINGLE {
         let b = terrain.bank(seed, x)
-        if jetty(seed, x, y) { return terrain.ROCK }
+        if jetty(seed, field, x, y) { return terrain.ROCK }
         if y < b { return terrain.WATER }
-        if (x <= jetty_x(seed, 0) || x >= jetty_x(seed, 1)) &&
+        if (x <= jetty_x(seed, field, 0) || x >= jetty_x(seed, field, 1)) &&
             y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS {
-            return if world.hash(seed + area * 79, x, y, 100) < 16 {
-                terrain.TRUNK
-            } else {
-                terrain.DARK
-            }
+            return closed(seed, area, x, y)
         }
         if y < b + terrain.REED_ROWS { return terrain.REEDS }
         if y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS { return terrain.GRAVEL }
     }
-    // Beyond the area's bounds the forest keeps its own texture (trunks
-    // among the deep canopy) and stays closed: every cell here blocks.
-    let h = world.hash(seed + area * 79, x, y, 100)
-    if x < 0 - HALF_WIDTH || x > HALF_WIDTH || at < 0 || at > LENGTH {
-        return if h < 16 then terrain.TRUNK else terrain.DARK
-    }
+    let w = bound(field, area)
+    if x < 0 - w || x > w || at < 0 || at > LENGTH { return closed(seed, area, x, y) }
     let c = spine(seed, area, at)
-    let w = half(seed, area, at)
-    if x >= c - w && x <= c + w { return if area == SHINGLE then terrain.GRAVEL else terrain.GRASS }
+    let hw = half(seed, area, at)
+    if x >= c - hw && x <= c + hw {
+        return if area == SHINGLE then terrain.GRAVEL else terrain.GRASS
+    }
     var cache = 0
     while cache < 2 {
         if area == SHINGLE {
-            if coast_branch(seed, cache, x, at) { return terrain.GRASS }
+            if coast_branch(seed, field, cache, x, at) { return terrain.GRASS }
             cache += 1
             continue
         }
-        let (cx, _) = cache_position(seed, area, cache)
+        let (cx, _) = cache_position(seed, field, area, cache)
         if x >= (if cache == 0 then cx / FP - 2 else -10) &&
             x <= (if cache == 0 then 10 else cx / FP + 2) {
             let by = branch(seed, area, cache, x)
@@ -210,6 +255,7 @@ pub fn kind(seed: int, area: int, x: int, y: int) -> int {
         if x >= exit_centre - 2 && x <= exit_centre + 2 { return terrain.GRAVEL }
     }
     let n = terrain.noise2(seed + area * 101, 5, x, y)
+    let h = world.hash(seed + area * 79, x, y, 100)
     if area == LARKMEADOW {
         return if h < 3 then terrain.TRUNK else if h < 15 then terrain.REEDS else terrain.GRASS
     }
@@ -217,8 +263,8 @@ pub fn kind(seed: int, area: int, x: int, y: int) -> int {
 }
 
 /// Terrain collision, shared by actors and the independent reachability flood.
-pub fn blocked(seed: int, area: int, x: int, y: int) -> bool {
-    let k = kind(seed, area, x, y)
+pub fn blocked(seed: int, field: int, area: int, x: int, y: int) -> bool {
+    let k = kind(seed, field, area, x, y)
     k == terrain.TRUNK || k == terrain.DARK || k == terrain.WATER || k == terrain.ROCK
 }
 
@@ -254,28 +300,29 @@ pub fn straight_run(seed: int, area: int) -> int {
 
 /// BFS of actual tiles, independent of path-carving logic. Returns the
 /// number of reached required destinations: dens + incident portals + caches.
-pub fn reach_count(seed: int, area: int) -> int {
-    let width = HALF_WIDTH * 2 + 1
+pub fn reach_count(seed: int, field: int, area: int) -> int {
+    let w = bound(field, area)
+    let width = w * 2 + 1
     let o = origin(seed, area)
     var seen = List[int]()
     var queue = List[int]()
     var i = 0
     while i < width * (LENGTH + 1) { (mut seen).push(0); i += 1 }
-    let start = HALF_WIDTH
+    let start = w
     seen[start] = 1
     (mut queue).push(start)
     var head = 0
     while head < queue.len {
         let cell = queue[head]
-        let x = cell % width - HALF_WIDTH
+        let x = cell % width - w
         let y = cell / width
         var d = 0
         while d < 4 {
             let nx = x + (if d == 0 then -1 else if d == 1 then 1 else 0)
             let ny = y + (if d == 2 then -1 else if d == 3 then 1 else 0)
-            if nx >= 0 - HALF_WIDTH && nx <= HALF_WIDTH && ny >= 0 && ny <= LENGTH {
-                let at = ny * width + nx + HALF_WIDTH
-                if seen[at] == 0 && !blocked(seed, area, nx, ny + o) {
+            if nx >= 0 - w && nx <= w && ny >= 0 && ny <= LENGTH {
+                let at = ny * width + nx + w
+                if seen[at] == 0 && !blocked(seed, field, area, nx, ny + o) {
                     seen[at] = 1
                     (mut queue).push(at)
                 }
@@ -289,7 +336,7 @@ pub fn reach_count(seed: int, area: int) -> int {
     while den < 4 {
         if den_area(den) == area {
             let (x, y) = den_position(seed, den)
-            count += seen[((y - FP / 2) / FP - o) * width + (x - FP / 2) / FP + HALF_WIDTH]
+            count += seen[((y - FP / 2) / FP - o) * width + (x - FP / 2) / FP + w]
         }
         den += 1
     }
@@ -297,20 +344,31 @@ pub fn reach_count(seed: int, area: int) -> int {
     while edge < 4 {
         if other(area, edge) >= 0 {
             let (x, y) = portal(seed, area, edge)
-            count += seen[(y / FP - o) * width + x / FP + HALF_WIDTH]
+            count += seen[(y / FP - o) * width + x / FP + w]
         }
         edge += 1
     }
     var cache = 0
     while cache < 2 {
-        let (x, y) = cache_position(seed, area, cache)
-        count += seen[((y - FP / 2) / FP - o) * width + (x - FP / 2) / FP + HALF_WIDTH]
+        let (x, y) = cache_position(seed, field, area, cache)
+        count += seen[((y - FP / 2) / FP - o) * width + (x - FP / 2) / FP + w]
         cache += 1
     }
     count
 }
 
+/// Finite caches in an area.
+pub fn cache_count(area: int) -> int {
+    let _ = area
+    2
+}
+
+/// Destinations an area must reach: its dens, incident portals and caches.
+pub fn required(area: int) -> int {
+    if area == BRAMBLEHOLD then 8 else 5
+}
+
 /// Every den, incident edge and cache is reachable in this area.
-pub fn reachable(seed: int, area: int) -> bool {
-    reach_count(seed, area) == (if area == BRAMBLEHOLD then 8 else if area == SHINGLE then 5 else 5)
+pub fn reachable(seed: int, field: int, area: int) -> bool {
+    reach_count(seed, field, area) == required(area)
 }

@@ -173,6 +173,7 @@ pub fn turn_toward(from: int, to: int) -> int {
 /// they give, and the eight held movement keys.
 pub struct Sim {
     seed: int,
+    field: int,
     cols: int,
     rows: int,
     tick: int,
@@ -252,6 +253,7 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
     }
     Sim {
         seed: seed,
+        field: forest.field_of(cols),
         cols: cols,
         rows: rows,
         tick: 0,
@@ -314,7 +316,7 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         scene: 0,
         scene_started: 0,
         cue: 0,
-        foes: area_foes(seed, forest.SHINGLE),
+        foes: area_foes(seed, forest.field_of(cols), forest.SHINGLE),
         trail: List[Trail](),
     }
 }
@@ -627,7 +629,7 @@ pub fn gate_y(s: Sim) -> int {
 /// Terrain and unopened thorns block a world cell.
 pub fn blocked(s: Sim, x: int, y: int) -> bool {
     s.area == forest.SHINGLE && !s.gate_open && y == gate_y(s) && x >= -2 && x <= 2 ||
-        forest.blocked(s.seed, s.area, x, y)
+        forest.blocked(s.seed, s.field, s.area, x, y)
 }
 
 /// Occlusion is integer sampled at half-cell intervals, including the endpoint.
@@ -718,7 +720,7 @@ fn reset_world(mut s: Sim) {
     s.riposte_foe = -1
     s.chained = false
     s.combo = 0
-    s.foes = area_foes(s.seed, s.area)
+    s.foes = area_foes(s.seed, s.field, s.area)
     (mut s.drops).reset()
     (mut s.trail).reset()
     var i = 0
@@ -1378,7 +1380,7 @@ pub fn den_here(s: Sim) -> int {
 }
 
 /// Initial encounters for one seeded area.
-pub fn area_foes(seed: int, area: int) -> List[Foe] {
+pub fn area_foes(seed: int, field: int, area: int) -> List[Foe] {
     var foes = List[Foe]()
     var group = 0
     while group < 3 {
@@ -1407,7 +1409,7 @@ pub fn area_foes(seed: int, area: int) -> List[Foe] {
     // The two side branches end in harder, finite cache guards.
     var cache = 0
     while cache < 2 {
-        let (x, cy) = forest.cache_position(seed, area, cache)
+        let (x, cy) = forest.cache_position(seed, field, area, cache)
         if area == forest.SHINGLE {
             var foe = make_foe(FOX, x, cy - 3 * FP)
             foe.health = 40
@@ -1459,7 +1461,7 @@ pub fn enter_area(mut s: Sim, area: int, x: int, y: int) {
     s.y = y
     s.entered = s.tick
     s.edge_ready = false
-    s.foes = area_foes(s.seed, area)
+    s.foes = area_foes(s.seed, s.field, area)
     (mut s.drops).reset()
     (mut s.trail).reset()
     s.locked = -1
@@ -1671,7 +1673,7 @@ pub fn cache_open(s: Sim, cache: int) -> bool {
 fn cache_key(mut s: Sim) {
     var cache = 0
     while cache < 2 {
-        let (x, y) = forest.cache_position(s.seed, s.area, cache)
+        let (x, y) = forest.cache_position(s.seed, s.field, s.area, cache)
         if near(s.x, s.y, x, y, 2 * FP) && !cache_open(s, cache) {
             for foe in s.foes {
                 if foe.health > 0 && near(foe.x, foe.y, x, y, 6 * FP) { return }

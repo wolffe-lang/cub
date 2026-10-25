@@ -9,9 +9,12 @@ use terrain
 use tier
 
 fn test_cb02a_forest_fill_is_visible_beyond_area_bounds() {
-    let s = sim.new(0, 200, 60)
+    // One terrain row of the wide field, far below the shore: its first
+    // column lies beyond the coast's bound and must still draw forest.
+    var s = sim.new(0, 200, 60)
+    s.x = (forest.coast_extent(s.field) + 60) * sim.FP
     var g = grid.new(60, 200)
-    art.render(s, tier.RICH, mut g)
+    art.terrain_row(s, tier.RICH, 45, mut g)
     let cell = grid.at(g, 45, 1)
     assert(cell.cp != 32 && cell.fg != cell.bg, "forest fill outside collision bounds")
     let dark = sprites.glyph(tier.PLAIN, sprites.SP_DARK, 0)
@@ -36,7 +39,7 @@ fn test_cb02a_each_branch_ends_in_an_alcove() {
     while seed < 5 {
         var cache = 0
         while cache < 2 {
-            let (x, y) = forest.cache_position(seed, forest.SHINGLE, cache)
+            let (x, y) = forest.cache_position(seed, 80, forest.SHINGLE, cache)
             let cx = sim.floor_div(x, sim.FP)
             let cy = sim.floor_div(y, sim.FP)
             var dx = -3
@@ -44,13 +47,13 @@ fn test_cb02a_each_branch_ends_in_an_alcove() {
                 var dy = -3
                 while dy <= 3 {
                     if dx * dx + dy * dy <= 16 {
-                        assert(!forest.blocked(seed, 0, cx + dx, cy + dy), "cache alcove floor")
+                        assert(!forest.blocked(seed, 80, 0, cx + dx, cy + dy), "cache alcove floor")
                     }
                     dy += 1
                 }
                 dx += 1
             }
-            let foes = sim.area_foes(seed, 0)
+            let foes = sim.area_foes(seed, 80, 0)
             var guards = 0
             for f in foes {
                 if sim.near(f.x, f.y, x, y, 4 * sim.FP) && f.kind == sim.FOX && f.health == 40 {
@@ -71,19 +74,20 @@ fn test_cb02a_jetties_never_cut_den_from_thorn_route() {
         var at = 0
         while at <= 15 {
             assert(
-                !forest.blocked(seed, 0, forest.spine(seed, 0, at), o + at),
+                !forest.blocked(seed, 80, 0, forest.spine(seed, 0, at), o + at),
                 "jetty between den and thorn route",
             )
             at += 1
         }
         var side = 0
         while side < 2 {
-            let x = forest.jetty_x(seed, side)
+            let x = forest.jetty_x(seed, 80, side)
             assert(x < -32 || x > 32, "jetty beyond the last shore branch")
             var y = terrain.bank(seed, x) - 5
             while y <= terrain.bank(seed, x) + terrain.REED_ROWS + terrain.SHINGLE_ROWS {
                 assert(
-                    forest.kind(seed, 0, x, y) == terrain.ROCK && forest.blocked(seed, 0, x, y),
+                    forest.kind(seed, 80, 0, x, y) == terrain.ROCK &&
+                        forest.blocked(seed, 80, 0, x, y),
                     "solid rock from water across whole path",
                 )
                 y += 1
@@ -130,10 +134,10 @@ fn test_cb02a_branches_join_the_shore_without_an_origin_seam() {
         while cache < 2 {
             var at = -10
             while at <= forest.coast_end(seed, cache) {
-                let x = forest.coast_branch_x(seed, cache, at)
+                let x = forest.coast_branch_x(seed, 80, cache, at)
                 let y = forest.origin(seed, 0) + at
                 if y >= terrain.bank(seed, x) + terrain.REED_ROWS {
-                    assert(!forest.blocked(seed, 0, x, y), "branch meets actual shore")
+                    assert(!forest.blocked(seed, 80, 0, x, y), "branch meets actual shore")
                 }
                 at += 1
             }
@@ -145,7 +149,7 @@ fn test_cb02a_branches_join_the_shore_without_an_origin_seam() {
 
 fn test_cb02a_guard_does_not_hide_the_treasure_sprite() {
     var s = sim.new(1, 80, 24)
-    let (x, y) = forest.cache_position(s.seed, 0, 0)
+    let (x, y) = forest.cache_position(s.seed, s.field, 0, 0)
     s.x = x - 8 * sim.FP
     s.y = y
     var g = grid.new(24, 80)
