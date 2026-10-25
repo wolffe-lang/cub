@@ -78,6 +78,8 @@ fn test_arrows_walk_and_shift_arrows_sneak() {
 
 fn test_the_moves_and_the_quit() {
     check(" ", one(controls.KEY_BITE), "space bites")
+    check("s", one(controls.KEY_HEAVY), "s heavy fallback")
+    check("S", one(controls.KEY_HEAVY), "S heavy fallback")
     check("x", one(controls.KEY_LUNGE), "x lunges")
     check("X", one(controls.KEY_LUNGE), "X too")
     check("z", one(controls.KEY_PARRY), "z parries")
@@ -88,7 +90,7 @@ fn test_the_moves_and_the_quit() {
     check("q", one(controls.KEY_QUIT), "q quits")
     check("\x1b", one(controls.KEY_RELEASE), "Esc releases")
     check("\x03", one(controls.KEY_INTERRUPT), "Ctrl-C")
-    check("abgs\r\x7f", List[int](), "letters cub does not read, Enter and Backspace are dropped")
+    check("abg\r\x7f", List[int](), "letters cub does not read, Enter and Backspace are dropped")
     var want = List[int]()
     (mut want).push(controls.KEY_RELEASE)
     (mut want).push(controls.KEY_BITE)

@@ -730,7 +730,7 @@ fn lock_next(mut s: Sim) {
 
 fn start_action(mut s: Sim, action: int, cost: int) {
     if s.action != IDLE || s.stamina < cost { return }
-    if s.exhausted && (action == LUNGE || action == DODGE) { return }
+    if s.exhausted && (action == LUNGE || action == HEAVY || action == DODGE) { return }
     s.stamina -= cost
     if s.stamina == 0 { s.exhausted = true }
     s.attack_heading = attack_aim(s)
@@ -764,6 +764,7 @@ fn action_keys(mut s: Sim, keys: List[int]) {
             }
             start_action(mut s, BITE, 12)
         }
+        if k == controls.KEY_HEAVY { start_action(mut s, HEAVY, HEAVY_COST) }
         if k == controls.KEY_LUNGE { start_action(mut s, LUNGE, 30) }
         if k == controls.KEY_PARRY { start_action(mut s, PARRY, 10) }
         if k == controls.KEY_DODGE { start_action(mut s, DODGE, 18) }
@@ -777,9 +778,10 @@ fn action_keys(mut s: Sim, keys: List[int]) {
 fn strike_foes(mut s: Sim) {
     let age = s.tick - s.started
     let active = s.action == BITE && age >= 3 && age < 5 ||
-        s.action == LUNGE && age >= 9 && age < 12
+        s.action == LUNGE && age >= 9 && age < 12 ||
+        s.action == HEAVY && age >= HEAVY_WINDUP && age < HEAVY_WINDUP + HEAVY_ACTIVE
     if !active { return }
-    let reach = if s.action == LUNGE then 4 else 2
+    let reach = if s.action == LUNGE || s.action == HEAVY then 4 else 2
     if s.action == LUNGE &&
         !s.gate_open &&
         near(s.x, s.y, 0, gate_y(s) * FP, 4 * FP) &&
@@ -796,6 +798,7 @@ fn strike_foes(mut s: Sim) {
             visible(s, s.x, s.y, f.x, f.y) {
             var damage = bite_damage(s.fang)
             if s.action == LUNGE { damage *= 3 }
+            if s.action == HEAVY { damage *= HEAVY_DAMAGE }
             if s.action == BITE && s.tick < s.riposte && i == s.riposte_foe {
                 damage *= 2
                 s.riposte = 0
@@ -804,7 +807,7 @@ fn strike_foes(mut s: Sim) {
             s.foes[i].last_hit = s.started
             if s.foes[i].health <= 0 {
                 s.scent += if f.kind == FOX then 20 else 8
-            } else if s.action == LUNGE {
+            } else if s.action == LUNGE || s.action == HEAVY {
                 s.foes[i].phase = STAGGER
                 s.foes[i].since = s.tick
             }
@@ -966,6 +969,8 @@ fn action_step(mut s: Sim, want: int) {
         11
     } else if s.action == LUNGE {
         24
+    } else if s.action == HEAVY {
+        HEAVY_WINDUP + HEAVY_ACTIVE + HEAVY_RECOVERY
     } else if s.action == PARRY {
         15
     } else if s.action == DODGE {
@@ -1153,6 +1158,19 @@ pub fn attack_offset(s: Sim) -> (int, int) {
         let (x, y) = leap_arc(s.attack_heading, age - 8, 4, LUNGE_ARC)
         return clip_arc(s, x, y)
     }
+    if s.action == HEAVY {
+        if age < HEAVY_WINDUP {
+            let steps = if age < 5 then 0 else if age < 10 then 1 else 2
+            let back = steps * FP
+            return clip_arc(
+                s,
+                0 - sin(s.attack_heading) * back / FP,
+                cos(s.attack_heading) * back / FP,
+            )
+        }
+        let (x, y) = leap_arc(s.attack_heading, age - HEAVY_WINDUP + 1, HEAVY_ACTIVE + 1, HEAVY_ARC)
+        return clip_arc(s, x, y)
+    }
     (0, 0)
 }
 
@@ -1181,4 +1199,42 @@ pub fn head_shake(s: Sim) -> int {
     if s.action != BITE || s.combo != 3 { return 0 }
     let age = s.tick - s.started
     if age == 5 then -1 else if age == 6 then 1 else 0
+}
+
+/// Heavy attack fallback action (the terminal cannot distinguish Shift+Space).
+pub const HEAVY: int = 7
+
+/// Proposed stamina cost, above the lunge's 30.
+pub const HEAVY_COST: int = 42
+
+/// Two visible back-steps precede the heavier leap.
+pub const HEAVY_WINDUP: int = 15
+
+/// Heavy active ticks, with the ordinary four-cell hit envelope.
+pub const HEAVY_ACTIVE: int = 6
+
+/// Heavy recovery is slower than the lunge's twelve ticks.
+pub const HEAVY_RECOVERY: int = 18
+
+/// Heavy damage in multiples of a bite; surviving ordinary foes stagger.
+pub const HEAVY_DAMAGE: int = 4
+
+/// Heavy presentation arc, longer than the lunge's three cells.
+pub const HEAVY_ARC: int = 4 * FP
+
+/// Burst age, -1 outside the four-tick fading landing burst.
+pub fn burst_age(s: Sim) -> int {
+    let age = s.tick - s.started - HEAVY_WINDUP - 2
+    if s.action == HEAVY && age >= 0 && age < 4 then age else -1
+}
+
+/// The burst stays at the apex while the cub returns; no moving emitter.
+pub fn burst_point(s: Sim) -> (int, int) {
+    for f in s.foes { if f.last_hit == s.started { return (f.x, f.y) } }
+    let (x, y) = clip_arc(
+        s,
+        sin(s.attack_heading) * HEAVY_ARC / FP,
+        0 - cos(s.attack_heading) * HEAVY_ARC / FP,
+    )
+    (s.x + x, s.y + y)
 }

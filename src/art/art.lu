@@ -91,7 +91,7 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
         t,
         r - 1,
         c,
-        if s.action == sim.BITE || s.action == sim.LUNGE {
+        if s.action == sim.BITE || s.action == sim.LUNGE || s.action == sim.HEAVY {
             (s.attack_heading + 32) % sim.TURN / 64
         } else {
             sim.facing(s)
@@ -321,6 +321,17 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
         ""
     }
     draw.put_text(mut g, r, c + 2, posture, ink(t, true))
+    let burst = sim.burst_age(s)
+    if burst >= 0 {
+        let (bx, by) = sim.burst_point(s)
+        let x = sim.floor_div(bx, sim.FP)
+        let y = sim.floor_div(by, sim.FP)
+        let spread = if burst < 2 then 1 else 2
+        at_world(s, t, mut g, x - spread, y - spread, if burst < 2 then "*" else ".", burst == 0)
+        at_world(s, t, mut g, x + spread, y - spread, if burst < 2 then "*" else ".", burst == 0)
+        at_world(s, t, mut g, x - spread, y + spread, if burst < 2 then "+" else ".", burst == 0)
+        at_world(s, t, mut g, x + spread, y + spread, if burst < 2 then "+" else ".", burst == 0)
+    }
     if sim.landing(s) {
         let (x, y) = sim.landing_point(s)
         at_world(s, t, mut g, sim.floor_div(x, sim.FP), sim.floor_div(y, sim.FP) + 1, "*", true)
