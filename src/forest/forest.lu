@@ -242,6 +242,70 @@ pub fn near_route(seed: int, field: int, x: int, at: int) -> bool {
     false
 }
 
+/// The one ground every path cell of an area draws (cb02c; the
+/// maintainer's word, 2026-10-25: "The branch paths should be the same
+/// color as the coastline/forest paths."): the shore's gravel on the
+/// coast, for the shore, the thorn route, every branch and alcove, the
+/// log branch and the gate's exit alike; the grass inland, under the
+/// area's dusk keyframe. Every carved cell returns this kind, so a new
+/// path cannot drift into another colour (`docs/PALETTE.md`, "path").
+pub fn path_kind(area: int) -> int {
+    if area == SHINGLE then terrain.GRAVEL else terrain.GRASS
+}
+
+/// Whether local cell `(x, at)` (inside the area's bounds) is carved: the
+/// route, a branch or its alcove, a shortcut branch, the gate's exit.
+pub fn carved(seed: int, field: int, area: int, x: int, at: int) -> bool {
+    let c = spine(seed, area, at)
+    let hw = half(seed, area, at)
+    if x >= c - hw && x <= c + hw { return true }
+    var cache = 0
+    while cache < cache_count(area) {
+        if area == SHINGLE {
+            if coast_branch(seed, field, cache, x, at) { return true }
+            cache += 1
+            continue
+        }
+        let (cx, _) = cache_position(seed, field, area, cache)
+        if x >= (if cache == 0 then cx / FP - 2 else -10) &&
+            x <= (if cache == 0 then 10 else cx / FP + 2) {
+            let by = branch(seed, area, cache, x)
+            if at >= by - 2 && at <= by + 2 { return true }
+        }
+        cache += 1
+    }
+    // Shortcut branches also curve, each toward its fixed graph mouth, and
+    // end there: a path never runs on to the area's edge.
+    if at >= 18 && at <= 27 && x >= -33 && x <= 33 {
+        let by = 22 + curve(seed, area + 71, x) / 2
+        if at >= by - 2 && at <= by + 2 { return true }
+    }
+    // The thorn wall sits at the end of a deliberate treeless branch.
+    if area == SHINGLE && at >= 140 && at <= LENGTH {
+        let exit_centre = if at < 150 then spine(seed, area, 140) * (150 - at) / 10 else 0
+        if x >= exit_centre - 2 && x <= exit_centre + 2 { return true }
+    }
+    false
+}
+
+/// Whether world cell `(x, y)` is path: the shore's gravel rows between
+/// the jetties, or a carved cell inside the area's bounds.
+pub fn on_path(seed: int, field: int, area: int, x: int, y: int) -> bool {
+    if area == SHINGLE {
+        let b = terrain.bank(seed, x)
+        if y >= b + terrain.REED_ROWS && y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS {
+            return !jetty(seed, field, x, y) &&
+                x > jetty_x(seed, field, 0) &&
+                x < jetty_x(seed, field, 1)
+        }
+        if y < b + terrain.REED_ROWS { return false }
+    }
+    let at = y - origin(seed, area)
+    let w = bound(field, area)
+    if x < 0 - w || x > w || at < 0 && area != SHINGLE || at > LENGTH { return false }
+    carved(seed, field, area, x, at)
+}
+
 /// Seeded collision tile after route carving.
 pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
     let at = y - origin(seed, area)
@@ -256,7 +320,7 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
             return closed(seed, area, x, y)
         }
         if y < b + terrain.REED_ROWS { return terrain.REEDS }
-        if y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS { return terrain.GRAVEL }
+        if y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS { return path_kind(area) }
     }
     // The coast's rows above the spawn's are the shore's own (the bank
     // wanders eight cells); inland an area begins at its entry row.
@@ -264,37 +328,7 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
     if x < 0 - w || x > w || at < 0 && area != SHINGLE || at > LENGTH {
         return closed(seed, area, x, y)
     }
-    let c = spine(seed, area, at)
-    let hw = half(seed, area, at)
-    if x >= c - hw && x <= c + hw {
-        return if area == SHINGLE then terrain.GRAVEL else terrain.GRASS
-    }
-    var cache = 0
-    while cache < cache_count(area) {
-        if area == SHINGLE {
-            if coast_branch(seed, field, cache, x, at) { return terrain.GRASS }
-            cache += 1
-            continue
-        }
-        let (cx, _) = cache_position(seed, field, area, cache)
-        if x >= (if cache == 0 then cx / FP - 2 else -10) &&
-            x <= (if cache == 0 then 10 else cx / FP + 2) {
-            let by = branch(seed, area, cache, x)
-            if at >= by - 2 && at <= by + 2 { return terrain.GRASS }
-        }
-        cache += 1
-    }
-    // Shortcut branches also curve, each toward its fixed graph mouth, and
-    // end there: a path never runs on to the area's edge.
-    if at >= 18 && at <= 27 && x >= -33 && x <= 33 {
-        let by = 22 + curve(seed, area + 71, x) / 2
-        if at >= by - 2 && at <= by + 2 { return terrain.GRASS }
-    }
-    // The thorn wall sits at the end of a deliberate treeless branch.
-    if area == SHINGLE && at >= 140 && at <= LENGTH {
-        let exit_centre = if at < 150 then spine(seed, area, 140) * (150 - at) / 10 else 0
-        if x >= exit_centre - 2 && x <= exit_centre + 2 { return terrain.GRAVEL }
-    }
+    if carved(seed, field, area, x, at) { return path_kind(area) }
     if area == SHINGLE && !near_route(seed, field, x, at) { return closed(seed, area, x, y) }
     let n = terrain.noise2(seed + area * 101, 5, x, y)
     let h = world.hash(seed + area * 79, x, y, 100)
