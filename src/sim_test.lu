@@ -1,0 +1,153 @@
+//! member: false
+//!
+//! The cub's bars: deterministic, the turn rate bounds the heading's change,
+//! the speed never jumps, a tap holds for the tap ticks, a sneak is half
+//! the trot, opposite keys cancel, the water and the trunks stop it, the
+//! camera keeps it at the centre, the trigonometry's corners.
+
+use controls
+use input
+use sim
+use terrain
+
+fn one(k: int) -> List[int] {
+    var v = List[int]()
+    (mut v).push(k)
+    v
+}
+
+fn none() -> List[int] {
+    List[int]()
+}
+
+/// Step `s` with `k` pressed every other tick for `ticks` ticks (a held key
+/// as a terminal sends it), then `after` ticks of nothing.
+fn hold_then_rest(mut s: sim.Sim, k: int, ticks: int, after: int) {
+    var i = 0
+    while i < ticks {
+        sim.step(mut s, if i % 2 == 0 then one(k) else none())
+        i += 1
+    }
+    i = 0
+    while i < after {
+        sim.step(mut s, none())
+        i += 1
+    }
+}
+
+fn test_two_runs_are_one() {
+    var a = sim.new(7, 80, 24)
+    var b = sim.new(7, 80, 24)
+    hold_then_rest(mut a, controls.KEY_RIGHT, 40, 10)
+    hold_then_rest(mut b, controls.KEY_RIGHT, 40, 10)
+    assert(
+        a.x == b.x && a.y == b.y && a.heading == b.heading && a.speed == b.speed,
+        "deterministic",
+    )
+}
+
+fn test_trigonometry() {
+    assert(sim.sin(0) == 0 && sim.cos(0) == 256, "north")
+    assert(sim.sin(64) == 256 && sim.cos(64) == 0, "east")
+    assert(sim.sin(128) == 0 && sim.cos(128) == -256, "south")
+    assert(sim.sin(192) == -256 && sim.cos(192) == 0, "west")
+    assert(sim.sin(32) == 181 && sim.cos(32) == 181, "north-east")
+    assert(sim.turn_toward(0, 64) == 64 && sim.turn_toward(0, 192) == -64, "the shortest way")
+    assert(sim.turn_toward(250, 10) == 16 && sim.turn_toward(10, 250) == -16, "across north")
+    assert(sim.turn_toward(0, 128) == 128, "a half turn goes the positive way")
+}
+
+fn test_heading_of_the_held_keys() {
+    assert(sim.heading_of(true, false, false, false) == 0, "up is north")
+    assert(sim.heading_of(false, false, false, true) == 64, "right is east")
+    assert(sim.heading_of(false, true, false, false) == 128, "down is south")
+    assert(sim.heading_of(false, false, true, false) == 192, "left is west")
+    assert(sim.heading_of(true, false, false, true) == 32, "up and right is north-east")
+    assert(sim.heading_of(false, true, true, false) == 160, "down and left is south-west")
+    assert(sim.heading_of(true, true, false, false) == -1, "up and down cancel")
+    assert(sim.heading_of(false, false, false, false) == -1, "nothing held")
+}
+
+fn test_turn_rate_bounds_the_heading_change() {
+    var s = sim.new(7, 80, 24)
+    var prev = s.heading
+    var i = 0
+    while i < 30 {
+        sim.step(mut s, if i % 2 == 0 then one(controls.KEY_DOWN) else none())
+        let d = sim.turn_toward(prev, s.heading)
+        assert(d >= 0 - sim.TURN_RATE && d <= sim.TURN_RATE, "a step of {d} at {i}")
+        prev = s.heading
+        i += 1
+    }
+    assert(s.heading == 128, "facing south after a half turn: {s.heading}")
+    assert(sim.facing(s) == 2, "the facing is south")
+}
+
+fn test_speed_never_jumps_and_the_sneak_is_half() {
+    var s = sim.new(7, 80, 24)
+    var prev = 0
+    var i = 0
+    while i < 40 {
+        sim.step(mut s, if i % 2 == 0 then one(controls.KEY_RIGHT) else none())
+        let d = s.speed - prev
+        assert(d <= sim.ACCEL && d >= 0 - sim.BRAKE, "speed step {d} at {i}")
+        prev = s.speed
+        i += 1
+    }
+    assert(s.speed == sim.trot_at(s.paw), "at the trot: {s.speed}")
+    var t = sim.new(7, 80, 24)
+    hold_then_rest(mut t, controls.KEY_SNEAK_RIGHT, 40, 0)
+    assert(t.speed == sim.SNEAK_V && t.sneaking, "sneaking at half the trot: {t.speed}")
+    hold_then_rest(mut t, controls.KEY_SNEAK_RIGHT, 0, 20)
+    assert(t.speed == 0 && !t.moving, "released, the cub stops")
+}
+
+fn test_a_tap_holds_for_the_tap_ticks() {
+    var s = sim.new(7, 80, 24)
+    sim.step(mut s, one(controls.KEY_RIGHT))
+    var moving = 0
+    var i = 0
+    while i < 40 {
+        if s.moving {
+            moving += 1
+        }
+        sim.step(mut s, none())
+        i += 1
+    }
+    assert(moving == input.HOLD_TAP_TICKS, "held {moving} ticks")
+}
+
+fn test_the_water_stops_the_cub() {
+    var s = sim.new(7, 80, 24)
+    let y0 = s.y
+    hold_then_rest(mut s, controls.KEY_UP, 200, 0)
+    assert(s.y < y0, "the cub walked north")
+    assert(s.blocked > 0, "and was stopped")
+    assert(!terrain.blocked(s.seed, sim.cell_x(s), sim.cell_y(s)), "it stands on open ground")
+    assert(
+        terrain.kind(s.seed, sim.cell_x(s), sim.cell_y(s) - 1) == terrain.WATER ||
+            terrain.kind(s.seed, sim.cell_x(s), sim.cell_y(s) - 1) == terrain.REEDS ||
+            terrain.kind(s.seed, sim.cell_x(s), sim.cell_y(s) - 1) == terrain.GRASS,
+        "the water or its edge is ahead",
+    )
+}
+
+fn test_the_camera_keeps_the_cub_at_the_centre() {
+    var s = sim.new(7, 80, 24)
+    assert(sim.screen_row(s) == 12 && sim.screen_col(s) == 40, "the centre")
+    let (x, y) = sim.world_cell(s, 12, 40)
+    assert(x == sim.cell_x(s) && y == sim.cell_y(s), "the centre cell is the cub's")
+    hold_then_rest(mut s, controls.KEY_RIGHT, 60, 0)
+    let (x2, y2) = sim.world_cell(s, 12, 40)
+    assert(x2 == sim.cell_x(s) && y2 == sim.cell_y(s) && x2 > x, "still the cub's, further east")
+    sim.resize(mut s, 100, 30)
+    assert(sim.screen_row(s) == 15 && sim.screen_col(s) == 50, "the centre moves with the size")
+}
+
+fn test_the_stats_give_the_bars() {
+    assert(sim.health_max(1) == 52 && sim.health_max(7) == 124, "heart")
+    assert(sim.stamina_max(1) == 70 && sim.stamina_max(6) == 120, "wind")
+    assert(sim.trot_at(1) == 38 && sim.trot_at(4) == 44, "paw")
+    let s = sim.new(1, 80, 24)
+    assert(s.health == 52 && s.stamina == 70, "a fresh cub")
+}
