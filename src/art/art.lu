@@ -50,7 +50,7 @@ pub fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
         } else if k == terrain.REEDS {
             sprites.glyph(t, sprites.SP_REEDS, v)
         } else {
-            sprites.glyph(t, sprites.SP_DARK, foliage)
+            sprites.glyph(t, sprites.SP_DARK, 0)
         }
         if s.area != forest.SHINGLE {
             cell.bg = if t == tier.RICH {
