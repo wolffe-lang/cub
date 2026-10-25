@@ -121,7 +121,8 @@ fn test_cb02a_coast_sheet_keeps_plain_tier_and_sprite_footprints() {
 fn test_cb02a_rich_props_emit_scalar_glyphs_not_utf8_bytes() {
     let g = art.coast_sheet(tier.RICH)
     assert(grid.at(g, 3, 5).cp == 9617, "one wood grain cell")
-    assert(grid.at(g, 4, 38).cp == 9617 && grid.at(g, 4, 40).cp == 9617, "one cell per bundle fold")
+    // The bundle is a solid silhouette: block or braille cells, its knot on top.
+    assert(grid.at(g, 3, 39).cp >= 9600 && grid.at(g, 5, 39).cp >= 9600, "a solid bundle")
     for cell in g.cells {
         assert(cell.cp < 128 || cell.cp >= 160, "no split UTF-8 continuation byte")
     }
@@ -155,5 +156,8 @@ fn test_cb02a_guard_does_not_hide_the_treasure_sprite() {
     s.y = y
     var g = grid.new(24, 80)
     art.render(s, tier.RICH, mut g)
-    assert(grid.at(g, 12, 48).cp == 88, "bundle binding remains visible beside guard")
+    assert(
+        grid.at(g, 11, 48).cp >= 9600 && grid.at(g, 13, 48).cp >= 9600,
+        "bundle remains visible beside guard",
+    )
 }

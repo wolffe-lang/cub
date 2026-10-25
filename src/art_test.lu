@@ -7,6 +7,7 @@
 use art
 use controls
 use grid
+use silhouette
 use sim
 use sprites
 use tier
@@ -34,19 +35,25 @@ fn test_the_cub_is_at_the_centre_on_both_tiers() {
     let s = sim.new(3, 80, 24)
     var g = grid.new(24, 80)
     art.render(s, tier.RICH, mut g)
-    let body = sprites.glyph(tier.RICH, sprites.SP_CUB_BODY, 0)
+    // The cub's own cell is the silhouette's second cell row and column
+    // (four by four about it: rows 11..14, columns 39..42).
+    let b = silhouette.turned(silhouette.cub(0, 0), 0)
     assert(
-        grid.same(grid.at(g, 12, 40), body) && grid.same(grid.at(g, 12, 41), body),
-        "the body row at the centre",
+        grid.at(g, 12, 40).cp == silhouette.cell_cp(b, 1, 1) &&
+            grid.at(g, 12, 41).cp == silhouette.cell_cp(b, 1, 2) &&
+            grid.at(g, 12, 40).cp != 32 &&
+            grid.at(g, 12, 40).fg == sprites.palette(tier.RICH, sprites.C_FUR),
+        "the shoulders at the centre",
     )
     assert(
-        grid.at(g, 11, 40).cp == 9629 && grid.at(g, 11, 41).cp == 9624,
-        "the ears above, facing north",
+        grid.at(g, 11, 40).cp == silhouette.cell_cp(b, 0, 1) && grid.at(g, 11, 40).cp != 32,
+        "the head above, facing north",
     )
+    assert(grid.at(g, 12, 40).bg == grid.at(g, 12, 39).bg, "the ground shows behind the body")
     var p = grid.new(24, 80)
     art.render(s, tier.PLAIN, mut p)
     assert(
-        grid.at(p, 12, 40).cp == 67 && grid.at(p, 11, 40).cp == 94,
+        grid.at(p, 12, 40).cp == 35 && grid.at(p, 11, 40).cp == 94,
         "the plain body with its ears",
     )
     assert(grid.plain_ok(p), "the plain frame keeps the promise")
@@ -61,13 +68,21 @@ fn test_the_cub_turns_on_the_screen() {
     }
     var g = grid.new(24, 80)
     art.render(s, tier.RICH, mut g)
+    // East: the north silhouette turned a quarter, two rows (12 and 13)
+    // from c-3 to c+4, the head in the last cells, the same pose the frame
+    // drew (walking while the key is held, standing otherwise).
+    let pose = if s.speed > 0 then 1 else 0
+    let east = silhouette.turned(silhouette.cub(pose, s.tick), 1)
     assert(
-        grid.at(g, 11, 40).cp == 9629 && grid.at(g, 11, 41).cp == 9623,
-        "east ears above the unchanged body",
+        grid.at(g, 12, 44).cp == silhouette.cell_cp(east, 0, 7) &&
+            grid.at(g, 12, 37).cp == silhouette.cell_cp(east, 0, 0) &&
+            grid.at(g, 13, 44).cp == silhouette.cell_cp(east, 1, 7) &&
+            grid.at(g, 12, 44).cp != 32,
+        "the turned silhouette along the cub's rows",
     )
     var p = grid.new(24, 80)
     art.render(s, tier.PLAIN, mut p)
-    assert(grid.at(p, 11, 40).cp == 62, "the plain mark points east")
+    assert(grid.at(p, 13, 43).cp == 62, "the plain head points east")
 }
 
 fn none_keys() -> List[int] {
@@ -77,7 +92,7 @@ fn none_keys() -> List[int] {
 fn test_the_sheet() {
     let r = art.sheet(tier.RICH)
     let p = art.sheet(tier.PLAIN)
-    assert(r.rows == 40 && r.cols == 80 && p.rows == 40 && p.cols == 80, "40 by 80")
+    assert(r.rows == 56 && r.cols == 80 && p.rows == 56 && p.cols == 80, "56 by 80")
     assert(grid.plain_ok(p), "the plain sheet keeps the promise")
     assert(!grid.plain_ok(r), "the rich sheet uses the rich glyphs")
 }
@@ -117,25 +132,66 @@ fn test_combat_posture_5() { posture_pair(5) }
 fn test_combat_posture_6() { posture_pair(6) }
 
 fn test_cb01b_sideways_silhouette_keeps_body_cells() {
-    var t = tier.PLAIN
-    while t <= tier.RICH {
+    // One silhouette, four facings: east and west are the north drawing
+    // turned, pixel for pixel; north and south fill four cells by four,
+    // east and west eight by two; the plain tier keeps the same footprints.
+    var pose = 0
+    while pose < 4 {
+        let north = silhouette.cub(pose, 0)
+        assert(north.w == 8 && north.h == 16, "eight by sixteen pixels")
         var f = 0
         while f < 4 {
-            var pose = 0
-            while pose < 4 {
-                var g = grid.new(8, 12)
-                art.draw_pose(mut g, t, 2, 4, f, 0, pose, 0)
-                let body = sprites.glyph(t, sprites.SP_CUB_BODY, 0)
-                assert(grid.same(grid.at(g, 3, 4), body), "first body cell facing {f} pose {pose}")
-                assert(grid.same(grid.at(g, 3, 5), body), "second body cell facing {f} pose {pose}")
-                assert(grid.at(g, 2, 4).cp != 32 && grid.at(g, 2, 5).cp != 32, "two ears")
+            let turned = silhouette.turned(north, f)
+            assert(
+                silhouette.count(turned) == silhouette.count(north),
+                "the same pixels facing {f}",
+            )
+            assert(
+                silhouette.rows(turned) == (if f % 2 == 0 then 4 else 2) &&
+                    silhouette.cols(turned) == (if f % 2 == 0 then 4 else 8),
+                "footprint facing {f}",
+            )
+            var t = tier.PLAIN
+            while t <= tier.RICH {
+                var g = grid.new(8, 14)
+                art.draw_pose(mut g, t, 3, 6, f, 0, pose, 0)
+                var lit = 0
+                var row = 0
+                while row < 8 {
+                    var col = 0
+                    while col < 14 {
+                        if grid.at(g, row, col).cp != 32 {
+                            lit += 1
+                            let inside = if f % 2 == 0 {
+                                row >= 2 && row <= 5 && col >= 5 && col <= 8
+                            } else {
+                                row >= 3 && row <= 4 && col >= 3 && col <= 10
+                            }
+                            assert(inside, "inside the footprint facing {f} pose {pose}")
+                        }
+                        col += 1
+                    }
+                    row += 1
+                }
+                assert(lit >= 8, "a visible body facing {f} pose {pose} tier {t}")
                 if t == tier.PLAIN { assert(grid.plain_ok(g), "plain posture") }
-                pose += 1
+                t += 1
             }
             f += 1
         }
-        t += 1
+        pose += 1
     }
+    // East is north turned clockwise; west anticlockwise; south twice.
+    let b = silhouette.cub(0, 0)
+    assert(
+        silhouette.same(silhouette.turned(silhouette.turned(b, 1), 1), silhouette.turned(b, 2)) &&
+            silhouette.same(
+                silhouette.turned(silhouette.turned(b, 2), 1),
+                silhouette.turned(b, 3),
+            ) &&
+            silhouette.same(silhouette.turned(silhouette.turned(b, 3), 1), b),
+        "four quarter turns return the drawing",
+    )
 }
 
 fn test_cb01b_each_foe_has_head_body_tail_tell_and_fade_on_both_tiers() {
@@ -146,26 +202,53 @@ fn test_cb01b_each_foe_has_head_body_tail_tell_and_fade_on_both_tiers() {
             var phase = sim.HUNT
             while phase <= sim.PAUSE {
                 var g = grid.new(10, 14)
-                art.draw_foe(mut g, t, 4, 5, kind, phase, 64, -1)
+                art.draw_foe(mut g, t, 4, 5, kind, phase, 0, -1)
                 assert(grid.at(g, 4, 5).cp != 32 && grid.at(g, 4, 6).cp != 32, "two body cells")
-                assert(grid.at(g, 3, 5).cp != 32 && grid.at(g, 5, 5).cp != 32, "head and tail")
+                assert(grid.at(g, 3, 5).cp != 32 || grid.at(g, 3, 6).cp != 32, "a head")
+                assert(grid.at(g, 5, 5).cp != 32 || grid.at(g, 5, 6).cp != 32, "a tail")
                 assert(
                     grid.at(g, 4, 5).fg != sprites.palette(t, sprites.C_FUR),
                     "foe colour not cub/trail",
                 )
-                if phase == sim.CROUCH {
-                    assert(grid.at(g, 3, 5).cp == 95, "crouching head is tell")
+                if t == tier.PLAIN {
+                    if phase == sim.CROUCH {
+                        assert(grid.at(g, 3, 5).cp == 95, "crouching head is tell")
+                    }
+                    if phase == sim.RETREAT { assert(grid.at(g, 5, 5).cp == 126, "fleeing tail") }
+                    assert(grid.plain_ok(g), "plain foe")
+                } else {
+                    // The tell is a posture of the one silhouette: a crouch
+                    // draws fewer pixels than the hunt, a flight another tail.
+                    let hunt = silhouette.foe(kind, sim.HUNT, -1)
+                    let posed = silhouette.foe(kind, phase, -1)
+                    if phase == sim.CROUCH {
+                        assert(
+                            silhouette.count(posed) < silhouette.count(hunt),
+                            "crouch lowers the head",
+                        )
+                    }
+                    if phase == sim.RETREAT {
+                        assert(!silhouette.same(posed, hunt), "flight trails the tail")
+                    }
+                    assert(grid.at(g, 4, 5).cp >= 9600, "a block or braille body")
                 }
-                if phase == sim.RETREAT { assert(grid.at(g, 5, 5).cp == 126, "fleeing tail") }
-                if t == tier.PLAIN { assert(grid.plain_ok(g), "plain foe") }
                 phase += 1
             }
             var fading = grid.new(10, 14)
-            art.draw_foe(mut fading, t, 4, 5, kind, sim.HUNT, 64, 10)
-            assert(grid.at(fading, 4, 5).cp == 46, "late fade")
+            art.draw_foe(mut fading, t, 4, 5, kind, sim.HUNT, 0, 10)
+            if t == tier.PLAIN {
+                assert(grid.at(fading, 4, 5).cp == 46, "late fade")
+            } else {
+                assert(
+                    grid.at(fading, 3, 5).cp == 32 &&
+                        grid.at(fading, 3, 6).cp == 32 &&
+                        grid.at(fading, 4, 5).cp == 32,
+                    "the head and body erode by ten ticks",
+                )
+            }
             var gone = grid.new(10, 14)
-            art.draw_foe(mut gone, t, 4, 5, kind, sim.HUNT, 64, sim.FOE_FADE_TICKS)
-            assert(grid.at(gone, 4, 5).cp == 32, "fade ends")
+            art.draw_foe(mut gone, t, 4, 5, kind, sim.HUNT, 0, sim.FOE_FADE_TICKS)
+            assert(grid.at(gone, 4, 5).cp == 32 && grid.at(gone, 5, 5).cp == 32, "fade ends")
             kind += 1
         }
         t += 1

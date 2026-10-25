@@ -5,6 +5,7 @@
 //! indices; the cub's ears face the way it does; the ground's backgrounds.
 
 use grid
+use silhouette
 use sprites
 use tier
 
@@ -32,50 +33,62 @@ fn test_rich_tier_colours_are_indices() {
     }
 }
 
-fn test_the_cub_sits_on_the_gravel_and_its_ears_face_the_way() {
-    let g = sprites.glyph(tier.RICH, sprites.SP_GRAVEL, 0)
+fn test_the_cub_is_one_silhouette_turned_to_face_the_way() {
+    // North as drawn: the nose at the top, an ear out at each side, the
+    // tail at the bottom, eight pixels across and sixteen down; east the
+    // quarter turn, the nose on the right; every facing the same pixels.
+    let b = silhouette.cub(0, 0)
+    assert(b.w == 8 && b.h == 16, "eight by sixteen")
+    assert(silhouette.at(b, 0, 3) == 1 && silhouette.at(b, 0, 0) == 0, "the nose at the top")
+    assert(silhouette.at(b, 4, 0) == 1 && silhouette.at(b, 4, 1) == 0, "an ear out at the side")
+    assert(silhouette.at(b, 15, 2) == 1 && silhouette.at(b, 15, 7) == 0, "the tail at the bottom")
+    let e = silhouette.turned(b, 1)
+    assert(e.w == 16 && e.h == 8, "sixteen by eight facing east")
+    assert(silhouette.at(e, 3, 15) == 1 && silhouette.at(e, 0, 15) == 0, "the nose on the right")
+    let w = silhouette.turned(b, 3)
+    assert(silhouette.at(w, 4, 0) == 1 && silhouette.at(w, 0, 0) == 0, "the nose on the left")
+    let sth = silhouette.turned(b, 2)
     assert(
-        sprites.glyph(tier.RICH, sprites.SP_CUB_BODY, 0).bg == g.bg,
-        "the cub's background is the gravel's",
+        silhouette.at(sth, 15, 4) == 1 && silhouette.at(sth, 15, 7) == 0,
+        "the nose at the bottom",
     )
+    // The encoder: a full cell is the full block, a lit half a half block,
+    // anything else the braille pattern of its pixels, nothing a space.
+    var rows = List[str]()
+    (mut rows).push("##.#")
+    (mut rows).push("##.#")
+    (mut rows).push("##..")
+    (mut rows).push("##..")
+    let t = silhouette.parse(rows)
+    assert(silhouette.cell_cp(t, 0, 0) == 9608, "full block")
+    assert(silhouette.cell_cp(t, 0, 1) == 10240 + 8 + 16, "braille dots 4 and 5")
+    // A cell is two pixels across: a lit left column is the left half
+    // block; turned a quarter it is the top pixel row, braille dots 1 and 4.
+    var half = List[str]()
+    (mut half).push("#...")
+    (mut half).push("#...")
+    (mut half).push("#...")
+    (mut half).push("#...")
+    assert(silhouette.cell_cp(silhouette.parse(half), 0, 0) == 9612, "left half block")
     assert(
-        sprites.glyph(tier.PLAIN, sprites.SP_CUB_BODY, 0).bg ==
-            sprites.glyph(tier.PLAIN, sprites.SP_GRAVEL, 0).bg,
-        "plain too",
+        silhouette.cell_cp(silhouette.turned(silhouette.parse(half), 1), 0, 0) == 10240 + 1 + 8,
+        "turned a quarter, the top pixel row",
     )
-    // North: the upper quadrants pointing out; south: the lower ones.
-    assert(
-        sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 0).cp == 9629 &&
-            sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 1).cp == 9624,
-        "north",
-    )
-    assert(
-        sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 4).cp == 9623 &&
-            sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 5).cp == 9622,
-        "south",
-    )
-    // West: the two left quadrants; east: the two right.
-    assert(
-        sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 6).cp == 9624 &&
-            sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 7).cp == 9622,
-        "west",
-    )
-    assert(
-        sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 2).cp == 9629 &&
-            sprites.glyph(tier.RICH, sprites.SP_CUB_EAR, 3).cp == 9623,
-        "east",
-    )
-    // The plain marks point the four ways.
-    assert(
-        sprites.glyph(tier.PLAIN, sprites.SP_CUB_MARK, 0).cp == 94 &&
-            sprites.glyph(tier.PLAIN, sprites.SP_CUB_MARK, 2).cp == 118,
-        "^ and v",
-    )
-    assert(
-        sprites.glyph(tier.PLAIN, sprites.SP_CUB_MARK, 1).cp == 62 &&
-            sprites.glyph(tier.PLAIN, sprites.SP_CUB_MARK, 3).cp == 60,
-        "> and <",
-    )
+    var top = List[str]()
+    (mut top).push("##")
+    (mut top).push("##")
+    (mut top).push("..")
+    (mut top).push("..")
+    assert(silhouette.cell_cp(silhouette.parse(top), 0, 0) == 9600, "upper half block")
+    // The rich list carries every silhouette glyph and the ground's.
+    let cps = sprites.rich_code_points()
+    var has_block = false
+    var has_canopy = false
+    for cp in cps {
+        if cp == 9608 { has_block = true }
+        if cp == 10495 { has_canopy = true }
+    }
+    assert(has_block && has_canopy, "silhouettes and ground in one list")
 }
 
 fn test_water_and_floor_backgrounds_differ_from_the_gravel() {
