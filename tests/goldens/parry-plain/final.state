@@ -1,4 +1,4 @@
-tick 76 x 1605 y -140 heading 64 action 1 started 70 health 42 stamina 50 flasks 3 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 6 lock -1
+tick 76 x 1605 y -140 heading 64 action 1 started 70 health 42 stamina 50 flasks 3 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 6 lock -1 aim 64
 foe 0 kind 0 health 8 phase 3 since 54 x 2656 y -128
 foe 1 kind 0 health 8 phase 0 since 0 x 3328 y -128
 foe 2 kind 1 health 24 phase 0 since 0 x 5120 y -128

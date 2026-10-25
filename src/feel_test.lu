@@ -1,0 +1,71 @@
+//! member: false
+
+use sim
+use controls
+use input
+
+fn keys(a: int, b: int, c: int) -> List[int] {
+    var k = List[int]()
+    if a > 0 { (mut k).push(a) }
+    if b > 0 { (mut k).push(b) }
+    if c > 0 { (mut k).push(c) }
+    k
+}
+
+fn empty() -> sim.Sim {
+    var s = sim.new(7, 80, 24)
+    (mut s.foes).reset()
+    s.x = 5 * sim.FP
+    s.heading = 128
+    s.heading_target = 128
+    s
+}
+
+fn test_cb01b_eight_aims_commit_before_turning() {
+    var h = 0
+    while h < 256 {
+        var s = empty()
+        let up = h == 0 || h == 32 || h == 224
+        let down = h == 96 || h == 128 || h == 160
+        let left = h == 160 || h == 192 || h == 224
+        let right = h == 32 || h == 64 || h == 96
+        sim.step(
+            mut s,
+            keys(
+                if up then controls.KEY_UP else if down then controls.KEY_DOWN else 0,
+                if left then controls.KEY_LEFT else if right then controls.KEY_RIGHT else 0,
+                controls.KEY_BITE,
+            ),
+        )
+        assert(s.attack_heading == h, "aim {h} committed before gradual body turn")
+        sim.step(mut s, keys(controls.KEY_UP, 0, 0))
+        assert(s.attack_heading == h, "late arrow cannot redirect a committed bite")
+        h += 32
+    }
+}
+
+fn test_cb01b_aim_window_event_order_duplicates_and_fallback() {
+    var s = empty()
+    sim.step(mut s, keys(controls.KEY_LEFT, controls.KEY_RIGHT, controls.KEY_BITE))
+    assert(s.attack_heading == 64, "last opposite byte wins")
+    var early = empty()
+    sim.step(mut early, keys(controls.KEY_BITE, controls.KEY_RIGHT, 0))
+    assert(early.attack_heading == 128, "later same-tick arrow cannot aim earlier attack")
+    var recent = empty()
+    sim.step(mut recent, keys(controls.KEY_RIGHT, controls.KEY_RIGHT, 0))
+    assert(recent.holds[3].prev == -1000, "duplicate does not fake autorepeat")
+    recent.tick += sim.AIM_WINDOW_TICKS
+    recent.heading = 128
+    assert(sim.attack_aim(recent) == 64, "inclusive aim edge")
+    recent.tick += 1
+    assert(sim.attack_aim(recent) == 128, "expired arrow falls back to facing")
+    input.hold_press(mut recent.holds[3], recent.tick)
+    assert(sim.attack_aim(recent) == 64, "held arrow is eligible")
+}
+
+fn test_cb01b_lock_overrides_arrow_aim() {
+    var s = sim.new(7, 80, 24)
+    s.locked = 0
+    sim.step(mut s, keys(controls.KEY_LEFT, controls.KEY_LUNGE, 0))
+    assert(s.attack_heading == 64, "lock overrides west arrow toward east foe")
+}
