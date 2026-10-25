@@ -75,13 +75,17 @@ def check(binary):
             else:
                 assert expected[name] == state_bytes, (name, 'tier changed the simulation')
             print('gameplay:', Path(binary).parent.name, name, tier, 'ok')
-    # A natural, unassisted death: the player approaches then stands still.
+    # A natural, unassisted death: defeat the pair, approach the fox, then stand still.
     ghosts = OUT / (Path(binary).parent.name + '-ghosts')
     ghosts.mkdir(parents=True, exist_ok=True)
     before = set(ghosts.glob('*.pk'))
     _, states, _ = run(binary, 'fox-feint', frames=600, ghosts=ghosts)
     files = set(ghosts.glob('*.pk')) - before
     assert files, 'natural death did not write a ghost'
+    preserved = {p: p.read_bytes() for p in ghosts.glob('*.pk')}
+    run(binary, 'fox-feint', frames=600, ghosts=ghosts)
+    assert all(p.read_bytes() == data for p, data in preserved.items()), 'archive was overwritten'
+    assert len(set(ghosts.glob('*.pk')) - set(preserved)) == len(files), 'repeat death reused a filename'
     for path in sorted(files):
         text = path.read_text()
         last = max(int(m) for m in re.findall(r'^t (\d+)', text, re.M)) + 1

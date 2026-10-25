@@ -35,8 +35,8 @@ A live death writes the complete run through the fall to `~/.cub/ghosts/`.
 `--ghost-dir DIR` overrides that path, and explicitly enables archive writes
 for headless tests. Replaying a file live does not write another archive.
 A zero health event fixes the exact death tick even when no input arrived
-there. The timestamp only makes the filename unique; it is never simulation
-input. `tools/gameplay.py` replays a natural death archive and compares its
+there. The filename is seed, final tick and a collision counter, created exclusively;
+concurrent games never truncate an earlier archive. `tools/gameplay.py` replays a natural death archive and compares its
 entire cub state at that tick. Ghost display and hostile ghosts follow later.
 
 Archive write failures return exit 2 (the live path restores the terminal

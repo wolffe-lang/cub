@@ -725,10 +725,28 @@ fn write_ghost(r: replay.Replay, s: sim.Sim, dir: str) -> () ! {io} {
     replay.push_arg(mut death, s.tick - 1, 0, 0)
     var bytes = List[byte]()
     replay.format(death, controls.vocab(), mut bytes)
-    // Monotonic time is a filename collision guard only, never simulation input.
-    let path = "{dir}/death-{clock.now_ns()}-{s.deaths}.pk"
-    fs.write_bytes(path, bytes) else |_| { return io }
-    eprint("cub: death archive {path}")
+    // Exclusive creation, not a clock, protects earlier runs and concurrent games.
+    var serial = 0
+    loop {
+        let path = "{dir}/death-{r.seed}-{s.tick}-{serial}.pk"
+        var file = fs.create_new(path) else |e| match e {
+            exists => { serial += 1; continue },
+            not_found => { return io },
+            denied => { return io },
+            io => { return io },
+        }
+        fs.write_chunk(mut file, bytes) else |_| {
+            fs.close(take file) else |_| {}
+            return io
+        }
+        fs.sync(mut file) else |_| {
+            fs.close(take file) else |_| {}
+            return io
+        }
+        fs.close(take file) else |_| { return io }
+        eprint("cub: death archive {path}")
+        return
+    }
 }
 
 fn run_bench(o: Options) -> int {
