@@ -159,11 +159,14 @@ pub fn coast_branch_x(seed: int, field: int, cache: int, at: int) -> int {
     coast_mouth(seed, field, cache) + curve(seed, 203 + cache, at)
 }
 
-/// Where an offshoot leaves the shore path, cells from the spawn.
+/// Where an offshoot leaves the shore path, cells from the spawn: four
+/// branches, two each side of the thorn path (R-cb02b-3 A), at a third
+/// and two thirds of the coast's reach, the seed jittering each by up to
+/// three cells. Even caches lie west, odd east; 0 and 1 near, 2 and 3 far.
 pub fn coast_mouth(seed: int, field: int, cache: int) -> int {
-    let _ = field
-    let _ = seed
-    if cache == 0 then -25 else 25
+    let sign = if cache % 2 == 0 then -1 else 1
+    let rank = cache / 2 + 1
+    sign * (coast_extent(field) * rank / 3 + world.hash(seed, 205, cache, 7) - 3)
 }
 
 /// True inside a shore branch or its rounded terminal clearing.
@@ -230,7 +233,7 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
         return if area == SHINGLE then terrain.GRAVEL else terrain.GRASS
     }
     var cache = 0
-    while cache < 2 {
+    while cache < cache_count(area) {
         if area == SHINGLE {
             if coast_branch(seed, field, cache, x, at) { return terrain.GRASS }
             cache += 1
@@ -349,7 +352,7 @@ pub fn reach_count(seed: int, field: int, area: int) -> int {
         edge += 1
     }
     var cache = 0
-    while cache < 2 {
+    while cache < cache_count(area) {
         let (x, y) = cache_position(seed, field, area, cache)
         count += seen[((y - FP / 2) / FP - o) * width + (x - FP / 2) / FP + w]
         cache += 1
@@ -357,15 +360,20 @@ pub fn reach_count(seed: int, field: int, area: int) -> int {
     count
 }
 
-/// Finite caches in an area.
+/// Finite caches in an area: the coast's four alcoves, two inland.
 pub fn cache_count(area: int) -> int {
-    let _ = area
-    2
+    if area == SHINGLE then 4 else 2
+}
+
+/// The journey's bit for a cache: the Shingle's four first, then the
+/// thicket's two, then the meadow's (eight bits in all).
+pub fn cache_bit(area: int, cache: int) -> int {
+    if area == SHINGLE then cache else if area == BRAMBLEHOLD then 4 + cache else 6 + cache
 }
 
 /// Destinations an area must reach: its dens, incident portals and caches.
 pub fn required(area: int) -> int {
-    if area == BRAMBLEHOLD then 8 else 5
+    if area == BRAMBLEHOLD then 8 else if area == SHINGLE then 7 else 5
 }
 
 /// Every den, incident edge and cache is reachable in this area.

@@ -125,7 +125,7 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     s.marrow = values[23]
     s.opening_seen = values[24] == 1
     if s.caches < 0 ||
-        s.caches > 63 ||
+        s.caches > 255 ||
         s.yarrow < 0 ||
         s.yarrow > 6 ||
         s.marrow < 0 ||

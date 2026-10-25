@@ -215,7 +215,7 @@ pub fn generate(dir: str) -> int {
     if s.area != 0 || s.shortcuts != 3 { eprint("proof: log not opened"); return 1 }
     snapshot(dir, "world-return", s, r) else |_| { return 2 }
     var cache = 0
-    while cache < 2 {
+    while cache < forest.cache_count(0) {
         let (cx, cy) = forest.cache_position(s.seed, s.field, 0, cache)
         if !walk(mut s, mut r, cx, cy) { eprint("proof: coast cache {cache}"); return 1 }
         press(mut s, mut r, key(controls.KEY_REST))

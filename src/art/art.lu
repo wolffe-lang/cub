@@ -322,7 +322,7 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
         )
     }
     var cache = 0
-    while cache < 2 {
+    while cache < forest.cache_count(s.area) {
         let (x, y) = forest.cache_position(s.seed, s.field, s.area, cache)
         if s.area == forest.SHINGLE {
             draw_bundle(
@@ -585,7 +585,7 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
             style,
         )
         draw.put_text(mut g, 9, 4, "5 nose {s.nose} (next {40 * (s.nose + 1)})", style)
-        let bundles = s.caches % 2 + s.caches / 2 % 2
+        let bundles = s.caches % 2 + s.caches / 2 % 2 + s.caches / 4 % 2 + s.caches / 8 % 2
         draw.put_text(
             mut g,
             10,
