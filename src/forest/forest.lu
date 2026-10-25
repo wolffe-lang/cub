@@ -128,7 +128,7 @@ pub fn coast_branch(seed: int, cache: int, x: int, at: int) -> bool {
     let cx = coast_branch_x(seed, cache, end)
     let dx = x - cx
     let dy = at - end
-    if dx * dx + dy * dy <= 16 { return true }
+    if dx * dx + dy * dy <= 16 { return false }
     if at < -10 || at > end { return false }
     let c = coast_branch_x(seed, cache, at)
     x >= c - 2 && x <= c + 2
