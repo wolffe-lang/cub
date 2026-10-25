@@ -45,7 +45,8 @@ licence and a README stub (`ba4d1f5`).
   and the engine's diff property), `--trace`, `--trap-at`, `--ticks`.
 - **Goldens and rows** (`d7ecc71`): eight cases on both tiers and the sheets (17 directories, 908 KB): a
   standstill, the walk north to the water (stopped at the reeds), a turn east, a sneak, the scroll (eight
-  seconds south: the woods scroll up the screen), a diagonal, the wide field, a resize. The engine's five pty
+  seconds west along the bank: the Shingle scrolls across the screen; south the cub meets the woods'
+  trunks within six rows, which the first scroll case showed and the walk is open along the bank), a diagonal, the wide field, a resize. The engine's five pty
   rows (quit, ctrl-c, trap, agree-rich, agree-plain) with `walk-north` as the agree case.
 - **CI** (`30d8301`): the workflow on the engine's planner and tools, the engine staged at `lair.pin` first in
   every job; `tier pr` is the planner's test and the Linux leg, `tier full` adds macOS; no perf job until
