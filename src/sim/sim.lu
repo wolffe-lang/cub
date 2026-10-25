@@ -526,6 +526,7 @@ pub struct Foe {
     target_y: int,
     hit: bool,
     last_hit: int,
+    died: int,
 }
 
 /// Damage of an unmodified bite at this fang level.
@@ -565,6 +566,7 @@ pub fn spawn_foes(seed: int) -> List[Foe] {
             target_y: y,
             hit: false,
             last_hit: -1,
+            died: -1,
         })
         i += 1
     }
@@ -806,6 +808,7 @@ fn strike_foes(mut s: Sim) {
             s.foes[i].health -= damage
             s.foes[i].last_hit = s.started
             if s.foes[i].health <= 0 {
+                s.foes[i].died = s.tick
                 s.scent += if f.kind == FOX then 20 else 8
             } else if s.action == LUNGE || s.action == HEAVY {
                 s.foes[i].phase = STAGGER
@@ -1127,7 +1130,11 @@ pub fn clip_arc(s: Sim, ox: int, oy: int) -> (int, int) {
         let ny = s.y + dy
         var stops = blocked(s, floor_div(nx, FP), floor_div(ny, FP))
         for f in s.foes {
-            if f.health > 0 && abs(nx - f.x) < 2 * FP && abs(ny - f.y) < 2 * FP { stops = true }
+            if (f.health > 0 || f.died >= 0 && s.tick - f.died < FOE_FADE_TICKS) &&
+                abs(nx - f.x) < 2 * FP &&
+                abs(ny - f.y) < 2 * FP {
+                stops = true
+            }
         }
         if stops { break }
         x = dx
@@ -1238,3 +1245,6 @@ pub fn burst_point(s: Sim) -> (int, int) {
     )
     (s.x + x, s.y + y)
 }
+
+/// A defeated foe dissolves over fifteen ticks, retaining its sprite briefly.
+pub const FOE_FADE_TICKS: int = 15

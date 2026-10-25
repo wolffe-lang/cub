@@ -44,16 +44,23 @@ Dusk and night palettes follow with the other areas. Combat posture, foes and th
 
 ## Combat sheet vocabulary (2026-10-25)
 
-The game frames now draw the weasel as `w` and the fox as `f`, followed by
-`^` hunting, `_` crouching, `~` feinting, `>` striking, `<` retreating or `!`
-staggered. `[]` beneath a foe is the lock. The same tells appear on both
-tiers; a raised apostrophe during a strike is a presentation arc over its
-ground body, never a collision displacement.
+2026-10-25 — the maintainer's word: "Enemies don't look like enemies; all enemies should have sprites."
 
-The cub's adjacent move mark is `>` bite, `>>` lunge, `]` parry, `o` dodge,
-`~` water or `_` fall. A spent cub pants `:`. Ears dim as stamina drops; the
-plain ears change `^`, `<`, `_`. The tail is `/`, `-`, `_` through health
-bands. Each band spans a third; the lowest health band also limps.
+Every foe has a sprite on both tiers, with its windup tell as a posture.
+This rule applies to later foes and bosses, not just the weasel and fox.
+Both current foes have a two-cell body, a readable head above and a tail
+below: a narrow `==` weasel and a broad `##` fox. Crouch lowers the head
+to `__`; a feint curls the tail `?`; flee trails `~`; stagger lifts `!!`.
+Rich adds directional quadrant ears, plain keeps punctuation. Foe palette
+roles are red/brown, distinct from cub fur and the dim scent trail.
+A death sprite dims and erodes over 15 ticks (proposal), never disappearing
+on the hit tick. The expanded 80×40 sheet covers each species × phase and
+three fade stages, beside the cub's four headings × four postures.
+
+The cub travels on its bite, lunge and heavy arcs, without a `>` attack
+mark. Bite combos lean left/right then finish forward with shaking ears;
+heavy back-steps and leaves a four-tick punctuation burst. Parry `]`, dodge
+`o`, water `~`, fall `_`, pant `:` and the health tail remain readable.
 
 Scent is a dim `:` then `.`, the dropped mark a bright `*`; the hollow log
 is labelled, and the thorn row is `#X#X#` until broken. Only the den shows
