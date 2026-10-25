@@ -30,7 +30,7 @@ pub const TURN: int = 256
 pub const TROT_V: int = 36
 
 /// A sneak's speed: half the trot (section 4).
-pub const SNEAK_V: int = 18
+pub const SNEAK_V: int = 19
 
 /// Acceleration, FP units a tick each tick: the trot from a stop in 9 ticks.
 pub const ACCEL: int = 4
@@ -188,6 +188,26 @@ pub struct Sim {
     health: int,
     stamina: int,
     holds: List[input.Hold],
+    action: int,
+    started: int,
+    chained: bool,
+    exhausted: bool,
+    locked: int,
+    unseen: int,
+    riposte: int,
+    riposte_foe: int,
+    flasks: int,
+    scent: int,
+    den: bool,
+    death_at: int,
+    deaths: int,
+    mark: bool,
+    mark_x: int,
+    mark_y: int,
+    mark_scent: int,
+    gate_open: bool,
+    foes: List[Foe],
+    trail: List[Trail],
 }
 
 /// A new cub at the Shingle's start, facing north toward the water, still.
@@ -220,6 +240,26 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         health: health_max(STAT_START),
         stamina: stamina_max(STAT_START),
         holds: holds,
+        action: IDLE,
+        started: 0,
+        chained: false,
+        exhausted: false,
+        locked: -1,
+        unseen: 0,
+        riposte: 0,
+        riposte_foe: -1,
+        flasks: FLASKS,
+        scent: 0,
+        den: false,
+        death_at: 0,
+        deaths: 0,
+        mark: false,
+        mark_x: 0,
+        mark_y: 0,
+        mark_scent: 0,
+        gate_open: false,
+        foes: spawn_foes(seed),
+        trail: List[Trail](),
     }
 }
 
@@ -300,8 +340,7 @@ pub fn heading_of(up: bool, down: bool, left: bool, right: bool) -> int {
 /// One tick: the keys pressed this tick (cub's numbers), the holds read,
 /// the heading turned, the speed changed, the cub moved where the ground
 /// lets it.
-pub fn step(mut s: Sim, keys: List[int]) {
-    s.tick += 1
+fn locomotion(mut s: Sim, keys: List[int]) {
     for k in keys {
         if controls.is_move(k) {
             input.hold_press(mut s.holds[k - controls.KEY_UP], s.tick)
@@ -322,8 +361,11 @@ pub fn step(mut s: Sim, keys: List[int]) {
     )
     s.moving = want >= 0
     s.sneaking = s.moving && sneak_held
-    if s.moving {
+    if s.moving && s.locked < 0 {
         s.heading_target = want
+    }
+    if s.locked >= 0 {
+        s.heading_target = heading_to(s.x, s.y, s.foes[s.locked].x, s.foes[s.locked].y)
     }
     // The turn, at the turn rate, by the shortest way.
     let d = turn_toward(s.heading, s.heading_target)
@@ -331,21 +373,28 @@ pub fn step(mut s: Sim, keys: List[int]) {
     s.heading = ((s.heading + step_h) % TURN + TURN) % TURN
     // The speed: toward the trot (or the sneak) while a key is held, to a
     // stop when none is.
-    let want_v = if !s.moving then 0 else if s.sneaking then SNEAK_V else trot_at(s.paw)
+    let pace = if s.health * 3 < health_max(s.heart) then trot_at(s.paw) / 2 else trot_at(s.paw)
+    let want_v = if !s.moving || s.action != IDLE {
+        0
+    } else if s.sneaking {
+        trot_at(s.paw) / 2
+    } else {
+        pace
+    }
     s.speed = toward(s.speed, want_v, if want_v > s.speed then ACCEL else BRAKE)
     // The move, each axis on its own, so a wall along one lets the other
     // slide; a blocked axis stops the cub.
     let dx = s.speed * sin(s.heading) / 256
     let dy = 0 - s.speed * cos(s.heading) / 256
     let nx = s.x + dx
-    if !terrain.blocked(s.seed, floor_div(nx, FP), cell_y(s)) {
+    if !blocked(s, floor_div(nx, FP), cell_y(s)) {
         s.x = nx
     } else {
         s.speed = 0
         s.blocked += 1
     }
     let ny = s.y + dy
-    if !terrain.blocked(s.seed, cell_x(s), floor_div(ny, FP)) {
+    if !blocked(s, cell_x(s), floor_div(ny, FP)) {
         s.y = ny
     } else {
         s.speed = 0
@@ -364,4 +413,594 @@ pub fn distance_cells(s: Sim) -> int {
 /// A world cell's variant, for the frame (the engine's hash).
 pub fn variant(s: Sim, x: int, y: int, n: int) -> int {
     world.hash(s.seed + 31, x, y, n)
+}
+
+// Bible §§3–8, and dated proposals in docs/DESIGN.md.
+/// No action in progress.
+pub const IDLE: int = 0
+
+/// Light bite action.
+pub const BITE: int = 1
+
+/// Heavy lunge action.
+pub const LUNGE: int = 2
+
+/// Timed defensive action.
+pub const PARRY: int = 3
+
+/// Three-cell evasive hop.
+pub const DODGE: int = 4
+
+/// Thirty-tick water action.
+pub const DRINK: int = 5
+
+/// Death fade action.
+pub const FALL: int = 6
+
+/// Active parry ticks, excluding recovery.
+pub const PARRY_WINDOW: int = 9
+
+/// Ticks a parried foe cannot attack.
+pub const STAGGER_TICKS: int = 30
+
+/// Lifetime of a deposited scent cell.
+pub const TRAIL_TICKS: int = 300
+
+/// Mouthfuls restored by a den.
+pub const FLASKS: int = 3
+
+/// Health restored in the final fifteen drinking ticks.
+pub const FLASK_HEAL: int = 40
+
+/// Stamina per idle tick; walking receives half.
+pub const REGEN: int = 2
+
+/// Stamina needed to clear exhaustion.
+pub const EXHAUST_RECOVER: int = 24
+
+/// Next stat level multiplies this cost.
+pub const SCENT_LEVEL_BASE: int = 40
+
+/// Weasel species identifier.
+pub const WEASEL: int = 0
+
+/// Fox species identifier.
+pub const FOX: int = 1
+
+/// Perception and pursuit phase.
+pub const HUNT: int = 0
+
+/// Real attack windup.
+pub const CROUCH: int = 1
+
+/// Active foe attack.
+pub const STRIKE: int = 2
+
+/// Recovery with movement away from the target.
+pub const RETREAT: int = 3
+
+/// Defenceless recovery after parry or lunge.
+pub const STAGGER: int = 4
+
+/// Fox false windup; never deals damage.
+pub const FEINT: int = 5
+
+/// Gap before the fox real windup.
+pub const PAUSE: int = 6
+
+/// Readable ticks between crouch and strike.
+pub const WEASEL_WINDUP: int = 12
+
+/// Base sight radius in cells.
+pub const SIGHT: int = 8
+
+/// Enemy trail detection radius in cells.
+pub const SCENT_RADIUS: int = 6
+
+/// A world-space scent sample with an exclusive expiry tick.
+pub struct Trail { x: int, y: int, until: int }
+
+/// A deterministic opponent, its ground body and timed attack.
+pub struct Foe {
+    kind: int,
+    x: int,
+    y: int,
+    heading: int,
+    speed: int,
+    stamina: int,
+    health: int,
+    phase: int,
+    since: int,
+    target_x: int,
+    target_y: int,
+    hit: bool,
+    last_hit: int,
+}
+
+/// Damage of an unmodified bite at this fang level.
+pub fn bite_damage(fang: int) -> int { 6 + 2 * fang }
+
+/// Invulnerable ticks at this paw level (integer division).
+pub fn dodge_iframes(paw: int) -> int { 6 + paw / 2 }
+
+/// Absolute value for bounded world coordinates.
+pub fn abs(v: int) -> int { if v < 0 then 0 - v else v }
+
+/// Whether two fixed-point points are within an inclusive radius.
+pub fn near(x: int, y: int, tx: int, ty: int, radius: int) -> bool {
+    let dx = x - tx
+    let dy = y - ty
+    dx * dx + dy * dy <= radius * radius
+}
+
+/// The seeded Shingle pair and fox at their initial positions.
+pub fn spawn_foes(seed: int) -> List[Foe] {
+    let (_, y) = terrain.start(seed)
+    var foes = List[Foe]()
+    var i = 0
+    while i < 3 {
+        let x = (if i == 0 then 9 else if i == 1 then 13 else 20) * FP
+        (mut foes).push(Foe {
+            kind: if i == 2 then FOX else WEASEL,
+            x: x,
+            y: y,
+            heading: 64,
+            speed: 0,
+            stamina: 60,
+            health: if i == 2 then 24 else 8,
+            phase: HUNT,
+            since: 0,
+            target_x: x,
+            target_y: y,
+            hit: false,
+            last_hit: -1,
+        })
+        i += 1
+    }
+    foes
+}
+
+/// World row of the southern thorn gate.
+pub fn gate_y(s: Sim) -> int {
+    let (_, y) = terrain.start(s.seed)
+    floor_div(y, FP) + 10
+}
+
+/// Terrain and unopened thorns block a world cell.
+pub fn blocked(s: Sim, x: int, y: int) -> bool {
+    !s.gate_open && y == gate_y(s) && x >= -2 && x <= 2 || terrain.blocked(s.seed, x, y)
+}
+
+/// Occlusion is integer sampled at half-cell intervals, including the endpoint.
+pub fn visible(s: Sim, x: int, y: int, tx: int, ty: int) -> bool {
+    let dx = tx - x
+    let dy = ty - y
+    let steps = (abs(dx) + abs(dy)) / (FP / 2) + 1
+    var i = 1
+    while i <= steps {
+        if blocked(s, floor_div(x + dx * i / steps, FP), floor_div(y + dy * i / steps, FP)) {
+            return false
+        }
+        i += 1
+    }
+    true
+}
+
+/// Eight-way bearing between two points, or -1 at coincidence.
+pub fn heading_to(x: int, y: int, tx: int, ty: int) -> int {
+    let dx = tx - x
+    let dy = ty - y
+    // Eight directions, still approached at TURN_RATE rather than pivoted.
+    heading_of(
+        dy < 0 && abs(dy) * 2 >= abs(dx),
+        dy > 0 && abs(dy) * 2 >= abs(dx),
+        dx < 0 && abs(dx) * 2 >= abs(dy),
+        dx > 0 && abs(dx) * 2 >= abs(dy),
+    )
+}
+
+fn in_front(x: int, y: int, heading: int, tx: int, ty: int) -> bool {
+    let dx = tx - x
+    let dy = ty - y
+    let dot = dx * sin(heading) - dy * cos(heading)
+    let cross = dx * cos(heading) + dy * sin(heading)
+    dot >= 0 && abs(cross) <= dot
+}
+
+/// Cone, range and occlusion jointly determine foe sight.
+pub fn can_see(s: Sim, f: Foe) -> bool {
+    near(f.x, f.y, s.x, s.y, SIGHT * FP) &&
+        in_front(f.x, f.y, f.heading, s.x, s.y) &&
+        visible(s, f.x, f.y, s.x, s.y)
+}
+
+/// Whether the current tick is inside the half-open parry window.
+pub fn parrying(s: Sim) -> bool {
+    s.action == PARRY && s.tick - s.started < PARRY_WINDOW
+}
+
+/// Whether the current tick is inside the dodge iframe window.
+pub fn invulnerable(s: Sim) -> bool {
+    s.action == DODGE && s.tick - s.started < dodge_iframes(s.paw)
+}
+
+/// Apply damage unless protected; zero health replaces the scent mark.
+pub fn hurt(mut s: Sim, damage: int) {
+    if s.action == FALL || s.den || invulnerable(s) { return }
+    s.health -= damage
+    if s.action == DRINK { s.action = IDLE }
+    if s.health <= 0 {
+        s.health = 0
+        s.action = FALL
+        s.started = s.tick
+        s.death_at = s.tick
+        s.deaths += 1
+        // Replace, never accumulate: a second death destroys the first mark.
+        s.mark = true
+        s.mark_x = s.x
+        s.mark_y = s.y
+        s.mark_scent = s.scent
+        s.scent = 0
+        s.locked = -1
+        s.speed = 0
+    }
+}
+
+fn reset_world(mut s: Sim) {
+    s.health = health_max(s.heart)
+    s.stamina = stamina_max(s.wind)
+    s.flasks = FLASKS
+    s.action = IDLE
+    s.speed = 0
+    s.exhausted = false
+    s.locked = -1
+    s.riposte = 0
+    s.riposte_foe = -1
+    s.chained = false
+    s.foes = spawn_foes(s.seed)
+    (mut s.trail).reset()
+    var i = 0
+    while i < s.holds.len { s.holds[i] = input.hold_new(); i += 1 }
+}
+
+/// Whether the hollow log is within resting reach.
+pub fn at_den(s: Sim) -> bool {
+    let (x, y) = terrain.start(s.seed)
+    near(s.x, s.y, x, y, FP)
+}
+
+/// Spend scent on the selected stat only at a den; capped at ten.
+pub fn grow(mut s: Sim, stat: int) {
+    if !s.den { return }
+    let level = if stat == 0 {
+        s.heart
+    } else if stat == 1 {
+        s.wind
+    } else if stat == 2 {
+        s.fang
+    } else if stat == 3 {
+        s.paw
+    } else {
+        s.nose
+    }
+    let cost = SCENT_LEVEL_BASE * (level + 1)
+    if level >= 10 || s.scent < cost { return }
+    s.scent -= cost
+    if stat == 0 { s.heart += 1 }
+    if stat == 1 { s.wind += 1 }
+    if stat == 2 { s.fang += 1 }
+    if stat == 3 { s.paw += 1 }
+    if stat == 4 { s.nose += 1 }
+    s.health = health_max(s.heart)
+    s.stamina = stamina_max(s.wind)
+}
+
+fn lock_next(mut s: Sim) {
+    var best = -1
+    var distance = 999999999
+    var i = 0
+    // First lock is nearest; later presses cycle stable spawn order.
+    while i < s.foes.len {
+        let j = if s.locked < 0 then i else (s.locked + 1 + i) % s.foes.len
+        let f = copy s.foes[j]
+        if f.health > 0 &&
+            near(s.x, s.y, f.x, f.y, (SIGHT + s.nose) * FP) &&
+            visible(s, s.x, s.y, f.x, f.y) {
+            let d = abs(s.x - f.x) + abs(s.y - f.y)
+            if s.locked >= 0 { best = j; break }
+            if d < distance { best = j; distance = d }
+        }
+        i += 1
+    }
+    s.locked = best
+    s.unseen = 0
+}
+
+fn start_action(mut s: Sim, action: int, cost: int) {
+    if s.action != IDLE || s.stamina < cost { return }
+    if s.exhausted && (action == LUNGE || action == DODGE) { return }
+    s.stamina -= cost
+    if s.stamina == 0 { s.exhausted = true }
+    s.action = action
+    s.started = s.tick
+    s.speed = 0
+    s.chained = false
+}
+
+fn action_keys(mut s: Sim, keys: List[int]) {
+    for k in keys {
+        if k == controls.KEY_RELEASE { s.locked = -1; s.den = false }
+        if k == controls.KEY_LOCK { lock_next(mut s) }
+        if k >= controls.KEY_HEART && k <= controls.KEY_NOSE { grow(mut s, k - controls.KEY_HEART) }
+        if k == controls.KEY_REST && at_den(s) {
+            reset_world(mut s)
+            s.den = !s.den
+        }
+        if s.den { continue }
+        if k == controls.KEY_BITE {
+            if s.action == BITE && s.tick - s.started >= 5 { s.chained = true }
+            start_action(mut s, BITE, 12)
+        }
+        if k == controls.KEY_LUNGE { start_action(mut s, LUNGE, 30) }
+        if k == controls.KEY_PARRY { start_action(mut s, PARRY, 10) }
+        if k == controls.KEY_DODGE { start_action(mut s, DODGE, 18) }
+        if k == controls.KEY_WATER && s.action == IDLE && s.flasks > 0 {
+            s.flasks -= 1
+            start_action(mut s, DRINK, 0)
+        }
+    }
+}
+
+fn strike_foes(mut s: Sim) {
+    let age = s.tick - s.started
+    let active = s.action == BITE && age >= 3 && age < 5 ||
+        s.action == LUNGE && age >= 9 && age < 12
+    if !active { return }
+    let reach = if s.action == LUNGE then 4 else 2
+    if s.action == LUNGE &&
+        !s.gate_open &&
+        near(s.x, s.y, 0, gate_y(s) * FP, 4 * FP) &&
+        in_front(s.x, s.y, s.heading, 0, gate_y(s) * FP) {
+        s.gate_open = true
+    }
+    var i = 0
+    while i < s.foes.len {
+        let f = copy s.foes[i]
+        if f.health > 0 &&
+            f.last_hit != s.started &&
+            near(s.x, s.y, f.x, f.y, reach * FP) &&
+            in_front(s.x, s.y, s.heading, f.x, f.y) &&
+            visible(s, s.x, s.y, f.x, f.y) {
+            var damage = bite_damage(s.fang)
+            if s.action == LUNGE { damage *= 3 }
+            if s.action == BITE && s.tick < s.riposte && i == s.riposte_foe {
+                damage *= 2
+                s.riposte = 0
+            }
+            s.foes[i].health -= damage
+            s.foes[i].last_hit = s.started
+            if s.foes[i].health <= 0 {
+                s.scent += if f.kind == FOX then 20 else 8
+            } else if s.action == LUNGE {
+                s.foes[i].phase = STAGGER
+                s.foes[i].since = s.tick
+            }
+        }
+        i += 1
+    }
+}
+
+/// Opponents move on the ground. The presentation's arc never moves their
+/// body through another creature or alters the damage envelope.
+fn move_foe(mut s: Sim, i: int, away: bool) {
+    let f = copy s.foes[i]
+    var h = heading_to(f.x, f.y, f.target_x, f.target_y)
+    if h < 0 { s.foes[i].speed = 0; return }
+    if away { h = (h + 128) % TURN }
+    let d = turn_toward(f.heading, h)
+    let heading = (
+        f.heading +
+            (if d > TURN_RATE then TURN_RATE else if d < 0 - TURN_RATE then 0 - TURN_RATE else d) +
+            TURN
+    ) %
+        TURN
+    let speed = toward(f.speed, if away then 48 else 44, ACCEL)
+    let nx = f.x + speed * sin(heading) / FP
+    let ny = f.y - speed * cos(heading) / FP
+    var stops = blocked(s, floor_div(nx, FP), floor_div(ny, FP)) || near(nx, ny, s.x, s.y, FP)
+    var j = 0
+    while j < s.foes.len {
+        if j != i && s.foes[j].health > 0 && near(nx, ny, s.foes[j].x, s.foes[j].y, FP) {
+            stops = true
+        }
+        j += 1
+    }
+    s.foes[i].heading = heading
+    s.foes[i].speed = if stops then 0 else speed
+    if !stops { s.foes[i].x = nx; s.foes[i].y = ny }
+}
+
+fn foes_step(mut s: Sim) {
+    var i = 0
+    while i < s.foes.len && s.action != FALL {
+        let f = copy s.foes[i]
+        if f.health <= 0 { i += 1; continue }
+        let age = s.tick - f.since
+        if f.phase == HUNT {
+            var tracks = can_see(s, f)
+            var tx = s.x
+            var ty = s.y
+            if !tracks {
+                var j = s.trail.len - 1
+                while j >= 0 {
+                    let tr = copy s.trail[j]
+                    if tr.until > s.tick &&
+                        near(f.x, f.y, tr.x, tr.y, SCENT_RADIUS * FP) &&
+                        visible(s, f.x, f.y, tr.x, tr.y) {
+                        tracks = true
+                        tx = tr.x
+                        ty = tr.y
+                        break
+                    }
+                    j -= 1
+                }
+            }
+            if tracks {
+                s.foes[i].target_x = tx
+                s.foes[i].target_y = ty
+                if near(f.x, f.y, s.x, s.y, 2 * FP) &&
+                    visible(s, f.x, f.y, s.x, s.y) &&
+                    f.stamina >= 12 {
+                    s.foes[i].phase = if f.kind == FOX then FEINT else CROUCH
+                    s.foes[i].since = s.tick
+                    s.foes[i].heading = heading_to(f.x, f.y, s.x, s.y)
+                    s.foes[i].speed = 0
+                    s.foes[i].stamina -= 12
+                } else {
+                    move_foe(mut s, i, false)
+                }
+            } else {
+                s.foes[i].speed = 0
+            }
+            if s.foes[i].stamina < 60 { s.foes[i].stamina += 1 }
+        } else if f.phase == FEINT && age >= 10 {
+            s.foes[i].phase = PAUSE
+            s.foes[i].since = s.tick
+        } else if f.phase == PAUSE && age >= 6 {
+            s.foes[i].phase = CROUCH
+            s.foes[i].since = s.tick
+            s.foes[i].heading = heading_to(f.x, f.y, s.x, s.y)
+        } else if f.phase == CROUCH && age >= WEASEL_WINDUP {
+            s.foes[i].phase = STRIKE
+            s.foes[i].since = s.tick
+            s.foes[i].hit = false
+        } else if f.phase == STRIKE && age >= (if f.kind == FOX then 3 else 2) {
+            s.foes[i].phase = RETREAT
+            s.foes[i].since = s.tick
+        } else if f.phase == RETREAT {
+            move_foe(mut s, i, true)
+            if age >= 24 { s.foes[i].phase = HUNT }
+        } else if f.phase == STAGGER && age >= STAGGER_TICKS {
+            s.foes[i].phase = if f.kind == WEASEL then RETREAT else HUNT
+            s.foes[i].since = s.tick
+        }
+        // Test current phase so the first active tick is not lost.
+        if s.foes[i].phase == STRIKE &&
+            !s.foes[i].hit &&
+            near(f.x, f.y, s.x, s.y, 2 * FP) &&
+            in_front(f.x, f.y, f.heading, s.x, s.y) &&
+            visible(s, f.x, f.y, s.x, s.y) {
+            s.foes[i].hit = true
+            if parrying(s) {
+                s.foes[i].phase = STAGGER
+                s.foes[i].since = s.tick
+                s.riposte = s.tick + STAGGER_TICKS
+                s.riposte_foe = i
+            } else if !invulnerable(s) {
+                hurt(mut s, if f.kind == FOX then 16 else 10)
+                if f.kind == FOX && s.flasks > 0 { s.flasks -= 1 }
+            }
+        }
+        i += 1
+    }
+}
+
+fn action_step(mut s: Sim, want: int) {
+    let age = s.tick - s.started
+    if s.action == DODGE && age < dodge_iframes(s.paw) {
+        let h = if want < 0 then s.heading else want
+        let frames = dodge_iframes(s.paw)
+        let distance = (age + 1) * 3 * FP / frames - age * 3 * FP / frames
+        let nx = s.x + distance * sin(h) / FP
+        let ny = s.y - distance * cos(h) / FP
+        var body = false
+        for f in s.foes { if f.health > 0 && near(nx, ny, f.x, f.y, FP) { body = true } }
+        if !body && !blocked(s, floor_div(nx, FP), floor_div(ny, FP)) { s.x = nx; s.y = ny }
+    }
+    if s.action == DRINK && age >= 15 && age < 30 {
+        let healed = (age - 14) * FLASK_HEAL / 15 - (age - 15) * FLASK_HEAL / 15
+        s.health += healed
+        if s.health > health_max(s.heart) { s.health = health_max(s.heart) }
+    }
+    strike_foes(mut s)
+    let duration = if s.action == BITE {
+        11
+    } else if s.action == LUNGE {
+        24
+    } else if s.action == PARRY {
+        15
+    } else if s.action == DODGE {
+        dodge_iframes(s.paw) + 4
+    } else if s.action == DRINK {
+        30
+    } else {
+        0
+    }
+    if s.action != IDLE && age >= duration {
+        let chain = s.action == BITE && s.chained
+        s.action = IDLE
+        if chain { start_action(mut s, BITE, 12) }
+    }
+}
+
+fn trail_step(mut s: Sim, ox: int, oy: int) {
+    var kept = List[Trail]()
+    for tr in s.trail { if tr.until > s.tick { (mut kept).push(tr) } }
+    s.trail = kept
+    if !s.sneaking && (floor_div(ox, FP) != cell_x(s) || floor_div(oy, FP) != cell_y(s)) {
+        (mut s.trail).push(Trail { x: s.x, y: s.y, until: s.tick + TRAIL_TICKS })
+    }
+}
+
+/// Tick order is part of the replay contract: input, movement, action,
+/// foe attack, trail, recovery. Actions use half-open tick intervals.
+pub fn step(mut s: Sim, keys: List[int]) {
+    s.tick += 1
+    if s.action == FALL {
+        if s.tick - s.started >= 30 {
+            let (x, y) = terrain.start(s.seed)
+            s.x = x
+            s.y = y
+            reset_world(mut s)
+        }
+        return
+    }
+    action_keys(mut s, keys)
+    if s.den { return }
+    if s.locked >= 0 {
+        let f = copy s.foes[s.locked]
+        if f.health <= 0 {
+            s.locked = -1
+        } else {
+            if near(s.x, s.y, f.x, f.y, (SIGHT + s.nose) * FP) && visible(s, s.x, s.y, f.x, f.y) {
+                s.unseen = 0
+            } else {
+                s.unseen += 1
+            }
+            if s.unseen >= 60 { s.locked = -1 }
+        }
+    }
+    let ox = s.x
+    let oy = s.y
+    locomotion(mut s, keys)
+    let want = heading_of(
+        input.held(s.holds[0], s.tick) || input.held(s.holds[4], s.tick),
+        input.held(s.holds[1], s.tick) || input.held(s.holds[5], s.tick),
+        input.held(s.holds[2], s.tick) || input.held(s.holds[6], s.tick),
+        input.held(s.holds[3], s.tick) || input.held(s.holds[7], s.tick),
+    )
+    action_step(mut s, want)
+    foes_step(mut s)
+    if s.action == FALL { return }
+    trail_step(mut s, ox, oy)
+    if s.mark && near(s.x, s.y, s.mark_x, s.mark_y, FP) {
+        s.scent += s.mark_scent
+        s.mark = false
+        s.mark_scent = 0
+    }
+    if s.action == IDLE {
+        s.stamina += if s.moving then REGEN / 2 else REGEN
+        if s.stamina > stamina_max(s.wind) { s.stamina = stamina_max(s.wind) }
+        if s.stamina >= EXHAUST_RECOVER { s.exhausted = false }
+    }
 }

@@ -72,10 +72,31 @@ pub const KEY_QUIT: int = 16
 pub const KEY_INTERRUPT: int = 17
 
 /// The number of keys (every id below this).
-pub const KEY_COUNT: int = 18
+pub const KEY_RELEASE: int = 18
+
+/// Input identifier: heart.
+pub const KEY_HEART: int = 19
+
+/// Input identifier: wind.
+pub const KEY_WIND: int = 20
+
+/// Input identifier: fang.
+pub const KEY_FANG: int = 21
+
+/// Input identifier: paw.
+pub const KEY_PAW: int = 22
+
+/// Input identifier: nose.
+pub const KEY_NOSE: int = 23
+
+/// Input identifier: count.
+pub const KEY_COUNT: int = 24
 
 /// What a character means, or `KEY_NONE`.
 fn char_key(b: int) -> int {
+    if b >= 49 && b <= 53 {
+        return KEY_HEART + b - 49
+    }
     if b == 32 {
         return KEY_BITE
     }
@@ -131,7 +152,7 @@ pub fn map(k: int) -> int {
         return KEY_LOCK
     }
     if k == input.KEY_ESC {
-        return KEY_QUIT
+        return KEY_RELEASE
     }
     if k == input.KEY_INTERRUPT {
         return KEY_INTERRUPT
@@ -170,7 +191,7 @@ pub fn key_of(name: str) -> int ! {parse} {
 /// numeric event yet (cb01's `health` and `scent`).
 pub fn vocab() -> replay.Vocab {
     var names = List[str]()
-    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt".
+    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt release heart wind fang paw nose".
         words() {
         (mut names).push(w)
     }

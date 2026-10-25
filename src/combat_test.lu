@@ -1,0 +1,246 @@
+//! member: false
+
+use sim
+use controls
+
+fn keys(k: int) -> List[int] {
+    var v = List[int]()
+    if k > 0 { (mut v).push(k) }
+    v
+}
+
+fn ticks(mut s: sim.Sim, n: int) {
+    var i = 0
+    while i < n { sim.step(mut s, keys(0)); i += 1 }
+}
+
+fn arena() -> sim.Sim {
+    var s = sim.new(7, 80, 24)
+    s.heading = 64
+    s.heading_target = 64
+    s.foes[0].x = s.x + sim.FP * 3 / 2
+    s.foes[0].y = s.y
+    s.foes[0].heading = 192
+    s.foes[1].health = 0
+    s.foes[2].health = 0
+    s
+}
+
+fn strike_at(mut s: sim.Sim) {
+    s.foes[0].phase = sim.CROUCH
+    s.foes[0].since = s.tick + 1 - sim.WEASEL_WINDUP
+}
+
+fn test_parry_window_edges() {
+    var age = 0
+    while age <= 9 {
+        var s = arena()
+        s.action = sim.PARRY
+        s.started = 1 - age
+        strike_at(mut s)
+        sim.step(mut s, keys(0))
+        assert((s.health == 52) == (age < sim.PARRY_WINDOW), "parry window edge age {age}")
+        assert((s.foes[0].phase == sim.STAGGER) == (age < sim.PARRY_WINDOW), "stagger edge {age}")
+        age += 1
+    }
+}
+
+fn test_parry_riposte_doubles_next_bite_not_the_parry() {
+    var s = arena()
+    s.foes[0].health = 24
+    strike_at(mut s)
+    sim.step(mut s, keys(controls.KEY_PARRY))
+    assert(s.foes[0].health == 24, "parry itself deals no damage")
+    ticks(mut s, 15)
+    sim.step(mut s, keys(controls.KEY_BITE))
+    ticks(mut s, 3)
+    assert(s.foes[0].health == 8, "follow-up doubles bite")
+    assert(s.riposte == 0, "riposte consumed")
+}
+
+fn test_bite_windup_active_recovery_and_one_hit() {
+    var s = arena()
+    sim.step(mut s, keys(controls.KEY_BITE))
+    ticks(mut s, 2)
+    assert(s.foes[0].health == 8, "windup does not damage")
+    ticks(mut s, 1)
+    assert(s.foes[0].health == 0 && s.scent == 8, "one bite kills a weasel")
+    ticks(mut s, 7)
+    assert(s.action == sim.BITE && s.scent == 8, "recovery cannot double award")
+    ticks(mut s, 1)
+    assert(s.action == sim.IDLE, "3 + 2 + 6 complete")
+}
+
+fn test_bite_chain_waits_for_recovery() {
+    var s = arena()
+    sim.step(mut s, keys(controls.KEY_BITE))
+    ticks(mut s, 4)
+    sim.step(mut s, keys(controls.KEY_BITE))
+    ticks(mut s, 6)
+    assert(s.action == sim.BITE && s.started == s.tick && s.stamina == 46, "queued bite pays once")
+}
+
+fn test_dodge_edges_and_three_cell_hop() {
+    var s = arena()
+    s.foes[0].health = 0
+    let x = s.x
+    sim.step(mut s, keys(controls.KEY_DODGE))
+    ticks(mut s, sim.dodge_iframes(s.paw) - 1)
+    assert(s.x - x == 3 * sim.FP, "hop is three cells")
+    assert(sim.invulnerable(s), "last iframe")
+    ticks(mut s, 1)
+    assert(!sim.invulnerable(s), "recovery is vulnerable")
+    let health = s.health
+    sim.hurt(mut s, 10)
+    assert(s.health == health - 10, "damage outside iframes")
+}
+
+fn test_dodge_avoids_a_bite_not_a_body() {
+    var s = arena()
+    strike_at(mut s)
+    sim.step(mut s, keys(controls.KEY_DODGE))
+    assert(s.health == 52 && s.foes[0].hit, "bite consumed without damage")
+    assert(s.x == 0, "body stops the hop; no teleport through a foe")
+}
+
+fn test_exhaustion_blocks_heavy_moves_until_recovered() {
+    var s = arena()
+    s.foes[0].health = 0
+    s.stamina = 12
+    sim.step(mut s, keys(controls.KEY_BITE))
+    assert(s.exhausted && s.stamina == 0, "spent pants")
+    ticks(mut s, 11)
+    s.stamina = 20
+    sim.step(mut s, keys(controls.KEY_DODGE))
+    assert(s.action == sim.IDLE, "pant blocks dodge even when cost affordable")
+    ticks(mut s, 1)
+    assert(!s.exhausted, "recover at the named threshold")
+}
+
+fn test_water_heals_forty_over_last_fifteen_ticks_and_interrupts() {
+    var s = arena()
+    s.foes[0].health = 0
+    s.health = 5
+    sim.step(mut s, keys(controls.KEY_WATER))
+    ticks(mut s, 14)
+    assert(s.health == 5 && s.flasks == 2, "first fifteen ticks prepare water")
+    ticks(mut s, 15)
+    assert(s.health == 45, "exactly forty healed")
+    ticks(mut s, 1)
+    sim.step(mut s, keys(controls.KEY_WATER))
+    sim.hurt(mut s, 1)
+    ticks(mut s, 30)
+    assert(s.health == 44 && s.flasks == 1, "interruption loses mouthful and healing")
+}
+
+fn test_den_rest_and_growth() {
+    var s = arena()
+    s.health = 1
+    s.flasks = 0
+    s.scent = 80
+    sim.step(mut s, keys(controls.KEY_REST))
+    assert(s.den && s.health == 52 && s.flasks == 3 && s.foes[0].health == 8, "rest resets world")
+    sim.step(mut s, keys(controls.KEY_HEART))
+    assert(s.heart == 2 && s.scent == 0 && s.health == 64, "next level costs eighty")
+    sim.step(mut s, keys(controls.KEY_FANG))
+    assert(s.fang == 1, "no credit")
+}
+
+fn test_second_death_replaces_mark() {
+    var s = arena()
+    s.x += 4 * sim.FP
+    s.scent = 28
+    sim.hurt(mut s, 100)
+    assert(s.mark && s.mark_scent == 28 && s.scent == 0, "first death drops scent")
+    ticks(mut s, 29)
+    assert(s.action == sim.FALL, "fade not done early")
+    ticks(mut s, 1)
+    assert(s.action == sim.IDLE && s.health == 52 && s.flasks == 3, "wake after thirty")
+    s.x += 2 * sim.FP
+    s.scent = 8
+    sim.hurt(mut s, 100)
+    assert(s.mark_scent == 8 && s.mark_x == s.x && s.deaths == 2, "second death replaces mark")
+    ticks(mut s, 30)
+    s.x = s.mark_x
+    s.y = s.mark_y
+    sim.step(mut s, keys(0))
+    assert(!s.mark && s.scent == 8, "only the new mark is recovered")
+    sim.step(mut s, keys(0))
+    assert(s.scent == 8, "cannot recover twice")
+}
+
+fn test_trail_expires_and_sneak_lays_none() {
+    var s = arena()
+    s.foes[0].health = 0
+    var i = 0
+    while i < 40 { sim.step(mut s, keys(controls.KEY_SNEAK_RIGHT)); i += 1 }
+    assert(s.trail.len == 0, "sneaking lays no trail")
+    i = 0
+    while i < 60 { sim.step(mut s, keys(controls.KEY_RIGHT)); i += 1 }
+    assert(s.trail.len > 0, "walking leaves a line")
+    ticks(mut s, sim.TRAIL_TICKS + 30)
+    assert(s.trail.len == 0, "all old scent fades")
+}
+
+fn test_fox_feint_is_harmless_then_steals_water() {
+    var s = arena()
+    s.foes[0].kind = sim.FOX
+    sim.step(mut s, keys(0))
+    assert(s.foes[0].phase == sim.FEINT, "first tell is false")
+    ticks(mut s, 16)
+    assert(s.foes[0].phase == sim.CROUCH && s.health == 52, "second tell is real")
+    ticks(mut s, 12)
+    assert(s.health == 36 && s.flasks == 2, "real strike steals one mouthful")
+    ticks(mut s, 2)
+    assert(s.health == 36 && s.flasks == 2, "one hit per attack")
+}
+
+fn test_weasel_readable_tell_and_retreat() {
+    var s = arena()
+    sim.step(mut s, keys(0))
+    assert(s.foes[0].phase == sim.CROUCH, "crouch")
+    ticks(mut s, 11)
+    assert(s.health == 52, "eleven safe ticks")
+    ticks(mut s, 1)
+    assert(s.health == 42, "bite on tick twelve")
+    ticks(mut s, 2)
+    assert(s.foes[0].phase == sim.RETREAT, "retreat follows active window")
+}
+
+fn test_sight_cone_and_scent_are_independent() {
+    var s = arena()
+    s.foes[0].heading = 64
+    assert(!sim.can_see(s, s.foes[0]), "cub behind the foe")
+    (mut s.trail).push(sim.Trail { x: s.x, y: s.y, until: 300 })
+    sim.step(mut s, keys(0))
+    assert(s.foes[0].phase == sim.CROUCH, "scent finds cub outside sight")
+}
+
+fn test_lock_release_and_sixty_unseen_ticks() {
+    var s = arena()
+    sim.step(mut s, keys(controls.KEY_LOCK))
+    assert(s.locked == 0, "nearest lock")
+    s.foes[0].x = 100 * sim.FP
+    ticks(mut s, 59)
+    assert(s.locked == 0, "not early")
+    ticks(mut s, 1)
+    assert(s.locked == -1, "sixty unseen ticks release")
+    s.locked = 0
+    sim.step(mut s, keys(controls.KEY_RELEASE))
+    assert(s.locked == -1, "Esc releases")
+}
+
+fn test_lunge_breaks_gate_and_rest_keeps_it_open() {
+    var s = arena()
+    s.foes[0].health = 0
+    s.x = 0
+    s.y = (sim.gate_y(s) - 3) * sim.FP
+    s.heading = 128
+    s.heading_target = 128
+    assert(sim.blocked(s, 0, sim.gate_y(s)), "gate starts closed")
+    sim.step(mut s, keys(controls.KEY_LUNGE))
+    ticks(mut s, 8)
+    assert(!s.gate_open, "windup cannot open it")
+    ticks(mut s, 1)
+    assert(s.gate_open && !sim.blocked(s, 0, sim.gate_y(s)), "active lunge opens edge")
+}

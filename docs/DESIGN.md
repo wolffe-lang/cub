@@ -2,11 +2,9 @@
 
 Every tuning number in cub is a named constant in `src/sim/sim.lu` or `src/terrain/terrain.lu`, mirrored
 here with the date it was set and by whom. The design bible (`sprints/lair/cub/design.md` in the planning
-repo) is the oracle; a number is **proposed** until the maintainer's play says otherwise (R-CB-7), and a
-change here is a change there in the same commit.
+repo) is the oracle; a number is **proposed** until the maintainer's play says otherwise (R-CB-7), and new proposals here are submitted for review; the private bible is not edited by this lane.
 
-The scaffold (cb00) moves a fresh cub on the Shingle. The moves, the foes, the dens, scent and the areas
-are cb01's and cb02's; their numbers are the bible's sections 4 to 8 and arrive with them.
+The Shingle now has a fight, rest and recovery loop. The rest of the area graph follows next.
 
 ## The cub's stats (`src/sim/sim.lu`; the bible's section 3)
 
@@ -14,7 +12,7 @@ are cb01's and cb02's; their numbers are the bible's sections 4 to 8 and arrive 
 |---|---|---|---|
 | `STAT_START` | 1 | heart, wind, fang, paw and nose at the start; each 1-10, grown at dens with scent (cb01) | 2026-10-25 proposed |
 | `health_max(heart)` | `40 + 12 × heart` | health at a heart level: 52 at the start | 2026-10-25 proposed (the bible) |
-| `stamina_max(wind)` | `60 + 10 × wind` | stamina at a wind level: 70 at the start; nothing drains it yet | 2026-10-25 proposed (the bible) |
+| `stamina_max(wind)` | `60 + 10 × wind` | stamina at a wind level: 70 at the start; moves spend it | 2026-10-25 proposed (the bible) |
 | `trot_at(paw)` | `TROT_V + 2 × paw` | the trot at a paw level: 38 at the start | 2026-10-25 proposed (the bible) |
 
 ## The cub's motion (`src/sim/sim.lu`)
@@ -22,7 +20,7 @@ are cb01's and cb02's; their numbers are the bible's sections 4 to 8 and arrive 
 | constant | value | meaning | set |
 |---|---|---|---|
 | `TROT_V` | 36 | the trot's base, fixed-point units a tick (256 a cell): 0.15 cells a tick, 4.4 a second, a cub's pace under pack's wolves' 40 | 2026-10-25 proposed |
-| `SNEAK_V` | 18 | a sneak (Shift+arrow): half the trot; no trail is laid (cb01) and foes perceive by sight only | 2026-10-25 proposed (the bible, section 4) |
+| `SNEAK_V` | 19 | a sneak (Shift+arrow): half the current paw-dependent trot; no trail is laid and foes perceive by sight only | 2026-10-25 proposed (the bible, section 4) |
 | `ACCEL` | 4 | acceleration, FP units a tick each tick: the trot from a stop in 9 ticks | 2026-10-25 proposed |
 | `BRAKE` | 8 | braking: a stop from the trot in 5 ticks; a cub stops faster than it starts | 2026-10-25 proposed |
 | `TURN` | 256 | heading units a full turn: 0 north, 64 east, 128 south, 192 west; the diagonals between when two arrows are held | 2026-10-25 cb00 |
@@ -52,3 +50,44 @@ other axis still slides, so a wall is followed, not stuck to.
 | `TICK_HZ` | 30 | the simulation's tick | pack's pk00 |
 | `MIN_COLS` x `MIN_ROWS` | 80 x 24 | the smallest terminal; the field scales up (R-CB-5 recommends pack's) | pack's pk00 |
 | `ESC_TIMEOUT_MS` | 50 | a lone ESC is Esc after this long | pack's pk00 |
+
+## Combat and recovery (2026-10-25, proposed)
+
+The bible supplies bite cost 12 and 3/2/6 ticks, reach 2; lunge cost 30 and
+9/3/12 ticks, reach 4; parry cost 10 and 9 active / 6 recovery ticks;
+stagger 30 ticks; dodge cost 18, distance 3 cells, 6 + paw/2 iframes and
+4 recovery ticks. Tick intervals are half-open: parry ages 0–8 succeed,
+age 9 does not. A bite hits each foe once per action; a recovery input queues
+one next bite. Bite damage is 6 + 2 × fang, lunge three times that.
+
+R-cb01-1 recommendation A: camera remains centred on the cub; lock turns the
+cub toward the foe. First Tab selects nearest visible foe, then stable spawn
+order; Esc releases, death releases, sixty unseen ticks release. Range is
+8 + nose cells. R-cb01-2 recommendation A: the next bite on the parried foe
+before its 30-tick stagger expires deals double damage, once; parry itself
+never damages. These are recommendations, not decisions by this implementation.
+
+R-cb01-3 recommendation: the bible gives 30 ticks to drink and 40 health over
+15 ticks. Prepare for the first 15, heal by exact integer instalments during
+the last 15; any damage interrupts and the mouthful is already spent.
+
+Additional proposed values, all 2026-10-25:
+
+| mechanic | values |
+|---|---|
+| stamina | `REGEN` 2 standing, 1 walking, none during moves; exhausted at zero; `EXHAUST_RECOVER` 24; no sprint binding exists yet |
+| posture | fresh above 2/3, tired above 1/3, spent below; limp halves trot below 1/3 health |
+| weasel | health 8, damage 10, scent 8 (bible); crouch 12, active 2, retreat/recovery 24 ticks |
+| fox | health 24, damage 16, scent 20 (bible); feint 10, gap 6, real crouch 12, active 3, retreat 24 ticks; steals one water on a hit |
+| foe motion | 44 pursuit / 48 retreat FP units per tick, acceleration 4, turn rate 16, stamina cap 60, attack costs 12, hunt restores 1/tick |
+| perception | 90-degree forward cone, sight 8 cells; scent search 6 cells, newest unexpired visible sample; half-cell ray sampling |
+| trail | 300-tick lifetime (bible); one sample per changed cell, none sneaking; old trail remains until expiry |
+| water and death | 3 mouthfuls; 40 healed; 30-tick death fade (bible); mark recovery within 1 cell |
+| growth | each stat starts 1, cap 10; next level costs 40 × next level (80 for level 2), only at den |
+| den | within 1 cell of start; reset health, stamina, water, foes, trail and holds; gate and dropped mark persist |
+| collision | ground bodies remain at least 1 cell apart; attack envelope and visual arc are separate |
+| Shingle layout | den at seeded start; weasels x=9,13 and fox x=20 at start y; open fight strip x=3..22, y=start-1..start+2; southern path x=-2..2 through start+16; gate across path at start+10 |
+
+The fox on the Shingle is a combat preview, not the later named fox's story
+state. Bleeding, cold, further areas, save persistence and the difficulty
+selector are not in this pass. It implements the default wolf rules.

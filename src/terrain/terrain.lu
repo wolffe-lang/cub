@@ -117,6 +117,14 @@ pub fn kind(seed: int, x: int, y: int) -> int {
     if y < b + REED_ROWS + SHINGLE_ROWS {
         return GRAVEL
     }
+    // The fixed graph's first edge: an open approach to the thorn gate.
+    let sy = bank(seed, 0) + REED_ROWS + 2
+    if x >= -2 && x <= 2 && y >= sy && y <= sy + 16 {
+        return GRASS
+    }
+    if x >= 3 && x <= 22 && y >= sy - 1 && y <= sy + 2 {
+        return GRAVEL
+    }
     let c = cover(seed, x, y)
     let h = world.hash(seed + 13, x, y, 100)
     if c < COVER_GRASS {
