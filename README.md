@@ -11,7 +11,10 @@ The second game of the lair, the wolf games collection, on the collection's shar
 
 **What is in this build:** a seeded route from the Shingle through
 Bramblehold to Larkmeadow, with four dens, meandering paths, guarded side
-caches and two shortcuts home. Bite, lunge, parry, dodge and chain attacks;
+caches and two shortcuts home. The shore winds between water and visible
+forest, bounded by rock jetties; its offshoots end in guarded bundle
+alcoves. Original log and flotsam sprites mark the coast. Bite, lunge,
+parry, dodge and chain attacks;
 a hawk's stopped shadow asks for a parry or an escape. Foes leave visible
 scent to collect before it fades. Dens heal, refill water and spend scent
 on growth. Death leaves a recoverable mark, even across area edges; a
@@ -81,7 +84,8 @@ measures rendering, idle wakes and key-to-frame latency.
 The two compiler backends and both hosts must reproduce identical glyphs,
 styles and integer snapshots. `--world-audit` floods the actual terrain for
 50 seeds, checking every den, exit and cache, the meander bound and enemy
-spacing. The real-key world scripts visit all three areas, fight the hawk,
+spacing, plus a bounded walk from every den-reachable coast cell to a
+useful route or cache. The real-key world scripts visit all three areas, fight the hawk,
 recover a cross-area mark and return through both shortcuts. File tests
 cover save round trips, cut writes, concurrent stages, corruption and
 persisted marks. The pty rows include quit and typed Ctrl-C during a pending
