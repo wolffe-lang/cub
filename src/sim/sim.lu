@@ -1086,3 +1086,70 @@ pub fn attack_aim(s: Sim) -> int {
     let h = heading_of(up > down, down > up, left > right, right > left)
     if h >= 0 then h else s.heading
 }
+
+/// The bite and lunge's presentation distances; hit reaches remain 2 and 4.
+pub const BITE_ARC: int = FP
+
+/// Long leap distance in fixed point, before collision clipping.
+pub const LUNGE_ARC: int = 3 * FP
+
+/// Integer out-and-back triangle, like pack's arc, with a fixed apex.
+pub fn leap_arc(heading: int, age: int, ticks: int, distance: int) -> (int, int) {
+    if age <= 0 || age >= ticks { return (0, 0) }
+    let n = if age <= ticks / 2 then age else ticks - age
+    let travel = distance * n / (ticks / 2)
+    (sin(heading) * travel / FP, 0 - cos(heading) * travel / FP)
+}
+
+/// Clip the full path in eighth-cell steps, not just the endpoint.
+/// Ground physics and the camera never use these presentation coordinates.
+pub fn clip_arc(s: Sim, ox: int, oy: int) -> (int, int) {
+    let span = if abs(ox) > abs(oy) then abs(ox) else abs(oy)
+    let steps = span / (FP / 8) + 1
+    var x = 0
+    var y = 0
+    var n = 1
+    while n <= steps {
+        let dx = ox * n / steps
+        let dy = oy * n / steps
+        let nx = s.x + dx
+        let ny = s.y + dy
+        var stops = blocked(s, floor_div(nx, FP), floor_div(ny, FP))
+        for f in s.foes {
+            if f.health > 0 && abs(nx - f.x) < 2 * FP && abs(ny - f.y) < 2 * FP { stops = true }
+        }
+        if stops { break }
+        x = dx
+        y = dy
+        n += 1
+    }
+    (x, y)
+}
+
+/// The cub's bounded presentation offset, pure and independent of tier.
+pub fn attack_offset(s: Sim) -> (int, int) {
+    let age = s.tick - s.started
+    if s.action == BITE {
+        let (x, y) = leap_arc(s.attack_heading, age - 2, 3, BITE_ARC)
+        return clip_arc(s, x, y)
+    }
+    if s.action == LUNGE {
+        let (x, y) = leap_arc(s.attack_heading, age - 8, 4, LUNGE_ARC)
+        return clip_arc(s, x, y)
+    }
+    (0, 0)
+}
+
+/// One contact flash on the arc's apex, at the hit foe (or the empty apex).
+pub fn landing(s: Sim) -> bool {
+    s.action == BITE && s.tick - s.started == 3 || s.action == LUNGE && s.tick - s.started == 10
+}
+
+/// Landing mark destination; the actual hit envelope, never a new collider.
+pub fn landing_point(s: Sim) -> (int, int) {
+    for f in s.foes {
+        if f.last_hit == s.started { return (f.x, f.y) }
+    }
+    let (dx, dy) = attack_offset(s)
+    (s.x + dx, s.y + dy)
+}

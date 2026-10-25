@@ -69,3 +69,46 @@ fn test_cb01b_lock_overrides_arrow_aim() {
     sim.step(mut s, keys(controls.KEY_LEFT, controls.KEY_LUNGE, 0))
     assert(s.attack_heading == 64, "lock overrides west arrow toward east foe")
 }
+
+fn test_cb01b_bite_has_a_travelling_arc_and_returns() {
+    var s = empty()
+    s.heading = 64
+    sim.step(mut s, keys(controls.KEY_BITE, 0, 0))
+    let x = s.x
+    let y = s.y
+    var age = 0
+    var moved = false
+    while age < 12 {
+        let (dx, dy) = sim.attack_offset(s)
+        if age == 3 { assert(dx == sim.BITE_ARC && dy == 0, "bite apex one cell"); moved = dx > 0 }
+        if age < 3 || age >= 5 { assert(dx == 0 && dy == 0, "windup and recovery at origin") }
+        assert(s.x == x && s.y == y, "arc does not move the ground body")
+        sim.step(mut s, keys(0, 0, 0))
+        age += 1
+    }
+    assert(moved, "bite without its arc is forbidden")
+}
+
+fn test_cb01b_lunge_triangle_and_collision_clip() {
+    var s = empty()
+    s.heading = 64
+    sim.step(mut s, keys(controls.KEY_LUNGE, 0, 0))
+    s.tick = s.started + 10
+    let (x, y) = sim.attack_offset(s)
+    assert(x == 3 * sim.FP && y == 0, "three-cell lunge apex")
+    s.foes = sim.spawn_foes(s.seed)
+    s.foes[0].x = s.x + 3 * sim.FP
+    s.foes[0].y = s.y
+    let (cx, cy) = sim.attack_offset(s)
+    assert(cx <= sim.FP && cy == 0, "cannot tunnel through two-cell foe footprint")
+    s.attack_heading = 0
+    s.tick = s.started + 10
+    let (wx, wy) = sim.attack_offset(s)
+    assert(
+        !sim.blocked(s, sim.floor_div(s.x + wx, sim.FP), sim.floor_div(s.y + wy, sim.FP)),
+        "terrain clips",
+    )
+    s.tick = s.started + 12
+    let (rx, ry) = sim.attack_offset(s)
+    assert(rx == 0 && ry == 0, "return at recovery")
+}
