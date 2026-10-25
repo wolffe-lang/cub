@@ -2,10 +2,11 @@
 //! the game owns its sprites, the engine's `tier` the tiers and the colour
 //! machinery). Two tiers, as pack's:
 //!
-//! - **rich**: the cub is two cells by two with quadrant blocks for its
-//!   ears on the side it faces (`docs/ART.md`), the forest braille and
-//!   heavy box drawing as pack's, the Ashwater `≈`; `docs/GLYPHS.md` names
-//!   every code point here and a test holds the two together;
+//! - **rich**: the ground's braille and heavy box drawing as pack's, the
+//!   Ashwater `≈`; the creatures are `silhouette`'s pixel bitmaps (cb02b),
+//!   whose block elements and braille patterns `rich_code_points` lists
+//!   with the ground's; `docs/GLYPHS.md` names every code point and a test
+//!   holds the two together;
 //! - **plain**: code points 0-255 and the sixteen colours only —
 //!   `grid.plain_ok` holds a frame to it and a test holds every sprite.
 //!
@@ -16,6 +17,7 @@
 //! draws the fresh band and names the others.
 
 use grid
+use silhouette
 use tier
 
 // Sprites.
@@ -42,25 +44,15 @@ pub const SP_WATER: int = 5
 /// Reeds at the water's edge (variant 0-1).
 pub const SP_REEDS: int = 6
 
-/// The cub's body cell.
-pub const SP_CUB_BODY: int = 7
-
-/// The cub's ear cell: variant `facing * 2 + which` (facing 0 north, 1
-/// east, 2 south, 3 west; which 0 the first ear in reading order, 1 the
-/// second), plus `8 * band` (0 fresh, 1 tired, 2 spent: cb01 draws them).
-pub const SP_CUB_EAR: int = 8
-
-/// The plain tier's facing mark beside the `C` (variant: facing 0-3).
-pub const SP_CUB_MARK: int = 9
-
 /// Jetty stone: mottled faces, distinct from foliage.
-pub const SP_ROCK: int = 10
+pub const SP_ROCK: int = 7
 
-/// The number of sprites (every id below this).
-pub const SPRITE_COUNT: int = 11
+/// The number of sprites (every id below this). The cub and the foes are
+/// not sprites here: they are `silhouette`'s bitmaps.
+pub const SPRITE_COUNT: int = 8
 
-/// The most variants any sprite has (the ear's twenty-four).
-pub const VARIANT_COUNT: int = 24
+/// The most variants any sprite has (the canopy's and the gravel's four).
+pub const VARIANT_COUNT: int = 4
 
 // The palette, by role.
 
@@ -163,24 +155,6 @@ pub fn glyph(t: int, sprite: int, variant: int) -> grid.Cell {
     plain(sprite, variant)
 }
 
-/// The quadrant block of the cub's ear on the rich tier: facing north the
-/// ears point up and out (`▝ ▘`), south down and out (`▗ ▖`), west the two
-/// left quadrants (`▘` over `▖`), east the two right (`▝` over `▗`).
-fn ear_cp(v: int) -> int {
-    let facing = v / 2 % 4
-    let which = v % 2
-    if facing == 0 {
-        return if which == 0 then 9629 else 9624
-    }
-    if facing == 2 {
-        return if which == 0 then 9623 else 9622
-    }
-    if facing == 3 {
-        return if which == 0 then 9624 else 9622
-    }
-    if which == 0 then 9629 else 9623
-}
-
 fn rich(sprite: int, v: int) -> grid.Cell {
     let t = tier.RICH
     match sprite {
@@ -236,17 +210,7 @@ fn rich(sprite: int, v: int) -> grid.Cell {
             ),  // SP_DARK: the canopy's four glyphs in the deep green
         5 => c(t, if v % 4 == 0 then 32 else 8776, C_RIPPLE, C_WATER, 0),  // SP_WATER
         6 => c(t, if v % 2 == 0 then 10247 else 10262, C_REED, C_WATER, 0),  // SP_REEDS
-        7 => c(t, 9608, C_FUR, C_GRAVEL, 0),  // SP_CUB_BODY
-        8 =>
-            c(
-                t,
-                if v / 8 == 2 then 9608 else ear_cp(v),
-                if v / 8 == 0 then C_FUR else C_FUR_DIM,
-                C_GRAVEL,
-                0,
-            ),  // SP_CUB_EAR
-        9 => c(t, 32, C_FUR, C_GRAVEL, 0),  // SP_CUB_MARK (rich draws ears instead)
-        10 => c(t, if v % 2 == 0 then 9617 else 9608, C_MARK, C_GRAVEL, 0),
+        7 => c(t, if v % 2 == 0 then 9617 else 9608, C_MARK, C_GRAVEL, 0),  // SP_ROCK
         _ => grid.blank(),
     }
 }
@@ -282,34 +246,17 @@ fn plain(sprite: int, v: int) -> grid.Cell {
             ),  // SP_DARK
         5 => c(t, if v % 4 == 0 then 32 else 126, C_RIPPLE, C_WATER, 0),  // SP_WATER
         6 => c(t, if v % 2 == 0 then 124 else 33, C_REED, C_WATER, 0),  // SP_REEDS
-        7 => c(t, 67, C_FUR, C_GRAVEL, grid.ATTR_BOLD),  // SP_CUB_BODY
-        8 => c(t, 32, C_FUR, C_GRAVEL, 0),  // SP_CUB_EAR (plain draws a mark instead)
-        9 =>
-            c(
-                t,
-                if v % 4 == 0 {
-                    94
-                } else if v % 4 == 1 {
-                    62
-                } else if v % 4 == 2 {
-                    118
-                } else {
-                    60
-                },
-                C_FUR,
-                C_GRAVEL,
-                grid.ATTR_BOLD,
-            ),  // SP_CUB_MARK
-        10 => c(t, if v % 2 == 0 then 79 else 35, C_MARK, C_GRAVEL, 0),
+        7 => c(t, if v % 2 == 0 then 79 else 35, C_MARK, C_GRAVEL, 0),  // SP_ROCK
         _ => grid.blank(),
     }
 }
 
 /// Every code point the rich tier can draw, each once, ascending: the
-/// list `docs/GLYPHS.md` must name (a test holds the two together), and
-/// PAX's font row's specification for cub.
+/// ground's sprites and every silhouette in every facing: the list
+/// `docs/GLYPHS.md` must name (a test holds the two together), and PAX's
+/// font row's specification for cub.
 pub fn rich_code_points() -> List[int] {
-    var cps = List[int]()
+    var cps = silhouette.all_code_points()
     var s = 0
     while s < SPRITE_COUNT {
         var v = 0
