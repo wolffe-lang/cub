@@ -11,7 +11,7 @@
 //! Trunks, deep forest and the Ashwater stop it. The stats of section 3 are
 //! here as the first constants (every number `docs/DESIGN.md`'s, proposed;
 //! R-CB-7: the maintainer's by play): the scaffold moves a fresh cub with
-//! heart, wind, fang, paw and nose at 1 and drains nothing yet.
+//! heart, wind, fang, paw and nose at 1; the fight, den and scent loop follows below.
 
 use controls
 use input
@@ -854,7 +854,8 @@ fn foes_step(mut s: Sim) {
                     f.stamina >= 12 {
                     s.foes[i].phase = if f.kind == FOX then FEINT else CROUCH
                     s.foes[i].since = s.tick
-                    s.foes[i].heading = heading_to(f.x, f.y, s.x, s.y)
+                    s.foes[i].target_x = s.x
+                    s.foes[i].target_y = s.y
                     s.foes[i].speed = 0
                     s.foes[i].stamina -= 12
                 } else {
@@ -870,7 +871,8 @@ fn foes_step(mut s: Sim) {
         } else if f.phase == PAUSE && age >= 6 {
             s.foes[i].phase = CROUCH
             s.foes[i].since = s.tick
-            s.foes[i].heading = heading_to(f.x, f.y, s.x, s.y)
+            s.foes[i].target_x = s.x
+            s.foes[i].target_y = s.y
         } else if f.phase == CROUCH && age >= WEASEL_WINDUP {
             s.foes[i].phase = STRIKE
             s.foes[i].since = s.tick
@@ -884,6 +886,20 @@ fn foes_step(mut s: Sim) {
         } else if f.phase == STAGGER && age >= STAGGER_TICKS {
             s.foes[i].phase = if f.kind == WEASEL then RETREAT else HUNT
             s.foes[i].since = s.tick
+        }
+        if s.foes[i].phase == CROUCH || s.foes[i].phase == FEINT {
+            let h = heading_to(f.x, f.y, s.foes[i].target_x, s.foes[i].target_y)
+            if h >= 0 {
+                let d = turn_toward(f.heading, h)
+                let turn = if d > TURN_RATE {
+                    TURN_RATE
+                } else if d < 0 - TURN_RATE {
+                    0 - TURN_RATE
+                } else {
+                    d
+                }
+                s.foes[i].heading = (f.heading + turn + TURN) % TURN
+            }
         }
         // Test current phase so the first active tick is not lost.
         if s.foes[i].phase == STRIKE &&
