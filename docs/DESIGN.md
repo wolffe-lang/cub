@@ -215,14 +215,14 @@ All values below are proposed 2026-10-25:
 
 | layout or mechanic | value |
 |---|---|
-| area bounds | x=-40..40, 160 cells along the route; local origin at the seeded bank den or the new area's north edge |
+| area bounds | 160 cells along the route; the width is the journey's field (the grove section below): the coast `coast_extent(field)` each way, an inland area `half_width(field)` each side; local origin at the seeded bank den or the new area's north edge |
 | centre curve | engine value noise on channels 31..33, sampled at 2× distance, plus eight-cell smoothstep anchors alternating seeded magnitudes 3..5; taper over eight cells at entrances |
 | path width | half-width 3..5, separate channels 45..47 sampled at 3× distance |
 | straight limit | `STRAIGHT_MAX=12` equal consecutive centre cells; path measured over 50 seeds; the bank uses the coast slope bar below |
 | river bank | base -8, swing envelope 8; engine noise channel 9 at cell scale; adjacent bank rows differ by at most one |
 | dens | stable ids 0 hollow log, 1 split roots, 2 briar hollow, 3 grass nest; new dens at rows 7..10 or 90..93, x within one cell of the seeded path |
 | first foes | `FIRST_FOE_CELLS=30` minimum initial distance from every den in the area, checked independently of spawning |
-| branches | two curved cache branches around rows 52 and 132, ending at seeded x=±27..30; two-cell half-width; shortcut branches curve around row 22 toward x=±32 |
+| branches | two curved cache branches around rows 52 and 132, ending at seeded x=±(half_width-13..half_width-10); two-cell half-width; shortcut branches curve around row 22 toward x=±32 and end there |
 | gate | at bank origin+157; five full collision cells, including their fractional spans; a carved branch leaves the main route at 140 and tapers into the gate; exit at 159 |
 | portals | one-cell normal trigger, two-cell shortcut reach; arrival two cells inside the destination; exit shadow seven cells by three |
 | thicket | sight five cells; creature visibility remains limited, distant foliage stays drawn; 16% trunks, canopy/brush threshold 130/256 |
@@ -231,7 +231,7 @@ All values below are proposed 2026-10-25:
 | hawk | 18-tick stopped shadow, three active ticks, 36 recovery; 14 damage; 10-cell detection; two-cell seeded-home orbit over 120 ticks |
 | pickups | `DROP_TICKS=300`, one-cell collection radius; bright `*` for the first half, dim `.` after; expired scent is lost |
 | deer | flee within seven cells, ordinary 8 health; eating the drop heals 10 first and gives the bible's 5 scent |
-| caches | two per area; first a lore hollow, second an herb burrow; a weasel trio or fox pair guards it; dig within two cells only with no live guard within six; one yarrow in the meadow, one marrow elsewhere |
+| caches | two inland per area (first a lore hollow, second an herb burrow; a weasel trio or fox pair guards it), four on the coast (the grove section); dig within two cells only with no live guard within six; one yarrow in the meadow, one marrow from the second cache elsewhere |
 | opening | three original frames, 90 ticks each; any decoded key skips without also performing a move |
 
 | area | path groups | side-branch guards |
@@ -256,10 +256,12 @@ R-cb02-3 A requires walking over the visible scent drop.
 ## Journey files and scenes, 2026-10-25
 
 `--save PATH` overrides the live default `~/.cub/save`. Headless/replay
-runs write no journey unless explicitly given `--save`. Schema 1 records
+runs write no journey unless explicitly given `--save`. Schema 2 records
 seed, wolf difficulty, five growth levels, water capacity, carried scent,
-last/lit dens, shortcuts, gate/story flags, deaths, the mark, cache bits,
-pouch counts and opening progress. Current health and charges are transient:
+last/lit dens, shortcuts, gate/story flags, deaths, the mark, cache bits
+(eight: the coast's four, the thicket's two, the meadow's two), pouch
+counts, opening progress and the journey's field (cb02b; a schema-1 file
+is refused by name as any unknown version is). Current health and charges are transient:
 resume wakes at the last den, healed and refilled, with reset encounters.
 The difficulty selector is not added here: non-wolf saves fail by name,
 rather than silently playing wolf rules. Future boss/NPC states require a
@@ -282,7 +284,7 @@ live delay before replacement is one tick. `--save-delay 1..300` and
 `--save-cut` are explicit test witnesses. Quit/interrupt while a stage is
 pending cancels only that owned stage, preserving the previous journey.
 
-A resumed recording carries all 24 initial journey fields as versioned
+A resumed recording carries all 25 initial journey fields as versioned
 numeric replay events. Playback and death archives therefore need no
 external save. The opening is an `opening 1` event; its keys and skip are
 the ordinary replay stream. Reserved scene hooks are `scene.den.first`,
@@ -296,26 +298,57 @@ The Shingle is a horizontal five-row path between water and forest, with
 one bank row. The shoreline follows long-wave engine noise, not the
 alternating short anchors used by inland paths. Quantisation can make a
 level stretch; that is preferable to forcing a sawtooth. Rock jetties sit
-at independently seeded x=-(35..37) and +(35..37), beyond both shore
-branches. Each is three cells wide and extends six cells into the water
-and three cells past the path. Rock is solid; shore beyond it is closed.
+at the coast's ends (the grove section below), each three cells wide,
+six cells into the water and three past the path. Rock is solid; shore
+beyond it is closed.
 
-Two offshoots turn from the shore around x=±25, with the full inland
-curve amplitude and a two-cell half-width. They end at local rows 40..45
-in radius-four alcoves. Each has one 40-health fox, using its existing
-false/real tell and damage, guarding a wrapped bundle. Existing finite
+Four offshoots turn from the shore (the grove section), with the full
+inland curve amplitude and a two-cell half-width. They end at local rows
+40..45 in radius-four alcoves. Each has one 40-health fox, using its
+existing false/real tell and damage, guarding a wrapped bundle. The finite
 Shingle cache bits record the bundles; the den shows their count as
-“a bundle”. The second cache still gives its marrow, preserving schema-1
-pouch semantics. No new consumable effect or save version is invented.
+“a bundle”. The second cache still gives its marrow. No new consumable
+effect is invented.
 
 These implement recommendations R-cb02a-1 A, R-cb02a-2 A, R-cb02a-3 A,
 and R-cb02a-4 A (bundle identity from finite cache bits), not decisions.
 
-`--world-audit` checks 50 seeds. Its terrain-layer sweep covers the full
-area lengths at 80×24 and 200×60, both tiers, including the collision
-bounds' forest fill. `EMPTY_MAX=0` forbids blank or foreground-equals-
-background forest cells. A separate tile flood from the first den reaches
-every alcove cell and checks every reachable cell is within `WALK_MAX=200`
-cardinal steps of the thorn-route centreline or a cache. The bank step
-bar is one cell; the inland straight-run bar remains twelve. These are
-proposed regression limits, not a claim about the time a fight takes.
+`--world-audit` checks 50 seeds at both fields (80 and 200; 300 rows). Its
+terrain-layer census covers every camera position of every area at the
+field's own screen, both tiers, including the bounds' forest fill:
+`EMPTY_MAX=0` forbids blank or foreground-equals-background forest cells,
+`FLAT_MAX=2` bounds a run of identical adjacent foliage cells (measured
+one) and `TEXTURED_MIN=90` is the least share of forest cells outside such
+a run (measured 100 %). A separate tile flood from the first den over the
+coast's whole extent reaches every alcove cell and checks every reachable
+cell is within `WALK_MAX=200` cardinal steps of the thorn route, a branch
+or a cache (measured 130 at field 200, 119 at 80). The bank step bar is one
+cell; the inland straight-run bar remains twelve. These are proposed
+regression limits, not a claim about the time a fight takes.
+
+
+## The grove, 2026-10-25 (cb02b, proposed)
+
+The maintainer's play of cb02a: the forest was flat green tiles beyond the
+corridor, both jetties stood in view, no branch left the coast, and the
+second area rendered as a centred rectangle whose path ended at its edge.
+All values below are proposed; every ruling is a recommendation the lane
+implemented, not a decision.
+
+| layout or mechanic | value |
+|---|---|
+| the field | the terminal's columns when the journey began, floor `FIELD_MIN=80`; saved (schema 2) and carried in replays; a resize or a resume in another terminal never moves it (R-cb02b-4 A) |
+| the coast's extent | `coast_extent(field) = max(120, 3·field/2)` each way from the spawn: 120 at 80 columns, 300 at 200; the jetty at `±(extent + 0..2)` enters view after a walk of one screen (R-cb02b-1 A) |
+| the inland width | `half_width(field) = field/2 + 8` each side: 48 at 80 columns, 108 at 200, so the grove fills the screen it was made for (R-cb02b-6 A) |
+| the coast's branches | four, two each side of the thorn path (R-cb02b-3 A): mouths at `±(extent·k/3 + jitter)`, k = 1 near, 2 far, the seed jittering each by up to three cells; alcoves at rows 40..45, one 40-health fox and a bundle each (R-cb02b-5 A: no new consumable; the second cache keeps its marrow) |
+| the open canopy | on the coast within `OPEN_REACH=16` cells of the shore, the thorn route or a branch; the wood beyond is deep and solid, textured like the rest, so every walkable cell is a bounded walk from a route |
+| the cross path | inland, bounded to x = ±33: it ends at the log and the hedge, never at the area's edge |
+| the deep forest | the canopy's four glyphs in the deep green with trunks among them, inside and beyond every bound (R-cb02b-7 A: one tone for the deep wood, two for the open canopy) |
+| foliage variants | `2·((x+y) mod 2) + hash(x, y, 2)`: adjacent foliage cells never share a glyph set, so the texture has no flat run by construction |
+| the census | `coast.texture`: FLAT_MAX 2, TEXTURED_MIN 90 %; the coast flood from the river (`COAST_TOP=-16`) with the branch centrelines as targets, WALK_MAX 200 |
+| the silhouettes | pixel bitmaps at two by four a cell; the cub 8×16 (four cells by four north, eight by two east), the fox 8×12, the deer 8×16, the weasel 4×12, the hawk's shadow 8×4, the bundle 10×12; east, south and west are the north drawing turned (R-cb02b-2 A); hit envelopes unchanged |
+
+The schema-2 save adds one line, `field N`, before the check; a schema-1
+file is `save_version`; a field outside 80..10000 is `save_corrupt`. The
+cache bits are relaid: the coast's four first (bits 0-3), the thicket's
+two (4-5), the meadow's two (6-7).

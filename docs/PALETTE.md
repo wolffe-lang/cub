@@ -13,6 +13,8 @@ indices; the plain tier uses the sixteen console colours. These are proposed
 | canopy / deep canopy | 28 / 22 | 2 / 2 |
 | forest floor | 234 | 0 |
 | cub fur / dim fur | 180 / 137 | 11 / 3 |
+| deer | 180 | 11 |
+| hawk | 181 | 13 |
 | water / ripple | 24 / 31 | 4 / 6 |
 | reeds | 65 | 2 |
 | weasel | 130 | 1 |
@@ -30,8 +32,10 @@ presentation, not its collision body. Both tiers cover identical sim ticks.
 
 | role | rich | plain |
 |---|---:|---:|
-| thicket foliage / floor | 29 / 233 | 2 / 0 |
-| meadow grass / floor | 137 / 235 | 3 / 0 |
+| thicket foliage, light / deep | 29 / 23 | 2 / 2 |
+| thicket path grass / floor | 65 / 233 | 2 / 0 |
+| meadow grass / tall grass / floor | 137 / 143 / 235 | 3 / 3 / 0 |
+| the woods round the meadow, light / deep | 58 / 22 | 2 / 2 |
 | dusk trunk | 95 | 3 |
 | hawk wings / ground | 181 / 235 | 13 / 0 |
 | thorn hazard / ground | 196 / 234 | 12 / 0 |
@@ -39,7 +43,9 @@ presentation, not its collision body. Both tiers cover identical sim ticks.
 | opening river ink / ground | 153 / 17 | 7 / 4 |
 
 The thicket keeps distant foliage visible while sight still limits creatures;
-the meadow keeps long views. Exit mouths share one shadow band on both tiers. Thorn hazard
+the meadow keeps long views. Each dusk area keeps two foliage tones (cb02b),
+so its deep forest is textured like the Shingle's and never one green; the
+meadow's own ground stays gold while the woods closing round it are green. Exit mouths share one shadow band on both tiers. Thorn hazard
 ink is never label ink, and neither tier uses hash or slash as a gate.
 Scent drops share the mark's star, dimming to a dot halfway through their
 300-tick lifetime; expiry and collection are simulation events, not colour
