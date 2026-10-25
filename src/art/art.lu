@@ -127,6 +127,7 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
         grid.put(mut g, r - 1, c + shake + 1, ear)
     }
     draw_posture(s, t, mut g)
+    draw_hud(s, t, mut g)
 }
 
 /// The art study's sheet (`docs/ART.md`): the cub facing each of the four
@@ -361,7 +362,7 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
             }
             row += 1
         }
-        draw.put_text(mut g, r, c - 4, "fallen", ink(t, false))
+        draw.put_text(mut g, r, c - 4, "fallen - scent lost {s.mark_scent}", ink(t, false))
     }
     if at_log_hint(s) {
         draw.put_text(mut g, s.rows - 1, 1, "r rest at the hollow log", ink(t, false))
@@ -486,4 +487,28 @@ pub fn draw_foe(
         draw.put_text(mut g, head_row, col, "..", style)
         if fade >= 10 { draw.put_text(mut g, row, col, ". ", style) }
     }
+}
+
+/// Compact bars reserve eight cells each; the larger posture HUD follows later.
+fn meter(value: int, maximum: int) -> str {
+    var out = "["
+    var i = 0
+    while i < 8 {
+        out += if value * 8 > i * maximum then "|" else "."
+        i += 1
+    }
+    out + "]"
+}
+
+/// Scent is always numeric; spending remains exclusively at the den.
+pub fn hud_text(s: sim.Sim) -> str {
+    "health " +
+        meter(s.health, sim.health_max(s.heart)) +
+        " stamina " +
+        meter(s.stamina, sim.stamina_max(s.wind)) +
+        " scent {s.scent}"
+}
+
+fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
+    draw.put_text(mut g, 0, 1, hud_text(s), ink(t, true))
 }

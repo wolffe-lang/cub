@@ -178,3 +178,12 @@ and tail briefly, dimming at death, eroding head at age 5 and body at age
 10, gone at 15. The fading footprint also clips presentation arcs.
 Its collision/damage health is already zero: it cannot bite or award scent
 again. `C_WEASEL` and `C_FOX` are palette roles, documented in PALETTE.md.
+
+## Scent HUD, 2026-10-25
+
+The maintainer's word: "There's no scent counter, or larger HUD." Scent is
+now always visible as a number beside compact health/stamina bars. Each
+bar is eight cells (proposed), filled by the positive fraction of its stat.
+The death card names scent lost; recovery and kills update the same state
+the HUD reads. Spending remains den-only. The larger posture bands, reticle,
+water mouthfuls and area name are reserved for the next HUD pass.

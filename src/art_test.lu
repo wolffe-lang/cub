@@ -160,3 +160,33 @@ fn test_cb01b_each_foe_has_head_body_tail_tell_and_fade_on_both_tiers() {
         t += 1
     }
 }
+
+fn test_cb01b_scent_hud_updates_on_kill_death_and_recovery() {
+    var s = sim.new(7, 80, 24)
+    s.heading = 64
+    s.foes[0].x = s.x + sim.FP * 3 / 2
+    s.foes[0].y = s.y
+    sim.step(mut s, one(controls.KEY_BITE))
+    var n = 0
+    while n < 3 { sim.step(mut s, none_keys()); n += 1 }
+    assert(s.scent == 8 && art.hud_text(s).contains("scent 8"), "kill updates counter")
+    sim.hurt(mut s, 100)
+    assert(art.hud_text(s).contains("scent 0") && s.mark_scent == 8, "death drops carried scent")
+    var t = tier.PLAIN
+    while t <= tier.RICH {
+        var g = grid.new(24, 80)
+        art.render(s, t, mut g)
+        assert(grid.at(g, 0, 1).cp == 104, "HUD survives death fade")
+        if t == tier.PLAIN { assert(grid.plain_ok(g), "death card is plain") }
+        t += 1
+    }
+    n = 0
+    while n < 31 { sim.step(mut s, none_keys()); n += 1 }
+    assert(
+        !s.mark && s.scent == 8 && art.hud_text(s).contains("scent 8"),
+        "mark recovery updates HUD",
+    )
+    let carried = s.scent
+    sim.step(mut s, one(controls.KEY_HEART))
+    assert(s.scent == carried && s.heart == 1, "HUD cannot spend outside den")
+}
