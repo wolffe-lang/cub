@@ -40,6 +40,8 @@ fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
                 sprites.SP_WATER,
                 if terrain.variant(s.seed, x, y, 5) == 0 then 1 + v % 3 else 0,
             )
+        } else if k == terrain.ROCK {
+            sprites.glyph(t, sprites.SP_ROCK, v)
         } else if k == terrain.REEDS {
             sprites.glyph(t, sprites.SP_REEDS, v)
         } else {
