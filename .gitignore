@@ -1,2 +1,6 @@
-target/
-.wolf-bin/
+/target/
+/.wolf-bin/
+/.lair/
+*.dSYM/
+__pycache__/
+.lu-cache/
