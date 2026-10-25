@@ -1406,9 +1406,9 @@ pub fn area_foes(seed: int, field: int, area: int) -> List[Foe] {
         }
         group += 1
     }
-    // The two side branches end in harder, finite cache guards.
+    // The side branches end in harder, finite cache guards.
     var cache = 0
-    while cache < 2 {
+    while cache < forest.cache_count(area) {
         let (x, cy) = forest.cache_position(seed, field, area, cache)
         if area == forest.SHINGLE {
             var foe = make_foe(FOX, x, cy - 3 * FP)
@@ -1664,24 +1664,26 @@ pub fn scene_hook(scene: int) -> str {
 
 /// Whether a seeded cache has already been opened during this journey.
 pub fn cache_open(s: Sim, cache: int) -> bool {
+    s.caches / cache_mask(s.area, cache) % 2 == 1
+}
+
+/// The journey's cache bit as a mask (`forest.cache_bit`).
+fn cache_mask(area: int, cache: int) -> int {
     var mask = 1
     var i = 0
-    while i < s.area * 2 + cache { mask *= 2; i += 1 }
-    s.caches / mask % 2 == 1
+    while i < forest.cache_bit(area, cache) { mask *= 2; i += 1 }
+    mask
 }
 
 fn cache_key(mut s: Sim) {
     var cache = 0
-    while cache < 2 {
+    while cache < forest.cache_count(s.area) {
         let (x, y) = forest.cache_position(s.seed, s.field, s.area, cache)
         if near(s.x, s.y, x, y, 2 * FP) && !cache_open(s, cache) {
             for foe in s.foes {
                 if foe.health > 0 && near(foe.x, foe.y, x, y, 6 * FP) { return }
             }
-            var mask = 1
-            var i = 0
-            while i < s.area * 2 + cache { mask *= 2; i += 1 }
-            s.caches += mask
+            s.caches += cache_mask(s.area, cache)
             if cache == 1 {
                 if s.area == forest.LARKMEADOW { s.yarrow += 1 } else { s.marrow += 1 }
             }

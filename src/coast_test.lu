@@ -38,7 +38,7 @@ fn test_cb02a_each_branch_ends_in_an_alcove() {
     var seed = 0
     while seed < 5 {
         var cache = 0
-        while cache < 2 {
+        while cache < forest.cache_count(forest.SHINGLE) {
             let (x, y) = forest.cache_position(seed, 80, forest.SHINGLE, cache)
             let cx = sim.floor_div(x, sim.FP)
             let cy = sim.floor_div(y, sim.FP)
@@ -131,7 +131,7 @@ fn test_cb02a_branches_join_the_shore_without_an_origin_seam() {
     var seed = 0
     while seed < 50 {
         var cache = 0
-        while cache < 2 {
+        while cache < forest.cache_count(forest.SHINGLE) {
             var at = -10
             while at <= forest.coast_end(seed, cache) {
                 let x = forest.coast_branch_x(seed, 80, cache, at)

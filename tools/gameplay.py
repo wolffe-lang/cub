@@ -110,7 +110,7 @@ def check(binary):
         assert any(s['area'] == 1 and s['mark_area'] == 2 and s['mark'] for s in journey.values()), 'no cross-area death'
         assert any(s['area'] == 2 and any(f['kind'] == 2 and f['health'] == 0 for f in enemies[t]) for t,s in journey.items()), 'hawk never fought'
         print('gameplay: connected journey, hawk, opening and recovery', tier, 'ok')
-    for cache in (0, 1):
+    for cache in (0, 1, 2, 3):
         _, states, _ = run(binary, 'coast-cache-' + str(cache))
         final = states[max(states)]
         assert final['area'] == 0 and final['caches'] & (1 << cache), 'coast bundle not collected'
