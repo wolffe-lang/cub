@@ -1,6 +1,7 @@
 //! member: false
 
 use art
+use forest
 use grid
 use sim
 use sprites
@@ -27,5 +28,88 @@ fn test_cb02a_bank_has_no_sawtooth_steps() {
             x += 1
         }
         seed += 1
+    }
+}
+
+fn test_cb02a_each_branch_ends_in_an_alcove() {
+    var seed = 0
+    while seed < 5 {
+        var cache = 0
+        while cache < 2 {
+            let (x, y) = forest.cache_position(seed, forest.SHINGLE, cache)
+            let cx = sim.floor_div(x, sim.FP)
+            let cy = sim.floor_div(y, sim.FP)
+            var dx = -3
+            while dx <= 3 {
+                var dy = -3
+                while dy <= 3 {
+                    if dx * dx + dy * dy <= 16 {
+                        assert(!forest.blocked(seed, 0, cx + dx, cy + dy), "cache alcove floor")
+                    }
+                    dy += 1
+                }
+                dx += 1
+            }
+            let foes = sim.area_foes(seed, 0)
+            var guards = 0
+            for f in foes {
+                if sim.near(f.x, f.y, x, y, 4 * sim.FP) && f.kind == sim.FOX && f.health == 40 {
+                    guards += 1
+                }
+            }
+            assert(guards == 1, "one stronger fox guarding each bundle")
+            cache += 1
+        }
+        seed += 1
+    }
+}
+
+fn test_cb02a_jetties_never_cut_den_from_thorn_route() {
+    var seed = 0
+    while seed < 5 {
+        let o = forest.origin(seed, 0)
+        var at = 0
+        while at <= 15 {
+            assert(
+                !forest.blocked(seed, 0, forest.spine(seed, 0, at), o + at),
+                "jetty between den and thorn route",
+            )
+            at += 1
+        }
+        var side = 0
+        while side < 2 {
+            let x = forest.jetty_x(seed, side)
+            assert(x < -32 || x > 32, "jetty beyond the last shore branch")
+            var y = terrain.bank(seed, x) - 5
+            while y <= terrain.bank(seed, x) + terrain.REED_ROWS + terrain.SHINGLE_ROWS {
+                assert(
+                    forest.kind(seed, 0, x, y) == terrain.ROCK && forest.blocked(seed, 0, x, y),
+                    "solid rock from water across whole path",
+                )
+                y += 1
+            }
+            side += 1
+        }
+        seed += 1
+    }
+}
+
+fn test_cb02a_coast_sheet_keeps_plain_tier_and_sprite_footprints() {
+    let g = art.coast_sheet(tier.PLAIN)
+    assert(grid.plain_ok(g), "plain coast sheet")
+    assert(grid.at(g, 4, 4).cp == 79, "hollow log end grain")
+    assert(grid.at(g, 4, 19).cp == 60 && grid.at(g, 4, 27).cp == 62, "shortcut passage")
+    assert(grid.at(g, 4, 39).cp == 88, "bundle binding")
+    var k = 0
+    while k < 5 {
+        var n = 0
+        var dx = 0
+        while dx < 5 {
+            if grid.at(g, 10, 4 + k * 13 + dx).cp != 32 { n += 1 }
+            if grid.at(g, 11, 4 + k * 13 + dx).cp != 32 { n += 1 }
+            dx += 1
+        }
+        assert(n >= 6, "each flotsam sprite has a silhouette")
+        k += 1
     }
 }

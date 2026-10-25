@@ -14,6 +14,7 @@
 //! and the areas are cb01's and cb02's.
 
 use art
+use coast
 use forest
 use journey
 use clock
@@ -28,7 +29,6 @@ use sim
 use sprites
 use std.env
 use std.fs
-use terrain
 use term
 use tier
 
@@ -955,21 +955,14 @@ fn replay_initial(r: replay.Replay, fallback: sim.Sim) -> sim.Sim ! {
 }
 
 fn run_world_audit() -> int {
-    print("seed area reached required longest_straight min_foe_cells caches bank_straight")
+    print(
+        "seed area reached required longest_straight min_foe_cells caches bank_step empty_forest useful_steps",
+    )
     var seed = 0
     while seed < 50 {
-        var bank_run = 1
-        var bank_max = 1
-        var bx = 1
-        while bx <= forest.LENGTH {
-            if terrain.bank(seed, bx) == terrain.bank(seed, bx - 1) {
-                bank_run += 1
-            } else {
-                bank_run = 1
-            }
-            if bank_run > bank_max { bank_max = bank_run }
-            bx += 1
-        }
+        let bank_max = coast.bank_step(seed)
+        let empty = coast.empty_run(seed)
+        let steps = coast.walk_bound(seed)
         var area = 0
         while area < 3 {
             let reached = forest.reach_count(seed, area)
@@ -1001,10 +994,12 @@ fn run_world_audit() -> int {
             }
             var distance = 0
             while (distance + 1) * (distance + 1) <= closest { distance += 1 }
-            print("{seed} {area} {reached} {required} {straight} {distance} 2 {bank_max}")
+            print(
+                "{seed} {area} {reached} {required} {straight} {distance} 2 {bank_max} {empty} {steps}",
+            )
             if reached != required ||
                 straight > forest.STRAIGHT_MAX ||
-                bank_max > forest.STRAIGHT_MAX ||
+                bank_max > 1 ||
                 distance < forest.FIRST_FOE_CELLS {
                 return 1
             }

@@ -16,7 +16,7 @@ use terrain
 use tier
 
 /// The terrain of screen row `row` into `g` on tier `t`.
-fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
+pub fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
     var col = 0
     while col < s.cols {
         let (x, y) = sim.world_cell(s, row, col)

@@ -14,7 +14,7 @@ def check(binary):
     (out / 'reachability.txt').write_text(audit.stdout)
     rows = [list(map(int, row.split())) for row in audit.stdout.splitlines()[1:]]
     assert len(rows) == 150 and {(r[0], r[1]) for r in rows} == {(s, a) for s in range(50) for a in range(3)}
-    assert all(r[2] == r[3] and r[4] <= 12 and r[5] >= 30 and r[6] == 2 and r[7] <= 12 for r in rows)
+    assert all(r[2] == r[3] and r[4] <= 12 and r[5] >= 30 and r[6] == 2 and r[7] <= 1 and r[8] == 0 and r[9] <= 200 for r in rows)
 
     def run(name, path, frames=1, case=None, extra=(), want=0):
         args = [str(binary), '--headless', '--save', str(path), '--frames', str(frames),
