@@ -44,13 +44,13 @@ pub const REEDS: int = 6
 
 /// The water's edge: the river occupies world rows below `bank(x)`; the
 /// bank wanders about this row by `BANK_SWING`.
-pub const BANK_ROW: int = -16
+pub const BANK_ROW: int = -8
 
 /// The bank's wander, cells.
-pub const BANK_SWING: int = 20
+pub const BANK_SWING: int = 8
 
 /// Rows of reeds along the water's edge.
-pub const REED_ROWS: int = 2
+pub const REED_ROWS: int = 1
 
 /// Rows of gravel below the reeds before the grass begins.
 pub const SHINGLE_ROWS: int = 5
@@ -102,7 +102,7 @@ pub fn cover(seed: int, x: int, y: int) -> int {
 /// The world row the water ends at in column `x` (the first row that is
 /// not water): the bank's line, wandering along the river.
 pub fn bank(seed: int, x: int) -> int {
-    BANK_ROW + BANK_SWING / 2 + meander(seed, 9, x)
+    BANK_ROW + world.noise(seed, 9, x) * BANK_SWING / FP
 }
 
 /// The kind of ground at world cell `(x, y)`.
