@@ -247,11 +247,9 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
     let (ox, oy) = sim.attack_offset(s)
     let r = sim.screen_row(s) + sim.floor_div(s.y + oy, sim.FP) - sim.cell_y(s)
     let c = sim.screen_col(s) + sim.floor_div(s.x + ox, sim.FP) - sim.cell_x(s)
-    let facing = if s.action == sim.BITE || s.action == sim.LUNGE || s.action == sim.HEAVY {
-        (s.attack_heading + 32) % sim.TURN / 64
-    } else {
-        sim.facing(s)
-    }
+    // The body's facing (cb02c): the aim's during an attack, the heading's
+    // quarter otherwise, held while a swing has no room for it.
+    let facing = s.body_facing
     let pose = if s.exhausted {
         3
     } else if s.sneaking ||
