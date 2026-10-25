@@ -965,7 +965,7 @@ fn replay_initial(r: replay.Replay, fallback: sim.Sim) -> sim.Sim ! {
 
 fn run_world_audit() -> int {
     print(
-        "seed field area reached required longest_straight min_foe_cells caches bank_step flat_run textured_pct useful_steps",
+        "seed field area reached required longest_straight min_foe_cells caches bank_step flat_run textured_pct useful_steps path_off",
     )
     var seed = 0
     while seed < 50 {
@@ -1007,10 +1007,12 @@ fn run_world_audit() -> int {
                 }
                 var distance = 0
                 while (distance + 1) * (distance + 1) <= closest { distance += 1 }
+                let path_off = art.path_audit(seed, field, area)
                 print(
-                    "{seed} {field} {area} {reached} {required} {straight} {distance} {forest.cache_count(area)} {bank_max} {flat} {textured} {steps}",
+                    "{seed} {field} {area} {reached} {required} {straight} {distance} {forest.cache_count(area)} {bank_max} {flat} {textured} {steps} {path_off}",
                 )
-                if reached != required ||
+                if path_off != 0 ||
+                    reached != required ||
                     straight > forest.STRAIGHT_MAX ||
                     bank_max > 1 ||
                     distance < forest.FIRST_FOE_CELLS {
