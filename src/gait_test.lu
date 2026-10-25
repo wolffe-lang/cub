@@ -1,0 +1,125 @@
+//! member: false
+//!
+//! cb02c, the gait: the path's one colour, the pace, the tail on the
+//! gait, and bodies that never overlap.
+
+use art
+use forest
+use grid
+use sprites
+use terrain
+use tier
+
+fn tiers_ok(seed: int, field: int, area: int, x: int, y: int) -> bool {
+    art.is_path_style(area, tier.RICH, art.ground_at(seed, field, area, tier.RICH, x, y)) &&
+        art.is_path_style(area, tier.PLAIN, art.ground_at(seed, field, area, tier.PLAIN, x, y))
+}
+
+fn test_cb02c_the_coast_path_is_the_shore_gravel() {
+    // One source of truth: the coast's path styles are the gravel sprite's
+    // variants, the shore's own, on both tiers.
+    var t = 0
+    while t < 2 {
+        let tr = if t == 0 then tier.RICH else tier.PLAIN
+        let styles = art.path_styles(forest.SHINGLE, tr)
+        assert(styles.len == sprites.VARIANT_COUNT, "a style per variant")
+        var v = 0
+        while v < sprites.VARIANT_COUNT {
+            assert(grid.same(styles[v], sprites.glyph(tr, sprites.SP_GRAVEL, v)), "variant {v}")
+            v += 1
+        }
+        t += 1
+    }
+    assert(forest.path_kind(forest.SHINGLE) == terrain.GRAVEL, "the coast's path is gravel")
+    assert(forest.path_kind(forest.BRAMBLEHOLD) == terrain.GRASS, "inland the path is grass")
+}
+
+/// Every walkable cell of coast branch `cache` and its alcove draws the
+/// path's colours on both tiers.
+fn branch_on_the_path(seed: int, field: int, cache: int) {
+    let o = forest.origin(seed, forest.SHINGLE)
+    let end = forest.coast_end(seed, cache)
+    var at = 0
+    while at <= end + 4 {
+        let c = forest.coast_branch_x(seed, field, cache, if at > end then end else at)
+        var dx = -4
+        while dx <= 4 {
+            let x = c + dx
+            if forest.coast_branch(seed, field, cache, x, at) &&
+                !forest.blocked(seed, field, forest.SHINGLE, x, o + at) {
+                assert(
+                    forest.on_path(seed, field, forest.SHINGLE, x, o + at),
+                    "branch cell on the path {seed} {cache} {x},{at}",
+                )
+                assert(
+                    tiers_ok(seed, field, forest.SHINGLE, x, o + at),
+                    "branch {cache} cell {x},{at} seed {seed} field {field} off the path colours",
+                )
+            }
+            dx += 1
+        }
+        at += 1
+    }
+}
+
+// The maintainer's word: "The branch paths should be the same color as the
+// coastline/forest paths." Each of the four branches, the maintainer's seed
+// (1) at both fields; the world audit runs the whole field of every area
+// over fifty seeds natively (`path_off`).
+
+fn test_cb02c_branch_0_draws_the_path_colours() { branch_on_the_path(1, 80, 0) }
+
+fn test_cb02c_branch_1_draws_the_path_colours() { branch_on_the_path(1, 80, 1) }
+
+fn test_cb02c_branch_2_draws_the_path_colours() { branch_on_the_path(1, 80, 2) }
+
+fn test_cb02c_branch_3_draws_the_path_colours() { branch_on_the_path(1, 80, 3) }
+
+fn test_cb02c_wide_branches_draw_the_path_colours() {
+    branch_on_the_path(1, 200, 0)
+}
+
+fn test_cb02c_the_log_branch_and_the_shore_are_the_path() {
+    // The coast's other paths: the shore's five rows and the log's branch.
+    let o = forest.origin(1, forest.SHINGLE)
+    var x = -30
+    while x <= 30 {
+        let b = terrain.bank(1, x)
+        var y = b + terrain.REED_ROWS
+        while y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS {
+            assert(forest.on_path(1, 80, forest.SHINGLE, x, y), "shore {x},{y}")
+            assert(tiers_ok(1, 80, forest.SHINGLE, x, y), "shore {x},{y} off the path colours")
+            y += 1
+        }
+        x += 3
+    }
+    x = -31
+    while x <= -12 {
+        let by = 22 + forest.curve(1, 71, x) / 2
+        assert(forest.on_path(1, 80, forest.SHINGLE, x, o + by), "log branch {x}")
+        assert(tiers_ok(1, 80, forest.SHINGLE, x, o + by), "log branch {x} off the path colours")
+        x += 1
+    }
+}
+
+fn test_cb02c_the_forest_is_not_the_path() {
+    // The path set is the path's: canopy, deep forest and the coast's old
+    // grass are outside it, so a branch drawn in the forest's colour fails.
+    var t = 0
+    while t < 2 {
+        let tr = if t == 0 then tier.RICH else tier.PLAIN
+        var v = 0
+        while v < 4 {
+            assert(
+                !art.is_path_style(forest.SHINGLE, tr, art.kind_cell(0, tr, terrain.GRASS, v, v)),
+                "grass {v}",
+            )
+            assert(
+                !art.is_path_style(forest.SHINGLE, tr, art.kind_cell(0, tr, terrain.CANOPY, v, v)),
+                "canopy {v}",
+            )
+            v += 1
+        }
+        t += 1
+    }
+}
