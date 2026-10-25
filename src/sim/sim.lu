@@ -26,25 +26,45 @@ pub const FP: int = 256
 pub const TURN: int = 256
 
 /// The trot, fixed-point units a tick at paw 1 (`TROT_V + 2 × paw`, the
-/// bible's section 3): 0.15 cells a tick, 4.4 a second, a cub's pace
-/// under pack's migrating trot of 40.
+/// bible's section 3), before the pace dial: the stat base.
 pub const TROT_V: int = 36
 
-/// A sneak's speed: half the trot (section 4).
-pub const SNEAK_V: int = 21
+/// The pace dial (R-cb02c-1 A): the trot, the sneak, the turn rate, the
+/// acceleration, the braking and the foes' speeds are its products. 110
+/// was cb01b's ("Bump cub speed by 10 %"); the maintainer's word on
+/// cb02b's build, 2026-10-25: "The cub moves much too slowly", so 165,
+/// half as fast again. The one constant to move: everything below
+/// follows it, rounded to the nearest unit.
+pub const WALK_PERCENT: int = 165
 
-/// Walk and sneak multiplier, rounded to the nearest fixed-point unit.
-pub const WALK_PERCENT: int = 110
+/// cb01b's pace, the base the dial's products are scaled from.
+pub const PACE_BASE_PERCENT: int = 110
 
-/// Acceleration, FP units a tick each tick: the trot from a stop in 9 ticks.
-pub const ACCEL: int = 4
+/// A sneak's speed: half the trot (section 4), the ratio the dial keeps.
+pub const SNEAK_V: int = ((TROT_V + 2) * WALK_PERCENT + 50) / 100 / 2
 
-/// Braking: a stop from the trot in 5 ticks; a cub stops faster than it starts.
-pub const BRAKE: int = 8
+/// Acceleration, FP units a tick each tick: 4 at cb01b's pace, scaled
+/// with it, so the trot from a stop still takes 11 ticks.
+pub const ACCEL: int = (4 * WALK_PERCENT + PACE_BASE_PERCENT / 2) / PACE_BASE_PERCENT
 
-/// The turn rate, heading units a tick: a quarter turn in 4 ticks, about
-/// turned in 8 (267 ms). The cub turns, never pivots.
-pub const TURN_RATE: int = 16
+/// Braking: 8 at cb01b's pace, scaled with it; a stop from the trot in
+/// 6 ticks, a cub stops faster than it starts.
+pub const BRAKE: int = (8 * WALK_PERCENT + PACE_BASE_PERCENT / 2) / PACE_BASE_PERCENT
+
+/// The cub's turn rate, heading units a tick: 16 at cb01b's pace, scaled
+/// with it so the turning circle (speed over turn rate) is the one cb01b's
+/// play accepted: a quarter turn in 3 ticks, about in 6. The cub turns,
+/// never pivots.
+pub const TURN_RATE: int = (16 * WALK_PERCENT + PACE_BASE_PERCENT / 2) / PACE_BASE_PERCENT
+
+/// A ground foe's pace through a turn it cannot make in one tick: half
+/// its pursuit (R-cb02c-6 A).
+pub const FOE_TURN_V: int = FOE_STALK_V / 2
+
+/// The ground foes' turn rate: cb01b's 16, not scaled with the pace. A
+/// foe as fast as the cub on the straight turns wider, so the fox keeps
+/// up on the straight and loses in the turns.
+pub const FOE_TURN_RATE: int = 16
 
 /// Heart, wind, fang, paw and nose at the start (section 3): 1 each.
 pub const STAT_START: int = 1
@@ -886,6 +906,15 @@ fn strike_foes(mut s: Sim) {
     }
 }
 
+/// Run ground foe `i` one tick toward `(tx, ty)` as it pursues, its turn
+/// rate and its turning pace included (the instrument's and the tests'
+/// handle on a foe's gait; the game's own steering is `foes_step`).
+pub fn run_foe(mut s: Sim, i: int, tx: int, ty: int) {
+    s.foes[i].target_x = tx
+    s.foes[i].target_y = ty
+    move_foe(mut s, i, false)
+}
+
 /// Opponents move on the ground. The presentation's arc never moves their
 /// body through another creature or alters the damage envelope.
 fn move_foe(mut s: Sim, i: int, away: bool) {
@@ -896,11 +925,25 @@ fn move_foe(mut s: Sim, i: int, away: bool) {
     let d = turn_toward(f.heading, h)
     let heading = (
         f.heading +
-            (if d > TURN_RATE then TURN_RATE else if d < 0 - TURN_RATE then 0 - TURN_RATE else d) +
+            (
+                if d > FOE_TURN_RATE {
+                    FOE_TURN_RATE
+                } else if d < 0 - FOE_TURN_RATE {
+                    0 - FOE_TURN_RATE
+                } else {
+                    d
+                }
+            ) +
             TURN
     ) %
         TURN
-    let speed = toward(f.speed, if away then FOE_RETREAT_V else FOE_STALK_V, ACCEL)
+    // A turn it cannot make this tick checks a foe's run (R-cb02c-6 A): it
+    // brakes toward its turning pace until the heading is nearly round,
+    // then runs on. So the fox keeps up on the straight and loses in turns.
+    let sharp = d > FOE_TURN_RATE || d < 0 - FOE_TURN_RATE
+    let top = if away then FOE_RETREAT_V else FOE_STALK_V
+    let want_v = if sharp && f.speed > FOE_TURN_V then FOE_TURN_V else top
+    let speed = toward(f.speed, want_v, if want_v < f.speed then BRAKE else ACCEL)
     let nx = f.x + speed * sin(heading) / FP
     let ny = f.y - speed * cos(heading) / FP
     var stops = blocked(s, floor_div(nx, FP), floor_div(ny, FP)) || near(nx, ny, s.x, s.y, FP)
@@ -1003,10 +1046,10 @@ fn foes_step(mut s: Sim) {
             let h = heading_to(f.x, f.y, s.foes[i].target_x, s.foes[i].target_y)
             if h >= 0 {
                 let d = turn_toward(f.heading, h)
-                let turn = if d > TURN_RATE {
-                    TURN_RATE
-                } else if d < 0 - TURN_RATE {
-                    0 - TURN_RATE
+                let turn = if d > FOE_TURN_RATE {
+                    FOE_TURN_RATE
+                } else if d < 0 - FOE_TURN_RATE {
+                    0 - FOE_TURN_RATE
                 } else {
                     d
                 }
@@ -1161,11 +1204,12 @@ fn body_at(s: Sim, x: int, y: int) -> bool {
     false
 }
 
-/// Foe pursuit and retreat speeds, unchanged by the cub speed increase.
-pub const FOE_STALK_V: int = 44
+/// Foe pursuit: 44 at cb01b's pace, scaled with the dial (R-cb02c-1 A),
+/// so a weasel still outruns a starting cub and a sneak stays under it.
+pub const FOE_STALK_V: int = (44 * WALK_PERCENT + PACE_BASE_PERCENT / 2) / PACE_BASE_PERCENT
 
-/// Retreat remains faster than a fresh cub walk.
-pub const FOE_RETREAT_V: int = 48
+/// Retreat: 48 at cb01b's pace, scaled; faster than a fresh cub's trot.
+pub const FOE_RETREAT_V: int = (48 * WALK_PERCENT + PACE_BASE_PERCENT / 2) / PACE_BASE_PERCENT
 
 /// Arrow aim memory shared in name and duration with pack pk06b (500 ms).
 pub const AIM_WINDOW_TICKS: int = 15
