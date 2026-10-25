@@ -99,6 +99,7 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
         terrain_row(s, t, row, mut g)
         row += 1
     }
+    shore_finds(s, t, mut g)
     shade_exits(s, t, mut g)
     draw_world_marks(s, t, mut g)
     // The rich cub's two rows sit on the cub's cell and the one above, so
@@ -930,4 +931,126 @@ pub fn draw_bundle(mut g: grid.Grid, t: int, row: int, col: int, opened: bool) {
     draw.put_text(mut g, row, col + 1, "\\|/", cloth)
     draw.put_text(mut g, row + 1, col, if t == tier.RICH then "(░X░)" else "(:X:)", cloth)
     draw.put_text(mut g, row + 2, col + 1, "---", cloth)
+}
+
+/// Five original shore finds, each five cells wide and two rows tall.
+pub fn draw_flotsam(mut g: grid.Grid, t: int, row: int, col: int, kind: int) {
+    let wood = grid.cell(
+        32,
+        if kind == 2 || kind == 3 {
+            sprites.palette(t, sprites.C_REED)
+        } else {
+            sprites.palette(t, sprites.C_TRUNK)
+        },
+        sprites.palette(t, sprites.C_GRAVEL),
+        0,
+    )
+    let top = if kind == 0 {
+        " __/ "
+    } else if kind == 1 {
+        "/X_/|"
+    } else if kind == 2 {
+        "~v~v "
+    } else if kind == 3 {
+        "  _! "
+    } else {
+        "/x/x/"
+    }
+    let bottom = if kind == 0 {
+        "==/=="
+    } else if kind == 1 {
+        "|_/ /"
+    } else if kind == 2 {
+        " v~v~"
+    } else if kind == 3 {
+        " (__)"
+    } else {
+        "x/x/~"
+    }
+    draw.put_text(mut g, row, col, top, wood)
+    draw.put_text(mut g, row + 1, col, bottom, wood)
+    if t == tier.RICH {
+        var face = copy wood
+        face.cp = if kind == 2 then 10294 else if kind == 3 then 9617 else 183
+        grid.put(mut g, row + 1, col + 2, face)
+    }
+}
+
+fn shore_finds(s: sim.Sim, t: int, mut g: grid.Grid) {
+    if s.area != forest.SHINGLE { return }
+    var slot = 0
+    while slot < 6 {
+        let x = -32 + slot * 11 + terrain.variant(s.seed, slot, 211, 3)
+        let y = terrain.bank(s.seed, x) + terrain.REED_ROWS + 1
+        var clear = x < -8 || x > 7
+        var dx = 0
+        while dx < 5 {
+            var dy = 0
+            while dy < 2 {
+                if forest.kind(s.seed, s.area, x + dx, y + dy) != terrain.GRAVEL { clear = false }
+                dy += 1
+            }
+            dx += 1
+        }
+        if clear {
+            draw_flotsam(
+                mut g,
+                t,
+                y - sim.cell_y(s) + sim.screen_row(s),
+                x - sim.cell_x(s) + sim.screen_col(s),
+                (slot + terrain.variant(s.seed, 211, 0, 5)) % 5,
+            )
+        }
+        slot += 1
+    }
+}
+
+/// Both-tier coast study: logs, all five shore finds, full and empty bundles.
+pub fn coast_sheet(t: int) -> grid.Grid {
+    var g = grid.new(20, 80)
+    var row = 0
+    while row < g.rows {
+        var col = 0
+        while col < g.cols {
+            grid.put(mut g, row, col, sprites.glyph(t, sprites.SP_GRAVEL, 0))
+            col += 1
+        }
+        row += 1
+    }
+    draw.put_text(mut g, 1, 2, "hollow log      fallen log       bundle       opened", ink(t, true))
+    draw_log(mut g, t, 3, 3, true)
+    draw_log(mut g, t, 3, 19, false)
+    draw_bundle(mut g, t, 3, 37, false)
+    draw_bundle(mut g, t, 3, 50, true)
+    draw.put_text(
+        mut g,
+        8,
+        2,
+        "driftwood    crate        kelp         bottle       net",
+        ink(t, true),
+    )
+    var kind = 0
+    while kind < 5 { draw_flotsam(mut g, t, 10, 4 + kind * 13, kind); kind += 1 }
+    draw.put_text(mut g, 15, 2, "stone in water / forest beyond the bank", ink(t, true))
+    var col = 3
+    while col < 70 {
+        grid.put(
+            mut g,
+            17,
+            col,
+            sprites.glyph(
+                t,
+                if col < 12 {
+                    sprites.SP_ROCK
+                } else if col < 35 {
+                    sprites.SP_WATER
+                } else {
+                    sprites.SP_DARK
+                },
+                col % 4,
+            ),
+        )
+        col += 1
+    }
+    g
 }
