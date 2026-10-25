@@ -1,4 +1,8 @@
-//! Independent shipping-binary coast census, bounded scratch per seed.
+//! Independent shipping-binary world census, bounded scratch per seed: the
+//! coast's flood over its whole extent, the forest's texture over every
+//! camera position of every area at the field's own size, and the bank's
+//! slope. Each is read from the actual tiles and the actual renderer, not
+//! from the generator's promises.
 
 use art
 use forest
@@ -7,44 +11,51 @@ use sim
 use terrain
 use tier
 
-/// No empty forest run is allowed: N=0.
+/// No empty forest cell is allowed: N=0.
 pub const EMPTY_MAX: int = 0
+
+/// The longest run of identical adjacent foliage cells allowed, cells:
+/// the foliage variants alternate by parity, so the measured run is one.
+pub const FLAT_MAX: int = 2
+
+/// The least share of forest cells outside any flat run, percent.
+pub const TEXTURED_MIN: int = 90
 
 /// Maximum cardinal distance from den-reachable ground to a useful route.
 pub const WALK_MAX: int = 200
 
-const WIDTH: int = 81
-
 const TOP: int = -16
 
-const HEIGHT: int = 177
-
-/// Flood actual collision cells. Targets are the thorn-route centreline
-/// and the two cache centres, not the generator's connectivity promises.
-fn distances(seed: int, targets: bool) -> List[int] {
+/// Flood actual collision cells over the coast's extent. Targets are the
+/// thorn-route centreline and the cache centres, not the generator's
+/// connectivity promises.
+fn distances(seed: int, field: int, targets: bool) -> List[int] {
+    let e = forest.coast_extent(field)
+    let width = 2 * e + 3
+    let height = forest.LENGTH - TOP + 1
     var dist = List[int]()
     var queue = List[int]()
     var i = 0
-    while i < WIDTH * HEIGHT { (mut dist).push(-1); i += 1 }
+    while i < width * height { (mut dist).push(-1); i += 1 }
     let o = forest.origin(seed, 0)
     var y = TOP
     while y <= forest.LENGTH {
-        var x = -40
-        while x <= 40 {
+        var x = 0 - e - 1
+        while x <= e + 1 {
             var source = !targets && x == 0 && y == 0
             if targets {
                 source = y >= 10 && x == forest.spine(seed, 0, y)
                 var cache = 0
-                while cache < 2 {
-                    let (cx, cy) = forest.cache_position(seed, 0, cache)
+                while cache < forest.cache_count(0) {
+                    let (cx, cy) = forest.cache_position(seed, field, 0, cache)
                     if x == sim.floor_div(cx, sim.FP) && y == sim.floor_div(cy, sim.FP) - o {
                         source = true
                     }
                     cache += 1
                 }
             }
-            if source && !forest.blocked(seed, 0, x, y + o) {
-                let at = (y - TOP) * WIDTH + x + 40
+            if source && !forest.blocked(seed, field, 0, x, y + o) {
+                let at = (y - TOP) * width + x + e + 1
                 dist[at] = 0
                 (mut queue).push(at)
             }
@@ -55,15 +66,15 @@ fn distances(seed: int, targets: bool) -> List[int] {
     var head = 0
     while head < queue.len {
         let cell = queue[head]
-        let x = cell % WIDTH - 40
-        let y = cell / WIDTH + TOP
+        let x = cell % width - e - 1
+        let y = cell / width + TOP
         var d = 0
         while d < 4 {
             let nx = x + (if d == 0 then -1 else if d == 1 then 1 else 0)
             let ny = y + (if d == 2 then -1 else if d == 3 then 1 else 0)
-            if nx >= -40 && nx <= 40 && ny >= TOP && ny <= forest.LENGTH {
-                let at = (ny - TOP) * WIDTH + nx + 40
-                if dist[at] < 0 && !forest.blocked(seed, 0, nx, ny + o) {
+            if nx >= 0 - e - 1 && nx <= e + 1 && ny >= TOP && ny <= forest.LENGTH {
+                let at = (ny - TOP) * width + nx + e + 1
+                if dist[at] < 0 && !forest.blocked(seed, field, 0, nx, ny + o) {
                     dist[at] = dist[cell] + 1
                     (mut queue).push(at)
                 }
@@ -75,15 +86,17 @@ fn distances(seed: int, targets: bool) -> List[int] {
     dist
 }
 
-/// Den flood reaches both complete alcoves, and every visited cell has a
-/// target within K; return the measured maximum, trap on a broken promise.
-pub fn walk_bound(seed: int) -> int {
-    let den = distances(seed, false)
-    let targets = distances(seed, true)
+/// The den flood reaches every complete alcove, and every visited cell has
+/// a target within K; return the measured maximum, trap on a broken promise.
+pub fn walk_bound(seed: int, field: int) -> int {
+    let e = forest.coast_extent(field)
+    let width = 2 * e + 3
+    let den = distances(seed, field, false)
+    let targets = distances(seed, field, true)
     let o = forest.origin(seed, 0)
     var cache = 0
-    while cache < 2 {
-        let (x, y) = forest.cache_position(seed, 0, cache)
+    while cache < forest.cache_count(0) {
+        let (x, y) = forest.cache_position(seed, field, 0, cache)
         let cx = sim.floor_div(x, sim.FP)
         let cy = sim.floor_div(y, sim.FP) - o
         var dx = -3
@@ -91,14 +104,14 @@ pub fn walk_bound(seed: int) -> int {
             var dy = -3
             while dy <= 3 {
                 if dx * dx + dy * dy <= 16 {
-                    if den[(cy + dy - TOP) * WIDTH + cx + dx + 40] < 0 {
+                    if den[(cy + dy - TOP) * width + cx + dx + e + 1] < 0 {
                         eprint(
-                            "coast: seed {seed} cache {cache} cell {cx + dx},{cy + dy} kind {forest.kind(seed, 0, cx + dx, cy + dy + o)}",
+                            "coast: seed {seed} field {field} cache {cache} cell {cx + dx},{cy + dy} kind {forest.kind(seed, field, 0, cx + dx, cy + dy + o)}",
                         )
                     }
                     assert(
-                        den[(cy + dy - TOP) * WIDTH + cx + dx + 40] >= 0,
-                        "cb02a branch alcove unreachable seed {seed} cache {cache}",
+                        den[(cy + dy - TOP) * width + cx + dx + e + 1] >= 0,
+                        "cb02b branch alcove unreachable seed {seed} field {field} cache {cache}",
                     )
                 }
                 dy += 1
@@ -113,93 +126,114 @@ pub fn walk_bound(seed: int) -> int {
         if den[i] >= 0 {
             assert(
                 targets[i] >= 0 && targets[i] <= WALK_MAX,
-                "cb02a aimless reachable ground seed {seed} cell {i}",
+                "cb02b aimless reachable ground seed {seed} field {field} cell {i}",
             )
             if targets[i] > max_steps { max_steps = targets[i] }
             // A bounded shore cannot leak through the side or river edge.
-            if i % WIDTH == 0 || i % WIDTH == WIDTH - 1 {
-                let x = if i % WIDTH == 0 then -41 else 41
-                assert(forest.blocked(seed, 0, x, i / WIDTH + TOP + o), "cb02a side escape")
-            }
-            assert(i / WIDTH != 0, "cb02a river escape seed {seed}")
+            assert(i % width != 0 && i % width != width - 1, "cb02b side escape seed {seed}")
+            assert(i / width != 0, "cb02b river escape seed {seed}")
         }
         i += 1
     }
     max_steps
 }
 
-/// Inspect the actual renderer's terrain layer, avoiding intentional HUD,
-/// actor and prop overlays. Cover every area, both widths, and both tiers.
-pub fn empty_run(seed: int) -> int {
+/// The screen a field was made for: the smallest terminal, or the wide one.
+pub fn screen_of(field: int) -> (int, int) {
+    if field <= forest.FIELD_MIN then (80, 24) else (field, field * 3 / 10)
+}
+
+/// Inspect the actual renderer's terrain layer over every camera position
+/// of every area at the field's own screen size and on both tiers,
+/// avoiding the deliberate HUD, actor and prop overlays. Returns the
+/// longest run of identical adjacent foliage cells and the textured share
+/// of forest cells, percent; traps on an empty forest cell, on a flat run
+/// past `FLAT_MAX` or a share under `TEXTURED_MIN`.
+pub fn texture(seed: int, field: int) -> (int, int) {
+    let (cols, rows) = screen_of(field)
     var longest = 0
+    var forest_cells = 0
+    var flat_cells = 0
     var area = 0
     while area < 3 {
-        var size = 0
-        while size < 2 {
-            let cols = if size == 0 then 80 else 200
-            let rows = if size == 0 then 24 else 60
-            var t = tier.PLAIN
-            while t <= tier.RICH {
-                var camera = 0
-                while camera <= forest.LENGTH + rows {
-                    var shift = 0
-                    while shift < (if cols == 80 then 2 else 1) {
-                        region frame {
-                            var s = sim.new(seed, cols, rows)
-                            s.area = area
-                            s.y = (forest.origin(seed, area) + camera) * sim.FP
-                            s.x = shift * sim.FP
-                            var g = grid.new(rows, cols)
-                            var row = 0
-                            while row < rows {
-                                art.terrain_row(s, t, row, mut g)
-                                var run = 0
-                                var col = 0
-                                while col < cols {
-                                    let (x, y) = sim.world_cell(s, row, col)
-                                    let k = forest.kind(seed, area, x, y)
-                                    let c = grid.at(g, row, col)
-                                    if (
-                                        k == terrain.DARK ||
-                                            k == terrain.CANOPY ||
-                                            k == terrain.TRUNK
-                                    ) &&
-                                        (c.cp == 32 || c.fg == c.bg) {
-                                        run += 1
-                                    } else {
-                                        run = 0
-                                    }
-                                    if run > longest { longest = run }
-                                    col += 1
+        let w = forest.bound(field, area)
+        var t = tier.PLAIN
+        while t <= tier.RICH {
+            var camera_y = 0 - rows / 2
+            while camera_y <= forest.LENGTH + rows / 2 {
+                var camera_x = 0 - w - cols / 2
+                while camera_x <= w + cols / 2 {
+                    region frame {
+                        var s = sim.new(seed, cols, rows)
+                        s.field = field
+                        s.area = area
+                        s.y = (forest.origin(seed, area) + camera_y) * sim.FP
+                        s.x = camera_x * sim.FP
+                        var g = grid.new(rows, cols)
+                        var row = 0
+                        while row < rows {
+                            art.terrain_row(s, t, row, mut g)
+                            var run = 0
+                            var col = 0
+                            while col < cols {
+                                let (x, y) = sim.world_cell(s, row, col)
+                                let k = forest.kind(seed, field, area, x, y)
+                                let c = grid.at(g, row, col)
+                                let foliage = k == terrain.DARK || k == terrain.CANOPY
+                                if foliage || k == terrain.TRUNK {
+                                    forest_cells += 1
+                                    assert(
+                                        c.cp != 32 && c.fg != c.bg,
+                                        "cb02b empty forest seed {seed} field {field} area {area}",
+                                    )
                                 }
-                                row += 1
+                                if foliage && col > 0 && grid.same(c, grid.at(g, row, col - 1)) {
+                                    run += 1
+                                } else {
+                                    if run > FLAT_MAX { flat_cells += run }
+                                    run = if foliage then 1 else 0
+                                }
+                                if run > longest { longest = run }
+                                col += 1
                             }
-                            if t == tier.PLAIN { assert(grid.plain_ok(g), "cb02a plain forest") }
+                            if run > FLAT_MAX { flat_cells += run }
+                            row += 1
                         }
-                        shift += 1
+                        if t == tier.PLAIN { assert(grid.plain_ok(g), "cb02b plain forest") }
                     }
-                    camera += rows
+                    camera_x += cols
                 }
-                t += 1
+                camera_y += rows
             }
-            size += 1
+            t += 1
         }
         area += 1
     }
-    assert(longest <= EMPTY_MAX, "cb02a empty forest seed {seed} run {longest}")
-    longest
+    let textured = if forest_cells == 0 {
+        100
+    } else {
+        (forest_cells - flat_cells) * 100 / forest_cells
+    }
+    assert(longest <= FLAT_MAX, "cb02b flat forest seed {seed} field {field} run {longest}")
+    assert(
+        textured >= TEXTURED_MIN,
+        "cb02b untextured forest seed {seed} field {field} {textured}%",
+    )
+    (longest, textured)
 }
 
-/// Coast slope, not a forced short straight-run: long gentle banks are valid.
-pub fn bank_step(seed: int) -> int {
+/// Coast slope over the whole shore, not a forced short straight-run:
+/// long gentle banks are valid.
+pub fn bank_step(seed: int, field: int) -> int {
+    let e = forest.coast_extent(field)
     var max_step = 0
-    var x = -100
-    while x < 100 {
+    var x = 0 - e - 5
+    while x < e + 5 {
         let d = terrain.bank(seed, x + 1) - terrain.bank(seed, x)
         let step = if d < 0 then 0 - d else d
         if step > max_step { max_step = step }
         x += 1
     }
-    assert(max_step <= 1, "cb02a sawtooth bank")
+    assert(max_step <= 1, "cb02b sawtooth bank")
     max_step
 }

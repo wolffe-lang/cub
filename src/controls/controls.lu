@@ -206,7 +206,7 @@ pub fn vocab() -> replay.Vocab {
     (mut args).push("opening")
     (mut args).push("journey")
     var part = 0
-    while part < 24 { (mut args).push("saved-{part}"); part += 1 }
+    while part < 25 { (mut args).push("saved-{part}"); part += 1 }
     replay.vocab(take names, take args)
 }
 

@@ -29,7 +29,7 @@ fn test_cb02_save_canonical_round_trip_at_last_den() {
     )
     assert(resumed.mark_area == 2 && resumed.mark_scent == 87, "cross-area mark persisted")
     assert(
-        resumed.foes.len == sim.area_foes(s.seed, 1).len && resumed.trail.len == 0,
+        resumed.foes.len == sim.area_foes(s.seed, s.field, 1).len && resumed.trail.len == 0,
         "fresh encounters",
     )
     assert(text.len < 512, "short text save")

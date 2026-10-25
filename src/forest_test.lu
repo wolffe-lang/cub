@@ -15,6 +15,7 @@ fn test_cb02_seeded_centres_are_walkable_and_meander() {
                 assert(
                     !forest.blocked(
                         seed,
+                        80,
                         area,
                         forest.spine(seed, area, y),
                         forest.origin(seed, area) + y,

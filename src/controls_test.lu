@@ -123,5 +123,5 @@ fn test_key_names_round_trip() {
         "the movement keys",
     )
     let v = controls.vocab()
-    assert(v.keys.len == controls.KEY_COUNT && v.args.len == 28, "the vocabulary")
+    assert(v.keys.len == controls.KEY_COUNT && v.args.len == 29, "the vocabulary")
 }

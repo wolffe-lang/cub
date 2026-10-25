@@ -49,7 +49,7 @@ fn test_cb02_hawk_shadow_does_not_pin_a_dodge() {
 
 fn test_cb02_cache_is_guarded_finite_and_persisted() {
     var s = sim.new(1, 80, 24)
-    let (x, y) = forest.cache_position(s.seed, 0, 1)
+    let (x, y) = forest.cache_position(s.seed, s.field, 0, 1)
     s.x = x
     s.y = y
     sim.step(mut s, key(controls.KEY_REST))
@@ -95,11 +95,12 @@ fn test_cb02_spawned_bodies_stand_on_passable_ground() {
     while seed < 8 {
         var area = 0
         while area < 3 {
-            let foes = sim.area_foes(seed, area)
+            let foes = sim.area_foes(seed, 80, area)
             for f in foes {
                 assert(
                     !forest.blocked(
                         seed,
+                        80,
                         area,
                         sim.floor_div(f.x, sim.FP),
                         sim.floor_div(f.y, sim.FP),

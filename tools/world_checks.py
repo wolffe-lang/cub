@@ -13,8 +13,11 @@ def check(binary):
     audit = subprocess.run([str(binary), '--world-audit'], capture_output=True, text=True, check=True)
     (out / 'reachability.txt').write_text(audit.stdout)
     rows = [list(map(int, row.split())) for row in audit.stdout.splitlines()[1:]]
-    assert len(rows) == 150 and {(r[0], r[1]) for r in rows} == {(s, a) for s in range(50) for a in range(3)}
-    assert all(r[2] == r[3] and r[4] <= 12 and r[5] >= 30 and r[6] == 2 and r[7] <= 1 and r[8] == 0 and r[9] <= 200 for r in rows)
+    assert len(rows) == 300 and {(r[0], r[1], r[2]) for r in rows} == {(s, f, a) for s in range(50) for f in (80, 200) for a in range(3)}
+    # reached == required; straight <= 12; nearest foe >= 30; the caches per
+    # area; bank step <= 1; flat run <= 2; textured share >= 90 %; walk <= 200.
+    assert all(r[3] == r[4] and r[5] <= 12 and r[6] >= 30 and r[7] == (4 if r[2] == 0 else 2) and r[8] <= 1
+               and r[9] <= 2 and r[10] >= 90 and r[11] <= 200 for r in rows), 'world audit row out of bounds'
 
     def run(name, path, frames=1, case=None, extra=(), want=0):
         args = [str(binary), '--headless', '--save', str(path), '--frames', str(frames),
@@ -32,7 +35,7 @@ def check(binary):
     frames = int(re.search(r'# frames (\d+)', (ROOT / 'tests/cases/world-den.pk').read_text())[1])
     run('write-den', save, frames, 'world-den')
     before = save.read_bytes()
-    assert before.startswith(b'CUB 1\n') and len(before) < 512
+    assert before.startswith(b'CUB 2\n') and len(before) < 512
     run('resume-den', save)
     assert save.read_bytes() == before, 'write/resume changed persistent state'
     words = (out / 'resume-den/final.state').read_text().splitlines()[0].split()
@@ -54,7 +57,8 @@ def check(binary):
     assert pending.read_bytes() == b'another writer owns this stage'
     pending.unlink()
     for name, data, diagnostic in [
-        ('unknown', before.replace(b'CUB 1', b'CUB 9', 1), 'save_version'),
+        ('unknown', before.replace(b'CUB 2', b'CUB 9', 1), 'save_version'),
+        ('schema-1', before.replace(b'CUB 2', b'CUB 1', 1), 'save_version'),
         ('corrupt', before[:-5], 'save_corrupt'),
         ('extra', before + b'junk\n', 'save_corrupt'),
     ]:
