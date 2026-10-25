@@ -38,6 +38,11 @@ pub const FIRST_FOE_CELLS: int = 30
 /// The coast's least reach each way from the spawn, cells (R-cb02b-1 A).
 pub const COAST_MIN: int = 120
 
+/// How far from a route the coast's canopy stays open, cells: beyond it
+/// the wood is deep and solid, so every walkable cell is a bounded walk
+/// from the shore, the thorn route or an alcove.
+pub const OPEN_REACH: int = 16
+
 /// The field a terminal of `cols` columns starts: never below `FIELD_MIN`.
 pub fn field_of(cols: int) -> int {
     if cols < FIELD_MIN then FIELD_MIN else cols
@@ -209,6 +214,30 @@ fn closed(seed: int, area: int, x: int, y: int) -> int {
     if world.hash(seed + area * 79, x, y, 100) < 16 then terrain.TRUNK else terrain.DARK
 }
 
+fn abs(v: int) -> int {
+    if v < 0 then 0 - v else v
+}
+
+/// Whether a coast cell lies within `OPEN_REACH` of the shore, the thorn
+/// route or one of the four branches (its alcove included).
+pub fn near_route(seed: int, field: int, x: int, at: int) -> bool {
+    if at <= OPEN_REACH { return true }
+    if abs(x - spine(seed, SHINGLE, at)) <= OPEN_REACH { return true }
+    var cache = 0
+    while cache < cache_count(SHINGLE) {
+        let mouth = coast_mouth(seed, field, cache)
+        if x >= mouth - 2 * OPEN_REACH && x <= mouth + 2 * OPEN_REACH {
+            let end = coast_end(seed, cache)
+            if at <= end + OPEN_REACH {
+                let c = coast_branch_x(seed, field, cache, if at > end then end else at)
+                if abs(x - c) <= OPEN_REACH { return true }
+            }
+        }
+        cache += 1
+    }
+    false
+}
+
 /// Seeded collision tile after route carving.
 pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
     let at = y - origin(seed, area)
@@ -225,8 +254,12 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
         if y < b + terrain.REED_ROWS { return terrain.REEDS }
         if y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS { return terrain.GRAVEL }
     }
+    // The coast's rows above the spawn's are the shore's own (the bank
+    // wanders eight cells); inland an area begins at its entry row.
     let w = bound(field, area)
-    if x < 0 - w || x > w || at < 0 || at > LENGTH { return closed(seed, area, x, y) }
+    if x < 0 - w || x > w || at < 0 && area != SHINGLE || at > LENGTH {
+        return closed(seed, area, x, y)
+    }
     let c = spine(seed, area, at)
     let hw = half(seed, area, at)
     if x >= c - hw && x <= c + hw {
@@ -257,6 +290,7 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
         let exit_centre = if at < 150 then spine(seed, area, 140) * (150 - at) / 10 else 0
         if x >= exit_centre - 2 && x <= exit_centre + 2 { return terrain.GRAVEL }
     }
+    if area == SHINGLE && !near_route(seed, field, x, at) { return closed(seed, area, x, y) }
     let n = terrain.noise2(seed + area * 101, 5, x, y)
     let h = world.hash(seed + area * 79, x, y, 100)
     if area == LARKMEADOW {
