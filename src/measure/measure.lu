@@ -1,0 +1,408 @@
+//! measure — the gait lane's instrument (cb02c): the cub's pace on the
+//! straight and in a turn, the tail's wag period as the frame draws it,
+//! a fox's chase on the straight and through turns, the path cells'
+//! styles by kind of path, and the body census (`census`) over a list of
+//! replay scripts. Every number is read from the running code, never
+//! restated from a constant: it is what `cub --measure` prints before and
+//! after a change, and what the note quotes.
+
+use art
+use census
+use controls
+use forest
+use grid
+use journey
+use replay
+use sim
+use std.fs
+use terrain
+use tier
+
+fn press(mut s: sim.Sim, k: int) {
+    var keys = List[int]()
+    if k > 0 { (mut keys).push(k) }
+    sim.step(mut s, keys)
+}
+
+fn press2(mut s: sim.Sim, a: int, b: int) {
+    var keys = List[int]()
+    (mut keys).push(a)
+    (mut keys).push(b)
+    sim.step(mut s, keys)
+}
+
+/// Hundredths of a cell a second from fixed-point units over `ticks`.
+fn cps100(fp: int, ticks: int) -> int {
+    fp * 30 * 100 / (ticks * sim.FP)
+}
+
+fn isqrt(n: int) -> int {
+    var r = 0
+    while (r + 1) * (r + 1) <= n { r += 1 }
+    r
+}
+
+fn hundredths(v: int) -> str {
+    let whole = v / 100
+    let frac = v % 100
+    if frac < 10 then "{whole}.0{frac}" else "{whole}.{frac}"
+}
+
+/// A cub alone on the shore's top gravel row, facing east at a stand.
+fn shore_cub() -> sim.Sim {
+    var s = sim.new(1, 80, 24)
+    (mut s.foes).reset()
+    let b = terrain.bank(1, 0)
+    s.y = (b + terrain.REED_ROWS) * sim.FP + sim.FP / 2
+    s.heading = 64
+    s.heading_target = 64
+    s
+}
+
+/// The pace: cells a second at the trot on the straight (east along the
+/// shore), on the diagonal, and through a quarter turn (east to south):
+/// the ticks the turn takes, the path speed during it and the radius.
+pub fn pace() -> str {
+    var s = shore_cub()
+    var i = 0
+    while i < 30 { press(mut s, controls.KEY_RIGHT); i += 1 }
+    let x0 = s.x
+    let blocked0 = s.blocked
+    i = 0
+    while i < 30 { press(mut s, controls.KEY_RIGHT); i += 1 }
+    let straight = cps100(s.x - x0, 30)
+    let clear = s.blocked == blocked0
+    // The quarter turn, from the trot east to holding south.
+    var turn_ticks = 0
+    var path: int = 0
+    while s.heading != 128 && turn_ticks < 60 {
+        let px = s.x
+        let py = s.y
+        press(mut s, controls.KEY_DOWN)
+        path += isqrt((s.x - px) * (s.x - px) + (s.y - py) * (s.y - py))
+        turn_ticks += 1
+    }
+    let turning = cps100(path, if turn_ticks > 0 then turn_ticks else 1)
+    // Radius: path length over the angle (a quarter turn is pi/2; in
+    // hundredths of a cell, path * 2 / pi).
+    let radius = path * 100 * 2 * 1000 / (3142 * sim.FP)
+    // The diagonal: down and right together from the top row.
+    var d = shore_cub()
+    i = 0
+    while i < 30 { press(mut d, controls.KEY_RIGHT); i += 1 }
+    var di = 0
+    while di < 12 { press2(mut d, controls.KEY_RIGHT, controls.KEY_DOWN); di += 1 }
+    let dx1 = d.x
+    let dy1 = d.y
+    di = 0
+    while di < 8 { press2(mut d, controls.KEY_RIGHT, controls.KEY_DOWN); di += 1 }
+    let diag = cps100(isqrt((d.x - dx1) * (d.x - dx1) + (d.y - dy1) * (d.y - dy1)), 8)
+    "pace trot_fp {sim.trot_at(1)} straight_cps {hundredths(straight)} clear {clear} diagonal_cps {hundredths(diag)} quarter_turn_ticks {turn_ticks} turning_cps {hundredths(turning)} turn_radius_cells {hundredths(radius)} sneak_fp {sim.trot_at(1) / 2} foe_stalk_fp {sim.FOE_STALK_V} foe_retreat_fp {sim.FOE_RETREAT_V}"
+}
+
+/// A key for the frame's tail cells: the two west columns of an
+/// east-facing cub (the north drawing's last cell row, turned).
+fn tail_key(s: sim.Sim) -> str {
+    var g = grid.new(s.rows, s.cols)
+    art.render(s, tier.RICH, mut g)
+    let r = sim.screen_row(s)
+    let c = sim.screen_col(s)
+    var key = ""
+    var dr = 0
+    while dr < 2 {
+        var dc = -3
+        while dc < -1 {
+            key += "{grid.at(g, r + dr, c + dc).cp},"
+            dc += 1
+        }
+        dr += 1
+    }
+    key
+}
+
+/// The wag: the period, in ticks, of the frame's tail cells over `n`
+/// ticks of a gait (`k` the key held, 0 standing), after a settling run.
+fn wag_period(k: int, settle: int, n: int) -> int {
+    var s = shore_cub()
+    var i = 0
+    while i < settle { press(mut s, k); i += 1 }
+    var keys = List[str]()
+    i = 0
+    while i < n {
+        press(mut s, k)
+        (mut keys).push(tail_key(s))
+        i += 1
+    }
+    // The least period p for which the sequence repeats itself.
+    var p = 1
+    while p < n {
+        var same = true
+        var j = 0
+        while j + p < n {
+            if keys[j] != keys[j + p] { same = false; break }
+            j += 1
+        }
+        if same { return p }
+        p += 1
+    }
+    0
+}
+
+/// Distinct tail frames over the same run.
+fn wag_frames(k: int, settle: int, n: int) -> int {
+    var s = shore_cub()
+    var i = 0
+    while i < settle { press(mut s, k); i += 1 }
+    var seen = List[str]()
+    i = 0
+    while i < n {
+        press(mut s, k)
+        let key = tail_key(s)
+        var have = false
+        for x in seen { if x == key { have = true } }
+        if !have { (mut seen).push(key) }
+        i += 1
+    }
+    seen.len
+}
+
+/// The wag period standing, sneaking and walking (0: the tail never moves).
+pub fn wag() -> str {
+    let stand = wag_period(0, 0, 150)
+    let sneak = wag_period(controls.KEY_SNEAK_RIGHT, 30, 60)
+    let walk = wag_period(controls.KEY_RIGHT, 30, 60)
+    "wag standing_ticks {stand} sneaking_ticks {sneak} walking_ticks {walk} standing_frames {wag_frames(0, 0, 150)} walking_frames {wag_frames(controls.KEY_RIGHT, 30, 60)}"
+}
+
+/// Whether a meadow rectangle holds no blocked cell.
+fn open_square(s: sim.Sim, x0: int, y0: int, w: int, h: int) -> bool {
+    var y = y0
+    while y < y0 + h {
+        var x = x0
+        while x < x0 + w {
+            if sim.blocked(s, x, y) { return false }
+            x += 1
+        }
+        y += 1
+    }
+    true
+}
+
+/// A fox five cells behind (west of) a trotting cub, both at full speed;
+/// the cub then runs `legs` legs of `leg` ticks, east and south
+/// alternately. One leg is the straight, along the shore's middle row;
+/// the turns are run in the first open stretch of the meadow. The
+/// answer: the centre distance in hundredths of a cell at the start and
+/// at the end, and the tick the fox began its attack (-1 never).
+fn chase(legs: int, leg: int) -> (int, int, int) {
+    var s = sim.new(1, 80, 24)
+    (mut s.foes).reset()
+    if legs > 1 {
+        s.area = forest.LARKMEADOW
+        var found = false
+        var y = 20
+        while y < 140 && !found {
+            var x = -40
+            while x < 30 && !found {
+                if open_square(s, x, y, 14, 12) {
+                    s.x = (x + 6) * sim.FP + sim.FP / 2
+                    s.y = (y + 1) * sim.FP + sim.FP / 2
+                    found = true
+                }
+                x += 1
+            }
+            y += 1
+        }
+        if !found { return (-1, -1, -1) }
+    } else {
+        let b = terrain.bank(1, 0)
+        s.x = 6 * sim.FP + sim.FP / 2
+        s.y = (b + terrain.REED_ROWS + 2) * sim.FP + sim.FP / 2
+    }
+    s.heading = 64
+    s.heading_target = 64
+    s.speed = sim.trot_at(1)
+    var fox = sim.spawn_foes(1)[2]
+    fox.x = s.x - 5 * sim.FP
+    fox.y = s.y
+    fox.heading = 64
+    fox.speed = sim.FOE_STALK_V
+    (mut s.foes).push(fox)
+    let start = s.x - fox.x
+    var caught = -1
+    var leg_i = 0
+    var t = 0
+    while leg_i < legs {
+        var n = 0
+        while n < leg {
+            press(mut s, if leg_i % 2 == 0 then controls.KEY_RIGHT else controls.KEY_DOWN)
+            t += 1
+            if caught < 0 && s.foes[0].phase != sim.HUNT { caught = t }
+            n += 1
+        }
+        leg_i += 1
+    }
+    let f = copy s.foes[0]
+    let end = isqrt((s.x - f.x) * (s.x - f.x) + (s.y - f.y) * (s.y - f.y))
+    (start * 100 / sim.FP, end * 100 / sim.FP, caught)
+}
+
+/// The fox's chase on the straight and through turns.
+pub fn chases() -> str {
+    let (a0, a1, ac) = chase(1, 60)
+    let (b0, b1, bc) = chase(6, 8)
+    "chase straight_start {hundredths(a0)} straight_end {hundredths(a1)} straight_caught {ac} turns_start {hundredths(b0)} turns_end {hundredths(b1)} turns_caught {bc}"
+}
+
+/// The style a world cell draws in on a tier (`art.terrain_row` on a
+/// one-cell screen whose camera is that cell).
+pub fn style_at(seed: int, area: int, t: int, x: int, y: int) -> grid.Cell {
+    var s = sim.new(seed, 80, 24)
+    s.area = area
+    s.cols = 1
+    s.rows = 1
+    s.x = x * sim.FP + sim.FP / 2
+    s.y = y * sim.FP + sim.FP / 2
+    var g = grid.new(1, 1)
+    art.terrain_row(s, t, 0, mut g)
+    grid.at(g, 0, 0)
+}
+
+fn style_text(c: grid.Cell) -> str {
+    "{c.fg}/{c.bg}"
+}
+
+fn add_style(mut seen: List[str], c: grid.Cell) {
+    let k = style_text(c)
+    for x in seen { if x == k { return } }
+    (mut seen).push(k)
+}
+
+fn joined(xs: List[str]) -> str {
+    var out = ""
+    for x in xs { out += if out == "" then x else "," + x }
+    out
+}
+
+/// The colours (fg/bg) every path kind's cells draw in, seed 1 at field
+/// 80, each tier: the shore, the thorn route, the four coast branches,
+/// the coast's log branch.
+pub fn paths() -> str {
+    var out = ""
+    var t = 0
+    while t < 2 {
+        let tr = if t == 0 then tier.RICH else tier.PLAIN
+        var shore = List[str]()
+        var route = List[str]()
+        var branch = List[str]()
+        var log = List[str]()
+        let o = forest.origin(1, forest.SHINGLE)
+        var x = -60
+        while x <= 60 {
+            let b = terrain.bank(1, x)
+            var y = b + terrain.REED_ROWS
+            while y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS {
+                add_style(mut shore, style_at(1, forest.SHINGLE, tr, x, y))
+                y += 1
+            }
+            x += 1
+        }
+        var at = 12
+        while at < 130 {
+            add_style(mut route, style_at(1, forest.SHINGLE, tr, forest.spine(1, 0, at), o + at))
+            at += 1
+        }
+        var cache = 0
+        while cache < 4 {
+            at = 8
+            while at < forest.coast_end(1, cache) {
+                add_style(
+                    mut branch,
+                    style_at(
+                        1,
+                        forest.SHINGLE,
+                        tr,
+                        forest.coast_branch_x(1, 80, cache, at),
+                        o + at,
+                    ),
+                )
+                at += 1
+            }
+            cache += 1
+        }
+        x = -30
+        while x <= -12 {
+            let by = 22 + forest.curve(1, 0 + 71, x) / 2
+            add_style(mut log, style_at(1, forest.SHINGLE, tr, x, o + by))
+            x += 1
+        }
+        out += "paths {if t == 0 then "rich" else "plain"} shore {joined(shore)} route {joined(route)} branches {joined(branch)} log_branch {joined(log)}\n"
+        t += 1
+    }
+    out
+}
+
+fn frames_of(text: str) -> int {
+    let i = text.find("# frames ") else -1
+    if i < 0 { return 60 }
+    var n = 0
+    for b in text[i + 9..].bytes() {
+        let d = b as int - 48
+        if d < 0 || d > 9 { break }
+        n = n * 10 + d
+    }
+    n
+}
+
+/// The census over one replay script, its own frame count.
+fn census_of(path: str) -> census.Counts ! {io, parse} {
+    let text = fs.read_text(path) else |_| { return io }
+    let r = replay.from_text(text, controls.vocab())?
+    let frames = frames_of(text)
+    var s = sim.new(r.seed, r.cols, r.rows)
+    if replay.args_at(r, 0, 3) == 1 {
+        var values = List[int]()
+        var i = 0
+        while i < 25 { (mut values).push(replay.args_at(r, 0, 4 + i)); i += 1 }
+        s = journey.from_snapshot(values, r.cols, r.rows) else |_| { return parse }
+    }
+    var c = census.counts()
+    var keys = List[int]()
+    var k = 0
+    while k < frames {
+        (mut keys).reset()
+        let (cols, rows, health) = replay.at(r, k, mut keys)
+        if cols > 0 { sim.resize(mut s, cols, rows) }
+        if health < 0 { sim.hurt(mut s, 0 - health) }
+        if health > 0 {
+            s.health += health
+            if s.health > sim.health_max(s.heart) { s.health = sim.health_max(s.heart) }
+        }
+        s.scent += replay.args_at(r, k, 1)
+        if s.scent < 0 { s.scent = 0 }
+        if replay.args_at(r, k, 2) == 1 { sim.opening(mut s) }
+        sim.step(mut s, keys)
+        census.observe(mut c, s)
+        k += 1
+    }
+    c
+}
+
+/// Everything, then one census line a script and the total.
+pub fn report(paths_in: List[str]) -> int {
+    print(pace())
+    print(wag())
+    print(chases())
+    print_raw(paths())
+    var total = census.counts()
+    for p in paths_in {
+        let c = census_of(p) else |e| {
+            eprint("measure: {p}: {e}")
+            return 2
+        }
+        print("census {p} {census.line(c)}")
+        census.add(mut total, c)
+    }
+    print("census total {census.line(total)}")
+    0
+}

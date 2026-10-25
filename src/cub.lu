@@ -17,6 +17,7 @@ use art
 use coast
 use forest
 use journey
+use measure
 use clock
 use controls
 use grid
@@ -84,6 +85,7 @@ fn usage_text() -> str {
         "  --save-delay N                    ticks between staging and replacement (test witness)\n" +
         "  --make-world-proof DIR             generate real-key world test scripts\n" +
         "  --world-audit                     graph/density census over seeds 0..49\n" +
+        "  --measure [SCRIPT...]             pace, wag, chase, path styles, body census (last flag)\n" +
         "  --ghost-dir DIR                   override live death archive; enable it headless\n" +
         "  --truecolor / --no-truecolor      override COLORTERM\n" +
         "  --ticks N                         quit after N ticks\n" +
@@ -800,6 +802,13 @@ fn run_live(o: Options, args: List[str]) -> int {
 
 fn main() -> int {
     let args = env.args()
+    if args.len > 0 && args[0] == "--measure" {
+        // The gait lane's instrument: every argument after it is a script.
+        var paths = List[str]()
+        var i = 1
+        while i < args.len { (mut paths).push(args[i]); i += 1 }
+        return measure.report(paths)
+    }
     let o = parse_args(args) else |_| {
         eprint(usage_text())
         return 2

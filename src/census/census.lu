@@ -1,0 +1,205 @@
+//! census — what the frame shows of bodies, measured from the drawings
+//! (cb02c). A creature's footprint is the rectangle of cells its
+//! silhouette covers where the frame draws it: the bitmap turned to the
+//! facing the frame uses, its anchor at the creature's own cell, the
+//! cub's at its presentation offset too (`sim.attack_offset`), widened by
+//! a head shake. The census counts, tick by tick over a run, the live
+//! ground foes whose footprint shares a cell with the cub's (overlap),
+//! the ones whose footprint touches it or overlaps it (contact), and of
+//! those, the ones a bite aimed at them cannot reach (unreachable) and
+//! the ones outside the cone of the way the cub faces (behind). It reads
+//! the silhouettes, never the simulation's collision, so it is a witness
+//! of the collision rule and not a copy of it.
+
+use silhouette
+use sim
+
+/// A rectangle of world cells, both corners inclusive.
+pub struct Box {
+    x0: int,
+    y0: int,
+    x1: int,
+    y1: int,
+}
+
+/// The rectangle a bitmap covers facing `facing` with its anchor at cell
+/// `(x, y)`, as `silhouette.draw_at` places it.
+pub fn placed(b: silhouette.Bitmap, facing: int, x: int, y: int) -> Box {
+    let t = silhouette.turned(b, facing)
+    let (dr, dc) = silhouette.anchor(b, facing)
+    Box {
+        x0: x + dc,
+        y0: y + dr,
+        x1: x + dc + silhouette.cols(t) - 1,
+        y1: y + dr + silhouette.rows(t) - 1,
+    }
+}
+
+/// The quarter a heading faces, as the frame rounds it.
+pub fn quarter(heading: int) -> int {
+    ((heading + 32) % sim.TURN + sim.TURN) % sim.TURN / 64
+}
+
+/// The facing the frame draws the cub in: the attack's aim during a bite,
+/// a lunge or a heavy, else the heading's quarter.
+pub fn cub_facing(s: sim.Sim) -> int {
+    if s.action == sim.BITE || s.action == sim.LUNGE || s.action == sim.HEAVY {
+        return quarter(s.attack_heading)
+    }
+    sim.facing(s)
+}
+
+/// The cub's footprint where the frame draws it this tick.
+pub fn cub_box(s: sim.Sim) -> Box {
+    let (ox, oy) = sim.attack_offset(s)
+    let facing = cub_facing(s)
+    var b = placed(
+        silhouette.cub(0, 0),
+        facing,
+        sim.floor_div(s.x + ox, sim.FP),
+        sim.floor_div(s.y + oy, sim.FP),
+    )
+    // The third bite's head shake moves the head one cell across the aim.
+    let shake = sim.head_shake(s)
+    if shake != 0 {
+        if facing % 2 == 0 {
+            if shake < 0 { b.x0 -= 1 } else { b.x1 += 1 }
+        } else if shake < 0 {
+            b.y0 -= 1
+        } else {
+            b.y1 += 1
+        }
+    }
+    b
+}
+
+/// A ground foe's footprint where the frame draws it.
+pub fn foe_box(f: sim.Foe) -> Box {
+    placed(
+        silhouette.foe(f.kind, 0, -1),
+        quarter(f.heading),
+        sim.floor_div(f.x, sim.FP),
+        sim.floor_div(f.y, sim.FP),
+    )
+}
+
+fn axis_gap(a0: int, a1: int, b0: int, b1: int) -> int {
+    let d = if b0 - a1 > a0 - b1 then b0 - a1 else a0 - b1
+    d - 1
+}
+
+/// Empty cells between two rectangles, the larger of the two axes': 0
+/// when they touch (side or corner), negative when they share a cell.
+pub fn gap(a: Box, b: Box) -> int {
+    let gx = axis_gap(a.x0, a.x1, b.x0, b.x1)
+    let gy = axis_gap(a.y0, a.y1, b.y0, b.y1)
+    if gx > gy then gx else gy
+}
+
+/// Whether two rectangles share a cell.
+pub fn overlap(a: Box, b: Box) -> bool {
+    gap(a, b) < 0
+}
+
+/// Whether a bite aimed at foe `i` would reach it under the rule in force.
+pub fn reachable(s: sim.Sim, i: int) -> bool {
+    let f = copy s.foes[i]
+    sim.near(s.x, s.y, f.x, f.y, 2 * sim.FP) && sim.visible(s, s.x, s.y, f.x, f.y)
+}
+
+/// Whether foe `i` lies outside the forward cone of the way the cub faces
+/// (a bite with no arrow misses it).
+pub fn behind(s: sim.Sim, i: int) -> bool {
+    let f = copy s.foes[i]
+    let dx = f.x - s.x
+    let dy = f.y - s.y
+    let dot = dx * sim.sin(s.heading) - dy * sim.cos(s.heading)
+    let cross = dx * sim.cos(s.heading) + dy * sim.sin(s.heading)
+    !(dot >= 0 && sim.abs(cross) <= dot)
+}
+
+/// Running counts over a run's ticks.
+pub struct Counts {
+    ticks: int,
+    overlap_ticks: int,
+    overlap: int,
+    overlap_unreachable: int,
+    overlap_behind: int,
+    contact: int,
+    contact_unreachable: int,
+    contact_behind: int,
+    foe_overlap: int,
+}
+
+/// No ticks seen.
+pub fn counts() -> Counts {
+    Counts {
+        ticks: 0,
+        overlap_ticks: 0,
+        overlap: 0,
+        overlap_unreachable: 0,
+        overlap_behind: 0,
+        contact: 0,
+        contact_unreachable: 0,
+        contact_behind: 0,
+        foe_overlap: 0,
+    }
+}
+
+fn solid(f: sim.Foe) -> bool {
+    f.health > 0 && f.kind != sim.HAWK
+}
+
+/// Count one tick of `s` (after its step).
+pub fn observe(mut c: Counts, s: sim.Sim) {
+    c.ticks += 1
+    if s.scene != 0 || s.action == sim.FALL || s.den { return }
+    let cub = cub_box(s)
+    var any = false
+    var i = 0
+    while i < s.foes.len {
+        let f = copy s.foes[i]
+        if solid(f) {
+            let fb = foe_box(f)
+            let g = gap(cub, fb)
+            if g <= 0 {
+                c.contact += 1
+                let out = !reachable(s, i)
+                let back = behind(s, i)
+                if out { c.contact_unreachable += 1 }
+                if back { c.contact_behind += 1 }
+                if g < 0 {
+                    any = true
+                    c.overlap += 1
+                    if out { c.overlap_unreachable += 1 }
+                    if back { c.overlap_behind += 1 }
+                }
+            }
+            var j = i + 1
+            while j < s.foes.len {
+                if solid(s.foes[j]) && overlap(fb, foe_box(s.foes[j])) { c.foe_overlap += 1 }
+                j += 1
+            }
+        }
+        i += 1
+    }
+    if any { c.overlap_ticks += 1 }
+}
+
+/// Add `b`'s counts into `a`.
+pub fn add(mut a: Counts, b: Counts) {
+    a.ticks += b.ticks
+    a.overlap_ticks += b.overlap_ticks
+    a.overlap += b.overlap
+    a.overlap_unreachable += b.overlap_unreachable
+    a.overlap_behind += b.overlap_behind
+    a.contact += b.contact
+    a.contact_unreachable += b.contact_unreachable
+    a.contact_behind += b.contact_behind
+    a.foe_overlap += b.foe_overlap
+}
+
+/// One line of counts, every field named.
+pub fn line(c: Counts) -> str {
+    "ticks {c.ticks} overlap_ticks {c.overlap_ticks} overlap {c.overlap} overlap_unreachable {c.overlap_unreachable} overlap_behind {c.overlap_behind} contact {c.contact} contact_unreachable {c.contact_unreachable} contact_behind {c.contact_behind} foe_overlap {c.foe_overlap}"
+}
