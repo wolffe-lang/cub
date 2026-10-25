@@ -8,6 +8,7 @@ indices; the plain tier uses the sixteen console colours. These are proposed
 |---|---:|---:|
 | gravel | 240 | 8 |
 | gravel marks | 247 | 7 |
+| path (the coast's) | 247 on 240 | 7 on 8 |
 | grass | 64 | 2 |
 | trunk | 94 | 3 |
 | canopy / deep canopy | 28 / 22 | 2 / 2 |
@@ -19,6 +20,19 @@ indices; the plain tier uses the sixteen console colours. These are proposed
 | reeds | 65 | 2 |
 | weasel | 130 | 1 |
 | fox | 166 | 9 |
+
+**The path (cb02c, 2026-10-25).** The maintainer's word: "The branch paths should be the
+same color as the coastline/forest paths." Every path cell has one ground per area,
+`forest.path_kind`: on the coast the shore's gravel, for the shore, the thorn route, the
+four branches and their alcoves, the log's branch and the gate's exit alike (rich marks
+247 on 240, glyphs space `·` `․` `░`; plain 7 on 8, space `.` `,` `:`); inland the grass,
+under the area's dusk keyframe (the thicket's path grass 65 on 233, the meadow's 137 on
+235). `forest.carved` is the one place a path is carved and it returns that kind, and
+`art.path_styles` is the one set of styles a path cell may draw in, so a new path cannot
+drift into the forest's colour: `--world-audit`'s `path_off` column counts, over fifty
+seeds, both fields and every area, the walkable path cells drawn outside the set (zero).
+Before cb02c the branches and the log's branch drew the forest's grass (64 on 234,
+`⠖` `⠶`), the canopy's colours, and read as more forest.
 
 Foes have their own threat colours (proposed 2026-10-25), distinct from
 cub fur and scent. Crouch changes the whole head posture, not just colour.
