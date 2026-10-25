@@ -4,5 +4,7 @@ foe 1 kind 0 health 8 phase 0 since 0 x 0 y 14080
 foe 2 kind 1 health 24 phase 0 since 0 x 768 y 20736
 foe 3 kind 0 health 8 phase 0 since 0 x -512 y 35328
 foe 4 kind 0 health 8 phase 0 since 0 x 0 y 35328
-foe 5 kind 1 health 40 phase 0 since 0 x -7296 y 10368
-foe 6 kind 1 health 40 phase 0 since 0 x 6272 y 11136
+foe 5 kind 1 health 40 phase 0 since 0 x -26496 y 10368
+foe 6 kind 1 health 40 phase 0 since 0 x 25216 y 11136
+foe 7 kind 1 health 40 phase 0 since 0 x -52096 y 10368
+foe 8 kind 1 health 40 phase 0 since 0 x 51584 y 11136
