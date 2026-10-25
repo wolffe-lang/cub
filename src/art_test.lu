@@ -45,7 +45,10 @@ fn test_the_cub_is_at_the_centre_on_both_tiers() {
     )
     var p = grid.new(24, 80)
     art.render(s, tier.PLAIN, mut p)
-    assert(grid.at(p, 12, 40).cp == 67 && grid.at(p, 12, 39).cp == 94, "the plain C with its mark")
+    assert(
+        grid.at(p, 12, 40).cp == 67 && grid.at(p, 11, 40).cp == 94,
+        "the plain body with its ears",
+    )
     assert(grid.plain_ok(p), "the plain frame keeps the promise")
 }
 
@@ -59,12 +62,12 @@ fn test_the_cub_turns_on_the_screen() {
     var g = grid.new(24, 80)
     art.render(s, tier.RICH, mut g)
     assert(
-        grid.at(g, 11, 41).cp == 9629 && grid.at(g, 12, 41).cp == 9623,
-        "the ears on the east side",
+        grid.at(g, 11, 40).cp == 9629 && grid.at(g, 11, 41).cp == 9623,
+        "east ears above the unchanged body",
     )
     var p = grid.new(24, 80)
     art.render(s, tier.PLAIN, mut p)
-    assert(grid.at(p, 12, 39).cp == 62, "the plain mark points east")
+    assert(grid.at(p, 11, 40).cp == 62, "the plain mark points east")
 }
 
 fn none_keys() -> List[int] {
@@ -97,5 +100,27 @@ fn test_every_combat_posture_on_both_tiers_is_valid_and_distinct() {
         assert(different, "action {action} has a distinct glyph")
         previous = plain
         action += 1
+    }
+}
+
+fn test_cb01b_sideways_silhouette_keeps_body_cells() {
+    var t = tier.PLAIN
+    while t <= tier.RICH {
+        var f = 0
+        while f < 4 {
+            var pose = 0
+            while pose < 4 {
+                var g = grid.new(8, 12)
+                art.draw_pose(mut g, t, 2, 4, f, 0, pose, 0)
+                let body = sprites.glyph(t, sprites.SP_CUB_BODY, 0)
+                assert(grid.same(grid.at(g, 3, 4), body), "first body cell facing {f} pose {pose}")
+                assert(grid.same(grid.at(g, 3, 5), body), "second body cell facing {f} pose {pose}")
+                assert(grid.at(g, 2, 4).cp != 32 && grid.at(g, 2, 5).cp != 32, "two ears")
+                if t == tier.PLAIN { assert(grid.plain_ok(g), "plain posture") }
+                pose += 1
+            }
+            f += 1
+        }
+        t += 1
     }
 }
