@@ -445,8 +445,20 @@ fn frames_of(text: str) -> int {
 
 /// The census over one replay script, its own frame count.
 fn census_of(path: str) -> census.Counts ! {io, parse} {
+    census_as(path, -1, 0, 0)
+}
+
+/// The census over one replay script, its own frame count; `seed` and
+/// `cols` by `rows` override the script's own when `seed >= 0` (the body
+/// audit's other worlds: the same keys in another forest).
+fn census_as(path: str, seed: int, cols: int, rows: int) -> census.Counts ! {io, parse} {
     let text = fs.read_text(path) else |_| { return io }
-    let r = replay.from_text(text, controls.vocab())?
+    var r = replay.from_text(text, controls.vocab())?
+    if seed >= 0 {
+        r.seed = seed
+        r.cols = cols
+        r.rows = rows
+    }
     let frames = frames_of(text)
     var s = sim.new(r.seed, r.cols, r.rows)
     if replay.args_at(r, 0, 3) == 1 {
@@ -460,8 +472,8 @@ fn census_of(path: str) -> census.Counts ! {io, parse} {
     var k = 0
     while k < frames {
         (mut keys).reset()
-        let (cols, rows, health) = replay.at(r, k, mut keys)
-        if cols > 0 { sim.resize(mut s, cols, rows) }
+        let (sc, sr, health) = replay.at(r, k, mut keys)
+        if sc > 0 && seed < 0 { sim.resize(mut s, sc, sr) }
         if health < 0 { sim.hurt(mut s, 0 - health) }
         if health > 0 {
             s.health += health
@@ -475,6 +487,120 @@ fn census_of(path: str) -> census.Counts ! {io, parse} {
         k += 1
     }
     c
+}
+
+/// The swarm (cb02c): three weasels converge from behind on a cub
+/// standing at the first den, facing the river. For `wait` ticks it
+/// stands and takes what comes; then it bites whichever is in its reach,
+/// aimed at it, until all three are down or `ticks` pass. The census of
+/// the run, the foe-ticks a weasel stood in the cub's reach, and the
+/// weasels the cub killed.
+pub fn swarm(seed: int, cols: int, rows: int, wait: int, ticks: int) -> (census.Counts, int, int) {
+    var s = sim.new(seed, cols, rows)
+    (mut s.foes).reset()
+    let o = forest.origin(seed, forest.SHINGLE)
+    let at = 7
+    let c = forest.spine(seed, forest.SHINGLE, at)
+    var k = 0
+    while k < 3 {
+        var w = sim.spawn_foes(seed)[0]
+        w.x = (c + (k - 1) * 3) * sim.FP + sim.FP / 2
+        w.y = (o + at) * sim.FP + sim.FP / 2
+        w.heading = 0
+        w.target_x = w.x
+        w.target_y = w.y
+        w.home_x = w.x
+        w.home_y = w.y
+        (mut s.foes).push(w)
+        k += 1
+    }
+    var counts = census.counts()
+    var engaged = 0
+    var n = 0
+    while n < ticks && s.action != sim.FALL {
+        var keys = List[int]()
+        if n >= wait && s.action == sim.IDLE {
+            var i = 0
+            while i < s.foes.len {
+                if s.foes[i].health > 0 && sim.in_reach(s, i, 2) {
+                    let h = sim.heading_to(s.x, s.y, s.foes[i].x, s.foes[i].y)
+                    if h >= 0 {
+                        let up = h == 0 || h == 32 || h == 224
+                        let down = h == 96 || h == 128 || h == 160
+                        let left = h == 160 || h == 192 || h == 224
+                        let right = h == 32 || h == 64 || h == 96
+                        if up { (mut keys).push(controls.KEY_UP) }
+                        if down { (mut keys).push(controls.KEY_DOWN) }
+                        if left { (mut keys).push(controls.KEY_LEFT) }
+                        if right { (mut keys).push(controls.KEY_RIGHT) }
+                    }
+                    (mut keys).push(controls.KEY_BITE)
+                    break
+                }
+                i += 1
+            }
+        }
+        sim.step(mut s, keys)
+        census.observe(mut counts, s)
+        var j = 0
+        while j < s.foes.len {
+            if s.foes[j].health > 0 && sim.in_reach(s, j, 2) { engaged += 1 }
+            j += 1
+        }
+        var down = 0
+        for f in s.foes { if f.health <= 0 { down += 1 } }
+        if down == 3 { break }
+        n += 1
+    }
+    var kills = 0
+    for f in s.foes { if f.health <= 0 { kills += 1 } }
+    (counts, engaged, kills)
+}
+
+/// The body audit: fifty seeds at both sizes (80x24, 200x60), the swarm
+/// and every encounter script's keys in each world, the census held to no
+/// overlap, no contact out of reach and no foe in another; one line a
+/// world, then the total. Exit 1 on any breach, or a swarm never fought.
+pub fn body_audit(scripts: List[str]) -> int {
+    print(
+        "seed cols swarm_engaged swarm_contact swarm_kills scripts_contact overlap contact_unreachable foe_overlap",
+    )
+    var total = census.counts()
+    var seed = 0
+    while seed < 50 {
+        var size = 0
+        while size < 2 {
+            let cols = if size == 0 then 80 else 200
+            let rows = if size == 0 then 24 else 60
+            let (sw, engaged, kills) = swarm(seed, cols, rows, 0, 600)
+            var c = census.counts()
+            census.add(mut c, sw)
+            var scripted = census.counts()
+            for p in scripts {
+                let one = census_as(p, seed, cols, rows) else |e| {
+                    eprint("body audit: {p}: {e}")
+                    return 2
+                }
+                census.add(mut scripted, one)
+            }
+            census.add(mut c, scripted)
+            print(
+                "{seed} {cols} {engaged} {sw.contact} {kills} {scripted.contact} {c.overlap} {c.contact_unreachable} {c.foe_overlap}",
+            )
+            census.add(mut total, c)
+            if c.overlap != 0 ||
+                c.contact_unreachable != 0 ||
+                c.foe_overlap != 0 ||
+                engaged == 0 ||
+                kills == 0 {
+                return 1
+            }
+            size += 1
+        }
+        seed += 1
+    }
+    print("total {census.line(total)}")
+    0
 }
 
 /// The rich tier's code points (`sprites.rich_code_points`), counted and
