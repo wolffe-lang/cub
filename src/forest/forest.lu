@@ -178,10 +178,10 @@ pub fn coast_branch(seed: int, field: int, cache: int, x: int, at: int) -> bool 
     x >= c - 2 && x <= c + 2
 }
 
-/// A jetty beyond each branch mouth, varied by the seed.
+/// A jetty at each end of the coast, a screen's walk from the initial
+/// view's edge, varied by the seed; never both in view from the spawn.
 pub fn jetty_x(seed: int, field: int, side: int) -> int {
-    let _ = field
-    (if side == 0 then -1 else 1) * (35 + world.hash(seed, 211, side, 3))
+    (if side == 0 then -1 else 1) * (coast_extent(field) + world.hash(seed, 211, side, 3))
 }
 
 /// Rocks cross the complete shore path and lap six cells into the river.
