@@ -54,9 +54,10 @@ fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
             cell.fg = if t == tier.RICH {
                 if k == terrain.TRUNK then 95 else if s.area == forest.BRAMBLEHOLD then 29 else 137
             } else if k == terrain.TRUNK then 3 else if s.area == forest.BRAMBLEHOLD then 2 else 3
+            // Sight hides creatures, never the forest itself.
             if s.area == forest.BRAMBLEHOLD &&
                 !sim.near(s.x, s.y, x * sim.FP, y * sim.FP, 12 * sim.FP) {
-                cell.cp = 32
+                cell.attrs = 0
             }
         }
         grid.put(mut g, row, col, cell)

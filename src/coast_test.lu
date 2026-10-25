@@ -1,0 +1,31 @@
+//! member: false
+
+use art
+use grid
+use sim
+use sprites
+use terrain
+use tier
+
+fn test_cb02a_forest_fill_is_visible_beyond_area_bounds() {
+    let s = sim.new(0, 200, 60)
+    var g = grid.new(60, 200)
+    art.render(s, tier.RICH, mut g)
+    let cell = grid.at(g, 45, 1)
+    assert(cell.cp != 32 && cell.fg != cell.bg, "forest fill outside collision bounds")
+    let dark = sprites.glyph(tier.PLAIN, sprites.SP_DARK, 0)
+    assert(dark.cp != 32 && dark.fg != dark.bg, "plain deep forest visible")
+}
+
+fn test_cb02a_bank_has_no_sawtooth_steps() {
+    var seed = 0
+    while seed < 5 {
+        var x = -100
+        while x < 100 {
+            let delta = terrain.bank(seed, x + 1) - terrain.bank(seed, x)
+            assert(delta >= -1 && delta <= 1, "gentle bank")
+            x += 1
+        }
+        seed += 1
+    }
+}
