@@ -4,6 +4,7 @@
 //! gait, and bodies that never overlap.
 
 use art
+use census
 use controls
 use forest
 use grid
@@ -279,5 +280,159 @@ fn test_cb02c_the_frame_draws_the_gait() {
             c += 1
         }
         r += 1
+    }
+}
+
+fn test_cb02c_the_bodies_are_the_drawings() {
+    // The simulation's bodies (`silhouette.footprint` of the sizes) are
+    // the rectangles the drawings cover, every pose, phase and facing.
+    var f = 0
+    while f < 4 {
+        var pose = 0
+        while pose < 4 {
+            let b = silhouette.cub(pose, pose % 2, pose - 2)
+            let (w, h) = silhouette.cub_size()
+            assert(b.w == w && b.h == h, "the cub's size")
+            let t = silhouette.turned(b, f)
+            let (dr, dc) = silhouette.anchor(b, f)
+            let (fdc, fdr, cols, rows) = silhouette.footprint(w, h, f)
+            assert(
+                fdc == dc && fdr == dr && cols == silhouette.cols(t) && rows == silhouette.rows(t),
+                "the cub's footprint facing {f}",
+            )
+            pose += 1
+        }
+        var kind = 0
+        while kind < 4 {
+            if kind != 2 {
+                var phase = 0
+                while phase < 7 {
+                    let b = silhouette.foe(kind, phase, -1)
+                    let (w, h) = silhouette.foe_size(kind)
+                    assert(b.w == w && b.h == h, "foe {kind} size")
+                    let t = silhouette.turned(b, f)
+                    let (dr, dc) = silhouette.anchor(b, f)
+                    let (fdc, fdr, cols, rows) = silhouette.footprint(w, h, f)
+                    assert(
+                        fdc == dc &&
+                            fdr == dr &&
+                            cols == silhouette.cols(t) &&
+                            rows == silhouette.rows(t),
+                        "foe {kind} phase {phase} facing {f}",
+                    )
+                    phase += 1
+                }
+            }
+            kind += 1
+        }
+        f += 1
+    }
+}
+
+fn test_cb02c_a_swarm_from_behind_never_overlaps_and_is_fought() {
+    // Three weasels converge from behind on a cub facing the river; it
+    // bites the one in reach, aimed at it. No body shares a cell with
+    // another on any tick, no foe touches the cub out of its bite's reach,
+    // and the bites land (R-cb02c-3 A, R-cb02c-4 A). The fifty-seed, both
+    // sizes form is `cub --body-audit` in the gameplay gate.
+    let (c, engaged, kills) = measure.swarm(1, 80, 24, 0, 160)
+    assert(c.overlap == 0, "the cub's drawing overlapped a foe: {c.overlap}")
+    assert(c.foe_overlap == 0, "two foes overlapped: {c.foe_overlap}")
+    assert(c.contact_unreachable == 0, "a foe in contact out of reach: {c.contact_unreachable}")
+    assert(engaged > 0, "the swarm reached the cub")
+    assert(kills >= 1, "the cub's aimed bites landed: {kills}")
+}
+
+fn test_cb02c_the_census_sees_an_overlap() {
+    // The witness is not vacuous: a weasel put inside the cub's drawing
+    // is counted, and a step settles it out.
+    var s = shore(1)
+    (mut s.foes).push(sim.spawn_foes(1)[0])
+    s.foes[0].x = s.x + sim.FP
+    s.foes[0].y = s.y
+    var c = census.counts()
+    census.observe(mut c, s)
+    assert(c.overlap == 1 && c.contact == 1, "an overlap counted")
+    step_key(mut s, 0)
+    var d = census.counts()
+    census.observe(mut d, s)
+    assert(d.overlap == 0, "settled out on the next tick")
+}
+
+fn test_cb02c_a_foe_walking_in_stops_on_the_ring_in_reach() {
+    // A weasel hunting a standing cub from behind (south) stops where its
+    // body would meet the cub's (the mover yields) and is in a bite's
+    // reach there; an aimed bite kills it.
+    var s = shore(1)
+    s.heading = 0
+    s.heading_target = 0
+    s.y += 2 * sim.FP
+    var w = sim.spawn_foes(1)[0]
+    w.x = s.x
+    w.y = s.y + 7 * sim.FP
+    w.heading = 0
+    (mut s.foes).push(w)
+    var n = 0
+    while n < 40 && s.foes[0].phase == sim.HUNT {
+        step_key(mut s, 0)
+        assert(sim.body_gap(s, 0) >= 0, "never inside the cub")
+        n += 1
+    }
+    assert(s.foes[0].phase == sim.CROUCH, "it reached the ring and wound up")
+    assert(sim.in_reach(s, 0, 2), "on the ring, in a bite's reach")
+    var keys = List[int]()
+    (mut keys).push(controls.KEY_DOWN)
+    (mut keys).push(controls.KEY_BITE)
+    sim.step(mut s, keys)
+    n = 0
+    while n < 4 { step_key(mut s, 0); n += 1 }
+    assert(s.foes[0].health <= 0, "a bite aimed behind kills it")
+}
+
+fn test_cb02c_a_turn_never_swings_the_cub_into_a_foe() {
+    // A still weasel touching the flank of a cub facing north; the cub
+    // turns east, toward it: the weasel steps aside (R-cb02c-5 A), never
+    // overlapped, still in reach.
+    var s = shore(1)
+    s.heading = 0
+    s.heading_target = 0
+    s.y += 2 * sim.FP
+    var w = sim.spawn_foes(1)[0]
+    w.x = s.x + 3 * sim.FP
+    w.y = s.y
+    w.heading = 0
+    w.phase = sim.STAGGER
+    w.since = 100000
+    (mut s.foes).push(w)
+    step_key(mut s, 0)
+    assert(sim.body_gap(s, 0) == 0, "touching the flank")
+    var n = 0
+    while n < 8 {
+        step_key(mut s, controls.KEY_RIGHT)
+        assert(!sim.overlap(sim.cub_body(s), sim.foe_body(s.foes[0])), "no overlap at {n}")
+        n += 1
+    }
+    assert(s.body_facing == 1, "the cub turned east")
+}
+
+fn test_cb02c_two_foes_never_share_a_cell() {
+    // Two weasels hunting one cub from the same side converge without
+    // either entering the other.
+    var s = shore(1)
+    s.heading = 0
+    s.y += 2 * sim.FP
+    var a = sim.spawn_foes(1)[0]
+    a.x = s.x - sim.FP
+    a.y = s.y + 7 * sim.FP
+    var b = sim.spawn_foes(1)[1]
+    b.x = s.x + sim.FP
+    b.y = s.y + 7 * sim.FP
+    (mut s.foes).push(a)
+    (mut s.foes).push(b)
+    var n = 0
+    while n < 60 {
+        step_key(mut s, 0)
+        assert(!sim.overlap(sim.foe_body(s.foes[0]), sim.foe_body(s.foes[1])), "foes at {n}")
+        n += 1
     }
 }
