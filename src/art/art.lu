@@ -346,15 +346,25 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
     while den < 4 {
         if forest.den_area(den) == s.area {
             let (dx, dy) = forest.den_position(s.seed, den)
-            at_world(
-                s,
-                t,
-                mut g,
-                sim.floor_div(dx, sim.FP) - 3,
-                sim.floor_div(dy, sim.FP) + 1,
-                if den == 0 then "( hollow log )" else "( " + forest.den_name(den) + " )",
-                false,
-            )
+            if den == 0 {
+                draw_log(
+                    mut g,
+                    t,
+                    sim.floor_div(dy, sim.FP) - sim.cell_y(s) + sim.screen_row(s) + 2,
+                    sim.floor_div(dx, sim.FP) - sim.cell_x(s) + sim.screen_col(s) - 4,
+                    true,
+                )
+            } else {
+                at_world(
+                    s,
+                    t,
+                    mut g,
+                    sim.floor_div(dx, sim.FP) - 3,
+                    sim.floor_div(dy, sim.FP) + 1,
+                    "( " + forest.den_name(den) + " )",
+                    false,
+                )
+            }
         }
         den += 1
     }
@@ -384,15 +394,25 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
     while edge < 4 {
         if forest.other(s.area, edge) >= 0 {
             let (x, y) = forest.portal(s.seed, s.area, edge)
-            at_world(
-                s,
-                t,
-                mut g,
-                sim.floor_div(x, sim.FP) - 3,
-                sim.floor_div(y, sim.FP),
-                if edge == 2 then "[ log ]" else "[ hedge ]",
-                true,
-            )
+            if edge == 2 {
+                draw_log(
+                    mut g,
+                    t,
+                    sim.floor_div(y, sim.FP) - sim.cell_y(s) + sim.screen_row(s) - 1,
+                    sim.floor_div(x, sim.FP) - sim.cell_x(s) + sim.screen_col(s) - 4,
+                    false,
+                )
+            } else {
+                at_world(
+                    s,
+                    t,
+                    mut g,
+                    sim.floor_div(x, sim.FP) - 3,
+                    sim.floor_div(y, sim.FP),
+                    "[ hedge ]",
+                    true,
+                )
+            }
         }
         edge += 1
     }
@@ -864,4 +884,18 @@ fn shade_exits(s: sim.Sim, t: int, mut g: grid.Grid) {
         }
         edge += 1
     }
+}
+
+/// Original cut timber: hollow end grain for the den, a lengthwise passage
+/// and direction marks for the fallen-log shortcut. Same footprint on both tiers.
+pub fn draw_log(mut g: grid.Grid, t: int, row: int, col: int, hollow: bool) {
+    let wood = grid.cell(
+        32,
+        sprites.palette(t, sprites.C_TRUNK),
+        sprites.palette(t, sprites.C_GRAVEL),
+        grid.ATTR_BOLD,
+    )
+    draw.put_text(mut g, row, col + 1, if t == tier.RICH then "_░░_░░_" else "_==_==_", wood)
+    draw.put_text(mut g, row + 1, col, if hollow then "(O)===//)" else "<o=====o>", wood)
+    draw.put_text(mut g, row + 2, col + 1, if t == tier.RICH then "░__░___" else "_--_---", wood)
 }
