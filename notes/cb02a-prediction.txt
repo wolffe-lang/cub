@@ -1,0 +1,33 @@
+Prediction — cb02a, before code changes
+
+Base f29d6b3. No play replay/seed was supplied; before frames use seeds 0–4,
+200x60 and 80x24, rich and plain, one tick of stand.pk (no opening scene).
+
+The missing forest has two causes. forest.kind returns DARK outside x=-40..40
+and the finite area's rows, and sprites.SP_DARK renders code point 32 on
+both tiers. At 200 columns this erases the outer 119 columns below the bank.
+Inside the bounds, density-selected DARK also becomes a blank patch. Plain
+canopy variants additionally use black foreground on black. Bramblehold's
+art.terrain_row explicitly blanks cells beyond its presentation radius.
+These are presentation/fill faults, not a zero-valued density channel.
+The north band bypasses all bounds and returns GRAVEL below each varying
+bank until at=0, so it becomes unbounded bare coast. terrain.meander's
+alternating 8-cell anchors impose the sawtooth (and can change >1 row/col).
+
+Predict 85 of the existing 87 golden directories move (the two opening-only
+ones stay); the art directory gains coast sheets. Before frames are under
+notes/cb02a-evidence/before-<seed>-<size>-<tier>/final.{txt,sty,state}.
+Propose N=0 blank forest cells, K=200 cardinal steps from any den-reachable
+cell to the thorn-route or either cache alcove. Flood actual tiles, not
+only the generated path centres. Keep the existing finite caches and save
+bits; Shingle branches start on the horizontal shore and wind inland.
+
+Recommendations, not rulings: R-cb02a-1 A wrapped bundle; R-cb02a-2 A seeded
+jetties past both shore branches; R-cb02a-3 A existing fox with stronger
+health and its existing feint tell. R-cb02a-4 A represent bundle inventory
+by the already persisted Shingle cache bits, no incompatible save schema.
+
+Forbidden: no borrowed game work, engine/pin/workflow edits, labels, merges,
+issue actions, attribution trailers, private planning or user config writes.
+The wrapper prohibits Markdown report files; the final five-section note
+will be under Note in the PR body for the orchestrator to materialise.
