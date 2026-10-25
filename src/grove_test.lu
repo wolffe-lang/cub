@@ -1,0 +1,256 @@
+//! member: false
+//!
+//! cb02b, the grove: the forest texture everywhere, a coast a screen past
+//! the view with four branches, a second area that fills its field, a save
+//! that carries the field, and a cub that is one drawing turned.
+
+use art
+use coast
+use forest
+use grid
+use journey
+use silhouette
+use sim
+use terrain
+use tier
+
+/// Render terrain rows of a frame about a camera and check them: every
+/// forest cell drawn, no two adjacent foliage cells identical.
+fn textured_rows(seed: int, field: int, area: int, camera_x: int, camera_y: int, t: int) {
+    let (cols, rows) = coast.screen_of(field)
+    var s = sim.new(seed, cols, rows)
+    s.field = field
+    s.area = area
+    s.x = camera_x * sim.FP
+    s.y = (forest.origin(seed, area) + camera_y) * sim.FP
+    var g = grid.new(rows, cols)
+    var row = rows / 2
+    while row < rows / 2 + 1 {
+        art.terrain_row(s, t, row, mut g)
+        var col = 1
+        while col < cols {
+            let (x, y) = sim.world_cell(s, row, col)
+            let k = forest.kind(seed, field, area, x, y)
+            let c = grid.at(g, row, col)
+            if k == terrain.DARK || k == terrain.CANOPY || k == terrain.TRUNK {
+                assert(c.cp != 32 && c.fg != c.bg, "forest drawn seed {seed} area {area} {x},{y}")
+            }
+            if k == terrain.DARK || k == terrain.CANOPY {
+                let (lx, ly) = sim.world_cell(s, row, col - 1)
+                let lk = forest.kind(seed, field, area, lx, ly)
+                if lk == terrain.DARK || lk == terrain.CANOPY {
+                    assert(
+                        !grid.same(c, grid.at(g, row, col - 1)),
+                        "a flat pair seed {seed} area {area} at {x},{y}",
+                    )
+                }
+            }
+            col += 1
+        }
+        row += 1
+    }
+}
+
+fn test_cb02b_forest_texture_everywhere() {
+    // Inside the bounds, far outside them and across the entry row, both
+    // fields, both tiers: the deep forest is the same trunk and canopy
+    // texture as the corridor, never a run of one tile.
+    // One row a position keeps the checked machine inside its budget; the
+    // fifty-seed, every-position census is the shipping binary's audit.
+    let seed = 0
+    var area = 0
+    while area < 3 {
+        var size = 0
+        while size < 2 {
+            let field = if size == 0 then 80 else 200
+            let w = forest.bound(field, area)
+            textured_rows(seed, field, area, 0, 40, tier.RICH)
+            textured_rows(seed, field, area, w + 30, 80, tier.RICH)
+            textured_rows(seed, field, area, 0 - w - 30, -20, tier.PLAIN)
+            size += 1
+        }
+        area += 1
+    }
+    assert(coast.FLAT_MAX == 2 && coast.TEXTURED_MIN == 90, "the census bars")
+}
+
+fn test_cb02b_coast_reaches_a_screen_past_the_view() {
+    // One screen past the initial view's edge, floor 120 (R-cb02b-1 A): the
+    // jetty at a field's end is never in view from the spawn.
+    assert(forest.coast_extent(80) == 120 && forest.coast_extent(200) == 300, "the extents")
+    assert(forest.half_width(80) == 48 && forest.half_width(200) == 108, "the inland widths")
+    var seed = 0
+    while seed < 5 {
+        var size = 0
+        while size < 2 {
+            let field = if size == 0 then 80 else 200
+            let e = forest.coast_extent(field)
+            let west = forest.jetty_x(seed, field, 0)
+            let east = forest.jetty_x(seed, field, 1)
+            assert(west <= 0 - e && east >= e, "jetties at the coast's ends")
+            assert(
+                0 - west > field / 2 + field - 4 && east > field / 2 + field - 4,
+                "a screen's walk away",
+            )
+            // The shore between them is open gravel the whole way.
+            var x = west + 2
+            while x < east - 1 {
+                let y = terrain.bank(seed, x) + terrain.REED_ROWS + 1
+                assert(forest.kind(seed, field, 0, x, y) == terrain.GRAVEL, "shore at {x}")
+                x += 7
+            }
+            size += 1
+        }
+        seed += 1
+    }
+}
+
+fn test_cb02b_four_branches_leave_the_coast() {
+    // Four offshoots, two each side of the thorn path (R-cb02b-3 A), each
+    // a clear walk from its mouth on the shore to its alcove.
+    assert(forest.cache_count(forest.SHINGLE) == 4 && forest.required(forest.SHINGLE) == 7, "four")
+    var seed = 0
+    while seed < 5 {
+        var size = 0
+        while size < 2 {
+            let field = if size == 0 then 80 else 200
+            let e = forest.coast_extent(field)
+            var cache = 0
+            while cache < 4 {
+                let mouth = forest.coast_mouth(seed, field, cache)
+                let away = if mouth < 0 then 0 - mouth else mouth
+                if cache % 2 == 0 {
+                    assert(mouth < -10, "west branch {cache}")
+                } else {
+                    assert(mouth > 10, "east branch {cache}")
+                }
+                if cache >= 2 {
+                    let near = forest.coast_mouth(seed, field, cache % 2)
+                    let near_away = if near < 0 then 0 - near else near
+                    assert(away > near_away + 20, "the far branch further")
+                }
+                assert(away < e - 10, "inside the jetties")
+                var at = 0
+                while at <= forest.coast_end(seed, cache) {
+                    let x = forest.coast_branch_x(seed, field, cache, at)
+                    let y = forest.origin(seed, 0) + at
+                    // The bank wanders: a branch cell above the reeds is the river's.
+                    if y >= terrain.bank(seed, x) + terrain.REED_ROWS {
+                        assert(!forest.blocked(seed, field, 0, x, y), "branch {cache} at {at}")
+                    }
+                    at += 1
+                }
+                cache += 1
+            }
+            size += 1
+        }
+        seed += 1
+    }
+}
+
+fn test_cb02b_the_field_is_saved_and_never_moves() {
+    // The field is the terminal's columns at the start (floor 80), kept
+    // through a resize and a resume in another terminal (R-cb02b-4 A).
+    var s = sim.new(1, 200, 60)
+    assert(s.field == 200, "the field at the start")
+    sim.resize(mut s, 80, 24)
+    assert(s.field == 200 && s.cols == 80, "a resize keeps the field")
+    let small = sim.new(1, 40, 24)
+    assert(small.field == 80, "the floor")
+    let text = journey.encode(s)
+    assert(
+        text.starts_with("CUB 2\n") && text.contains("\nfield 200\n"),
+        "schema 2 names the field",
+    )
+    let resumed = journey.decode(text, 80, 24) else |e| { assert(false, "resume {e}"); return }
+    assert(resumed.field == 200 && resumed.cols == 80, "the field survives a narrower terminal")
+    assert(journey.snapshot(s).len == 25 && journey.snapshot(s)[24] == 200, "the replay carries it")
+    var old = false
+    let _ = journey.decode(text.replace("CUB 2", "CUB 1"), 80, 24) else |e| {
+        old = "{e}" == "save_version"
+        sim.new(1, 80, 24)
+    }
+    assert(old, "a schema-1 save is refused by name")
+    var wide = false
+    let _ = journey.decode(text.replace("field 200", "field 20000"), 80, 24) else |e| {
+        wide = "{e}" == "save_corrupt"
+        sim.new(1, 80, 24)
+    }
+    assert(wide, "an impossible field is corrupt")
+}
+
+fn test_cb02b_inland_paths_end_inside_the_field() {
+    // No carved path touches the thicket's edge (the meadow's floor is
+    // grass, so only Bramblehold tells a path from the ground): the cross
+    // path ends at its portals, the cache branches short of the bound.
+    var seed = 0
+    while seed < 5 {
+        let area = forest.BRAMBLEHOLD
+        var size = 0
+        while size < 2 {
+            let field = if size == 0 then 80 else 200
+            let w = forest.half_width(field)
+            var at = 0
+            while at <= forest.LENGTH {
+                var dx = 0
+                while dx < 2 {
+                    let kw = forest.kind(seed, field, area, w - dx, at)
+                    let ke = forest.kind(seed, field, area, dx - w, at)
+                    assert(
+                        kw != terrain.GRASS && ke != terrain.GRASS,
+                        "a path at the edge seed {seed} row {at}",
+                    )
+                    dx += 1
+                }
+                at += 1
+            }
+            let (lx, ly) = forest.portal(seed, area, 2)
+            let (hx, hy) = forest.portal(seed, area, 3)
+            assert(
+                forest.kind(seed, field, area, lx / sim.FP, ly / sim.FP) == terrain.GRASS &&
+                    forest.kind(seed, field, area, hx / sim.FP, hy / sim.FP) == terrain.GRASS &&
+                    forest.kind(seed, field, area, lx / sim.FP - 3, ly / sim.FP) != terrain.GRASS &&
+                    forest.kind(seed, field, area, hx / sim.FP + 3, hy / sim.FP) != terrain.GRASS,
+                "the cross path ends at its portals",
+            )
+            size += 1
+        }
+        seed += 1
+    }
+}
+
+fn test_cb02b_cub_east_is_the_north_cub_turned() {
+    // Pixel for pixel, independent of the module's own turn: the pixel at
+    // (r, c) facing north is at (c, 15 - r) facing east, (15 - r, 7 - c)
+    // facing south and (7 - c, r) facing west.
+    var pose = 0
+    while pose < 4 {
+        let n = silhouette.cub(pose, 1)
+        let e = silhouette.turned(n, 1)
+        let s = silhouette.turned(n, 2)
+        let w = silhouette.turned(n, 3)
+        var r = 0
+        while r < 16 {
+            var c = 0
+            while c < 8 {
+                let p = silhouette.at(n, r, c)
+                assert(silhouette.at(e, c, 15 - r) == p, "east pose {pose} {r},{c}")
+                assert(silhouette.at(s, 15 - r, 7 - c) == p, "south pose {pose} {r},{c}")
+                assert(silhouette.at(w, 7 - c, r) == p, "west pose {pose} {r},{c}")
+                c += 1
+            }
+            r += 1
+        }
+        pose += 1
+    }
+    // And the frame draws the east cub from exactly that turn.
+    var g = grid.new(10, 16)
+    art.draw_pose(mut g, tier.RICH, 4, 7, 1, 0, 0, 0)
+    let east = silhouette.turned(silhouette.cub(0, 0), 1)
+    var cc = 0
+    while cc < 8 {
+        assert(grid.at(g, 4, 4 + cc).cp == silhouette.cell_cp(east, 0, cc), "east cell {cc}")
+        assert(grid.at(g, 5, 4 + cc).cp == silhouette.cell_cp(east, 1, cc), "east cell {cc} below")
+        cc += 1
+    }
+}
