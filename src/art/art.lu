@@ -297,28 +297,40 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
     var cache = 0
     while cache < 2 {
         let (x, y) = forest.cache_position(s.seed, s.area, cache)
-        at_world(
-            s,
-            t,
-            mut g,
-            sim.floor_div(x, sim.FP) - 2,
-            sim.floor_div(y, sim.FP),
-            if sim.cache_open(s, cache) {
-                "( empty )"
-            } else if cache == 0 {
-                "( hollow )"
-            } else {
-                "( burrow )"
-            },
-            false,
-        )
+        if s.area == forest.SHINGLE {
+            draw_bundle(
+                mut g,
+                t,
+                sim.floor_div(y, sim.FP) - sim.cell_y(s) + sim.screen_row(s) - 1,
+                sim.floor_div(x, sim.FP) - sim.cell_x(s) + sim.screen_col(s) - 2,
+                sim.cache_open(s, cache),
+            )
+        } else {
+            at_world(
+                s,
+                t,
+                mut g,
+                sim.floor_div(x, sim.FP) - 2,
+                sim.floor_div(y, sim.FP),
+                if sim.cache_open(s, cache) {
+                    "( empty )"
+                } else if cache == 0 {
+                    "( hollow )"
+                } else {
+                    "( burrow )"
+                },
+                false,
+            )
+        }
         if sim.near(s.x, s.y, x, y, 2 * sim.FP) && !s.den {
             draw.put_text(
                 mut g,
                 s.rows - 2,
                 1,
                 if sim.cache_open(s, cache) {
-                    if cache == 0 {
+                    if s.area == forest.SHINGLE {
+                        "The wrapping is empty; a bundle is in your pouch."
+                    } else if cache == 0 {
                         "Old bones. Nothing here carries a scent."
                     } else {
                         "The burrow is empty; its herb is in your pouch."
@@ -546,7 +558,14 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
             style,
         )
         draw.put_text(mut g, 9, 4, "5 nose {s.nose} (next {40 * (s.nose + 1)})", style)
-        draw.put_text(mut g, 10, 4, "pouch: yarrow {s.yarrow}  marrow {s.marrow}", style)
+        let bundles = s.caches % 2 + s.caches / 2 % 2
+        draw.put_text(
+            mut g,
+            10,
+            4,
+            "pouch: yarrow {s.yarrow}  marrow {s.marrow}  a bundle {bundles}",
+            style,
+        )
         draw.put_text(mut g, 11, 4, "r or Esc leave; a stat cannot grow past ten", style)
         draw.put_text(
             mut g,
@@ -898,4 +917,17 @@ pub fn draw_log(mut g: grid.Grid, t: int, row: int, col: int, hollow: bool) {
     draw.put_text(mut g, row, col + 1, if t == tier.RICH then "_░░_░░_" else "_==_==_", wood)
     draw.put_text(mut g, row + 1, col, if hollow then "(O)===//)" else "<o=====o>", wood)
     draw.put_text(mut g, row + 2, col + 1, if t == tier.RICH then "░__░___" else "_--_---", wood)
+}
+
+/// Wrapped cache treasure; its opened form leaves only the loose binding.
+/// Inventory identity is the existing finite Shingle cache bits.
+pub fn draw_bundle(mut g: grid.Grid, t: int, row: int, col: int, opened: bool) {
+    let cloth = ink(t, !opened)
+    if opened {
+        draw.put_text(mut g, row + 1, col, "_x___", cloth)
+        return
+    }
+    draw.put_text(mut g, row, col + 1, "\\|/", cloth)
+    draw.put_text(mut g, row + 1, col, if t == tier.RICH then "(░X░)" else "(:X:)", cloth)
+    draw.put_text(mut g, row + 2, col + 1, "---", cloth)
 }
