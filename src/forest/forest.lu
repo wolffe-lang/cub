@@ -134,6 +134,27 @@ pub fn coast_branch(seed: int, cache: int, x: int, at: int) -> bool {
     x >= c - 2 && x <= c + 2
 }
 
+/// A jetty beyond each branch mouth, varied by the seed.
+pub fn jetty_x(seed: int, side: int) -> int {
+    (if side == 0 then -1 else 1) * (35 + world.hash(seed, 211, side, 3))
+}
+
+/// Rocks cross the complete shore path and lap six cells into the river.
+pub fn jetty(seed: int, x: int, y: int) -> bool {
+    var side = 0
+    while side < 2 {
+        let c = jetty_x(seed, side)
+        if x >= c - 1 && x <= c + 1 {
+            let b = terrain.bank(seed, x)
+            if y >= b - 6 && y <= b + terrain.REED_ROWS + terrain.SHINGLE_ROWS + 3 {
+                return true
+            }
+        }
+        side += 1
+    }
+    false
+}
+
 /// Seeded collision tile after route carving.
 pub fn kind(seed: int, area: int, x: int, y: int) -> int {
     let at = y - origin(seed, area)
@@ -141,7 +162,9 @@ pub fn kind(seed: int, area: int, x: int, y: int) -> int {
     // Never clip these bands at the den's local y=0.
     if area == SHINGLE {
         let b = terrain.bank(seed, x)
+        if jetty(seed, x, y) { return terrain.ROCK }
         if y < b { return terrain.WATER }
+        if x <= jetty_x(seed, 0) || x >= jetty_x(seed, 1) { return terrain.DARK }
         if y < b + terrain.REED_ROWS { return terrain.REEDS }
         if y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS { return terrain.GRAVEL }
     }
@@ -185,7 +208,7 @@ pub fn kind(seed: int, area: int, x: int, y: int) -> int {
 /// Terrain collision, shared by actors and the independent reachability flood.
 pub fn blocked(seed: int, area: int, x: int, y: int) -> bool {
     let k = kind(seed, area, x, y)
-    k == terrain.TRUNK || k == terrain.DARK || k == terrain.WATER
+    k == terrain.TRUNK || k == terrain.DARK || k == terrain.WATER || k == terrain.ROCK
 }
 
 /// Portals: thorn path, meadow path, fallen log, hedge tunnel.

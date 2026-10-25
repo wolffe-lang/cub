@@ -52,8 +52,11 @@ pub const SP_CUB_EAR: int = 8
 /// The plain tier's facing mark beside the `C` (variant: facing 0-3).
 pub const SP_CUB_MARK: int = 9
 
+/// Jetty stone: mottled faces, distinct from foliage.
+pub const SP_ROCK: int = 10
+
 /// The number of sprites (every id below this).
-pub const SPRITE_COUNT: int = 10
+pub const SPRITE_COUNT: int = 11
 
 /// The most variants any sprite has (the ear's twenty-four).
 pub const VARIANT_COUNT: int = 24
@@ -227,6 +230,7 @@ fn rich(sprite: int, v: int) -> grid.Cell {
                 0,
             ),  // SP_CUB_EAR
         9 => c(t, 32, C_FUR, C_GRAVEL, 0),  // SP_CUB_MARK (rich draws ears instead)
+        10 => c(t, if v % 2 == 0 then 9617 else 9608, C_MARK, C_GRAVEL, 0),
         _ => grid.blank(),
     }
 }
@@ -273,6 +277,7 @@ fn plain(sprite: int, v: int) -> grid.Cell {
                 C_GRAVEL,
                 grid.ATTR_BOLD,
             ),  // SP_CUB_MARK
+        10 => c(t, if v % 2 == 0 then 79 else 35, C_MARK, C_GRAVEL, 0),
         _ => grid.blank(),
     }
 }
