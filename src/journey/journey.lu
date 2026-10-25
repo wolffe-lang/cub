@@ -194,6 +194,7 @@ pub fn load(path: str, seed: int, cols: int, rows: int) -> sim.Sim ! LoadErrors 
 /// replacement. A stale/concurrent stage is a named failure, never truncated.
 /// `cut` is the explicit fault witness: stop after half the bytes.
 pub fn prepare(path: str, s: sim.Sim, cut: bool) -> () ! PrepareErrors {
+    if cut { fs.write_text(path, "cut") else |_| { return save_io } }
     let text = encode(s)
     let _ = decode(text, s.cols, s.rows)?
     let parent = fs.parent(path) else "."
