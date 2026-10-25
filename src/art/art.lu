@@ -915,9 +915,19 @@ pub fn draw_log(mut g: grid.Grid, t: int, row: int, col: int, hollow: bool) {
         sprites.palette(t, sprites.C_GRAVEL),
         grid.ATTR_BOLD,
     )
-    draw.put_text(mut g, row, col + 1, if t == tier.RICH then "_░░_░░_" else "_==_==_", wood)
+    draw.put_text(mut g, row, col + 1, "_==_==_", wood)
     draw.put_text(mut g, row + 1, col, if hollow then "(O)===//)" else "<o=====o>", wood)
-    draw.put_text(mut g, row + 2, col + 1, if t == tier.RICH then "░__░___" else "_--_---", wood)
+    draw.put_text(mut g, row + 2, col + 1, "_--_---", wood)
+    if t == tier.RICH {
+        var grain = copy wood
+        grain.cp = 9617
+        grid.put(mut g, row, col + 2, grain)
+        grid.put(mut g, row, col + 3, grain)
+        grid.put(mut g, row, col + 5, grain)
+        grid.put(mut g, row, col + 6, grain)
+        grid.put(mut g, row + 2, col + 1, grain)
+        grid.put(mut g, row + 2, col + 4, grain)
+    }
 }
 
 /// Wrapped cache treasure; its opened form leaves only the loose binding.
@@ -929,8 +939,14 @@ pub fn draw_bundle(mut g: grid.Grid, t: int, row: int, col: int, opened: bool) {
         return
     }
     draw.put_text(mut g, row, col + 1, "\\|/", cloth)
-    draw.put_text(mut g, row + 1, col, if t == tier.RICH then "(░X░)" else "(:X:)", cloth)
+    draw.put_text(mut g, row + 1, col, "(:X:)", cloth)
     draw.put_text(mut g, row + 2, col + 1, "---", cloth)
+    if t == tier.RICH {
+        var fold = copy cloth
+        fold.cp = 9617
+        grid.put(mut g, row + 1, col + 1, fold)
+        grid.put(mut g, row + 1, col + 3, fold)
+    }
 }
 
 /// Five original shore finds, each five cells wide and two rows tall.

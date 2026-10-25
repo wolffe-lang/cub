@@ -113,3 +113,12 @@ fn test_cb02a_coast_sheet_keeps_plain_tier_and_sprite_footprints() {
         k += 1
     }
 }
+
+fn test_cb02a_rich_props_emit_scalar_glyphs_not_utf8_bytes() {
+    let g = art.coast_sheet(tier.RICH)
+    assert(grid.at(g, 3, 5).cp == 9617, "one wood grain cell")
+    assert(grid.at(g, 4, 38).cp == 9617 && grid.at(g, 4, 40).cp == 9617, "one cell per bundle fold")
+    for cell in g.cells {
+        assert(cell.cp < 128 || cell.cp >= 160, "no split UTF-8 continuation byte")
+    }
+}
