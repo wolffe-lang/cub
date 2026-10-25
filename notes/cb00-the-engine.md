@@ -122,7 +122,9 @@ Following the bible's sections 4, 5 and 8, and section 2's gravel bank and thick
    fading, a rest, a death and the mark recovered), both tiers; the pty rows unchanged plus a `--bench` and
    the perf gate; `docs/DESIGN.md` grown with every number proposed; `docs/PALETTE.md` begun.
 
-**Issues to file** (the lane files nothing): cub: the macOS owed rows for `docs/GLYPHS.md` (`cub
+**Issues to file** (the lane files nothing): cub: a golden the camera must follow a long way south (an
+open path is cb02's; today `scroll` runs west along the bank and the woods stop a southward walk within six
+rows); cub: the macOS owed rows for `docs/GLYPHS.md` (`cub
 --probe-glyphs` in Terminal.app and iTerm2) and `docs/KEYS.md` (to be written with cb01, from the engine's
 `keyprobe`); cub: `--bench` and the perf gate; cub: a `docs/PALETTE.md` with the dusk and night keyframes
 per area.
@@ -135,6 +137,12 @@ keeps the walk.
 
 ## 6. The plant
 
-`cb00-plant-camera` (cub#1): the camera fixed on the start's row, never following the cub north or south;
-the unit tests pass (the camera test moves east) and the goldens go red from the first tick of motion in
-`walk-north`, `turn-east`, `scroll`, `diagonal` and `resize` on both tiers. The run id is in the hand-back.
+`cb00-plant-camera` (cub#1, run 40187582382): the camera stops following the cub twenty columns from the
+start; the 75 unit tests pass and the goldens `scroll-rich` and `scroll-plain` go red — the one case that
+walks far enough, eight seconds west along the open bank. Three tries: the camera fixed on both axes was
+caught by `sim_test`'s camera test before the goldens ran (run 40186702264); fixed on the start's row,
+still by that test, since a turn moves the cub north; stopping twenty rows SOUTH was caught by nothing
+(run 40187459044, green), because the first `scroll` case walked south into the woods and the trunks
+stopped the cub within six rows — a golden that scrolled six rows. The case now walks west, where the bank
+is open, which is the scroll the golden should always have shown; a southward long walk waits for an open
+path (cb02's areas), listed as an issue in section 5.
