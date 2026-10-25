@@ -16,6 +16,7 @@
 use controls
 use forest
 use input
+use silhouette
 use terrain
 use world
 
@@ -295,6 +296,7 @@ pub struct Sim {
     foes: List[Foe],
     trail: List[Trail],
     gait: int,
+    body_facing: int,
 }
 
 /// A new cub at the Shingle's start, facing north toward the water, still.
@@ -376,6 +378,7 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         foes: area_foes(seed, forest.field_of(cols), forest.SHINGLE),
         trail: List[Trail](),
         gait: 0,
+        body_facing: 0,
     }
 }
 
@@ -483,6 +486,7 @@ fn locomotion(mut s: Sim) {
     let d = turn_toward(s.heading, s.heading_target)
     let step_h = if d > TURN_RATE then TURN_RATE else if d < 0 - TURN_RATE then 0 - TURN_RATE else d
     s.heading = ((s.heading + step_h) % TURN + TURN) % TURN
+    swing_body(mut s)
     // The speed: toward the trot (or the sneak) while a key is held, to a
     // stop when none is.
     let pace = if s.health * 3 < health_max(s.heart) then trot_at(s.paw) / 2 else trot_at(s.paw)
@@ -499,14 +503,14 @@ fn locomotion(mut s: Sim) {
     let dx = s.speed * sin(s.heading) / 256
     let dy = 0 - s.speed * cos(s.heading) / 256
     let nx = s.x + dx
-    if !blocked(s, floor_div(nx, FP), cell_y(s)) && !body_at(s, nx, s.y) {
+    if !blocked(s, floor_div(nx, FP), cell_y(s)) && !cub_blocked_by_body(s, nx, s.y) {
         s.x = nx
     } else {
         s.speed = 0
         s.blocked += 1
     }
     let ny = s.y + dy
-    if !blocked(s, cell_x(s), floor_div(ny, FP)) && !body_at(s, s.x, ny) {
+    if !blocked(s, cell_x(s), floor_div(ny, FP)) && !cub_blocked_by_body(s, s.x, ny) {
         s.y = ny
     } else {
         s.speed = 0
@@ -783,6 +787,7 @@ fn reset_world(mut s: Sim) {
     (mut s.trail).reset()
     var i = 0
     while i < s.holds.len { s.holds[i] = input.hold_new(); i += 1 }
+    settle_bodies(mut s)
 }
 
 /// Whether the hollow log is within resting reach.
@@ -915,9 +920,8 @@ fn strike_foes(mut s: Sim) {
         if f.health > 0 &&
             f.kind != HAWK &&
             f.last_hit != s.started &&
-            near(s.x, s.y, f.x, f.y, reach * FP) &&
-            in_front(s.x, s.y, s.attack_heading, f.x, f.y) &&
-            visible(s, s.x, s.y, f.x, f.y) {
+            in_reach(s, i, reach) &&
+            in_front(s.x, s.y, s.attack_heading, f.x, f.y) {
             var damage = bite_damage(s.fang)
             if s.action == LUNGE { damage *= 3 }
             if s.action == HEAVY { damage *= HEAVY_DAMAGE }
@@ -982,20 +986,17 @@ fn move_foe(mut s: Sim, i: int, away: bool) {
     let top = if away then FOE_RETREAT_V else FOE_STALK_V
     let want_v = if sharp && f.speed > FOE_TURN_V then FOE_TURN_V else top
     let speed = toward(f.speed, want_v, if want_v < f.speed then BRAKE else ACCEL)
-    let nx = f.x + speed * sin(heading) / FP
-    let ny = f.y - speed * cos(heading) / FP
-    var stops = blocked(s, floor_div(nx, FP), floor_div(ny, FP)) || near(nx, ny, s.x, s.y, FP)
-    var j = 0
-    while j < s.foes.len {
-        if j != i &&
-            s.foes[j].health > 0 &&
-            s.foes[j].kind != HAWK &&
-            near(nx, ny, s.foes[j].x, s.foes[j].y, FP) {
-            stops = true
-        }
-        j += 1
-    }
-    s.foes[i].heading = heading
+    // The turn first: a body swung round into another is the mover's to
+    // clear (R-cb02c-3 A): it steps out along the line between them, or
+    // keeps its old heading this tick when it has no room.
+    turn_foe(mut s, i, heading)
+    let g = copy s.foes[i]
+    let nx = g.x + speed * sin(g.heading) / FP
+    let ny = g.y - speed * cos(g.heading) / FP
+    // Then the step: one into the terrain or into a body is not taken
+    // (the mover yields, pushed back along its own motion).
+    let stops = blocked(s, floor_div(nx, FP), floor_div(ny, FP)) ||
+        foe_blocked_by_body(s, i, nx, ny, g.heading)
     s.foes[i].speed = if stops then 0 else speed
     if !stops { s.foes[i].x = nx; s.foes[i].y = ny }
 }
@@ -1021,7 +1022,9 @@ fn foes_step(mut s: Sim) {
         }
         let age = s.tick - f.since
         if f.phase == HUNT {
-            var tracks = can_see(s, f)
+            // A foe whose body touches the cub's knows where it is, whatever
+            // stands between their middles (cb02c: bodies have extent now).
+            var tracks = can_see(s, f) || gap(cub_body(s), foe_body(f)) == 0
             var tx = s.x
             var ty = s.y
             if !tracks {
@@ -1042,9 +1045,7 @@ fn foes_step(mut s: Sim) {
             if tracks {
                 s.foes[i].target_x = tx
                 s.foes[i].target_y = ty
-                if near(f.x, f.y, s.x, s.y, 2 * FP) &&
-                    visible(s, f.x, f.y, s.x, s.y) &&
-                    f.stamina >= 12 {
+                if in_reach(s, i, 2) && f.stamina >= 12 {
                     s.foes[i].phase = if f.kind == FOX then FEINT else CROUCH
                     s.foes[i].since = s.tick
                     s.foes[i].target_x = s.x
@@ -1091,15 +1092,14 @@ fn foes_step(mut s: Sim) {
                 } else {
                     d
                 }
-                s.foes[i].heading = (f.heading + turn + TURN) % TURN
+                turn_foe(mut s, i, (f.heading + turn + TURN) % TURN)
             }
         }
         // Test current phase so the first active tick is not lost.
         if s.foes[i].phase == STRIKE &&
             !s.foes[i].hit &&
-            near(f.x, f.y, s.x, s.y, 2 * FP) &&
-            in_front(f.x, f.y, f.heading, s.x, s.y) &&
-            visible(s, f.x, f.y, s.x, s.y) {
+            in_reach(s, i, 2) &&
+            in_front(f.x, f.y, f.heading, s.x, s.y) {
             s.foes[i].hit = true
             if parrying(s) {
                 s.foes[i].phase = STAGGER
@@ -1123,7 +1123,7 @@ fn action_step(mut s: Sim, want: int) {
         let distance = (age + 1) * 3 * FP / frames - age * 3 * FP / frames
         let nx = s.x + distance * sin(h) / FP
         let ny = s.y - distance * cos(h) / FP
-        let body = body_at(s, nx, ny)
+        let body = cub_blocked_by_body(s, nx, ny)
         if !body && !blocked(s, floor_div(nx, FP), floor_div(ny, FP)) { s.x = nx; s.y = ny }
     }
     if s.action == DRINK && age >= 15 && age < 30 {
@@ -1208,6 +1208,8 @@ pub fn step(mut s: Sim, keys: List[int]) {
             if s.unseen >= 60 { s.locked = -1 }
         }
     }
+    swing_body(mut s)
+    settle_bodies(mut s)
     let ox = s.x
     let oy = s.y
     locomotion(mut s)
@@ -1236,11 +1238,232 @@ pub fn step(mut s: Sim, keys: List[int]) {
     }
 }
 
-fn body_at(s: Sim, x: int, y: int) -> bool {
+// Bodies (cb02c; the maintainer's word, 2026-10-25: "Enemies should never
+// overlap with the cub. They should have collision to prevent weird attack
+// moments where the enemy is behind the cub and can't be hit."). A body is
+// the rectangle of cells a creature's drawing covers (`silhouette`'s sizes,
+// turned to the facing the frame draws), so what collides is what is seen.
+// Movers yield: a step into a body is not taken; a body swung round into
+// another (a turn) is the swinger's to clear unless it is the cub's, when
+// the foe steps aside; the start of every tick settles whatever a reset or
+// a fixture left overlapping. The envelopes count from the bodies: a reach
+// of n cells is n - 1 clear cells between two bodies (R-cb02c-4 A), so a
+// foe in contact is always in a bite's reach, never behind the cub out of it.
+
+/// A footprint: world cells, both corners inclusive.
+pub struct Body {
+    x0: int,
+    y0: int,
+    x1: int,
+    y1: int,
+}
+
+fn rect(w: int, h: int, facing: int, cx: int, cy: int) -> Body {
+    let (dc, dr, cols, rows) = silhouette.footprint(w, h, facing)
+    Body { x0: cx + dc, y0: cy + dr, x1: cx + dc + cols - 1, y1: cy + dr + rows - 1 }
+}
+
+/// The quarter a heading falls in: 0 north, 1 east, 2 south, 3 west.
+pub fn quarter(heading: int) -> int {
+    ((heading + 32) % TURN + TURN) % TURN / 64
+}
+
+/// The facing the cub's body would take now: an attack's aim during a
+/// bite, a lunge or a heavy, else the heading's quarter.
+pub fn wanted_facing(s: Sim) -> int {
+    if s.action == BITE || s.action == LUNGE || s.action == HEAVY {
+        return quarter(s.attack_heading)
+    }
+    facing(s)
+}
+
+/// The cub's body at fixed-point `(x, y)` facing `facing`.
+pub fn cub_body_at(x: int, y: int, facing: int) -> Body {
+    let (w, h) = silhouette.cub_size()
+    rect(w, h, facing, floor_div(x, FP), floor_div(y, FP))
+}
+
+/// The cub's body where it stands, the way the frame draws it.
+pub fn cub_body(s: Sim) -> Body {
+    cub_body_at(s.x, s.y, s.body_facing)
+}
+
+/// A foe's body at `(x, y)` with `heading`.
+pub fn foe_body_at(f: Foe, x: int, y: int, heading: int) -> Body {
+    let (w, h) = silhouette.foe_size(f.kind)
+    rect(w, h, quarter(heading), floor_div(x, FP), floor_div(y, FP))
+}
+
+/// A foe's body where it stands.
+pub fn foe_body(f: Foe) -> Body {
+    foe_body_at(f, f.x, f.y, f.heading)
+}
+
+fn axis_gap(a0: int, a1: int, b0: int, b1: int) -> int {
+    (if b0 - a1 > a0 - b1 then b0 - a1 else a0 - b1) - 1
+}
+
+/// Clear cells between two bodies, the larger axis's: 0 when they touch
+/// at a side or a corner, negative when they share a cell.
+pub fn gap(a: Body, b: Body) -> int {
+    let gx = axis_gap(a.x0, a.x1, b.x0, b.x1)
+    let gy = axis_gap(a.y0, a.y1, b.y0, b.y1)
+    if gx > gy then gx else gy
+}
+
+/// Whether two bodies share a cell.
+pub fn overlap(a: Body, b: Body) -> bool {
+    gap(a, b) < 0
+}
+
+/// A ground body that collides: alive and not the hawk (whose shadow is
+/// not solid).
+pub fn solid(f: Foe) -> bool {
+    f.health > 0 && f.kind != HAWK
+}
+
+/// Whether foe `i` is within a reach of `reach` cells of the cub: at most
+/// `reach - 1` clear cells between their bodies, and in sight unless the
+/// bodies touch (R-cb02c-4 A). A bite's reach is 2, a lunge's and a
+/// heavy's 4, a foe's own strike 2; the cone is the caller's.
+pub fn in_reach(s: Sim, i: int, reach: int) -> bool {
+    let f = copy s.foes[i]
+    let g = gap(cub_body(s), foe_body(f))
+    g >= 0 && g <= reach - 1 && (g == 0 || visible(s, s.x, s.y, f.x, f.y))
+}
+
+/// Clear cells between the cub's body and foe `i`'s.
+pub fn body_gap(s: Sim, i: int) -> int {
+    gap(cub_body(s), foe_body(s.foes[i]))
+}
+
+/// Whether the cub's body at `(x, y)` would share a cell with a solid foe.
+fn cub_blocked_by_body(s: Sim, x: int, y: int) -> bool {
+    let b = cub_body_at(x, y, s.body_facing)
     for f in s.foes {
-        if f.health > 0 && f.kind != HAWK && near(x, y, f.x, f.y, FP) { return true }
+        if solid(f) && overlap(b, foe_body(f)) { return true }
     }
     false
+}
+
+/// Whether foe `i`'s body at `(x, y)` with `heading` would share a cell
+/// with the cub's or another solid foe's.
+fn foe_blocked_by_body(s: Sim, i: int, x: int, y: int, heading: int) -> bool {
+    let b = foe_body_at(s.foes[i], x, y, heading)
+    if s.action != FALL && overlap(b, cub_body(s)) { return true }
+    var j = 0
+    while j < s.foes.len {
+        if j != i && solid(s.foes[j]) && overlap(b, foe_body(s.foes[j])) { return true }
+        j += 1
+    }
+    false
+}
+
+/// Move foe `i` out of every body along the line from `from`'s middle to
+/// its own, a quarter cell at a time, up to eight cells; failing that
+/// along the seven other compass lines, nearest first. False when no
+/// clear, unblocked place was found (the foe stays).
+fn push_out(mut s: Sim, i: int, from: Body) -> bool {
+    let f = copy s.foes[i]
+    let b = foe_body(f)
+    var h0 = heading_to(
+        (from.x0 + from.x1) * FP / 2,
+        (from.y0 + from.y1) * FP / 2,
+        (b.x0 + b.x1) * FP / 2,
+        (b.y0 + b.y1) * FP / 2,
+    )
+    if h0 < 0 { h0 = (f.heading + 128) % TURN }
+    var k = 0
+    while k < 8 {
+        // 0, +1, -1, +2, -2 ... eighths of a turn from the line.
+        let turn = if k == 0 then 0 else if k % 2 == 1 then (k + 1) / 2 * 32 else 0 - k / 2 * 32
+        let dir = ((h0 + turn) % TURN + TURN) % TURN
+        var n = 1
+        while n <= 32 {
+            let x = f.x + sin(dir) * n * FP / 4 / FP
+            let y = f.y - cos(dir) * n * FP / 4 / FP
+            if !blocked(s, floor_div(x, FP), floor_div(y, FP)) &&
+                !foe_blocked_by_body(s, i, x, y, f.heading) {
+                s.foes[i].x = x
+                s.foes[i].y = y
+                return true
+            }
+            n += 1
+        }
+        k += 1
+    }
+    false
+}
+
+/// Turn foe `i` to `heading`; if its body, swung round, would share a cell
+/// with another, it steps out of the way, or keeps its heading when it
+/// cannot.
+fn turn_foe(mut s: Sim, i: int, heading: int) {
+    let f = copy s.foes[i]
+    if quarter(heading) == quarter(f.heading) || !foe_blocked_by_body(s, i, f.x, f.y, heading) {
+        s.foes[i].heading = heading
+        return
+    }
+    s.foes[i].heading = heading
+    if !push_out(mut s, i, cub_body(s)) {
+        s.foes[i].heading = f.heading
+        s.foes[i].x = f.x
+        s.foes[i].y = f.y
+    }
+}
+
+/// The cub's body takes the facing it wants (a turn's quarter, an
+/// attack's aim). A foe in the way of the swing steps aside (R-cb02c-5 A:
+/// the body that did not move yields to the cub's turn, as a tie goes
+/// against the foe); with no room the cub's body keeps its facing this
+/// tick, so a turn never swings the cub into a foe.
+fn swing_body(mut s: Sim) {
+    let want = wanted_facing(s)
+    if want == s.body_facing { return }
+    let b = cub_body_at(s.x, s.y, want)
+    var clear = true
+    var i = 0
+    while i < s.foes.len {
+        if solid(s.foes[i]) && overlap(b, foe_body(s.foes[i])) {
+            let was = s.body_facing
+            s.body_facing = want
+            if !push_out(mut s, i, b) { clear = false }
+            s.body_facing = was
+        }
+        i += 1
+    }
+    if clear { s.body_facing = want }
+}
+
+/// Settle what a reset, an area's entry or a fixture left overlapping:
+/// each foe sharing a cell with the cub steps out of it, then each with an
+/// earlier foe steps out of that one, in the foes' order, the pass
+/// repeated while anything moved (at most four passes): the seed's result
+/// alone, and no overlap survives that has room to be undone.
+pub fn settle_bodies(mut s: Sim) {
+    var pass = 0
+    var moved = true
+    while moved && pass < 4 {
+        moved = false
+        let cub = cub_body(s)
+        var i = 0
+        while i < s.foes.len {
+            if solid(s.foes[i]) {
+                if s.action != FALL && overlap(foe_body(s.foes[i]), cub) {
+                    if push_out(mut s, i, cub) { moved = true }
+                }
+                var j = 0
+                while j < i {
+                    if solid(s.foes[j]) && overlap(foe_body(s.foes[i]), foe_body(s.foes[j])) {
+                        if push_out(mut s, i, foe_body(s.foes[j])) { moved = true }
+                    }
+                    j += 1
+                }
+            }
+            i += 1
+        }
+        pass += 1
+    }
 }
 
 /// Foe pursuit: 44 at cb01b's pace, scaled with the dial (R-cb02c-1 A),
@@ -1307,16 +1530,8 @@ pub fn clip_arc(s: Sim, ox: int, oy: int) -> (int, int) {
         let dy = oy * n / steps
         let nx = s.x + dx
         let ny = s.y + dy
-        var stops = blocked(s, floor_div(nx, FP), floor_div(ny, FP))
-        for f in s.foes {
-            if (
-                f.health > 0 && f.kind != HAWK || f.died >= 0 && s.tick - f.died < FOE_FADE_TICKS
-            ) &&
-                abs(nx - f.x) < 2 * FP &&
-                abs(ny - f.y) < 2 * FP {
-                stops = true
-            }
-        }
+        let stops = blocked(s, floor_div(nx, FP), floor_div(ny, FP)) ||
+            drawn_body_in(s, cub_body_at(nx, ny, s.body_facing))
         if stops { break }
         x = dx
         y = dy
@@ -1386,7 +1601,32 @@ pub const COMBO_FINISH_ARC: int = 2 * FP
 pub fn head_shake(s: Sim) -> int {
     if s.action != BITE || s.combo != 3 { return 0 }
     let age = s.tick - s.started
-    if age == 5 then -1 else if age == 6 then 1 else 0
+    let shake = if age == 5 then -1 else if age == 6 then 1 else 0
+    if shake == 0 { return 0 }
+    // The head moves a cell across the aim; it never moves into a body
+    // (cb02c): with a foe against that side the head holds still.
+    var b = cub_body(s)
+    if s.body_facing % 2 == 0 {
+        if shake < 0 { b.x0 -= 1 } else { b.x1 += 1 }
+    } else if shake < 0 {
+        b.y0 -= 1
+    } else {
+        b.y1 += 1
+    }
+    if drawn_body_in(s, b) then 0 else shake
+}
+
+/// Whether a rectangle shares a cell with a foe body the frame draws: a
+/// solid foe, or a ground foe fading out (presentation clips against both;
+/// collision against the solid alone).
+fn drawn_body_in(s: Sim, b: Body) -> bool {
+    for f in s.foes {
+        if (solid(f) || f.kind != HAWK && f.died >= 0 && s.tick - f.died < FOE_FADE_TICKS) &&
+            overlap(b, foe_body(f)) {
+            return true
+        }
+    }
+    false
 }
 
 /// Heavy attack fallback action (the terminal cannot distinguish Shift+Space).
@@ -1500,15 +1740,22 @@ pub fn area_foes(seed: int, field: int, area: int) -> List[Foe] {
             cache += 1
             continue
         }
+        // Guards stand shoulder to shoulder, a body's width apart (cb02c:
+        // never one inside another's drawing).
+        let kind = if cache == 0 then WEASEL else FOX
+        let (w, _) = silhouette.foe_size(kind)
+        let (_, _, wide, _) = silhouette.footprint(w, 12, 0)
         var guard = 0
         while guard < (if cache == 0 then 3 else 2) {
-            let gx = x + (guard - 1) * FP
+            // From the cache back along its branch toward the route, so
+            // every guard stands on the branch's ground.
+            let gx = x + (if cache == 0 then guard else 0 - guard) * wide * FP
             let gy = (
                 forest.origin(seed, area) + forest.branch(seed, area, cache, floor_div(gx, FP)) + 1
             ) *
                 FP +
                 FP / 2
-            (mut foes).push(make_foe(if cache == 0 then WEASEL else FOX, gx, gy))
+            (mut foes).push(make_foe(kind, gx, gy))
             guard += 1
         }
         cache += 1
@@ -1561,6 +1808,7 @@ pub fn enter_area(mut s: Sim, area: int, x: int, y: int) {
         s.aim_order[i] = 0
         i += 1
     }
+    settle_bodies(mut s)
 }
 
 /// Traverse an unlocked incident edge; false for unavailable edges.
