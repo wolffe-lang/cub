@@ -140,32 +140,45 @@ pub fn empty_run(seed: int) -> int {
             let rows = if size == 0 then 24 else 60
             var t = tier.PLAIN
             while t <= tier.RICH {
-                region frame {
-                    var s = sim.new(seed, cols, rows)
-                    s.area = area
-                    if area != 0 { s.y = 0 }
-                    var g = grid.new(rows, cols)
-                    var row = 0
-                    while row < rows {
-                        art.terrain_row(s, t, row, mut g)
-                        var run = 0
-                        var col = 0
-                        while col < cols {
-                            let (x, y) = sim.world_cell(s, row, col)
-                            let k = forest.kind(seed, area, x, y)
-                            let c = grid.at(g, row, col)
-                            if (k == terrain.DARK || k == terrain.CANOPY || k == terrain.TRUNK) &&
-                                (c.cp == 32 || c.fg == c.bg) {
-                                run += 1
-                            } else {
-                                run = 0
+                var camera = 0
+                while camera <= forest.LENGTH + rows {
+                    var shift = 0
+                    while shift < (if cols == 80 then 2 else 1) {
+                        region frame {
+                            var s = sim.new(seed, cols, rows)
+                            s.area = area
+                            s.y = (forest.origin(seed, area) + camera) * sim.FP
+                            s.x = shift * sim.FP
+                            var g = grid.new(rows, cols)
+                            var row = 0
+                            while row < rows {
+                                art.terrain_row(s, t, row, mut g)
+                                var run = 0
+                                var col = 0
+                                while col < cols {
+                                    let (x, y) = sim.world_cell(s, row, col)
+                                    let k = forest.kind(seed, area, x, y)
+                                    let c = grid.at(g, row, col)
+                                    if (
+                                        k == terrain.DARK ||
+                                            k == terrain.CANOPY ||
+                                            k == terrain.TRUNK
+                                    ) &&
+                                        (c.cp == 32 || c.fg == c.bg) {
+                                        run += 1
+                                    } else {
+                                        run = 0
+                                    }
+                                    if run > longest { longest = run }
+                                    col += 1
+                                }
+                                row += 1
                             }
-                            if run > longest { longest = run }
-                            col += 1
+                            if t == tier.PLAIN { assert(grid.plain_ok(g), "cb02a plain forest") }
                         }
-                        row += 1
+                        shift += 1
                     }
-                    if t == tier.PLAIN { assert(grid.plain_ok(g), "cb02a plain forest") }
+                    camera += rows
                 }
                 t += 1
             }
