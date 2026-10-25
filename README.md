@@ -11,18 +11,22 @@ The second game of the lair, the wolf games collection, on the collection's shar
 
 **What is in this build:** a seeded route from the Shingle through
 Bramblehold to Larkmeadow, with four dens, meandering paths, guarded side
-caches and two shortcuts home. The shore winds between water and visible
-forest, bounded by rock jetties; its offshoots end in guarded bundle
-alcoves. Original log and flotsam sprites mark the coast. Bite, lunge,
-parry, dodge and chain attacks;
-a hawk's stopped shadow asks for a parry or an escape. Foes leave visible
+caches and two shortcuts home. The shore runs a screen past the view each
+way to its rock jetties, and four winding offshoots leave it for guarded
+bundle alcoves; the forest is one trunk-and-canopy texture to every edge
+of the screen, the thicket and meadow filling the field they were made
+for. The cub, the foes and the bundle are solid pixel silhouettes, one
+drawing each, turned to face the way they go. Original log and flotsam
+sprites mark the coast. Bite, lunge, parry, dodge and chain attacks; a
+hawk's stopped shadow asks for a parry or an escape. Foes leave visible
 scent to collect before it fades. Dens heal, refill water and spend scent
 on growth. Death leaves a recoverable mark, even across area edges; a
 second death replaces it. An opening scene shows the broken crossing.
 
 The journey saves under `~/.cub/save`; resume wakes at the last den with
-reset encounters, keeping growth, shortcuts, opened caches, pouch contents
-and the dropped mark. `--save PATH` selects a separate journey. Unknown or
+reset encounters, keeping growth, shortcuts, opened caches, pouch contents,
+the dropped mark and the field the world was made for (the terminal's
+width when the journey began). `--save PATH` selects a separate journey. Unknown or
 corrupt files fail by name, never silently reset. A quit during a staged
 write preserves the previous save. Live deaths leave self-contained replay
 files under `~/.cub/ghosts/`; ghost display, bosses, music, the larger HUD
@@ -83,10 +87,12 @@ measures rendering, idle wakes and key-to-frame latency.
 
 The two compiler backends and both hosts must reproduce identical glyphs,
 styles and integer snapshots. `--world-audit` floods the actual terrain for
-50 seeds, checking every den, exit and cache, the meander bound and enemy
-spacing, plus a bounded walk from every den-reachable coast cell to a
-useful route or cache. The real-key world scripts visit all three areas, fight the hawk,
-recover a cross-area mark and return through both shortcuts. File tests
+50 seeds at both fields, checking every den, exit and cache, the meander
+bound and enemy spacing, the forest's texture at every camera position
+(no flat run, no empty cell) and a bounded walk from every den-reachable
+coast cell to a useful route or cache. The real-key world scripts visit all three areas, fight the hawk,
+recover a cross-area mark, return through both shortcuts and open all four
+coast bundles. File tests
 cover save round trips, cut writes, concurrent stages, corruption and
 persisted marks. The pty rows include quit and typed Ctrl-C during a pending
 save, named save failures, and self-contained resumed recordings. Physical
