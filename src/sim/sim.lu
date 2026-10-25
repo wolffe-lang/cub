@@ -295,7 +295,8 @@ pub fn cell_y(s: Sim) -> int {
     floor_div(s.y, FP)
 }
 
-fn floor_div(a: int, b: int) -> int {
+/// Floor division keeps negative world coordinates in their true cells.
+pub fn floor_div(a: int, b: int) -> int {
     let q = a / b
     if a % b < 0 then q - 1 else q
 }
@@ -387,14 +388,14 @@ fn locomotion(mut s: Sim, keys: List[int]) {
     let dx = s.speed * sin(s.heading) / 256
     let dy = 0 - s.speed * cos(s.heading) / 256
     let nx = s.x + dx
-    if !blocked(s, floor_div(nx, FP), cell_y(s)) {
+    if !blocked(s, floor_div(nx, FP), cell_y(s)) && !body_at(s, nx, s.y) {
         s.x = nx
     } else {
         s.speed = 0
         s.blocked += 1
     }
     let ny = s.y + dy
-    if !blocked(s, cell_x(s), floor_div(ny, FP)) {
+    if !blocked(s, cell_x(s), floor_div(ny, FP)) && !body_at(s, s.x, ny) {
         s.y = ny
     } else {
         s.speed = 0
@@ -1003,4 +1004,11 @@ pub fn step(mut s: Sim, keys: List[int]) {
         if s.stamina > stamina_max(s.wind) { s.stamina = stamina_max(s.wind) }
         if s.stamina >= EXHAUST_RECOVER { s.exhausted = false }
     }
+}
+
+fn body_at(s: Sim, x: int, y: int) -> bool {
+    for f in s.foes {
+        if f.health > 0 && near(x, y, f.x, f.y, FP) { return true }
+    }
+    false
 }

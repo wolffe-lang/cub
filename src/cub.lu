@@ -52,6 +52,8 @@ struct Options {
     trace: bool,
     help: bool,
     version: bool,
+    bench: bool,
+    ghost_dir: str,
 }
 
 fn usage_text() -> str {
@@ -65,7 +67,10 @@ fn usage_text() -> str {
         "  cub --probe-glyphs                measure the rich glyphs' widths here\n" +
         "  cub --selftest                    the decoder table and the diff property, on THIS binary\n\n" +
         "  keys: arrows walk (the cub turns at its turn rate), Shift+arrow sneaks,\n" +
-        "        q or Esc quits; Space, x, z, c, Tab, w and r are recorded for the moves to come\n" +
+        "        Space bite, x lunge, z parry, c dodge, Tab lock, Esc release, q quit,\n" +
+        "        w water, r rest; at the den 1–5 grow heart, wind, fang, paw, nose\n" +
+        "  --bench                           render/diff timings for the performance gate\n" +
+        "  --ghost-dir DIR                   override live death archive; enable it headless\n" +
         "  --truecolor / --no-truecolor      override COLORTERM\n" +
         "  --ticks N                         quit after N ticks\n" +
         "  --trace                           one line a tick on standard error: the bytes read, the keys\n" +
@@ -96,6 +101,8 @@ fn options_default() -> Options {
         trace: false,
         help: false,
         version: false,
+        bench: false,
+        ghost_dir: "",
     }
 }
 
@@ -107,6 +114,11 @@ fn parse_args(args: List[str]) -> Options ! {usage, parse} {
         let more = i + 1 < args.len
         if a == "--headless" {
             o.headless = true
+        } else if a == "--bench" {
+            o.bench = true
+        } else if more && a == "--ghost-dir" {
+            i += 1
+            o.ghost_dir = args[i]
         } else if a == "--help" || a == "-h" {
             o.help = true
         } else if a == "--version" {
@@ -237,14 +249,23 @@ fn run_headless(o: Options, args: List[str]) -> int {
     var g = grid.new(r.rows, r.cols)
     var keys = List[int]()
     var k = 0
+    var archived = 0
     while k < o.frames {
         (mut keys).reset()
-        let (c, rows, _) = replay.at(r, k, mut keys)
+        let (c, rows, health) = replay.at(r, k, mut keys)
         if c > 0 {
             sim.resize(mut s, c, rows)
             g = grid.new(rows, c)
         }
+        replay_numbers(mut s, health, replay.args_at(r, k, 1))
         sim.step(mut s, keys)
+        if s.deaths > archived {
+            archived = s.deaths
+            if o.ghost_dir != "" {
+                write_ghost(r, s, o.ghost_dir) else |_| { return 2 }
+            }
+        }
+        if o.trace { eprint(state_text(s)) }
         if k + 1 >= o.from_tick && (k + 1) % o.every == 0 && k + 1 < o.frames {
             art.render(s, r.tier, mut g)
             headless.write_frame(o.dump, "frame-{headless.pad4(k + 1)}", g) else |_| {
@@ -260,6 +281,7 @@ fn run_headless(o: Options, args: List[str]) -> int {
         eprint("cub: cannot write into {o.dump}")
         return 2
     }
+    fs.write_text(o.dump + "/final.state", state_text(s)) else |_| { return 2 }
     0
 }
 
@@ -461,6 +483,13 @@ fn run_live(o: Options, args: List[str]) -> int {
     var render_max_ns = 0
     var ended = "the loop"
     let t0_ns = clock.now_ns()
+    var ghost_error = false
+    var archived = 0
+    let ghost_dir = if o.ghost_dir != "" {
+        o.ghost_dir
+    } else {
+        (env.get("HOME") else ".") + "/.cub/ghosts"
+    }
     var trace_bytes = 0
     var trace_first_key_ns = 0
     loop {
@@ -519,7 +548,8 @@ fn run_live(o: Options, args: List[str]) -> int {
         while n < due {
             (mut tick_keys).reset()
             if replaying {
-                let (rc, rr, _) = replay.at(rp, s.tick, mut tick_keys)
+                let (rc, rr, health) = replay.at(rp, s.tick, mut tick_keys)
+                replay_numbers(mut s, health, replay.args_at(rp, s.tick, 1))
                 if rc > 0 {
                     sim.resize(mut s, rc, rr)
                     front = grid.new(rr, rc)
@@ -560,6 +590,14 @@ fn run_live(o: Options, args: List[str]) -> int {
                 }
             }
             sim.step(mut s, tick_keys)
+            if !replaying && s.deaths > archived {
+                archived = s.deaths
+                write_ghost(rec, s, ghost_dir) else |_| {
+                    ghost_error = true
+                    ended = "a failed death archive"
+                    quit = true
+                }
+            }
             if o.trace {
                 eprint(
                     "trace tick {s.tick} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} wall_us {(clock.now_ns() - t0_ns) / 1000}",
@@ -620,7 +658,7 @@ fn run_live(o: Options, args: List[str]) -> int {
     eprint(
         "cub: ended by {ended}; {s.tick} ticks, {frames} frames, {c.dropped} dropped, {c.waits} waits, {sim.distance_cells(s)} cells, blocked {s.blocked}; heading {s.heading} at {sim.cell_x(s)},{sim.cell_y(s)}; render avg {avg_us} us max {render_max_ns / 1000} us; seed {rp.seed} tier {tier.name(rp.tier)} {cols}x{rows}",
     )
-    0
+    if ghost_error then 2 else 0
 }
 
 fn main() -> int {
@@ -634,7 +672,7 @@ fn main() -> int {
         return 0
     }
     if o.version {
-        print("cub 0.1.0 (cb00: the scaffold on the lair engine)")
+        print("cub 0.2.0 (the Shingle fight and recovery loop)")
         return 0
     }
     if o.apply_path != "" {
@@ -649,8 +687,96 @@ fn main() -> int {
     if o.selftest {
         return run_selftest()
     }
+    if o.bench { return run_bench(o) }
     if o.headless {
         return run_headless(o, args)
     }
     run_live(o, args)
+}
+
+fn replay_numbers(mut s: sim.Sim, health: int, scent: int) {
+    if health < 0 { sim.hurt(mut s, 0 - health) }
+    if health > 0 {
+        s.health += health
+        if s.health > sim.health_max(s.heart) { s.health = sim.health_max(s.heart) }
+    }
+    s.scent += scent
+    if s.scent < 0 { s.scent = 0 }
+}
+
+fn state_text(s: sim.Sim) -> str {
+    var text = "tick {s.tick} x {s.x} y {s.y} heading {s.heading} action {s.action} started {s.started} health {s.health} stamina {s.stamina} flasks {s.flasks} scent {s.scent} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_scent {s.mark_scent} gate {if s.gate_open then 1 else 0} trail {s.trail.len} lock {s.locked}\n"
+    var i = 0
+    while i < s.foes.len {
+        let f = copy s.foes[i]
+        text += "foe {i} kind {f.kind} health {f.health} phase {f.phase} since {f.since} x {f.x} y {f.y}\n"
+        i += 1
+    }
+    text
+}
+
+fn write_ghost(r: replay.Replay, s: sim.Sim, dir: str) -> () ! {io} {
+    fs.create_dir_all(dir) else |_| { return io }
+    var death = replay.new(r.seed, r.tier, r.cols, r.rows)
+    for e in r.events {
+        if e.tick < s.tick { (mut death.events).push(copy e) }
+    }
+    // A zero health event pins the exact last tick even when no key was pressed.
+    replay.push_arg(mut death, s.tick - 1, 0, 0)
+    var bytes = List[byte]()
+    replay.format(death, controls.vocab(), mut bytes)
+    // Monotonic time is a filename collision guard only, never simulation input.
+    let path = "{dir}/death-{clock.now_ns()}-{s.deaths}.pk"
+    fs.write_bytes(path, bytes) else |_| { return io }
+    eprint("cub: death archive {path}")
+}
+
+fn run_bench(o: Options) -> int {
+    let cols = if o.cols > 0 then o.cols else 80
+    let rows = if o.rows > 0 then o.rows else 24
+    let t = if o.tier < 0 then tier.RICH else o.tier
+    var s = sim.new(o.seed, cols, rows)
+    var front = grid.new(rows, cols)
+    var back = grid.new(rows, cols)
+    var pen = grid.pen_new()
+    var out = List[byte]()
+    var samples = List[int]()
+    var sum = 0
+    var maximum = 0
+    var n = 0
+    while n < o.frames {
+        var keys = List[int]()
+        if n % 2 == 0 { (mut keys).push(controls.KEY_RIGHT) }
+        if n % 37 == 0 { (mut keys).push(controls.KEY_BITE) }
+        if n % 91 == 0 { (mut keys).push(controls.KEY_PARRY) }
+        sim.step(mut s, keys)
+        let before = clock.now_ns()
+        art.render(s, t, mut back)
+        grid.diff(front, back, n == 0, mut pen, mut out, tier.dialect(t, false))
+        let elapsed = clock.now_ns() - before
+        sum += elapsed
+        if elapsed > maximum { maximum = elapsed }
+        (mut samples).push(elapsed)
+        (mut out).reset()
+        let old = front
+        front = back
+        back = old
+        n += 1
+    }
+    // Small fixed benchmark; insertion sort avoids platform-dependent timing APIs.
+    var i = 1
+    while i < samples.len {
+        var j = i
+        while j > 0 && samples[j] < samples[j - 1] {
+            let old = samples[j]
+            samples[j] = samples[j - 1]
+            samples[j - 1] = old
+            j -= 1
+        }
+        i += 1
+    }
+    print(
+        "bench {cols}x{rows} {tier.name(t)} frames {o.frames} avg_us {sum / o.frames / 1000} p99_us {samples[(samples.len - 1) * 99 / 100] / 1000} max_us {maximum / 1000}",
+    )
+    0
 }

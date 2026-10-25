@@ -39,9 +39,7 @@ sprite turns a quarter at a time while the motion underneath is smooth. Fur is 1
 gravel's 240.
 
 **Posture is the HUD** (the design bible's section 3): the ears carry the stamina band (fresh, tired, spent)
-and the tail the health band, a limp under a third of health, panting when spent. The scaffold draws the
-fresh band; the ear sprite's variant already carries the band (`8 × band`) and cb01 draws the other two with
-the tail.
+and the tail the health band, a limp under a third of health, panting when spent. The ear sprite variant carries the band (`8 × band`), with the tail alongside.
 
 The plain cub is a bold `C` in bright yellow with a facing mark in the cell to its left: `^` north, `>`
 east, `v` south, `<` west.
@@ -61,6 +59,21 @@ deep forest.
 
 ## What is owed
 
-The dusk and night palettes (pack's keyframes shape, per area); the posture bands and the tail; the foes'
-sprites and their windup glyphs (the bible's section 8); the den. Each arrives with its lane and moves the
-sheet's golden.
+Dusk and night palettes follow with the other areas. Combat posture, foes and the den are covered by the game-frame goldens below.
+
+## Combat sheet vocabulary (2026-10-25)
+
+The game frames now draw the weasel as `w` and the fox as `f`, followed by
+`^` hunting, `_` crouching, `~` feinting, `>` striking, `<` retreating or `!`
+staggered. `[]` beneath a foe is the lock. The same tells appear on both
+tiers; a raised apostrophe during a strike is a presentation arc over its
+ground body, never a collision displacement.
+
+The cub's adjacent move mark is `>` bite, `>>` lunge, `]` parry, `o` dodge,
+`~` water or `_` fall. A spent cub pants `:`. Ears dim as stamina drops; the
+plain ears change `^`, `<`, `_`. The tail is `/`, `-`, `_` through health
+bands. Each band spans a third; the lowest health band also limps.
+
+Scent is a dim `:` then `.`, the dropped mark a bright `*`; the hollow log
+is labelled, and the thorn row is `#X#X#` until broken. Only the den shows
+numbers. Every action and encounter has a replay golden on both tiers.

@@ -91,3 +91,10 @@ Additional proposed values, all 2026-10-25:
 The fox on the Shingle is a combat preview, not the later named fox's story
 state. Bleeding, cold, further areas, save persistence and the difficulty
 selector are not in this pass. It implements the default wolf rules.
+
+Presentation proposals (2026-10-25): a trail is bright enough to read as `:`
+for 150 ticks, then `.` until expiry; a dropped mark is visible within
+8 + 2 × nose cells. All world-to-screen cell coordinates use floor division,
+including negative coordinates. A death dissolve erases cells when
+(row × 7 + column × 11) mod 30 is below the fade age; the multipliers are
+presentation texture, not gameplay randomness.

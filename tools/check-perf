@@ -1,0 +1,13 @@
+#!/bin/sh
+# Both status-bearing calls are direct: a failed idle row cannot hide in tee.
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+cd "$ROOT"
+. .lair/tools/lib-mem.sh
+require_memory
+mkdir -p target/test-home
+export HOME="$ROOT/target/test-home"
+export LAIR_PERF_SLACK=${LAIR_PERF_SLACK:-3}
+.lair/tools/build --release
+.lair/tools/perf
+python3 -I .lair/tools/perf-idle --bin target/release/cub

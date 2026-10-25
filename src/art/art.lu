@@ -93,15 +93,17 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
         terrain_row(s, t, row, mut g)
         row += 1
     }
+    draw_world_marks(s, t, mut g)
     // The rich cub's two rows sit on the cub's cell and the one above, so
     // its body is at the centre; the plain cub's mark is left of the centre.
     let r = sim.screen_row(s)
     let c = sim.screen_col(s)
     if t == tier.RICH {
-        draw_cub(mut g, t, r - 1, c, sim.facing(s), 0)
+        draw_cub(mut g, t, r - 1, c, sim.facing(s), band(s.stamina, sim.stamina_max(s.wind)))
     } else {
-        draw_cub(mut g, t, r, c - 1, sim.facing(s), 0)
+        draw_cub(mut g, t, r, c - 1, sim.facing(s), band(s.stamina, sim.stamina_max(s.wind)))
     }
+    draw_posture(s, t, mut g)
 }
 
 /// The art study's sheet (`docs/ART.md`): the cub facing each of the four
@@ -161,3 +163,195 @@ pub fn sheet(t: int) -> grid.Grid {
     )
     g
 }
+
+fn band(value: int, maximum: int) -> int {
+    if value * 3 > maximum * 2 then 0 else if value * 3 > maximum then 1 else 2
+}
+
+fn ink(t: int, bright: bool) -> grid.Cell {
+    grid.cell(
+        32,
+        if t == tier.RICH then (if bright then 180 else 137) else (if bright then 11 else 3),
+        sprites.palette(t, sprites.C_GRAVEL),
+        if bright then grid.ATTR_BOLD else 0,
+    )
+}
+
+fn at_world(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, text: str, bright: bool) {
+    draw.put_text(
+        mut g,
+        y - sim.cell_y(s) + sim.screen_row(s),
+        x - sim.cell_x(s) + sim.screen_col(s),
+        text,
+        ink(t, bright),
+    )
+}
+
+fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
+    for tr in s.trail {
+        at_world(
+            s,
+            t,
+            mut g,
+            sim.floor_div(tr.x, sim.FP),
+            sim.floor_div(tr.y, sim.FP),
+            if tr.until - s.tick > 150 then ":" else ".",
+            false,
+        )
+    }
+    let (dx, dy) = terrain.start(s.seed)
+    at_world(
+        s,
+        t,
+        mut g,
+        sim.floor_div(dx, sim.FP) - 3,
+        sim.floor_div(dy, sim.FP) + 1,
+        "( hollow log )",
+        false,
+    )
+    at_world(s, t, mut g, -2, sim.gate_y(s), if s.gate_open then "  /  " else "#X#X#", true)
+    at_world(s, t, mut g, -5, sim.gate_y(s) + 2, "Bramblehold", false)
+    if s.mark && sim.near(s.x, s.y, s.mark_x, s.mark_y, (8 + s.nose * 2) * sim.FP) {
+        at_world(
+            s,
+            t,
+            mut g,
+            sim.floor_div(s.mark_x, sim.FP),
+            sim.floor_div(s.mark_y, sim.FP),
+            "*",
+            true,
+        )
+    }
+    var i = 0
+    while i < s.foes.len {
+        let f = copy s.foes[i]
+        if f.health > 0 {
+            let r = sim.floor_div(f.y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
+            let c = sim.floor_div(f.x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
+            let glyph = if f.kind == sim.FOX then "f" else "w"
+            let tell = if f.phase == sim.CROUCH {
+                "_"
+            } else if f.phase == sim.FEINT {
+                "~"
+            } else if f.phase == sim.STRIKE {
+                ">"
+            } else if f.phase == sim.STAGGER {
+                "!"
+            } else if f.phase == sim.RETREAT {
+                "<"
+            } else {
+                "^"
+            }
+            draw.put_text(
+                mut g,
+                r,
+                c,
+                glyph + tell,
+                ink(t, f.phase == sim.CROUCH || f.phase == sim.STRIKE),
+            )
+            if f.phase == sim.STRIKE {
+                // Presentation only: airborne accent over the ground envelope.
+                draw.put_text(mut g, r - 1, c, "'", ink(t, true))
+            }
+            if s.locked == i { draw.put_text(mut g, r + 1, c, "[]", ink(t, true)) }
+        }
+        i += 1
+    }
+}
+
+fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
+    let r = sim.screen_row(s)
+    let c = sim.screen_col(s)
+    let health = band(s.health, sim.health_max(s.heart))
+    let stamina = band(s.stamina, sim.stamina_max(s.wind))
+    let tail = if health == 0 then "/" else if health == 1 then "-" else "_"
+    draw.put_text(mut g, r + 1, c - 1, tail, ink(t, health == 0))
+    if t == tier.PLAIN {
+        draw.put_text(
+            mut g,
+            r - 1,
+            c,
+            if stamina == 0 then "^" else if stamina == 1 then "<" else "_",
+            ink(t, stamina == 0),
+        )
+    }
+    let posture = if s.action == sim.BITE {
+        ">"
+    } else if s.action == sim.LUNGE {
+        ">>"
+    } else if s.action == sim.PARRY {
+        "]"
+    } else if s.action == sim.DODGE {
+        "o"
+    } else if s.action == sim.DRINK {
+        "~"
+    } else if s.action == sim.FALL {
+        "_"
+    } else if s.exhausted {
+        ":"
+    } else {
+        ""
+    }
+    draw.put_text(mut g, r, c + 2, posture, ink(t, true))
+    if s.action == sim.LUNGE && s.tick - s.started >= 9 && s.tick - s.started < 12 {
+        draw.put_text(mut g, r - 2, c + 1, "'", ink(t, true))
+    }
+    if s.action == sim.FALL {
+        // Thirty ticks: progressively erase the field in a deterministic dissolve.
+        var row = 0
+        while row < s.rows {
+            var col = 0
+            while col < s.cols {
+                if (row * 7 + col * 11) % 30 < s.tick - s.started {
+                    grid.put(mut g, row, col, grid.blank())
+                }
+                col += 1
+            }
+            row += 1
+        }
+        draw.put_text(mut g, r, c - 4, "fallen", ink(t, false))
+    }
+    if at_log_hint(s) {
+        draw.put_text(mut g, s.rows - 1, 1, "r rest at the hollow log", ink(t, false))
+    }
+    if s.den {
+        let style = ink(t, true)
+        var row = 3
+        while row < 13 {
+            draw.put_text(
+                mut g,
+                row,
+                3,
+                "                                                        ",
+                style,
+            )
+            row += 1
+        }
+        draw.put_text(mut g, 3, 4, "The hollow log", style)
+        draw.put_text(
+            mut g,
+            5,
+            4,
+            "health {s.health}   stamina {s.stamina}   water {s.flasks}   scent {s.scent}",
+            style,
+        )
+        draw.put_text(
+            mut g,
+            7,
+            4,
+            "1 heart {s.heart} (next {40 * (s.heart + 1)})   2 wind {s.wind} (next {40 * (s.wind + 1)})",
+            style,
+        )
+        draw.put_text(
+            mut g,
+            8,
+            4,
+            "3 fang {s.fang} (next {40 * (s.fang + 1)})   4 paw {s.paw} (next {40 * (s.paw + 1)})",
+            style,
+        )
+        draw.put_text(mut g, 9, 4, "5 nose {s.nose} (next {40 * (s.nose + 1)})", style)
+        draw.put_text(mut g, 11, 4, "r or Esc leave; a stat cannot grow past ten", style)
+    }
+}
+
+fn at_log_hint(s: sim.Sim) -> bool { sim.at_den(s) && !s.den && s.action != sim.FALL }

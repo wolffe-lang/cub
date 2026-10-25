@@ -6,8 +6,7 @@
 #              the checked machine, both builds, the selftest, the goldens
 #              on both tiers, the pty rows in the container);
 #   tier full  the above plus the macOS leg (the build, the goldens and the
-#              pty rows on a macOS runner); the perf gate arrives with cb01's
-#              --bench.
+#              pty rows on a macOS runner) and performance gates.
 # Every job first stages the engine at lair.pin (tools/fetch-lair) and the
 # toolchain by digest (.lair/tools/fetch-toolchain). Every step runs bare
 # and its exit code is read directly: no pipes. A red nightly opens one
@@ -83,7 +82,7 @@ jobs:
       - name: the Linux leg, in the container
         env:
           LAIR_ENGINE: docker
-        run: .lair/tools/in-container .lair/tools/check-linux
+        run: .lair/tools/in-container tools/check-linux
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -92,6 +91,7 @@ jobs:
             target/goldens
             target/pty
             target/test.log
+            target/gameplay
   macos:
     name: macOS arm64 (build, goldens, pty rows)
     needs: plan
@@ -122,6 +122,13 @@ jobs:
         env:
           LAIR_MEMORY_GATE: '0'
         run: .lair/tools/goldens
+      - name: native goldens and gameplay semantics on both backends
+        env:
+          LAIR_MEMORY_GATE: '0'
+        run: |
+          .lair/tools/goldens --bin target/native/cub
+          python3 -I tools/gameplay.py --bin target/native/cub
+          python3 -I tools/gameplay.py --bin target/release/cub
       - name: the pty rows
         env:
           LAIR_MEMORY_GATE: '0'
@@ -133,6 +140,29 @@ jobs:
           path: |
             target/goldens
             target/pty
+  perf:
+    name: performance (render, idle, input latency)
+    needs: plan
+    if: contains(fromJSON(needs.plan.outputs.jobs || '[]'), 'perf')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: tools/fetch-lair
+      - uses: actions/cache@v4
+        with:
+          path: .wolf-bin
+          key: lair-toolchain-linux-${{ hashFiles('.lair/wolf-toolchain.toml') }}
+      - run: .lair/tools/fetch-toolchain
+      - name: release bench and live latency, in the container
+        env:
+          LAIR_ENGINE: docker
+        run: .lair/tools/in-container tools/check-perf
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: perf-evidence
+          path: target/perf
   tier:
     name: tier ${{ needs.plan.outputs.tier || 'unplanned' }}
     if: ${{ !cancelled() }}
@@ -141,6 +171,7 @@ jobs:
       - plan-test
       - linux
       - macos
+      - perf
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4

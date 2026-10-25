@@ -244,3 +244,24 @@ fn test_lunge_breaks_gate_and_rest_keeps_it_open() {
     ticks(mut s, 1)
     assert(s.gate_open && !sim.blocked(s, 0, sim.gate_y(s)), "active lunge opens edge")
 }
+
+fn test_ordinary_motion_cannot_cross_a_foe_body() {
+    var s = arena()
+    s.foes[0].phase = sim.STAGGER
+    s.foes[0].since = 1000
+    var i = 0
+    while i < 40 { sim.step(mut s, keys(controls.KEY_RIGHT)); i += 1 }
+    assert(s.x < s.foes[0].x - sim.FP, "a body is not a passable tile")
+}
+
+fn test_sight_is_occluded_by_closed_thorns() {
+    var s = arena()
+    s.x = 0
+    s.y = (sim.gate_y(s) - 1) * sim.FP
+    s.foes[0].x = 0
+    s.foes[0].y = (sim.gate_y(s) + 1) * sim.FP
+    s.foes[0].heading = 0
+    assert(!sim.can_see(s, s.foes[0]), "closed gate occludes sight")
+    s.gate_open = true
+    assert(sim.can_see(s, s.foes[0]), "open edge admits sight")
+}

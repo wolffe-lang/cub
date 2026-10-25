@@ -1,0 +1,18 @@
+#!/bin/sh
+# Game gates compose the pinned engine's gates; no engine implementation copied.
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+cd "$ROOT"
+. .lair/tools/lib-mem.sh
+require_memory
+mkdir -p target/test-home
+export HOME="$ROOT/target/test-home"
+.lair/tools/check
+.lair/tools/goldens --bin target/native/cub
+python3 -I tools/gameplay.py --bin target/native/cub
+python3 -I tools/gameplay.py --bin target/release/cub
+.lair/tools/perf
+# Read the idle runner's status directly as well: the engine's tee pipeline
+# does not propagate a Python failure on every /bin/sh.
+python3 -I .lair/tools/perf-idle --bin target/release/cub
+echo 'cub check: green'

@@ -1,0 +1,12 @@
+#!/bin/sh
+# Run inside the engine container. Its taskset selects the assigned lane CPUs.
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+cd "$ROOT"
+mkdir -p target/test-home
+export HOME="$ROOT/target/test-home"
+.lair/tools/check-linux
+.lair/tools/goldens --bin target/native/cub
+python3 -I tools/gameplay.py --bin target/native/cub
+python3 -I tools/gameplay.py --bin target/release/cub
+echo 'cub check-linux: green'

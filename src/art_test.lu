@@ -78,3 +78,24 @@ fn test_the_sheet() {
     assert(grid.plain_ok(p), "the plain sheet keeps the promise")
     assert(!grid.plain_ok(r), "the rich sheet uses the rich glyphs")
 }
+
+fn test_every_combat_posture_on_both_tiers_is_valid_and_distinct() {
+    var s = sim.new(7, 80, 24)
+    var action = sim.IDLE
+    var previous = grid.new(24, 80)
+    while action <= sim.FALL {
+        s.action = action
+        var plain = grid.new(24, 80)
+        art.render(s, tier.PLAIN, mut plain)
+        assert(grid.plain_ok(plain), "combat plain tier {action}")
+        var different = false
+        var i = 0
+        while i < plain.cells.len {
+            if !grid.same(plain.cells[i], previous.cells[i]) { different = true }
+            i += 1
+        }
+        assert(different, "action {action} has a distinct glyph")
+        previous = plain
+        action += 1
+    }
+}

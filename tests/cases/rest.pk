@@ -1,0 +1,11 @@
+# frames 45 every 5
+pk 1
+seed 7
+tier rich
+size 80x24
+t 0 scent 160
+t 1 health -30
+t 2 water
+t 33 rest
+t 35 heart
+t 36 wind

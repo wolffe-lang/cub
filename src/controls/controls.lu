@@ -196,5 +196,7 @@ pub fn vocab() -> replay.Vocab {
         (mut names).push(w)
     }
     var args = List[str]()
+    (mut args).push("health")
+    (mut args).push("scent")
     replay.vocab(take names, take args)
 }

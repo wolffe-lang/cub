@@ -15,13 +15,29 @@ the numeric events, the `# score` comment). cub's words in it are its vocabulary
 | Tab | `lock` |
 | `w` | `water` |
 | `r` | `rest` |
-| `q`, Esc | `quit` |
+| `q` | `quit` |
+| Esc | `release` |
+| 1–5 at the den | `heart`, `wind`, `fang`, `paw`, `nose` |
 | Ctrl-C as a byte | `interrupt` |
 
-Every key is recorded from the first build, so a run's file is complete; the scaffold applies the movement
-keys and the quit, and the moves act from cb01 on. No numeric event yet (cb01's `health` and `scent`). A
-pack replay is a parse failure in cub at its first key, as it should be.
+Every key is recorded. Numeric `health N` and `scent N` events are explicit
+test/debug deltas, not enemy actions: negative health is ordinary interruptible
+damage; positive health is clamped to maximum. Health deltas precede scent
+deltas, before the tick. These events are accepted in both replay paths.
 
-`tests/cases/*.pk` are the goldens' scripts (eight: a standstill, a walk north to the water, a turn east, a
-sneak, a long walk south that scrolls the woods, a diagonal, the wide field, a resize), run headless on both
-tiers by `.lair/tools/goldens` and diffed against `tests/goldens/`.
+Seventeen scripts cover movement, each combat move, the fox's two tells,
+trail expiry, resting and growth, death and scent recovery, and the thorn gate.
+Goldens include `final.state`, an integer simulation snapshot, alongside the
+cell text and styles. The native and release backends must agree on both
+visual tiers, and the semantic gate asserts events actually occurred.
+
+A live death writes the complete run through the fall to `~/.cub/ghosts/`.
+`--ghost-dir DIR` overrides that path, and explicitly enables archive writes
+for headless tests. Replaying a file live does not write another archive.
+A zero health event fixes the exact death tick even when no input arrived
+there. The timestamp only makes the filename unique; it is never simulation
+input. `tools/gameplay.py` replays a natural death archive and compares its
+entire cub state at that tick. Ghost display and hostile ghosts follow later.
+
+Archive write failures return exit 2 (the live path restores the terminal
+first). Files are not pruned or overwritten by this build.
