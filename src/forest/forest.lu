@@ -166,12 +166,21 @@ pub fn kind(seed: int, area: int, x: int, y: int) -> int {
         if y < b { return terrain.WATER }
         if (x <= jetty_x(seed, 0) || x >= jetty_x(seed, 1)) &&
             y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS {
-            return terrain.DARK
+            return if world.hash(seed + area * 79, x, y, 100) < 16 {
+                terrain.TRUNK
+            } else {
+                terrain.DARK
+            }
         }
         if y < b + terrain.REED_ROWS { return terrain.REEDS }
         if y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS { return terrain.GRAVEL }
     }
-    if x < 0 - HALF_WIDTH || x > HALF_WIDTH || at < 0 || at > LENGTH { return terrain.DARK }
+    // Beyond the area's bounds the forest keeps its own texture (trunks
+    // among the deep canopy) and stays closed: every cell here blocks.
+    let h = world.hash(seed + area * 79, x, y, 100)
+    if x < 0 - HALF_WIDTH || x > HALF_WIDTH || at < 0 || at > LENGTH {
+        return if h < 16 then terrain.TRUNK else terrain.DARK
+    }
     let c = spine(seed, area, at)
     let w = half(seed, area, at)
     if x >= c - w && x <= c + w { return if area == SHINGLE then terrain.GRAVEL else terrain.GRASS }
@@ -201,7 +210,6 @@ pub fn kind(seed: int, area: int, x: int, y: int) -> int {
         if x >= exit_centre - 2 && x <= exit_centre + 2 { return terrain.GRAVEL }
     }
     let n = terrain.noise2(seed + area * 101, 5, x, y)
-    let h = world.hash(seed + area * 79, x, y, 100)
     if area == LARKMEADOW {
         return if h < 3 then terrain.TRUNK else if h < 15 then terrain.REEDS else terrain.GRASS
     }
