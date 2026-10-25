@@ -10,6 +10,7 @@
 use draw
 use forest
 use grid
+use silhouette
 use sim
 use sprites
 use terrain
@@ -93,26 +94,48 @@ fn dusk_ink(area: int, t: int, k: int, foliage: int) -> int {
     if thicket then 23 else 58
 }
 
-/// Draw the cub at screen `row`, `col` (its top-left cell) facing
-/// `facing` (0 north, 1 east, 2 south, 3 west) with stamina `band`. Rich:
-/// two by two, the ears on the facing side; plain: the mark then `C`.
+/// The cub's fur on a tier for a stamina band: fresh, tired or spent.
+fn fur(t: int, band: int) -> grid.Cell {
+    grid.cell(
+        32,
+        sprites.palette(t, if band == 0 then sprites.C_FUR else sprites.C_FUR_DIM),
+        grid.COLOR_DEFAULT,
+        if t == tier.RICH then 0 else grid.ATTR_BOLD,
+    )
+}
+
+/// The plain tier's cub, the rich footprint in ASCII: four cells by four
+/// north and south (ears, shoulders, body, tail), eight by two east and
+/// west (the head leading, the tail trailing).
+fn plain_cub(facing: int, pose: int) -> List[str] {
+    var rows = List[str]()
+    let low = pose == 2 || pose == 3
+    if facing == 0 {
+        (mut rows).push(if low then ".__." else ".^^.")
+        (mut rows).push("####")
+        (mut rows).push("####")
+        (mut rows).push(".,..")
+    } else if facing == 2 {
+        (mut rows).push("..,.")
+        (mut rows).push("####")
+        (mut rows).push("####")
+        (mut rows).push(if low then ".__." else ".vv.")
+    } else if facing == 1 {
+        (mut rows).push(if low then ".=####_." else ".=####^.")
+        (mut rows).push(",=####>.")
+    } else {
+        (mut rows).push(if low then "._####=." else ".^####=.")
+        (mut rows).push(".<####=,")
+    }
+    rows
+}
+
+/// Draw the cub at its own cell `(row, col)` facing `facing` (0 north, 1
+/// east, 2 south, 3 west) with stamina `band`, in `pose` at `tick`. Rich:
+/// one silhouette turned to the facing (`silhouette.cub`); plain: the
+/// same footprint in ASCII. The ground shows through unlit cells.
 pub fn draw_cub(mut g: grid.Grid, t: int, row: int, col: int, facing: int, band: int) {
-    let body = sprites.glyph(t, sprites.SP_CUB_BODY, 0)
-    let e0 = if t == tier.RICH {
-        sprites.glyph(t, sprites.SP_CUB_EAR, band * 8 + facing * 2)
-    } else {
-        sprites.glyph(t, sprites.SP_CUB_MARK, facing)
-    }
-    let e1 = if t == tier.RICH {
-        sprites.glyph(t, sprites.SP_CUB_EAR, band * 8 + facing * 2 + 1)
-    } else {
-        copy e0
-    }
-    // One body, every heading: ears above the same two body cells.
-    grid.put(mut g, row, col, e0)
-    grid.put(mut g, row, col + 1, e1)
-    grid.put(mut g, row + 1, col, body)
-    grid.put(mut g, row + 1, col + 1, body)
+    draw_pose(mut g, t, row, col, facing, band, if band == 2 then 3 else 0, 0)
 }
 
 /// The whole frame: the ground on every row, then the cub at the centre.
@@ -128,50 +151,51 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
     shore_finds(s, t, mut g)
     shade_exits(s, t, mut g)
     draw_world_marks(s, t, mut g)
-    // The rich cub's two rows sit on the cub's cell and the one above, so
-    // its body is at the centre; the plain cub's mark is left of the centre.
+    // The cub's own cell is the centre; the silhouette hangs about it.
     let (ox, oy) = sim.attack_offset(s)
     let r = sim.screen_row(s) + sim.floor_div(s.y + oy, sim.FP) - sim.cell_y(s)
     let c = sim.screen_col(s) + sim.floor_div(s.x + ox, sim.FP) - sim.cell_x(s)
-    draw_pose(
-        mut g,
-        t,
-        r - 1,
-        c,
-        if s.action == sim.BITE || s.action == sim.LUNGE || s.action == sim.HEAVY {
-            (s.attack_heading + 32) % sim.TURN / 64
-        } else {
-            sim.facing(s)
-        },
-        band(s.stamina, sim.stamina_max(s.wind)),
-        if s.exhausted {
-            3
-        } else if s.sneaking ||
-            s.action == sim.BITE && s.tick - s.started < 3 ||
-            s.action == sim.LUNGE && s.tick - s.started < 9 {
-            2
-        } else if s.speed > 0 {
-            1
-        } else {
-            0
-        },
-        s.tick,
-    )
+    let facing = if s.action == sim.BITE || s.action == sim.LUNGE || s.action == sim.HEAVY {
+        (s.attack_heading + 32) % sim.TURN / 64
+    } else {
+        sim.facing(s)
+    }
+    let pose = if s.exhausted {
+        3
+    } else if s.sneaking ||
+        s.action == sim.BITE && s.tick - s.started < 3 ||
+        s.action == sim.LUNGE && s.tick - s.started < 9 {
+        2
+    } else if s.speed > 0 {
+        1
+    } else {
+        0
+    }
     let shake = sim.head_shake(s)
-    if shake != 0 {
-        draw.put_text(mut g, r - 1, c, "  ", ink(t, false))
-        var ear = sprites.glyph(
-            t,
-            if t == tier.RICH then sprites.SP_CUB_EAR else sprites.SP_CUB_MARK,
-            if t == tier.RICH {
-                (s.attack_heading + 32) % sim.TURN / 64 * 2
-            } else {
-                (s.attack_heading + 32) % sim.TURN / 64
-            },
-        )
-        grid.put(mut g, r - 1, c + shake, ear)
-        ear.cp = if t == tier.RICH then 9624 else 94
-        grid.put(mut g, r - 1, c + shake + 1, ear)
+    if shake != 0 && t == tier.RICH {
+        // The third bite's head shake: the body stays, the head cells move
+        // one cell across the aim (a column north or south, a row east or
+        // west), the same silhouette in two parts.
+        let style = fur(t, band(s.stamina, sim.stamina_max(s.wind)))
+        let body = silhouette.cub(pose, s.tick)
+        silhouette.draw_at(mut g, r, c, silhouette.strip(body, false), facing, style)
+        let dr = if facing % 2 == 0 then 0 else shake
+        let dc = if facing % 2 == 0 then shake else 0
+        silhouette.draw_at(mut g, r + dr, c + dc, silhouette.strip(body, true), facing, style)
+    } else {
+        draw_pose(mut g, t, r, c, facing, band(s.stamina, sim.stamina_max(s.wind)), pose, s.tick)
+        if shake != 0 {
+            // Plain: the ears row shifts across the aim.
+            let dr = if facing == 0 then -1 else if facing == 2 then 2 else shake
+            let dc = if facing % 2 == 0 then shake - 1 else (if facing == 1 then 3 else -2)
+            draw.put_text(
+                mut g,
+                r + dr,
+                c + dc,
+                if facing % 2 == 0 then ".^^." else "^",
+                ink(t, true),
+            )
+        }
     }
     draw_posture(s, t, mut g)
     draw_hud(s, t, mut g)
@@ -182,17 +206,19 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
 }
 
 /// The art study's sheet (`docs/ART.md`): the cub facing each of the four
-/// ways over a strip of the Shingle (water, reeds, gravel, grass, the
-/// woods, the deep forest), on a 24 by 60 grid. Committed as a golden on
-/// both tiers.
+/// ways in each of its four poses over a strip of the Shingle (water,
+/// reeds, gravel, grass, the woods, the deep forest), then every foe in
+/// every phase and fade facing north and the east form of each, on a 56 by
+/// 80 grid. Committed as a golden on both tiers.
 pub fn sheet(t: int) -> grid.Grid {
-    var g = grid.new(40, 80)
+    var g = grid.new(56, 80)
     // Bands of ground, top to bottom.
     var row = 0
-    while row < 40 {
+    while row < 56 {
         var col = 0
         while col < 80 {
             let v = (row * 7 + col * 13) % 4
+            let foliage = 2 * ((row + col) % 2) + (row * 3 + col) % 2
             let cell = if row < 3 {
                 sprites.glyph(
                     t,
@@ -209,30 +235,33 @@ pub fn sheet(t: int) -> grid.Grid {
                 )
             } else if row < 15 {
                 sprites.glyph(t, sprites.SP_GRASS, v)
-            } else if row < 20 {
+            } else if row < 25 {
                 if (row * 5 + col * 11) % 9 == 0 {
                     sprites.glyph(t, sprites.SP_TRUNK, 0)
                 } else {
-                    sprites.glyph(t, sprites.SP_CANOPY, v)
+                    sprites.glyph(t, sprites.SP_CANOPY, foliage)
                 }
+            } else if row < 28 {
+                sprites.glyph(t, sprites.SP_DARK, foliage)
             } else {
-                sprites.glyph(t, sprites.SP_DARK, 0)
+                sprites.glyph(t, sprites.SP_GRAVEL, 0)
             }
             grid.put(mut g, row, col, cell)
             col += 1
         }
         row += 1
     }
+    draw.put_text(mut g, 5, 1, "cub:   N          E          S          W", ink(t, true))
     var pose = 0
     while pose < 4 {
         var f = 0
         while f < 4 {
-            draw_pose(mut g, t, 6 + pose * 4, 14 + f * 9, f, if pose == 3 then 2 else 0, pose, 0)
+            draw_pose(mut g, t, 8 + pose * 5, 10 + f * 11, f, if pose == 3 then 2 else 0, pose, 0)
             f += 1
         }
         draw.put_text(
             mut g,
-            6 + pose * 4,
+            8 + pose * 5,
             1,
             if pose == 0 {
                 "stand"
@@ -243,44 +272,61 @@ pub fn sheet(t: int) -> grid.Grid {
             } else {
                 "pant"
             },
-            sprites.glyph(t, sprites.SP_GRAVEL, 0),
+            ink(t, true),
         )
         pose += 1
     }
-    draw.put_text(
-        mut g,
-        5,
-        13,
-        "N        E        S        W",
-        sprites.glyph(t, sprites.SP_GRAVEL, 0),
-    )
     var kind = 0
-    while kind < 2 {
-        var phase = 0
-        while phase < 10 {
-            draw_foe(
-                mut g,
-                t,
-                27 + kind * 6,
-                5 + phase * 7,
-                kind,
-                if phase < 7 then phase else sim.HUNT,
-                64,
-                if phase < 7 then -1 else (phase - 7) * 5,
-            )
-            phase += 1
-        }
+    while kind < 3 {
+        let species = if kind == 2 then sim.DEER else kind
+        let top = 29 + kind * 9
         draw.put_text(
             mut g,
-            24 + kind * 6,
-            2,
+            top,
+            1,
             if kind == 0 {
-                "weasel: hunt crouch strike flee stagger feint pause fade0 fade5 fade10"
+                "weasel: hunt   crouch strike flee   stagger feint  pause  fade0  fade5  fade10"
+            } else if kind == 1 {
+                "fox:    hunt   crouch strike flee   stagger feint  pause  fade0  fade5  fade10"
             } else {
-                "fox:    hunt crouch strike flee stagger feint pause fade0 fade5 fade10"
+                "deer:   stand  flee                                       fade0  fade5  fade10"
             },
             ink(t, true),
         )
+        var phase = 0
+        while phase < 10 {
+            if kind < 2 || phase < 2 || phase >= 7 {
+                draw_foe(
+                    mut g,
+                    t,
+                    top + 3,
+                    9 + phase * 7,
+                    species,
+                    if phase < 7 {
+                        (if phase == 1 && kind == 2 then sim.RETREAT else phase)
+                    } else {
+                        sim.HUNT
+                    },
+                    0,
+                    if phase < 7 then -1 else (phase - 7) * 5,
+                )
+            }
+            phase += 1
+        }
+        // The east form: the same silhouette turned, hunting and striking.
+        draw.put_text(mut g, top + 6, 1, "east:", ink(t, true))
+        draw_foe(mut g, t, top + 6, 12, species, sim.HUNT, 64, -1)
+        draw_foe(
+            mut g,
+            t,
+            top + 6,
+            24,
+            species,
+            if kind == 2 then sim.RETREAT else sim.STRIKE,
+            64,
+            -1,
+        )
+        draw_foe(mut g, t, top + 6, 36, species, sim.HUNT, 192, -1)
         kind += 1
     }
     g
@@ -495,7 +541,10 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
     let c = sim.screen_col(s) + sim.floor_div(s.x + ox, sim.FP) - sim.cell_x(s)
     let health = band(s.health, sim.health_max(s.heart))
     let tail = if health == 0 then "/" else if health == 1 then "-" else "_"
-    draw.put_text(mut g, r + 1, c - 1, tail, ink(t, health == 0))
+    // The health tail sits below and left of the silhouette, clear of it in
+    // every facing (north and south fill rows r-1..r+2 of columns c-1..c+2;
+    // east and west fill rows r..r+1 from c-3 to c+4).
+    draw.put_text(mut g, r + 3, c - 1, tail, ink(t, health == 0))
     let posture = if s.action == sim.PARRY {
         "]"
     } else if s.action == sim.DODGE {
@@ -509,7 +558,7 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
     } else {
         ""
     }
-    draw.put_text(mut g, r, c + 2, posture, ink(t, true))
+    draw.put_text(mut g, r - 1, c + 5, posture, ink(t, true))
     let burst = sim.burst_age(s)
     if burst >= 0 {
         let (bx, by) = sim.burst_point(s)
@@ -612,7 +661,9 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
 
 fn at_log_hint(s: sim.Sim) -> bool { sim.at_den(s) && !s.den && s.action != sim.FALL }
 
-/// Four posture silhouettes, invariant under heading on either glyph tier.
+/// Four poses of one silhouette, turned to the facing on the rich tier
+/// (`silhouette.cub`), the same footprint in ASCII on the plain. `(row,
+/// col)` is the cub's own cell.
 pub fn draw_pose(
     mut g: grid.Grid,
     t: int,
@@ -623,21 +674,34 @@ pub fn draw_pose(
     pose: int,
     tick: int,
 ) {
-    draw_cub(mut g, t, row, col, facing, band)
-    if pose == 2 {
-        draw.put_text(mut g, row, col, "__", ink(t, false))
+    let style = fur(t, band)
+    if t == tier.RICH {
+        silhouette.draw_at(mut g, row, col, silhouette.cub(pose, tick), facing, style)
+        return
     }
-    if pose == 1 {
-        draw.put_text(mut g, row + 2, col + tick % 2, "'", ink(t, false))
+    let rows = plain_cub(facing, pose)
+    let top = if facing % 2 == 0 then row - 1 else row
+    let left = if facing % 2 == 0 then col - 1 else col - 3
+    var i = 0
+    while i < rows.len {
+        put_over(mut g, top + i, left, rows[i], style)
+        i += 1
     }
-    if pose == 3 {
-        draw.put_text(mut g, row, col, "__", ink(t, false))
-        draw.put_text(mut g, row + 1, col + 2, ":", ink(t, false))
+    if pose == 1 && tick % 2 == 1 && facing % 2 == 0 {
+        // The walk alternates a paw out at the shoulders.
+        put_over(mut g, row, if facing == 0 then col - 2 else col + 3, "'", style)
     }
 }
 
-/// Every foe is a body, head and tail on both tiers, not a letter plus tell.
-/// Crouching flattens the head; fleeing trails the tail away from its head.
+/// The quarter a heading faces: 0 north, 1 east, 2 south, 3 west.
+fn quarter(heading: int) -> int {
+    ((heading + 32) % sim.TURN + sim.TURN) % sim.TURN / 64
+}
+
+/// Every foe is one solid silhouette on the rich tier, turned to its
+/// heading, its tell a posture of the same drawing (`silhouette.foe`); the
+/// plain tier keeps a head, body and tail in ASCII with the same footprint.
+/// `(row, col)` is the foe's own cell.
 pub fn draw_foe(
     mut g: grid.Grid,
     t: int,
@@ -648,55 +712,159 @@ pub fn draw_foe(
     heading: int,
     fade: int,
 ) {
-    if kind == sim.DEER {
-        if fade >= sim.FOE_FADE_TICKS { return }
-        draw.put_text(mut g, row - 1, col, "Y Y", ink(t, fade < 0))
-        draw.put_text(mut g, row, col, if fade < 5 then "dd" else "..", ink(t, fade < 0))
-        draw.put_text(mut g, row + 1, col, "||", ink(t, fade < 0))
+    if fade >= sim.FOE_FADE_TICKS { return }
+    if kind == sim.HAWK { draw_hawk(mut g, t, row, col, phase, fade); return }
+    let colour = if kind == sim.DEER {
+        (if t == tier.RICH then 180 else 11)
+    } else {
+        sprites.palette(t, if kind == sim.FOX then sprites.C_FOX else sprites.C_WEASEL)
+    }
+    let style = grid.cell(32, colour, grid.COLOR_DEFAULT, if fade < 0 then grid.ATTR_BOLD else 0)
+    if t == tier.RICH {
+        silhouette.draw_at(
+            mut g,
+            row,
+            col,
+            silhouette.foe(kind, phase, fade),
+            quarter(heading),
+            style,
+        )
         return
     }
-    if kind == sim.HAWK { draw_hawk(mut g, t, row, col, phase, fade); return }
-    if fade >= sim.FOE_FADE_TICKS { return }
-    let colour = sprites.palette(t, if kind == sim.FOX then sprites.C_FOX else sprites.C_WEASEL)
-    let style = grid.cell(
-        32,
-        colour,
-        sprites.palette(t, sprites.C_GRAVEL),
-        if fade < 0 then grid.ATTR_BOLD else 0,
-    )
+    let rows = plain_foe(kind, phase, fade, quarter(heading))
+    let h = rows.len
+    let w = rows[0].len
+    let top = row - (h - 1) / 2
+    let left = col - (w - 1) / 2
+    var i = 0
+    while i < h {
+        put_over(mut g, top + i, left, rows[i], style)
+        i += 1
+    }
+}
+
+/// The plain tier's foes in ASCII with the rich footprints: the weasel two
+/// cells by three (six by one turned), the fox four by three and the deer
+/// four by four (six by two and eight by two turned). The head leads; a
+/// crouch flattens it to `_`, a stagger lifts `!`, a flight trails `~`, a
+/// feint curls `?`, a strike thrusts `'`; the fade erodes the head at five
+/// ticks and the body at ten.
+fn plain_foe(kind: int, phase: int, fade: int, facing: int) -> List[str] {
+    var rows = List[str]()
     let crouch = phase == sim.CROUCH || phase == sim.FEINT
-    let left = heading >= 128
-    let head_row = row - 1
-    let head = if crouch {
-        "__"
+    let deer = kind == sim.DEER
+    let fox = kind == sim.FOX
+    let weasel = kind == sim.WEASEL
+    let head = if fade >= 5 {
+        (if weasel then ".." else "....")
+    } else if deer {
+        "Y..Y"
+    } else if crouch {
+        (if weasel then "__" else "____")
     } else if phase == sim.STAGGER {
-        "!!"
-    } else if kind == sim.FOX {
-        "/\\"
+        (if weasel then "!!" else "!!!!")
+    } else if fox {
+        "/^^\\"
     } else {
         "oo"
     }
-    draw.put_text(mut g, head_row, col, head, style)
-    if t == tier.RICH && !crouch && phase != sim.STAGGER {
-        var ear = copy style
-        ear.cp = if left then 9624 else 9629
-        grid.put(mut g, head_row, col + (if left then 0 else 1), ear)
-    }
-    draw.put_text(mut g, row, col, if kind == sim.FOX then "##" else "==", style)
-    if phase == sim.STRIKE { draw.put_text(mut g, row - 2, col, "'", style) }
-    let tail = if phase == sim.RETREAT {
-        "~"
-    } else if phase == sim.FEINT {
-        "?"
-    } else if kind == sim.FOX {
-        "/"
+    let body = if fade >= 10 {
+        (if weasel then ". " else " .. ")
+    } else if weasel {
+        "=="
     } else {
-        ","
+        "####"
     }
-    draw.put_text(mut g, row + 1, col + (if left then 1 else 0), tail, style)
-    if fade >= 5 {
-        draw.put_text(mut g, head_row, col, "..", style)
-        if fade >= 10 { draw.put_text(mut g, row, col, ". ", style) }
+    let tail = if phase == sim.RETREAT {
+        (if weasel then "~ " else " ~~ ")
+    } else if phase == sim.FEINT {
+        (if weasel then "? " else " ?? ")
+    } else if deer {
+        ".||."
+    } else if fox {
+        " /\\ "
+    } else {
+        ", "
+    }
+    if facing % 2 == 0 {
+        let north = facing == 0
+        (mut rows).push(if north then head else tail)
+        if deer { (mut rows).push(if north then "(oo)" else "####") }
+        (mut rows).push(if deer then (if north then "####" else "(oo)") else body)
+        (mut rows).push(if north then tail else head)
+        return rows
+    }
+    // East and west: the tail, the body and the head along the rows.
+    let strike = phase == sim.STRIKE && !deer
+    if weasel {
+        let strip = if fade >= 10 {
+            " .    "
+        } else if fade >= 5 {
+            ",==.. "
+        } else if strike {
+            ",==oo'"
+        } else {
+            ",==oo "
+        }
+        (mut rows).push(if facing == 1 then strip else reversed(strip))
+        return rows
+    }
+    let top = if deer {
+        ".=####Y."
+    } else if fade >= 5 {
+        "./###.."
+    } else if strike {
+        "./###^'"
+    } else {
+        "./###^."
+    }
+    let low = if deer {
+        ",=####>."
+    } else if fade >= 10 {
+        ",. .  ."
+    } else if strike {
+        ",=###>'"
+    } else {
+        ",=###>."
+    }
+    (mut rows).push(if facing == 1 then top else reversed(top))
+    (mut rows).push(if facing == 1 then low else reversed(low))
+    rows
+}
+
+/// A string reversed, `<`, `>`, `/` and `\\` mirrored.
+fn reversed(s: str) -> str {
+    var out = ""
+    var i = s.len
+    while i > 0 {
+        i -= 1
+        let c = s[i..i + 1]
+        out += if c == "<" {
+            ">"
+        } else if c == ">" {
+            "<"
+        } else if c == "/" {
+            "\\"
+        } else if c == "\\" {
+            "/"
+        } else {
+            c
+        }
+    }
+    out
+}
+
+/// Text in `style` over the ground, the ground's own background kept.
+fn put_over(mut g: grid.Grid, row: int, col: int, text: str, style: grid.Cell) {
+    var j = 0
+    for b in text.bytes() {
+        if b as int != 32 {
+            var cell = copy style
+            cell.cp = b as int
+            cell.bg = grid.at(g, row, col + j).bg
+            grid.put(mut g, row, col + j, cell)
+        }
+        j += 1
     }
 }
 
@@ -794,16 +962,31 @@ fn world_lines(s: sim.Sim, t: int, mut g: grid.Grid) {
     }
 }
 
-/// Both-tier hawk postures: orbit, stopped wings, straight stoop, recovery,
-/// and the same three-stage death fade used by the other foes.
+/// The hawk's shadow on the ground at its cell: on the rich tier one
+/// silhouette four cells across (`silhouette.hawk`: wings out circling,
+/// spread wide at the stop, folded in the stoop, half open recovering);
+/// the plain tier keeps its ASCII wings, body and shadow mark.
 pub fn draw_hawk(mut g: grid.Grid, t: int, row: int, col: int, phase: int, fade: int) {
     if fade >= sim.FOE_FADE_TICKS { return }
     let style = grid.cell(
         32,
         if t == tier.RICH then 181 else 13,
-        if t == tier.RICH then 235 else 0,
+        grid.COLOR_DEFAULT,
         if fade < 0 then grid.ATTR_BOLD else 0,
     )
+    if t == tier.RICH {
+        let posture = if phase == sim.CROUCH {
+            1
+        } else if phase == sim.STRIKE {
+            2
+        } else if phase == sim.RETREAT {
+            3
+        } else {
+            0
+        }
+        silhouette.draw(mut g, row, col - 1, silhouette.hawk(posture, fade), style)
+        return
+    }
     let wings = if phase == sim.CROUCH {
         "\\_/"
     } else if phase == sim.STRIKE {
@@ -813,26 +996,15 @@ pub fn draw_hawk(mut g: grid.Grid, t: int, row: int, col: int, phase: int, fade:
     } else {
         "-v-"
     }
-    draw.put_text(mut g, row - 3, col - 1, wings, style)
-    draw.put_text(mut g, row - 2, col, if phase == sim.STRIKE then "v" else "o", style)
-    draw.put_text(
+    put_over(mut g, row - 3, col - 1, if fade >= 5 then "..." else wings, style)
+    if fade < 10 { put_over(mut g, row - 2, col, if phase == sim.STRIKE then "v" else "o", style) }
+    put_over(
         mut g,
         row,
         col - 1,
         if phase == sim.CROUCH then "(_)" else if phase == sim.STRIKE then " * " else " . ",
         style,
     )
-    if t == tier.RICH && phase == sim.CROUCH {
-        var wing = copy style
-        wing.cp = 9624
-        grid.put(mut g, row - 3, col - 1, wing)
-        wing.cp = 9629
-        grid.put(mut g, row - 3, col + 1, wing)
-    }
-    if fade >= 0 {
-        draw.put_text(mut g, row - 3, col - 1, if fade < 5 then "..." else "   ", style)
-        if fade >= 10 { draw.put_text(mut g, row - 2, col, " ", style) }
-    }
 }
 
 /// Separate hawk study keeps every posture and fade readable on both tiers.
@@ -888,7 +1060,7 @@ pub fn opening_frame(s: sim.Sim, t: int, mut g: grid.Grid) {
     if frame == 0 {
         var wolf = 0
         while wolf < 4 {
-            draw_cub(mut g, t, s.rows / 2 - 2, mid - 12 + wolf * 5, 1, 0)
+            draw_cub(mut g, t, s.rows / 2 - 2, mid - 18 + wolf * 10, 1, 0)
             wolf += 1
         }
         draw.put_text(mut g, 3, 4, "Late winter. The pack crosses the frozen Ashwater.", style)
@@ -957,22 +1129,24 @@ pub fn draw_log(mut g: grid.Grid, t: int, row: int, col: int, hollow: bool) {
 }
 
 /// Wrapped cache treasure; its opened form leaves only the loose binding.
-/// Inventory identity is the existing finite Shingle cache bits.
+/// Inventory identity is the existing finite Shingle cache bits. Rich: one
+/// solid silhouette five cells by three (`silhouette.bundle`); plain: the
+/// knot, the cord's cross and the binding in ASCII.
 pub fn draw_bundle(mut g: grid.Grid, t: int, row: int, col: int, opened: bool) {
     let cloth = ink(t, !opened)
+    if t == tier.RICH {
+        var style = copy cloth
+        style.bg = grid.COLOR_DEFAULT
+        silhouette.draw(mut g, row, col, silhouette.bundle(opened), style)
+        return
+    }
     if opened {
-        draw.put_text(mut g, row + 1, col, "_x___", cloth)
+        draw.put_text(mut g, row + 2, col, "_x___", cloth)
         return
     }
     draw.put_text(mut g, row, col + 1, "\\|/", cloth)
     draw.put_text(mut g, row + 1, col, "(:X:)", cloth)
     draw.put_text(mut g, row + 2, col + 1, "---", cloth)
-    if t == tier.RICH {
-        var fold = copy cloth
-        fold.cp = 9617
-        grid.put(mut g, row + 1, col + 1, fold)
-        grid.put(mut g, row + 1, col + 3, fold)
-    }
 }
 
 /// Five original shore finds, each five cells wide and two rows tall.
