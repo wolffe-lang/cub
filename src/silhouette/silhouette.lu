@@ -794,6 +794,7 @@ pub fn wolf(pose: int, legs: int) -> Bitmap {
 /// up to the braille patterns' end, U+28FF; a glyph outside it would be a
 /// silhouette bug, so `collect` traps on one.
 const CP_BASE: int = 9472
+
 const CP_SPAN: int = 1024
 
 /// Every code point `b` can produce facing each of the four ways, each
@@ -809,7 +810,10 @@ fn collect(b: Bitmap, mut seen: List[bool], mut cps: List[int]) {
             while cc < cols(t) {
                 let cp = cell_cp(t, cr, cc)
                 if cp != 32 {
-                    assert(cp >= CP_BASE && cp < CP_BASE + CP_SPAN, "a silhouette glyph outside U+2500..U+28FF")
+                    assert(
+                        cp >= CP_BASE && cp < CP_BASE + CP_SPAN,
+                        "a silhouette glyph outside U+2500..U+28FF",
+                    )
                     if !seen[cp - CP_BASE] {
                         seen[cp - CP_BASE] = true
                         (mut cps).push(cp)
