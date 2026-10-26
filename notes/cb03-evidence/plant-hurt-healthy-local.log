@@ -1,0 +1,18 @@
+plant C: src/silhouette/silhouette.lu cub_posed: every band drawn as the healthy frame; host nomad Darwin arm64; 2026-10-26T01:59:42Z
+test exit=1
+test src/glyphs_test.lu::test_glyphs_doc_matches_the_tier ... FAILED (trap(assert))
+test src/posture_test.lu::test_cb03_the_hurt_frames_are_the_one_drawing_changed ... FAILED (trap(assert))
+test src/posture_test.lu::test_cb03_health_changes_the_cub_alone ... FAILED (trap(assert))
+wolf test: 11 passed; 3 failed; 0 rejected; 0 unsupported; 0 filtered out
+build: target/release/cub
+build exit=0
+goldens exit=1
+8
+goldens: death-recovery-rich DIFFERS
+goldens: fox-feint-rich DIFFERS
+goldens: natural-death-rich DIFFERS
+goldens: posture-badly-rich DIFFERS
+goldens: posture-dying-rich DIFFERS
+goldens: posture-hurt-rich DIFFERS
+goldens: rest-rich DIFFERS
+goldens: art DIFFERS

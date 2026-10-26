@@ -1,0 +1,23 @@
+plant A: score/shingle.part bar 2, breath C5/2_ A4/4 (a quarter short); host nomad Darwin arm64; 2026-10-26T01:54:02Z
+build: target/release/cub
+build exit=0
+Traceback (most recent call last):
+  File "/Users/mfwolffe/lanes/cb03/cub/tools/score-check", line 130, in <module>
+    main()
+  File "/Users/mfwolffe/lanes/cb03/cub/tools/score-check", line 94, in main
+    listed = names(binary)
+             ^^^^^^^^^^^^^
+  File "/Users/mfwolffe/lanes/cb03/cub/tools/score-check", line 41, in names
+    p = run(binary, "--score-list")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mfwolffe/lanes/cb03/cub/tools/score-check", line 36, in run
+    raise AssertionError("%s: exit %s (wanted %s): %s" % (args, p.returncode, ok, p.stderr.decode()))
+AssertionError: ('--score-list',): exit 2 (wanted 0): score: shingle: line 16: part 'breath' fills bar 2 short by 20160 units (80640 a whole note)
+
+score-check exit=1
+part title seconds 20 once 0
+score: shingle: line 16: part 'breath' fills bar 2 short by 20160 units (80640 a whole note)
+score-list exit=2
+score: shingle: line 16: part 'breath' fills bar 2 short by 20160 units (80640 a whole note)
+test src/score_test.lu::test_cb03_every_part_parses_at_its_written_length ... FAILED (trap(assert))
+wolf test: 12 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out

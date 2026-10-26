@@ -1,0 +1,11 @@
+== sound-live (macOS, --keep): the game's closing line
+cub: ended by the quit key; 34 ticks, 34 frames, 0 dropped, 35 waits, 0 cells, blocked 0; heading 0 at 0,2; render avg 20 us max 31 us; seed 7 tier plain 80x24; sound on backend macos answers 1 prepared 434772 us starts 1 stops 2 cue title
+
+== mute-key
+cub: ended by the quit key; 61 ticks, 61 frames, 0 dropped, 64 waits, 0 cells, blocked 0; heading 0 at 0,2; render avg 280 us max 827 us; seed 7 tier plain 80x24; sound on backend macos answers 1 prepared 429442 us starts 2 stops 3 cue shingle
+
+== the rows' verdicts
+pty: sound-live ok (darwin arm64, exit 0, 6841 bytes captured; children during the run ['/usr/bin/afplay']; 11 WAVs)
+pty: mute-key ok (darwin arm64, exit 0, 8162 bytes captured)
+pty: sound-live ok (darwin arm64, exit 0, 6841 bytes captured; children during the run ['/usr/bin/afplay']; 11 WAVs)
+pty: mute-key ok (darwin arm64, exit 0, 8162 bytes captured)

@@ -1,0 +1,45 @@
+score-golden title/release ok e5160e772a86490395cc0a358ea0385ed95a518c37ca0a4643790086c42238ec
+score-seam title/release ok last-tick peak 163
+score-golden shingle/release ok 1ff982172c4765e1f8b95a0bfd649f0be7c4ca14940370c3da74797b26b7e677
+score-seam shingle/release ok last-tick peak 86
+score-golden bramblehold/release ok ad2f9d3290b785cdb2c9d70b5973ed3cca2a82b438ee943a5c5f9ccc50053aee
+score-seam bramblehold/release ok last-tick peak 36
+score-golden larkmeadow/release ok 51265355be1a35dae20477038aa478a61c643e0ccfc991e9913fd3a1f3293d3c
+score-seam larkmeadow/release ok last-tick peak 179
+score-golden boss-boar/release ok ee0bda89cd3f0ed5bc096be8476337ab9c76f008521f46a8456f05c823a6b3de
+score-seam boss-boar/release ok last-tick peak 172
+score-golden boss-lynx/release ok d1228efc697f53cb262f5aee3869a112b71fe93ff018c4757e4cdbefc4c15a49
+score-seam boss-lynx/release ok last-tick peak 53
+score-golden boss-elk/release ok 4e078f56aca0c34302a90503747715caa59e4e880da1d004c8f131d8fca1efaf
+score-seam boss-elk/release ok last-tick peak 65
+score-golden boss-alpha/release ok eee00ef583405f37751711630d5ab5ab1460105b7e9c9c57dfadeb9585a204d7
+score-seam boss-alpha/release ok last-tick peak 46
+score-golden den/release ok 6352836cfde6c6f7aafbcb711e67f39b9851e4a563cbfdf90b651cd2591c7d7b
+score-seam den/release ok last-tick peak 100
+score-golden death/release ok 7dd20a74bf69c65d5d698e317886e60a964c8ee26d3fecc03741668e9d6e8846
+score-golden replay/release ok ed2aa4ee79063d4a03c1b47bafff403601c560801d42d8b2cccc85e3a81da638
+score-wav release ok
+score-refusal release ok
+score-golden title/native ok e5160e772a86490395cc0a358ea0385ed95a518c37ca0a4643790086c42238ec
+score-seam title/native ok last-tick peak 163
+score-golden shingle/native ok 1ff982172c4765e1f8b95a0bfd649f0be7c4ca14940370c3da74797b26b7e677
+score-seam shingle/native ok last-tick peak 86
+score-golden bramblehold/native ok ad2f9d3290b785cdb2c9d70b5973ed3cca2a82b438ee943a5c5f9ccc50053aee
+score-seam bramblehold/native ok last-tick peak 36
+score-golden larkmeadow/native ok 51265355be1a35dae20477038aa478a61c643e0ccfc991e9913fd3a1f3293d3c
+score-seam larkmeadow/native ok last-tick peak 179
+score-golden boss-boar/native ok ee0bda89cd3f0ed5bc096be8476337ab9c76f008521f46a8456f05c823a6b3de
+score-seam boss-boar/native ok last-tick peak 172
+score-golden boss-lynx/native ok d1228efc697f53cb262f5aee3869a112b71fe93ff018c4757e4cdbefc4c15a49
+score-seam boss-lynx/native ok last-tick peak 53
+score-golden boss-elk/native ok 4e078f56aca0c34302a90503747715caa59e4e880da1d004c8f131d8fca1efaf
+score-seam boss-elk/native ok last-tick peak 65
+score-golden boss-alpha/native ok eee00ef583405f37751711630d5ab5ab1460105b7e9c9c57dfadeb9585a204d7
+score-seam boss-alpha/native ok last-tick peak 46
+score-golden den/native ok 6352836cfde6c6f7aafbcb711e67f39b9851e4a563cbfdf90b651cd2591c7d7b
+score-seam den/native ok last-tick peak 100
+score-golden death/native ok 7dd20a74bf69c65d5d698e317886e60a964c8ee26d3fecc03741668e9d6e8846
+score-golden replay/native ok ed2aa4ee79063d4a03c1b47bafff403601c560801d42d8b2cccc85e3a81da638
+score-wav native ok
+score-refusal native ok
+score-check: green
