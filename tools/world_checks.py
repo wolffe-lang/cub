@@ -71,6 +71,28 @@ def check(binary):
         result = run(name, path, want=2)
         assert diagnostic in result.stderr and path.read_bytes() == data, 'invalid save silently reset'
 
+    # File-level schema4 migration uses an independently recomputed old checksum.
+    legacy = out / 'schema-4.save'
+    payload = before.decode().split('check ')[0]
+    payload = re.sub(r'^slain .*\n', '', payload, flags=re.M).replace('CUB 5\n', 'CUB 4\n', 1)
+    h = 7
+    for byte in payload.encode():
+        h = (h * 31 + byte) % 1000000007
+    legacy.write_text(payload + 'check ' + str(h) + '\n')
+    run('migrate-schema-4', legacy)
+    assert legacy.read_bytes().startswith(b'CUB 5\n') and b'slain 0 0 0 0 0 0\n' in legacy.read_bytes(), 'schema4 migration lost validation/state'
+
+    memory = out / 'slain.save'
+    memory.unlink(missing_ok=True)
+    count = int(re.search(r'# frames (\d+)', (ROOT / 'tests/cases/den-memory.pk').read_text())[1])
+    run('write-slain', memory, count, 'den-memory')
+    masks = re.search(rb'^slain (.*)$', memory.read_bytes(), re.M)[1]
+    assert int(masks.split()[0]) > 0, 'save never carried Shingle kills'
+    run('resume-slain', memory)
+    assert re.search(rb'^slain (.*)$', memory.read_bytes(), re.M)[1] == masks, 'resume revived slain foes'
+    foe_lines = (out / 'resume-slain/final.state').read_text().splitlines()[1:]
+    assert any('health 0 ' in row for row in foe_lines), 'restored mask not applied to encounter'
+
     fallen = out / 'fallen.save'
     fallen.unlink(missing_ok=True)
     death_tick = int(re.search(r'^t (\d+) health -1000$', (ROOT / 'tests/cases/world-return.pk').read_text(), re.M)[1]) + 1
