@@ -1,0 +1,171 @@
+//! Movement census: the same instrument before and after cb04b's tuning.
+//! Each terrain row samples actual generated cells. A steady-state one-tick
+//! probe resets position, not its integrator, to separate gait from walls,
+//! turning and acceleration. The 14-tick trials below are continuous travel.
+
+use art
+use controls
+use forest
+use input
+use sim
+use terrain
+
+/// Keys pointing to one of the eight compass headings.
+pub fn arrows(h: int, sneak: bool) -> List[int] {
+    var keys = List[int]()
+    let offset = if sneak then 4 else 0
+    if h == 0 || h == 32 || h == 224 { (mut keys).push(controls.KEY_UP + offset) }
+    if h == 96 || h == 128 || h == 160 { (mut keys).push(controls.KEY_DOWN + offset) }
+    if h == 160 || h == 192 || h == 224 { (mut keys).push(controls.KEY_LEFT + offset) }
+    if h == 32 || h == 64 || h == 96 { (mut keys).push(controls.KEY_RIGHT + offset) }
+    keys
+}
+
+fn alone(seed: int, field: int, area: int, x: int, y: int, h: int) -> sim.Sim {
+    var s = sim.new(seed, field, 24)
+    (mut s.foes).reset()
+    s.area = area
+    s.x = x * sim.FP + sim.FP / 2
+    s.y = y * sim.FP + sim.FP / 2
+    s.heading = h
+    s.heading_target = h
+    s.body_facing = sim.quarter(h)
+    // Isolate movement from portals/pickups; their independent gates remain.
+    s.edge_ready = false
+    s.gate_open = true
+    s.flask_max = 3
+    s.tick = 100
+    s
+}
+
+fn sprint_keys(mut s: sim.Sim, mut keys: List[int]) {
+    // Baseline binding. Changed alongside the binding, not the measurement.
+    input.hold_press(mut s.sprint_hold, s.tick - 1)
+    input.hold_press(mut s.sprint_hold, s.tick)
+    (mut keys).push(controls.KEY_DODGE)
+}
+
+/// One unobstructed steady-state tick, with a genuine terrain sample.
+pub fn sample(seed: int, field: int, area: int, x: int, y: int, h: int, gait: int) -> (
+    int,
+    int,
+    int,
+) {
+    var s = alone(seed, field, area, x, y, h)
+    var keys = arrows(h, gait == 1)
+    if gait == 2 { sprint_keys(mut s, mut keys) }
+    let cap = if gait == 1 {
+        sim.trot_at(1) / 2
+    } else if gait == 2 {
+        sim.sprint_at(1)
+    } else {
+        sim.trot_at(1)
+    }
+    s.speed = if sim.in_shallows(s, s.x, s.y) && gait != 1 then cap / 2 else cap
+    let ox = s.x
+    let oy = s.y
+    sim.step(mut s, keys)
+    (s.x - ox, s.y - oy, s.blocked)
+}
+
+fn terrain_rows(seed: int, field: int, area: int, t: int) -> int {
+    var seen = List[bool]()
+    var n = 0
+    while n <= terrain.SHALLOWS { (mut seen).push(false); n += 1 }
+    var count = 0
+    let origin = forest.origin(seed, area)
+    let bound = forest.bound(field, area)
+    var y = origin + 16
+    while y < origin + forest.LENGTH - 16 {
+        var x = 0 - bound
+        while x <= bound {
+            let kind = forest.kind(seed, field, area, x, y)
+            if !seen[kind] && !forest.blocked(seed, field, area, x, y) {
+                // Every adjacent destination is open: collision is not a pace.
+                var clear = true
+                var dy = -1
+                while dy <= 1 {
+                    var dx = -1
+                    while dx <= 1 {
+                        if forest.blocked(seed, field, area, x + dx, y + dy) { clear = false }
+                        dx += 1
+                    }
+                    dy += 1
+                }
+                if clear {
+                    seen[kind] = true
+                    let cell = art.ground_at(seed, field, area, t, x, y)
+                    var h = 0
+                    while h < sim.TURN {
+                        var gait = 0
+                        while gait < 3 {
+                            let (dx, dy, blocked) = sample(seed, field, area, x, y, h, gait)
+                            print(
+                                "pace seed={seed} field={field} area={area} tier={t} terrain={kind} heading={h} gait={gait} dx={dx} dy={dy} blocked={blocked} glyph={cell.cp}",
+                            )
+                            if blocked != 0 { return -1 }
+                            count += 1
+                            gait += 1
+                        }
+                        h += 32
+                    }
+                }
+            }
+            x += 1
+        }
+        y += 1
+    }
+    count
+}
+
+fn travel(paw: int, gait: int) {
+    // The Shingle's open coast, east from its middle; no foe or portal.
+    let seed = 1
+    let x = 0
+    let y = terrain.bank(seed, x) + terrain.REED_ROWS + 2
+    var s = alone(seed, 200, forest.SHINGLE, x, y, 64)
+    s.paw = paw
+    s.speed = if gait == 2 then sim.sprint_at(paw) else sim.trot_at(paw)
+    let ox = s.x
+    let oy = s.y
+    var n = 0
+    while n < 14 {
+        var keys = arrows(64, false)
+        if gait == 2 { sprint_keys(mut s, mut keys) }
+        if gait == 3 && n == 0 { (mut keys).push(controls.KEY_DODGE) }
+        sim.step(mut s, keys)
+        n += 1
+    }
+    print(
+        "travel paw={paw} gait={gait} ticks=14 dx={s.x - ox} dy={s.y - oy} blocked={s.blocked} health={s.health} stamina={s.stamina}",
+    )
+}
+
+/// Fifty seeds, both field sizes and display tiers, every present walkable
+/// terrain class and eight headings. Gaits 0 walk /1 sneak /2 sprint /3 roll.
+pub fn census() -> int {
+    print(
+        "motion-census dial={sim.WALK_PERCENT} FP={sim.FP} hz=30; steady one-tick probes, continuous fourteen-tick travel",
+    )
+    var total = 0
+    var seed = 0
+    while seed < 50 {
+        for field in [80, 200] {
+            var area = 0
+            while area < forest.AREAS {
+                for t in [0, 1] {
+                    region row {
+                        let n = terrain_rows(seed, field, area, t)
+                        if n < 0 { eprint("motion-census: blocked steady probe"); return 1 }
+                        total += n
+                    }
+                }
+                area += 1
+            }
+        }
+        seed += 1
+    }
+    for paw in [1, 10] { for gait in [0, 2, 3] { travel(paw, gait) } }
+    print("motion-census rows={total}")
+    if total == 0 then 1 else 0
+}
