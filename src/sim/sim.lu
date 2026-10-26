@@ -1163,10 +1163,34 @@ fn foes_step(mut s: Sim) {
             continue
         }
         if f.kind == DEER {
-            if near(f.x, f.y, s.x, s.y, 7 * FP) {
+            if f.phase == STAGGER {
+                s.foes[i].speed = 0
+                turn_foe(mut s, i, heading_to(f.x, f.y, s.x, s.y))
+                if s.tick - f.since >= STAGGER_TICKS {
+                    s.foes[i].phase = HUNT
+                    s.foes[i].stamina = 60
+                }
+            } else if near(f.x, f.y, s.x, s.y, 7 * FP) {
+                s.foes[i].phase = RETREAT
                 s.foes[i].target_x = s.x
                 s.foes[i].target_y = s.y
-                move_foe(mut s, i, true)
+                if f.stamina >= 2 {
+                    move_foe(mut s, i, true)
+                    s.foes[i].stamina -= 2
+                } else {
+                    s.foes[i].phase = STAGGER
+                    s.foes[i].since = s.tick
+                    s.foes[i].speed = 0
+                }
+            } else {
+                s.foes[i].speed = 0
+                // Quiet deer gather at the local old kill; no extra currency.
+                let (ax, ay, kind) = meadow.anchor(s.seed, floor_div(f.x, FP), floor_div(f.y, FP))
+                if kind == 3 {
+                    s.foes[i].target_x = ax * FP
+                    s.foes[i].target_y = ay * FP
+                    move_foe(mut s, i, false)
+                }
             }
             i += 1
             continue
@@ -1227,7 +1251,12 @@ fn foes_step(mut s: Sim) {
             s.foes[i].since = s.tick
         } else if f.phase == RETREAT {
             move_foe(mut s, i, true)
-            if age >= 24 { s.foes[i].phase = HUNT }
+            if s.area == forest.LARKMEADOW && s.foes[i].stamina > 0 { s.foes[i].stamina -= 1 }
+            if age >= 24 {
+                s.foes[i].phase = if s.area == forest.LARKMEADOW then STAGGER else HUNT
+                s.foes[i].since = s.tick
+                s.foes[i].speed = 0
+            }
         } else if f.phase == STAGGER && age >= STAGGER_TICKS {
             s.foes[i].phase = if f.kind == WEASEL then RETREAT else HUNT
             s.foes[i].since = s.tick

@@ -592,3 +592,14 @@ product census counts only turns of at least 90 degrees. Six open rooms,
 view, cache branch, post-cluster den, briar den, and foe cluster. Their
 centres sit three cells off the path and their floor keeps the area's
 textured path palette. The log shortcut and cache branches remain open.
+
+## Meadow tells and pursuit (cb03a, proposed)
+
+The boomerang-like form is consistent with the hawk's one-row diamond
+shadow moving around its orbit; it was not a projectile. The tell now
+keeps beak, connected wings, body and tail on both tiers. Deer had an
+unbounded flee whenever the cub came within seven cells. They now spend
+two of their sixty stamina per fleeing tick, then stop and turn for thirty
+ticks; a caught deer cannot counterattack. Meadow ground hunters end
+their existing 24-tick retreat with the same thirty-tick free-hit pause.
+Their retreat cap remains 86 FP/tick, below the proposed sprint120.

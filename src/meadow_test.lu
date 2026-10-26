@@ -4,6 +4,7 @@ use forest
 use art
 use grid
 use tier
+use sim
 
 fn test_cb03a_landmark_rules_and_original_atlas() {
     var counts = List[int]()
@@ -40,4 +41,23 @@ fn test_cb03a_creek_never_closes_the_route_ford() {
         }
         seed += 1
     }
+}
+
+fn test_cb03a_deer_flee_is_bounded_and_the_turn_is_a_free_hit() {
+    var s = sim.new(1, 80, 24)
+    var i = 0
+    while i < s.foes.len { s.foes[i].health = 0; i += 1 }
+    s.foes[0].health = 8
+    s.foes[0].kind = sim.DEER
+    s.foes[0].stamina = 2
+    s.foes[0].x = s.x + 6 * sim.FP
+    s.foes[0].y = s.y
+    var keys = List[int]()
+    sim.step(mut s, keys)
+    sim.step(mut s, keys)
+    assert(s.foes[0].phase == sim.STAGGER && s.foes[0].speed == 0, "spent flee stops and turns")
+    let health = s.health
+    var ticks = 0
+    while ticks < 12 { sim.step(mut s, keys); ticks += 1 }
+    assert(s.health == health && s.foes[0].phase == sim.STAGGER, "a free hit, not a retreat attack")
 }
