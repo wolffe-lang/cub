@@ -15,6 +15,7 @@ use glow
 use meadow
 use props
 use restscene
+use motionart
 use silhouette
 use sim
 use sprites
@@ -387,8 +388,8 @@ pub fn render_with(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid) {
     draw_world_marks(s, t, mut g)
     // The cub's own cell is the centre; the silhouette hangs about it.
     let (ox, oy) = sim.attack_offset(s)
-    let r = sim.screen_row(s) + sim.floor_div(s.y + oy, sim.FP) - sim.cell_y(s)
-    let c = sim.screen_col(s) + sim.floor_div(s.x + ox, sim.FP) - sim.cell_x(s)
+    let r = sim.screen_row(s) + sim.floor_div(s.y + oy, sim.FP) - sim.camera_y(s)
+    let c = sim.screen_col(s) + sim.floor_div(s.x + ox, sim.FP) - sim.camera_x(s)
     // The body's facing (cb02c): the aim's during an attack, the heading's
     // quarter otherwise, held while a swing has no room for it.
     let facing = s.body_facing
@@ -412,7 +413,24 @@ pub fn render_with(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid) {
         return
     }
     let shake = sim.head_shake(s)
-    if shake != 0 && t == tier.RICH {
+    if s.action == sim.DODGE && s.tick - s.started < sim.ROLL_TRAVEL {
+        let frame = s.tick - s.started
+        if t == tier.RICH {
+            silhouette.draw_at(
+                mut g,
+                r,
+                c,
+                motionart.roll(frame),
+                sim.quarter(s.attack_heading),
+                fur(t, 0),
+            )
+        } else {
+            let forms = ["(v=)", "(>.)", "(=^)", "(.<)", "(v~)", "(>o)", "(~^)", "(o<)"]
+            draw.put_text(mut g, r, c - 1, forms[frame], fur(t, 0))
+        }
+    } else if s.action == sim.BITE {
+        draw_combo(s, t, mut g)
+    } else if shake != 0 && t == tier.RICH {
         // The third bite's head shake: the body stays, the head cells move
         // one cell across the aim (a column north or south, a row east or
         // west), the same silhouette in two parts.
@@ -658,8 +676,8 @@ fn ink(t: int, bright: bool) -> grid.Cell {
 fn at_world(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, text: str, bright: bool) {
     draw.put_text(
         mut g,
-        y - sim.cell_y(s) + sim.screen_row(s),
-        x - sim.cell_x(s) + sim.screen_col(s),
+        y - sim.camera_y(s) + sim.screen_row(s),
+        x - sim.camera_x(s) + sim.screen_col(s),
         text,
         ink(t, bright),
     )
@@ -671,8 +689,8 @@ fn world_orb(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int) {
     glow.orb(
         mut g,
         t,
-        cy - sim.cell_y(s) + sim.screen_row(s),
-        cx - sim.cell_x(s) + sim.screen_col(s),
+        cy - sim.camera_y(s) + sim.screen_row(s),
+        cx - sim.camera_x(s) + sim.screen_col(s),
         s.seed,
         cx,
         cy,
@@ -684,8 +702,8 @@ fn world_prop(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, kind: int, o
     props.draw_at(
         mut g,
         t,
-        y - sim.cell_y(s) + sim.screen_row(s),
-        x - sim.cell_x(s) + sim.screen_col(s),
+        y - sim.camera_y(s) + sim.screen_row(s),
+        x - sim.camera_x(s) + sim.screen_col(s),
         kind,
         opened,
         s.tick,
@@ -697,8 +715,8 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
         draw_meat(
             mut g,
             t,
-            sim.floor_div(meat.y, sim.FP) - sim.cell_y(s) + sim.screen_row(s),
-            sim.floor_div(meat.x, sim.FP) - sim.cell_x(s) + sim.screen_col(s),
+            sim.floor_div(meat.y, sim.FP) - sim.camera_y(s) + sim.screen_row(s),
+            sim.floor_div(meat.x, sim.FP) - sim.camera_x(s) + sim.screen_col(s),
             s.tick,
         )
     }
@@ -709,8 +727,8 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
             draw_spring(
                 mut g,
                 t,
-                sim.floor_div(y, sim.FP) - sim.cell_y(s) + sim.screen_row(s),
-                sim.floor_div(x, sim.FP) - sim.cell_x(s) + sim.screen_col(s),
+                sim.floor_div(y, sim.FP) - sim.camera_y(s) + sim.screen_row(s),
+                sim.floor_div(x, sim.FP) - sim.camera_x(s) + sim.screen_col(s),
                 s.tick,
                 sim.spring_available(s, spring),
             )
@@ -728,8 +746,8 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
             draw_bundle(
                 mut g,
                 t,
-                sim.floor_div(y, sim.FP) - sim.cell_y(s) + sim.screen_row(s) - 1,
-                sim.floor_div(x, sim.FP) - sim.cell_x(s) + sim.screen_col(s) - 2,
+                sim.floor_div(y, sim.FP) - sim.camera_y(s) + sim.screen_row(s) - 1,
+                sim.floor_div(x, sim.FP) - sim.camera_x(s) + sim.screen_col(s) - 2,
                 sim.cache_open(s, cache),
             )
             if !sim.cache_open(s, cache) {
@@ -787,15 +805,6 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
         if forest.den_area(den) == s.area {
             let (dx, dy) = forest.den_position(s.seed, den)
             draw_den(s, t, mut g, dx, dy)
-            if sim.near(s.x, s.y, dx, dy, 10 * sim.FP) && !s.den {
-                draw.put_text(
-                    mut g,
-                    2,
-                    24,
-                    forest.name(s.area) + " - a den ahead; scent of home",
-                    ink(t, true),
-                )
-            }
         }
         den += 1
     }
@@ -825,8 +834,8 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
                 draw_log(
                     mut g,
                     t,
-                    sim.floor_div(y, sim.FP) - sim.cell_y(s) + sim.screen_row(s) - 1,
-                    sim.floor_div(x, sim.FP) - sim.cell_x(s) + sim.screen_col(s) - 4,
+                    sim.floor_div(y, sim.FP) - sim.camera_y(s) + sim.screen_row(s) - 1,
+                    sim.floor_div(x, sim.FP) - sim.camera_x(s) + sim.screen_col(s) - 4,
                     false,
                 )
             } else {
@@ -858,8 +867,8 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
         glow.burst(
             mut g,
             t,
-            sim.floor_div(s.pickup_y, sim.FP) - sim.cell_y(s) + sim.screen_row(s),
-            sim.floor_div(s.pickup_x, sim.FP) - sim.cell_x(s) + sim.screen_col(s),
+            sim.floor_div(s.pickup_y, sim.FP) - sim.camera_y(s) + sim.screen_row(s),
+            sim.floor_div(s.pickup_x, sim.FP) - sim.camera_x(s) + sim.screen_col(s),
             s.tick - s.pickup_at,
         )
     }
@@ -881,8 +890,8 @@ pub fn draw_foes(s: sim.Sim, t: int, mut g: grid.Grid) {
         let gone = if sim.is_boss(f.kind) then sim.BOSS_FADE_TICKS else sim.FOE_FADE_TICKS
         // Perception controls AI, never presentation. Drawing clips each cell.
         if fade < gone {
-            let r = sim.floor_div(f.y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
-            let c = sim.floor_div(f.x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
+            let r = sim.floor_div(f.y, sim.FP) - sim.camera_y(s) + sim.screen_row(s)
+            let c = sim.floor_div(f.x, sim.FP) - sim.camera_x(s) + sim.screen_col(s)
             draw_foe(mut g, t, r, c, f.kind, f.phase, f.heading, fade)
             if s.locked == i { draw.put_text(mut g, r + 2, c, "[]", ink(t, true)) }
         }
@@ -892,14 +901,14 @@ pub fn draw_foes(s: sim.Sim, t: int, mut g: grid.Grid) {
 
 fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
     let (ox, oy) = sim.attack_offset(s)
-    let r = sim.screen_row(s) + sim.floor_div(s.y + oy, sim.FP) - sim.cell_y(s)
-    let c = sim.screen_col(s) + sim.floor_div(s.x + ox, sim.FP) - sim.cell_x(s)
+    let r = sim.screen_row(s) + sim.floor_div(s.y + oy, sim.FP) - sim.camera_y(s)
+    let c = sim.screen_col(s) + sim.floor_div(s.x + ox, sim.FP) - sim.camera_x(s)
     // Health is the cub's gait, ears and tail (cb03, posture as HUD:
     // `silhouette.cub_posed`); cb01's health tail mark left with the bars.
     let posture = if s.action == sim.PARRY {
         "]"
     } else if s.action == sim.DODGE {
-        "o"
+        ""
     } else if s.action == sim.DRINK {
         "~"
     } else if s.action == sim.FALL {
@@ -1209,73 +1218,83 @@ fn put_over(mut g: grid.Grid, row: int, col: int, text: str, style: grid.Cell) {
 /// Compact text description; the rendered bars retain labels as a non-colour channel.
 pub fn hud_text(s: sim.Sim) -> str { "health stamina scent {s.scent}" }
 
+/// Ten stat points per cell, rounded up; a thirty-cell cap fits80 columns.
+pub fn bar_cells(maximum: int) -> int {
+    let cells = (maximum + 9) / 10
+    if cells > 30 then 30 else cells
+}
+
 fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
     let rich = t == tier.RICH
     let outline = if rich then 250 else 7
     let background = if rich then 235 else 0
-    // The HUD owns its rectangle and one cell of right padding. Previously
-    // only strokes were painted: world lettering could show through beside
-    // the stamina bar (the c in "bones, no scent" at camera 22,27).
-    draw.fill(mut g, 0, 0, 5, 23, grid.cell(32, outline, background, 0))
-    // The progression HUD owns water charges at row 3, columns 24..48.
-    draw.fill(mut g, 3, 23, 1, 26, grid.cell(32, outline, background, 0))
-    if rich {
-        var row = 0
-        while row <= 4 {
-            var col = 8
-            while col <= 21 {
-                let cp = if row % 2 == 1 then 9474 else if col == 8 {
-                    if row == 0 then 9484 else if row == 2 then 9500 else 9492
-                } else if col == 21 {
-                    if row == 0 then 9488 else if row == 2 then 9508 else 9496
-                } else {
-                    9472
-                }
-                if row % 2 == 0 || col == 8 || col == 21 {
-                    grid.put(mut g, row, col, grid.cell(cp, outline, background, 0))
-                }
-                col += 1
-            }
-            row += 1
-        }
-    }
+    let neutral = grid.cell(32, outline, background, 0)
+    draw.fill(mut g, 0, 0, 7, 40, neutral)
+    draw.fill(mut g, 5, 0, 2, s.cols, neutral)
     var bar = 0
     while bar < 2 {
-        let row = if rich then 1 + bar * 2 else bar
+        let row = 1 + 2 * bar
         let value = if bar == 0 then s.health else s.stamina
         let maximum = if bar == 0 then sim.health_max(s.heart) else sim.stamina_max(s.wind)
+        let width = bar_cells(maximum)
         let colour = if rich then (if bar == 0 then 203 else 84) else (if bar == 0 then 12 else 10)
-        draw.put_text(
+        draw.put_text(mut g, row, 1, if bar == 0 then "health" else "stamina", neutral)
+        var i = -1
+        while i <= width {
+            grid.put(
+                mut g,
+                row - 1,
+                9 + i,
+                grid.cell(if rich then 9472 else 45, outline, background, 0),
+            )
+            grid.put(
+                mut g,
+                row + 1,
+                9 + i,
+                grid.cell(if rich then 9472 else 45, outline, background, 0),
+            )
+            i += 1
+        }
+        grid.put(mut g, row, 8, grid.cell(if rich then 9474 else 91, outline, background, 0))
+        grid.put(
             mut g,
             row,
-            1,
-            if bar == 0 then "health" else "stamina",
-            grid.cell(32, outline, background, 0),
+            9 + width,
+            grid.cell(if rich then 9474 else 93, outline, background, 0),
         )
-        if !rich {
-            grid.put(mut g, row, 8, grid.cell(91, outline, background, 0))
-            grid.put(mut g, row, 21, grid.cell(93, outline, background, 0))
-        }
-        var i = 0
-        while i < 12 {
-            let filled = value > 0 && value * 12 > i * maximum
+        i = 0
+        while i < width {
+            let filled = value > 0 && value * width > i * maximum
+            let grey = bar == 0 && !filled && (value + sim.rally_available(s)) * width > i * maximum
+            let cp = if filled {
+                (if rich then 9608 else 61)
+            } else if grey {
+                (if rich then 9617 else 46)
+            } else {
+                32
+            }
             grid.put(
                 mut g,
                 row,
                 9 + i,
-                grid.cell(
-                    if filled then (if rich then 9608 else 61) else 32,
-                    colour,
-                    background,
-                    0,
-                ),
+                grid.cell(cp, if grey then (if rich then 249 else 7) else colour, background, 0),
             )
             i += 1
         }
         bar += 1
     }
-    draw.put_text(mut g, 1, 24, "scent {s.scent}", ink(t, true))
+    draw.put_text(
+        mut g,
+        5,
+        1,
+        "HP {s.health}/{sim.health_max(s.heart)}  stamina {s.stamina}/{sim.stamina_max(s.wind)}  scent {s.scent}  rally {sim.rally_available(s)}",
+        neutral,
+    )
     draw_water(s, t, mut g)
+}
+
+fn signed_cell(n: int) -> int {
+    if n < 0 then 0 - (0 - n + sim.FP - 1) / sim.FP else (n + sim.FP - 1) / sim.FP
 }
 
 /// Hazard-only thorn pair, disjoint from wall and label glyph/colour pairs.
@@ -1303,8 +1322,26 @@ pub fn exit_shadow(t: int) -> grid.Cell {
 }
 
 fn world_lines(s: sim.Sim, t: int, mut g: grid.Grid) {
+    if !s.den && s.action != sim.FALL {
+        var den = 0
+        while den < forest.DEN_LIMIT {
+            if forest.den_area(den) == s.area {
+                let (x, y) = forest.den_position(s.seed, den)
+                if sim.near(s.x, s.y, x, y, 10 * sim.FP) {
+                    draw.put_text(
+                        mut g,
+                        7,
+                        1,
+                        forest.name(s.area) + " - a den ahead; scent of home",
+                        ink(t, true),
+                    )
+                }
+            }
+            den += 1
+        }
+    }
     if s.tick - s.entered < sim.ENTRY_TICKS {
-        draw.put_text(mut g, 0, 24, forest.name(s.area), ink(t, true))
+        draw.put_text(mut g, 0, 43, forest.name(s.area), ink(t, true))
     }
     if s.den || s.action == sim.FALL { return }
     if s.area == forest.BRAMBLEHOLD && sim.near(s.x, s.y, -10 * sim.FP, 24 * sim.FP, 3 * sim.FP) {
@@ -1492,8 +1529,8 @@ fn shade_exits(s: sim.Sim, t: int, mut g: grid.Grid) {
     while edge < forest.EDGES {
         if forest.other(s.area, edge) >= 0 {
             let (x, y) = forest.portal(s.seed, s.area, edge)
-            let row = sim.floor_div(y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
-            let col = sim.floor_div(x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
+            let row = sim.floor_div(y, sim.FP) - sim.camera_y(s) + sim.screen_row(s)
+            let col = sim.floor_div(x, sim.FP) - sim.camera_x(s) + sim.screen_col(s)
             var dy = -1
             while dy <= 1 {
                 var dx = -3
@@ -1627,8 +1664,8 @@ fn shore_finds(s: sim.Sim, t: int, mut g: grid.Grid) {
             draw_flotsam(
                 mut g,
                 t,
-                y - sim.cell_y(s) + sim.screen_row(s),
-                x - sim.cell_x(s) + sim.screen_col(s),
+                y - sim.camera_y(s) + sim.screen_row(s),
+                x - sim.camera_x(s) + sim.screen_col(s),
                 (slot + terrain.variant(s.seed, 211, 0, 5)) % 5,
             )
         }
@@ -1985,8 +2022,8 @@ fn draw_ghosts(s: sim.Sim, set: ghost.Set, t: int, mut g: grid.Grid) {
         let gh = copy set.ghosts[rank]
         if gh.area == s.area {
             let style = ghost_style(t, rank)
-            let r = sim.floor_div(gh.y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
-            let c = sim.floor_div(gh.x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
+            let r = sim.floor_div(gh.y, sim.FP) - sim.camera_y(s) + sim.screen_row(s)
+            let c = sim.floor_div(gh.x, sim.FP) - sim.camera_x(s) + sim.screen_col(s)
             if t == tier.RICH {
                 silhouette.draw_at(mut g, r, c, silhouette.cub(0, 0, 0), gh.facing, style)
             } else {
@@ -1996,8 +2033,8 @@ fn draw_ghosts(s: sim.Sim, set: ghost.Set, t: int, mut g: grid.Grid) {
                 let i = ghost.playing(gh, s.tick)
                 if i >= 0 {
                     let f = copy gh.frames[i]
-                    let fr = sim.floor_div(f.y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
-                    let fc = sim.floor_div(f.x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
+                    let fr = sim.floor_div(f.y, sim.FP) - sim.camera_y(s) + sim.screen_row(s)
+                    let fc = sim.floor_div(f.x, sim.FP) - sim.camera_x(s) + sim.screen_col(s)
                     draw_pose_in(
                         mut g,
                         t,
@@ -2313,8 +2350,8 @@ pub fn wolf_sheet(t: int) -> grid.Grid {
 
 /// A warm hollow, its ember and a breathing smoke wisp; never a label alone.
 pub fn draw_den(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int) {
-    let row = sim.floor_div(y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
-    let col = sim.floor_div(x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
+    let row = sim.floor_div(y, sim.FP) - sim.camera_y(s) + sim.screen_row(s)
+    let col = sim.floor_div(x, sim.FP) - sim.camera_x(s) + sim.screen_col(s)
     let warm = if t == tier.RICH then 94 else 3
     let ember = if t == tier.RICH then 208 else 9
     var dy = -1
@@ -2480,8 +2517,8 @@ pub fn draw_water(s: sim.Sim, t: int, mut g: grid.Grid) {
     }
     draw.put_text(
         mut g,
-        3,
-        24,
+        6,
+        1,
         text,
         grid.cell(32, if t == tier.PLAIN then 14 else 117, if t == tier.PLAIN then 0 else 235, 0),
     )
@@ -2491,14 +2528,63 @@ pub fn draw_water(s: sim.Sim, t: int, mut g: grid.Grid) {
 /// after the lunge, visible from both areas without closing the opened gap.
 pub fn draw_thorn_boundary(s: sim.Sim, t: int, mut g: grid.Grid) {
     if s.area != forest.SHINGLE && s.area != forest.BRAMBLEHOLD { return }
-    let row = forest.thorn_row(s.seed, s.area) - sim.cell_y(s) + sim.screen_row(s)
+    let row = forest.thorn_row(s.seed, s.area) - sim.camera_y(s) + sim.screen_row(s)
     var x = -4
     while x <= 4 {
         if !s.gate_open || x < -2 || x > 2 {
             var cell = thorn_cell(t, x + 4)
             if s.gate_open { cell.attrs = grid.ATTR_DIM }
-            grid.put(mut g, row, x - sim.cell_x(s) + sim.screen_col(s), cell)
+            grid.put(mut g, row, x - sim.camera_x(s) + sim.screen_col(s), cell)
         }
         x += 1
+    }
+}
+
+/// Draw only the committed combo body; the frame and drawn-offset witnesses
+/// use this same rendering path, never a separate mock silhouette.
+pub fn draw_combo(s: sim.Sim, t: int, mut g: grid.Grid) {
+    let pose = if pose_of(s) == 4 then 0 else pose_of(s)
+    let facing = s.body_facing
+    let dx = s.x - s.action_x
+    let dy = s.y - s.action_y
+    let ar = sim.screen_row(s)
+    let ac = sim.screen_col(s)
+    if t == tier.RICH {
+        let body = silhouette.cub_posed(
+            pose,
+            sim.legs(s),
+            silhouette.wag(sim.tail_phase(s), pose == 1),
+            sim.hurt_band(s),
+            sim.breath(s),
+        )
+        motionart.shifted(
+            mut g,
+            ar,
+            ac,
+            body,
+            facing,
+            dx,
+            dy,
+            fur(t, band(s.stamina, sim.stamina_max(s.wind))),
+        )
+    } else {
+        // Plain has no subcell pixels: show both signs with one cell,
+        // instead of flooring -half to -1 but +half to zero.
+        let dc = signed_cell(dx)
+        let dr = signed_cell(dy)
+        draw_pose(
+            mut g,
+            t,
+            ar + dr,
+            ac + dc,
+            facing,
+            band(s.stamina, sim.stamina_max(s.wind)),
+            pose,
+            sim.legs(s),
+            silhouette.wag(sim.tail_phase(s), pose == 1),
+            sim.tail_phase(s) < 4,
+            sim.hurt_band(s),
+            sim.breath(s),
+        )
     }
 }

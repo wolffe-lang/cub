@@ -1,0 +1,147 @@
+//! member: false
+
+use art
+use controls
+use grid
+use sim
+use tier
+
+fn centre(g: grid.Grid, rich: bool) -> (int, int, int) {
+    var sx = 0
+    var sy = 0
+    var count = 0
+    var r = 0
+    while r < g.rows {
+        var c = 0
+        while c < g.cols {
+            let cp = grid.at(g, r, c).cp
+            if cp != 32 {
+                if !rich {
+                    sx += c * 2
+                    sy += r * 4
+                    count += 1
+                } else {
+                    let bits = if cp == 9608 {
+                        255
+                    } else if cp == 9600 {
+                        27
+                    } else if cp == 9604 {
+                        228
+                    } else if cp == 9612 {
+                        71
+                    } else if cp == 9616 {
+                        184
+                    } else {
+                        cp - 10240
+                    }
+                    for bit in [1, 2, 4, 8, 16, 32, 64, 128] {
+                        if bits & bit != 0 {
+                            let x = if bit == 8 || bit == 16 || bit == 32 || bit == 128 {
+                                1
+                            } else {
+                                0
+                            }
+                            let y = if bit == 1 || bit == 8 {
+                                0
+                            } else if bit == 2 || bit == 16 {
+                                1
+                            } else if bit == 4 || bit == 32 {
+                                2
+                            } else {
+                                3
+                            }
+                            sx += c * 2 + x
+                            sy += r * 4 + y
+                            count += 1
+                        }
+                    }
+                }
+            }
+            c += 1
+        }
+        r += 1
+    }
+    (sx, sy, count)
+}
+
+fn offsets(h: int) {
+    for hit in [1, 2, 3] {
+        var s = sim.new(1, 80, 24)
+        sim.combat_witness(mut s)
+        s.heading = h
+        s.heading_target = h
+        sim.step(mut s, [controls.KEY_BITE])
+        s.combo = hit
+        var n = 0
+        while n < 4 { sim.step(mut s, List[int]()); n += 1 }
+        for t in [tier.PLAIN, tier.RICH] {
+            var moved = grid.new(24, 80)
+            art.draw_combo(s, t, mut moved)
+            let (mx, my, mass) = centre(moved, t == tier.RICH)
+            var origin = copy s
+            origin.x = s.action_x
+            origin.y = s.action_y
+            var still = grid.new(24, 80)
+            art.draw_combo(origin, t, mut still)
+            let (ox, oy, other) = centre(still, t == tier.RICH)
+            assert(mass == other && mass > 0, "translation preserves drawn body")
+            let dx = (mx - ox) * 128 / mass
+            let dy = (my - oy) * 64 / mass
+            let side = dx * sim.cos(h) + dy * sim.sin(h)
+            let forward = dx * sim.sin(h) - dy * sim.cos(h)
+            if hit == 1 { assert(side < 0, "drawn first hit left aim{h} tier{t}") }
+            if hit == 2 { assert(side > 0, "drawn second hit right aim{h} tier{t}") }
+            if hit == 3 {
+                assert(
+                    forward >= sim.FP * sim.FP,
+                    "third hit must leap visibly forward aim{h} tier{t}",
+                )
+            }
+            print("combo-offset aim={h} hit={hit} tier={t} dx={dx} dy={dy}")
+        }
+    }
+}
+
+fn test_cb04b_drawn_combo_north() { offsets(0) }
+
+fn test_cb04b_drawn_combo_northeast() { offsets(32) }
+
+fn test_cb04b_drawn_combo_east() { offsets(64) }
+
+fn test_cb04b_drawn_combo_southeast() { offsets(96) }
+
+fn test_cb04b_drawn_combo_south() { offsets(128) }
+
+fn test_cb04b_drawn_combo_southwest() { offsets(160) }
+
+fn test_cb04b_drawn_combo_west() { offsets(192) }
+
+fn test_cb04b_drawn_combo_northwest() { offsets(224) }
+
+fn test_cb04b_bars_grow_and_show_rally_on_both_tiers() {
+    assert(
+        art.bar_cells(sim.health_max(1)) == 6 &&
+            art.bar_cells(sim.health_max(10)) == 16 &&
+            art.bar_cells(sim.health_max(40)) == 25,
+        "health ten points per cell",
+    )
+    assert(
+        art.bar_cells(sim.stamina_max(1)) == 7 && art.bar_cells(sim.stamina_max(40)) == 22,
+        "stamina ten points per cell",
+    )
+    for t in [tier.PLAIN, tier.RICH] {
+        var s = sim.new(1, 80, 24)
+        sim.hurt(mut s, 26)
+        s.tick += 10
+        var g = grid.new(24, 80)
+        art.render(s, t, mut g)
+        assert(
+            grid.at(g, 1, 12).cp == (if t == tier.RICH then 9617 else 46),
+            "grey rally after red health",
+        )
+        assert(
+            grid.at(g, 5, 1).cp == 72 && grid.at(g, 6, 1).cp == 87,
+            "status and water below both bars",
+        )
+    }
+}
