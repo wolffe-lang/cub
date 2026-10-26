@@ -36,3 +36,9 @@ Coordinator amendment received before code: this lane owns schema 3,
 string area/ordinal den ids, a list of found dens and an empty beaten-boss
 list for cb04; schema 2 refused by name. No engine or pin change. Final
 note goes in the PR body because this wrapper cannot write .md reports.
+
+Amendment before gameplay code: coordinator's FINAL direction supersedes
+the crossing schema-3 message. Schema 2 remains, 0..3 retained, 4..7
+reserved for cb04, 8..15 this lane. No added field. The first meadow pair
+and cache trio can share their downstream refuge: predicted den total
+there revised from five to four (both clusters rejoin before row 66).
