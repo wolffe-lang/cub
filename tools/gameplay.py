@@ -144,12 +144,40 @@ def check(binary):
     assert p.returncode == 2, 'archive failure was hidden'
 
 
+ENCOUNTERS = ('bite', 'parry', 'dodge', 'weasel-retreat', 'fox-feint', 'natural-death', 'aim-lock')
+
+
+def bodies(binary):
+    """cb02c: no body inside another's drawing, no foe touching the cub out
+    of a bite's reach, no foe inside another; over every real-key script as
+    recorded, then fifty seeds at both sizes (a swarm from behind and the
+    encounter scripts' keys in each world)."""
+    cases = sorted(str(p) for p in (ROOT / 'tests' / 'cases').glob('*.pk'))
+    p = subprocess.run([str(binary), '--measure'] + cases, capture_output=True, text=True, check=True)
+    (OUT / (Path(binary).parent.name + '-measure.txt')).write_text(p.stdout)
+    total = [l for l in p.stdout.splitlines() if l.startswith('census total ')]
+    assert len(total) == 1, 'no census total'
+    words = total[0].split()[2:]
+    census = dict(zip(words[::2], map(int, words[1::2])))
+    assert census['ticks'] > 40000 and census['contact'] > 0, census
+    assert census['overlap'] == 0 and census['contact_unreachable'] == 0 and census['foe_overlap'] == 0, census
+    print('gameplay:', Path(binary).parent.name, 'body census over', len(cases), 'scripts:', total[0])
+    scripts = [str(ROOT / 'tests' / 'cases' / (n + '.pk')) for n in ENCOUNTERS]
+    p = subprocess.run([str(binary), '--body-audit'] + scripts, capture_output=True, text=True)
+    (OUT / (Path(binary).parent.name + '-body-audit.txt')).write_text(p.stdout + p.stderr)
+    assert p.returncode == 0, ('body audit', p.returncode, p.stdout[-400:])
+    rows = [l.split() for l in p.stdout.splitlines()[1:] if not l.startswith('total')]
+    assert len(rows) == 100 and all(int(r[2]) > 0 and int(r[4]) > 0 for r in rows), 'a swarm was not fought'
+    print('gameplay:', Path(binary).parent.name, 'body audit, 100 worlds:', p.stdout.splitlines()[-1])
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--bin', required=True)
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     check(Path(args.bin).resolve())
+    bodies(Path(args.bin).resolve())
     import runpy
     world = runpy.run_path(str(ROOT / 'tools/world_checks.py'))
     world['check'](Path(args.bin).resolve())
