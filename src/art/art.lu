@@ -12,6 +12,7 @@ use forest
 use ghost
 use grid
 use meadow
+use props
 use silhouette
 use sim
 use sprites
@@ -657,6 +658,18 @@ fn at_world(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, text: str, bri
     )
 }
 
+fn world_prop(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, kind: int, opened: bool) {
+    props.draw_at(
+        mut g,
+        t,
+        y - sim.cell_y(s) + sim.screen_row(s),
+        x - sim.cell_x(s) + sim.screen_col(s),
+        kind,
+        opened,
+        s.tick,
+    )
+}
+
 fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
     for drop in s.drops {
         at_world(
@@ -681,20 +694,14 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
                 sim.cache_open(s, cache),
             )
         } else {
-            at_world(
+            world_prop(
                 s,
                 t,
                 mut g,
-                sim.floor_div(x, sim.FP) - 2,
+                sim.floor_div(x, sim.FP),
                 sim.floor_div(y, sim.FP),
-                if sim.cache_open(s, cache) {
-                    "( empty )"
-                } else if cache == 0 {
-                    "( hollow )"
-                } else {
-                    "( burrow )"
-                },
-                false,
+                if cache == 0 then props.HOLLOW else props.BURROW,
+                sim.cache_open(s, cache),
             )
         }
         if sim.near(s.x, s.y, x, y, 2 * sim.FP) && !s.den {
@@ -759,22 +766,22 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
                 gx += 1
             }
         }
-        at_world(s, t, mut g, -5, sim.gate_y(s) - 3, "Bramblehold", false)
+        world_prop(s, t, mut g, 0, sim.gate_y(s) - 3, props.THICKET, false)
     } else if s.area == forest.BRAMBLEHOLD {
-        at_world(s, t, mut g, -3, forest.LENGTH - 3, "Larkmeadow", false)
-        at_world(s, t, mut g, 9, forest.BOAR_ROW - 2, "Old Snag's clearing", false)
-        at_world(s, t, mut g, -11, 24, "Ember", true)
-        at_world(s, t, mut g, -7, 18, "bones, no scent", false)
+        world_prop(s, t, mut g, 0, forest.LENGTH - 3, props.MEADOW, false)
+        world_prop(s, t, mut g, 12, forest.BOAR_ROW - 2, props.BOAR, false)
+        world_prop(s, t, mut g, -10, 24, props.EMBER, false)
+        world_prop(s, t, mut g, -4, 18, props.BONES, false)
     } else if s.area == forest.LARKMEADOW {
-        at_world(s, t, mut g, 7, 24, "scent-marked tree", false)
-        at_world(s, t, mut g, -3, forest.LENGTH - 3, "The Teeth", false)
+        world_prop(s, t, mut g, 10, 24, props.TREE, false)
+        world_prop(s, t, mut g, 0, forest.LENGTH - 3, props.CRAGS, false)
     } else if s.area == forest.CRAGS {
-        at_world(s, t, mut g, -4, forest.LENGTH - 3, "The Shallows", false)
-        at_world(s, t, mut g, 5, 30, "the old pack's marks", false)
+        world_prop(s, t, mut g, 0, forest.LENGTH - 3, props.RIVER, false)
+        world_prop(s, t, mut g, 8, 30, props.TRACKS, false)
     } else if s.area == forest.RIVER {
-        at_world(s, t, mut g, -4, forest.LENGTH - 3, "Gravehollow", false)
+        world_prop(s, t, mut g, 0, forest.LENGTH - 3, props.OLD_DEN, false)
     } else {
-        at_world(s, t, mut g, -6, 36, "the pack's scent, everywhere", false)
+        world_prop(s, t, mut g, 0, 36, props.TRACKS, false)
     }
     var edge = 0
     while edge < forest.EDGES {
@@ -789,20 +796,20 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
                     false,
                 )
             } else {
-                at_world(
+                world_prop(
                     s,
                     t,
                     mut g,
-                    sim.floor_div(x, sim.FP) - 3,
+                    sim.floor_div(x, sim.FP),
                     sim.floor_div(y, sim.FP),
                     if edge == 3 {
-                        "[ hedge ]"
+                        props.HEDGE
                     } else if edge == 7 {
-                        "[ ledge ]"
+                        props.LEDGE
                     } else {
-                        "[ shallows ]"
+                        props.FORD
                     },
-                    true,
+                    sim.shortcut_open(s, edge),
                 )
             }
         }

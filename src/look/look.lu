@@ -1,0 +1,119 @@
+//! The level's presentation instrument. Walk the camera over every route
+//! row and named prop, independently of combat/path planning. No keys or
+//! growth overrides claim a playable walk; gameplay/pty cover that layer.
+
+use art
+use forest
+use grid
+use sim
+
+/// A world layer must not carry any retired placeholder word. Fixed HUD,
+/// dialogue and interaction rows are deliberately outside the level layer.
+pub fn no_labels(g: grid.Grid) -> bool {
+    let words = [
+        "Ember",
+        "hollow",
+        "burrow",
+        "empty",
+        "Bramblehold",
+        "Larkmeadow",
+        "Old Snag",
+        "bones,",
+        "scent-marked",
+        "The Teeth",
+        "The Shallows",
+        "Gravehollow",
+        "pack's",
+        "[ hedge ]",
+        "[ ledge ]",
+        "[ shallows ]",
+        "[Log]",
+    ]
+    var row = 5
+    while row < g.rows - 2 {
+        var text = ""
+        var col = 0
+        while col < g.cols {
+            let cp = grid.at(g, row, col).cp
+            text += if cp < 128 then cp as char else ' '
+            col += 1
+        }
+        for word in words { if text.contains(word) { return false } }
+        row += 1
+    }
+    true
+}
+
+fn frame_at(mut s: sim.Sim, x: int, y: int, mut count: int) -> bool {
+    s.x = x
+    s.y = y
+    s.tick += 1
+    var t = 0
+    while t < 2 {
+        region frame {
+            var g = grid.new(s.rows, s.cols)
+            art.render(s, t, mut g)
+            if !no_labels(g) {
+                print("look: PLACEHOLDER seed {s.seed} area {s.area} x {x} y {y} tier {t}")
+                return false
+            }
+        }
+        count += 1
+        t += 1
+    }
+    true
+}
+
+/// Fifty deterministic seeds, both tiers: every route row and each cache,
+/// shortcut and former world-label position is centred in a rendered frame.
+pub fn census() -> int {
+    var count = 0
+    var seed = 0
+    while seed < 50 {
+        region world {
+            var s = sim.new(seed, 80, 24)
+            s.foes = List[sim.Foe]()
+            var area = 0
+            while area < forest.AREAS {
+                s.area = area
+                var y = 0
+                while y < forest.LENGTH {
+                    let x = forest.spine(seed, area, y)
+                    if !frame_at(
+                        mut s,
+                        x * sim.FP,
+                        (y + forest.origin(seed, area)) * sim.FP,
+                        mut count,
+                    ) {
+                        return 1
+                    }
+                    y += 1
+                }
+                var k = 0
+                while k < forest.cache_count(area) {
+                    let (x, cy) = forest.cache_position(seed, s.field, area, k)
+                    if !frame_at(mut s, x, cy, mut count) { return 1 }
+                    k += 1
+                }
+                var edge = 0
+                while edge < forest.EDGES {
+                    if forest.other(area, edge) >= 0 {
+                        let (x, py) = forest.portal(seed, area, edge)
+                        if !frame_at(mut s, x, py, mut count) { return 1 }
+                    }
+                    edge += 1
+                }
+                for spot in [-10, -4, 0, 8, 10, 12] {
+                    for py in [18, 24, 30, 36, forest.BOAR_ROW - 2, forest.LENGTH - 3] {
+                        if !frame_at(mut s, spot * sim.FP, py * sim.FP, mut count) { return 1 }
+                    }
+                }
+                area += 1
+            }
+        }
+        print("look: seed {seed} both tiers no placeholders")
+        seed += 1
+    }
+    print("look: green seeds {seed} frames {count}")
+    0
+}

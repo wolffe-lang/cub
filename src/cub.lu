@@ -19,6 +19,7 @@ use coast
 use forest
 use journey
 use measure
+use look
 use clock
 use controls
 use demo
@@ -28,6 +29,7 @@ use grid
 use headless
 use input
 use probe
+use props
 use proof
 use replay
 use score
@@ -445,6 +447,8 @@ fn run_art_study(o: Options) -> int {
         return 2
     }
     headless.write_frame(o.dump, "sheet-plain", art.sheet(tier.PLAIN)) else |_| { return 2 }
+    headless.write_frame(o.dump, "props-rich", props.sheet(tier.RICH)) else |_| { return 2 }
+    headless.write_frame(o.dump, "props-plain", props.sheet(tier.PLAIN)) else |_| { return 2 }
     headless.write_frame(o.dump, "coast-rich", art.coast_sheet(tier.RICH)) else |_| { return 2 }
     headless.write_frame(o.dump, "coast-plain", art.coast_sheet(tier.PLAIN)) else |_| { return 2 }
     headless.write_frame(o.dump, "meadow-rich", art.meadow_sheet(tier.RICH)) else |_| { return 2 }
@@ -945,6 +949,7 @@ fn main() -> int {
         let seed = args[2].to_int() else 1
         return fight.trace(kind, seed)
     }
+    if args.len > 0 && args[0] == "--look-audit" { return look.census() }
     if args.len > 0 && args[0] == "--boss-census" {
         // The fairness census (cb04): every boss, fifty seeds, both sizes.
         return fight.census()

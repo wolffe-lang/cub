@@ -1,0 +1,153 @@
+//! Original world landmarks. No names float over the ground: shape is the
+//! sign, while the HUD and interaction line carry words. Both tiers share
+//! the same cluster footprint; rich strokes are scalar cells, never bytes.
+
+use grid
+use tier
+
+/// thicket sprite identifier.
+pub const THICKET: int = 0
+
+/// meadow sprite identifier.
+pub const MEADOW: int = 1
+
+/// boar sprite identifier.
+pub const BOAR: int = 2
+
+/// ember sprite identifier.
+pub const EMBER: int = 3
+
+/// bones sprite identifier.
+pub const BONES: int = 4
+
+/// tree sprite identifier.
+pub const TREE: int = 5
+
+/// crags sprite identifier.
+pub const CRAGS: int = 6
+
+/// river sprite identifier.
+pub const RIVER: int = 7
+
+/// old den sprite identifier.
+pub const OLD_DEN: int = 8
+
+/// tracks sprite identifier.
+pub const TRACKS: int = 9
+
+/// hedge sprite identifier.
+pub const HEDGE: int = 10
+
+/// ledge sprite identifier.
+pub const LEDGE: int = 11
+
+/// ford sprite identifier.
+pub const FORD: int = 12
+
+/// hollow sprite identifier.
+pub const HOLLOW: int = 13
+
+/// burrow sprite identifier.
+pub const BURROW: int = 14
+
+/// count sprite identifier.
+pub const COUNT: int = 15
+
+/// The original plain glyph clusters; spaces leave terrain visible.
+pub fn rows(kind: int, opened: bool) -> List[str] {
+    match kind {
+        0 => [" /| |\\ ", "<+|+|+>", "  | |  "],
+        1 => ["  \\|/  ", "   *   ", " _/|\\_ "],
+        2 => ["  /^^\\ ", " (####)", "  J  L "],
+        3 => [" /\\ /\\ ", " <##>  ", "  ###~ "],
+        4 => [" o   o ", "  ===  ", " o   o "],
+        5 => [" \\ | / ", "  \\|/  ", "  :|:  "],
+        6 => ["   /\\  ", " /\\/ \\ ", "/_/___\\"],
+        7 => [" ~  ~  ", "  ~~~  ", " ~   ~ "],
+        8 => [" _.--._", "(  __  )", "(_/  \\_)"],
+        9 => [" :  :  ", "  ::  :", " :  :: "],
+        10 => if opened {
+            ["%     %", "|  .  |", "_ . . _"]
+        } else {
+            ["%\\|/%%", "|%|%|%", "_/|\\|_"]
+        },
+        11 => ["    ___", "  _/   ", "_/     "],
+        12 => ["~ o ~ o", " o ~ o ", "~ o ~ o"],
+        13 => if opened {
+            [" _====_", "(      )", " ~----~"]
+        } else {
+            [" _====_", "( (##) )", " ~----~"]
+        },
+        _ => if opened {
+            ["  ____ ", "_/    \\_", " :    :"]
+        } else {
+            ["  /\\/\\ ", "_/(##)\\_", " :====:"]
+        },
+    }
+}
+
+/// Draw a centred landmark with scalar rich strokes or its plain cluster.
+pub fn draw_at(mut g: grid.Grid, t: int, row: int, col: int, kind: int, opened: bool, tick: int) {
+    let lines = rows(kind, opened)
+    let alive = !opened && (kind == HOLLOW || kind == BURROW)
+    let bright = kind == EMBER || alive
+    let colour = if t == tier.RICH {
+        if bright then (if tick / 24 % 2 == 0 then 229 else 220) else 180
+    } else if bright then 15 else 11
+    var r = 0
+    for line in lines {
+        var c = 0
+        for b in line.bytes() {
+            var cp = b as int
+            if cp != 32 {
+                if t == tier.RICH {
+                    cp = match cp {
+                        35 => 9608,
+                        124 => 9474,
+                        61 | 95 => 9472,
+                        111 => 9679,
+                        126 => 8776,
+                        58 => 183,
+                        _ => cp,
+                    }
+                }
+                grid.put(
+                    mut g,
+                    row + r - 1,
+                    col + c - 3,
+                    grid.cell(
+                        cp,
+                        colour,
+                        if t == tier.RICH then 234 else 0,
+                        if bright then grid.ATTR_BOLD else 0,
+                    ),
+                )
+            }
+            c += 1
+        }
+        r += 1
+    }
+    if alive {
+        let dc = if tick / 24 % 2 == 0 then -4 else 4
+        grid.put(
+            mut g,
+            row - 2,
+            col + dc,
+            grid.cell(42, colour, if t == tier.RICH then 234 else 0, grid.ATTR_BOLD),
+        )
+    }
+}
+
+/// All landmarks and empty cache forms for the committed art atlas.
+pub fn sheet(t: int) -> grid.Grid {
+    var g = grid.new(20, 80)
+    var k = 0
+    while k < COUNT {
+        draw_at(mut g, t, 2 + k / 5 * 5, 7 + k % 5 * 15, k, false, 0)
+        k += 1
+    }
+    draw_at(mut g, t, 17, 7, HOLLOW, true, 0)
+    draw_at(mut g, t, 17, 22, BURROW, true, 0)
+    draw_at(mut g, t, 17, 37, HEDGE, true, 0)
+    g
+}

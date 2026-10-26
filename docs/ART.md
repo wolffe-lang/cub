@@ -241,3 +241,33 @@ including behind them. Cairns mark sheltered off-route patches, not
 loot. Scent grass leaves trails 150 ticks longer. A creek at row106–107
 is water outside the carved route; the path itself is its guaranteed
 ford. These rules add no respawning currency or save field.
+
+## World landmark legend
+
+World names are drawings, not floating labels. The `props-rich` and
+`props-plain` atlas rows read left to right as follows. Rich strokes use
+blocks, ruled timber, circular stones and ripples; plain keeps the same
+three-row clusters in ASCII. These are original drawings.
+
+| drawing | meaning |
+|---|---|
+| crossed thorn stems | the way into Bramblehold |
+| six-rayed flower above grass | Larkmeadow |
+| tusked, broad head | Old Snag's clearing |
+| pointed ears, narrow muzzle, curled tail | Ember, the speaking fox |
+| paired bone ends and a shaft | old bones without scent |
+| forked trunk with scent dots | the marked tree |
+| three joined peaks | the Teeth |
+| broken ripple bands | the Shallows |
+| dark opening under an arched roof | Gravehollow |
+| alternating paired tracks | the old pack's marks |
+| woven stems, an opening after digging | the hedge shortcut |
+| ascending rock steps | the ledge shortcut |
+| stepping stones in ripples | the shallows shortcut |
+| ringed log with a bright centre; empty ring after | inland hollow cache |
+| rooted mound with a bright centre; empty mouth after | herb burrow cache |
+
+The already-drawn log and coast bundle stay sprites. HUD area names,
+interaction hints, the den/death cards and dialogue remain text. In
+particular, `Ember:` on the bottom dialogue line is a speaker, not a world
+label. There are no separate lever-name draw calls in this build.

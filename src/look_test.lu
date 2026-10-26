@@ -1,0 +1,25 @@
+//! member: false
+
+use art
+use draw
+use grid
+use look
+use props
+use sim
+use tier
+
+fn test_cb04c_world_words_are_not_sprites() {
+    for t in [tier.RICH, tier.PLAIN] {
+        var s = sim.new(7, 80, 24)
+        s.area = 1
+        s.x = -10 * sim.FP
+        s.y = 24 * sim.FP
+        s.foes = List[sim.Foe]()
+        var g = grid.new(24, 80)
+        art.render(s, t, mut g)
+        assert(look.no_labels(g), "world names must be original sprites")
+        draw.put_text(mut g, 10, 10, "Ember", grid.cell(32, 7, 0, 0))
+        assert(!look.no_labels(g), "the census must catch a planted name")
+        assert(grid.plain_ok(props.sheet(tier.PLAIN)), "plain sprite clusters use console glyphs")
+    }
+}
