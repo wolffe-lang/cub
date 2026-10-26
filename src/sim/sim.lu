@@ -992,6 +992,14 @@ fn start_action(mut s: Sim, action: int, cost: int) {
 
 fn action_keys(mut s: Sim, keys: List[int]) {
     for k in keys {
+        // Rest owns input: movement must not accumulate a held key in the den.
+        if s.den {
+            if k == controls.KEY_RELEASE || k == controls.KEY_REST { s.den = false }
+            if k >= controls.KEY_HEART && k <= controls.KEY_NOSE {
+                grow(mut s, k - controls.KEY_HEART)
+            }
+            continue
+        }
         if controls.is_move(k) {
             let i = k - controls.KEY_UP
             if s.holds[i].last != s.tick { input.hold_press(mut s.holds[i], s.tick) }
@@ -1006,7 +1014,7 @@ fn action_keys(mut s: Sim, keys: List[int]) {
             s.lit_dens = light_den(s.lit_dens, s.last_den)
             mark_time(mut s)
             reset_world(mut s)
-            s.den = !s.den
+            s.den = true
         }
         if s.den { continue }
         if k == controls.KEY_REST && !at_den(s) { cache_key(mut s); shortcut_key(mut s) }
@@ -2039,7 +2047,7 @@ pub fn den_here(s: Sim) -> int {
     var den = 0
     while den < forest.DEN_LIMIT {
         let (x, y) = forest.den_position(s.seed, den)
-        if s.area == forest.den_area(den) && near(s.x, s.y, x, y, FP) { return den }
+        if s.area == forest.den_area(den) && near(s.x, s.y, x, y, 3 * FP) { return den }
         den += 1
     }
     -1
