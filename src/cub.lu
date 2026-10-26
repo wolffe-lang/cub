@@ -861,11 +861,11 @@ fn replay_numbers(mut s: sim.Sim, health: int, scent: int) {
 }
 
 fn state_text(s: sim.Sim) -> str {
-    var text = "tick {s.tick} area {s.area} den_id {s.last_den} shortcuts {s.shortcuts} caches {s.caches} scene {s.scene} drops {s.drops.len} mark_area {s.mark_area} x {s.x} y {s.y} heading {s.heading} action {s.action} started {s.started} health {s.health} stamina {s.stamina} flasks {s.flasks} scent {s.scent} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_scent {s.mark_scent} gate {if s.gate_open then 1 else 0} trail {s.trail.len} lock {s.locked} aim {s.attack_heading} combo {s.combo}\n"
+    var text = "tick {s.tick} area {s.area} den_id {s.last_den} shortcuts {s.shortcuts} caches {s.caches} scene {s.scene} drops {s.drops.len} mark_area {s.mark_area} x {s.x} y {s.y} heading {s.heading} action {s.action} started {s.started} health {s.health} stamina {s.stamina} flasks {s.flasks} scent {s.scent} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_scent {s.mark_scent} gate {if s.gate_open then 1 else 0} trail {s.trail.len} lock {s.locked} aim {s.attack_heading} combo {s.combo} body {s.body_facing} gait {s.gait}\n"
     var i = 0
     while i < s.foes.len {
         let f = copy s.foes[i]
-        text += "foe {i} kind {f.kind} health {f.health} phase {f.phase} since {f.since} x {f.x} y {f.y}\n"
+        text += "foe {i} kind {f.kind} health {f.health} phase {f.phase} since {f.since} x {f.x} y {f.y} heading {f.heading} gap {sim.body_gap(s, i)}\n"
         i += 1
     }
     text
