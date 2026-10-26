@@ -1,0 +1,30 @@
+cb04c Prediction — 2026-10-26, before implementation
+Footprint: module
+
+Replace every world-anchored word with original both-tier drawings. The
+census includes inland cache states, destination names, Old Snag's clearing,
+Ember (the world name only, not the bottom-line speaker), bones, marked trees,
+pack scent, and shortcut names. HUD, dialogue, hints and scene text remain.
+The 50-seed renderer walk must reject every placeholder word, on both tiers.
+
+A death mark already has a collection path (sim.step, one-cell near), so
+preserve its restoration/second-death semantics while drawing a persistent
+bright orb, pulsing halo and fixed-count seed-driven drift. No orb without a
+mark in this area. Ordinary scent/prey and caches gain visible slow idle
+animation. Recommend R-cb04c-1 A: body's footprint plus one cell, one named
+constant shared by all pickups; preserve cache guard/action rules. Add a
+short, bounded recovery burst without changing save or replay schema.
+
+The reported c is not yet diagnosed. Test a real pty after byte 0x63 and a
+headless golden; distinguish terminal echo from renderer overlap rather than
+claiming a cause by inspection. Keep den/stat/combat logic with cb04a/b.
+
+Predict all in-level frame goldens will change somewhere through sprites,
+radius-driven pickup timing or HUD repair; title/score goldens should not.
+Retain exact changed directory names. Three local mutation plants must turn
+red: a world word restored, an orb without death, exact-cell collection.
+Mac heavy work is 8GB-gated with 180-second retries and one final play build;
+hasu heavy work takes block A lock and taskset inside a 12GB container.
+No engine/pin/workflow edits, other-game source/assets, packages, labels or
+user/planning configuration. Full five-section note goes in PR body because
+the wrapper prohibits Markdown report files.
