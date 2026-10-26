@@ -26,6 +26,12 @@ fn aim(mut keys: List[int], x: int, y: int) {
 }
 
 fn drive(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int) {
+    drive_as(mut s, mut r, x, y, false)
+}
+
+/// One tick toward `(x, y)`; `passive` never bites (the natural-death
+/// witness lets the fox win).
+fn drive_as(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int, passive: bool) {
     var keys = List[int]()
     var fighting = false
     var i = 0
@@ -44,7 +50,7 @@ fn drive(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int) {
             // A foe in reach (two cells from the bodies, cb02c) is fought;
             // one behind a trunk is walked round (the planned path avoids
             // its body).
-            if foe.kind != sim.HAWK && sim.in_reach(s, i, 2) {
+            if foe.kind != sim.HAWK && sim.in_reach(s, i, 2) && !passive {
                 fighting = true
                 if s.action == sim.IDLE {
                     aim(mut keys, foe.x - s.x, foe.y - s.y)
@@ -72,7 +78,7 @@ fn drive(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int) {
 /// Follow a BFS route by ordinary directional keys, with combat keys when
 /// threatened. No teleport, collision override, heal or state mutation.
 fn walk(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int) -> bool {
-    walk_stop(mut s, mut r, tx, ty, -1)
+    walk_stop(mut s, mut r, tx, ty, -1, false)
 }
 
 /// Whether the cub standing on a cell, facing as it faces, would share a
@@ -86,10 +92,17 @@ fn body_on(s: sim.Sim, x: int, y: int) -> bool {
     false
 }
 
-fn walk_stop(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int, stop_foe: int) -> bool {
+fn walk_stop(
+    mut s: sim.Sim,
+    mut r: replay.Replay,
+    tx: int,
+    ty: int,
+    stop_foe: int,
+    passive: bool,
+) -> bool {
     var replans = 0
     while replans < 20 {
-        let outcome = walk_once(mut s, mut r, tx, ty, stop_foe)
+        let outcome = walk_once(mut s, mut r, tx, ty, stop_foe, passive)
         if outcome != 2 { return outcome == 1 }
         // No progress for thirty ticks: plan again from where the cub stands,
         // the foes where they now are.
@@ -144,7 +157,14 @@ fn plan(
 }
 
 /// One planned walk: 1 arrived (or stopped as asked), 0 failed, 2 stuck.
-fn walk_once(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int, stop_foe: int) -> int {
+fn walk_once(
+    mut s: sim.Sim,
+    mut r: replay.Replay,
+    tx: int,
+    ty: int,
+    stop_foe: int,
+    passive: bool,
+) -> int {
     let area = s.area
     let w = forest.bound(s.field, area)
     let width = w * 2 + 1
@@ -196,7 +216,7 @@ fn walk_once(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int, stop_foe: i
                 }
             } else {
                 if detour > 0 { detour -= 1 }
-                drive(mut s, mut r, x, y)
+                drive_as(mut s, mut r, x, y, passive)
             }
             if stop_foe >= 0 &&
                 (s.foes[stop_foe].phase == sim.CROUCH || s.foes[stop_foe].phase == sim.FEINT) {
@@ -223,6 +243,17 @@ fn snapshot(dir: str, name: str, s: sim.Sim, r: replay.Replay) -> () ! {io} {
     print(
         "witness {name} tick {s.tick} area {s.area} scent {s.scent} mark {s.mark_scent} shortcuts {s.shortcuts}",
     )
+}
+
+/// A witness whose frames start at tick `from`, one a tick.
+fn snapshot_from(dir: str, name: str, s: sim.Sim, r: replay.Replay, from: int) -> () ! {io} {
+    var bytes = List[byte]()
+    replay.format(r, controls.vocab(), mut bytes)
+    fs.write_bytes(dir + "/" + name + ".pk", bytes) else |_| { return io }
+    fs.append_text(dir + "/" + name + ".pk", "\n# frames {s.tick} every 1 from {from}\n") else |_| {
+        return io
+    }
+    print("witness {name} tick {s.tick} from {from} area {s.area}")
 }
 
 /// Generate replayable key witnesses for the whole connected journey.
@@ -255,7 +286,18 @@ pub fn generate(dir: str) -> int {
     (mut keys).push(controls.KEY_LUNGE)
     press(mut s, mut r, keys)
     n = 0
-    while n < 25 { press(mut s, mut r, key(0)); n += 1 }
+    var broke = false
+    while n < 25 {
+        press(mut s, mut r, key(0))
+        // The tick after the thorns give: the gate's own witness.
+        if s.gate_open && !broke {
+            broke = true
+            press(mut s, mut r, key(0))
+            n += 1
+            snapshot(dir, "thorn-gate", s, r) else |_| { return 2 }
+        }
+        n += 1
+    }
     if !s.gate_open { eprint("proof: gate did not open"); return 1 }
     snapshot(dir, "world-open", s, r) else |_| { return 2 }
     let (ex, ey) = forest.portal(s.seed, 0, 0)
@@ -271,10 +313,29 @@ pub fn generate(dir: str) -> int {
     snapshot(dir, "world-meadow", s, r) else |_| { return 2 }
     let hawk_x = s.foes[0].x
     let hawk_y = s.foes[0].y
-    if !walk(mut s, mut r, hawk_x, hawk_y) { eprint("proof: hawk approach"); return 1 }
+    // Walk to the hawk's ground until its shadow stops over the cub.
+    if !walk_stop(mut s, mut r, hawk_x, hawk_y, 0, false) {
+        eprint("proof: hawk approach")
+        return 1
+    }
     n = 0
-    while s.foes[0].health > 0 && n < 300 { drive(mut s, mut r, hawk_x, hawk_y); n += 1 }
-    if s.foes[0].health > 0 { eprint("proof: hawk unanswered"); return 1 }
+    var shadow_at = if s.foes[0].phase == sim.CROUCH then s.tick else -1
+    var stooped = false
+    while s.foes[0].health > 0 && n < 300 {
+        drive(mut s, mut r, hawk_x, hawk_y)
+        // The hawk's two witnesses: its shadow stopped (three ticks into
+        // the tell), and the stoop (with the two ticks before it).
+        if shadow_at < 0 && s.foes[0].phase == sim.CROUCH { shadow_at = s.tick }
+        if shadow_at >= 0 && s.tick == shadow_at + 3 {
+            snapshot_from(dir, "hawk-shadow", s, r, shadow_at) else |_| { return 2 }
+        }
+        if !stooped && (s.foes[0].phase == sim.STRIKE || s.foes[0].health <= 0) {
+            stooped = true
+            snapshot_from(dir, "hawk-stoop", s, r, s.tick - 2) else |_| { return 2 }
+        }
+        n += 1
+    }
+    if s.foes[0].health > 0 || shadow_at < 0 { eprint("proof: hawk unanswered"); return 1 }
     snapshot(dir, "world-hawk", s, r) else |_| { return 2 }
     replay.push_arg(mut r, s.tick, 0, -1000)
     sim.hurt(mut s, 1000)
@@ -343,7 +404,12 @@ pub fn generate(dir: str) -> int {
 }
 
 fn approach(mut s: sim.Sim, mut r: replay.Replay, foe: int) -> bool {
-    walk_stop(mut s, mut r, s.foes[foe].x, s.foes[foe].y, foe) &&
+    approach_as(mut s, mut r, foe, false)
+}
+
+/// Walk to foe `foe` until it winds up; `passive` never bites on the way.
+fn approach_as(mut s: sim.Sim, mut r: replay.Replay, foe: int, passive: bool) -> bool {
+    walk_stop(mut s, mut r, s.foes[foe].x, s.foes[foe].y, foe, passive) &&
         s.foes[foe].health > 0 &&
         s.action != sim.FALL
 }
@@ -382,7 +448,7 @@ pub fn encounters(dir: str) -> int {
                 aim(mut keys, s.foes[foe].x - s.x, s.foes[foe].y - s.y)
                 press(mut s, mut r, keys)
                 if n % 60 == 59 && s.action != sim.FALL {
-                    let _ = approach(mut s, mut r, foe)
+                    let _ = approach_as(mut s, mut r, foe, true)
                 }
                 n += 1
             }
