@@ -99,3 +99,20 @@ fn test_cb04d_panel_colours_and_complete_cub_fire_fit() {
         }
     }
 }
+
+fn test_cb04d_empty_pending_needs_zero_scent() {
+    var s = sim.new(7, 80, 24)
+    s.den = true
+    for t in [0, 1] {
+        var g = grid.new(24, 80)
+        restscene.menu(s, t, mut g)
+        assert(
+            grid.at(g, 8, 75).cp == 48 && grid.at(g, 8, 74).cp == 32,
+            "empty allocation costs zero, not the next level",
+        )
+        assert(
+            grid.at(g, 8, 75).fg == (if t == 0 then 15 else 230),
+            "zero needed is affordable even with zero held",
+        )
+    }
+}

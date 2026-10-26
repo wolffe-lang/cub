@@ -61,11 +61,9 @@ fn test_cb04d_doorway_edge_crosses_and_arrival_does_not_bounce() {
     let x = s.x
     let y = s.y
     assert(!sim.transitions(mut s, x, y) && s.area == 2, "no bounce on arrival")
-    s.y += 8 * sim.FP
-    assert(!sim.transitions(mut s, x, y) && s.edge_ready, "leave shadow to rearm")
-    s.x = 4 * sim.FP
-    s.y = sim.FP
-    assert(sim.transitions(mut s, 5 * sim.FP, s.y) && s.area == 1, "return from shadow edge")
+    assert(s.edge_ready, "arrival centre rearms without leaving the body shadow")
+    s.y -= 1
+    assert(sim.transitions(mut s, x, y) && s.area == 1, "first return cell crosses immediately")
 }
 
 fn test_cb04d_foe_is_clipped_at_each_view_edge_not_dropped_whole() {

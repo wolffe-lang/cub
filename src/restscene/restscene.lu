@@ -295,13 +295,7 @@ pub fn menu(s: sim.Sim, t: int, mut g: grid.Grid) {
     line(mut g, top + 4, col, width, t, gold)
     let levels = sim.rest_levels(s)
     let cost = sim.rest_cost(s)
-    let needed = if s.rest_refused > 0 {
-        s.rest_refused
-    } else if levels > 0 {
-        cost
-    } else {
-        sim.level_cost(sim.level(s))
-    }
+    let needed = if s.rest_refused > 0 then s.rest_refused else cost
     draw.put_text(mut g, top + 5, col, "Level", style)
     draw.put_text(
         mut g,

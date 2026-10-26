@@ -1,0 +1,3 @@
+pty: doorway-return FAILED (darwin arm64):
+  - rich: arrival did not permit immediate reverse crossing
+  - plain: arrival did not permit immediate reverse crossing

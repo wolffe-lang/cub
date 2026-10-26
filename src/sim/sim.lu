@@ -2346,20 +2346,35 @@ pub fn shadow_crossed(s: Sim, edge: int, old_x: int, old_y: int) -> bool {
     false
 }
 
-/// Arrival suppression lasts until the entire body leaves every shadow.
+/// Rearm outside the old centre trigger; the body-crossing test prevents idle bounce.
 pub fn transitions(mut s: Sim, old_x: int, old_y: int) -> bool {
+    // Arrival is unchanged at two cells inside. It may overlap the shadow,
+    // but its centre is already outside the old one-cell trigger. Rearm
+    // before considering the first return step, not after leaving the body band.
+    if !s.edge_ready {
+        var old_close = false
+        var e = 0
+        while e < forest.EDGES {
+            if forest.other(s.area, e) >= 0 {
+                let (x, y) = forest.portal(s.seed, s.area, e)
+                if near(old_x, old_y, x, y, FP) { old_close = true }
+            }
+            e += 1
+        }
+        if !old_close { s.edge_ready = true }
+    }
     var close = false
     var edge = 0
     let body = cub_body(s)
     while edge < forest.EDGES {
         if forest.other(s.area, edge) >= 0 {
             let (px, py) = forest.portal(s.seed, s.area, edge)
+            if near(s.x, s.y, px, py, FP) { close = true }
             let touching = body.x1 >= px / FP - 3 &&
                 body.x0 <= px / FP + 3 &&
                 body.y1 >= py / FP - 1 &&
                 body.y0 <= py / FP + 1
             if touching {
-                close = true
                 if s.edge_ready &&
                     shadow_crossed(s, edge, old_x, old_y) &&
                     cross_edge(mut s, edge) {

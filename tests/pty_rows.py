@@ -644,3 +644,49 @@ def doorway_edge(binary, ctx):
     return session, problems
 
 ROWS.update({'rest-allocate': rest_allocate, 'doorway-edge': doorway_edge})
+
+
+def doorway_return(binary, ctx):
+    """Enter the shadow from its side, then immediately return without leaving its band."""
+    root = Path(ctx.ROOT) / 'target/pty/cb04d-return'
+    root.mkdir(parents=True, exist_ok=True)
+    problems = []
+    for tier in ('rich', 'plain'):
+        save = root / (tier + '.save')
+        save.unlink(missing_ok=True)
+        subprocess.run([binary, '--headless', '--script', str(Path(ctx.ROOT) / 'tests/cases/rest-larkmeadow-80x24.pk'),
+                        '--frames', '1', '--save', str(save), '--dump', str(root / ('setup-' + tier))], check=True, capture_output=True)
+        session = ctx.Session([binary, '--save', str(save), '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, ctx.env_for())
+        # Approach from the east: a horizontal body still overlaps the far-end
+        # arrival shadow, and turning south makes it taller, never briefly clear.
+        for _ in range(50):
+            session.type(b'\x1b[C', settle=.06)
+            if trace_states(session)[-1]['x'] >= 9 * 256:
+                break
+        for _ in range(50):
+            session.type(b'\x1b[A', settle=.06)
+            if trace_states(session)[-1]['y'] <= 2 * 256 + 128:
+                break
+        arrived = False
+        for _ in range(60):
+            session.type(b'\x1b[D', settle=.06)
+            if any(v['area'] == 1 for v in trace_states(session)):
+                arrived = True
+                break
+        mark = len(trace_states(session))
+        returned = False
+        if arrived:
+            for _ in range(40):
+                session.type(b'\x1b[B', settle=.06)
+                if any(v['area'] == 2 for v in trace_states(session)[mark:]):
+                    returned = True
+                    break
+        session.type(b'q')
+        session.finish()
+        ctx.common_checks(session, 0, problems)
+        if not arrived or not returned:
+            problems.append(tier + ': arrival did not permit immediate reverse crossing')
+        (root / (tier + '.trace')).write_bytes(session.err)
+    return session, problems
+
+ROWS['doorway-return'] = doorway_return

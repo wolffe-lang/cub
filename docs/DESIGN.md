@@ -817,8 +817,9 @@ samples per ten sampled route cells, and the complete width distribution.
 Any newly occupied cub-body cell entering any7×3 doorway shadow triggers
 an available edge, diagonals included. Open shortcuts work by walking too;
 `r` still opens them from the permitted side. Progression and shortcut
-locks remain unchanged. Arrival remains two cells inside and disarmed
-until the whole body clears the shadow, preventing bounce-back. The
+locks remain unchanged. Arrival remains two cells inside. Its centre rearms outside the old
+one-cell trigger; standing still never crosses, while a first deliberate
+return step can cross even with the body already overlapping the shadow. The
 real-key witness walker routes around unlocked doorways that are neither
 its source nor its destination; player collision and movement are unchanged.
 
