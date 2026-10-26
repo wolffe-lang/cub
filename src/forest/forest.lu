@@ -322,10 +322,11 @@ pub fn has_arena(area: int) -> bool {
 }
 
 /// The west bank of the Ashwater in the Shallows at local row `at`: the
-/// river runs along the west of the area, the bank wandering about a
-/// quarter of the field west of the spine.
+/// river runs along the west of the route, the bank wandering about
+/// fourteen cells west of the spine whatever the field, so the ford's
+/// arena always straddles the route.
 pub fn river_bank(seed: int, field: int, at: int) -> int {
-    0 - half_width(field) / 2 + curve(seed, 97, at)
+    spine(seed, RIVER, at) - 14 + curve(seed, 97, at) + (field - field)
 }
 
 /// A boss arena, local cells: `(cx, cy, radius)`. The boar's clearing is a
@@ -351,14 +352,24 @@ pub fn in_arena(seed: int, field: int, area: int, x: int, at: int) -> bool {
 /// The number of stone pillars in the lynx's bowl: its ledges.
 pub const PILLARS: int = 3
 
-/// A pillar's bottom-left local cell in the crags' arena: two cells by
-/// two, five to seven cells from the centre, spread round it by the seed,
-/// never on the route's own line (|dx| >= 4).
+/// A pillar's top-left local cell in the crags' arena: two cells by two,
+/// five to seven cells east or west of the route at its own row (the
+/// ledge's half width is at most three, so the route stays clear), two to
+/// six rows from the centre, spread round it by the seed.
 pub fn pillar(seed: int, field: int, k: int) -> (int, int) {
     let (cx, cy, _) = arena(seed, field, CRAGS)
-    let dx = (if k == 1 then -1 else 1) * (4 + world.hash(seed, 301, k, 3))
-    let dy = (if k == 2 then 1 else -1) * (2 + world.hash(seed, 302, k, 5))
-    (cx + dx, cy + dy)
+    // Three bands of rows, so no two pillars share a row: above, level
+    // with and below the centre.
+    let dy = k * 4 - 5 + world.hash(seed, 302, k, 2)
+    let py = cy + dy
+    let reach = 5 + world.hash(seed, 301, k, 3)
+    // Beside the route at its own row, on the pillar's side unless the
+    // route has wandered that way and the pillar would leave the bowl
+    // (within eight cells of the centre, both of its columns).
+    let side = if k == 1 then -1 else 1
+    var px = spine(seed, CRAGS, py) + side * reach
+    if px < cx - 8 || px + 1 > cx + 8 { px = spine(seed, CRAGS, py) - side * reach }
+    (px, py)
 }
 
 /// The kind an arena forces on local cell `(x, at)`, or -1 outside the
@@ -466,17 +477,19 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
     let forced = arena_cell(seed, field, area, x, at)
     if forced >= 0 { return forced }
     if area == RIVER {
-        // The Ashwater along the west: the water, a band of shallows across
-        // the arena's rows (the ford), a row of reeds, three of shingle; the
-        // carved gravel bar of the cross path crosses the river itself.
+        // The Ashwater along the west: the water, the shallows where the
+        // arena reaches into it (the ford), a row of reeds, three of
+        // shingle; the carved gravel bar of the cross path crosses the
+        // river itself.
         let b = river_bank(seed, field, at)
         if x < b {
             if carved(seed, field, area, x, at) { return path_kind(area) }
-            let (_, cy, r) = arena(seed, field, area)
-            if at >= cy - r && at <= cy + r && x >= b - 14 { return terrain.SHALLOWS }
+            if in_arena(seed, field, area, x, at) { return terrain.SHALLOWS }
             return terrain.WATER
         }
-        if x == b { return if carved(seed, field, area, x, at) then path_kind(area) else terrain.REEDS }
+        if x == b {
+            return if carved(seed, field, area, x, at) then path_kind(area) else terrain.REEDS
+        }
         if x <= b + 3 { return path_kind(area) }
     }
     if carved(seed, field, area, x, at) { return path_kind(area) }
@@ -552,7 +565,13 @@ pub fn other(area: int, edge: int) -> int {
         return if area == SHINGLE then BRAMBLEHOLD else if area == BRAMBLEHOLD then SHINGLE else -1
     }
     if edge == 1 || edge == 3 {
-        return if area == BRAMBLEHOLD then LARKMEADOW else if area == LARKMEADOW then BRAMBLEHOLD else -1
+        return if area == BRAMBLEHOLD {
+            LARKMEADOW
+        } else if area == LARKMEADOW {
+            BRAMBLEHOLD
+        } else {
+            -1
+        }
     }
     if edge == 4 || edge == 7 {
         return if area == LARKMEADOW then CRAGS else if area == CRAGS then LARKMEADOW else -1
