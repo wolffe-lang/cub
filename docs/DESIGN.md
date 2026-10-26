@@ -472,3 +472,93 @@ area name shows for `ENTRY_TICKS` (three seconds) at an area change; the lock-on
 `docs/SCORE.md`: ten original parts, the cue schedule (an area's loop, the title, the den's rest, a boss
 theme as the duck, the death sting once, the resume at the den), `--mute`, `CUB_SOUND=0`, the `m` key, and
 the music path today (R-cb03-1 B: WAVs per part played by cue, since lr01's engine streams nothing).
+
+## The bosses and the ghosts, 2026-10-26 (cb04, proposed)
+
+M-CB4: three more areas, four bosses, ghosts from the death replays, the title and the end. Every value
+below is proposed; every ruling is a recommendation the lane implemented, not a decision. The fairness
+numbers are `cub --boss-census`'s (fifty seeds at both sizes, the scripted real-key fighter in
+`src/fight/fight.lu`); the frames are the goldens'.
+
+**The three areas** (`src/forest/forest.lu`, the grove's texture rules: a carved spine, bounded meanders,
+two foliage tones, one path kind per area, every walkable cell a bounded walk from a route). The area graph
+is a line with the shortcuts as chords: Shingle – Bramblehold – Larkmeadow – the Teeth – the Shallows –
+Gravehollow (`forest.AREAS` 6, `DENS` 7, `EDGES` 9).
+
+| area | ground | the arena | den | shortcut |
+|---|---|---|---|---|
+| the Teeth (3, the crags) | stone where the hash runs over 100 or the height under 10, gravel paths, trunks and a cold canopy | a bowl at row 112, radius 12, with three stone pillars 5–7 cells off the spine (the lynx's ledges; flipped to the far side when a pillar would leave the bowl) | 4, the ledge cleft | edges 4/7 Larkmeadow ↔ the Teeth, bit 4, opened by the lynx |
+| the Shallows (4, the river) | the river west of its bank (`river_bank` = the spine − 14 + a slow curve), reeds along it, three shingle rows | the ford at row 112, radius 14, centred four cells inland of the bank: its water half is `SHALLOWS`, walkable at half pace | 5, the willow root | edges 5/8 the Teeth ↔ the Shallows, bit 8, opened by the elk |
+| Gravehollow (5, the old den) | trunks, a dark floor, canopy, old scent marks on the grass | the old den's bowl at row 112, radius 12 | 6, the cold den | edge 6 the Shallows ↔ Gravehollow; no shortcut: the end |
+| Old Snag's clearing (in Bramblehold) | the thicket's own | a clearing at (30, 60), radius 11, off a branch at rows 59..61 | — | bit 1 (the log), opened by the boar |
+
+The den ids 4..6 are the new areas' (7 spare); cb03a takes 8..15 for extra dens in the existing areas and
+widens the lit-den bound without a new field (the coordinator's word, 2026-10-26): `journey.lu`'s
+`last_den` 0..6 and `lit_dens` 1..127 are the seam to widen at the rebase.
+
+**The bosses** (`sim.lu`, "The bosses"): big bodies on cb02c's rules, their footprints the drawings'
+rectangles (`silhouette.foe_size` 4..7), never inside the cub's, the contact ring inside every attack's
+envelope. A boss holds its arena: every step, run and yield is refused outside it (`boss_may_stand`, the
+boss clause in `push_out`); the cub may leave, and a boss out of engagement (the cub out of the arena and
+more than four cells off) trots home and waits. Phase two begins under half health. Every attack is
+telegraphed (`CROUCH` for its windup, then `STRIKE`, then `RETREAT` for its recovery); a parry inside its
+window turns a parryable strike into a thirty-tick stagger with the riposte open; the one unparryable
+attack is beaten by the dodge's frames. Hits spend poise (`POISE` 60; a lunge or a heavy into a
+travelling attack staggers at once).
+
+| boss | arena | health, speed, turn | attacks: windup / active / recovery, damage, reach | phase two |
+|---|---|---|---|---|
+| Old Snag, the boar | the clearing | 240, 54, 8 | gore 14 / 3 / 20, 14, 3, parryable; charge 24 / 18 / 30, 22, 2, unparryable, 1.5 cells a tick along its line | the gore's windup 12; a second charge after the first |
+| Whisper, the lynx | the Teeth | 140, 90, 20 | swipe 13 / 2 / 18, 12, 3, parryable; pounce 15 / 6 / 24, 16, 2, parryable, 5 cells a tick; rake 18 / 8 / 20, 10, 4, unparryable | every windup three ticks shorter; it keeps to its ledges (the pillars) until the cub is within nine cells |
+| Alder, the elk | the Shallows | 400, 48, 10 | sweep 20 / 4 / 30, 18, 5, parryable; stamp 24 / 2 / 36, 24, 3, unparryable, all round; charge 18 / 14 / 30, 20, 2, parryable, 1.25 cells a tick | the sweep's windup 16 |
+| Ashgrim, the shadow alpha | Gravehollow | 300, 63, 16 | bite 12 / 2 / 10, 14, 3, parryable; lunge 15 / 4 / 18, 20, 2, unparryable, 4 cells a tick | windups three shorter; the howl 20 / 1 / 10, heals 30 unless its windup is punished; the mirror: it guards a bite begun within two cells (the cub's bite turned, its riposte open) and hops from a lunge or a heavy within six, on a roll |
+
+| rule | value |
+|---|---|
+| the bar (R-cb04-2 A) | only a boss has one: row 1, `Name [####................]` of twenty cells in the boss's colour, ` !` in phase two; drawn while the boss is engaged (the cub in the arena or within four cells, so at the mouth under a charge too), gone when it has let the cub go |
+| a rest (R-cb04-3 A) | heals an unbeaten boss to full, phase one again; a beaten one stays beaten |
+| beaten | the save's `bosses` bit, its shortcut opened (`boss_shortcut`), scent 120 / 200 / 300 dropped (the alpha drops none: the end), the `boss.beaten` cue; the drawing fades over 45 ticks; the alpha beaten sets `end` |
+| the score (cb03's slot) | `s.boss` is the engaged boss's index 0..3 (`sim.boss_theme`), −1 otherwise: cb03's `boss-boar` .. `boss-alpha` parts replace the area's loop; the new areas' slots `crags`, `river`, `old-den` stay silent until their parts exist |
+| cue hooks | 4..7 `boss.boar` .. `boss.alpha` on engagement, 8 `boss.beaten`, 9 `howl` (the end), 10 `title` |
+
+**Fairness** (`--boss-census`, `tools/gameplay.py`'s gate: every world won within five lives, every
+parryable telegraph at least `PARRY_WINDOW` 9, no boss tick outside its arena). The fighter is a script
+of real keys from the boss's den: the walker's plan to the arena, a parry when a parryable standing
+attack lands within eight ticks, a lunge into a parryable charge, a step aside and a dodge timed to the
+landing for the unparryable one, free bites in a stagger, water under half health, a stamina reserve of
+18 kept.
+
+| boss | attempts to win, 100 worlds | hits taken by attack 0 / 1 / 2 | unparryable hits | shortest telegraph by attack (ticks) |
+|---|---|---|---|---|
+| the boar | 1: 78, 2: 10, 3: 10, 5: 2 | 138 / 90 / 90 | 180 | 12 / 24 / 12 |
+| the lynx | 1: 100 | 57 / 2 / 26 | 26 | 10 / 12 / 15 |
+| the elk | 1: 100 | 52 / 6 / 4 | 6 | 16 / 24 / 18 |
+| the alpha | 1: 100 | 276 / 0 / 0 | 0 | 9 / 12 / — (the howl unseen) |
+
+**Ghosts** (R-cb04-1 A: the last five deaths, fading with age; `src/ghost/ghost.lu`). A death's archive
+carries a trailer: for each of the last `TICKS` 90 ticks the words `ghost-x`, `ghost-y`, `ghost-face`,
+`ghost-pose`, `ghost-area`, and `ghost-death N` (the death's serial) at the death tick, merged into the
+replay in tick order. The engine's reader (`replay.from_text`, `replay.args_at`) rebuilds the frames; the
+sim never runs for a ghost. At the spot a dim cub (plain `x`) stands in a grey by rank (251, 248, 245,
+242, 239 dim; plain 7 then 8); within `NEAR` 8 cells the death's last three seconds play as a ghost
+sprite, resting `REST` 60 ticks between plays. The set is read from `--ghost-dir` (live `~/.cub/ghosts`)
+at the start and after each death; a file that is not a cub replay, has no trailer (a death archived
+before cb04) or is another world's (R-cb04-5, proposed: a ghost belongs to its seed, since its positions
+mean nothing elsewhere) is skipped by name on standard error. A headless case names its archive on a
+`# ghost-dir DIR` line, read, never written. The engine's reader lacked nothing but the game's words;
+`args_at` is linear in the events, so a ghost's frames are read once at load.
+
+**The title and the end.** `--no-title` starts the game as before; otherwise scene 2, the title: the four
+silhouettes lit when beaten (the save's `bosses`), the keys, "any key begins" (the opening if unseen); after
+`TITLE_IDLE` 300 idle ticks the committed demo (`tests/cases/demo.pk`, embedded by `tools/embed-demo.py`
+as `src/demo/demo.lu`) plays behind it. The alpha beaten, 45 ticks on, scene 3: three 90-tick frames of
+the ford crossed as a wolf (the silhouette one size larger, 12×24 against the cub's 8×16; the cub draws
+as the wolf from then on), the `howl` cue, then the card: time (`played` ticks across sessions), deaths,
+scent lost (the mark's scent lost to a second death), bosses n of 4. `r` keeps playing (R-cb04-4 A) and
+`q` leaves; the save records `end`.
+
+**Save schema 3** (`journey.lu`, 53 words): schema 2's fields and one line, `bosses N end N played N
+lost N`, before the check; `last_den` 0..6, `lit_dens` 1..127, `shortcuts` 0..15 (bit 4 needs the lynx,
+8 the elk), `mark_area` 0..5, `end` needs the alpha's bit; a schema-2 file is `save_version`, never read
+as 3. A live recording begins with `journey 2` and `saved-0` .. `saved-28` (the four new values last).
+The world checks hold every save under 512 bytes.
