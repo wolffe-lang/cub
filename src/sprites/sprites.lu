@@ -276,18 +276,7 @@ pub fn rich_code_points() -> List[int] {
     (mut cps).push(CP_EYE)
     for cp in [9472, 9474, 9484, 9488, 9492, 9496, 9500, 9508] { (mut cps).push(cp) }
     // The den's quadrant-sampled side view and animated fire.
-    for cp in [
-        0x258c,
-        0x2590,
-        0x2596,
-        0x2597,
-        0x2598,
-        0x2599,
-        0x259b,
-        0x259d,
-        0x259e,
-        0x259f,
-    ] {
+    for cp in [0x258c, 0x2590, 0x2596, 0x2597, 0x2598, 0x2599, 0x259b, 0x259d, 0x259e, 0x259f] {
         var found = false
         for used in cps { if used == cp { found = true } }
         if !found { (mut cps).push(cp) }
