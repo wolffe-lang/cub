@@ -17,7 +17,7 @@ remain unmeasured. The decoder selftest checks every split of each sequence.
 | w | `77` | drink |
 | r | `72` | rest at a nearby den; interact with a shortcut or cache |
 | m | `6D` | the music off, on again (cb03; `--mute` and `CUB_SOUND=0` keep it off) |
-| 1 / 2 / 3 / 4 / 5 | `31` / `32` / `33` / `34` / `35` | grow heart / wind / fang / paw / nose at the den |
+| Enter | `0D` | confirm pending growth when Confirm is selected at rest |
 | q | `71` | quit |
 
 Esc (`1B`) releases a lock or leaves the den; it does not quit. It is covered
@@ -75,10 +75,13 @@ frame to its recorded replay at both sizes and tiers.
 ## Den and water interaction (cb04a)
 
 Within three cells of a den centre the bottom line says `r rest`. Press
-`r` to enter its rest scene; `r` or Esc leaves. Arrows, attacks and drink
-keys do nothing inside, and do not leave movement held on exit. Keys1–5
-spend the displayed shared next-level cost on heart/wind/fang/paw/nose;
-each row shows its value and next effect. Growth is not available outside.
+`r` to enter its rest scene. Up/Down wrap over heart, wind, fang, paw, nose
+and Confirm. Right stages one level; Left removes one, never below the
+current stat. An unaffordable raise is refused and shows the needed scent
+in red. Enter or Space on Confirm applies the pending levels together.
+Esc or `r` discards pending choices and leaves. Keys1–5 no longer purchase.
+The world stays paused, and no arrow remains held on exit. Growth remains
+den-only; the displayed Scent after subtracts only accepted pending levels.
 
 Water must first be found at the Shingle spring. The counter at row3 beside
 the bars says `Water n/cap  w drink`, or `Water 0/0 - find a spring` before

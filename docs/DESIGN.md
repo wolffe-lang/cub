@@ -791,3 +791,48 @@ to start+157. The intact closed gate was never deleted. R-cb04a-4 A restores
 the persistent boundary without adding another progression barrier.
 The census checks every gate face/tier on every seed, closed collision and
 glyph presence, open passage and remaining flanks.
+
+
+## Paths, shadows and allocation (cb04d, proposed)
+
+This section supersedes the older one-cell portal trigger, alternating
+eight-cell path anchors and immediate numeric-key growth descriptions.
+
+R-cb04d-1 recommends one additional clear cell on each side of carved
+paths: symmetric clearance for the cub's body rather than a biased extra
+cell. Main route half-widths are4–6 (the Teeth3–4); cache and shortcut
+branches have half-width3. The shore gains one row seaward and inland.
+The boar approach and joining branch widen too. The sealed thorn collar
+and its five-cell gate are deliberately retained, not widened into a bypass.
+
+The forced short-wave anchors now span sixteen cells, with slower value
+noise. Bramblehold retains its six switchbacks, rounding each apex across
+five rows; a bend's direction is measured across eight rows on either side.
+Dens, caches and portals remain derived from the same seeded route model.
+`--paths-audit` reports axis-transverse clear widths and signed centreline
+steps over50 seeds, both fields, including actual cache branches only.
+`tools/path-summary.py` reports reversals of nonzero direction within three
+samples per ten sampled route cells, and the complete width distribution.
+
+Any newly occupied cub-body cell entering any7×3 doorway shadow triggers
+an available edge, diagonals included. Open shortcuts work by walking too;
+`r` still opens them from the permitted side. Progression and shortcut
+locks remain unchanged. Arrival remains two cells inside and disarmed
+until the whole body clears the shadow, preventing bounce-back. The
+real-key witness walker routes around unlocked doorways that are neither
+its source nor its destination; player collision and movement are unchanged.
+
+Foe rendering no longer consults the centre-to-centre Bramblehold sight
+predicate. AI sight, locks and attack rules stay unchanged; each sprite
+cell is clipped independently at the camera edge. `--foes-audit` compares
+the actor layer with cell-clipped composition over every route row for
+fifty seeds, both fields and both tiers. `--doorways-audit` covers every
+shadow/outside-neighbour pair, four body quarters and both cub sizes.
+
+Rest allocation is transient: Up/Down wrap through five stats and Confirm;
+Right adds an affordable level, Left removes a pending level, Enter/Space
+on Confirm applies all pending stats and subtracts the sum of each shared
+per-level price. The health/stamina maxima update immediately. Esc or`r`
+discards. Numeric keys do not purchase. Schema4 stores confirmed stats
+only, never selection, pending choices or refusal feedback. See ART and
+KEYS for the panel's layout and controls.

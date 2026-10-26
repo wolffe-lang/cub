@@ -187,8 +187,8 @@ The rocky texture belongs to the jetties, never the ordinary bank.
 
 Deep forest keeps visible, textured foliage beyond collision bounds and
 through dense patches. The plain tier uses green on black, not black on
-black. Bramblehold still hides unseen creatures, but no longer erases
-distant terrain. The texture census uses the same terrain renderer as the
+black. Bramblehold keeps its limited AI sight, but every in-view foe sprite is
+drawn cell by cell; terrain no longer culls a whole foe by its centre. The texture census uses the same terrain renderer as the
 actual frame, before deliberate HUD/actor overlays, over every camera
 position of every area at both fields and on both tiers.
 
@@ -320,8 +320,8 @@ the Shingle; an enclosing thorn hollow for Bramblehold; gold hillside and
 thin gangly trees against the sky for Larkmeadow; cold angled ledges in the
 Teeth; reeds and blue river light in the Shallows; dark old roots and scent
 marks in Gravehollow. Sea colour is visual atmosphere, not a new sound loop.
-The same cub and fire sit in all six. The lower ten rows hold the stat
-choices and next effects, scent, shared level cost, healing and save state.
+The same cub and fire sit in all six. The right-hand panel holds the stat choices, their effects, scent, pending
+cost and save state; the whole cub and fire remain visible to its left.
 
 `rest-{shingle,bramblehold,larkmeadow,teeth,shallows,old-den}-{80x24,120x40}`
 are the twelve case names, each rendered rich/plain. Seven-tick samples pin
@@ -331,3 +331,23 @@ repertoire adds the side-view quadrants and vertical half blocks.
 The thorn gate now remains visible when opened: dim torn flanks either side
 of a five-cell passage. Both faces of edge0 draw the same boundary; the
 opening never draws a closed collision glyph across the passage.
+
+
+## Allocation panel (cb04d)
+
+A double frame of existing rule glyphs, muted gold179 on near-black232,
+contains bone-white230 labels and aligned current/pending columns. Plain
+uses doubled ASCII rules, gold3 and white15 on black0. The right-hand panel
+is40×22 at80×24 (left39, top1) and50×26 at120×40 (left69, top7).
+The complete38-column cub/fire group fits to its left, without cropping.
+
+Sections are the den name; Level, Scent held, Scent needed, Scent after;
+the five stats and their effects; Confirm and the keyboard hint. A `>`
+selects a row. Raised values and effects are green84/plain10; insufficient
+scent and the refusal explanation are red203/plain12. The explicit arrows,
+numbers and explanation carry the same meaning without colour. A refused
+raise displays its attempted total cost; Scent after still describes the
+accepted pending choices, never an unaccepted debt.
+
+`rest-menu-{empty,pending,refused}-{80x24,120x40}` pin all three states on
+both tiers. The frame uses existing horizontal/vertical rule glyphs only.
