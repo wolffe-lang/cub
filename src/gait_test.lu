@@ -180,9 +180,10 @@ fn step_key(mut s: sim.Sim, k: int) {
     sim.step(mut s, keys)
 }
 
-/// Ticks between two returns of the gait to the start of a wag, holding
-/// `k` (0: standing) after `settle` ticks, and the tail offsets and paw
-/// flips seen over that wag.
+/// Ticks between two returns of the tail to the start of its wag (its
+/// eighth `sim.tail_phase` wrapping to 0), holding `k` (0: standing)
+/// after `settle` ticks, and the tail offsets and paw flips seen over that
+/// wag: what the frame draws, from the phase the frame reads.
 fn one_wag(paw: int, k: int, settle: int) -> (int, int, int, int, int) {
     var s = shore(paw)
     var i = 0
@@ -195,11 +196,11 @@ fn one_wag(paw: int, k: int, settle: int) -> (int, int, int, int, int) {
     var flips = 0
     var n = 0
     while wraps < 2 && n < 400 {
-        let before = s.gait
+        let before = sim.tail_phase(s)
         let legs = sim.legs(s)
         step_key(mut s, k)
         n += 1
-        if s.gait < before {
+        if sim.tail_phase(s) < before {
             wraps += 1
             if wraps == 1 { start = n } else { period = n - start }
         }
@@ -261,25 +262,32 @@ fn test_cb02c_the_tail_holds_still_between_its_frames() {
 }
 
 fn test_cb02c_the_frame_draws_the_gait() {
-    // Two cubs with one gait and different ticks draw one tail: the frame
-    // reads the gait, never the clock.
+    // Cubs with one gait and different ticks (a wag's eight eighths of
+    // them) draw one tail: the frame reads the gait, never the clock. A
+    // small screen about the cub keeps the eight frames cheap.
     var a = shore(1)
-    var b = shore(1)
-    a.gait = 700
-    b.gait = 700
-    b.tick = 13
-    var ga = grid.new(24, 80)
-    var gb = grid.new(24, 80)
+    a.gait = 0
+    sim.resize(mut a, 12, 8)
+    var ga = grid.new(8, 12)
     art.render(a, tier.RICH, mut ga)
-    art.render(b, tier.RICH, mut gb)
-    var r = 10
-    while r < 15 {
-        var c = 36
-        while c < 45 {
-            assert(grid.same(grid.at(ga, r, c), grid.at(gb, r, c)), "cell {r},{c}")
-            c += 1
+    var tick = 1
+    while tick < 8 {
+        var b = shore(1)
+        b.gait = 0
+        b.tick = tick
+        sim.resize(mut b, 12, 8)
+        var gb = grid.new(8, 12)
+        art.render(b, tier.RICH, mut gb)
+        var r = 0
+        while r < 8 {
+            var c = 0
+            while c < 12 {
+                assert(grid.same(grid.at(ga, r, c), grid.at(gb, r, c)), "tick {tick} cell {r},{c}")
+                c += 1
+            }
+            r += 1
         }
-        r += 1
+        tick += 1
     }
 }
 
