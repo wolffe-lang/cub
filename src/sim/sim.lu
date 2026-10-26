@@ -2295,21 +2295,8 @@ fn shortcut_key(mut s: Sim) {
 /// Any newly occupied body cell entering a doorway shadow counts, including diagonals.
 pub fn shadow_crossed(s: Sim, edge: int, old_x: int, old_y: int) -> bool {
     if old_x == s.x && old_y == s.y { return false }
-    let before = cub_body_at(s, old_x, old_y, s.body_facing)
-    let after = cub_body(s)
-    var y = after.y0
-    while y <= after.y1 {
-        var x = after.x0
-        while x <= after.x1 {
-            if (x < before.x0 || x > before.x1 || y < before.y0 || y > before.y1) &&
-                forest.shadow_cell(s.seed, s.area, edge, x, y) {
-                return true
-            }
-            x += 1
-        }
-        y += 1
-    }
-    false
+    let (x, y) = forest.portal(s.seed, s.area, edge)
+    near(s.x, s.y, x, y, FP)
 }
 
 /// Arrival suppression lasts until the entire body leaves every shadow.
