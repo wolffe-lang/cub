@@ -191,6 +191,15 @@ pub fn curve(seed: int, ch: int, at: int) -> int { terrain.meander(seed, ch, at)
 /// Path centre in cells. The first den and final exit remain fixed, with
 /// short tapered approaches rather than a long straight corridor.
 pub fn spine(seed: int, area: int, at: int) -> int {
+    if area == BRAMBLEHOLD {
+        let amp = 18 + world.hash(seed, 91, 0, 5)
+        if at < 16 { return -amp * at / 16 }
+        if at >= 136 { return amp * (LENGTH - at) / 24 }
+        let leg = (at - 16) / 24
+        let part = (at - 16) % 24
+        let sign = if leg % 2 == 0 then -1 else 1
+        return sign * (amp - 2 * amp * part / 24)
+    }
     let c = curve(seed, 31 + area, at)
     if at < 8 { return c * at / 8 }
     if at > LENGTH - 8 { return c * (LENGTH - at) / 8 }
@@ -431,6 +440,7 @@ pub fn arena_cell(seed: int, field: int, area: int, x: int, at: int) -> int {
 /// route, a branch or its alcove, a shortcut branch, the gate's exit, an
 /// arena's open floor and the boar clearing's branch.
 pub fn carved(seed: int, field: int, area: int, x: int, at: int) -> bool {
+    if area == BRAMBLEHOLD && in_clearing(seed, x, at) { return true }
     let c = spine(seed, area, at)
     let hw = half(seed, area, at)
     if x >= c - hw && x <= c + hw { return true }
@@ -747,4 +757,58 @@ pub fn required(area: int) -> int {
 /// Every den, incident edge, cache and arena is reachable in this area.
 pub fn reachable(seed: int, field: int, area: int) -> bool {
     reach_count(seed, field, area) == required(area)
+}
+
+/// Six small rooms along the thicket route, each attached to a reason.
+pub const CLEARINGS: int = 6
+
+/// Clearing centre and radius in cells; widths are seven, nine or eleven.
+pub fn clearing(seed: int, n: int) -> (int, int, int) {
+    let y = clearing_row(n)
+    let x = spine(seed, BRAMBLEHOLD, y) + (if n % 2 == 0 then -3 else 3)
+    (x, y, 3 + world.hash(seed, n, 212, 3))
+}
+
+/// A room's existing attraction, not an empty widening.
+pub fn clearing_reason(n: int) -> str {
+    if n == 0 || n == 3 || n == 4 then "den" else if n == 1 then "shortcut view" else if n == 2 then "scent cache" else "foe cluster"
+}
+
+fn clearing_row(n: int) -> int {
+    if n == 0 then 8 else if n == 1 then 22 else if n == 2 then 52 else if n == 3 then 68 else if n == 4 then 92 else 134
+}
+
+fn in_clearing(seed: int, x: int, y: int) -> bool {
+    var n = 0
+    while n < CLEARINGS {
+        if abs(y - clearing_row(n)) > 5 { n += 1; continue }
+        let (cx, cy, radius) = clearing(seed, n)
+        if abs(x - cx) <= radius && abs(y - cy) <= radius { return true }
+        n += 1
+    }
+    false
+}
+
+/// Count bends whose incoming/outgoing route vectors turn at least 90 degrees.
+pub fn switchbacks(seed: int) -> int {
+    var count = 0
+    var at = 16
+    while at <= 136 {
+        let a = spine(seed, BRAMBLEHOLD, at) - spine(seed, BRAMBLEHOLD, at - 4)
+        let b = spine(seed, BRAMBLEHOLD, at + 4) - spine(seed, BRAMBLEHOLD, at)
+        if a * b + 16 <= 0 { count += 1 }
+        at += 24
+    }
+    count
+}
+
+/// Cardinal route distance of the seeded centreline, including lateral travel.
+pub fn path_length(seed: int, area: int) -> int {
+    var length = LENGTH
+    var y = 1
+    while y <= LENGTH {
+        length += abs(spine(seed, area, y) - spine(seed, area, y - 1))
+        y += 1
+    }
+    length
 }

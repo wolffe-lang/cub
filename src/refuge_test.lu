@@ -59,3 +59,34 @@ fn test_cb03a_each_new_den_rests_and_roundtrips_schema_two() {
         den += 1
     }
 }
+
+fn check_clearings(first: int) {
+    var seed = first
+    while seed < first + 10 {
+        assert(forest.switchbacks(seed) >= 4, "real turns of at least ninety degrees")
+        assert(forest.path_length(seed, 1) > forest.LENGTH + 100, "not the straight meander")
+        var n = 0
+        while n < forest.CLEARINGS {
+            let (x, y, radius) = forest.clearing(seed, n)
+            assert(radius * 2 + 1 >= 7 && radius * 2 + 1 <= 12, "room width")
+            assert(forest.clearing_reason(n) != "", "each room has a reason")
+            var dy = -radius
+            while dy <= radius {
+                var dx = -radius
+                while dx <= radius {
+                    assert(!forest.blocked(seed, 80, 1, x + dx, y + dy), "open clearing")
+                    dx += 1
+                }
+                dy += 1
+            }
+            n += 1
+        }
+        seed += 1
+    }
+}
+
+fn test_cb03a_clearings_seeds_0_9() { check_clearings(0) }
+fn test_cb03a_clearings_seeds_10_19() { check_clearings(10) }
+fn test_cb03a_clearings_seeds_20_29() { check_clearings(20) }
+fn test_cb03a_clearings_seeds_30_39() { check_clearings(30) }
+fn test_cb03a_clearings_seeds_40_49() { check_clearings(40) }

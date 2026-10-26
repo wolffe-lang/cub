@@ -1281,7 +1281,7 @@ fn run_world_audit() -> int {
 }
 
 fn run_feel_audit() -> int {
-    print("seed area dens min_spacing max_spacing")
+    print("seed area dens min_spacing max_spacing switchbacks clearings path_length")
     var seed = 0
     while seed < 50 {
         var area = 0
@@ -1319,7 +1319,7 @@ fn run_feel_audit() -> int {
                 den += 1
             }
             if count == 1 { low = 0 }
-            print("{seed} {area} {count} {low} {high}")
+            print("{seed} {area} {count} {low} {high} {if area == 1 then forest.switchbacks(seed) else 0} {if area == 1 then forest.CLEARINGS else 0} {forest.path_length(seed, area)}")
             if count < 1 || count != forest.den_count(area) { return 1 }
             area += 1
         }

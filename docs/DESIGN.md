@@ -584,3 +584,11 @@ retain the 30-cell quiet radius; post-fight refuges are deliberately closer.
 Every den has a warm seven-cell ground patch, hollow silhouette, ember,
 smoke, and a scent-of-home line within ten cells. Rest/save/growth and the
 number card use the same rules at every id.
+
+Bramblehold's centreline switches between seeded lateral anchors 18–22
+cells either side, every 24 rows after the first 16. The independent dot
+product census counts only turns of at least 90 degrees. Six open rooms,
+7/9/11 cells across, sit at rows 8,22,52,68,92,134: entry den, shortcut
+view, cache branch, post-cluster den, briar den, and foe cluster. Their
+centres sit three cells off the path and their floor keeps the area's
+textured path palette. The log shortcut and cache branches remain open.
