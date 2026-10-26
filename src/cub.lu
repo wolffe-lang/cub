@@ -24,6 +24,7 @@ use motionproof
 use look
 use clock
 use controls
+use combatproof
 use demo
 use denproof
 use doorproof
@@ -87,6 +88,8 @@ struct Options {
     score_out: str,
     score_list: bool,
     no_title: bool,
+    pace: int,
+    combat_witness: bool,
 }
 
 fn usage_text() -> str {
@@ -124,6 +127,7 @@ fn usage_text() -> str {
         "  --boss-census                     the fairness census: every boss fought in 50 seeds x 2 sizes\n" +
         "  --ghost-dir DIR                   the death archives (live default ~/.cub/ghosts): read for the\n" +
         "                                    ghosts, written on a death; headless, both\n" +
+        "  --pace N                          debug walk/sprint speed,25..300 percent of default\n" +
         "  --no-title                        begin in play, without the title card\n" +
         "  --truecolor / --no-truecolor      override COLORTERM\n" +
         "  --ticks N                         quit after N ticks\n" +
@@ -170,6 +174,8 @@ fn options_default() -> Options {
         score_out: "",
         score_list: false,
         no_title: false,
+        pace: 100,
+        combat_witness: false,
     }
 }
 
@@ -180,7 +186,13 @@ fn parse_args(args: List[str]) -> Options ! {usage, parse} {
         let a = args[i]
         let more = i + 1 < args.len
         let two = i + 2 < args.len
-        if more && a == "--make-world-proof" {
+        if a == "--combat-witness" {
+            o.combat_witness = true
+        } else if more && a == "--pace" {
+            i += 1
+            o.pace = args[i].to_int()?
+            if o.pace < 25 || o.pace > 300 { return usage }
+        } else if more && a == "--make-world-proof" {
             i += 1
             o.make_proof = args[i]
         } else if a == "--mute" {
@@ -366,6 +378,7 @@ fn run_headless(o: Options, args: List[str]) -> int {
         return 2
     }
     s = replay_initial(r, s) else |e| { eprint("cub: {e}"); return 2 }
+    s.pace_percent = o.pace
     if o.script == "" && o.replay_path == "" { sim.opening(mut s) }
     // The ghosts a script shows: the flag's directory, or the one a case
     // names on a `# ghost-dir DIR` line (read only, never written: the
@@ -453,6 +466,7 @@ fn run_art_study(o: Options) -> int {
         eprint("cub: cannot create {o.dump}")
         return 2
     }
+    combatproof.generate(o.dump) else |_| { return 2 }
     headless.write_frame(o.dump, "sheet-rich", art.sheet(tier.RICH)) else |_| {
         return 2
     }
@@ -638,7 +652,9 @@ fn run_live(o: Options, args: List[str]) -> int {
     } else {
         sim.new(rp.seed, cols, rows)
     }
+    s.pace_percent = o.pace
     if !replaying {
+        replay.push_arg(mut rec, 0, controls.EV_PACE, o.pace)
         if seed_given(args) && s.seed != o.seed {
             eprint("cub: save_seed_conflict: choose another --save path")
             return 2
@@ -659,6 +675,10 @@ fn run_live(o: Options, args: List[str]) -> int {
         if o.no_title { sim.opening(mut s) } else { sim.title(mut s) }
         if s.scene == 1 { replay.push_arg(mut rec, 0, controls.EV_OPENING, 1) }
         if s.scene == sim.SCENE_TITLE { replay.push_arg(mut rec, 0, controls.EV_TITLE, 1) }
+    }
+    if o.combat_witness && !replaying {
+        sim.combat_witness(mut s)
+        replay.push_arg(mut rec, 0, controls.EV_COMBAT_WITNESS, 1)
     }
     if replaying { s = replay_initial(rp, s) else |e| { eprint("cub: {e}"); return 2 } }
     // The score (cb03): the parts rendered to WAVs and the backend probed
@@ -890,7 +910,7 @@ fn run_live(o: Options, args: List[str]) -> int {
             }
             if o.trace {
                 eprint(
-                    "trace tick {s.tick} live_foes {denmemory.live(s)} rest_row {s.rest_row} pending {sim.rest_levels(s)} needed {s.rest_refused} level {sim.level(s)} scent {s.scent} resting {if s.den then 1 else 0} area {s.area} den_id {s.last_den} health {s.health} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_area {s.mark_area} capacity {s.flask_max} flasks {s.flasks} action {s.action} aim {s.attack_heading} combo {s.combo} stamina {s.stamina} sprint {if s.sprinting then 1 else 0} dash_hits {sim.dash_hits(s)} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} scene {s.scene} demo {if extra.demo_on then 1 else 0} wall_us {(clock.now_ns() - t0_ns) / 1000}",
+                    "trace tick {s.tick} live_foes {denmemory.live(s)} rest_row {s.rest_row} pending {sim.rest_levels(s)} needed {s.rest_refused} level {sim.level(s)} scent {s.scent} resting {if s.den then 1 else 0} area {s.area} den_id {s.last_den} health {s.health} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_area {s.mark_area} capacity {s.flask_max} flasks {s.flasks} action {s.action} aim {s.attack_heading} combo {s.combo} stamina {s.stamina} sprint {if s.sprinting then 1 else 0} dash_hits {sim.dash_hits(s)} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} held {sim.held_direction(s)} exact {if input.exact(s.key_state) then 1 else 0} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} scene {s.scene} demo {if extra.demo_on then 1 else 0} wall_us {(clock.now_ns() - t0_ns) / 1000}",
                 )
                 trace_bytes = 0
             }
@@ -1096,6 +1116,9 @@ fn replay_numbers(mut s: sim.Sim, health: int, scent: int) {
 fn replay_events(mut s: sim.Sim, r: replay.Replay, tick: int) {
     if replay.args_at(r, tick, controls.EV_OPENING) == 1 { sim.opening(mut s) }
     if replay.args_at(r, tick, controls.EV_TITLE) == 1 { sim.title(mut s) }
+    if replay.args_at(r, tick, controls.EV_COMBAT_WITNESS) == 1 { sim.combat_witness(mut s) }
+    let pace = replay.args_at(r, tick, controls.EV_PACE)
+    if pace >= 25 && pace <= 300 { s.pace_percent = pace }
     let bosses = replay.args_at(r, tick, controls.EV_BOSSES)
     if bosses > 0 { s.bosses = bosses % 16 }
 }

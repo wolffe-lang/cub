@@ -242,7 +242,13 @@ pub const EV_GHOST_AREA: int = 40
 pub const EV_GHOST_DEATH: int = 41
 
 /// The number of numeric events.
-pub const EV_COUNT: int = 48
+pub const EV_COUNT: int = 50
+
+/// Explicit disclosed empty-arena setup for live input witnesses.
+pub const EV_COMBAT_WITNESS: int = 49
+
+/// Debug pace percentage of the default, after the six appended save slots.
+pub const EV_PACE: int = 48
 
 /// cub's words for the replay file: the keys by number, and the numeric
 /// events by index (`EV_*`).
@@ -259,11 +265,14 @@ pub fn vocab() -> replay.Vocab {
     (mut args).push("journey")
     var part = 0
     while part < SAVED { (mut args).push("saved-{part}"); part += 1 }
-    for w in "title bosses ghost-x ghost-y ghost-face ghost-pose ghost-area ghost-death".words() {
+    for w in "title bosses ghost-x ghost-y ghost-face ghost-pose ghost-area ghost-death".
+        words() {
         (mut args).push(w)
     }
     part = 30
     while part < 36 { (mut args).push("saved-{part}"); part += 1 }
+    (mut args).push("pace")
+    (mut args).push("combat-witness")
     replay.vocab(take names, take args)
 }
 
