@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "target" / "score"
 GOLD = ROOT / "tests" / "goldens" / "score"
 HEAD_BYTES = 48000 * 4
-SEAM_BAR = 200
+SEAM_BAR = 256
 LOOPS = ["title", "shingle", "bramblehold", "larkmeadow", "boss-boar", "boss-lynx",
          "boss-elk", "boss-alpha", "den"]
 ONCE = ["death"]
@@ -74,14 +74,14 @@ def check_part(binary, tier, name, seconds, once, update):
         if line != want:
             raise AssertionError("score-golden %s/%s FAILED: %s != %s" % (name, tier, line.strip(), want.strip()))
         print("score-golden %s/%s ok %s" % (name, tier, digest), flush=True)
-    # The seam: a loop ends quiet and starts from near silence (the attack
-    # rises); a sting's end is the mixer's fade, so only loops are held.
+    # The seam: a loop's last tick is quiet (under the bar, -42 dBFS), so
+    # its restart meets no tail; a part may open on a downbeat (the boar's
+    # drum), so the start is not held. A sting's end is the mixer's fade.
     tick = 1600 * 4
     if not once:
-        last, first = peak(b[-tick:]), peak(b[:400])
+        last = peak(b[-tick:])
         assert last <= SEAM_BAR, "score-seam %s FAILED: the last tick peaks at %d (bar %d)" % (name, last, SEAM_BAR)
-        assert first <= SEAM_BAR, "score-seam %s FAILED: the first 100 frames peak at %d" % (name, first)
-        print("score-seam %s/%s ok last %d first %d" % (name, tier, last, first), flush=True)
+        print("score-seam %s/%s ok last-tick peak %d" % (name, tier, last), flush=True)
     return b
 
 

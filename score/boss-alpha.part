@@ -4,10 +4,10 @@ title The Shadow at the Old Den
 cue replace fade 9
 tempo 60
 meter 4/4
-part below pedal p pan 0
-part shade choir p pan -20
-part breath organ p pan 20
-part gong tamtam p pan 0
+part below pedal p pan 0 gain 6
+part shade choir p pan -20 gain 6
+part breath organ p pan 20 gain 6
+part gong tamtam p pan 0 gain 6
 bar 1
 below D2/1~
 shade D4,A4/1~

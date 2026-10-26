@@ -4,9 +4,9 @@ title Embers
 cue replace fade 6
 tempo 72
 meter 3/4
-part glow harp mp pan -20
-part warm flute p pan 25
-part hush strings p pan 10
+part glow harp mp pan -20 gain 6
+part warm flute p pan 25 gain 6
+part hush strings p pan 10 gain 6
 bar 1
 glow D3/4 A3/4 F4/4
 hush D3,A3/2.~

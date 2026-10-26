@@ -4,10 +4,10 @@ title Under the Thorn
 cue replace fade 9
 tempo 100
 meter 4/4
-part floor strings p pan -20
-part reed clarinet mp pan 20
-part skin timpani p pan 0
-part step drum p pan -10
+part floor strings p pan -20 gain 6
+part reed clarinet mp pan 20 gain 6
+part skin timpani p pan 0 gain 6
+part step drum p pan -10 gain 6
 bar 1
 floor D3,A3/1*
 skin D2/4 r/2.
