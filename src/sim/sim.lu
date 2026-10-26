@@ -2496,7 +2496,7 @@ pub fn boss_move(kind: int, attack: int, phase2: bool) -> Move {
     if kind == LYNX {
         // The swipe; the pounce from a ledge (its long steady tell; parry
         // the landing); the rake, which cannot be parried.
-        if attack == 0 { return mv(13 - quick, 2, 18, 12, 3, true, 0, false) }
+        if attack == 0 { return mv(6 - quick, 2, 18, 12, 3, true, 0, false) }
         if attack == 1 { return mv(15 - quick, 6, 24, 16, 2, true, 320, false) }
         return mv(18 - quick, 8, 20, 10, 4, false, 0, false)
     }
