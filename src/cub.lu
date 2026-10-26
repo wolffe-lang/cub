@@ -26,7 +26,9 @@ use input
 use probe
 use proof
 use replay
+use score
 use sim
+use sound
 use sprites
 use std.env
 use std.fs
@@ -64,6 +66,14 @@ struct Options {
     save_delay: int,
     world_audit: bool,
     make_proof: str,
+    mute: bool,
+    hud: bool,
+    sound_dir: str,
+    score_render: str,
+    score_wav: str,
+    score_replay: str,
+    score_out: str,
+    score_list: bool,
 }
 
 fn usage_text() -> str {
@@ -79,6 +89,13 @@ fn usage_text() -> str {
         "  keys: arrows walk (the cub turns at its turn rate), Shift+arrow sneaks,\n" +
         "        Space bite/combo, x lunge, s heavy, z parry, c dodge, Tab lock, Esc release, q quit,\n" +
         "        w water, r rest; at the den 1–5 grow heart, wind, fang, paw, nose\n" +
+        "  --mute                            no music (CUB_SOUND=0 too; m toggles it in play)\n" +
+        "  --hud                             the debug HUD: health and stamina bars beside the scent\n" +
+        "  --sound-dir DIR                   where the rendered WAVs go (default ~/.cub/sound)\n" +
+        "  --score-list                      every part with its length\n" +
+        "  --score-render NAME OUT           a part as raw stereo S16_LE PCM, its own length\n" +
+        "  --score-wav NAME OUT              the same PCM in a WAV\n" +
+        "  --score-replay OUT                the cue schedule through the mixer, 180 ticks of PCM\n" +
         "  --bench                           render/diff timings for the performance gate\n" +
         "  --save PATH                       journey file (live default ~/.cub/save)\n" +
         "  --save-cut                        test a cut write; previous save stays intact\n" +
@@ -125,6 +142,14 @@ fn options_default() -> Options {
         save_delay: 1,
         world_audit: false,
         make_proof: "",
+        mute: false,
+        hud: false,
+        sound_dir: "",
+        score_render: "",
+        score_wav: "",
+        score_replay: "",
+        score_out: "",
+        score_list: false,
     }
 }
 
@@ -134,9 +159,30 @@ fn parse_args(args: List[str]) -> Options ! {usage, parse} {
     while i < args.len {
         let a = args[i]
         let more = i + 1 < args.len
+        let two = i + 2 < args.len
         if more && a == "--make-world-proof" {
             i += 1
             o.make_proof = args[i]
+        } else if a == "--mute" {
+            o.mute = true
+        } else if a == "--hud" {
+            o.hud = true
+        } else if a == "--score-list" {
+            o.score_list = true
+        } else if more && a == "--sound-dir" {
+            i += 1
+            o.sound_dir = args[i]
+        } else if more && a == "--score-replay" {
+            i += 1
+            o.score_replay = args[i]
+        } else if two && a == "--score-render" {
+            o.score_render = args[i + 1]
+            o.score_out = args[i + 2]
+            i += 2
+        } else if two && a == "--score-wav" {
+            o.score_wav = args[i + 1]
+            o.score_out = args[i + 2]
+            i += 2
         } else if a == "--world-audit" {
             o.world_audit = true
         } else if a == "--save-cut" {
@@ -296,6 +342,7 @@ fn run_headless(o: Options, args: List[str]) -> int {
         return 2
     }
     s = replay_initial(r, s) else |e| { eprint("cub: {e}"); return 2 }
+    s.hud = o.hud
     if o.script == "" && o.replay_path == "" { sim.opening(mut s) }
     var g = grid.new(r.rows, r.cols)
     var keys = List[int]()
@@ -550,6 +597,27 @@ fn run_live(o: Options, args: List[str]) -> int {
         if s.scene != 0 { replay.push_arg(mut rec, 0, 2, 1) }
     }
     if replaying { s = replay_initial(rp, s) else |e| { eprint("cub: {e}"); return 2 } }
+    s.hud = o.hud
+    // The score (cb03): the parts rendered to WAVs and the backend probed
+    // before the terminal is entered, so every refusal names itself on a
+    // plain stderr. Off for a replay, under --mute and under CUB_SOUND=0.
+    let sound_on = !replaying && !o.mute && (env.get("CUB_SOUND") else "1") != "0"
+    let sound_dir = if o.sound_dir != "" {
+        o.sound_dir
+    } else {
+        (env.get("HOME") else ".") + "/.cub/sound"
+    }
+    var player = score.player(score.backend_of(env.get("CUB_SOUND_BACKEND") else ""), sound_dir)
+    var sch = score.schedule(List[score.Cue]())
+    var muted = !sound_on
+    var prepared_us = 0
+    if sound_on {
+        let p0 = clock.now_ns()
+        if score.write_wavs(player) != 0 { return 2 }
+        sch = score.schedule(score.cues() else |_| { return 2 })
+        let _answers = score.probe(mut player)
+        prepared_us = (clock.now_ns() - p0) / 1000
+    }
     var saved = journey.encode(s)
     var pending = ""
     var pending_at = 0
@@ -688,12 +756,21 @@ fn run_live(o: Options, args: List[str]) -> int {
                         quit = true
                         replay.push_key(mut rec, s.tick, k)
                     } else {
+                        if k == controls.KEY_MUTE && sound_on {
+                            // The music off, or on again from the scene's part.
+                            muted = !muted
+                            if muted { score.stop(mut player) } else { score.restart(mut sch) }
+                        }
                         (mut tick_keys).push(k)
                         replay.push_key(mut rec, s.tick, k)
                     }
                 }
             }
             sim.step(mut s, tick_keys)
+            if sound_on && !muted && !quit {
+                let c = score.step(mut sch, score.scene_of(s), s.tick)
+                if c != "" { score.play(mut player, c) }
+            }
             if !replaying && !quit {
                 if pending != "" && s.tick - pending_at >= o.save_delay {
                     journey.commit(save_path) else |e| {
@@ -787,6 +864,7 @@ fn run_live(o: Options, args: List[str]) -> int {
         eprint("cub: pending save cancelled; previous journey preserved")
     }
     term.leave(mut t)
+    if sound_on { score.close(mut player) }
     if o.record_path != "" {
         var text = List[byte]()
         replay.format(rec, controls.vocab(), mut text)
@@ -796,7 +874,7 @@ fn run_live(o: Options, args: List[str]) -> int {
     }
     let avg_us = if frames > 0 then render_ns / frames / 1000 else 0
     eprint(
-        "cub: ended by {ended}; {s.tick} ticks, {frames} frames, {c.dropped} dropped, {c.waits} waits, {sim.distance_cells(s)} cells, blocked {s.blocked}; heading {s.heading} at {sim.cell_x(s)},{sim.cell_y(s)}; render avg {avg_us} us max {render_max_ns / 1000} us; seed {rp.seed} tier {tier.name(rp.tier)} {cols}x{rows}",
+        "cub: ended by {ended}; {s.tick} ticks, {frames} frames, {c.dropped} dropped, {c.waits} waits, {sim.distance_cells(s)} cells, blocked {s.blocked}; heading {s.heading} at {sim.cell_x(s)},{sim.cell_y(s)}; render avg {avg_us} us max {render_max_ns / 1000} us; seed {rp.seed} tier {tier.name(rp.tier)} {cols}x{rows}; sound {if sound_on then "on" else "off"} backend {player.backend} answers {if player.on then 1 else 0} prepared {prepared_us} us starts {player.starts} stops {player.stops} cue {sch.current}",
     )
     if ghost_error || save_error then 2 else 0
 }
@@ -823,6 +901,9 @@ fn main() -> int {
     }
     if o.make_proof != "" { return proof.generate(o.make_proof) }
     if o.world_audit { return run_world_audit() }
+    if o.score_list || o.score_render != "" || o.score_wav != "" || o.score_replay != "" {
+        return run_score(o)
+    }
     if o.help {
         print(usage_text())
         return 0
@@ -848,6 +929,44 @@ fn main() -> int {
         return run_headless(o, args)
     }
     run_live(o, args)
+}
+
+/// The score's evidence paths (cb03): `--score-list` every part's name
+/// and length; `--score-render NAME OUT` and `--score-wav NAME OUT` one
+/// part at its own length, deterministic bytes; `--score-replay OUT` the
+/// cue schedule through the engine's mixer. Exit 2 names a part that does
+/// not parse (the engine's reader says where).
+fn run_score(o: Options) -> int {
+    if o.score_list {
+        for n in score.names() {
+            let seconds = score.seconds_of(n) else |_| { return 2 }
+            print("part {n} seconds {seconds} once {if score.plays_once(n) then 1 else 0}")
+        }
+        return 0
+    }
+    if o.score_replay != "" {
+        let pcm = score.replay_pcm() else |_| { return 2 }
+        fs.write_bytes(o.score_replay, pcm) else |_| {
+            eprint("cub: cannot write {o.score_replay}")
+            return 2
+        }
+        return 0
+    }
+    let name = if o.score_render != "" then o.score_render else o.score_wav
+    let part = score.load(name) else |_| {
+        eprint("cub: score: {name}: no such part, or it does not parse")
+        return 2
+    }
+    let bytes = if o.score_wav != "" {
+        sound.wav(part.pcm) else |_| { eprint("cub: score: {name}: not a WAV"); return 2 }
+    } else {
+        copy part.pcm
+    }
+    fs.write_bytes(o.score_out, bytes) else |_| {
+        eprint("cub: cannot write {o.score_out}")
+        return 2
+    }
+    0
 }
 
 fn replay_numbers(mut s: sim.Sim, health: int, scent: int) {

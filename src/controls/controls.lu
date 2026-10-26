@@ -12,7 +12,7 @@
 //! no trail: the bible's section 4 — so Shift+Down is a sneak here, not
 //! pack's parry; cub's parry is `z` alone, R-cb00-4 A); Space bites; `x`
 //! lunges; `z` parries; `c` dodges; Tab locks on; `w` drinks; `r` rests at a
-//! den; `q` or Esc quits; Ctrl-C interrupts.
+//! den; `m` mutes the music (cb03); `q` or Esc quits; Ctrl-C interrupts.
 
 use input
 use replay
@@ -93,7 +93,7 @@ pub const KEY_NOSE: int = 23
 pub const KEY_HEAVY: int = 24
 
 /// Number of replay key identifiers.
-pub const KEY_COUNT: int = 26
+pub const KEY_COUNT: int = 27
 
 /// What a character means, or `KEY_NONE`.
 fn char_key(b: int) -> int {
@@ -116,6 +116,7 @@ fn char_key(b: int) -> int {
     if b == 119 || b == 87 {
         return KEY_WATER
     }
+    if b == 109 || b == 77 { return KEY_MUTE }
     if b == 114 || b == 82 {
         return KEY_REST
     }
@@ -196,7 +197,7 @@ pub fn key_of(name: str) -> int ! {parse} {
 /// numeric event yet (cb01's `health` and `scent`).
 pub fn vocab() -> replay.Vocab {
     var names = List[str]()
-    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt release heart wind fang paw nose heavy skip".
+    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt release heart wind fang paw nose heavy skip mute".
         words() {
         (mut names).push(w)
     }
@@ -212,3 +213,7 @@ pub fn vocab() -> replay.Vocab {
 
 /// An otherwise unused decoded key; skips scenes, inert during play.
 pub const KEY_SKIP: int = 25
+
+/// `m`: the music off, on again (cb03); the live loop's, inert in the
+/// simulation, recorded like every key so a replay is complete.
+pub const KEY_MUTE: int = 26
