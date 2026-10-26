@@ -362,6 +362,8 @@ pub struct Sim {
     scene_started: int,
     cue: int,
     foes: List[Foe],
+    slain: List[int],
+    away_loot: List[AreaLoot],
     trail: List[Trail],
     gait: int,
     body_facing: int,
@@ -461,6 +463,8 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         scene_started: 0,
         cue: 0,
         foes: area_foes(seed, forest.field_of(cols), forest.SHINGLE, 0),
+        slain: empty_slain(),
+        away_loot: empty_loot(),
         trail: List[Trail](),
         gait: 0,
         body_facing: 0,
@@ -984,6 +988,8 @@ fn reset_world(mut s: Sim) {
     s.riposte_foe = -1
     s.chained = false
     s.combo = 0
+    s.slain = empty_slain()
+    s.away_loot = empty_loot()
     s.foes = area_foes(s.seed, s.field, s.area, s.bosses)
     (mut s.drops).reset()
     (mut s.meat).reset()
@@ -2110,6 +2116,61 @@ pub fn den_here(s: Sim) -> int {
     -1
 }
 
+/// Loot waiting in an area uses the original absolute simulation-tick expiry.
+pub struct AreaLoot {
+    drops: List[Drop],
+    meat: List[Meat],
+}
+
+fn empty_slain() -> List[int] {
+    var out = List[int]()
+    var area = 0
+    while area < forest.AREAS { (mut out).push(0); area += 1 }
+    out
+}
+
+fn empty_loot() -> List[AreaLoot] {
+    var out = List[AreaLoot]()
+    var area = 0
+    while area < forest.AREAS {
+        (mut out).push(AreaLoot { drops: List[Drop](), meat: List[Meat]() })
+        area += 1
+    }
+    out
+}
+
+/// Slain ordinary-foe ordinals, independent of a boss's presence. Include
+/// current deaths immediately, so an asynchronous save never misses a kill.
+pub fn slain_mask(s: Sim, area: int) -> int {
+    // A save during the death card is already a last-den respawn.
+    if s.action == FALL { return 0 }
+    var mask = s.slain[area]
+    if area != s.area { return mask }
+    var bit = 1
+    for foe in s.foes {
+        if !is_boss(foe.kind) {
+            if foe.health <= 0 && mask / bit % 2 == 0 { mask += bit }
+            bit *= 2
+        }
+    }
+    mask
+}
+
+/// Re-entry heals and homes living foes, but never revives slain ordinals.
+/// Boss permanence continues to use the separate beaten-boss bits.
+pub fn restore_foes(mut s: Sim) {
+    s.foes = area_foes(s.seed, s.field, s.area, s.bosses)
+    var bit = 1
+    var i = 0
+    while i < s.foes.len {
+        if !is_boss(s.foes[i].kind) {
+            if s.slain[s.area] / bit % 2 == 1 { s.foes[i].health = 0 }
+            bit *= 2
+        }
+        i += 1
+    }
+}
+
 /// Initial encounters for one seeded area: the ordinary foes by group,
 /// the cache guards, and the area's boss at its arena's centre unless the
 /// journey has beaten it (`bosses`, the save's bits).
@@ -2248,14 +2309,17 @@ fn make_foe(kind: int, x: int, y: int) -> Foe {
 
 /// Travel resets only local encounter state, never health, water or currency.
 pub fn enter_area(mut s: Sim, area: int, x: int, y: int) {
+    s.slain[s.area] = slain_mask(s, s.area)
+    s.away_loot[s.area].drops = copy s.drops
+    s.away_loot[s.area].meat = copy s.meat
     s.area = area
     s.x = x
     s.y = y
     s.entered = s.tick
     s.edge_ready = false
-    s.foes = area_foes(s.seed, s.field, area, s.bosses)
-    (mut s.drops).reset()
-    (mut s.meat).reset()
+    restore_foes(mut s)
+    s.drops = copy s.away_loot[area].drops
+    s.meat = copy s.away_loot[area].meat
     (mut s.trail).reset()
     s.locked = -1
     s.riposte = 0

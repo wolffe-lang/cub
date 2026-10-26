@@ -1,0 +1,142 @@
+//! member: false
+
+use controls
+use forest
+use journey
+use sim
+
+fn key(k: int) -> List[int] {
+    var keys = List[int]()
+    if k > 0 { (mut keys).push(k) }
+    keys
+}
+
+fn test_cb04f_wounded_survivors_heal_and_home_on_reentry() {
+    var s = sim.new(7, 80, 24)
+    let x = s.foes[1].x
+    let y = s.foes[1].y
+    let health = s.foes[1].health
+    s.foes[0].health = 0
+    s.foes[1].health = 1
+    s.foes[1].x += 8 * sim.FP
+    s.foes[1].y += 4 * sim.FP
+    sim.enter_area(mut s, 1, 0, 0)
+    sim.enter_area(mut s, 0, 0, 0)
+    assert(s.foes[0].health == 0, "slain stays slain")
+    assert(s.foes[1].health == health && s.foes[1].x == x && s.foes[1].y == y, "R1 A")
+}
+
+fn test_cb04f_rest_and_death_reset_every_area_but_not_bosses() {
+    for death in [false, true] {
+        var s = sim.new(7, 80, 24)
+        s.bosses = 1
+        var area = 0
+        while area < forest.AREAS {
+            sim.enter_area(mut s, area, 0, 0)
+            s.foes[0].health = 0
+            area += 1
+        }
+        sim.enter_area(mut s, 0, 0, 0)
+        let (x, y) = forest.den_position(s.seed, 0)
+        s.x = x
+        s.y = y
+        if death {
+            sim.hurt(mut s, 10000)
+            let resumed = journey.decode(journey.encode(s), 80, 24) else |e| {
+                assert(false, "death card save {e}")
+                return
+            }
+            assert(
+                resumed.foes[0].health > 0 && sim.slain_mask(resumed, 5) == 0,
+                "death card resume resets all areas",
+            )
+            var tick = 0
+            while tick < 30 { sim.step(mut s, key(0)); tick += 1 }
+            assert(s.deaths == 1 && s.mark, "real death wake preserves scent mark")
+        } else {
+            sim.step(mut s, key(controls.KEY_REST))
+            assert(s.den, "real rest input")
+        }
+        area = 0
+        while area < forest.AREAS {
+            sim.enter_area(mut s, area, 0, 0)
+            assert(sim.slain_mask(s, area) == 0 && s.foes[0].health > 0, "global reset")
+            for f in s.foes { assert(f.kind != sim.BOAR, "beaten boss stays beaten") }
+            area += 1
+        }
+    }
+}
+
+fn test_cb04f_loot_survives_travel_without_duplicate_collection_or_fresh_expiry() {
+    var s = sim.new(7, 80, 24)
+    (mut s.drops).push(sim.Drop { x: s.x, y: s.y, value: 8, until: 100 })
+    (mut s.meat).push(sim.Meat { x: s.x, y: s.y, until: 100 })
+    sim.enter_area(mut s, 1, 0, 0)
+    sim.enter_area(mut s, 0, s.x, s.y)
+    assert(s.drops.len == 1 && s.meat.len == 1, "unclaimed loot retained")
+    assert(s.drops[0].until == 100 && s.meat[0].until == 100, "original absolute expiry")
+    s.x = s.drops[0].x
+    s.y = s.drops[0].y
+    sim.step(mut s, key(0))
+    assert(s.scent == 8 && s.drops.len == 0 && s.meat.len == 0, "collected once")
+    sim.enter_area(mut s, 1, 0, 0)
+    sim.enter_area(mut s, 0, s.x, s.y)
+    assert(s.drops.len == 0 && s.meat.len == 0 && s.scent == 8, "taken stays taken")
+    (mut s.drops).push(sim.Drop { x: 0, y: 0, value: 8, until: s.tick + 1 })
+    sim.enter_area(mut s, 1, 0, 0)
+    sim.step(mut s, key(0))
+    sim.enter_area(mut s, 0, 0, 0)
+    sim.step(mut s, key(0))
+    assert(s.drops.len == 0 && s.scent == 8, "travel does not renew expired loot")
+}
+
+fn test_cb04f_save_and_snapshot_keep_slain_with_stable_boss_independent_ordinals() {
+    var s = sim.new(7, 80, 24)
+    s.gate_open = true
+    s.foes[0].health = 0
+    sim.enter_area(mut s, 1, 0, 0)
+    s.foes[1].health = 0
+    s.bosses = 1
+    let text = journey.encode(s)
+    var resumed = journey.decode(text, 80, 24) else |e| {
+        assert(false, "schema5 roundtrip {e}")
+        return
+    }
+    assert(
+        resumed.foes[0].health == 0 && sim.slain_mask(resumed, 1) == 1,
+        "save carries both areas",
+    )
+    sim.enter_area(mut resumed, 1, 0, 0)
+    assert(
+        resumed.foes[0].kind != sim.BOAR && resumed.foes[0].health == 0,
+        "boss removal never shifts slain ordinal",
+    )
+    let snapshot = journey.from_snapshot(journey.snapshot(s), 80, 24) else |e| {
+        assert(false, "journey4 snapshot {e}")
+        return
+    }
+    assert(journey.encode(snapshot) == text, "new recording carries same masks")
+    s.slain[0] = 512
+    var rejected = false
+    let _ = journey.decode(journey.encode(s), 80, 24) else |_| {
+        rejected = true
+        sim.new(7, 80, 24)
+    }
+    assert(rejected, "out-of-range slain bits rejected")
+}
+
+fn test_cb04f_schema4_migrates_canonically_with_empty_slain_masks() {
+    let old = "CUB 4\nseed 1 difficulty 0\ngrowth 1 1 1 1 1\nwater 0 scent 0\nden 0 lit 1 shortcuts 0\ngate 0 story 0 deaths 0\nmark 0 0 0 0 0\ncache 0 pouch 0 0 opening 0\nfield 80\nbosses 0 end 0 played 0 lost 0\nlevel 1\n"
+    let migrated = journey.decode(old + "check {journey.checksum(old)}\n", 80, 24) else |e| {
+        assert(false, "valid schema4 migrates {e}")
+        return
+    }
+    assert(journey.encode(migrated).starts_with("CUB 5\n"), "new write upgrades schema")
+    assert(journey.encode(migrated).contains("slain 0 0 0 0 0 0\n"), "empty old masks")
+    var rejected = false
+    let _ = journey.decode(old + "check 0\n", 80, 24) else |_| {
+        rejected = true
+        sim.new(1, 80, 24)
+    }
+    assert(rejected, "migration still validates the old checksum")
+}
