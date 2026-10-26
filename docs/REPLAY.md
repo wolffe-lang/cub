@@ -162,3 +162,19 @@ sequence lasts 900 ticks instead of 270; its shot table is in DESIGN.
 Existing recordings parse unchanged but use the new animation and timing.
 New recordings reproduce it deterministically; no journey/save field or
 replay-format version changes. A skip key is consumed by the scene.
+
+## Held input and pace (cb04b)
+
+Key ids0..27 remain unchanged. New words are `exact`, `ctrl-down`,
+`ctrl-up`, `shift-down`, `shift-up`, and `up-release`, `down-release`,
+`left-release`, `right-release`. A live negotiated recording starts with
+`exact`; ordinary old recordings retain inferred holds. Modifier changes
+precede the associated action. A key release never fires its action.
+A repeated c in the enhanced stream does not queue another roll.
+
+`pace N` records the debug percentage25..300 (default100). The explicit
+`combat-witness 1` event reproduces the test-only empty-arena setup used
+by live chord rows. Neither is part of a persistent journey schema.
+Held directions, rather than a recent-arrow window or lock override,
+commit bite and roll aim at the input event. `dodge` now means the roll;
+`ctrl-down`/`ctrl-up` express sprint, never repeated `dodge`.

@@ -417,3 +417,18 @@ the brambles (`%%\_/%%`), the grass nest's flattened ring (`,,\_/,,`), the ledge
 fallen oak's roots (`/\___/\` over `(     )` over `(_/ \_)`), the cold hearth's ring of stones (`o o o o`
 round the fire), the last warm hollow where the fire stopped (`_.-~-._` over `( ~ ~ )`). The ember and the
 smoke are as before.
+
+## Combat motion studies (cb04b)
+
+The art study now includes every age of each of the three bites at all
+eight aims, every age of a straight and diagonal roll, and full/mid-rally
+bars at stat levels1/10/40 at both sizes. These disclosed empty-arena
+studies call production sim steps and drawing paths, not mock frames.
+
+Bites move the collision body with the camera held at the commitment
+point. Half-cell side motion is translated at the rich silhouette's pixel
+resolution; the plain body shifts symmetrically for either sign. The third
+bite commits two cells forward, clipped by real obstacles. Roll travel
+uses eight compact original tuck/turn drawings instead of the standing
+body plus an o mark; recovery returns to the ordinary body without blink.
+Water is now row6,column1, below the status numbers and both scalable bars.

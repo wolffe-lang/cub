@@ -151,3 +151,12 @@ Rendered witnesses check both states, not just palette constants.
 The lane's cobbles are the one style a path cell of the town draws in (`forest.path_kind(TOWN)` is
 gravel under the night keyframe); the embers' light never touches them, so `--world-audit`'s `path_off`
 holds the town as it holds every area. The burn's ash inland stands on the area's own floor.
+
+## Regainable health (cb04b)
+
+The existing red203/plain12 health and green84/plain10 stamina stay.
+Regainable health is grey249/plain7, stippled on rich and dotted on plain,
+with the rally number below: no meaning relies on colour alone. Outlines
+and labels stay neutral250/plain7 on235/plain0. These status fills pass
+3:1 contrast on the rich HUD surface; grey is deliberately neutral, not
+a categorical-series hue. The water charge colour remains117/plain14.

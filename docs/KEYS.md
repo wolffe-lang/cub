@@ -12,7 +12,8 @@ remain unmeasured. The decoder selftest checks every split of each sequence.
 | Space | `20` | bite |
 | x | `78` | forward lunge with two backward windup steps |
 | z | `7A` | parry |
-| c | `63` | tap dodge; hold/repeat sprint on stamina |
+| c | `63` | directional roll (never sprint) |
+| Ctrl+arrow | legacy `1B 5B 31 3B 35` plus `A/B/C/D`; negotiated press/repeat/release | held sprint |
 | Tab | `09` | lock nearest, then cycle |
 | w | `77` | drink |
 | r | `72` | rest at a nearby den; interact with a shortcut or cache |
@@ -26,12 +27,27 @@ lone-Esc path waits for another byte instead of reporting the timeout, so it
 is not a successful keyprobe measurement. Ctrl-C's restoration witness is
 only the engine pty row typing byte `03` into its own game session.
 
-Shift+Down remains sneak, never parry. Ordinary terminal byte streams cannot
-distinguish Shift+Space. Space aims with recent arrows, including diagonals;
-`x` always uses facing. Hold `c` after its initial dodge to sprint; Space
-while sprinting makes the forward snapping attack. A repeat within one
-second identifies a hold, so two close taps also count. No real key-up
-is available; the engine expires the inferred hold after repeats stop.
+Shift+Down remains sneak, never parry. Cub now opts into the engine's
+keyboard session: terminals answering its bounded query enable flags11
+(press/repeat/release and all keys). Held arrows persist until release;
+two non-opposing arrows form a diagonal, opposites cancel. Releasing Left
+while Down remains held resumes Down. Ctrl with arrows sprints and drains
+stamina until Ctrl/arrows are released or stamina is empty. `c` only rolls.
+
+Space commits the held direction, including diagonals, at its press;
+without arrows it uses facing. A lock does not override an explicitly held
+aim. `x` keeps its forward-facing lunge. `c` likewise commits held arrows,
+or facing with none: an arrow already held when c is added works. Unlocked
+facing follows the roll; a lock retains target-facing. Negotiated
+Shift+Space is heavy; `s` remains the heavy fallback on every terminal.
+
+Without a protocol reply the engine retains inferred holds. Legacy
+Ctrl+arrow repeat sequences refresh sprint, which expires when they stop
+(after their inferred repeat lifetime). Such byte streams cannot report
+actual release, promise physical simultaneous keys, or reliably resume a
+previous key. Arrow aim and rolls use this inferred state, not true key-up.
+The fallback is not described as exact. Negotiation/restoration and every
+scripted chord are pty witnesses, not claims of a physical-terminal test.
 
 ## Physical Shift+Space probe, 2026-10-25
 
@@ -43,10 +59,10 @@ claim about both Terminal.app and iTerm2. Shift+Space is indistinguishable
 from Space there. Heavy attack uses `s` (`73`; `S` also accepted), while
 Space continues to bite.
 
-The pinned engine explicitly ignores CSI-u / kitty and tilde forms in
-`input/input.lu` (lines 16–18 and 173). Enhanced protocol negotiation and
-restoration on every exit path, with protocol-restore pty rows, must land
-in lair before cub can bind the chord. No protocol is enabled by this build.
+The old legacy decoder still ignores enhanced forms for unchanged
+consumers. Cub uses `feed_events` and the opted-in session instead. The
+keyboard stack is restored on normal quit, typed Ctrl-C and runtime error
+through the pinned engine; no engine decoder is copied into this game.
 
 In connected areas, `r` rests at any den, pushes/crosses the fallen log,
 digs/crosses the hedge, or digs an unguarded cache. Context chooses the
@@ -83,7 +99,7 @@ Esc or `r` discards pending choices and leaves. Keys1–5 no longer purchase.
 The world stays paused, and no arrow remains held on exit. Growth remains
 den-only; the displayed Scent after subtracts only accepted pending levels.
 
-Water must first be found at the Shingle spring. The counter at row3 beside
+Water must first be found at the Shingle spring. The counter on row6 below
 the bars says `Water n/cap  w drink`, or `Water 0/0 - find a spring` before
 learning. `w` spends one immediately and heals during the second half of
 its one-second animation; a hit interrupts it. Rests refill found capacity.
@@ -102,3 +118,14 @@ window as any blow is; the parry opens a sixty-tick riposte. The four pty
 rows `town-passage`, `ashen-parry`, `ember-touch` and `yard-cache` replay the
 real-key scripts the proof generates and hold the live frame to the
 headless one.
+
+## Movement tuning and combat studies
+
+`--pace N` is an off-title debug dial,25..300 percent of default player
+walk/sprint speed (and acceleration/braking); a recording carries it.
+It never changes a saved stat. Normal play defaults to100.
+
+`--combat-witness` is an explicit test-only empty-arena setup for the live
+input rows. Its setup is recorded too; it is not a normal journey or an
+undisclosed gameplay teleport. `cb04b-*` pty rows report eight aims,
+no-arrow roll, long-held chords, releases, displacement and facing.
