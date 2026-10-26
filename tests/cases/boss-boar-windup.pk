@@ -2,7 +2,7 @@ pk 1
 seed 1
 tier rich
 size 80x24
-t 0 journey 2
+t 0 journey 3
 t 0 saved-0 1
 t 0 saved-1 0
 t 0 saved-2 2
@@ -10,7 +10,7 @@ t 0 saved-3 2
 t 0 saved-4 2
 t 0 saved-5 1
 t 0 saved-6 1
-t 0 saved-7 3
+t 0 saved-7 2
 t 0 saved-8 0
 t 0 saved-9 2
 t 0 saved-10 7
@@ -32,6 +32,7 @@ t 0 saved-25 0
 t 0 saved-26 0
 t 0 saved-27 0
 t 0 saved-28 0
+t 0 saved-29 4
 t 0 right
 t 1 right
 t 2 right
