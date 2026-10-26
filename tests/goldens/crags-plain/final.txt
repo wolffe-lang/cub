@@ -1,0 +1,24 @@
+#health [||||||||] stamina [||||||||] scent 0O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.......O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.......#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.......O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  .. O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#  ,: #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O..   O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O    .O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.    #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#( The ledge cleft )#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.,.. O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#####  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O####    #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.vv.O. :  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O/O#O#O   , O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   . O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+",  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O . . O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+   "#  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# :   #O#O#O#O#O#O#O#O#O#O#O#O#O#O
+':     #'#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#:    #O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+,"" .| '  #O#O#O#O#O# .  O#O#O#O#O#O# , .O#O#    .#O#    O#O#O#O#O#O#O#O#O#O#O#O
+    O   |  #O#O#O          #O#O#O#. .  :     :  O# :   .  O#O#O#O#O#      O#O#O#
+ :  ,.#   . # . :            O#O#              O .:         #O#O#O    ..   O#O#O
+   .'  :,| .......         .   .        ,     . ,            #O#O             O#

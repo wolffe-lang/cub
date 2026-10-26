@@ -1,0 +1,6 @@
+tick 551 area 5 den_id 6 shortcuts 15 caches 0 scene 0 drops 0 mark_area 0 x 2384 y 26698 heading 160 action 2 started 540 health 112 stamina 3 flasks 3 scent 0 deaths 0 mark 0 mark_scent 0 gate 1 trail 57 lock -1 aim 160 combo 0 body 3 gait 1127 bosses 7 end 0 arena 1 played 551 lost 0
+foe 0 kind 7 health 140 phase 4 since 524 x 1664 y 27972 heading 32 gap 2 attack 0 poise 48
+foe 1 kind 1 health 24 phase 0 since 0 x -256 y 13568 heading 0 gap 49 attack 0 poise 0
+foe 2 kind 1 health 24 phase 0 since 231 x -2121 y 14144 heading 192 gap 47 attack 0 poise 0
+foe 3 kind 1 health 24 phase 0 since 0 x -1280 y 34816 heading 0 gap 29 attack 0 poise 0
+foe 4 kind 1 health 24 phase 0 since 0 x -256 y 34816 heading 0 gap 29 attack 0 poise 0
