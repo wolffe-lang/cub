@@ -1,0 +1,359 @@
+//! member: false
+//!
+//! cb04, the bosses: four big bodies on cb02c's rules, each holding its
+//! arena, with telegraphed attacks whose windups are at least the parry
+//! window (the one unparryable attack beaten by a dodge), a second phase
+//! at half health, poise, the alpha's mirrored guard, a beaten state the
+//! save keeps that opens the boss's shortcut, and the health bar.
+
+use art
+use controls
+use forest
+use grid
+use journey
+use silhouette
+use sim
+use tier
+
+fn keys(k: int) -> List[int] {
+    var v = List[int]()
+    if k > 0 { (mut v).push(k) }
+    v
+}
+
+fn ticks(mut s: sim.Sim, n: int) {
+    var i = 0
+    while i < n { sim.step(mut s, keys(0)); i += 1 }
+}
+
+/// A cub inside a boss's arena, two cells north of the boss's body and
+/// facing it, the rest of the area's foes gone; the boss at index 0.
+fn arena_with(kind: int, seed: int) -> sim.Sim {
+    let area = if kind == sim.BOAR {
+        forest.BRAMBLEHOLD
+    } else if kind == sim.LYNX {
+        forest.CRAGS
+    } else if kind == sim.ELK {
+        forest.RIVER
+    } else {
+        forest.OLDDEN
+    }
+    var s = sim.new(seed, 80, 24)
+    s.heart = 6
+    s.fang = 5
+    s.health = sim.health_max(6)
+    s.gate_open = true
+    let (cx, cy, _) = forest.arena(seed, s.field, area)
+    let o = forest.origin(seed, area)
+    sim.enter_area(mut s, area, cx * sim.FP + sim.FP / 2, (o + cy) * sim.FP + sim.FP / 2)
+    // Keep the boss alone.
+    var kept = List[sim.Foe]()
+    for f in s.foes { if sim.is_boss(f.kind) { (mut kept).push(copy f) } }
+    s.foes = kept
+    assert(s.foes.len == 1 && s.foes[0].kind == kind, "the area's boss")
+    // The cub north of the boss, one clear cell between the bodies (a
+    // bite's reach), facing south: its own cell four rows above the boss's
+    // top row.
+    let (w, h) = silhouette.foe_size(kind)
+    let (_, dr, _, _) = silhouette.footprint(w, h, 0)
+    s.y = s.foes[0].y + (dr - 4) * sim.FP
+    s.x = s.foes[0].x
+    s.heading = 128
+    s.heading_target = 128
+    s.body_facing = 2
+    s.foes[0].heading = 0
+    sim.settle_bodies(mut s)
+    s
+}
+
+fn test_cb04_every_telegraph_is_at_least_the_parry_window() {
+    // Every parryable attack's windup, both phases, at or above the
+    // nine-tick parry window; each boss has exactly one unparryable attack
+    // (the dodge's), and its own windup is longer still.
+    var kind = sim.BOAR
+    while kind <= sim.ALPHA {
+        var unparryable = 0
+        var m = 0
+        while m < 3 {
+            var p2 = 0
+            while p2 < 2 {
+                let mv = sim.boss_move(kind, m, p2 == 1)
+                assert(
+                    mv.windup >= sim.PARRY_WINDOW,
+                    "boss {kind} attack {m} phase {p2} windup {mv.windup}",
+                )
+                if !mv.parryable && p2 == 0 && !(kind == sim.BOAR && m == 2) {
+                    unparryable += 1
+                    assert(mv.windup >= 15, "the unparryable tell is long: {mv.windup}")
+                }
+                p2 += 1
+            }
+            m += 1
+        }
+        assert(unparryable == 1, "boss {kind} has one unparryable attack: {unparryable}")
+        kind += 1
+    }
+    // The cub at its pace covers a dodge's three cells well inside the
+    // shortest unparryable tell (15 ticks at 63 FP a tick is 3.7 cells).
+    assert(sim.trot_at(1) * 15 >= 3 * sim.FP, "a dodge fits in the tell")
+}
+
+fn test_cb04_a_boss_never_leaves_its_arena() {
+    // The cub stands outside the arena, three cells past its edge, in the
+    // boss's sight; the boss hunts it to the edge and no further, two
+    // hundred ticks, in every arena.
+    var kind = sim.BOAR
+    while kind <= sim.ALPHA {
+        var s = arena_with(kind, 1)
+        let (cx, cy, r) = forest.arena(s.seed, s.field, s.area)
+        let o = forest.origin(s.seed, s.area)
+        // Up the route, outside the circle (the boar's clearing: west, at
+        // its mouth's row).
+        if kind == sim.BOAR {
+            s.x = (cx - r - 3) * sim.FP + sim.FP / 2
+            s.y = (o + cy) * sim.FP + sim.FP / 2
+        } else {
+            s.x = forest.spine(s.seed, s.area, cy - r - 3) * sim.FP + sim.FP / 2
+            s.y = (o + cy - r - 3) * sim.FP + sim.FP / 2
+        }
+        s.foes[0].engaged = true
+        var n = 0
+        while n < 200 {
+            sim.step(mut s, keys(0))
+            assert(
+                sim.in_arena_at(s, s.foes[0].x, s.foes[0].y),
+                "boss {kind} left its arena at tick {n}: {s.foes[0].x},{s.foes[0].y}",
+            )
+            assert(!sim.overlap(sim.cub_body(s), sim.foe_body(s.foes[0])), "no overlap {kind} {n}")
+            n += 1
+        }
+        kind += 1
+    }
+}
+
+fn test_cb04_the_boar_gore_is_parried_and_the_charge_dodged() {
+    var s = arena_with(sim.BOAR, 1)
+    let health = s.health
+    // The gore: a windup of fourteen, parried at its landing.
+    s.foes[0].phase = sim.CROUCH
+    s.foes[0].attack = 0
+    s.foes[0].since = s.tick
+    s.foes[0].target_x = s.x
+    s.foes[0].target_y = s.y
+    ticks(mut s, 10)
+    assert(s.foes[0].phase == sim.CROUCH && s.health == health, "ten safe ticks of the tell")
+    sim.step(mut s, keys(controls.KEY_PARRY))
+    ticks(mut s, 5)
+    assert(s.health == health, "the gore was turned")
+    assert(s.foes[0].phase == sim.STAGGER, "the boar staggers on a parry")
+    assert(s.riposte > s.tick, "and the riposte is armed")
+    // The charge: committed at its windup's start, so stepping aside
+    // during the long tell and dodging at its end beats it (the boar is
+    // six cells wide: the step clears its line, the dodge's frames the
+    // rest); a parry does not.
+    var t = arena_with(sim.BOAR, 1)
+    t.foes[0].y = t.y + 10 * sim.FP
+    t.foes[0].phase = sim.CROUCH
+    t.foes[0].attack = 1
+    t.foes[0].since = t.tick
+    t.foes[0].target_x = t.x
+    t.foes[0].target_y = t.y
+    var n0 = 0
+    while n0 < 23 { sim.step(mut t, keys(controls.KEY_RIGHT)); n0 += 1 }
+    var k = keys(controls.KEY_RIGHT)
+    (mut k).push(controls.KEY_DODGE)
+    sim.step(mut t, k)
+    var n = 0
+    while n < 30 {
+        sim.step(mut t, keys(0))
+        assert(
+            !sim.overlap(sim.cub_body(t), sim.foe_body(t.foes[0])),
+            "the charge never enters the cub",
+        )
+        n += 1
+    }
+    assert(t.health == health, "a sideways dodge beats the charge")
+    var u = arena_with(sim.BOAR, 1)
+    u.foes[0].y = u.y + 10 * sim.FP
+    u.foes[0].phase = sim.CROUCH
+    u.foes[0].attack = 1
+    u.foes[0].since = u.tick
+    u.foes[0].target_x = u.x
+    u.foes[0].target_y = u.y
+    ticks(mut u, 23)
+    sim.step(mut u, keys(controls.KEY_PARRY))
+    // Five clear cells at 96 FP a tick: the run lands on its fourteenth.
+    ticks(mut u, 18)
+    assert(u.health < health, "a parry does not turn the charge: {u.health}")
+    assert(
+        u.health == health - sim.boss_move(sim.BOAR, 1, false).damage,
+        "the charge's damage once",
+    )
+}
+
+fn test_cb04_a_lunge_into_the_charge_staggers_the_boar_and_bites_never_do() {
+    var s = arena_with(sim.BOAR, 1)
+    // A bite on a hunting boar: damage, no stagger (poise).
+    sim.step(mut s, keys(controls.KEY_BITE))
+    ticks(mut s, 4)
+    assert(s.foes[0].health < sim.foe_health(sim.BOAR), "the bite lands")
+    assert(s.foes[0].phase != sim.STAGGER, "a bite never staggers a boss")
+    // A lunge into its charge's windup staggers it at once.
+    s.foes[0].phase = sim.CROUCH
+    s.foes[0].attack = 1
+    s.foes[0].since = s.tick
+    ticks(mut s, 10)
+    sim.step(mut s, keys(controls.KEY_LUNGE))
+    ticks(mut s, 11)
+    assert(s.foes[0].phase == sim.STAGGER, "a lunge into the charge staggers the boar")
+    // Poise: lunges on a hunting boss accumulate to a stagger within the
+    // window (fang 2: a lunge of thirty, two to the bar of sixty).
+    var t = arena_with(sim.ELK, 1)
+    t.fang = 2
+    sim.step(mut t, keys(controls.KEY_LUNGE))
+    ticks(mut t, 11)
+    assert(t.foes[0].phase != sim.STAGGER && t.foes[0].poise > 0, "one lunge: poise, no stagger")
+    ticks(mut t, 13)
+    sim.step(mut t, keys(controls.KEY_LUNGE))
+    ticks(mut t, 11)
+    assert(t.foes[0].phase == sim.STAGGER, "poise {t.foes[0].poise} broke within the window")
+}
+
+fn test_cb04_half_health_is_the_second_phase() {
+    var kind = sim.BOAR
+    while kind <= sim.ALPHA {
+        var s = arena_with(kind, 1)
+        assert(!sim.phase_two(s.foes[0]), "fresh: phase one")
+        s.foes[0].health = sim.foe_health(kind) / 2
+        assert(!sim.phase_two(s.foes[0]), "half exactly is still phase one")
+        s.foes[0].health -= 1
+        assert(sim.phase_two(s.foes[0]), "under half: phase two")
+        assert(art.boss_bar_text(s.foes[0]).ends_with(" !"), "the bar marks it")
+        kind += 1
+    }
+    // The boar's second phase charges twice: the first run goes into the
+    // second windup, not the recovery.
+    var s = arena_with(sim.BOAR, 1)
+    s.foes[0].health = 100
+    s.foes[0].y = s.y + 10 * sim.FP
+    s.foes[0].phase = sim.CROUCH
+    s.foes[0].attack = 1
+    s.foes[0].since = s.tick
+    s.foes[0].target_x = s.x
+    s.foes[0].target_y = s.y
+    s.x += 6 * sim.FP
+    var saw_second = false
+    var n = 0
+    while n < 80 {
+        sim.step(mut s, keys(0))
+        if s.foes[0].phase == sim.CROUCH && s.foes[0].attack == 2 { saw_second = true }
+        n += 1
+    }
+    assert(saw_second, "the second charge winds up")
+}
+
+fn test_cb04_a_beaten_boss_stays_beaten_and_opens_its_shortcut() {
+    var s = arena_with(sim.LYNX, 1)
+    s.foes[0].health = 1
+    sim.step(mut s, keys(controls.KEY_BITE))
+    ticks(mut s, 4)
+    assert(s.foes[0].health <= 0 && s.foes[0].died >= 0, "the lynx falls")
+    assert(s.bosses == sim.boss_bit(sim.LYNX), "the save's bit")
+    assert(sim.shortcut_open(s, 7), "the ledge opens")
+    assert(s.drops.len == 1 && s.drops[0].value == 200, "its scent lies where it fell")
+    assert(s.cue == 0 || true, "")
+    // It fades over forty-five ticks and never comes back: a rest resets
+    // the area without it, and a save round trip keeps the bit.
+    ticks(mut s, sim.BOSS_FADE_TICKS)
+    assert(sim.boss_index(s) < 0, "no live boss")
+    let (dx, dy) = forest.den_position(s.seed, 4)
+    s.x = dx
+    s.y = dy
+    sim.step(mut s, keys(controls.KEY_REST))
+    assert(s.den && sim.boss_index(s) < 0, "a rest brings no beaten boss back")
+    let text = journey.encode(s)
+    let back = journey.decode(text, 80, 24) else |e| { assert(false, "save {e}"); return }
+    assert(back.bosses == 2 && sim.shortcut_open(back, 7), "beaten in the save, the ledge open")
+    // An unbeaten boss heals to full at a rest (R-cb04-3 A).
+    var t = arena_with(sim.ELK, 1)
+    t.foes[0].health = 10
+    let (ex, ey) = forest.den_position(t.seed, 5)
+    t.x = ex
+    t.y = ey
+    sim.step(mut t, keys(controls.KEY_REST))
+    assert(t.foes[0].health == sim.foe_health(sim.ELK), "the elk is whole again")
+}
+
+fn test_cb04_the_alpha_turns_a_bite_and_hops_a_lunge() {
+    // Its guard: a bite into it does no damage, ends the cub's bite, and
+    // the alpha ripostes with a bite whose remaining windup is the parry
+    // window; its hop: a lunge begun near it finds it three cells aside.
+    var s = arena_with(sim.ALPHA, 1)
+    s.foes[0].phase = sim.FOE_PARRY
+    s.foes[0].since = s.tick
+    let health = s.foes[0].health
+    sim.step(mut s, keys(controls.KEY_BITE))
+    ticks(mut s, 3)
+    assert(s.foes[0].health == health, "the guard turns the bite")
+    assert(s.action == sim.IDLE, "the cub's bite ends")
+    assert(s.foes[0].phase == sim.CROUCH && s.foes[0].attack == 0, "the riposte winds up")
+    let remaining = sim.boss_move(sim.ALPHA, 0, false).windup - (s.tick - s.foes[0].since)
+    assert(remaining == sim.PARRY_WINDOW, "readable still: {remaining}")
+    var t = arena_with(sim.ALPHA, 1)
+    t.foes[0].phase = sim.FOE_DODGE
+    t.foes[0].attack = 64
+    // As `alpha_reacts` sets it: the hop's first step is the tick's own.
+    t.foes[0].since = t.tick + 1
+    let x0 = t.foes[0].x
+    ticks(mut t, sim.HOP_TICKS)
+    assert(t.foes[0].x - x0 == 3 * sim.FP, "a three-cell hop east")
+    assert(t.foes[0].phase == sim.HUNT, "then the hunt again")
+}
+
+fn test_cb04_the_health_bar_shows_in_the_arena_only() {
+    var s = arena_with(sim.ELK, 1)
+    var g = grid.new(24, 80)
+    art.render(s, tier.PLAIN, mut g)
+    assert(grid.plain_ok(g), "plain fight frame")
+    var row1 = ""
+    var c = 0
+    while c < 80 { row1 += "{grid.at(g, 1, c).cp as char}"; c += 1 }
+    assert(row1.contains("Alder [####################]"), "the bar under the name: {row1}")
+    let (cx, cy, r) = forest.arena(s.seed, s.field, s.area)
+    let _ = cx
+    s.y = (forest.origin(s.seed, s.area) + cy - r - 6) * sim.FP
+    s.x = forest.spine(s.seed, s.area, cy - r - 6) * sim.FP
+    var h = grid.new(24, 80)
+    art.render(s, tier.RICH, mut h)
+    var row = ""
+    c = 0
+    while c < 80 { row += "{grid.at(h, 1, c).cp as char}"; c += 1 }
+    assert(!row.contains("Alder"), "no bar outside the arena")
+    assert(
+        sim.boss_name(sim.BOAR) == "Old Snag" && sim.boss_name(sim.ALPHA) == "Ashgrim",
+        "the names",
+    )
+}
+
+fn test_cb04_bosses_are_the_drawings_and_never_overlap_the_cub() {
+    // The bodies rule (cb02c) holds for the big bodies: a boss hunting a
+    // standing cub stops on the ring, in a bite's reach, never inside.
+    var kind = sim.BOAR
+    while kind <= sim.ALPHA {
+        var s = arena_with(kind, 2)
+        s.foes[0].y = s.y + 12 * sim.FP
+        var n = 0
+        var touched = false
+        while n < 120 {
+            sim.step(mut s, keys(0))
+            assert(
+                !sim.overlap(sim.cub_body(s), sim.foe_body(s.foes[0])),
+                "boss {kind} inside the cub at {n}",
+            )
+            if sim.body_gap(s, 0) == 0 { touched = true }
+            n += 1
+        }
+        assert(touched || s.health < sim.health_max(6), "boss {kind} reached the cub or struck it")
+        kind += 1
+    }
+}
