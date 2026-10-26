@@ -40,7 +40,11 @@ sprites mark the coast; gangly trees, stones, bones, stumps, crows, cairns,
 scent grass and a ford fill the meadow. Bite, forward lunge, parry, dodge,
 stamina sprint and chain attacks; a
 hawk's connected wings and body ask for a parry or an escape. Foes leave visible
-scent to collect before it fades. Dens heal, refill water and spend scent
+scent as a bright pulsing orb with seeded drifting motes; death scent uses
+the same light and stays visible across the screen. Pickups are collected
+within the cub's body plus a one-cell ring, with a short recovery burst.
+Landmarks and caches have original sprites instead of floating world
+names; their meanings are in `docs/ART.md`. Dens heal, refill water and spend scent
 on growth. Death leaves a recoverable mark, even across area edges; a
 second death replaces it. An opening scene shows the broken crossing.
 On macOS the music plays through `afplay`; on Linux through `paplay` where
@@ -135,6 +139,7 @@ holds every world to a win within five lives, every parryable telegraph to
 the parry window and every boss to its arena; the gameplay gate replays the
 boss, end, ghost and title witnesses and checks a death's trailer against
 the sim frame for frame;
+`--look-audit` scans fifty seeded camera walks for leftover world labels on both tiers.
 `--feel-audit`, `--chase-audit` and `--mouth-audit` census the dens,
 switchbacks, clearings, pursuit and safe arena approaches. `--measure` reports the pace, the wag, the fox's chase, the path colours
 and the body census over the real-key scripts. The sound pty rows start the
