@@ -307,6 +307,7 @@ pub struct Sim {
     health: int,
     stamina: int,
     holds: List[input.Hold],
+    key_state: input.KeyState,
     aim_order: List[int],
     aim_serial: int,
     sprint_hold: input.Hold,
@@ -406,6 +407,7 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         health: health_max(STAT_START),
         stamina: stamina_max(STAT_START),
         holds: holds,
+        key_state: input.state_new(false),
         aim_order: aim_order,
         aim_serial: 0,
         sprint_hold: input.hold_new(),
@@ -990,6 +992,7 @@ fn reset_world(mut s: Sim) {
     (mut s.trail).reset()
     var i = 0
     while i < s.holds.len { s.holds[i] = input.hold_new(); i += 1 }
+    input.clear(mut s.key_state)
     s.sprint_hold = input.hold_new()
     s.sprinting = false
     s.sprint_charge = 0
@@ -1057,11 +1060,25 @@ fn start_action(mut s: Sim, action: int, cost: int) {
 
 fn action_keys(mut s: Sim, keys: List[int]) {
     for k in keys {
+        if input_key(mut s, k) { continue }
         // Rest consumes these inputs; no held motion leaks out of the menu.
         if s.den { rest_key(mut s, k); continue }
         if controls.is_move(k) {
             let i = k - controls.KEY_UP
-            if s.holds[i].last != s.tick { input.hold_press(mut s.holds[i], s.tick) }
+            if input.exact(s.key_state) {
+                input.update(
+                    mut s.key_state,
+                    input.Event {
+                        key: input.KEY_UP + i % 4,
+                        mods: s.key_state.modifiers,
+                        kind: input.PRESS,
+                    },
+                    s.tick,
+                )
+                sync_holds(mut s)
+            } else if s.holds[i].last != s.tick {
+                input.hold_press(mut s.holds[i], s.tick)
+            }
             s.aim_serial += 1
             s.aim_order[i] = s.aim_serial
         }
@@ -1092,11 +1109,7 @@ fn action_keys(mut s: Sim, keys: List[int]) {
         if k == controls.KEY_HEAVY { start_action(mut s, HEAVY, HEAVY_COST) }
         if k == controls.KEY_LUNGE { start_action(mut s, LUNGE, 30) }
         if k == controls.KEY_PARRY { start_action(mut s, PARRY, 10) }
-        if k == controls.KEY_DODGE && s.sprint_hold.last != s.tick {
-            let repeat = s.tick - s.sprint_hold.last <= 30
-            input.hold_press(mut s.sprint_hold, s.tick)
-            if !repeat { start_action(mut s, DODGE, 18) }
-        }
+        if k == controls.KEY_DODGE { start_action(mut s, DODGE, 18) }
         if k == controls.KEY_WATER && s.action == IDLE && s.flasks > 0 {
             s.flasks -= 1
             start_action(mut s, DRINK, 0)
@@ -1473,8 +1486,11 @@ fn trail_step(mut s: Sim, ox: int, oy: int) {
 pub fn step(mut s: Sim, keys: List[int]) {
     s.tick += 1
     s.cue = 0
+    for k in keys { if k == controls.KEY_EXACT { s.key_state = input.state_new(true) } }
     if s.scene != 0 {
-        scene_step(mut s, keys.len > 0)
+        var pressed = false
+        for k in keys { if k > 0 && k < controls.KEY_EXACT { pressed = true } }
+        scene_step(mut s, pressed)
         return
     }
     if s.action == FALL {
@@ -1882,6 +1898,9 @@ fn aim_axis_order(s: Sim, axis: int) -> int {
 
 /// Lock wins; otherwise latest opposing arrow wins per axis, then facing.
 pub fn attack_aim(s: Sim) -> int {
+    let held = held_direction(s)
+    if held >= 0 { return held }
+    if input.exact(s.key_state) { return s.heading }
     if s.locked >= 0 && s.locked < s.foes.len && s.foes[s.locked].health > 0 {
         let h = heading_to(s.x, s.y, s.foes[s.locked].x, s.foes[s.locked].y)
         if h >= 0 { return h }
@@ -3196,9 +3215,7 @@ pub const SCENE_TITLE: int = 2
 pub fn sprint_at(paw: int) -> int { trot_at(paw) * 8 / 5 }
 
 /// Repeat-inferred c hold; the first press still performs an immediate dodge.
-pub fn sprint_held(s: Sim) -> bool {
-    input.held(s.sprint_hold, s.tick) && s.sprint_hold.last - s.sprint_hold.prev <= 30
-}
+pub fn sprint_held(s: Sim) -> bool { input.held(s.sprint_hold, s.tick) }
 
 /// Sprint stamina per thirty moving ticks, charged with an integer accumulator.
 pub const SPRINT_PER_SECOND: int = 12
@@ -3372,4 +3389,56 @@ pub fn rest_key(mut s: Sim, key: int) {
         s.stamina = stamina_max(s.wind)
         rest_reset(mut s)
     }
+}
+
+/// Direction from currently held arrows; opposite arrows cancel per axis.
+pub fn held_direction(s: Sim) -> int {
+    heading_of(
+        input.held(s.holds[0], s.tick) || input.held(s.holds[4], s.tick),
+        input.held(s.holds[1], s.tick) || input.held(s.holds[5], s.tick),
+        input.held(s.holds[2], s.tick) || input.held(s.holds[6], s.tick),
+        input.held(s.holds[3], s.tick) || input.held(s.holds[7], s.tick),
+    )
+}
+
+fn sync_holds(mut s: Sim) {
+    let shift = input.held(input.key_hold(s.key_state, input.KEY_SHIFT), s.tick)
+    var i = 0
+    while i < 4 {
+        let h = input.key_hold(s.key_state, input.KEY_UP + i)
+        s.holds[i] = if shift then input.hold_new() else copy h
+        s.holds[i + 4] = if shift then h else input.hold_new()
+        i += 1
+    }
+    s.sprint_hold = input.key_hold(s.key_state, input.KEY_CTRL)
+}
+
+fn input_key(mut s: Sim, k: int) -> bool {
+    if k == controls.KEY_EXACT { return true }
+    if k < controls.KEY_CTRL_DOWN || k >= controls.KEY_COUNT { return false }
+    if s.den { input.clear(mut s.key_state); return true }
+    var key = input.KEY_CTRL
+    var kind = input.PRESS
+    var mods = s.key_state.modifiers
+    if k == controls.KEY_CTRL_DOWN { mods = mods | input.MOD_CTRL }
+    if k == controls.KEY_CTRL_UP { mods = mods & 255 - input.MOD_CTRL; kind = input.RELEASE }
+    if k == controls.KEY_SHIFT_DOWN { key = input.KEY_SHIFT; mods = mods | input.MOD_SHIFT }
+    if k == controls.KEY_SHIFT_UP {
+        key = input.KEY_SHIFT
+        mods = mods & 255 - input.MOD_SHIFT
+        kind = input.RELEASE
+    }
+    if k >= controls.KEY_ARROW_RELEASE {
+        key = input.KEY_UP + k - controls.KEY_ARROW_RELEASE
+        kind = input.RELEASE
+    }
+    input.update(mut s.key_state, input.Event { key: key, mods: mods, kind: kind }, s.tick)
+    if input.exact(s.key_state) {
+        sync_holds(mut s)
+    } else if k == controls.KEY_CTRL_DOWN {
+        input.hold_press(mut s.sprint_hold, s.tick)
+    } else if k == controls.KEY_CTRL_UP {
+        s.sprint_hold = input.hold_new()
+    }
+    true
 }
