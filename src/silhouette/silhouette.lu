@@ -183,9 +183,26 @@ pub fn cub_size() -> (int, int) {
 }
 
 /// A ground foe's drawing's size in pixels, north (the simulation's
-/// kinds: 0 weasel, 1 fox, 3 deer).
+/// kinds: 0 weasel, 1 fox, 3 deer; the bosses 4 boar, 5 lynx, 6 elk, 7
+/// shadow alpha, cb04: big bodies, two to three cells larger than the cub
+/// each way).
 pub fn foe_size(kind: int) -> (int, int) {
-    if kind == 0 then (4, 12) else if kind == 1 then (8, 12) else (8, 16)
+    match kind {
+        0 => (4, 12),
+        1 => (8, 12),
+        4 => (12, 24),
+        5 => (10, 20),
+        6 => (14, 28),
+        7 => (12, 24),
+        _ => (8, 16),
+    }
+}
+
+/// The wolf the cub becomes at the end (cb04): the cub's drawing grown
+/// one size, twelve pixels across and twenty-four down (six cells by six
+/// north, twelve by three east).
+pub fn wolf_size() -> (int, int) {
+    (12, 24)
 }
 
 /// Draw a creature at its cell `(row, col)` facing `facing`.
@@ -388,6 +405,7 @@ pub fn cub_posed(pose: int, legs: int, tail: int, hurt: int, breath: int) -> Bit
 /// feint, 6 pause; a crouch tucks the head, a strike thrusts it, a flight
 /// streams the tail, a stagger splits the body, a feint curls the tail.
 pub fn foe(kind: int, phase: int, fade: int) -> Bitmap {
+    if kind >= 4 { return boss(kind, phase, fade) }
     var r = List[str]()
     let crouch = phase == 1 || phase == 5
     let strike = phase == 2
@@ -522,6 +540,252 @@ pub fn bundle(opened: bool) -> Bitmap {
     parse(r)
 }
 
+/// The bosses (cb04), each one drawing facing north, its tells postures of
+/// the drawing: 0 hunt, 1 windup, 2 strike, 3 recovery, 4 stagger; the
+/// alpha's 7 guard (its parry) and 8 hop (its dodge). A death erodes the
+/// head at fifteen ticks and the body at thirty (the boss fade is forty-
+/// five). The shapes are cub's own.
+pub fn boss(kind: int, phase: int, fade: int) -> Bitmap {
+    var b = if kind == 4 {
+        boar(phase)
+    } else if kind == 5 {
+        lynx(phase)
+    } else if kind == 6 {
+        elk(phase)
+    } else {
+        alpha(phase)
+    }
+    if fade >= 15 {
+        var i = 0
+        while i < b.px.len {
+            let pr = i / b.w
+            if pr < b.h / 4 || fade >= 30 && pr < b.h * 3 / 4 { b.px[i] = 0 }
+            i += 1
+        }
+    }
+    b
+}
+
+/// Old Snag, the boar of the thicket: a broad snout, one tusk whole and
+/// one broken (the right), a bristled back, a short tail. Twelve pixels by
+/// twenty-four. The windup lowers the head and raises the bristles; the
+/// strike thrusts the snout; the stagger splits the body; recovery turns
+/// the tail up.
+fn boar(phase: int) -> Bitmap {
+    var r = List[str]()
+    let windup = phase == 1
+    let strike = phase == 2
+    let stagger = phase == 4
+    row(if strike then "...######..." else if windup then "............" else "....####....", mut r)
+    row(if windup then "............" else "...######...", mut r)
+    row(if windup then "....####...." else "..########..", mut r)
+    row(if windup then "##.######.#." else "##.######.#.", mut r)
+    row(if windup then "#.########.." else "..########..", mut r)
+    row(if windup then "#..######..." else "...######...", mut r)
+    row(if windup then "#.#.#.#.#.#." else "..########..", mut r)
+    row(if stagger then ".##......##." else ".##########.", mut r)
+    row(
+        if windup then "#.#.#.#.#.#." else if stagger then "##.######.##" else "############",
+        mut r,
+    )
+    row("############", mut r)
+    row(if windup then "#.#.#.#.#.#." else "############", mut r)
+    row(if stagger then "##.######.##" else "############", mut r)
+    row("############", mut r)
+    row(if stagger then ".##......##." else ".##########.", mut r)
+    row(".##########.", mut r)
+    row("..########..", mut r)
+    row("..########..", mut r)
+    row("...######...", mut r)
+    row("...######...", mut r)
+    row("....####....", mut r)
+    row(if phase == 3 then "....######.." else "....####....", mut r)
+    row(if phase == 3 then ".......##..." else ".....##.....", mut r)
+    row(if phase == 3 then "........#..." else ".....##.....", mut r)
+    row(if phase == 3 then "............" else "......#.....", mut r)
+    parse(r)
+}
+
+/// Whisper, the lynx of the crags: tufted ears, a round head, a long lean
+/// body, the tail curled. Ten pixels by twenty. The windup flattens the
+/// body to the ground (the long steady tell before a pounce); the strike
+/// stretches it full length; the stagger splits it; recovery straightens
+/// the tail.
+fn lynx(phase: int) -> Bitmap {
+    var r = List[str]()
+    let windup = phase == 1
+    let strike = phase == 2
+    let stagger = phase == 4
+    row(if windup then ".#......#." else ".##....##.", mut r)
+    row(if windup then "..######.." else "..######..", mut r)
+    row(if strike then "##########" else ".########.", mut r)
+    row("..######..", mut r)
+    row(if windup then "..######.." else "...####...", mut r)
+    row(if windup then ".########." else "..######..", mut r)
+    row(if windup then "##########" else ".########.", mut r)
+    row(if stagger then ".##....##." else if windup then "##########" else ".########.", mut r)
+    row(if windup then "##########" else if strike then "##########" else ".########.", mut r)
+    row(if stagger then ".##....##." else if windup then "##########" else ".########.", mut r)
+    row(if windup then ".########." else ".########.", mut r)
+    row(if windup then "..######.." else "..######..", mut r)
+    row("..######..", mut r)
+    row(if strike then "..######.." else "...####...", mut r)
+    row("...####...", mut r)
+    row(if phase == 3 then "....##...." else "....##....", mut r)
+    row(if phase == 3 then "....##...." else "....##....", mut r)
+    row(if phase == 3 then "....##...." else ".....#....", mut r)
+    row(if phase == 3 then "....##...." else "....#.....", mut r)
+    row(if phase == 3 then "....##...." else "...#......", mut r)
+    parse(r)
+}
+
+/// Alder, the elk of the river: a spread of antlers, a long head, a deep
+/// chest, a short tail. Fourteen pixels by twenty-eight. The windup lowers
+/// the antlers to one side (the sweep's tell) or rears the body wide (the
+/// stamp's, the same posture read from the body); the strike brings the
+/// antlers down level; the stagger splits the body.
+fn elk(phase: int) -> Bitmap {
+    var r = List[str]()
+    let windup = phase == 1
+    let strike = phase == 2
+    let stagger = phase == 4
+    row(
+        if windup then ".............." else if strike then ".............." else "#.#........#.#",
+        mut r,
+    )
+    row(
+        if windup then "#.#.#........." else if strike then ".............." else ".#.#......#.#.",
+        mut r,
+    )
+    row(
+        if windup then ".#.#.#........" else if strike then "#.#.#....#.#.#" else "..#.#....#.#..",
+        mut r,
+    )
+    row(
+        if windup then "..##.#........" else if strike then ".#.#.#..#.#.#." else "...##....##...",
+        mut r,
+    )
+    row(
+        if windup then "...######....." else if strike then "..############" else "....######....",
+        mut r,
+    )
+    row(if windup then "...######....." else "....######....", mut r)
+    row(if windup then "....####......" else ".....####.....", mut r)
+    row(".....####.....", mut r)
+    row(if windup then "..##########.." else "....######....", mut r)
+    row(if windup then "##############" else "..##########..", mut r)
+    row(if stagger then ".##........##." else ".############.", mut r)
+    row(if stagger then "##..########.." else ".############.", mut r)
+    row(".############.", mut r)
+    row(if stagger then "##..########.." else ".############.", mut r)
+    row(".############.", mut r)
+    row(if stagger then ".##........##." else ".############.", mut r)
+    row("..##########..", mut r)
+    row("..##########..", mut r)
+    row("...########...", mut r)
+    row("...########...", mut r)
+    row("....######....", mut r)
+    row("....######....", mut r)
+    row(".....####.....", mut r)
+    row(if phase == 3 then ".....######..." else "......##......", mut r)
+    row(if phase == 3 then "........##...." else "......##......", mut r)
+    row("..............", mut r)
+    row("..............", mut r)
+    row("..............", mut r)
+    parse(r)
+}
+
+/// Ashgrim, the shadow alpha: the cub's own shape grown, a wolf of smoke,
+/// its body drawn in streaks (every other pixel) so the ground shows
+/// through it. Twelve pixels by twenty-four. The windup lays the ears
+/// back and lowers the head as the cub's sneak does; the strike thrusts
+/// the head; the guard (7) widens the shoulders; the hop (8) streams the
+/// body; the stagger splits it.
+fn alpha(phase: int) -> Bitmap {
+    var r = List[str]()
+    let windup = phase == 1
+    let strike = phase == 2
+    let stagger = phase == 4
+    let guard = phase == 7
+    let hop = phase == 8
+    row(if strike then "...######..." else if windup then "............" else "....####....", mut r)
+    row(if windup then "....####...." else "...######...", mut r)
+    row(if windup then "...######..." else "..########..", mut r)
+    row(if windup then "..########.." else if guard then "############" else ".#..####..#.", mut r)
+    row(if windup then ".#.######.#." else "..########..", mut r)
+    row(if guard then "############" else "...######...", mut r)
+    row(if guard then "############" else "..########..", mut r)
+    row(if stagger then ".#.#....#.#." else ".#.#.#.#.#.#", mut r)
+    row(if hop then "#.#.#.#.#.#." else "#.#.#.#.#.#.", mut r)
+    row(if stagger then "##........##" else ".#.#.#.#.#.#", mut r)
+    row("#.#.#.#.#.#.", mut r)
+    row(if stagger then ".#.#....#.#." else ".#.#.#.#.#.#", mut r)
+    row(if hop then ".#.#.#.#.#.#" else "#.#.#.#.#.#.", mut r)
+    row("..#.#.#.#.#.", mut r)
+    row(if hop then "#.#.#.#.#.#." else "..#.#.#.#...", mut r)
+    row("...#.#.#....", mut r)
+    row(if hop then ".#.#.#.#.#.." else "...#.#.#....", mut r)
+    row("....#.#.....", mut r)
+    row("....#.#.....", mut r)
+    row(if hop then ".#.#.#.#...." else ".....#......", mut r)
+    row(".....#......", mut r)
+    row(if hop then "...#.#.#...." else ".....#......", mut r)
+    row("......#.....", mut r)
+    row(if hop then ".....#.#...." else ".......#....", mut r)
+    parse(r)
+}
+
+/// The wolf the cub becomes at the end (cb04): the cub's drawing grown
+/// one size, solid, the tail long; `pose` 0 stands, 1 walks (`legs` the
+/// paws' frame), as the cub's.
+pub fn wolf(pose: int, legs: int) -> Bitmap {
+    var r = List[str]()
+    let swing = legs % 2 == 0
+    row("....####....", mut r)
+    row("...######...", mut r)
+    row("..########..", mut r)
+    row(".#..####..#.", mut r)
+    row("..########..", mut r)
+    row("...######...", mut r)
+    row("..########..", mut r)
+    row(".##########.", mut r)
+    row(
+        if pose == 1 && swing {
+            "############"
+        } else if pose == 1 {
+            "###########."
+        } else {
+            ".##########."
+        },
+        mut r,
+    )
+    row("############", mut r)
+    row("############", mut r)
+    row("############", mut r)
+    row(
+        if pose == 1 && !swing {
+            "############"
+        } else if pose == 1 {
+            ".###########"
+        } else {
+            ".##########."
+        },
+        mut r,
+    )
+    row(".##########.", mut r)
+    row("..########..", mut r)
+    row("..########..", mut r)
+    row("...######...", mut r)
+    row("....####....", mut r)
+    row(".....##.....", mut r)
+    row(".....##.....", mut r)
+    row(".....##.....", mut r)
+    row("......##....", mut r)
+    row("......##....", mut r)
+    row(".......#....", mut r)
+    parse(r)
+}
+
 /// Every code point every silhouette can draw, facing each way, each once,
 /// ascending: what `docs/GLYPHS.md` must list for them.
 pub fn all_code_points() -> List[int] {
@@ -587,6 +851,23 @@ pub fn all_code_points() -> List[int] {
         code_points(hawk(phase, 10), mut cps)
         phase += 1
     }
+    // The bosses in every posture and fade, the wolf in its two poses.
+    kind = 4
+    while kind < 8 {
+        phase = 0
+        while phase < 9 {
+            if phase <= 4 || phase >= 7 {
+                code_points(boss(kind, phase, -1), mut cps)
+                code_points(boss(kind, phase, 15), mut cps)
+                code_points(boss(kind, phase, 30), mut cps)
+            }
+            phase += 1
+        }
+        kind += 1
+    }
+    code_points(wolf(0, 0), mut cps)
+    code_points(wolf(1, 0), mut cps)
+    code_points(wolf(1, 1), mut cps)
     code_points(bundle(false), mut cps)
     code_points(bundle(true), mut cps)
     var i = 1
