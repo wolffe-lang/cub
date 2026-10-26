@@ -13,18 +13,21 @@ The connected Shingle, Bramblehold and Larkmeadow share one fight, rest, death a
 | `STAT_START` | 1 | heart, wind, fang, paw and nose at the start; each 1-10, grown at dens with scent (cb01) | 2026-10-25 proposed |
 | `health_max(heart)` | `40 + 12 × heart` | health at a heart level: 52 at the start | 2026-10-25 proposed (the bible) |
 | `stamina_max(wind)` | `60 + 10 × wind` | stamina at a wind level: 70 at the start; moves spend it | 2026-10-25 proposed (the bible) |
-| `trot_at(paw)` | `round((TROT_V + 2 × paw) × 1.10)` | the trot at a paw level: 42 at the start | 2026-10-25 proposed (the bible) |
+| `trot_at(paw)` | `round((TROT_V + 2 × paw) × WALK_PERCENT / 100)` | the trot at a paw level: 63 at the start (7.38 cells a second), 92 at paw 10 | 2026-10-25 proposed (the bible); the dial 165 since cb02c |
 
 ## The cub's motion (`src/sim/sim.lu`)
 
 | constant | value | meaning | set |
 |---|---|---|---|
-| `TROT_V` | 36 | the unscaled stat base, fixed-point units a tick (256 a cell); `trot_at` applies the speed revision below | 2026-10-25 proposed |
-| `SNEAK_V` | 21 | a sneak (Shift+arrow): half the current paw-dependent trot; no trail is laid and foes perceive by sight only | 2026-10-25 proposed (the bible, section 4) |
-| `ACCEL` | 4 | acceleration, FP units a tick each tick: the starting trot from a stop in 11 ticks | 2026-10-25 proposed |
-| `BRAKE` | 8 | braking: a stop from the starting trot in 6 ticks; a cub stops faster than it starts | 2026-10-25 proposed |
+| `TROT_V` | 36 | the unscaled stat base, fixed-point units a tick (256 a cell); `trot_at` applies the pace dial | 2026-10-25 proposed |
+| `WALK_PERCENT` | 165 | the pace dial (R-cb02c-1 A): the trot, the sneak, the turn rate, acceleration, braking and the foes' speeds are its products of cb01b's values (`PACE_BASE_PERCENT` 110), rounded to the nearest unit; the one constant to move | 2026-10-25 cb02c, proposed |
+| `SNEAK_V` | 31 | a sneak (Shift+arrow): half the current paw-dependent trot (the ratio the dial keeps); no trail is laid and foes perceive by sight only | 2026-10-25 proposed (the bible, section 4) |
+| `ACCEL` | 6 | acceleration, FP units a tick each tick: 4 × 165/110; the starting trot from a stop still in 11 ticks | 2026-10-25 cb02c, proposed |
+| `BRAKE` | 12 | braking: 8 × 165/110; a stop from the starting trot in 6 ticks; a cub stops faster than it starts | 2026-10-25 cb02c, proposed |
 | `TURN` | 256 | heading units a full turn: 0 north, 64 east, 128 south, 192 west; the diagonals between when two arrows are held | 2026-10-25 cb00 |
-| `TURN_RATE` | 16 | the maximum turn rate, heading units a tick: a quarter turn in 4 ticks, about in 8 (267 ms); the cub turns, never pivots | 2026-10-25 proposed |
+| `TURN_RATE` | 24 | the maximum turn rate, heading units a tick: 16 × 165/110, so the turning circle (speed over turn rate) is cb01b's, 0.46 cells measured; a quarter turn in 3 ticks, about in 6 (200 ms); the cub turns, never pivots | 2026-10-25 cb02c, proposed |
+| `STRIDE`, `GAIT_CYCLE` | 832, 1664 | a stride, FP units of travel (both paws once), and a wag (two strides): the tail and paws are tied to the ground covered, never the tick (R-cb02c-2 A) | 2026-10-25 cb02c, proposed |
+| `SWAY_V` | 28 | the gait's floor, units a tick: a standing (or winding-up) cub's tail still sways, one wag in 59 ticks | 2026-10-25 cb02c, proposed |
 | the held key | the engine's `input.Hold` | a press holds `HOLD_TAP_TICKS` 12; an autorepeat run holds one interval plus `HOLD_MARGIN` past its last press (pack's pk01 model, in the engine) | 2026-10-25 the engine's |
 | the camera | the cub's cell at the centre | R-CB-3: the world scrolls under the cub in every direction; a resize keeps it at the centre | 2026-10-25 ruling #130 |
 
@@ -79,13 +82,13 @@ Additional proposed values, all 2026-10-25:
 | posture | fresh above 2/3, tired above 1/3, spent below; limp halves trot below 1/3 health |
 | weasel | health 8, damage 10, scent 8 (bible); crouch 12, active 2, retreat/recovery 24 ticks |
 | fox | health 24, damage 16, scent 20 (bible); feint 10, gap 6, real crouch 12, active 3, retreat 24 ticks; steals one water on a hit |
-| foe motion | 44 pursuit / 48 retreat FP units per tick, acceleration 4, turn rate 16, stamina cap 60, attack costs 12, hunt restores 1/tick |
+| foe motion | 66 pursuit / 72 retreat FP units per tick (44 / 48 × 165/110), acceleration 6 (the cub's), turn rate `FOE_TURN_RATE` 16 (cb01b's, not scaled), a turn it cannot make in one tick checks it toward `FOE_TURN_V` 33, stamina cap 60, attack costs 12, hunt restores 1/tick |
 | perception | 90-degree forward cone, sight 8 cells; scent search 6 cells, newest unexpired visible sample; half-cell ray sampling |
 | trail | 300-tick lifetime (bible); one sample per changed cell, none sneaking; old trail remains until expiry |
 | water and death | 3 mouthfuls; 40 healed; 30-tick death fade (bible); mark recovery within 1 cell |
 | growth | each stat starts 1, cap 10; next level costs 40 × next level (80 for level 2), only at den |
 | den | within 1 cell of a seeded den; reset health, stamina, water, foes, trail and holds; gate, caches, shortcuts and mark persist |
-| collision | ground bodies remain at least 1 cell apart; attack envelope and visual arc are separate |
+| collision | ground bodies are their drawings' footprints and never share a cell (cb02c, below); reach counts clear cells between bodies; attack envelope and visual arc are separate |
 | Shingle layout | den at seeded start; the connected-world table below supersedes the close-spawn preview and straight strip; the thorn branch now ends at start+157 |
 
 The fox on the Shingle is a combat preview, not the later named fox's story
@@ -112,6 +115,8 @@ and sneak is below stalk. Paw growth may eventually outrun it as before.
 Dodge remains three cells; no run binding or run speed exists yet.
 Acceleration 4 and brake 8 remain: walk reaches the cap in 11 ticks and
 stops in 6, rather than the old 10 and 5.
+cb02c's pace dial (the gait section below) supersedes these numbers:
+walk 63, sneak 31, acceleration 6, braking 12, foes 66 and 72.
 
 ## Directional attacks, 2026-10-25
 
@@ -352,3 +357,68 @@ The schema-2 save adds one line, `field N`, before the check; a schema-1
 file is `save_version`; a field outside 80..10000 is `save_corrupt`. The
 cache bits are relaid: the coast's four first (bits 0-3), the thicket's
 two (4-5), the meadow's two (6-7).
+
+
+## The gait, 2026-10-25 (cb02c, proposed)
+
+The maintainer's word on cb02b's build: "This is a big improvement. But it still needs work. The branch
+paths should be the same color as the coastline/forest paths. The cub moves much too slowly and its tail
+oscillates too quickly. Make it natural. Enemies should never overlap with the cub. They should have
+collision to prevent weird attack moments where the enemy is behind the cub and can't be hit." Every value
+below is proposed; every ruling is a recommendation the lane implemented, not a decision. The numbers are
+`cub --measure`'s (before: `notes/cb02c-prediction.txt`).
+
+**The path.** Every path cell draws one ground per area (`forest.path_kind`, `docs/PALETTE.md`): the coast's
+four branches, their alcoves and the log's branch were the forest's grass; they are the shore's gravel, as
+the shore and the thorn route are. `--world-audit`'s `path_off` holds every walkable path cell of every area
+to the path's styles over fifty seeds at both fields.
+
+**The pace (R-cb02c-1 A).** The dial `WALK_PERCENT` 110 → 165, half as fast again; the turn rate,
+acceleration, braking and the foes' speeds are its products, so cornering, starting and stopping keep the
+feel cb01b's play accepted, only quicker. No sprint is bound (the ratio the dial keeps is the sneak's half).
+
+| measure (30 Hz, paw 1) | before | after |
+|---|---|---|
+| trot, straight | 42 FP/tick, 4.92 cells/s | 63, 7.38 cells/s |
+| diagonal | 4.80 cells/s | 7.28 cells/s |
+| a quarter turn | 4 ticks at 4.83 cells/s, radius 0.41 cells | 3 ticks at 7.30 cells/s, radius 0.46 |
+| to the trot / to a stop after the hold | 11 / 5 ticks | 11 / 5 ticks |
+| sneak | 21 (2.46 cells/s) | 31 (3.63 cells/s) |
+| foes' pursuit / retreat | 44 / 48 | 66 / 72 |
+
+The fox keeps up on the straight and loses in the turns: the foes keep cb01b's turn rate (16 against the
+cub's 24), and a turn a foe cannot make in one tick checks its run toward half its pursuit (R-cb02c-6 A;
+without it the split turn rate alone left the fox even through a turn). The duel (`measure.duel`: the cub
+and a fox from one start at full speed): thirty ticks east, the fox 0.35 cells ahead; eight ticks east then
+twelve turned south, the cub 0.48 cells further south. A fox steering at a zigzagging cub it can see still
+cuts the corners and closes (pursuit's geometry): a zigzag does not shake a fox, a turn wins ground from it.
+The hawk's tell, stoop and recovery are unchanged.
+
+**The tail (R-cb02c-2 A).** The wag is tied to the gait: one wag per two strides (`GAIT_CYCLE`), the paws
+stepping once each half stride; the tail passes five frames walking (two pixels each side), three in the
+standing sway (one pixel), and the plain tier's `,` swings side to side on the same cycle. Measured from the
+frame (`cub --measure`): before, 4 ticks walking (7.5 Hz, two frames) and still standing; after, 26.5 ticks
+walking (0.88 s), 53.7 sneaking, 59.5 standing (1.98 s), 18.0 at a grown paw's trot (paw 10, 92 FP; 0.60 s).
+
+**Bodies (R-cb02c-3 A, R-cb02c-4 A, R-cb02c-5 A).** A creature's body is the rectangle of cells its drawing
+covers (`silhouette.footprint`): the cub four by four facing north or south, eight by two east or west; the
+fox four by three (six by two); the weasel two by three (six by one); the deer as the cub. The hawk's
+shadow is not solid. No two bodies share a cell, ever:
+
+| rule | value |
+|---|---|
+| the mover yields (R-cb02c-3 A) | a step into a body is not taken: the cub moves first and yields to a body standing; a foe moves after and yields to the cub where it now is, so a tie goes against the foe |
+| a swing (R-cb02c-5 A) | the cub's body takes its turn's or its attack's facing only with room: a foe in the swing steps aside along the line between them (a quarter cell at a time, up to eight, the nearest of eight lines first); with no room the body keeps its facing that tick. A foe's own turn is its own to clear, or it keeps its heading |
+| settling | the start of every tick, an area's entry and every reset settle what a fixture or a spawn left overlapping, in the foes' order |
+| reach (R-cb02c-4 A) | a reach of n cells is n − 1 clear cells between the bodies: a bite or a foe's strike 2 (one clear cell), a lunge or a heavy 4; in sight unless the bodies touch, and ground under either body never stands between them. So a foe on the contact ring is always in a bite's reach, aimed its way: never behind the cub out of it |
+| a touch | a foe whose body touches the cub's knows where it is, whatever stands between their middles |
+| presentation | the bite's, lunge's and heavy's leaps stop at a drawn body (a fading one too); the third bite's head shake holds against one |
+| guards | a cache's guards stand a body's width apart along their branch (two cells for weasels, four for foxes), never one inside another |
+
+The census (`census`: the footprints read from the drawings, never the collision code) over the 47
+real-key scripts: before, a foe's drawing shared a cell with the cub's on 1,879 ticks (1,935 foe-ticks,
+1,043 of them out of an aimed bite's reach) and foes overlapped each other on 71,580 pair-ticks; after,
+0, 0 and 0, with 513 foe-ticks of bodies touching, every one in reach. `--body-audit` replays the encounter
+scripts' keys and a three-weasel swarm from behind in fifty seeds at both sizes: 360,956 ticks, no overlap,
+no contact out of reach, no foe in another; the swarm reaches the cub and is fought in all hundred worlds.
+
