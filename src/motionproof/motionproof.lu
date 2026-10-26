@@ -75,23 +75,16 @@ fn terrain_rows(seed: int, field: int, area: int, t: int) -> int {
     var count = 0
     let origin = forest.origin(seed, area)
     let bound = forest.bound(field, area)
-    var y = origin + 16
-    while y < origin + forest.LENGTH - 16 {
+    var y = if area == forest.SHINGLE then forest.COAST_TOP else origin
+    while y <= origin + forest.LENGTH {
         var x = 0 - bound
         while x <= bound {
             let kind = forest.kind(seed, field, area, x, y)
             if !seen[kind] && !forest.blocked(seed, field, area, x, y) {
-                // Every adjacent destination is open: collision is not a pace.
-                var clear = true
-                var dy = -1
-                while dy <= 1 {
-                    var dx = -1
-                    while dx <= 1 {
-                        if forest.blocked(seed, field, area, x + dx, y + dy) { clear = false }
-                        dx += 1
-                    }
-                    dy += 1
-                }
+                // At paw1 even sprint moves less than half a cell: from
+                // the centre this probe stays inside this actual terrain cell.
+                // Do not exclude one-cell reed bands beside blocked water.
+                let clear = true
                 if clear {
                     seen[kind] = true
                     let cell = art.ground_at(seed, field, area, t, x, y)
