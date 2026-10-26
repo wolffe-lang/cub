@@ -2326,17 +2326,18 @@ fn shortcut_key(mut s: Sim) {
     }
 }
 
-/// Any newly occupied body cell entering a doorway shadow counts, including diagonals.
+/// A body cell moving from non-shadow to shadow counts, including diagonals.
 pub fn shadow_crossed(s: Sim, edge: int, old_x: int, old_y: int) -> bool {
     if old_x == s.x && old_y == s.y { return false }
-    let before = cub_body_at(s, old_x, old_y, s.body_facing)
+    let dx = floor_div(s.x, FP) - floor_div(old_x, FP)
+    let dy = floor_div(s.y, FP) - floor_div(old_y, FP)
     let after = cub_body(s)
     var y = after.y0
     while y <= after.y1 {
         var x = after.x0
         while x <= after.x1 {
-            if (x < before.x0 || x > before.x1 || y < before.y0 || y > before.y1) &&
-                forest.shadow_cell(s.seed, s.area, edge, x, y) {
+            if forest.shadow_cell(s.seed, s.area, edge, x, y) &&
+                !forest.shadow_cell(s.seed, s.area, edge, x - dx, y - dy) {
                 return true
             }
             x += 1

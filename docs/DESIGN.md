@@ -814,7 +814,7 @@ steps over50 seeds, both fields, including actual cache branches only.
 `tools/path-summary.py` reports reversals of nonzero direction within three
 samples per ten sampled route cells, and the complete width distribution.
 
-Any newly occupied cub-body cell entering any7×3 doorway shadow triggers
+Any cub-body cell moving from non-shadow onto any7×3 doorway shadow triggers
 an available edge, diagonals included. Open shortcuts work by walking too;
 `r` still opens them from the permitted side. Progression and shortcut
 locks remain unchanged. Arrival remains two cells inside. Its centre rearms outside the old

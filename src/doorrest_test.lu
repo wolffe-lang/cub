@@ -100,3 +100,21 @@ fn test_cb04d_foe_is_clipped_at_each_view_edge_not_dropped_whole() {
         }
     }
 }
+
+fn test_cb04d_shadow_to_shadow_motion_leaves_an_arrival_without_bouncing() {
+    var s = sim.new(7, 80, 24)
+    s.gate_open = true
+    s.area = 2
+    s.x = 0
+    s.y = 3 * sim.FP
+    s.body_facing = 0
+    s.edge_ready = false
+    let x = s.x
+    let y = s.y
+    s.x -= 1
+    s.y += 1
+    assert(
+        !sim.transitions(mut s, x, y) && s.area == 2,
+        "shadow-to-shadow cells are not new doorway entry",
+    )
+}

@@ -1,0 +1,5 @@
+test src/doorrest_test.lu::test_cb04d_foe_inside_view_is_not_culled_by_anchor_sight ... ok
+test src/doorrest_test.lu::test_cb04d_doorway_edge_crosses_and_arrival_does_not_bounce ... ok
+test src/doorrest_test.lu::test_cb04d_foe_is_clipped_at_each_view_edge_not_dropped_whole ... ok
+test src/doorrest_test.lu::test_cb04d_shadow_to_shadow_motion_leaves_an_arrival_without_bouncing ... FAILED (trap(assert))
+wolf test: 3 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out
