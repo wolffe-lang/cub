@@ -122,7 +122,17 @@ pub fn name(area: int) -> str {
 }
 
 /// Area containing a persistent den id.
+pub const DEN_LIMIT: int = 16
+
+/// Ids 4..7 belong to the later areas; 8..15 to refuges in these three.
+/// Unknown/reserved ids are not locations until their area is implemented.
+pub fn den_exists(den: int) -> bool {
+    den >= 0 && den <= 6 || den >= 8 && den <= 11
+}
+
+/// Area containing a den, or -1 for an unimplemented reserved id.
 pub fn den_area(den: int) -> int {
+    if !den_exists(den) { return -1 }
     match den {
         0 => SHINGLE,
         1 => BRAMBLEHOLD,
@@ -130,8 +140,21 @@ pub fn den_area(den: int) -> int {
         3 => LARKMEADOW,
         4 => CRAGS,
         5 => RIVER,
-        _ => OLDDEN,
+        6 => OLDDEN,
+        8 => BRAMBLEHOLD,
+        _ => LARKMEADOW,
     }
+}
+
+/// Count implemented dens, including the extra refuges.
+pub fn den_count(area: int) -> int {
+    var n = 0
+    var id = 0
+    while id < DEN_LIMIT {
+        if den_area(id) == area { n += 1 }
+        id += 1
+    }
+    n
 }
 
 /// Display name of a persistent den id.
@@ -143,7 +166,11 @@ pub fn den_name(den: int) -> str {
         3 => "The grass nest",
         4 => "The ledge cleft",
         5 => "The willow root",
-        _ => "The cold den",
+        6 => "The cold den",
+        8 => "The coal roots",
+        9 => "The low embers",
+        10 => "The ash shelter",
+        _ => "The last warm hollow",
     }
 }
 
@@ -183,7 +210,16 @@ pub fn half(seed: int, area: int, at: int) -> int {
 pub fn den_position(seed: int, den: int) -> (int, int) {
     if den == 0 { return terrain.start(seed) }
     let area = den_area(den)
-    let y = (if den == 2 then 90 else 7) + world.hash(seed, den, 92, 4)
+    let base = if den == 2 || den == 10 {
+        90
+    } else if den == 8 || den == 9 {
+        66
+    } else if den == 11 {
+        146
+    } else {
+        7
+    }
+    let y = base + world.hash(seed, den, 92, 4)
     ((spine(seed, area, y) + world.hash(seed, den, 91, 3) - 1) * FP + FP / 2, y * FP + FP / 2)
 }
 
@@ -651,7 +687,7 @@ pub fn reach_count(seed: int, field: int, area: int) -> int {
     }
     var count = 0
     var den = 0
-    while den < DENS {
+    while den < DEN_LIMIT {
         if den_area(den) == area {
             let (x, y) = den_position(seed, den)
             count += seen[((y - FP / 2) / FP - o - top) * width + (x - FP / 2) / FP + w]
@@ -696,7 +732,7 @@ pub fn cache_bit(area: int, cache: int) -> int {
 pub fn required(area: int) -> int {
     var n = cache_count(area) + (if has_arena(area) then 1 else 0)
     var den = 0
-    while den < DENS {
+    while den < DEN_LIMIT {
         if den_area(den) == area { n += 1 }
         den += 1
     }

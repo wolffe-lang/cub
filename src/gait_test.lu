@@ -267,6 +267,7 @@ fn test_cb02c_the_frame_draws_the_gait() {
     // small screen about the cub keeps the eight frames cheap.
     var a = shore(1)
     a.gait = 0
+    a.x += 30 * sim.FP // Keep animated den smoke outside this gait-only frame.
     sim.resize(mut a, 12, 8)
     var ga = grid.new(8, 12)
     art.render(a, tier.RICH, mut ga)
@@ -274,6 +275,7 @@ fn test_cb02c_the_frame_draws_the_gait() {
     while tick < 8 {
         var b = shore(1)
         b.gait = 0
+        b.x += 30 * sim.FP
         b.tick = tick
         sim.resize(mut b, 12, 8)
         var gb = grid.new(8, 12)

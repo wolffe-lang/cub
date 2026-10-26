@@ -1927,7 +1927,7 @@ pub fn light_den(bits: int, den: int) -> int {
 /// The den in resting reach, or -1.
 pub fn den_here(s: Sim) -> int {
     var den = 0
-    while den < forest.DENS {
+    while den < forest.DEN_LIMIT {
         let (x, y) = forest.den_position(s.seed, den)
         if s.area == forest.den_area(den) && near(s.x, s.y, x, y, FP) { return den }
         den += 1

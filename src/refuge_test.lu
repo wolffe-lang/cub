@@ -1,0 +1,61 @@
+//! member: false
+
+use forest
+use sim
+use journey
+use controls
+
+fn test_cb03a_fifty_seed_den_census_rejects_an_empty_area() {
+    var seed = 0
+    while seed < 50 {
+        var area = 0
+        while area < 3 {
+            assert(forest.den_count(area) >= 1, "every area has a den")
+            var den = 0
+            var prior = -1
+            while den < forest.DEN_LIMIT {
+                if forest.den_area(den) == area {
+                    let (x, y) = forest.den_position(seed, den)
+                    assert(
+                        !forest.blocked(
+                            seed,
+                            80,
+                            area,
+                            sim.floor_div(x, sim.FP),
+                            sim.floor_div(y, sim.FP),
+                        ),
+                        "den is on open ground",
+                    )
+                    assert(prior != y, "distinct refuges")
+                    prior = y
+                }
+                den += 1
+            }
+            area += 1
+        }
+        seed += 1
+    }
+}
+
+fn test_cb03a_each_new_den_rests_and_roundtrips_schema_two() {
+    var den = 8
+    while den <= 11 {
+        var s = sim.new(4, 80, 24)
+        s.gate_open = true
+        let (x, y) = forest.den_position(s.seed, den)
+        sim.enter_area(mut s, forest.den_area(den), x, y)
+        s.health = 1
+        var keys = List[int]()
+        (mut keys).push(controls.KEY_REST)
+        sim.step(mut s, keys)
+        assert(s.den && s.last_den == den && s.health == sim.health_max(s.heart), "new den rests")
+        let text = journey.encode(s)
+        assert(text.starts_with("CUB 2\n"), "schema stays two")
+        let restored = journey.decode(text, 80, 24) else {
+            assert(false, "den save refused")
+            return
+        }
+        assert(restored.last_den == den && restored.lit_dens == s.lit_dens, "new den roundtrip")
+        den += 1
+    }
+}

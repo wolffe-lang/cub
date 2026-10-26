@@ -566,3 +566,21 @@ lost N`, before the check; `last_den` 0..6, `lit_dens` 1..127, `shortcuts` 0..15
 8 the elk), `mark_area` 0..5, `end` needs the alpha's bit; a schema-2 file is `save_version`, never read
 as 3. A live recording begins with `journey 2` and `saved-0` .. `saved-28` (the four new values last).
 The world checks hold every save under 512 bytes.
+
+## Findable dens (cb03a, proposed)
+
+Schema 3 from cb04 and all its fields stay unchanged. Den ids 0–3 retain their
+meanings. Ids 4–7 are reserved for the later areas; 8–15 are reserved for
+extra dens in the existing three areas. Currently 8 is Bramblehold's
+coal roots; 9–11 are Larkmeadow's low embers, ash shelter and last warm
+hollow. `den_position(seed, id)` remains the position API. `lit` is a
+16-bit mask; `den` must name an implemented den. No optional field is needed.
+
+A hard cluster is three or more foes, or any pair containing a hawk.
+The trio's branch rejoins the main path before the new den at local row
+66–69 in each inland area. The first meadow hawk pair shares that refuge;
+the other pairs precede dens at 90–93 and 146–149. Initial entry dens
+retain the 30-cell quiet radius; post-fight refuges are deliberately closer.
+Every den has a warm seven-cell ground patch, hollow silhouette, ember,
+smoke, and a scent-of-home line within ten cells. Rest/save/growth and the
+number card use the same rules at every id.

@@ -173,9 +173,9 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
         s.scent < 0 ||
         s.scent > 1000000000 ||
         s.last_den < 0 ||
-        s.last_den >= forest.DENS ||
+        !forest.den_exists(s.last_den) ||
         s.lit_dens < 1 ||
-        s.lit_dens > 127 ||
+        s.lit_dens > 65535 ||
         s.shortcuts < 0 ||
         s.shortcuts > 15 ||
         values[13] < 0 ||
@@ -195,6 +195,14 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
         s.mark_scent < 0 ||
         s.mark_scent > 1000000000 {
         return save_corrupt
+    }
+    // Reserved ids may not appear as found until their locations exist.
+    var den = 0
+    while den < forest.DEN_LIMIT {
+        if !forest.den_exists(den) && sim.light_den(s.lit_dens, den) == s.lit_dens {
+            return save_corrupt
+        }
+        den += 1
     }
     if sim.light_den(s.lit_dens, s.last_den) != s.lit_dens ||
         s.lit_dens % 2 != 1 ||

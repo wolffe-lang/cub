@@ -728,26 +728,17 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
         )
     }
     var den = 0
-    while den < forest.DENS {
+    while den < forest.DEN_LIMIT {
         if forest.den_area(den) == s.area {
             let (dx, dy) = forest.den_position(s.seed, den)
-            if den == 0 {
-                draw_log(
+            draw_den(s, t, mut g, dx, dy)
+            if sim.near(s.x, s.y, dx, dy, 10 * sim.FP) && !s.den {
+                draw.put_text(
                     mut g,
-                    t,
-                    sim.floor_div(dy, sim.FP) - sim.cell_y(s) + sim.screen_row(s) + 2,
-                    sim.floor_div(dx, sim.FP) - sim.cell_x(s) + sim.screen_col(s) - 4,
-                    true,
-                )
-            } else {
-                at_world(
-                    s,
-                    t,
-                    mut g,
-                    sim.floor_div(dx, sim.FP) - 3,
-                    sim.floor_div(dy, sim.FP) + 1,
-                    "( " + forest.den_name(den) + " )",
-                    false,
+                    2,
+                    1,
+                    forest.name(s.area) + " - a den ahead; scent of home",
+                    ink(t, true),
                 )
             }
         }
@@ -2273,4 +2264,47 @@ pub fn wolf_sheet(t: int) -> grid.Grid {
     draw_wolf(mut g, t, 7, 57, 3, 0, 1, 1)
     draw_cub(mut g, t, 7, 72, 0, 0)
     g
+}
+
+/// A warm hollow, its ember and a breathing smoke wisp; never a label alone.
+pub fn draw_den(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int) {
+    let row = sim.floor_div(y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
+    let col = sim.floor_div(x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
+    let warm = if t == tier.RICH then 94 else 3
+    let ember = if t == tier.RICH then 208 else 9
+    var dy = -1
+    while dy <= 2 {
+        var dx = -3
+        while dx <= 3 {
+            grid.put(
+                mut g,
+                row + dy,
+                col + dx,
+                grid.cell(46, warm, if t == tier.RICH then 52 else 0, 0),
+            )
+            dx += 1
+        }
+        dy += 1
+    }
+    let style = grid.cell(32, warm, if t == tier.RICH then 52 else 0, grid.ATTR_BOLD)
+    draw.put_text(mut g, row - 1, col - 3, "_.---._", style)
+    draw.put_text(mut g, row, col - 3, "(     )", style)
+    draw.put_text(mut g, row + 1, col - 3, "(_   _)", style)
+    grid.put(
+        mut g,
+        row + 1,
+        col,
+        grid.cell(
+            if s.tick / 6 % 2 == 0 then 42 else 111,
+            ember,
+            if t == tier.RICH then 52 else 0,
+            grid.ATTR_BOLD,
+        ),
+    )
+    grid.put(
+        mut g,
+        row - 2,
+        col + s.tick / 15 % 2,
+        grid.cell(126, if t == tier.RICH then 137 else 7, if t == tier.RICH then 234 else 0, 0),
+    )
 }

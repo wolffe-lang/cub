@@ -931,6 +931,7 @@ fn run_live(o: Options, args: List[str]) -> int {
 
 fn main() -> int {
     let args = env.args()
+    if args.len > 0 && args[0] == "--feel-audit" { return run_feel_audit() }
     if args.len > 0 && args[0] == "--body-audit" {
         // Fifty seeds at both sizes: the swarm and the given scripts' keys.
         var paths = List[str]()
@@ -1273,6 +1274,54 @@ fn run_world_audit() -> int {
                 area += 1
             }
             size += 1
+        }
+        seed += 1
+    }
+    0
+}
+
+fn run_feel_audit() -> int {
+    print("seed area dens min_spacing max_spacing")
+    var seed = 0
+    while seed < 50 {
+        var area = 0
+        while area < 3 {
+            var count = 0
+            var low = 1000000
+            var high = 0
+            var den = 0
+            while den < forest.DEN_LIMIT {
+                if forest.den_area(den) == area {
+                    count += 1
+                    let (x, y) = forest.den_position(seed, den)
+                    if forest.blocked(
+                        seed,
+                        80,
+                        area,
+                        sim.floor_div(x, sim.FP),
+                        sim.floor_div(y, sim.FP),
+                    ) {
+                        return 1
+                    }
+                    var other = den + 1
+                    while other < forest.DEN_LIMIT {
+                        if forest.den_area(other) == area {
+                            let (ox, oy) = forest.den_position(seed, other)
+                            let dx = if x > ox then x - ox else ox - x
+                            let dy = if y > oy then y - oy else oy - y
+                            let gap = (dx + dy) / sim.FP
+                            if gap < low { low = gap }
+                            if gap > high { high = gap }
+                        }
+                        other += 1
+                    }
+                }
+                den += 1
+            }
+            if count == 1 { low = 0 }
+            print("{seed} {area} {count} {low} {high}")
+            if count < 1 || count != forest.den_count(area) { return 1 }
+            area += 1
         }
         seed += 1
     }
