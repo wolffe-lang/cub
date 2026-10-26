@@ -1,10 +1,10 @@
-tick 253 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 3846 y 633 heading 64 action 0 started 0 health 52 stamina 70 flasks 3 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 15 lock -1 aim 0 combo 0 body 1 gait 577 bosses 0 end 0 arena 0 played 253 lost 0
-foe 0 kind 0 health 8 phase 0 since 0 x -512 y 14080 heading 0 gap 50 attack 0 poise 0
-foe 1 kind 0 health 8 phase 0 since 0 x 0 y 14080 heading 0 gap 50 attack 0 poise 0
-foe 2 kind 1 health 24 phase 0 since 0 x 768 y 20736 heading 0 gap 76 attack 0 poise 0
-foe 3 kind 0 health 8 phase 0 since 0 x -512 y 35328 heading 0 gap 133 attack 0 poise 0
-foe 4 kind 0 health 8 phase 0 since 0 x 0 y 35328 heading 0 gap 133 attack 0 poise 0
-foe 5 kind 1 health 40 phase 0 since 0 x -11136 y 10368 heading 0 gap 53 attack 0 poise 0
-foe 6 kind 1 health 40 phase 0 since 0 x 9856 y 11136 heading 0 gap 38 attack 0 poise 0
-foe 7 kind 1 health 40 phase 0 since 0 x -21376 y 10368 heading 0 gap 93 attack 0 poise 0
-foe 8 kind 1 health 40 phase 0 since 0 x 20864 y 11136 heading 0 gap 60 attack 0 poise 0
+tick 253 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 3846 y 633 heading 64 action 0 started 0 health 52 stamina 70 flasks 3 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 15 lock -1 aim 0 combo 0 body 1 gait 577 sprint 0 cone 0 bosses 0 end 0 arena 0 played 253 lost 0
+foe 0 kind 0 health 8 phase 0 since 0 x -512 y 14080 heading 0 gap 50 last_hit -1 attack 0 poise 0
+foe 1 kind 0 health 8 phase 0 since 0 x 0 y 14080 heading 0 gap 50 last_hit -1 attack 0 poise 0
+foe 2 kind 1 health 24 phase 0 since 0 x 768 y 20736 heading 0 gap 76 last_hit -1 attack 0 poise 0
+foe 3 kind 0 health 8 phase 0 since 0 x -512 y 35328 heading 0 gap 133 last_hit -1 attack 0 poise 0
+foe 4 kind 0 health 8 phase 0 since 0 x 0 y 35328 heading 0 gap 133 last_hit -1 attack 0 poise 0
+foe 5 kind 1 health 40 phase 0 since 0 x -11136 y 10368 heading 0 gap 53 last_hit -1 attack 0 poise 0
+foe 6 kind 1 health 40 phase 0 since 0 x 9856 y 11136 heading 0 gap 38 last_hit -1 attack 0 poise 0
+foe 7 kind 1 health 40 phase 0 since 0 x -21376 y 10368 heading 0 gap 93 last_hit -1 attack 0 poise 0
+foe 8 kind 1 health 40 phase 0 since 0 x 20864 y 11136 heading 0 gap 60 last_hit -1 attack 0 poise 0

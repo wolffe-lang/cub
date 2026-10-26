@@ -1,24 +1,24 @@
-#scent 20O#O#O#O#O#O#O#O#O  :  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  . "", |.
-O#O#O#O#O#O#O#O#O#O#O#O#O#O  ., O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#   '|  | '
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#   ..#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   O   ,  
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#  ,  #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# ".       
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# .   #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'    O   O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#' . ' :. #
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O' "   "O "
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#     #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O        '
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   ,.O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'   |' "."
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.    O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.      '|"
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#     # #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  # "|#'  
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#,    ,  .   O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# '  '  ""'
-#O#O#O#O#O#O#O#O#O#O#O#O#O#   .  ., ..^####=.O#O#O#O#O#O#O#O#O#O#O#O#O '|  O'O |
-O#O#O#O#O#O#O#O#O#O#O#O#O#O          .<####=,#O#O#O#O#O#O#O#O#O#O#O#O.  '#| " O.
-#O#O#O#O#O#O#O#O#O#O#O#O#O         ,        #O#O#O#O#O#O#O#O#O#O#O#O '   :'"   "
-O#O#O#O#O#O#O#O#O#O#O#O#O#            .    : #O#O#O#O#O#O#O#O#O#O#O#            
-#O#O#O#O#O#O#O#O#O#O#O#O# :        *         :#O#O#O#O#O#O#O#O#O#O#O":' ' "     
-O#O#O#O#O#O#O#O#O#O#O#O#O      :     .        O#O#O#O#O#O#O#O#O#O#    "" "   "O 
-#O#O#O#O#O#O#O#O#O#O#O#O,          :  #O .     O#O#O#O#O#O#O#O#O   O' , " "" :  
-O#O#O#O#O#O#O#O#O#O#O#O#            . O#       #O#O#O#O#O#O#O'    '.. ." ''".". 
-#O#O#O#O#O#O#O#O#O#O#O#O:               :    . O#O#O#   |  ' "" ""     '  #:.,' 
-O#O#O#O#O#O#O#O#O#O#O#O#         : :         .,#O  #      "|"  # :  O  "  , "|' 
-#O#O#O#O#O#O#O#O#O#O#O#  ,: #O,         :        :  #": . " #O#  .  :O: '':  "' 
-O#O#O#O#O#O#O#O#O#O#O#O#    O#   . .:      .:     .#O  "' '# "  " |  ":       . 
+Ohealth#[============]O#O  :  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  . "", |.#
+#stamina[=========== ]#Oscent 0O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#   '|  | 'O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#   ..#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   O   ,  #
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#  ,  #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# ".       O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# .   #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'    O   O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#' . ' :. #O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O' "   "O "#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#     #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O        'O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   ,.O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'   |' "."#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.    O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.      '|"O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#     # #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  # "|#'  #
+#O#O#O#O#O#O#O#O#O#O#O#O#O#,    ,  .   O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# '  '  ""'O
+O#O#O#O#O#O#O#O#O#O#O#O#O#   .  ., . .^####=.#O#O#O#O#O#O#O#O#O#O#O#O '|  O'O |#
+#O#O#O#O#O#O#O#O#O#O#O#O#O           .<####=,O#O#O#O#O#O#O#O#O#O#O#O.  '#| " O.O
+O#O#O#O#O#O#O#O#O#O#O#O#O         ,        #O#O#O#O#O#O#O#O#O#O#O#O '   :'"   "#
+#O#O#O#O#O#O#O#O#O#O#O#O#            .    : #O#O#O#O#O#O#O#O#O#O#O#            O
+O#O#O#O#O#O#O#O#O#O#O#O# :        *         :#O#O#O#O#O#O#O#O#O#O#O":' ' "     #
+#O#O#O#O#O#O#O#O#O#O#O#O      :     .        O#O#O#O#O#O#O#O#O#O#    "" "   "O O
+O#O#O#O#O#O#O#O#O#O#O#O,          :  #O .     O#O#O#O#O#O#O#O#O   O' , " "" :  #
+#O#O#O#O#O#O#O#O#O#O#O#            . O#       #O#O#O#O#O#O#O'    '.. ." ''".". O
+O#O#O#O#O#O#O#O#O#O#O#O:               :    . O#O#O#   |  ' "" ""     '  #:.,' #
+#O#O#O#O#O#O#O#O#O#O#O#         : :         .,#O  #      "|"  # :  O  "  , "|' O
+O#O#O#O#O#O#O#O#O#O#O#  ,: #O,         :        :  #": . " #O#  .  :O: '':  "' #
+#O#O#O#O#O#O#O#O#O#O#O#    O#   . .:      .:     .#O  "' '# "  " |  ":       . O

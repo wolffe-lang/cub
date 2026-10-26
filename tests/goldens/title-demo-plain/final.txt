@@ -1,5 +1,5 @@
- scent 0    ~v~v            ,   |!|!!!||!|!!|!|!||             .       .    .   
- |_/                                                                            
+ health [============]      ,   |!|!!!||!|!!|!|!||             .       .    .   
+ sta                                                                            
                                c  u  b                                        , 
                 a cub finds its way home through Thornmere                   ,  
                                                                             |;%:

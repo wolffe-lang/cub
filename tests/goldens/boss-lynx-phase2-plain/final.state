@@ -1,6 +1,6 @@
-tick 745 area 3 den_id 4 shortcuts 3 caches 0 scene 0 drops 0 mark_area 0 x 2328 y 26130 heading 160 action 1 started 740 health 76 stamina 6 flasks 3 scent 20 deaths 0 mark 0 mark_scent 0 gate 1 trail 53 lock -1 aim 160 combo 1 body 3 gait 330 bosses 1 end 0 arena 1 played 745 lost 0
-foe 0 kind 5 health 68 phase 4 since 729 x 1152 y 27200 heading 32 gap 1 attack 0 poise 0
-foe 1 kind 1 health 0 phase 5 since 344 x -1786 y 14686 heading 208 gap 43 attack 0 poise 0
-foe 2 kind 1 health 0 phase 6 since 380 x 409 y 15432 heading 224 gap 40 attack 0 poise 0
-foe 3 kind 1 health 24 phase 0 since 0 x -1280 y 35328 heading 0 gap 33 attack 0 poise 0
-foe 4 kind 1 health 24 phase 0 since 0 x -256 y 35328 heading 0 gap 33 attack 0 poise 0
+tick 790 area 3 den_id 4 shortcuts 3 caches 0 scene 0 drops 0 mark_area 0 x 2748 y 26113 heading 160 action 1 started 785 health 76 stamina 18 flasks 3 scent 0 deaths 0 mark 0 mark_scent 0 gate 1 trail 37 lock -1 aim 160 combo 1 body 3 gait 296 sprint 0 cone 149 bosses 1 end 0 arena 1 played 790 lost 0
+foe 0 kind 5 health 68 phase 3 since 777 x 1152 y 27200 heading 32 gap 1 last_hit 785 attack 2 poise 0
+foe 1 kind 1 health 0 phase 5 since 344 x -1786 y 14686 heading 208 gap 43 last_hit 344 attack 0 poise 0
+foe 2 kind 1 health 0 phase 0 since 281 x 510 y 16383 heading 128 gap 37 last_hit 375 attack 0 poise 0
+foe 3 kind 1 health 24 phase 0 since 0 x -1280 y 35328 heading 0 gap 33 last_hit -1 attack 0 poise 0
+foe 4 kind 1 health 24 phase 0 since 0 x -256 y 35328 heading 0 gap 33 last_hit -1 attack 0 poise 0

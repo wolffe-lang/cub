@@ -2,11 +2,11 @@
  hawk: circle   stop     stoop    recover   fade0    fade5    fade10            
                                                                                 
                                                                                 
+                                                                                
+        v         v         v         v         v                               
        -v-       \_/        |        /v\       -v-       ...       ...          
-        o         o         v         o         o         o                     
-                                                                                
-        .        (_)        *         .         .         .         .           
-                                                                                
+        O         O         O         O         O         O                     
+        v         v         |         v         v         v         v           
                                                                                 
                                                                                 
                                                                                 

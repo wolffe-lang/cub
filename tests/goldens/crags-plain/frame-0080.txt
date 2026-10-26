@@ -1,15 +1,15 @@
-#scent 0#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-OThe TeethO#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.......O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.......#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+#healthO[============]#OThe TeethO#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+Ostamina[============]O#scent 0#O#O#O#O#O#O.......O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#OThe Teeth - a den ahead; scent of home#O#O#O#O#O#O#O#O#O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.......O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  .. O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#  ,: #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O..   O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O    .O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.    #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#( The ledge cleft )#O#O#O#O#O#O#O#O#O#O#O#O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O..,. O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O~.   O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#_.---._.O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O(     )O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#(_ o _)#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O....,..O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#####  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O####    #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.vv.O. :  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
