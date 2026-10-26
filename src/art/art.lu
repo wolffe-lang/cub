@@ -695,7 +695,15 @@ fn world_prop(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, kind: int, o
 fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
     // cb04c owns these pickups' final sprites; only their hooks live here.
     for meat in s.meat {
-        at_world(s, t, mut g, sim.floor_div(meat.x, sim.FP), sim.floor_div(meat.y, sim.FP), "+", true)
+        at_world(
+            s,
+            t,
+            mut g,
+            sim.floor_div(meat.x, sim.FP),
+            sim.floor_div(meat.y, sim.FP),
+            "+",
+            true,
+        )
     }
     var spring = 0
     while spring < sim.SPRINGS {
@@ -708,6 +716,7 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
     for drop in s.drops {
         world_orb(s, t, mut g, drop.x, drop.y)
     }
+    draw_thorn_boundary(s, t, mut g)
     var cache = 0
     while cache < forest.cache_count(s.area) {
         let (x, y) = forest.cache_position(s.seed, s.field, s.area, cache)
@@ -787,18 +796,6 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
         den += 1
     }
     if s.area == forest.SHINGLE {
-        if !s.gate_open {
-            var gx = -2
-            while gx <= 2 {
-                grid.put(
-                    mut g,
-                    sim.gate_y(s) - sim.cell_y(s) + sim.screen_row(s),
-                    gx - sim.cell_x(s) + sim.screen_col(s),
-                    thorn_cell(t, gx + 2),
-                )
-                gx += 1
-            }
-        }
         world_prop(s, t, mut g, 0, sim.gate_y(s) - 3, props.THICKET, false)
     } else if s.area == forest.BRAMBLEHOLD {
         world_prop(s, t, mut g, 0, forest.LENGTH - 3, props.MEADOW, false)
@@ -2513,9 +2510,34 @@ fn den_menu(s: sim.Sim, t: int, mut g: grid.Grid) {
     )
 }
 
-
 /// Healing HUD seam: row3, column24; clear of the bars and boss row1.
 pub fn draw_water(s: sim.Sim, t: int, mut g: grid.Grid) {
-    let text = if s.flask_max == 0 then "Water 0/0 - find a spring" else "Water {s.flasks}/{s.flask_max}  w drink"
-    draw.put_text(mut g, 3, 24, text, grid.cell(32, if t == tier.PLAIN then 14 else 117, if t == tier.PLAIN then 0 else 235, 0))
+    let text = if s.flask_max == 0 {
+        "Water 0/0 - find a spring"
+    } else {
+        "Water {s.flasks}/{s.flask_max}  w drink"
+    }
+    draw.put_text(
+        mut g,
+        3,
+        24,
+        text,
+        grid.cell(32, if t == tier.PLAIN then 14 else 117, if t == tier.PLAIN then 0 else 235, 0),
+    )
+}
+
+/// Persistent edge-zero thorns: intact across the throat, broken flanks
+/// after the lunge, visible from both areas without closing the opened gap.
+pub fn draw_thorn_boundary(s: sim.Sim, t: int, mut g: grid.Grid) {
+    if s.area != forest.SHINGLE && s.area != forest.BRAMBLEHOLD { return }
+    let row = forest.thorn_row(s.seed, s.area) - sim.cell_y(s) + sim.screen_row(s)
+    var x = -4
+    while x <= 4 {
+        if !s.gate_open || x < -2 || x > 2 {
+            var cell = thorn_cell(t, x + 4)
+            if s.gate_open { cell.attrs = grid.ATTR_DIM }
+            grid.put(mut g, row, x - sim.cell_x(s) + sim.screen_col(s), cell)
+        }
+        x += 1
+    }
 }

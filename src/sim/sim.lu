@@ -875,7 +875,11 @@ pub fn in_shallows(s: Sim, x: int, y: int) -> bool {
 
 /// Terrain and unopened thorns block a world cell.
 pub fn blocked(s: Sim, x: int, y: int) -> bool {
-    s.area == forest.SHINGLE && !s.gate_open && y == gate_y(s) && x >= -2 && x <= 2 ||
+    (s.area == forest.SHINGLE || s.area == forest.BRAMBLEHOLD) &&
+        !s.gate_open &&
+        y == forest.thorn_row(s.seed, s.area) &&
+        x >= -2 &&
+        x <= 2 ||
         forest.blocked(s.seed, s.field, s.area, x, y)
 }
 
@@ -3157,7 +3161,6 @@ fn meadow_near(s: Sim, kind: int, radius: int) -> bool {
         meadow.near_kind(s.seed, cell_x(s), cell_y(s), kind, radius)
 }
 
-
 /// A kill's small immediate heal, separate from its scent and death mark.
 pub struct Meat { x: int, y: int, until: int }
 
@@ -3180,7 +3183,9 @@ pub fn spring_position(seed: int, id: int) -> (int, int) {
 /// Draw a spring until its finite discovery has been claimed. The later
 /// spring requires learning to drink first; capacity itself persists this.
 pub fn spring_available(s: Sim, id: int) -> bool {
-    id >= 0 && id < SPRINGS && s.area == spring_area(id) &&
+    id >= 0 &&
+        id < SPRINGS &&
+        s.area == spring_area(id) &&
         (if id == 0 then s.flask_max == 0 else s.flask_max == 2)
 }
 
@@ -3196,7 +3201,9 @@ pub fn healing_pickups(mut s: Sim) {
             if cb04a_pickup_near(s, meat.x, meat.y) {
                 s.health += MEAT_HEAL
                 if s.health > health_max(s.heart) { s.health = health_max(s.heart) }
-            } else { (mut keep).push(copy meat) }
+            } else {
+                (mut keep).push(copy meat)
+            }
         }
     }
     s.meat = keep

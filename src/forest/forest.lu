@@ -444,6 +444,7 @@ pub fn arena_cell(seed: int, field: int, area: int, x: int, at: int) -> int {
 /// arena's open floor and the boar clearing's branch.
 pub fn carved(seed: int, field: int, area: int, x: int, at: int) -> bool {
     if area == BRAMBLEHOLD && in_clearing(seed, x, at) { return true }
+    if thorn_collar(area, x, at) { return false }
     let c = spine(seed, area, at)
     let hw = half(seed, area, at)
     if x >= c - hw && x <= c + hw { return true }
@@ -528,6 +529,7 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
     if x < 0 - w || x > w || at < 0 && area != SHINGLE || at > LENGTH {
         return closed(seed, area, x, y)
     }
+    if thorn_collar(area, x, at) { return closed(seed, area, x, y) }
     let forced = arena_cell(seed, field, area, x, at)
     if forced >= 0 { return forced }
     if area == RIVER {
@@ -841,4 +843,17 @@ pub fn path_length(seed: int, area: int) -> int {
         y += 1
     }
     length
+}
+
+/// One thorn gate joins the Shingle to Bramblehold (edge zero).
+pub const THORN_GATES: int = 1
+
+/// The throat has five cells, not the spine's wider accidental bypass.
+pub fn thorn_collar(area: int, x: int, at: int) -> bool {
+    (area == SHINGLE && at >= LENGTH - 4 || area == BRAMBLEHOLD && at <= 1) && (x < -2 || x > 2)
+}
+
+/// The same boundary seen from either incident area, in world cell rows.
+pub fn thorn_row(seed: int, area: int) -> int {
+    origin(seed, area) + (if area == SHINGLE then LENGTH - 3 else 0)
 }

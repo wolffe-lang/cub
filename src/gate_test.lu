@@ -31,3 +31,25 @@ fn test_cb02_bite_names_the_lunge_at_thorns() {
     while n < 4 { sim.step(mut s, keys); n += 1 }
     assert(!s.gate_open && s.gate_hint_until > s.tick, "bite gives lunge tell, not an opening")
 }
+
+fn test_cb04a_every_thorn_gate_exists_on_every_seed_and_both_sides() {
+    var seed = 0
+    while seed < 50 {
+        var area = 0
+        while area < 2 {
+            var s = sim.new(seed, 80, 24)
+            s.area = area
+            let row = if area == 0 then sim.gate_y(s) else 0
+            var x = -8
+            while x <= 8 {
+                assert(sim.blocked(s, x, row), "closed boundary spans all approaches")
+                x += 1
+            }
+            s.gate_open = true
+            x = -2
+            while x <= 2 { assert(!sim.blocked(s, x, row), "opened five-cell gap"); x += 1 }
+            area += 1
+        }
+        seed += 1
+    }
+}
