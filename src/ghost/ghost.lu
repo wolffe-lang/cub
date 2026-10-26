@@ -1,0 +1,233 @@
+//! ghost — the ghosts from replays (cb04, the campaign's innovation 1,
+//! R-CB-1's spot). Every death writes the run to a `.pk` file (the
+//! engine's format, `write_ghost` in the entry); this module adds to that
+//! file the ghost's **trailer**: the cub's position, facing, pose and area
+//! on each of the last `TICKS` ticks, as numeric events in cub's own
+//! vocabulary (`t TICK ghost-x N` and its five companions, `docs/REPLAY.md`),
+//! and reads them back. A ghost is therefore driven by the engine's
+//! replay reader alone (`replay.args_at`), never by the simulation: the
+//! file says where the cub was, tick by tick, and the frame draws a dim
+//! silhouette there. The death's spot is the trailer's last frame.
+//!
+//! The game shows the last `SHOWN` deaths' spots in the cub's area as dim
+//! marks, fading by age (R-cb04-1 A), and when the cub comes within `NEAR`
+//! cells of one, that death's last seconds play as a ghost moving through
+//! the world, resting `REST` ticks between plays. Playback is a function
+//! of the simulation's tick, so the goldens pin it.
+
+use controls
+use replay
+use std.fs
+
+/// The last seconds a ghost replays: three.
+pub const TICKS: int = 90
+
+/// The pause between two plays of a ghost, ticks.
+pub const REST: int = 60
+
+/// The deaths shown, newest first (R-cb04-1 A).
+pub const SHOWN: int = 5
+
+/// Cells within which a ghost's death plays.
+pub const NEAR: int = 8
+
+/// Where the cub was on one tick: fixed-point position, the body's facing
+/// (0 north, 1 east, 2 south, 3 west), the drawn pose (0 stand, 1 walk, 2
+/// sneak, 3 pant, 4 fallen) and the area.
+pub struct Frame {
+    x: int,
+    y: int,
+    facing: int,
+    pose: int,
+    area: int,
+}
+
+/// The last `TICKS` frames of a run, a ring by tick.
+pub struct History {
+    ticks: List[int],
+    frames: List[Frame],
+}
+
+/// An empty history.
+pub fn history() -> History {
+    History { ticks: List[int](), frames: List[Frame]() }
+}
+
+/// Record the frame of `tick`.
+pub fn record(mut h: History, tick: int, f: Frame) {
+    let slot = tick % TICKS
+    while h.frames.len <= slot {
+        (mut h.ticks).push(-1)
+        (mut h.frames).push(Frame { x: 0, y: 0, facing: 0, pose: 0, area: 0 })
+    }
+    h.ticks[slot] = tick
+    h.frames[slot] = f
+}
+
+/// One death's ghost: its serial (the journey's death count, so later
+/// deaths rank first), where it fell, and its last seconds in tick order.
+pub struct Ghost {
+    serial: int,
+    area: int,
+    x: int,
+    y: int,
+    facing: int,
+    frames: List[Frame],
+    name: str,
+}
+
+/// The ghosts shown, newest first.
+pub struct Set {
+    ghosts: List[Ghost],
+}
+
+/// No ghosts.
+pub fn empty() -> Set {
+    Set { ghosts: List[Ghost]() }
+}
+
+/// The trailer appended to a death's replay: `TICKS` frames ending at
+/// `death_tick` (those the history holds), each as its five events, and
+/// `ghost-death serial` once, every event inserted at its tick so the
+/// file's ticks never decrease (the engine's rule).
+pub fn trailer(mut r: replay.Replay, h: History, death_tick: int, serial: int) {
+    var out = List[replay.Event]()
+    var t = death_tick - TICKS + 1
+    if t < 0 { t = 0 }
+    var k = 0
+    while k <= r.events.len {
+        let next_tick = if k < r.events.len then r.events[k].tick else death_tick + 1
+        while t <= death_tick && t < next_tick {
+            push_frame(mut out, h, t, death_tick, serial)
+            t += 1
+        }
+        if k < r.events.len { (mut out).push(copy r.events[k]) }
+        k += 1
+    }
+    r.events = out
+}
+
+fn push_frame(mut out: List[replay.Event], h: History, t: int, death_tick: int, serial: int) {
+    let slot = t % TICKS
+    if slot >= h.ticks.len || h.ticks[slot] != t { return }
+    let f = copy h.frames[slot]
+    (mut out).push(ev(t, controls.EV_GHOST_X, f.x))
+    (mut out).push(ev(t, controls.EV_GHOST_Y, f.y))
+    (mut out).push(ev(t, controls.EV_GHOST_FACE, f.facing))
+    (mut out).push(ev(t, controls.EV_GHOST_POSE, f.pose))
+    (mut out).push(ev(t, controls.EV_GHOST_AREA, f.area))
+    if t == death_tick { (mut out).push(ev(t, controls.EV_GHOST_DEATH, serial)) }
+}
+
+fn ev(tick: int, i: int, value: int) -> replay.Event {
+    replay.Event { tick: tick, key: replay.EV_ARG + i, cols: 0, rows: 0, arg: value }
+}
+
+/// The ghost a death's replay describes, read from its trailer with the
+/// engine's reader; `none` for a file without one (a death archived
+/// before cb04, or another game's).
+pub fn from_replay(r: replay.Replay, name: str) -> Ghost ! {none} {
+    var frames = List[Frame]()
+    var last = -1
+    var serial = 0
+    for e in r.events {
+        if e.key == replay.EV_ARG + controls.EV_GHOST_X && e.tick != last {
+            last = e.tick
+            (mut frames).push(Frame {
+                x: e.arg,
+                y: replay.args_at(r, e.tick, controls.EV_GHOST_Y),
+                facing: replay.args_at(r, e.tick, controls.EV_GHOST_FACE),
+                pose: replay.args_at(r, e.tick, controls.EV_GHOST_POSE),
+                area: replay.args_at(r, e.tick, controls.EV_GHOST_AREA),
+            })
+        }
+        if e.key == replay.EV_ARG + controls.EV_GHOST_DEATH { serial = e.arg }
+    }
+    if frames.len == 0 { return none }
+    let spot = copy frames[frames.len - 1]
+    Ghost {
+        serial: serial,
+        area: spot.area,
+        x: spot.x,
+        y: spot.y,
+        facing: spot.facing,
+        frames: frames,
+        name: name,
+    }
+}
+
+/// Every `.pk` under `dir` with a trailer, the newest `SHOWN` by serial
+/// (then by name), newest first. A file that is not a cub replay or has
+/// no trailer is skipped and named on standard error; a directory that
+/// cannot be read is no ghosts.
+pub fn load(dir: str) -> Set {
+    var set = empty()
+    if dir == "" { return set }
+    let names = fs.read_dir(dir) else |_| { return set }
+    var sorted = List[str]()
+    for n in names { if n.ends_with(".pk") { (mut sorted).push(n) } }
+    sort_names(mut sorted)
+    for n in sorted {
+        let path = dir + "/" + n
+        let text = fs.read_text(path) else |_| {
+            eprint("cub: ghost {path}: unreadable, skipped")
+            continue
+        }
+        let r = replay.from_text(text, controls.vocab()) else |_| {
+            eprint("cub: ghost {path}: not a cub replay, skipped")
+            continue
+        }
+        let g = from_replay(r, n) else {
+            eprint("cub: ghost {path}: no trailer (a death archived before cb04), skipped")
+            continue
+        }
+        insert(mut set, g)
+    }
+    set
+}
+
+/// Insertion sort of names, ascending: the order is the set's, not the
+/// directory's.
+fn sort_names(mut xs: List[str]) {
+    var i = 1
+    while i < xs.len {
+        var j = i
+        while j > 0 && xs[j - 1] > xs[j] {
+            let t = xs[j]
+            xs[j] = xs[j - 1]
+            xs[j - 1] = t
+            j -= 1
+        }
+        i += 1
+    }
+}
+
+/// Put `g` into the set by rank (higher serial first, then the later
+/// name), keeping `SHOWN`.
+fn insert(mut set: Set, g: Ghost) {
+    var at = set.ghosts.len
+    var i = 0
+    while i < set.ghosts.len {
+        let o = copy set.ghosts[i]
+        if g.serial > o.serial || g.serial == o.serial && g.name > o.name { at = i; break }
+        i += 1
+    }
+    if at >= SHOWN { return }
+    var out = List[Ghost]()
+    i = 0
+    while i < set.ghosts.len {
+        if i == at { (mut out).push(copy g) }
+        if out.len < SHOWN { (mut out).push(copy set.ghosts[i]) }
+        i += 1
+    }
+    if at == set.ghosts.len && out.len < SHOWN { (mut out).push(copy g) }
+    set.ghosts = out
+}
+
+/// The frame a ghost shows at the simulation's `tick` when the cub is
+/// near: its index into the ghost's frames, or -1 while it rests (lying
+/// at its spot).
+pub fn playing(g: Ghost, tick: int) -> int {
+    let i = tick % (TICKS + REST)
+    if i < g.frames.len then i else -1
+}

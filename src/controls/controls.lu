@@ -214,6 +214,35 @@ pub const EV_SAVED: int = 4
 /// imports nothing of the save).
 pub const SAVED: int = 29
 
+/// The title scene (cb04): `title 1` at a tick shows the title there.
+pub const EV_TITLE: int = 33
+
+/// The bosses beaten, set as a test/debug delta (cb04): `bosses N` sets
+/// the save's bits, as `health` and `scent` move the cub's numbers.
+pub const EV_BOSSES: int = 34
+
+/// A ghost's trailer (cb04, `ghost`): the cub's position each of the last
+/// ticks before a death, as the game's own words.
+pub const EV_GHOST_X: int = 35
+
+/// The trailer's y.
+pub const EV_GHOST_Y: int = 36
+
+/// The trailer's facing.
+pub const EV_GHOST_FACE: int = 37
+
+/// The trailer's pose.
+pub const EV_GHOST_POSE: int = 38
+
+/// The trailer's area.
+pub const EV_GHOST_AREA: int = 39
+
+/// The death's serial (the journey's death count), once per trailer.
+pub const EV_GHOST_DEATH: int = 40
+
+/// The number of numeric events.
+pub const EV_COUNT: int = 41
+
 /// cub's words for the replay file: the keys by number, and the numeric
 /// events by index (`EV_*`).
 pub fn vocab() -> replay.Vocab {
@@ -229,6 +258,9 @@ pub fn vocab() -> replay.Vocab {
     (mut args).push("journey")
     var part = 0
     while part < SAVED { (mut args).push("saved-{part}"); part += 1 }
+    for w in "title bosses ghost-x ghost-y ghost-face ghost-pose ghost-area ghost-death".words() {
+        (mut args).push(w)
+    }
     replay.vocab(take names, take args)
 }
 
