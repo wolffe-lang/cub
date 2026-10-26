@@ -1,0 +1,3 @@
+spawn clearance: foe 0 at 13,134 den 1 at -11,116
+test src/spawn_clearance_test.lu::test_cb04d_smoothed_cache_guards_keep_thirty_cells_from_dens ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out

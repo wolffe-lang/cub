@@ -1,0 +1,31 @@
+//! member: false
+
+use forest
+use sim
+
+fn test_cb04d_rounded_switchback_spawns_keep_thirty_cells_from_dens() {
+    let seed = 43
+    let field = 80
+    let area = forest.BRAMBLEHOLD
+    let foes = sim.area_foes(seed, field, area, 0)
+    for foe in foes {
+        var den = 0
+        while den < forest.DENS {
+            if forest.den_area(den) == area {
+                let (x, y) = forest.den_position(seed, den)
+                let dx = (foe.x - x) / sim.FP
+                let dy = (foe.y - y) / sim.FP
+                if dx * dx + dy * dy < forest.FIRST_FOE_CELLS * forest.FIRST_FOE_CELLS {
+                    print(
+                        "spawn clearance: foe {foe.kind} at {foe.x / sim.FP},{foe.y / sim.FP} den {den} at {x / sim.FP},{y / sim.FP}",
+                    )
+                }
+                assert(
+                    dx * dx + dy * dy >= forest.FIRST_FOE_CELLS * forest.FIRST_FOE_CELLS,
+                    "rounded switchback keeps den quiet radius",
+                )
+            }
+            den += 1
+        }
+    }
+}

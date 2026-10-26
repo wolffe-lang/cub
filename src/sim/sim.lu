@@ -2128,8 +2128,12 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
     }
     var group = 0
     while group < 3 {
-        let at = (if group == 0 then 52 else if group == 1 then 76 else 134) +
-            world.hash(seed, area, group + 131, 5)
+        let at = encounter_row(
+            seed,
+            area,
+            (if group == 0 then 52 else if group == 1 then 76 else 134) +
+                world.hash(seed, area, group + 131, 5),
+        )
         // The second thicket den sits at 90..93: do not spawn near it.
         // The second thicket den sits at 90..93; the arenas at 100..124 in
         // the last three areas: the middle group stays out of both.
@@ -2185,6 +2189,36 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
         cache += 1
     }
     foes
+}
+
+// Rounding a switchback can move a path foe toward a den. Advance its
+// seeded group along the same carved route until both spawn slots retain
+// the existing quiet radius. Post-cluster refuges deliberately stay closer.
+fn encounter_row(seed: int, area: int, at: int) -> int {
+    if area != forest.BRAMBLEHOLD || at < 130 { return at }
+    var row = at
+    while row < forest.LENGTH - 8 {
+        var clear = true
+        var den = 0
+        while den < forest.DENS {
+            if forest.den_area(den) == area {
+                let (dx, dy) = forest.den_position(seed, den)
+                for side in [-1, 1] {
+                    let x = (forest.spine(seed, area, row) + side) * FP
+                    let y = (forest.origin(seed, area) + row) * FP
+                    let ox = (x - dx) / FP
+                    let oy = (y - dy) / FP
+                    if ox * ox + oy * oy < forest.FIRST_FOE_CELLS * forest.FIRST_FOE_CELLS {
+                        clear = false
+                    }
+                }
+            }
+            den += 1
+        }
+        if clear { return row }
+        row += 1
+    }
+    row
 }
 
 fn make_foe(kind: int, x: int, y: int) -> Foe {
