@@ -94,36 +94,34 @@ fn test_cb04c_drop_collection_uses_body_ring() {
     assert(s.scent == 8 && s.drops.len == 0, "ordinary scent uses same contact ring")
 }
 
-fn check_local_orb(t: int) {
+fn check_local_orb(t: int, marked: bool, area: int) {
     var s = sim.new(7, 80, 24)
     s.foes = List[sim.Foe]()
     s.mark_x = s.x + 25 * sim.FP
     s.mark_y = s.y
-    {
-        var g = grid.new(24, 80)
-        art.render(s, t, mut g)
-        let cp = if t == tier.RICH then 9679 else 42
-        assert(grid.at(g, sim.screen_row(s), sim.screen_col(s) + 25).cp != cp, "no death, no orb")
-        s.mark = true
-        art.render(s, t, mut g)
-        assert(
-            grid.at(g, sim.screen_row(s), sim.screen_col(s) + 25).cp == cp,
-            "orb visible beyond old nose-distance cull",
-        )
-        s.mark_area = 1
-        art.render(s, t, mut g)
-        assert(
-            grid.at(g, sim.screen_row(s), sim.screen_col(s) + 25).cp != cp,
-            "foreign-area death cannot draw",
-        )
-        s.mark = false
-        s.mark_area = 0
-    }
+    s.mark = marked
+    s.mark_area = area
+    var g = grid.new(24, 80)
+    art.render(s, t, mut g)
+    let cp = if t == tier.RICH then 9679 else 42
+    let shown = grid.at(g, sim.screen_row(s), sim.screen_col(s) + 25).cp == cp
+    assert(
+        shown == (marked && area == s.area),
+        "only a local death draws an orb, beyond the old nose-distance cull",
+    )
 }
 
-fn test_cb04c_rich_orb_requires_a_local_death() { check_local_orb(tier.RICH) }
+fn test_cb04c_rich_orb_requires_a_death() { check_local_orb(tier.RICH, false, 0) }
 
-fn test_cb04c_plain_orb_requires_a_local_death() { check_local_orb(tier.PLAIN) }
+fn test_cb04c_rich_orb_shows_across_screen() { check_local_orb(tier.RICH, true, 0) }
+
+fn test_cb04c_rich_orb_refuses_other_area() { check_local_orb(tier.RICH, true, 1) }
+
+fn test_cb04c_plain_orb_requires_a_death() { check_local_orb(tier.PLAIN, false, 0) }
+
+fn test_cb04c_plain_orb_shows_across_screen() { check_local_orb(tier.PLAIN, true, 0) }
+
+fn test_cb04c_plain_orb_refuses_other_area() { check_local_orb(tier.PLAIN, true, 1) }
 
 fn test_cb04c_orb_particles_are_seeded_periodic_bounded() {
     var differs = false

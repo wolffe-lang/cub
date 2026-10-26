@@ -93,6 +93,9 @@ pub fn census() -> int {
                 while k < forest.cache_count(area) {
                     let (x, cy) = forest.cache_position(seed, s.field, area, k)
                     if !frame_at(mut s, x, cy, mut count) { return 1 }
+                    s.caches = 65535
+                    if !frame_at(mut s, x, cy, mut count) { return 1 }
+                    s.caches = 0
                     k += 1
                 }
                 var edge = 0

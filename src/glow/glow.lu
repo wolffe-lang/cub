@@ -81,3 +81,15 @@ pub fn burst(mut g: grid.Grid, t: int, row: int, col: int, age: int) {
         }
     }
 }
+
+/// Pulse halves and the recovery burst's three radii, on one art atlas.
+pub fn sheet(t: int) -> grid.Grid {
+    var g = grid.new(16, 80)
+    grid.fill(mut g, grid.cell(32, 7, if t == tier.RICH then 234 else 0, 0))
+    orb(mut g, t, 8, 8, 7, 12, -3, 0)
+    orb(mut g, t, 8, 24, 7, 12, -3, 48)
+    burst(mut g, t, 8, 40, 0)
+    burst(mut g, t, 8, 56, 4)
+    burst(mut g, t, 8, 72, 8)
+    g
+}
