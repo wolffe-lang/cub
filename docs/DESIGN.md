@@ -87,7 +87,7 @@ Additional proposed values, all 2026-10-25:
 | trail | 300-tick lifetime (bible); one sample per changed cell, none sneaking; old trail remains until expiry |
 | water and death | 3 mouthfuls; 40 healed; 30-tick death fade (bible); mark recovery within 1 cell |
 | growth | each stat starts 1, cap 10; next level costs 40 × next level (80 for level 2), only at den |
-| den | within 1 cell of a seeded den; reset health, stamina, water, foes, trail and holds; gate, caches, shortcuts and mark persist |
+| den | within three cells of a seeded den; a rest resets health, stamina, water, every area's ordinary foes, trail and holds; area changes never revive slain foes, while wounded survivors heal and return home on re-entry (R-cb04f-1 A); death at the last-den respawn resets foes as a rest does (R-cb04f-2 A); beaten bosses, gate, caches, shortcuts and mark persist |
 | collision | ground bodies are their drawings' footprints and never share a cell (cb02c, below); reach counts clear cells between bodies; attack envelope and visual arc are separate |
 | Shingle layout | den at seeded start; the connected-world table below supersedes the close-spawn preview and straight strip; the thorn branch now ends at start+157 |
 
@@ -705,8 +705,9 @@ full-screen rest scene, heals, refills found water and resets encounters;
 `r` or Esc leaves without resting a second time. The world does not advance
 while the scene is open. Arrows and attacks there are ignored rather than
 saved as held movement. The three-cell centre radius is deliberately not
-the pickup body's contact ring. Death and save resume share `sim.wake`:
-the last den rested at, with fresh encounters. The death mark stays at the
+the pickup body's contact ring. Death returns to the last den rested at, with fresh ordinary encounters
+in every area. Save resume returns there healed and refilled, but now retains
+the slain set (cb04f); it is not a den rest. The death mark stays at the
 death's area and position; a second death replaces it (R-CB-1).
 
 The basic rest, five-stat growth, water action and last-den respawn already
@@ -837,3 +838,36 @@ per-level price. The health/stamina maxima update immediately. Esc or`r`
 discards. Numeric keys do not purchase. Schema4 stores confirmed stats
 only, never selection, pending choices or refusal feedback. See ART and
 KEYS for the panel's layout and controls.
+
+
+## Den-cycle world memory and ledger placement (cb04f)
+
+An area's ordinary foes have stable seeded ordinals independent of its boss.
+A slain ordinal stays dead across paths, doors and shortcuts until a den rest
+or death's last-den respawn resets every area. A living wounded foe heals and
+returns to its seeded place on re-entry (R-cb04f-1 A); death resets the global
+slain set (R-cb04f-2 A). Beaten bosses remain beaten. Slain masks depend only on
+seed and simulated play, never wall time. A save on the death card already
+represents the reset that its resumed last-den wake will perform.
+
+Unclaimed scent and meat wait in their areas across travel, retaining their
+original absolute-tick expiry. Taken or expired pickups never reappear on
+re-entry. Finite caches and discovered springs remain persistent as before.
+A rest or death discards ordinary loot globally. Checkpoint saves retain the
+slain set, not unclaimed loot or wounded foes' transient state: loading does
+not create replacement drops or meat (R-cb04f-3 A recommendation).
+
+Schema5 appends `slain A B C D E F` to schema4's canonical payload. Each mask
+is range-checked against the area's ordinary spawn count. Schema4 is validated
+with its own checksum and spelling, then migrated with six empty masks;
+schema1/2/3 still fail `save_version`. Recordings write `journey 4`, 36 saved
+values. Old `journey 3` recordings remain readable with empty masks. The six
+new event names are appended rather than renumbering existing event ids.
+
+The rest ledger keeps cb04d's sizes, frame, palette and staged purchases.
+Its centre is `(cols/2 - cols/6, rows/2)`, using integer screen-edge
+coordinates; its left edge is clamped to keep the full panel visible.
+Measured centres at80×24,120×40,200×60 are respectively `(27,12)`, `(40,20)`,
+`(67,30)`, with left/top `(7,1)`, `(15,7)`, `(42,17)`. None of these sizes
+clamps. The original breathing cub and animated fire sit to its right;
+at80 columns the empty space between them narrows by six columns.

@@ -320,8 +320,8 @@ the Shingle; an enclosing thorn hollow for Bramblehold; gold hillside and
 thin gangly trees against the sky for Larkmeadow; cold angled ledges in the
 Teeth; reeds and blue river light in the Shallows; dark old roots and scent
 marks in Gravehollow. Sea colour is visual atmosphere, not a new sound loop.
-The same cub and fire sit in all six. The right-hand panel holds the stat choices, their effects, scent, pending
-cost and save state; the whole cub and fire remain visible to its left.
+The same cub and fire sit in all six. The left-centred ledger holds the stat choices, their effects, scent, pending
+cost and save state; the cub and fire sit to its right.
 
 `rest-{shingle,bramblehold,larkmeadow,teeth,shallows,old-den}-{80x24,120x40}`
 are the twelve case names, each rendered rich/plain. Seven-tick samples pin
@@ -337,9 +337,12 @@ opening never draws a closed collision glyph across the passage.
 
 A double frame of existing rule glyphs, muted gold179 on near-black232,
 contains bone-white230 labels and aligned current/pending columns. Plain
-uses doubled ASCII rules, gold3 and white15 on black0. The right-hand panel
-is40×22 at80×24 (left39, top1) and50×26 at120×40 (left69, top7).
-The complete38-column cub/fire group fits to its left, without cropping.
+uses doubled ASCII rules, gold3 and white15 on black0. The panel is40×22
+at80×24 (left7, top1),50×26 at120×40 (left15, top7) and200×60
+(left42, top17). Its centre is one sixth of the screen width left of the
+screen centre, and vertically centred; all three sizes fit without clamping.
+The cub/fire group sits to its right, its spacing six columns tighter at80
+columns so the complete drawings fit.
 
 Sections are the den name; Level, Scent held, Scent needed, Scent after;
 the five stats and their effects; Confirm and the keyboard hint. A `>`
@@ -349,5 +352,5 @@ numbers and explanation carry the same meaning without colour. A refused
 raise displays its attempted total cost; Scent after still describes the
 accepted pending choices, never an unaccepted debt.
 
-`rest-menu-{empty,pending,refused}-{80x24,120x40}` pin all three states on
+`rest-menu-{empty,pending,refused}-{80x24,120x40,200x60}` pin all three states on
 both tiers. The frame uses existing horizontal/vertical rule glyphs only.
