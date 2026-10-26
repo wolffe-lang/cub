@@ -1622,7 +1622,13 @@ pub fn step(mut s: Sim, keys: List[int]) {
     action_step(mut s, want)
     foes_step(mut s)
     if s.action == FALL { return }
-    if transitions(mut s, ox, oy) { return }
+    if transitions(mut s, ox, oy) {
+        // Area entry resets legacy inference, but physical arrows remain down.
+        if input.exact(s.key_state) { sync_holds(mut s) }
+        s.motion_rx = 0
+        s.motion_ry = 0
+        return
+    }
     hazards_step(mut s)
     trail_step(mut s, ox, oy)
     drops_step(mut s)
@@ -2005,7 +2011,7 @@ fn aim_axis_order(s: Sim, axis: int) -> int {
     order
 }
 
-/// Lock wins; otherwise latest opposing arrow wins per axis, then facing.
+/// Held arrows choose the attack; with none held, commit current facing.
 pub fn attack_aim(s: Sim) -> int {
     let h = held_direction(s)
     if h >= 0 then h else s.heading

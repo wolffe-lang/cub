@@ -29,7 +29,8 @@ pub fn no_labels(g: grid.Grid) -> bool {
         "[ shallows ]",
         "[Log]",
     ]
-    var row = 5
+    // Bars, numeric status, water and the den hint occupy rows0..7.
+    var row = 8
     while row < g.rows - 2 {
         var text = ""
         var col = 0
