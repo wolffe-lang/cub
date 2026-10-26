@@ -530,10 +530,14 @@ landing for the unparryable one, free bites in a stagger, water under half healt
 
 | boss | attempts to win, 100 worlds | hits taken by attack 0 / 1 / 2 | unparryable hits | shortest telegraph by attack (ticks) |
 |---|---|---|---|---|
-| the boar | 1: 78, 2: 10, 3: 10, 5: 2 | 138 / 90 / 90 | 180 | 12 / 24 / 12 |
-| the lynx | 1: 100 | 57 / 2 / 26 | 26 | 10 / 12 / 15 |
-| the elk | 1: 100 | 52 / 6 / 4 | 6 | 16 / 24 / 18 |
-| the alpha | 1: 100 | 276 / 0 / 0 | 0 | 9 / 12 / — (the howl unseen) |
+| the boar | 1: 86, 2: 12, 3: 2 | 120 / 66 / 68 | 134 | 12 / 24 / 12 |
+| the lynx | 1: 100 | 44 / 2 / 14 | 14 | 10 / 12 / 15 |
+| the elk | 1: 100 | 40 / 2 / 2 | 2 | 16 / 24 / 18 |
+| the alpha | 1: 100 | 228 / 0 / 0 | 0 | 9 / 12 / — (the howl unseen) |
+
+(At cb02c's pace, before the rebase onto cb03's +20 %: the boar 1: 78, 2: 10, 3: 10, 5: 2 with 180
+unparryable hits; the others unchanged in attempts. `notes/cb04-evidence/boss-census.txt` and
+`boss-census-final.txt`.)
 
 **Ghosts** (R-cb04-1 A: the last five deaths, fading with age; `src/ghost/ghost.lu`). A death's archive
 carries a trailer: for each of the last `TICKS` 90 ticks the words `ghost-x`, `ghost-y`, `ghost-face`,
