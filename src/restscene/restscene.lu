@@ -239,10 +239,7 @@ pub fn panel_width(s: sim.Sim) -> int { if s.cols >= 120 then 50 else 40 }
 
 /// Centre one sixth of the screen left of its centre; clamp the whole panel.
 /// The supported80/120/200-column sizes require no clamp (left7/15/42).
-pub fn panel_left(s: sim.Sim) -> int {
-    let left = s.cols / 2 - s.cols / 6 - panel_width(s) / 2
-    if left < 0 then 0 else if left + panel_width(s) > s.cols then s.cols - panel_width(s) else left
-}
+pub fn panel_left(s: sim.Sim) -> int { s.cols - panel_width(s) - 1 }
 
 /// A larger wide-screen panel, with every row retained at the minimum size.
 pub fn panel_height(s: sim.Sim) -> int { if s.rows >= 40 then 26 else 22 }
