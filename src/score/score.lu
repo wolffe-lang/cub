@@ -1,0 +1,384 @@
+//! score — the cub's soundtrack (cb03, M-CB3's game half): original parts
+//! (`score/*.part`, px32's part format, carried in the binary by
+//! tools/score-embed as `parts.lu`) rendered once by the engine's mixer,
+//! and the cue schedule that chooses which sounds. An area's part loops
+//! while the cub is in it; the title's plays over the opening; a den's
+//! rest while the cub rests; a boss theme over a fight, the area's loop
+//! fading under it (the engine's replace fade: the duck); the death sting
+//! once at a fall, after which the area's loop resumes at the den.
+//!
+//! Two sinks hear one schedule. The deterministic sink is the engine's
+//! mixer (`sound.cue`, `sound.tick`): the PCM goldens and the schedule
+//! tests, byte-identical on both hosts and backends. The audible sink is
+//! a WAV per part written at start and handed to the engine's output
+//! owner (`sound.start`: afplay on macOS, paplay on Linux), ended with
+//! std.process's kill-then-wait when the cue changes and started again
+//! when its length is up (the loop). lr01's engine mixes prepared PCM and
+//! streams none (lair's docs/SOUND.md), so the live path carries a cut
+//! where the mixer carries a fade: R-cb03-1 B; the note says so and names
+//! the lair need. The music is original to cub.
+
+use sim
+use sound
+use std.fs
+use std.process
+
+/// The ticks a second, the engine's (`sound.TICK_FRAMES` of `sound.RATE`).
+pub const TICK_HZ: int = 30
+
+/// The parts, in the bank's order: the title, the three areas, the four
+/// boss themes (cb04 wires the fights), the den's rest, the death sting.
+pub fn names() -> List[str] {
+    [
+        "title",
+        "shingle",
+        "bramblehold",
+        "larkmeadow",
+        "boss-boar",
+        "boss-lynx",
+        "boss-elk",
+        "boss-alpha",
+        "den",
+        "death",
+    ]
+}
+
+/// The silent part: one bar of rest, the cue that stops the music (a
+/// replace cue fades every slot out; the live player stops its child).
+pub fn silence_text() -> str {
+    "title silence\ncue replace fade 6\ntempo 120\npart hush flute ppp\nbar 1\nhush r/1\n"
+}
+
+/// The area's part: the Shingle, Bramblehold, Larkmeadow; the crags, the
+/// river and the old den are named slots for cb04's areas, silent until
+/// their parts exist (`docs/SCORE.md`).
+pub fn area_part(area: int) -> str {
+    match area {
+        0 => "shingle",
+        1 => "bramblehold",
+        2 => "larkmeadow",
+        3 => "crags",
+        4 => "river",
+        5 => "old-den",
+        _ => "",
+    }
+}
+
+/// A boss's theme: the boar of the thicket, the lynx of the crags, the
+/// elk of the river, the shadow alpha at the old den (`sim.boss_theme`).
+pub fn boss_part(boss: int) -> str {
+    match boss {
+        0 => "boss-boar",
+        1 => "boss-lynx",
+        2 => "boss-elk",
+        3 => "boss-alpha",
+        _ => "",
+    }
+}
+
+/// The one part that plays once: everything else loops.
+pub fn plays_once(name: str) -> bool {
+    name == "death"
+}
+
+/// A part's text without lair's `cue` line: the musical reader's input.
+fn body_of(text: str) -> str {
+    var body = ""
+    for line in text.lines() {
+        let ws = line.words()
+        if ws.len > 0 && ws[0] == "cue" { continue }
+        body = body + line + "\n"
+    }
+    body
+}
+
+/// A part's text: the committed file's, or the silence's.
+pub fn part_text(name: str) -> str {
+    if name == "silence" { return silence_text() }
+    text(name)
+}
+
+/// A part's length in whole seconds (its last bar's end, rounded up): the
+/// render's length and the loop's. `invalid` names a part that does not
+/// parse; the engine's reader says where on stderr.
+pub fn seconds_of(name: str) -> int ! {invalid} {
+    let t = part_text(name)
+    if t == "" { return invalid }
+    let s = sound.read(body_of(t))
+    if s.err != "" {
+        eprint("score: {name}: {s.err}")
+        return invalid
+    }
+    (s.total + 999999) / 1000000
+}
+
+/// Prepare one part at its own length: the engine's `sound.prepare`.
+/// Loading work, before the terminal is entered, never in a tick.
+pub fn load(name: str) -> sound.Part ! {invalid} {
+    let seconds = seconds_of(name)?
+    sound.prepare(name, part_text(name), seconds)
+}
+
+/// The whole bank, prepared: the parts and the silence.
+pub fn bank() -> List[sound.Part] ! {invalid} {
+    var out = List[sound.Part]()
+    for n in names() { (mut out).push(load(n)?) }
+    (mut out).push(load("silence")?)
+    out
+}
+
+/// A cue the schedule knows: its length in ticks and whether it plays once.
+pub struct Cue {
+    name: str,
+    ticks: int,
+    once: bool,
+}
+
+/// The cue of a named part, from its length.
+pub fn cue_of(name: str) -> Cue ! {invalid} {
+    Cue { name: copy name, ticks: seconds_of(name)? * TICK_HZ, once: plays_once(name) }
+}
+
+/// Every part's cue, the silence included.
+pub fn cues() -> List[Cue] ! {invalid} {
+    var out = List[Cue]()
+    for n in names() { (mut out).push(cue_of(n)?) }
+    (mut out).push(cue_of("silence")?)
+    out
+}
+
+/// What the score reads of the game, once a tick.
+pub struct Scene {
+    title: bool,
+    fallen: bool,
+    den: bool,
+    boss: int,
+    area: int,
+}
+
+/// The scene the simulation is in.
+pub fn scene_of(s: sim.Sim) -> Scene {
+    Scene {
+        title: s.scene != 0,
+        fallen: s.action == sim.FALL,
+        den: s.den,
+        boss: sim.boss_theme(s),
+        area: s.area,
+    }
+}
+
+/// The part a scene asks for, in the order that decides: the death sting
+/// over everything, the title over the opening, the den's rest, a boss's
+/// theme, the area's loop.
+pub fn want(sc: Scene) -> str {
+    if sc.fallen { return "death" }
+    if sc.title { return "title" }
+    if sc.den { return "den" }
+    if sc.boss >= 0 { return boss_part(sc.boss) }
+    area_part(sc.area)
+}
+
+/// The cue schedule: the cue sounding, since which tick, the cues known.
+pub struct Schedule {
+    current: str,
+    since: int,
+    cues: List[Cue],
+}
+
+/// A schedule over `cues`, nothing sounding yet.
+pub fn schedule(cues: List[Cue]) -> Schedule {
+    Schedule { current: "", since: 0, cues: copy cues }
+}
+
+/// A known cue's length in ticks, 0 for a name the bank has no part for.
+pub fn ticks_of(sch: Schedule, name: str) -> int {
+    for c in sch.cues {
+        if c.name == name { return c.ticks }
+    }
+    0
+}
+
+fn once_of(sch: Schedule, name: str) -> bool {
+    for c in sch.cues {
+        if c.name == name { return c.once }
+    }
+    false
+}
+
+/// Whether the current cue still sounds at `tick`: within its length.
+pub fn sounding(sch: Schedule, tick: int) -> bool {
+    sch.current != "" && tick - sch.since < ticks_of(sch, sch.current)
+}
+
+/// Forget what sounds, so the next step cues the scene's part afresh
+/// (the music turned back on).
+pub fn restart(mut sch: Schedule) {
+    sch.current = ""
+    sch.since = 0
+}
+
+/// Step the schedule at `tick`: the cue to start now, or "" for none. A
+/// loop restarts when its length is up; a cue that plays once (the
+/// sting) is never cut short — the scene's next part waits for its end,
+/// so the area's loop resumes at the den once the sting has sounded. A
+/// part the bank lacks (a slot cb04 fills) is the silence.
+pub fn step(mut sch: Schedule, sc: Scene, tick: int) -> str {
+    var w = want(sc)
+    if ticks_of(sch, w) == 0 { w = "silence" }
+    if w == sch.current {
+        if !sounding(sch, tick) && !once_of(sch, w) {
+            sch.since = tick
+            return w
+        }
+        return ""
+    }
+    if sch.current != "" && once_of(sch, sch.current) && sounding(sch, tick) { return "" }
+    sch.current = w
+    sch.since = tick
+    w
+}
+
+/// The fixed scene replay behind the PCM golden (`cub --score-replay`):
+/// the title, the Shingle, a den, the Shingle again, the boar's theme, a
+/// fall, and the wake at the den, over 180 ticks (six seconds).
+pub fn replay_scene(t: int) -> Scene {
+    if t < 15 { return Scene { title: true, fallen: false, den: false, boss: -1, area: 0 } }
+    if t < 45 { return Scene { title: false, fallen: false, den: false, boss: -1, area: 0 } }
+    if t < 60 { return Scene { title: false, fallen: false, den: true, boss: -1, area: 0 } }
+    if t < 75 { return Scene { title: false, fallen: false, den: false, boss: -1, area: 0 } }
+    if t < 105 { return Scene { title: false, fallen: false, den: false, boss: 0, area: 0 } }
+    if t < 135 { return Scene { title: false, fallen: true, den: false, boss: -1, area: 0 } }
+    Scene { title: false, fallen: false, den: false, boss: -1, area: 0 }
+}
+
+/// The replay's ticks.
+pub const REPLAY_TICKS: int = 180
+
+/// The schedule through the engine's mixer over `replay_scene`: the PCM
+/// the golden pins, every cue's fade and the sting's hold in the bytes.
+pub fn replay_pcm() -> List[byte] ! {invalid} {
+    let b = bank()?
+    var m = sound.mixer(b) else |_| { return invalid }
+    var sch = schedule(cues()?)
+    var all = List[byte]()
+    var t = 0
+    while t < REPLAY_TICKS {
+        let c = step(mut sch, replay_scene(t), t)
+        if c != "" { let _ok = sound.cue(mut m, c) }
+        for x in sound.tick(mut m) { (mut all).push(x) }
+        t += 1
+    }
+    all
+}
+
+/// The audible sink (R-cb03-1 B): a WAV per part under `dir` and one
+/// player child at a time, the engine's output owner (`sound.Output`).
+pub struct Player {
+    out: sound.Output,
+    backend: str,
+    dir: str,
+    on: bool,
+    starts: int,
+    stops: int,
+}
+
+/// A player for `backend` (`macos`, `linux`, `oss`) over `dir`, off until
+/// `probe` says the backend answers.
+pub fn player(backend: str, dir: str) -> Player {
+    Player {
+        out: sound.silent(),
+        backend: copy backend,
+        dir: copy dir,
+        on: false,
+        starts: 0,
+        stops: 0,
+    }
+}
+
+/// The output backend for this host: `CUB_SOUND_BACKEND`'s word when set
+/// (`macos`, `linux`, `oss`), else afplay's presence says macOS.
+pub fn backend_of(named: str) -> str {
+    if named != "" { return copy named }
+    if fs.exists("/usr/bin/afplay") then "macos" else "linux"
+}
+
+/// The WAV a part plays from.
+pub fn wav_path(p: Player, name: str) -> str {
+    "{p.dir}/{name}.wav"
+}
+
+/// Render every part and write its WAV under the player's directory:
+/// loading work, measured by the caller. The bank dies with this call's
+/// region; the files are the sink. 0, or 2 with the fault named on stderr.
+pub fn write_wavs(p: Player) -> int {
+    var status = 0
+    region prepare {
+        let b = bank() else |_| {
+            eprint("cub: score: a part does not parse; no sound")
+            status = 2
+            List[sound.Part]()
+        }
+        if status == 0 {
+            fs.create_dir_all(p.dir) else |_| {
+                eprint("cub: sound: cannot create {p.dir}; no sound")
+                status = 2
+            }
+        }
+        if status == 0 {
+            for part in b {
+                let w = sound.wav(part.pcm) else |_| {
+                    eprint("cub: sound: {part.name}: not a WAV's worth of PCM")
+                    status = 2
+                    List[byte]()
+                }
+                if status == 0 {
+                    fs.write_bytes(wav_path(p, part.name), w) else |_| {
+                        eprint("cub: sound: cannot write {wav_path(p, part.name)}; no sound")
+                        status = 2
+                    }
+                }
+            }
+        }
+    }
+    status
+}
+
+/// Try the backend once, before the terminal is entered: a missing player
+/// or the OSS stub refuses by name on stderr here, never over the game's
+/// screen; a working one is started on the silence and stopped at once.
+pub fn probe(mut p: Player) -> bool {
+    if !sound.start(mut p.out, p.backend, wav_path(p, "silence")) {
+        p.on = false
+        return false
+    }
+    stop(mut p)
+    p.on = true
+    true
+}
+
+/// Cue a part on the live sink: the one playing ends, the named one
+/// starts (the silence starts nothing).
+pub fn play(mut p: Player, name: str) {
+    stop(mut p)
+    if !p.on || name == "silence" { return }
+    if sound.start(mut p.out, p.backend, wav_path(p, name)) { p.starts += 1 }
+}
+
+/// End the player's child and reap it: std.process's kill-then-wait. The
+/// engine's `finish` waits for a WAV to play out, which a cue cannot.
+pub fn stop(mut p: Player) {
+    if !p.out.live { return }
+    process.kill(mut p.out.child) else |_| {}
+    let child = p.out.child
+    p.out.child = process.Child { slot: -1 }
+    p.out.live = false
+    let _status = process.wait(take child) else |_| { -1 }
+    p.stops += 1
+}
+
+/// Teardown after the terminal is left: the child ended, the WAVs removed.
+pub fn close(mut p: Player) {
+    stop(mut p)
+    for n in names() { fs.remove(wav_path(p, n)) else |_| {} }
+    fs.remove(wav_path(p, "silence")) else |_| {}
+}
