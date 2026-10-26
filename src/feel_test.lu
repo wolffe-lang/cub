@@ -68,7 +68,7 @@ fn test_cb01b_lock_overrides_arrow_aim() {
     s.foes[0].x = s.x + 2 * sim.FP
     s.foes[0].y = s.y
     s.locked = 0
-    sim.step(mut s, keys(controls.KEY_LEFT, controls.KEY_LUNGE, 0))
+    sim.step(mut s, keys(controls.KEY_LEFT, controls.KEY_BITE, 0))
     assert(s.attack_heading == 64, "lock overrides west arrow toward east foe")
 }
 
@@ -84,7 +84,7 @@ fn test_cb01b_bite_has_a_travelling_arc_and_returns() {
         let (dx, dy) = sim.attack_offset(s)
         if age == 3 {
             assert(
-                dx == sim.BITE_ARC && dy == 0 - sim.COMBO_LEAN,
+                dx >= 240 && dx < sim.BITE_ARC && dy < 0 - sim.COMBO_LEAN,
                 "bite apex one cell with left lean",
             )
             moved = dx > 0
@@ -156,8 +156,8 @@ fn test_cb01b_combo_arcs_lean_and_finish_without_extra_damage() {
     s.combo = 3
     let (x3, y3) = sim.attack_offset(s)
     assert(
-        x1 == sim.FP && x2 == sim.FP && y1 == 0 - sim.FP / 2 && y2 == sim.FP / 2,
-        "alternating half-cell lean",
+        x1 >= 240 && x1 < sim.FP && x2 == x1 && y1 < 0 - sim.FP / 2 && y2 == 0 - y1,
+        "slanted arc with alternating half-cell head lean",
     )
     assert(x3 == 2 * sim.FP && y3 == 0, "straight longer third")
     s.tick = 5

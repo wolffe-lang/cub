@@ -862,7 +862,7 @@ fn run_live(o: Options, args: List[str]) -> int {
             }
             if o.trace {
                 eprint(
-                    "trace tick {s.tick} action {s.action} aim {s.attack_heading} combo {s.combo} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} scene {s.scene} demo {if extra.demo_on then 1 else 0} wall_us {(clock.now_ns() - t0_ns) / 1000}",
+                    "trace tick {s.tick} action {s.action} aim {s.attack_heading} combo {s.combo} stamina {s.stamina} sprint {if s.sprinting then 1 else 0} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} scene {s.scene} demo {if extra.demo_on then 1 else 0} wall_us {(clock.now_ns() - t0_ns) / 1000}",
                 )
                 trace_bytes = 0
             }
@@ -1103,7 +1103,7 @@ fn script_ghost_dir(o: Options) -> str {
 }
 
 fn state_text(s: sim.Sim) -> str {
-    var text = "tick {s.tick} area {s.area} den_id {s.last_den} shortcuts {s.shortcuts} caches {s.caches} scene {s.scene} drops {s.drops.len} mark_area {s.mark_area} x {s.x} y {s.y} heading {s.heading} action {s.action} started {s.started} health {s.health} stamina {s.stamina} flasks {s.flasks} scent {s.scent} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_scent {s.mark_scent} gate {if s.gate_open then 1 else 0} trail {s.trail.len} lock {s.locked} aim {s.attack_heading} combo {s.combo} body {s.body_facing} gait {s.gait} bosses {s.bosses} end {if s.end then 1 else 0} arena {if sim.cub_in_arena(s) then 1 else 0} played {sim.played_ticks(s)} lost {s.lost}\n"
+    var text = "tick {s.tick} area {s.area} den_id {s.last_den} shortcuts {s.shortcuts} caches {s.caches} scene {s.scene} drops {s.drops.len} mark_area {s.mark_area} x {s.x} y {s.y} heading {s.heading} action {s.action} started {s.started} health {s.health} stamina {s.stamina} flasks {s.flasks} scent {s.scent} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_scent {s.mark_scent} gate {if s.gate_open then 1 else 0} trail {s.trail.len} lock {s.locked} aim {s.attack_heading} combo {s.combo} body {s.body_facing} gait {s.gait} sprint {if s.sprinting then 1 else 0} cone {sim.attack_direction(s)} bosses {s.bosses} end {if s.end then 1 else 0} arena {if sim.cub_in_arena(s) then 1 else 0} played {sim.played_ticks(s)} lost {s.lost}\n"
     var i = 0
     while i < s.foes.len {
         let f = copy s.foes[i]

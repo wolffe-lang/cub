@@ -309,6 +309,9 @@ pub struct Sim {
     holds: List[input.Hold],
     aim_order: List[int],
     aim_serial: int,
+    sprint_hold: input.Hold,
+    sprinting: bool,
+    sprint_charge: int,
     attack_heading: int,
     chained_heading: int,
     action: int,
@@ -398,6 +401,9 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         holds: holds,
         aim_order: aim_order,
         aim_serial: 0,
+        sprint_hold: input.hold_new(),
+        sprinting: false,
+        sprint_charge: 0,
         attack_heading: 0,
         chained_heading: 0,
         action: IDLE,
@@ -575,6 +581,7 @@ fn locomotion(mut s: Sim) {
     swing_body(mut s)
     // The speed: toward the trot (or the sneak) while a key is held, to a
     // stop when none is.
+    s.sprinting = s.action == IDLE && s.moving && !s.sneaking && !s.exhausted && s.stamina > 0 && sprint_held(s)
     var pace = if s.health * 3 < health_max(s.heart) then trot_at(s.paw) / 2 else trot_at(s.paw)
     // The Shallows' current (cb04): the cub wades at half its pace, the
     // elk's second phase's ground.
@@ -583,6 +590,8 @@ fn locomotion(mut s: Sim) {
         0
     } else if s.sneaking {
         trot_at(s.paw) / 2
+    } else if s.sprinting {
+        sprint_at(s.paw)
     } else {
         pace
     }
@@ -894,6 +903,9 @@ fn reset_world(mut s: Sim) {
     (mut s.trail).reset()
     var i = 0
     while i < s.holds.len { s.holds[i] = input.hold_new(); i += 1 }
+    s.sprint_hold = input.hold_new()
+    s.sprinting = false
+    s.sprint_charge = 0
     settle_bodies(mut s)
 }
 
@@ -951,10 +963,10 @@ fn lock_next(mut s: Sim) {
 
 fn start_action(mut s: Sim, action: int, cost: int) {
     if s.action != IDLE || s.stamina < cost { return }
-    if s.exhausted && (action == LUNGE || action == HEAVY || action == DODGE) { return }
+    if s.exhausted && (action == LUNGE || action == HEAVY || action == DASH || action == DODGE) { return }
     s.stamina -= cost
     if s.stamina == 0 { s.exhausted = true }
-    s.attack_heading = attack_aim(s)
+    s.attack_heading = if action == LUNGE || action == DASH then s.heading else attack_aim(s)
     s.action = action
     s.combo = if action == BITE then 1 else 0
     s.started = s.tick
@@ -988,12 +1000,16 @@ fn action_keys(mut s: Sim, keys: List[int]) {
                 s.chained = true
                 s.chained_heading = attack_aim(s)
             }
-            start_action(mut s, BITE, 12)
+            if s.sprinting { start_action(mut s, DASH, DASH_COST) } else { start_action(mut s, BITE, 12) }
         }
         if k == controls.KEY_HEAVY { start_action(mut s, HEAVY, HEAVY_COST) }
         if k == controls.KEY_LUNGE { start_action(mut s, LUNGE, 30) }
         if k == controls.KEY_PARRY { start_action(mut s, PARRY, 10) }
-        if k == controls.KEY_DODGE { start_action(mut s, DODGE, 18) }
+        if k == controls.KEY_DODGE && s.sprint_hold.last != s.tick {
+            let repeat = s.tick - s.sprint_hold.last <= 30
+            input.hold_press(mut s.sprint_hold, s.tick)
+            if !repeat { start_action(mut s, DODGE, 18) }
+        }
         if k == controls.KEY_WATER && s.action == IDLE && s.flasks > 0 {
             s.flasks -= 1
             start_action(mut s, DRINK, 0)
@@ -1005,22 +1021,23 @@ fn strike_foes(mut s: Sim) {
     let age = s.tick - s.started
     let active = s.action == BITE && age >= 3 && age < 5 ||
         s.action == LUNGE && age >= 9 && age < 12 ||
-        s.action == HEAVY && age >= HEAVY_WINDUP && age < HEAVY_WINDUP + HEAVY_ACTIVE
+        s.action == HEAVY && age >= HEAVY_WINDUP && age < HEAVY_WINDUP + HEAVY_ACTIVE ||
+        s.action == DASH && age >= 3 && age < 6
     if !active { return }
-    let reach = if s.action == LUNGE || s.action == HEAVY then 4 else 2
+    let reach = if s.action == LUNGE || s.action == HEAVY || s.action == DASH then 4 else 2
     let (gate_x, gate_target_y) = gate_target(s)
     if s.action == LUNGE &&
         s.area == forest.SHINGLE &&
         !s.gate_open &&
         near(s.x, s.y, gate_x, gate_target_y, 4 * FP) &&
-        in_front(s.x, s.y, s.attack_heading, gate_x, gate_target_y) {
+        in_front(s.x, s.y, attack_direction(s), gate_x, gate_target_y) {
         s.gate_open = true
     }
     if s.action == BITE &&
         s.area == forest.SHINGLE &&
         !s.gate_open &&
         near(s.x, s.y, gate_x, gate_target_y, 2 * FP) &&
-        in_front(s.x, s.y, s.attack_heading, gate_x, gate_target_y) {
+        in_front(s.x, s.y, attack_direction(s), gate_x, gate_target_y) {
         s.gate_hint_until = s.tick + ENTRY_TICKS
     }
     var i = 0
@@ -1030,10 +1047,11 @@ fn strike_foes(mut s: Sim) {
             f.kind != HAWK &&
             f.last_hit != s.started &&
             in_reach(s, i, reach) &&
-            in_front(s.x, s.y, s.attack_heading, f.x, f.y) {
+            in_front(s.x, s.y, attack_direction(s), f.x, f.y) {
             var damage = bite_damage(s.fang)
             if s.action == LUNGE { damage *= 3 }
             if s.action == HEAVY { damage *= HEAVY_DAMAGE }
+            if s.action == DASH { damage *= 2 }
             if s.action == BITE && s.tick < s.riposte && i == s.riposte_foe {
                 damage *= 2
                 s.riposte = 0
@@ -1316,6 +1334,8 @@ fn action_step(mut s: Sim, want: int) {
         11
     } else if s.action == LUNGE {
         24
+    } else if s.action == DASH {
+        16
     } else if s.action == HEAVY {
         HEAVY_WINDUP + HEAVY_ACTIVE + HEAVY_RECOVERY
     } else if s.action == PARRY {
@@ -1407,7 +1427,14 @@ pub fn step(mut s: Sim, keys: List[int]) {
         s.mark = false
         s.mark_scent = 0
     }
-    if s.action == IDLE {
+    if s.sprinting {
+        s.sprint_charge += SPRINT_PER_SECOND
+        if s.sprint_charge >= 30 {
+            s.sprint_charge -= 30
+            s.stamina -= 1
+            if s.stamina <= 0 { s.stamina = 0; s.exhausted = true; s.sprinting = false }
+        }
+    } else if s.action == IDLE {
         s.stamina += if s.moving then REGEN / 2 else REGEN
         if s.stamina > stamina_max(s.wind) { s.stamina = stamina_max(s.wind) }
         if s.stamina >= EXHAUST_RECOVER { s.exhausted = false }
@@ -1504,8 +1531,8 @@ pub fn quarter(heading: int) -> int {
 /// The facing the cub's body would take now: an attack's aim during a
 /// bite, a lunge or a heavy, else the heading's quarter.
 pub fn wanted_facing(s: Sim) -> int {
-    if s.action == BITE || s.action == LUNGE || s.action == HEAVY {
-        return quarter(s.attack_heading)
+    if s.action == BITE || s.action == LUNGE || s.action == HEAVY || s.action == DASH {
+        return quarter(attack_direction(s))
     }
     facing(s)
 }
@@ -1808,7 +1835,7 @@ pub fn attack_offset(s: Sim) -> (int, int) {
     let age = s.tick - s.started
     if s.action == BITE {
         let distance = if s.combo == 3 then COMBO_FINISH_ARC else BITE_ARC
-        let (x, y) = leap_arc(s.attack_heading, age - 2, 3, distance)
+        let (x, y) = leap_arc(attack_direction(s), age - 2, 3, distance)
         let lean = if age >= 3 && age < 5 {
             if s.combo == 1 then 0 - COMBO_LEAN else if s.combo == 2 then COMBO_LEAN else 0
         } else {
@@ -1820,7 +1847,15 @@ pub fn attack_offset(s: Sim) -> (int, int) {
             y + sin(s.attack_heading) * lean / FP,
         )
     }
+    if s.action == DASH {
+        let (x, y) = leap_arc(s.attack_heading, age - 2, 4, 4 * FP)
+        return clip_arc(s, x, y)
+    }
     if s.action == LUNGE {
+        if age < 9 {
+            let back = if age < 3 then 0 else if age < 6 then FP else 2 * FP
+            return clip_arc(s, 0 - sin(s.attack_heading) * back / FP, cos(s.attack_heading) * back / FP)
+        }
         let (x, y) = leap_arc(s.attack_heading, age - 8, 4, LUNGE_ARC)
         return clip_arc(s, x, y)
     }
@@ -1862,9 +1897,9 @@ pub const COMBO_FINISH_ARC: int = 2 * FP
 
 /// Two recovery ticks shaking the third bite's head left and right.
 pub fn head_shake(s: Sim) -> int {
-    if s.action != BITE || s.combo != 3 { return 0 }
+    if s.action != DASH && (s.action != BITE || s.combo != 3) { return 0 }
     let age = s.tick - s.started
-    let shake = if age == 5 then -1 else if age == 6 then 1 else 0
+    let shake = if s.action == DASH { if age == 3 || age == 5 then -1 else if age == 4 then 1 else 0 } else { if age == 5 then -1 else if age == 6 then 1 else 0 }
     if shake == 0 { return 0 }
     // The head moves a cell across the aim; it never moves into a body
     // (cb02c): with a foe against that side the head holds still.
@@ -2942,3 +2977,26 @@ pub const SCENE_END: int = 3
 
 /// The title's scene (cb04).
 pub const SCENE_TITLE: int = 2
+
+/// Sprint cap at a paw level, always above the meadow's 86 FP/tick flee.
+pub fn sprint_at(paw: int) -> int { trot_at(paw) * 8 / 5 }
+
+/// Repeat-inferred c hold; the first press still performs an immediate dodge.
+pub fn sprint_held(s: Sim) -> bool {
+    input.held(s.sprint_hold, s.tick) && s.sprint_hold.last - s.sprint_hold.prev <= 30
+}
+
+/// Sprint stamina per thirty moving ticks, charged with an integer accumulator.
+pub const SPRINT_PER_SECOND: int = 12
+
+/// Forward snapping sprint attack: three active frames, reach four, no combo.
+pub const DASH: int = 8
+
+/// More than the lunge's thirty stamina.
+pub const DASH_COST: int = 36
+
+/// Combo's hit cone and presentation rotate about the committed eight-way aim.
+pub fn attack_direction(s: Sim) -> int {
+    let slant = if s.action != BITE then 0 else if s.combo == 1 then -11 else if s.combo == 2 then 11 else 0
+    (s.attack_heading + slant + TURN) % TURN
+}

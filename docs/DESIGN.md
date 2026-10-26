@@ -603,3 +603,22 @@ two of their sixty stamina per fleeing tick, then stop and turn for thirty
 ticks; a caught deer cannot counterattack. Meadow ground hunters end
 their existing 24-tick retreat with the same thirty-tick free-hit pause.
 Their retreat cap remains 86 FP/tick, below the proposed sprint120.
+
+## Directional combat and sprint (cb03a, proposed)
+
+Space retains the fifteen-tick recent-arrow window and all eight aims;
+lock still overrides arrows. The committed cone is rotated −11/+11/0
+heading units (15.47 degrees) across the three-hit combo. Its aperture
+stays ±45 degrees. `x` commits the cub's facing, never arrow aim, and
+steps back one cell at windup age3, two at age6, then takes the unchanged
+age9–11 leap and reach4. Every presentation offset clips against bodies.
+
+Hold `c` to sprint: the first press dodges immediately; a repeat within
+thirty ticks starts the inferred hold after the dodge. There is no key-up
+in this terminal protocol, so two taps within one second also count as a
+hold. Release expires by the engine's repeat window. Sprint is 8/5 trot
+(120 FP/tick,14.06 cells/s at paw1), twelve stamina per moving second,
+no regeneration while sprinting, stopped at empty. Space during sprint
+commits a forward snapping lunge: cost36, reach4, damage twice bite,
+3/3/10 ticks. Its three active frames shake the head left/right/left.
+These implement R-cb03a-1 A and R-cb03a-3 A, pending play.

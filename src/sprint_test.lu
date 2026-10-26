@@ -1,0 +1,90 @@
+//! member: false
+use sim
+use controls
+use input
+
+fn sprint_keys(attack: bool) -> List[int] {
+    var keys = List[int]()
+    (mut keys).push(controls.KEY_RIGHT)
+    (mut keys).push(controls.KEY_DODGE)
+    if attack { (mut keys).push(controls.KEY_BITE) }
+    keys
+}
+
+fn runner() -> sim.Sim {
+    var s = sim.new(1, 80, 24)
+    (mut s.foes).reset()
+    s.heading = 64
+    s.heading_target = 64
+    s.tick = 20
+    input.hold_press(mut s.sprint_hold, 18)
+    input.hold_press(mut s.sprint_hold, 19)
+    s
+}
+
+fn test_cb03a_combo_cones_slant_left_right_forward() {
+    var s = runner()
+    s.action = sim.BITE
+    var direction = 0
+    while direction < 256 {
+        s.attack_heading = direction
+        s.combo = 1
+        assert(sim.attack_direction(s) == (direction + 245) % 256, "first slants left fifteen degrees")
+        s.combo = 2
+        assert(sim.attack_direction(s) == (direction + 11) % 256, "second slants right fifteen degrees")
+        s.combo = 3
+        assert(sim.attack_direction(s) == direction, "third is exactly forward")
+        direction += 32
+    }
+}
+
+fn test_cb03a_x_uses_facing_and_two_backward_steps() {
+    var s = runner()
+    var keys = List[int]()
+    (mut keys).push(controls.KEY_LEFT)
+    (mut keys).push(controls.KEY_LUNGE)
+    sim.step(mut s, keys)
+    assert(s.attack_heading == 64, "x ignores the west arrow and remains facing east")
+    s.tick = s.started + 3
+    let (one, _) = sim.attack_offset(s)
+    s.tick = s.started + 6
+    let (two, _) = sim.attack_offset(s)
+    assert(one == -sim.FP && two == -2 * sim.FP, "two backwards windup steps")
+    s.tick = s.started + 10
+    let (apex, _) = sim.attack_offset(s)
+    assert(apex == 3 * sim.FP, "unchanged forward reach and arc")
+}
+
+fn test_cb03a_sprint_charges_twelve_per_second_and_stops_empty() {
+    var s = runner()
+    let keys = sprint_keys(false)
+    var n = 0
+    while n < 30 { sim.step(mut s, keys); n += 1 }
+    assert(s.stamina == 58, "sprint costs twelve stamina per second, no regeneration")
+    assert(s.speed == 120 && sim.sprint_at(1) > sim.FOE_RETREAT_V, "sprint catches retreat")
+    s.stamina = 1
+    s.sprint_charge = 18
+    sim.step(mut s, keys)
+    assert(s.stamina == 0 && s.exhausted && !s.sprinting, "zero stops sprint")
+}
+
+fn test_cb03a_tap_dodges_and_sprint_bite_costs_more_than_lunge() {
+    var tap = sim.new(1, 80, 24)
+    var key = List[int]()
+    (mut key).push(controls.KEY_DODGE)
+    sim.step(mut tap, key)
+    assert(tap.action == sim.DODGE && tap.stamina == 52, "tap is still dodge")
+    var s = runner()
+    let held = sprint_keys(false)
+    sim.step(mut s, held)
+    let before = s.stamina
+    sim.step(mut s, sprint_keys(true))
+    assert(s.action == sim.DASH && before - s.stamina == 36, "sprinting bite costs thirty-six")
+    assert(s.attack_heading == 64, "snapping lunge is forward")
+    s.tick = s.started + 3
+    assert(sim.head_shake(s) == -1, "first snap left")
+    s.tick += 1
+    assert(sim.head_shake(s) == 1, "second snap right")
+    s.tick += 1
+    assert(sim.head_shake(s) == -1, "third snap left")
+}
