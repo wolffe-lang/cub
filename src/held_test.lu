@@ -1,0 +1,56 @@
+//! member: false
+
+use controls
+use input
+use sim
+
+fn exact_cub() -> sim.Sim {
+    var s = sim.new(1, 200, 40)
+    (mut s.foes).reset()
+    s.key_state = input.state_new(true)
+    s
+}
+
+fn test_cb04b_release_resumes_held_direction() {
+    var s = exact_cub()
+    sim.step(mut s, [controls.KEY_DOWN])
+    sim.step(mut s, [controls.KEY_LEFT])
+    assert(sim.held_direction(s) == 160, "two held arrows form a diagonal")
+    sim.step(mut s, [controls.KEY_ARROW_RELEASE + 2])
+    assert(sim.held_direction(s) == 128, "release Left must resume still-held Down")
+    var i = 0
+    while i < 30 { sim.step(mut s, List[int]()); i += 1 }
+    assert(sim.held_direction(s) == 128, "exact hold never expires on unrelated ticks")
+    sim.step(mut s, [controls.KEY_ARROW_RELEASE + 1])
+    assert(sim.held_direction(s) == -1, "last release stops movement")
+}
+
+fn test_cb04b_event_release_never_attacks_and_ctrl_is_independent() {
+    var keys = List[int]()
+    controls.events(
+        [input.Event { key: input.char_key(99), mods: 0, kind: input.RELEASE }],
+        mut keys,
+    )
+    for k in keys { assert(k != controls.KEY_DODGE, "release is not a roll") }
+    var s = exact_cub()
+    sim.step(mut s, [controls.KEY_CTRL_DOWN, controls.KEY_RIGHT])
+    assert(s.sprinting && s.action == sim.IDLE, "Ctrl arrow starts sprint without dodging")
+    sim.step(mut s, [controls.KEY_CTRL_UP])
+    assert(!s.sprinting && sim.held_direction(s) == 64, "Ctrl release leaves arrow held")
+}
+
+fn test_cb04b_bite_aim_latches_each_held_diagonal() {
+    for h in [0, 32, 64, 96, 128, 160, 192, 224] {
+        var s = exact_cub()
+        var keys = List[int]()
+        if h == 0 || h == 32 || h == 224 { (mut keys).push(controls.KEY_UP) }
+        if h == 96 || h == 128 || h == 160 { (mut keys).push(controls.KEY_DOWN) }
+        if h == 160 || h == 192 || h == 224 { (mut keys).push(controls.KEY_LEFT) }
+        if h == 32 || h == 64 || h == 96 { (mut keys).push(controls.KEY_RIGHT) }
+        (mut keys).push(controls.KEY_BITE)
+        sim.step(mut s, keys)
+        assert(s.attack_heading == h, "bite aims toward held direction {h}")
+        sim.step(mut s, [controls.KEY_UP])
+        assert(s.attack_heading == h, "attack aim stays latched")
+    }
+}

@@ -7,7 +7,7 @@ use input
 fn sprint_keys(attack: bool) -> List[int] {
     var keys = List[int]()
     (mut keys).push(controls.KEY_RIGHT)
-    (mut keys).push(controls.KEY_DODGE)
+    (mut keys).push(controls.KEY_CTRL_DOWN)
     if attack { (mut keys).push(controls.KEY_BITE) }
     keys
 }

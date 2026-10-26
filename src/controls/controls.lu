@@ -93,7 +93,7 @@ pub const KEY_NOSE: int = 23
 pub const KEY_HEAVY: int = 24
 
 /// Number of replay key identifiers.
-pub const KEY_COUNT: int = 28
+pub const KEY_COUNT: int = 37
 
 /// What a character means, or `KEY_NONE`.
 fn char_key(b: int) -> int {
@@ -248,7 +248,7 @@ pub const EV_COUNT: int = 49
 /// events by index (`EV_*`).
 pub fn vocab() -> replay.Vocab {
     var names = List[str]()
-    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt release heart wind fang paw nose heavy skip mute confirm".
+    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt release heart wind fang paw nose heavy skip mute confirm exact ctrl-down ctrl-up shift-down shift-up up-release down-release left-release right-release".
         words() {
         (mut names).push(w)
     }
@@ -282,3 +282,42 @@ pub const KEY_CONFIRM: int = 27
 /// Snapshot event slots 30..36 are appended, never renumbering older events
 /// (30..35 cb04f's six slain masks, 36 the seventh area's, cb05).
 pub fn saved_event(part: int) -> int { if part < 30 then EV_SAVED + part else 42 + part - 30 }
+/// Negotiated input mode, recorded before the first live tick.
+pub const KEY_EXACT: int = 28
+
+/// Control modifier down (or refreshed by a legacy Ctrl+arrow).
+pub const KEY_CTRL_DOWN: int = 29
+
+/// Control modifier released.
+pub const KEY_CTRL_UP: int = 30
+
+/// Shift modifier down.
+pub const KEY_SHIFT_DOWN: int = 31
+
+/// Shift modifier released.
+pub const KEY_SHIFT_UP: int = 32
+
+/// Four arrow releases in Up/Down/Left/Right order.
+pub const KEY_ARROW_RELEASE: int = 33
+
+/// Project engine events to replayable game keys; releases never act.
+/// Modifier transitions precede the key, including modifiers held at entry.
+pub fn events(raw: List[input.Event], mut keys: List[int]) {
+    for e in raw {
+        (mut keys).push(if e.mods & input.MOD_CTRL != 0 then KEY_CTRL_DOWN else KEY_CTRL_UP)
+        (mut keys).push(if e.mods & input.MOD_SHIFT != 0 then KEY_SHIFT_DOWN else KEY_SHIFT_UP)
+        if e.kind == input.RELEASE {
+            if e.key >= input.KEY_UP && e.key <= input.KEY_RIGHT {
+                (mut keys).push(KEY_ARROW_RELEASE + e.key - input.KEY_UP)
+            }
+            continue
+        }
+        if e.key >= input.KEY_LEFT_SHIFT && e.key <= input.KEY_ALT { continue }
+        var k = map(e.key)
+        if k >= KEY_UP && k <= KEY_RIGHT && e.mods & input.MOD_SHIFT != 0 { k += 4 }
+        if k == KEY_BITE && e.mods & input.MOD_SHIFT != 0 { k = KEY_HEAVY }
+        // A held c never becomes a sprint or automatically queues a roll.
+        if k == KEY_DODGE && e.kind == input.REPEAT { continue }
+        if k != KEY_NONE { (mut keys).push(k) }
+    }
+}
