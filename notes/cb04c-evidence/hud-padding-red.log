@@ -1,0 +1,10 @@
+test src/look_test.lu::test_cb04c_world_words_are_not_sprites ... ok
+test src/look_test.lu::test_cb04c_stamina_edge_is_reserved_after_c ... FAILED (trap(assert))
+test src/pickup_test.lu::test_cb04c_pickup_ring_every_edge_and_outside ... ok
+test src/pickup_test.lu::test_cb04c_mark_recovers_once_at_contact_ring_with_burst ... ok
+test src/pickup_test.lu::test_cb04c_other_area_mark_and_second_death ... ok
+test src/pickup_test.lu::test_cb04c_drop_collection_uses_body_ring ... ok
+test src/pickup_test.lu::test_cb04c_orb_requires_a_local_death_and_is_visible_across_screen ... unsupported (step budget exhausted)
+test src/pickup_test.lu::test_cb04c_orb_particles_are_seeded_periodic_bounded ... ok
+test src/pickup_test.lu::test_cb04c_orb_and_burst_are_bounded_and_plain ... ok
+wolf test: 7 passed; 1 failed; 0 rejected; 1 unsupported; 0 filtered out

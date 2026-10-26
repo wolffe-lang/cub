@@ -1,0 +1,5 @@
+test src/look_test.lu::test_cb04c_world_words_are_not_sprites ... FAILED (trap(assert))
+HUD after c tier 1: row3 column22 codepoint 32
+HUD after c tier 0: row3 column22 codepoint 32
+test src/look_test.lu::test_cb04c_stamina_edge_is_reserved_after_c ... ok
+wolf test: 1 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out

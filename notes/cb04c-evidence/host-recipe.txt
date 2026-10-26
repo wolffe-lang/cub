@@ -1,0 +1,21 @@
+hasu block A: /home/mfwolffe/lanes/cb04c/linux.sh exports only the supplied
+hasu-env bin/profile PATH, takes flock /home/mfwolffe/lanes/hasu-A.lock, and
+runs the existing .lair/tools/in-container with LAIR_ENGINE=podman and
+LAIR_CPUS=0-5. Compared with cub tools/check-linux's recipe, the only
+adaptation is this host PATH, block, and lock wrapper. The existing staged
+image localhost/pack-ci:fbee7e864f7dbee6 was reused; no image/package install.
+Taskset is INSIDE the rootless container; memory is the recipe's 12 GB.
+Editing never holds the lock. All signal witnesses type pty bytes.
+
+Mac heavy.sh checks vm_stat itself before every heavy component: 8 GB
+free+inactive+speculative, retry 180 seconds below it. HOME and TMPDIR
+stay under /Users/mfwolffe/lanes/cb04c. Every child is exec'd or waited for.
+mac-steps.sh builds native and release once; it invokes the engine perf
+and direct idle runner rather than tools/check-perf, whose wrapper would
+rebuild the play binary. No other lane, server or configuration was touched.
+
+Durable final scripts: Linux linux-final.sh writes linux-final.pid/log/exit
+under /home/mfwolffe/lanes/cb04c, launched with setsid -f. Mac mac-gate.sh
+writes mac-gate.pid and mac-gate.exit with logs/mac-gate.log under the lane.
+Preliminary short gates used foreground ssh jobs; their podman pid was
+recorded in preliminary-processes.txt. No process was killed.

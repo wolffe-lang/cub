@@ -1,0 +1,6 @@
+Mac build source head: 897a74cfd89fedb626c29a806a675fdf81a21358
+Subsequent lane commits change docs, goldens and evidence only.
+Binary SHA256: d9d0c579055a6aff876735f68467e050792178b9838f7610d1e80e20107334f4
+/Users/mfwolffe/lanes/cb04c/cub/target/cub --save /Users/mfwolffe/lanes/cb04c/play.save --ghost-dir /Users/mfwolffe/lanes/cb04c/play-ghosts
+Add --mute for silence; schema 3 remains. No meat/spring progression until
+that update lands; this lane supplies their pure two-tier drawing helpers.

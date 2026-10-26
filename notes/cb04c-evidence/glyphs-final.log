@@ -1,0 +1,3 @@
+test src/glyphs_test.lu::test_glyphs_doc_matches_the_tier ... ok
+test src/glyphs_test.lu::test_plain_tier_needs_no_row ... ok
+wolf test: 2 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out

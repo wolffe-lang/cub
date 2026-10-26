@@ -1,0 +1,196 @@
+test src/look_test.lu::test_cb04c_world_words_are_not_sprites ... ok
+HUD after c tier 1: row3 column22 codepoint 32
+HUD after c tier 0: row3 column22 codepoint 32
+test src/look_test.lu::test_cb04c_stamina_edge_is_reserved_after_c ... ok
+test src/pickup_test.lu::test_cb04c_pickup_ring_every_edge_and_outside ... ok
+test src/pickup_test.lu::test_cb04c_mark_recovers_once_at_contact_ring_with_burst ... ok
+test src/pickup_test.lu::test_cb04c_other_area_mark_and_second_death ... ok
+test src/pickup_test.lu::test_cb04c_drop_collection_uses_body_ring ... ok
+test src/pickup_test.lu::test_cb04c_rich_orb_requires_a_death ... ok
+test src/pickup_test.lu::test_cb04c_rich_orb_shows_across_screen ... ok
+test src/pickup_test.lu::test_cb04c_rich_orb_refuses_other_area ... ok
+test src/pickup_test.lu::test_cb04c_plain_orb_requires_a_death ... ok
+test src/pickup_test.lu::test_cb04c_plain_orb_shows_across_screen ... ok
+test src/pickup_test.lu::test_cb04c_plain_orb_refuses_other_area ... ok
+test src/pickup_test.lu::test_cb04c_orb_particles_are_seeded_periodic_bounded ... ok
+test src/pickup_test.lu::test_cb04c_orb_and_burst_are_bounded_and_plain ... ok
+wolf test: 14 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+build: target/native/cub
+build: target/release/cub
+goldens: wrote tests/goldens/aim-e-rich
+goldens: wrote tests/goldens/aim-e-plain
+goldens: wrote tests/goldens/aim-lock-rich
+goldens: wrote tests/goldens/aim-lock-plain
+goldens: wrote tests/goldens/aim-n-rich
+goldens: wrote tests/goldens/aim-n-plain
+goldens: wrote tests/goldens/aim-ne-rich
+goldens: wrote tests/goldens/aim-ne-plain
+goldens: wrote tests/goldens/aim-nw-rich
+goldens: wrote tests/goldens/aim-nw-plain
+goldens: wrote tests/goldens/aim-s-rich
+goldens: wrote tests/goldens/aim-s-plain
+goldens: wrote tests/goldens/aim-se-rich
+goldens: wrote tests/goldens/aim-se-plain
+goldens: wrote tests/goldens/aim-sw-rich
+goldens: wrote tests/goldens/aim-sw-plain
+goldens: wrote tests/goldens/aim-w-rich
+goldens: wrote tests/goldens/aim-w-plain
+goldens: wrote tests/goldens/bite-arc-rich
+goldens: wrote tests/goldens/bite-arc-plain
+goldens: wrote tests/goldens/bite-rich
+goldens: wrote tests/goldens/bite-plain
+goldens: wrote tests/goldens/boss-alpha-beaten-rich
+goldens: wrote tests/goldens/boss-alpha-beaten-plain
+goldens: wrote tests/goldens/boss-alpha-phase2-rich
+goldens: wrote tests/goldens/boss-alpha-phase2-plain
+goldens: wrote tests/goldens/boss-alpha-windup-rich
+goldens: wrote tests/goldens/boss-alpha-windup-plain
+goldens: wrote tests/goldens/boss-boar-beaten-rich
+goldens: wrote tests/goldens/boss-boar-beaten-plain
+goldens: wrote tests/goldens/boss-boar-phase2-rich
+goldens: wrote tests/goldens/boss-boar-phase2-plain
+goldens: wrote tests/goldens/boss-boar-windup-rich
+goldens: wrote tests/goldens/boss-boar-windup-plain
+goldens: wrote tests/goldens/boss-elk-beaten-rich
+goldens: wrote tests/goldens/boss-elk-beaten-plain
+goldens: wrote tests/goldens/boss-elk-phase2-rich
+goldens: wrote tests/goldens/boss-elk-phase2-plain
+goldens: wrote tests/goldens/boss-elk-windup-rich
+goldens: wrote tests/goldens/boss-elk-windup-plain
+goldens: wrote tests/goldens/boss-lynx-beaten-rich
+goldens: wrote tests/goldens/boss-lynx-beaten-plain
+goldens: wrote tests/goldens/boss-lynx-phase2-rich
+goldens: wrote tests/goldens/boss-lynx-phase2-plain
+goldens: wrote tests/goldens/boss-lynx-windup-rich
+goldens: wrote tests/goldens/boss-lynx-windup-plain
+goldens: wrote tests/goldens/coast-cache-0-rich
+goldens: wrote tests/goldens/coast-cache-0-plain
+goldens: wrote tests/goldens/coast-cache-1-rich
+goldens: wrote tests/goldens/coast-cache-1-plain
+goldens: wrote tests/goldens/coast-cache-2-rich
+goldens: wrote tests/goldens/coast-cache-2-plain
+goldens: wrote tests/goldens/coast-cache-3-rich
+goldens: wrote tests/goldens/coast-cache-3-plain
+goldens: wrote tests/goldens/crags-rich
+goldens: wrote tests/goldens/crags-plain
+goldens: wrote tests/goldens/death-recovery-rich
+goldens: wrote tests/goldens/death-recovery-plain
+goldens: wrote tests/goldens/demo-rich
+goldens: wrote tests/goldens/demo-plain
+goldens: wrote tests/goldens/den-after-cluster-rich
+goldens: wrote tests/goldens/den-after-cluster-plain
+goldens: wrote tests/goldens/den-bars-120x40-rich
+goldens: wrote tests/goldens/den-bars-120x40-plain
+goldens: wrote tests/goldens/den-bars-80x24-rich
+goldens: wrote tests/goldens/den-bars-80x24-plain
+goldens: wrote tests/goldens/diagonal-rich
+goldens: wrote tests/goldens/diagonal-plain
+goldens: wrote tests/goldens/dodge-rich
+goldens: wrote tests/goldens/dodge-plain
+goldens: wrote tests/goldens/end-rich
+goldens: wrote tests/goldens/end-plain
+goldens: wrote tests/goldens/forward-windup-rich
+goldens: wrote tests/goldens/forward-windup-plain
+goldens: wrote tests/goldens/fox-feint-rich
+goldens: wrote tests/goldens/fox-feint-plain
+goldens: wrote tests/goldens/ghost-death-rich
+goldens: wrote tests/goldens/ghost-death-plain
+goldens: wrote tests/goldens/ghost-rich
+goldens: wrote tests/goldens/ghost-plain
+goldens: wrote tests/goldens/hawk-shadow-rich
+goldens: wrote tests/goldens/hawk-shadow-plain
+goldens: wrote tests/goldens/hawk-stoop-rich
+goldens: wrote tests/goldens/hawk-stoop-plain
+goldens: wrote tests/goldens/heavy-rich
+goldens: wrote tests/goldens/heavy-plain
+goldens: wrote tests/goldens/hud-after-c-120x40-rich
+goldens: wrote tests/goldens/hud-after-c-120x40-plain
+goldens: wrote tests/goldens/hud-after-c-80x24-rich
+goldens: wrote tests/goldens/hud-after-c-80x24-plain
+goldens: wrote tests/goldens/meadow-ford-rich
+goldens: wrote tests/goldens/meadow-ford-plain
+goldens: wrote tests/goldens/meadow-landmarks-rich
+goldens: wrote tests/goldens/meadow-landmarks-plain
+goldens: wrote tests/goldens/natural-death-rich
+goldens: wrote tests/goldens/natural-death-plain
+goldens: wrote tests/goldens/old-den-rich
+goldens: wrote tests/goldens/old-den-plain
+goldens: wrote tests/goldens/opening-skip-rich
+goldens: wrote tests/goldens/opening-skip-plain
+goldens: wrote tests/goldens/opening-rich
+goldens: wrote tests/goldens/opening-plain
+goldens: wrote tests/goldens/parry-rich
+goldens: wrote tests/goldens/parry-plain
+goldens: wrote tests/goldens/posture-badly-rich
+goldens: wrote tests/goldens/posture-badly-plain
+goldens: wrote tests/goldens/posture-dying-rich
+goldens: wrote tests/goldens/posture-dying-plain
+goldens: wrote tests/goldens/posture-full-rich
+goldens: wrote tests/goldens/posture-full-plain
+goldens: wrote tests/goldens/posture-hurt-rich
+goldens: wrote tests/goldens/posture-hurt-plain
+goldens: wrote tests/goldens/resize-rich
+goldens: wrote tests/goldens/resize-plain
+goldens: wrote tests/goldens/rest-rich
+goldens: wrote tests/goldens/rest-plain
+goldens: wrote tests/goldens/river-rich
+goldens: wrote tests/goldens/river-plain
+goldens: wrote tests/goldens/saved-den-rich
+goldens: wrote tests/goldens/saved-den-plain
+goldens: wrote tests/goldens/scent-orb-120x40-rich
+goldens: wrote tests/goldens/scent-orb-120x40-plain
+goldens: wrote tests/goldens/scent-orb-80x24-rich
+goldens: wrote tests/goldens/scent-orb-80x24-plain
+goldens: wrote tests/goldens/scent-recover-120x40-rich
+goldens: wrote tests/goldens/scent-recover-120x40-plain
+goldens: wrote tests/goldens/scent-recover-80x24-rich
+goldens: wrote tests/goldens/scent-recover-80x24-plain
+goldens: wrote tests/goldens/scroll-rich
+goldens: wrote tests/goldens/scroll-plain
+goldens: wrote tests/goldens/sneak-rich
+goldens: wrote tests/goldens/sneak-plain
+goldens: wrote tests/goldens/sprint-120x40-rich
+goldens: wrote tests/goldens/sprint-120x40-plain
+goldens: wrote tests/goldens/sprint-80x24-rich
+goldens: wrote tests/goldens/sprint-80x24-plain
+goldens: wrote tests/goldens/sprint-hit-rich
+goldens: wrote tests/goldens/sprint-hit-plain
+goldens: wrote tests/goldens/stand-rich
+goldens: wrote tests/goldens/stand-plain
+goldens: wrote tests/goldens/thorn-gate-rich
+goldens: wrote tests/goldens/thorn-gate-plain
+goldens: wrote tests/goldens/three-bites-rich
+goldens: wrote tests/goldens/three-bites-plain
+goldens: wrote tests/goldens/title-demo-rich
+goldens: wrote tests/goldens/title-demo-plain
+goldens: wrote tests/goldens/title-rich
+goldens: wrote tests/goldens/title-plain
+goldens: wrote tests/goldens/trail-fading-rich
+goldens: wrote tests/goldens/trail-fading-plain
+goldens: wrote tests/goldens/turn-east-rich
+goldens: wrote tests/goldens/turn-east-plain
+goldens: wrote tests/goldens/walk-north-rich
+goldens: wrote tests/goldens/walk-north-plain
+goldens: wrote tests/goldens/weasel-retreat-rich
+goldens: wrote tests/goldens/weasel-retreat-plain
+goldens: wrote tests/goldens/wide-rich
+goldens: wrote tests/goldens/wide-plain
+goldens: wrote tests/goldens/world-den-rich
+goldens: wrote tests/goldens/world-den-plain
+goldens: wrote tests/goldens/world-gate-rich
+goldens: wrote tests/goldens/world-gate-plain
+goldens: wrote tests/goldens/world-hawk-rich
+goldens: wrote tests/goldens/world-hawk-plain
+goldens: wrote tests/goldens/world-meadow-rich
+goldens: wrote tests/goldens/world-meadow-plain
+goldens: wrote tests/goldens/world-open-rich
+goldens: wrote tests/goldens/world-open-plain
+goldens: wrote tests/goldens/world-recovered-rich
+goldens: wrote tests/goldens/world-recovered-plain
+goldens: wrote tests/goldens/world-return-rich
+goldens: wrote tests/goldens/world-return-plain
+goldens: wrote tests/goldens/world-thorns-rich
+goldens: wrote tests/goldens/world-thorns-plain
+goldens: wrote tests/goldens/art
+pty: level-look-after-c ok (linux x86_64, exit 0, 25990 bytes captured; byte 63, ECHO clear, 80x24/120x40 rich/plain, replay agreement and HUD edge)
+pty: level-look-recovery ok (linux x86_64, exit 0, 177457 bytes captured)

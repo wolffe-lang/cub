@@ -1,0 +1,10 @@
+plant word: exit 1
+test src/look_test.lu::test_cb04c_world_words_are_not_sprites ... FAILED (trap(assert))
+plant orb: exit 1
+test src/pickup_test.lu::test_cb04c_rich_orb_requires_a_death ... FAILED (trap(assert))
+test src/pickup_test.lu::test_cb04c_plain_orb_requires_a_death ... FAILED (trap(assert))
+plant radius: exit 1
+test src/pickup_test.lu::test_cb04c_pickup_ring_every_edge_and_outside ... FAILED (trap(assert))
+test src/pickup_test.lu::test_cb04c_mark_recovers_once_at_contact_ring_with_burst ... FAILED (trap(assert))
+test src/pickup_test.lu::test_cb04c_drop_collection_uses_body_ring ... FAILED (trap(assert))
+plants: three assertion reds, source restored

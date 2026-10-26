@@ -1,0 +1,43 @@
+Baseline 8fed728 src/art/art.lu draw_world_marks; at_world delegates to draw.put_text at line 651.
+
+| World word | Source/draw call at baseline | Replacement |
+|---|---|---|
+| ( empty ) / ( hollow ) / ( burrow ) | art.lu:684-698 at_world | empty/filled log ring or rooted burrow |
+| Bramblehold | art.lu:762 at_world | thorn stems |
+| Larkmeadow | art.lu:764 at_world | flower and grass |
+| Old Snag’s clearing | art.lu:765 at_world | tusked boar head |
+| Ember | art.lu:766 at_world | seated pointed-eared fox |
+| bones, no scent | art.lu:767 at_world | paired bone ends |
+| scent-marked tree | art.lu:769 at_world | forked marked trunk |
+| The Teeth | art.lu:770 at_world | joined peaks |
+| The Shallows | art.lu:772 at_world | ripple bands |
+| the old pack’s marks | art.lu:773 at_world | paired tracks |
+| Gravehollow | art.lu:775 at_world | arched den mouth |
+| the pack’s scent, everywhere | art.lu:777 at_world | paired tracks |
+| [ hedge ] / [ ledge ] / [ shallows ] | art.lu:792-807 at_world | woven hedge / steps / stepping-stone ford |
+
+Not world labels: art.lu:1315 draw.put_text Ember: dialogue; area HUD at 1311, den proximity at 738, cache hints at 701, action hints/cards in draw_posture, boss bar at 1928, title/opening/end text. Retained, since none names a world point over terrain. The [Log] label was already draw_log (1514); Shingle caches already draw_bundle (1540). No lever draw call exists.
+
+Exact matching baseline draw sites:
+662: at_world(
+684: at_world(
+691: "( empty )"
+693: "( hollow )"
+695: "( burrow )"
+722: at_world(
+762: at_world(s, t, mut g, -5, sim.gate_y(s) - 3, "Bramblehold", false)
+764: at_world(s, t, mut g, -3, forest.LENGTH - 3, "Larkmeadow", false)
+765: at_world(s, t, mut g, 9, forest.BOAR_ROW - 2, "Old Snag's clearing", false)
+766: at_world(s, t, mut g, -11, 24, "Ember", true)
+767: at_world(s, t, mut g, -7, 18, "bones, no scent", false)
+769: at_world(s, t, mut g, 7, 24, "scent-marked tree", false)
+770: at_world(s, t, mut g, -3, forest.LENGTH - 3, "The Teeth", false)
+772: at_world(s, t, mut g, -4, forest.LENGTH - 3, "The Shallows", false)
+773: at_world(s, t, mut g, 5, 30, "the old pack's marks", false)
+775: at_world(s, t, mut g, -4, forest.LENGTH - 3, "Gravehollow", false)
+777: at_world(s, t, mut g, -6, 36, "the pack's scent, everywhere", false)
+792: at_world(
+799: "[ hedge ]"
+801: "[ ledge ]"
+803: "[ shallows ]"
+814: at_world(
