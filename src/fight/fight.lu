@@ -301,6 +301,7 @@ pub struct Outcome {
     attempts: int,
     hits: List[int],
     unparryable: int,
+    breaches: int,
     tells: List[int],
     ticks: int,
     first_windup: int,
@@ -324,6 +325,7 @@ pub fn fight_world(seed: int, cols: int, rows: int, kind: int, mut r: replay.Rep
         attempts: 0,
         hits: zeros(),
         unparryable: 0,
+        breaches: 0,
         tells: zeros(),
         ticks: 0,
         first_windup: -1,
@@ -358,7 +360,7 @@ pub fn fight_world(seed: int, cols: int, rows: int, kind: int, mut r: replay.Rep
                 let t0 = s.tick
                 let _ = walker.walk_stop(mut s, mut r, tx, ty, i, false)
                 n += s.tick - t0
-                count_hit(s, i, before, mut out)
+                count_hit(s, before, mut out)
                 if s.action == sim.FALL { break }
                 continue
             }
@@ -378,7 +380,7 @@ pub fn fight_world(seed: int, cols: int, rows: int, kind: int, mut r: replay.Rep
             if sim.phase_two(f) && out.phase2_at < 0 { out.phase2_at = s.tick }
             let keys = fight_keys(s, i, mut st)
             walker.press(mut s, mut r, keys)
-            count_hit(s, i, before, mut out)
+            count_hit(s, before, mut out)
             if s.action == sim.FALL { break }
             n += 1
         }
@@ -421,7 +423,7 @@ pub fn trace(kind: int, seed: int) -> int {
         let busy = f.phase == sim.CROUCH || f.phase == sim.STRIKE
         if line != last || busy {
             print(
-                "t {s.tick} {line} | boss h {f.heading} v {f.speed} at {f.x / sim.FP},{f.y / sim.FP} front {if sim.foe_faces_cub(s, i) then 1 else 0} hit {if f.hit then 1 else 0} | cub at {s.x / sim.FP},{s.y / sim.FP} v {s.speed} face {s.body_facing} blocked {s.blocked} ex {if s.exhausted then 1 else 0}",
+                "t {s.tick} {line} | boss h {f.heading} v {f.speed} at {f.x / sim.FP},{f.y / sim.FP} front {if sim.foe_faces_cub(s, i) then 1 else 0} hit {if f.hit then 1 else 0} in {if sim.in_arena_at(s, f.x, f.y) then 1 else 0} | cub at {s.x / sim.FP},{s.y / sim.FP} v {s.speed} face {s.body_facing} blocked {s.blocked} ex {if s.exhausted then 1 else 0}",
             )
             last = line
         }
@@ -458,9 +460,23 @@ fn approach_point(s: sim.Sim, i: int) -> (int, int) {
     (f.x + 5 * sim.FP * sim.sin(h) / sim.FP, f.y - 5 * sim.FP * sim.cos(h) / sim.FP)
 }
 
-/// A hit taken this step, by the boss's current attack.
-fn count_hit(s: sim.Sim, i: int, before: int, mut out: Outcome) {
-    if s.health >= before || i >= s.foes.len { return }
+/// A hit taken this step, by the boss's current attack; and a boss standing
+/// outside its arena (never, by cb04's contract: the census counts it).
+fn count_hit(s: sim.Sim, before: int, mut out: Outcome) {
+    // The boss's index is read afresh: a walk of many ticks may have
+    // removed a fallen foe before it in the list.
+    let i = sim.boss_index(s)
+    if i < 0 { return }
+    if s.foes[i].health > 0 && !sim.in_arena_at(s, s.foes[i].x, s.foes[i].y) {
+        out.breaches += 1
+        if out.breaches == 1 {
+            let b = copy s.foes[i]
+            eprint(
+                "breach tick {s.tick} seed {s.seed} area {s.area} kind {b.kind} phase {b.phase} at {b.x / sim.FP},{b.y / sim.FP} home {b.home_x / sim.FP},{b.home_y / sim.FP} cub {s.x / sim.FP},{s.y / sim.FP}",
+            )
+        }
+    }
+    if s.health >= before { return }
     let g = copy s.foes[i]
     if g.attack >= 0 && g.attack < 3 { out.hits[g.attack] += 1 }
     if !sim.boss_move(g.kind, g.attack, sim.phase_two(g)).parryable { out.unparryable += 1 }
@@ -480,7 +496,9 @@ fn name_of(kind: int) -> str {
 /// `MAX_ATTEMPTS` or a parryable telegraph observed falls under the parry
 /// window.
 pub fn census() -> int {
-    print("boss seed cols attempts ticks hits0 hits1 hits2 unparryable_hits tell0 tell1 tell2")
+    print(
+        "boss seed cols attempts ticks hits0 hits1 hits2 unparryable_hits tell0 tell1 tell2 breaches",
+    )
     var status = 0
     var kind = sim.BOAR
     while kind <= sim.ALPHA {
@@ -489,6 +507,7 @@ pub fn census() -> int {
         while k <= MAX_ATTEMPTS { (mut histogram).push(0); k += 1 }
         var hits = zeros()
         var unparryable = 0
+        var breaches = 0
         var tells = zeros()
         var seed = 0
         while seed < 50 {
@@ -501,6 +520,7 @@ pub fn census() -> int {
                 var h = zeros()
                 var tl = zeros()
                 var un = 0
+                var br = 0
                 // A world's fight dies with its region; what leaves are ints.
                 region world {
                     var r = replay.new(seed, 1, cols, rows)
@@ -508,6 +528,7 @@ pub fn census() -> int {
                     attempts = o.attempts
                     ticks = o.ticks
                     un = o.unparryable
+                    br = o.breaches
                     var a = 0
                     while a < 3 {
                         h[a] = o.hits[a]
@@ -522,11 +543,12 @@ pub fn census() -> int {
                     a += 1
                 }
                 unparryable += un
+                breaches += br
                 print(
-                    "{name_of(kind)} {seed} {cols} {attempts} {ticks} {h[0]} {h[1]} {h[2]} {un} {tl[0]} {tl[1]} {tl[2]}",
+                    "{name_of(kind)} {seed} {cols} {attempts} {ticks} {h[0]} {h[1]} {h[2]} {un} {tl[0]} {tl[1]} {tl[2]} {br}",
                 )
                 histogram[attempts] += 1
-                if attempts == 0 { status = 1 }
+                if attempts == 0 || br > 0 { status = 1 }
                 size += 1
             }
             seed += 1
@@ -543,7 +565,7 @@ pub fn census() -> int {
             a += 1
         }
         print(
-            "fairness {name_of(kind)} attempts{h} unwon:{histogram[0]} hits {hits[0]} {hits[1]} {hits[2]} unparryable_hits {unparryable} tells {tells[0]} {tells[1]} {tells[2]} parry_window {sim.PARRY_WINDOW}",
+            "fairness {name_of(kind)} attempts{h} unwon:{histogram[0]} hits {hits[0]} {hits[1]} {hits[2]} unparryable_hits {unparryable} tells {tells[0]} {tells[1]} {tells[2]} parry_window {sim.PARRY_WINDOW} arena_breaches {breaches}",
         )
         kind += 1
     }
