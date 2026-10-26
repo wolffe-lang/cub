@@ -220,3 +220,24 @@ cannot. No ghost is drawn where no death was: an empty archive, or another world
 The title is a composition of its own: the name, the four boss silhouettes in a row (dim until beaten,
 lit in their colours after), their names, the key rows and "any key begins"; the river's `≈` scatter is its
 border. The end card is text alone, centred.
+
+## Larkmeadow landmarks (cb03a)
+
+Original three-cell trees, dark against the gold grass, share a thin root
+and sparse bent limbs. Singletons and three-root copses use the seed's
+14-cell lattice, never the route. Rich trunks use `┃`; plain uses `|`.
+
+```
+Y .'       /|    o}{o     __    vvvv     .     *::*
+ |Y       [__]    ==     [xx]          oo
+ |                                  oooo
+```
+
+The atlas `meadow-rich`/`meadow-plain` draws all eight seeded forms.
+Standing stones and burnt stumps have solid roots. Bones are a pale
+non-solid old kill, placed in the same quiet ground as deer forage.
+Crows lift to `v^v^` within five cells and warn hunters within twelve,
+including behind them. Cairns mark sheltered off-route patches, not
+loot. Scent grass leaves trails 150 ticks longer. A creek at row106–107
+is water outside the carved route; the path itself is its guaranteed
+ford. These rules add no respawning currency or save field.

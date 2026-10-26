@@ -15,6 +15,7 @@
 
 use controls
 use forest
+use meadow
 use input
 use silhouette
 use terrain
@@ -833,6 +834,8 @@ fn in_front(x: int, y: int, heading: int, tx: int, ty: int) -> bool {
 
 /// Cone, range and occlusion jointly determine foe sight.
 pub fn can_see(s: Sim, f: Foe) -> bool {
+    // A lifted flock warns nearby hunters even behind their sight cone.
+    if s.area == forest.LARKMEADOW && meadow.near_kind(s.seed, cell_x(s), cell_y(s), 5, 5) && near(f.x, f.y, s.x, s.y, 12 * FP) { return true }
     near(f.x, f.y, s.x, s.y, (if s.area == forest.BRAMBLEHOLD then 5 else SIGHT) * FP) &&
         in_front(f.x, f.y, f.heading, s.x, s.y) &&
         visible(s, f.x, f.y, s.x, s.y)
@@ -1313,7 +1316,7 @@ fn trail_step(mut s: Sim, ox: int, oy: int) {
     for tr in s.trail { if tr.until > s.tick { (mut kept).push(tr) } }
     s.trail = kept
     if !s.sneaking && (floor_div(ox, FP) != cell_x(s) || floor_div(oy, FP) != cell_y(s)) {
-        (mut s.trail).push(Trail { x: s.x, y: s.y, until: s.tick + TRAIL_TICKS })
+        (mut s.trail).push(Trail { x: s.x, y: s.y, until: s.tick + TRAIL_TICKS + (if s.area == forest.LARKMEADOW && meadow.near_kind(s.seed, cell_x(s), cell_y(s), 7, 3) then 150 else 0) })
     }
 }
 

@@ -1,0 +1,42 @@
+//! Original meadow landmarks, deterministic and independent of rendering.
+use world
+
+/// The tile's landmark: trees, stones, bones, stumps, crows, cairns, scent grass.
+pub fn anchor(seed: int, x: int, y: int) -> (int, int, int) {
+    let bx = if x < 0 then (x - 13) / 14 else x / 14
+    let by = if y < 0 then (y - 13) / 14 else y / 14
+    let kind = world.hash(seed + 17, bx, by, 8)
+    (bx * 14 + 5 + world.hash(seed, bx, by, 3), by * 14 + 5, kind)
+}
+
+/// A point within a landmark's radius; callers still exclude carved paths.
+pub fn near_kind(seed: int, x: int, y: int, kind: int, radius: int) -> bool {
+    let (ax, ay, k) = anchor(seed, x, y)
+    k == kind && x >= ax - radius && x <= ax + radius && y >= ay - radius && y <= ay + radius
+}
+
+/// Solid footprints: thin tree roots, standing stones, and burnt stumps.
+pub fn solid(seed: int, x: int, y: int) -> bool {
+    let (ax, ay, k) = anchor(seed, x, y)
+    if y != ay { return false }
+    if k == 0 { return x == ax }
+    if k == 1 { return x == ax - 3 || x == ax || x == ax + 3 }
+    (k == 2 || k == 4) && x >= ax - 1 && x <= ax + 1
+}
+
+/// Creek row; the main path is carved over it as a ford by forest.kind.
+pub fn creek(seed: int, x: int) -> int { 106 + world.noise(seed, 59, x) / 128 }
+
+/// Original three-cell-high trees and two-cell landmarks, ASCII on both tiers.
+/// Rich replaces only the trunk's pipe with its existing heavy trunk glyph.
+pub fn row(kind: int, line: int, lifted: bool) -> str {
+    if kind == 0 || kind == 1 {
+        return if line == 0 then "Y .'" else if line == 1 then " |Y " else " |  "
+    }
+    if kind == 2 { return if line == 1 then " /| " else if line == 2 then "[__]" else "    " }
+    if kind == 3 { return if line == 1 then "o}}{{o" else if line == 2 then " == " else "    " }
+    if kind == 4 { return if line == 1 then " __ " else if line == 2 then "[xx]" else "    " }
+    if kind == 5 { return if line == (if lifted then 0 else 2) then (if lifted then "v^v^" else "vvvv") else "    " }
+    if kind == 6 { return if line == 0 then " .  " else if line == 1 then " oo " else "oooo" }
+    if line == 2 then "*::*" else "    "
+}

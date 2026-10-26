@@ -16,6 +16,7 @@
 //! a path in, an arena on its route and a shortcut home that a beaten boss
 //! opens; the boar's clearing is a side branch of Bramblehold.
 
+use meadow
 use terrain
 use world
 
@@ -543,7 +544,9 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
     let n = terrain.noise2(seed + area * 101, 5, x, y)
     let h = world.hash(seed + area * 79, x, y, 100)
     if area == LARKMEADOW {
-        return if h < 3 then terrain.TRUNK else if h < 15 then terrain.REEDS else terrain.GRASS
+        if at == meadow.creek(seed, x) { return terrain.WATER }
+        if meadow.solid(seed, x, y) { return terrain.TRUNK }
+        return if h < 15 then terrain.REEDS else terrain.GRASS
     }
     if area == CRAGS {
         // Stone in masses, boulders among the open ledges, a dead pine, a

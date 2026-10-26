@@ -11,6 +11,7 @@ use draw
 use forest
 use ghost
 use grid
+use meadow
 use silhouette
 use sim
 use sprites
@@ -371,6 +372,7 @@ pub fn render_with(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid) {
         terrain_row(s, t, row, mut g)
         row += 1
     }
+    meadow_finds(s, t, mut g)
     shore_finds(s, t, mut g)
     shade_exits(s, t, mut g)
     draw_ghosts(s, extra.ghosts, t, mut g)
@@ -2307,4 +2309,58 @@ pub fn draw_den(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int) {
         col + s.tick / 15 % 2,
         grid.cell(126, if t == tier.RICH then 137 else 7, if t == tier.RICH then 234 else 0, 0),
     )
+}
+
+/// Trees and landmarks are placed only off the carved routes; the roots alone collide.
+pub fn meadow_finds(s: sim.Sim, t: int, mut g: grid.Grid) {
+    if s.area != forest.LARKMEADOW { return }
+    var row = 0
+    while row < s.rows {
+        var col = 0
+        while col < s.cols {
+            let (x, y) = sim.world_cell(s, row, col)
+            let (ax, ay, kind) = meadow.anchor(s.seed, x, y)
+            if ay >= 6 && ay < forest.LENGTH - 4 && ax > -forest.half_width(s.field) + 4 && ax < forest.half_width(s.field) - 4 && !forest.on_path(s.seed, s.field, s.area, ax, ay) {
+                var dx = x - ax + 1
+                if kind == 1 {
+                    if x < ax - 1 { dx += 3 }
+                    if x > ax + 2 { dx -= 3 }
+                }
+                let line = y - ay + 2
+                if dx >= 0 && dx < 4 && line >= 0 && line < 3 && !forest.on_path(s.seed, s.field, s.area, x, y) {
+                    let lifted = sim.near(s.x, s.y, ax * sim.FP, ay * sim.FP, 5 * sim.FP)
+                    let text = meadow.row(kind, line, lifted)
+                    let cp = text.bytes()[dx] as int
+                    if cp != 32 {
+                        grid.put(mut g, row, col, grid.cell(if t == tier.RICH && cp == 124 then 9475 else cp, if t == tier.RICH then (if kind == 3 then 180 else 59) else (if kind == 3 then 7 else 8), if t == tier.RICH then 235 else 0, 0))
+                    }
+                }
+            }
+            col += 1
+        }
+        row += 1
+    }
+}
+
+/// Both-tier landmark atlas: each original drawing, including the lifted flock.
+pub fn meadow_sheet(t: int) -> grid.Grid {
+    var g = grid.new(12, 64)
+    var k = 0
+    while k < 8 {
+        var line = 0
+        while line < 3 {
+            var x = 0
+            let text = meadow.row(k, line, false)
+            while x < 4 {
+                let cp = text.bytes()[x] as int
+                grid.put(mut g, 2 + line, k * 8 + x, grid.cell(if t == tier.RICH && cp == 124 then 9475 else cp, if t == tier.RICH then 59 else 8, if t == tier.RICH then 235 else 0, 0))
+                x += 1
+            }
+            line += 1
+        }
+        draw.put_text(mut g, 0, k * 8, "{k}", ink(t, true))
+        k += 1
+    }
+    draw.put_text(mut g, 8, 0, "v^v^  lifted crows       ~~~ creek / path ford", ink(t, true))
+    g
 }

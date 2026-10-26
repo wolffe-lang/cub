@@ -1,0 +1,43 @@
+//! member: false
+use meadow
+use forest
+use art
+use grid
+use tier
+
+fn test_cb03a_landmark_rules_and_original_atlas() {
+    var counts = List[int]()
+    var k = 0
+    while k < 8 { (mut counts).push(0); k += 1 }
+    var x = -40
+    while x < 40 {
+        var y = 10
+        while y < 150 {
+            let (ax, ay, kind) = meadow.anchor(7, x, y)
+            counts[kind] += 1
+            assert(meadow.near_kind(7, ax, ay, kind, 0), "seeded anchor")
+            assert(meadow.solid(7, ax, ay) == (kind <= 2 || kind == 4), "only roots stones and stumps collide")
+            y += 14
+        }
+        x += 14
+    }
+    k = 0
+    while k < 8 { assert(counts[k] > 0, "every landmark has an instance"); k += 1 }
+    assert(meadow.row(5, 0, true) != meadow.row(5, 0, false), "crows lift")
+    let plain = art.meadow_sheet(tier.PLAIN)
+    assert(grid.plain_ok(plain), "plain atlas stays in its glyph tier")
+    assert(meadow.row(0, 2, false).contains("|"), "tree has a three-cell trunk")
+}
+
+fn test_cb03a_creek_never_closes_the_route_ford() {
+    var seed = 0
+    while seed < 50 {
+        var y = 106
+        while y <= 107 {
+            let x = forest.spine(seed, 2, y)
+            assert(!forest.blocked(seed, 80, 2, x, y), "ford on the main path")
+            y += 1
+        }
+        seed += 1
+    }
+}
