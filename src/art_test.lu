@@ -157,7 +157,7 @@ fn test_cb01b_sideways_silhouette_keeps_body_cells() {
             var t = tier.PLAIN
             while t <= tier.RICH {
                 var g = grid.new(8, 14)
-                art.draw_pose(mut g, t, 3, 6, f, 0, pose, 0, 0, true)
+                art.draw_pose(mut g, t, 3, 6, f, 0, pose, 0, 0, true, 0, 0)
                 var lit = 0
                 var row = 0
                 while row < 8 {

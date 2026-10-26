@@ -296,30 +296,71 @@ fn tail_rows(tail: int, mut r: List[str]) {
 /// mouth open); `tail` is the tail's offset (`wag`), -2 to 2 pixels, in
 /// every pose. One drawing: the frames differ in the paws and the tail.
 pub fn cub(pose: int, legs: int, tail: int) -> Bitmap {
+    cub_posed(pose, legs, tail, 0, 0)
+}
+
+/// The cub with its health and its breath in the drawing (cb03, posture as
+/// HUD): `hurt` is the health band (0 full, 1 hurt, 2 badly hurt, 3
+/// dying) and `breath` the breath's frame (1 the in-breath; panting, 1
+/// the open mouth). Hurt, the ears go back (1: along the head; 2: laid
+/// back at the neck; 3: flat), the tail drops (1: half its swing; 2 and
+/// 3: hanging still), the trot shortens (2: one paw out a step; 3: none)
+/// and, dying, the head drops like the sneak's. Breathing in, the
+/// shoulders and the haunches widen a pixel each side. The same 8 by 16
+/// drawing in every band: what is drawn is what collides.
+pub fn cub_posed(pose: int, legs: int, tail: int, hurt: int, breath: int) -> Bitmap {
     var r = List[str]()
     let swing = legs % 2 == 0
-    let low = pose == 2 || pose == 3
-    row(if pose == 3 then "..#..#.." else if low then "........" else "...##...", mut r)
+    let low = pose == 2 || pose == 3 || hurt >= 3
+    let open = pose == 3 && breath == 1 && hurt < 3
+    row(if open then "..#..#.." else if low then "........" else "...##...", mut r)
     row(if low then "...##..." else "..####..", mut r)
-    row(if pose == 3 then "..#..#.." else "..####..", mut r)
+    row(if open then "..#..#.." else "..####..", mut r)
     row(if low then "..####.." else ".######.", mut r)
-    row(if low then ".######." else "#.####.#", mut r)
-    row("..####..", mut r)
-    row(".######.", mut r)
     row(
-        if pose == 1 && swing then "########" else if pose == 1 then "#######." else ".######.",
+        if hurt >= 2 {
+            "..####.."
+        } else if hurt == 1 || low {
+            ".######."
+        } else {
+            "#.####.#"
+        },
+        mut r,
+    )
+    row(if hurt == 2 then "#.####.#" else "..####..", mut r)
+    row(if breath == 1 && pose != 3 then "########" else ".######.", mut r)
+    let step = pose == 1 && hurt < 3
+    row(
+        if step && swing && hurt < 2 {
+            "########"
+        } else if step {
+            "#######."
+        } else {
+            ".######."
+        },
         mut r,
     )
     row("########", mut r)
     row("########", mut r)
     row(
-        if pose == 1 && !swing then "########" else if pose == 1 then ".#######" else ".######.",
+        if step && !swing && hurt < 2 {
+            "########"
+        } else if step && !swing {
+            ".#######"
+        } else {
+            ".######."
+        },
         mut r,
     )
     row(".######.", mut r)
-    row("..####..", mut r)
+    row(if breath == 1 && pose != 3 then ".######." else "..####..", mut r)
     row("...##...", mut r)
-    tail_rows(tail, mut r)
+    if hurt >= 2 {
+        row("...##...", mut r)
+        row("...##...", mut r)
+    } else {
+        tail_rows(if hurt == 1 then tail / 2 else tail, mut r)
+    }
     parse(r)
 }
 
@@ -473,7 +514,13 @@ pub fn all_code_points() -> List[int] {
         while legs < 2 {
             var tail = -2
             while tail <= 2 {
-                code_points(cub(pose, legs, tail), mut cps)
+                // Every health band and both breath frames (cb03).
+                var hurt = 0
+                while hurt < 4 {
+                    code_points(cub_posed(pose, legs, tail, hurt, 0), mut cps)
+                    code_points(cub_posed(pose, legs, tail, hurt, 1), mut cps)
+                    hurt += 1
+                }
                 tail += 1
             }
             legs += 1

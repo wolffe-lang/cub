@@ -183,12 +183,14 @@ fn fur(t: int, band: int) -> grid.Cell {
 /// west (the head leading, the tail trailing). The tail `,` sits on the
 /// side the rich tail swings to (`tail` the wag's offset; at the middle
 /// the side it swings toward next, `rising`), so the plain tail wags on
-/// the gait too, one cell each side.
-fn plain_cub(facing: int, pose: int, tail: int, rising: bool) -> List[str] {
+/// the gait too, one cell each side. `hurt` is the health band (cb03).
+fn plain_cub(facing: int, pose: int, tail: int, rising: bool, hurt: int) -> List[str] {
     var rows = List[str]()
-    let low = pose == 2 || pose == 3
+    // Hurt, the ears go back (the sneak's low row); badly hurt, the tail
+    // hangs still on the left (cb03, posture as HUD).
+    let low = pose == 2 || pose == 3 || hurt >= 1
     // The tail's side seen from above, the cub's own right positive.
-    let right = tail > 0 || tail == 0 && rising
+    let right = hurt < 2 && (tail > 0 || tail == 0 && rising)
     if facing == 0 {
         (mut rows).push(if low then ".__." else ".^^.")
         (mut rows).push("####")
@@ -227,7 +229,21 @@ fn plain_cub(facing: int, pose: int, tail: int, rising: bool) -> List[str] {
 /// one silhouette turned to the facing (`silhouette.cub`); plain: the
 /// same footprint in ASCII. The ground shows through unlit cells.
 pub fn draw_cub(mut g: grid.Grid, t: int, row: int, col: int, facing: int, band: int) {
-    draw_pose(mut g, t, row, col, facing, band, if band == 2 then 3 else 0, 0, 0, true)
+    let pant = band == 2
+    draw_pose(
+        mut g,
+        t,
+        row,
+        col,
+        facing,
+        band,
+        if pant then 3 else 0,
+        0,
+        0,
+        true,
+        0,
+        if pant then 1 else 0,
+    )
 }
 
 /// The whole frame: the ground on every row, then the cub at the centre.
@@ -267,7 +283,13 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
         // one cell across the aim (a column north or south, a row east or
         // west), the same silhouette in two parts.
         let style = fur(t, band(s.stamina, sim.stamina_max(s.wind)))
-        let body = silhouette.cub(pose, sim.legs(s), silhouette.wag(sim.tail_phase(s), pose == 1))
+        let body = silhouette.cub_posed(
+            pose,
+            sim.legs(s),
+            silhouette.wag(sim.tail_phase(s), pose == 1),
+            sim.hurt_band(s),
+            sim.breath(s),
+        )
         silhouette.draw_at(mut g, r, c, silhouette.strip(body, false), facing, style)
         let dr = if facing % 2 == 0 then 0 else shake
         let dc = if facing % 2 == 0 then shake else 0
@@ -284,6 +306,8 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
             sim.legs(s),
             silhouette.wag(sim.tail_phase(s), pose == 1),
             sim.tail_phase(s) < 4,
+            sim.hurt_band(s),
+            sim.breath(s),
         )
         if shake != 0 {
             // Plain: the ears row shifts across the aim.
@@ -368,6 +392,8 @@ pub fn sheet(t: int) -> grid.Grid {
                 0,
                 0,
                 true,
+                0,
+                if pose == 3 then 1 else 0,
             )
             f += 1
         }
@@ -393,8 +419,37 @@ pub fn sheet(t: int) -> grid.Grid {
     draw.put_text(mut g, 6, 51, "wag: -2  -1   0  +1  +2", ink(t, true))
     var tail = -2
     while tail <= 2 {
-        draw_pose(mut g, t, 13, 54 + (tail + 2) * 5, 0, 0, 1, (tail + 2) % 2, tail, true)
+        draw_pose(mut g, t, 13, 54 + (tail + 2) * 5, 0, 0, 1, (tail + 2) % 2, tail, true, 0, 0)
         tail += 1
+    }
+    // The health bands (cb03, R-cb03-2 A): the walking cub facing north in
+    // each band, full to dying; and the breath's frames at rest: fresh out
+    // and in, the pant's mouth closed and open.
+    draw.put_text(mut g, 17, 51, "hurt: full hurt bad dying", ink(t, true))
+    var hurt = 0
+    while hurt < 4 {
+        draw_pose(mut g, t, 19, 54 + hurt * 5, 0, 0, 1, 0, 1, true, hurt, 0)
+        hurt += 1
+    }
+    draw.put_text(mut g, 23, 51, "breath: out in  pant0 pant1", ink(t, true))
+    var frame = 0
+    while frame < 4 {
+        let pant = frame >= 2
+        draw_pose(
+            mut g,
+            t,
+            25,
+            54 + frame * 5,
+            0,
+            if pant then 2 else 0,
+            if pant then 3 else 0,
+            0,
+            0,
+            true,
+            0,
+            frame % 2,
+        )
+        frame += 1
     }
     var kind = 0
     while kind < 3 {
@@ -659,12 +714,8 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
     let (ox, oy) = sim.attack_offset(s)
     let r = sim.screen_row(s) + sim.floor_div(s.y + oy, sim.FP) - sim.cell_y(s)
     let c = sim.screen_col(s) + sim.floor_div(s.x + ox, sim.FP) - sim.cell_x(s)
-    let health = band(s.health, sim.health_max(s.heart))
-    let tail = if health == 0 then "/" else if health == 1 then "-" else "_"
-    // The health tail sits below and left of the silhouette, clear of it in
-    // every facing (north and south fill rows r-1..r+2 of columns c-1..c+2;
-    // east and west fill rows r..r+1 from c-3 to c+4).
-    draw.put_text(mut g, r + 3, c - 1, tail, ink(t, health == 0))
+    // Health is the cub's gait, ears and tail (cb03, posture as HUD:
+    // `silhouette.cub_posed`); cb01's health tail mark left with the bars.
     let posture = if s.action == sim.PARRY {
         "]"
     } else if s.action == sim.DODGE {
@@ -707,7 +758,16 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
             }
             row += 1
         }
+        // The death card is one of the two places the numbers show
+        // (R-cb03-3 A); the den is the other.
         draw.put_text(mut g, r, c - 4, "fallen - scent lost {s.mark_scent}", ink(t, false))
+        draw.put_text(
+            mut g,
+            r + 2,
+            c - 4,
+            "health 0   stamina {s.stamina}   water {s.flasks}   scent {s.scent}",
+            ink(t, false),
+        )
     }
     if at_log_hint(s) {
         draw.put_text(
@@ -787,6 +847,8 @@ fn at_log_hint(s: sim.Sim) -> bool { sim.at_den(s) && !s.den && s.action != sim.
 /// offset and `rising` its direction through the middle (the gait's,
 /// `sim.legs` and `sim.tail_phase`). Every mark stays inside the rich
 /// footprint, so the plain cub never covers a cell the rich one leaves.
+/// `hurt` is the health band and `breath` the breath's frame (cb03,
+/// posture as HUD: `sim.hurt_band`, `sim.breath`).
 pub fn draw_pose(
     mut g: grid.Grid,
     t: int,
@@ -798,13 +860,22 @@ pub fn draw_pose(
     legs: int,
     tail: int,
     rising: bool,
+    hurt: int,
+    breath: int,
 ) {
     let style = fur(t, band)
     if t == tier.RICH {
-        silhouette.draw_at(mut g, row, col, silhouette.cub(pose, legs, tail), facing, style)
+        silhouette.draw_at(
+            mut g,
+            row,
+            col,
+            silhouette.cub_posed(pose, legs, tail, hurt, breath),
+            facing,
+            style,
+        )
         return
     }
-    let rows = plain_cub(facing, pose, tail, rising)
+    let rows = plain_cub(facing, pose, tail, rising, hurt)
     let top = if facing % 2 == 0 then row - 1 else row
     let left = if facing % 2 == 0 then col - 1 else col - 3
     var i = 0
@@ -995,7 +1066,7 @@ fn put_over(mut g: grid.Grid, row: int, col: int, text: str, style: grid.Cell) {
     }
 }
 
-/// Compact bars reserve eight cells each; the larger posture HUD follows later.
+/// Compact bars reserve eight cells each: the debug HUD's (`--hud`).
 fn meter(value: int, maximum: int) -> str {
     var out = "["
     var i = 0
@@ -1006,8 +1077,12 @@ fn meter(value: int, maximum: int) -> str {
     out + "]"
 }
 
-/// Scent is always numeric; spending remains exclusively at the den.
+/// The running HUD's one number (cb03, R-cb03-3 A): scent, always; health
+/// and stamina are the cub's posture, their numbers at a den and on the
+/// death card. `--hud` (`s.hud`, a debug flag off by default) puts cb01b's
+/// bars back beside it.
 pub fn hud_text(s: sim.Sim) -> str {
+    if !s.hud { return "scent {s.scent}" }
     "health " +
         meter(s.health, sim.health_max(s.heart)) +
         " stamina " +
@@ -1210,7 +1285,7 @@ pub fn opening_frame(s: sim.Sim, t: int, mut g: grid.Grid) {
         draw_cub(mut g, t, s.rows / 2 - 2, mid, 0, 1)
         draw.put_text(mut g, s.rows / 2 + 1, mid - 8, ". , . , . , . , .", style)
     }
-    draw.put_text(mut g, s.rows - 2, 4, "Any key skips", style)
+    draw.put_text(mut g, s.rows - 2, 4, "Any key skips; m mutes the music", style)
 }
 
 fn shade_exits(s: sim.Sim, t: int, mut g: grid.Grid) {
