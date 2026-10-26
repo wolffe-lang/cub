@@ -14,7 +14,7 @@ def den_keys(binary, ctx):
     home.mkdir(parents=True, exist_ok=True)
     env = ctx.env_for()
     env['HOME'] = str(home)
-    s = ctx.Session([binary, '--seed', '7', '--save', str(home / 'den.save'), '--tier', 'plain', '--mute'], 24, 80, env)
+    s = ctx.Session([binary, '--seed', '7', '--save', str(home / 'den.save'), '--tier', 'plain', '--mute', '--no-title'], 24, 80, env)
     s.type(b'?', settle=.15)
     s.type(b'r', settle=.2)
     s.type(b'12345', settle=.2)
@@ -87,7 +87,7 @@ def feel_controls(binary, ctx):
               ('lock-empty', b'\x1b[D\t', 192)]
     for tier in ('rich', 'plain'):
         for name, chord, aim in arrows:
-            session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace', '--mute'], 24, 80, env)
+            session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
             session.type(b'?', settle=.15)
             session.type(chord + b'x', settle=.45)
             session.type(b'q')
@@ -96,7 +96,7 @@ def feel_controls(binary, ctx):
             (root / (tier + '-' + name + '.trace')).write_bytes(session.err)
             if not re.search(rb'action 2 aim ' + str(aim).encode() + rb' combo 0', session.err):
                 problems.append(tier + ' ' + name + ' did not commit the injected aim')
-        session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace', '--mute'], 24, 80, env)
+        session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
         session.type(b'?', settle=.15)
         session.type(b'\x1b[C ', settle=.25)
         session.type(b' ', settle=.37)
@@ -108,7 +108,7 @@ def feel_controls(binary, ctx):
         for combo in (1, 2, 3):
             if not re.search(rb'action 1 aim 64 combo ' + str(combo).encode(), session.err):
                 problems.append(tier + ' live combo missing ' + str(combo))
-        session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace', '--mute'], 24, 80, env)
+        session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
         session.type(b'?', settle=.15)
         session.type(b'\x1b[Cs', settle=.75)
         session.type(b'q')
@@ -136,7 +136,7 @@ def pending_save(binary, ctx):
                         '--dump', str(root / (name + '-initial'))], check=True)
         before = path.read_bytes()
         session = ctx.Session([binary, '--save', str(path), '--save-delay', '60',
-                               '--tier', 'plain', '--mute'], 24, 80, ctx.env_for())
+                               '--tier', 'plain', '--mute', '--no-title'], 24, 80, ctx.env_for())
         session.type(b'?', settle=.25)
         if not stage.is_file():
             problems.append(name + ': no pending write existed before the exit')
@@ -161,7 +161,7 @@ def save_failure(binary, ctx):
                     '--dump', str(root / 'initial')], check=True)
     before = path.read_bytes()
     stage.write_bytes(b'another writer owns this stage')
-    session = ctx.Session([binary, '--save', str(path), '--tier', 'plain', '--mute'],
+    session = ctx.Session([binary, '--save', str(path), '--tier', 'plain', '--mute', '--no-title'],
                           24, 80, ctx.env_for())
     session.type(b'?', settle=.2)
     session.finish()
@@ -188,7 +188,7 @@ def resumed_record(binary, ctx):
                     '--frames', frames, '--every', frames, '--dump', str(root / 'initial')], check=True)
     record = root / 'resumed.pk'
     session = ctx.Session([binary, '--save', str(path), '--record', str(record),
-                           '--tier', 'plain', '--no-truecolor', '--ticks', '30', '--mute'],
+                           '--tier', 'plain', '--no-truecolor', '--ticks', '30', '--mute', '--no-title'],
                           24, 80, ctx.env_for())
     session.type(b'?', settle=.2)
     session.finish()
@@ -324,3 +324,58 @@ def mute_key(binary, ctx):
 
 
 ROWS.update({'sound-live': sound_live, 'sound-oss': sound_oss, 'sound-mute': sound_mute, 'mute-key': mute_key})
+def title(binary, ctx):
+    """The title (cb04): drawn first with the four silhouettes and the
+    keys; any key begins the opening; `--no-title` starts the game."""
+    import re
+    root = Path(ctx.ROOT) / 'target/pty/title'
+    root.mkdir(parents=True, exist_ok=True)
+    env = ctx.env_for()
+    env['HOME'] = str(root)
+    problems = []
+    session = ctx.Session([binary, '--seed', '7', '--tier', 'plain', '--trace', '--mute'], 24, 80, env)
+    session.pump(0.5)
+    session.type(b'x', settle=.4)
+    session.type(b'q')
+    session.finish()
+    ctx.common_checks(session, 0, problems)
+    (root / 'title.trace').write_bytes(session.err)
+    for text in (b'any key begins', b'Old Snag', b'Whisper', b'Alder', b'Ashgrim', b'z parry'):
+        if text not in session.out:
+            problems.append('title lacks %r' % text)
+    if not re.search(rb'trace tick \d+ .* scene 2 ', session.err):
+        problems.append('no title scene in the trace')
+    if not re.search(rb'trace tick \d+ .* scene 1 ', session.err):
+        problems.append('a key did not begin the opening')
+    session = ctx.Session([binary, '--seed', '7', '--tier', 'plain', '--trace', '--mute', '--no-title'], 24, 80, env)
+    session.pump(0.4)
+    session.type(b'q')
+    session.finish()
+    ctx.common_checks(session, 0, problems)
+    if b'any key begins' in session.out or re.search(rb'scene 2 ', session.err):
+        problems.append('--no-title still drew the title')
+    return session, problems
+
+
+def title_demo(binary, ctx):
+    """Ten idle seconds on the title start the committed demo replay."""
+    import re
+    root = Path(ctx.ROOT) / 'target/pty/title-demo'
+    root.mkdir(parents=True, exist_ok=True)
+    env = ctx.env_for()
+    env['HOME'] = str(root)
+    problems = []
+    session = ctx.Session([binary, '--seed', '7', '--tier', 'plain', '--trace', '--mute'], 24, 80, env)
+    session.pump(11.5)
+    session.type(b'q')
+    session.finish()
+    ctx.common_checks(session, 0, problems)
+    (root / 'title-demo.trace').write_bytes(session.err)
+    if re.search(rb'trace tick (\d|[1-9]\d|[12]\d\d) .* demo 1 ', session.err):
+        problems.append('the demo played before the idle time')
+    if not re.search(rb'trace tick 3[1-9]\d .* scene 2 demo 1 ', session.err):
+        problems.append('no demo after ten idle seconds on the title')
+    return session, problems
+
+
+ROWS.update({'title': title, 'title-demo': title_demo})
