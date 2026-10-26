@@ -1,2 +1,2 @@
-build: target/native/cub
-pty: den-world-memory FAILED: [Errno 2] No such file or directory: '/work/target/pty/den-world-memory.trace'
+pty: den-world-memory FAILED (linux x86_64):
+  - den-world-memory: path/log return revived slain Shingle foes

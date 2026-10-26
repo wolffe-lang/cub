@@ -714,6 +714,7 @@ def den_world_memory(binary, ctx):
         problems.append('den-world-memory: path/log return revived slain Shingle foes')
     if not states or any(v['deaths'] or v['resting'] for v in states):
         problems.append('den-world-memory: a death/rest invalidated the witness')
+    (root / 'target/pty').mkdir(parents=True, exist_ok=True)
     (root / 'target/pty/den-world-memory.trace').write_bytes(session.err)
     return session, problems
 
