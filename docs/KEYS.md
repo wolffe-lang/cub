@@ -10,9 +10,9 @@ remain unmeasured. The decoder selftest checks every split of each sequence.
 | Up / Down / Right / Left | `1B 5B 41` / `1B 5B 42` / `1B 5B 43` / `1B 5B 44` | walk |
 | Shift+Up / Down / Right / Left | `1B 5B 31 3B 32 41` / `42` / `43` / `44` (same prefix) | sneak |
 | Space | `20` | bite |
-| x | `78` | lunge |
+| x | `78` | forward lunge with two backward windup steps |
 | z | `7A` | parry |
-| c | `63` | dodge |
+| c | `63` | tap dodge; hold/repeat sprint on stamina |
 | Tab | `09` | lock nearest, then cycle |
 | w | `77` | drink |
 | r | `72` | rest at a nearby den; interact with a shortcut or cache |
@@ -26,8 +26,12 @@ lone-Esc path waits for another byte instead of reporting the timeout, so it
 is not a successful keyprobe measurement. Ctrl-C's restoration witness is
 only the engine pty row typing byte `03` into its own game session.
 
-Shift+Down remains sneak, never parry. No Shift+Space or sprint binding is
-claimed: ordinary terminal byte streams cannot distinguish Shift+Space.
+Shift+Down remains sneak, never parry. Ordinary terminal byte streams cannot
+distinguish Shift+Space. Space aims with recent arrows, including diagonals;
+`x` always uses facing. Hold `c` after its initial dodge to sprint; Space
+while sprinting makes the forward snapping attack. A repeat within one
+second identifies a hold, so two close taps also count. No real key-up
+is available; the engine expires the inferred hold after repeats stop.
 
 ## Physical Shift+Space probe, 2026-10-25
 

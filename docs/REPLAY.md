@@ -113,3 +113,17 @@ the walk past its archive in `tests/ghosts/`), `crags`, `river`, `old-den` and `
 fights every boss in fifty seeds at both sizes and prints a `fairness` line a boss (exit 1 on a world
 unwon within five lives, a parryable telegraph under the parry window or a boss tick outside its arena);
 `--fight-trace KIND SEED` narrates one fight a tick.
+
+## cb03a feel witnesses
+
+`dodge` remains the recorded `c` event. Repeated events infer sprint; no
+new decoder or replay opcode is needed. `bite` chooses a snapping lunge
+when sprinting. `aim-*` now witness Space rather than `x`, because `x`
+uses facing. `forward-windup`, `sprint-80x24`, `sprint-120x40`, `sprint-hit`,
+`den-bars-80x24`, `den-bars-120x40` and the meadow/den refuge cases pin the
+new frames. The sprint-hit walker approaches a real foe and lands with
+ordinary keys, without health, stamina or position fixtures. The chase
+census separately isolates each ground species with100 health to observe
+a hit without deleting the body; it preserves default cub stats and uses
+only movement, c and Space after that disclosed setup. Hawks still require
+parry, not a ground chase.

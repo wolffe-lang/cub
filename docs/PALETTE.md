@@ -84,3 +84,14 @@ three fade stages. Deer use antlers, a two-cell body and legs on both tiers.
 
 The new areas' paths are gravel (the Teeth, the Shallows) or the thicket's grass (Gravehollow); the world
 audit's `path_off` holds them to `art.path_styles` as before.
+
+## Bars and meadow landmarks (cb03a)
+
+Health fill is red203, stamina fill green84, outline/labels grey250 on
+235; plain uses12/10/7 on0. Both bars are directly labelled and separately
+outlined, so their meaning never relies on red/green discrimination.
+The labels use neutral ink, not status colour. These fixed status colours
+have contrast above3:1 on the dark field; the categorical palette checker
+also measured adjacent CVD separation18.1 (deutan),44.1 (tritan).
+Tree/stone/stump/crow/cairn ink is dark59 on235 (plain8 on0), bones180
+(plain7); warm den patches94 on52, embers208 (plain3/9 on0).
