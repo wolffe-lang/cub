@@ -120,3 +120,8 @@ from dark rump to warm muzzle. Fire tips166, body214, heart229, ember208;
 plain red9/yellow11. Text250 (plain7) stays clear of the animation. These
 colours belong only to the rest scene; the existing bars are untouched.
 The charge display is117 (plain14) on235 (plain0).
+
+The allocation panel (cb04d) uses near-black232, muted-gold179 borders,
+and bone-white230 labels; pending increases use84 and refused totals203.
+Plain equivalents are black0, gold3, white15, green10 and red12. Arrows,
+current/pending numbers and the refusal text duplicate the colour meaning.
