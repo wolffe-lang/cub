@@ -1,10 +1,10 @@
-tick 1175 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 1 mark_area 0 x 139 y 40202 heading 128 action 0 started 1150 health 160 stamina 134 flasks 3 scent 3556 deaths 0 mark 0 mark_scent 0 gate 1 trail 38 lock -1 aim 128 combo 0
-foe 0 kind 0 health -18 phase 1 since 391 x -35 y 14068
-foe 1 kind 0 health -18 phase 1 since 355 x 211 y 13867
-foe 2 kind 1 health -2 phase 5 since 585 x 278 y 20244
-foe 3 kind 0 health -18 phase 1 since 969 x 164 y 34646
-foe 4 kind 0 health -18 phase 1 since 958 x 109 y 34623
-foe 5 kind 1 health 40 phase 0 since 0 x -11136 y 10368
-foe 6 kind 1 health 40 phase 0 since 0 x 9856 y 11136
-foe 7 kind 1 health 40 phase 0 since 0 x -21376 y 10368
-foe 8 kind 1 health 40 phase 0 since 0 x 20864 y 11136
+tick 1211 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 1 mark_area 0 x 75 y 40214 heading 128 action 0 started 1186 health 140 stamina 134 flasks 3 scent 3528 deaths 0 mark 0 mark_scent 0 gate 1 trail 34 lock -1 aim 128 combo 0 body 2 gait 1285
+foe 0 kind 0 health -18 phase 1 since 460 x -512 y 14080 heading 32 gap 100
+foe 1 kind 0 health -18 phase 2 since 573 x -1271 y 15512 heading 32 gap 95
+foe 2 kind 1 health -2 phase 5 since 683 x 766 y 20731 heading 224 gap 74
+foe 3 kind 0 health -18 phase 1 since 1040 x -512 y 36309 heading 0 gap 13
+foe 4 kind 0 health -18 phase 3 since 1081 x 114 y 37043 heading 0 gap 10
+foe 5 kind 1 health 40 phase 0 since 0 x -11136 y 10368 heading 0 gap 114
+foe 6 kind 1 health 40 phase 0 since 0 x 9856 y 11136 heading 0 gap 111
+foe 7 kind 1 health 40 phase 0 since 0 x -21376 y 10368 heading 0 gap 114
+foe 8 kind 1 health 40 phase 0 since 0 x 20864 y 11136 heading 0 gap 111
