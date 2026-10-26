@@ -159,14 +159,17 @@ fn test_cb02b_the_field_is_saved_and_never_moves() {
     assert(small.field == 80, "the floor")
     let text = journey.encode(s)
     assert(
-        text.starts_with("CUB 2\n") && text.contains("\nfield 200\n"),
-        "schema 2 names the field",
+        text.starts_with("CUB 3\n") && text.contains("\nfield 200\n"),
+        "the schema names the field",
     )
     let resumed = journey.decode(text, 80, 24) else |e| { assert(false, "resume {e}"); return }
     assert(resumed.field == 200 && resumed.cols == 80, "the field survives a narrower terminal")
-    assert(journey.snapshot(s).len == 25 && journey.snapshot(s)[24] == 200, "the replay carries it")
+    assert(
+        journey.snapshot(s).len == journey.SNAPSHOT && journey.snapshot(s)[24] == 200,
+        "the replay carries it",
+    )
     var old = false
-    let _ = journey.decode(text.replace("CUB 2", "CUB 1"), 80, 24) else |e| {
+    let _ = journey.decode(text.replace("CUB 3", "CUB 1"), 80, 24) else |e| {
         old = "{e}" == "save_version"
         sim.new(1, 80, 24)
     }
