@@ -276,11 +276,21 @@ def ghosts(binary):
         assert [p.name for p in files] == [p.name for p in committed.glob('*.pk')]
         assert re.sub(r'^tier .*$', '', text, flags=re.M) == re.sub(r'^tier .*$', '', next(committed.glob('*.pk')).read_text(), flags=re.M), 'committed archive differs from a fresh death'
         shown, states_a, _ = run(binary, 'ghost', tier, ghosts=committed, label='-shown')
+        # The two scratch archives (an empty one, another world's) live only
+        # for their runs: mkdtemp makes them owner-only, and a directory the
+        # runner cannot scan breaks the artifact upload, so they are world
+        # readable while they exist and gone after, on success or failure.
         empty = Path(tempfile.mkdtemp(prefix='cub-no-ghosts-', dir=OUT))
-        none, states_b, _ = run(binary, 'ghost', tier, ghosts=empty, label='-none')
         other = Path(tempfile.mkdtemp(prefix='cub-other-world-', dir=OUT))
-        (other / files[0].name).write_text(text.replace('seed 1\n', 'seed 2\n', 1))
-        foreign, states_c, _ = run(binary, 'ghost', tier, ghosts=other, label='-foreign')
+        try:
+            for d in (empty, other):
+                d.chmod(0o755)
+            none, states_b, _ = run(binary, 'ghost', tier, ghosts=empty, label='-none')
+            (other / files[0].name).write_text(text.replace('seed 1\n', 'seed 2\n', 1))
+            foreign, states_c, _ = run(binary, 'ghost', tier, ghosts=other, label='-foreign')
+        finally:
+            for d in (empty, other):
+                shutil.rmtree(d, ignore_errors=True)
         assert states_a == states_b == states_c, 'ghosts changed the simulation'
         a, b, c = ((d / 'final.txt').read_text() for d in (shown, none, foreign))
         assert a != b, 'the archive drew no ghost'
@@ -304,6 +314,20 @@ def fairness(binary):
         print('gameplay:', line)
 
 
+def readable(root):
+    """Nothing the gate leaves under target/gameplay may be unreadable: the
+    CI artifact upload scans every path, and an owner-only directory from a
+    container run fails it after every gate was green."""
+    bad = []
+    for path in root.rglob('*'):
+        mode = path.stat().st_mode & 0o777
+        need = 0o555 if path.is_dir() else 0o444
+        if mode & need != need:
+            bad.append('%s %o' % (path, mode))
+    assert not bad, 'unreadable under target/gameplay: ' + ', '.join(bad[:10])
+    print('gameplay: every path under', root, 'readable')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--bin', required=True)
@@ -317,6 +341,7 @@ def main():
     import runpy
     world = runpy.run_path(str(ROOT / 'tools/world_checks.py'))
     world['check'](Path(args.bin).resolve())
+    readable(OUT)
     print('gameplay: green (0 skips)')
 
 if __name__ == '__main__':
