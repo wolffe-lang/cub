@@ -2702,6 +2702,8 @@ fn boss_step(mut s: Sim, i: int) {
         let engaged = cub_in_arena(s) || body_gap(s, i) <= 4
         if engaged && !f.engaged { s.cue = CUE_BOSS + f.kind - BOAR }
         s.foes[i].engaged = engaged
+        // The score's slot (cb03's `boss_theme`): the theme while engaged.
+        s.boss = if engaged then f.kind - BOAR else -1
         if !engaged {
             // The cub has left: the boss trots home and waits, its damage
             // kept until a rest (R-cb04-3 A).
@@ -2878,6 +2880,7 @@ fn alpha_reacts(mut s: Sim, action: int) {
 /// scent lies where it fell (a drop, as any foe's), the cue sounds; the
 /// alpha's fall is the end (cb04's scene 3).
 fn beat_boss(mut s: Sim, kind: int, x: int, y: int) {
+    s.boss = -1
     s.bosses += (if s.bosses / boss_bit(kind) % 2 == 0 then boss_bit(kind) else 0)
     let edge = boss_shortcut(kind)
     if edge >= 0 { open_shortcut(mut s, edge) }
