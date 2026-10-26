@@ -1,0 +1,110 @@
+//! member: false
+//! cb06: timing, material separation, blinking and score synchronisation.
+use art
+use controls
+use grid
+use score
+use sim
+use tier
+
+fn test_cb06_shots_and_whole_scene_skip() {
+    let starts = [0, 210, 225, 300, 330, 360, 420, 480, 510, 600, 660, 720, 765, 789, 810, 840]
+    var index = 0
+    for age in starts {
+        assert(sim.opening_shot(age) == index, "shot {index} starts at {age}")
+        var s = sim.new(1, 80, 24)
+        sim.opening(mut s)
+        s.tick = age
+        let x = s.x
+        let y = s.y
+        sim.step(mut s, [controls.KEY_RIGHT])
+        assert(s.scene == 0 && s.opening_seen, "one key skips shot {index}")
+        assert(s.x == x && s.y == y, "skip is not a move")
+        index += 1
+    }
+    var s = sim.new(1, 80, 24)
+    sim.opening(mut s)
+    var i = 0
+    while i < sim.OPENING_TICKS {
+        assert(s.scene == 1 && !s.opening_seen, "opening still active at {i}")
+        sim.step(mut s, List[int]())
+        i += 1
+    }
+    assert(s.scene == 0 && s.opening_seen && s.area == 0, "900 ticks land on the Shingle")
+}
+
+fn test_cb06_sky_ice_water_are_disjoint_cell_styles() {
+    for t in [tier.PLAIN, tier.RICH] {
+        var a = 0
+        while a < 3 {
+            var b = a + 1
+            while b < 3 {
+                var i = 0
+                while i < 4 {
+                    var j = 0
+                    while j < 4 {
+                        let x = art.opening_material(t, a, i)
+                        let y = art.opening_material(t, b, j)
+                        assert(x.fg != y.fg || x.bg != y.bg || x.attrs != y.attrs, "sky ice and water cannot share a style")
+                        j += 1
+                    }
+                    i += 1
+                }
+                b += 1
+            }
+            a += 1
+        }
+    }
+}
+
+fn test_cb06_first_blink_never_opens_fully() {
+    assert(art.opening_aperture(510) == 0, "first waking frame is black")
+    var age = 510
+    while age < 660 {
+        assert(art.opening_aperture(age) <= 60, "first blink stays narrow and dim")
+        age += 1
+    }
+    assert(art.opening_aperture(600) == 60, "first peak is partial")
+    assert(art.opening_aperture(720) == 80, "second peak is wider")
+    assert(art.opening_aperture(789) == 95, "third peak almost wakes")
+    assert(art.opening_aperture(840) == 100, "final view fully awake")
+}
+
+fn test_cb06_crack_frame_has_the_cue() {
+    var s = sim.new(1, 80, 24)
+    sim.opening(mut s)
+    s.tick = 209
+    assert(score.want(score.scene_of(s)) == "title", "crossing keeps title")
+    s.tick = 210
+    assert(score.want(score.scene_of(s)) == "crack", "first crack cues the shock on the same tick")
+    s.tick = 359
+    assert(score.want(score.scene_of(s)) == "crack", "hold through the spreading cracks")
+    s.tick = 360
+    assert(score.want(score.scene_of(s)) == "silence", "sting ends at the drop")
+    s.tick = 510
+    assert(score.want(score.scene_of(s)) == "shingle", "waking hears the shore")
+    var sch = score.schedule([
+        score.Cue { name: "crack", ticks: 150, once: true },
+        score.Cue { name: "shingle", ticks: 720, once: false },
+    ])
+    s.tick = 210
+    assert(score.step(mut sch, score.scene_of(s), s.tick) == "crack", "start sting")
+    sim.step(mut s, [controls.KEY_RIGHT])
+    assert(score.step(mut sch, score.scene_of(s), s.tick) == "shingle", "skip cuts sting immediately")
+}
+
+fn test_cb06_clear_view_is_the_actual_spawn() {
+    var s = sim.new(1, 80, 24)
+    sim.opening(mut s)
+    s.tick = 840
+    var a = grid.new(24, 80)
+    var b = grid.new(24, 80)
+    art.opening_frame(s, tier.PLAIN, mut a)
+    s.scene = 0
+    art.render(s, tier.PLAIN, mut b)
+    var i = 0
+    while i < a.cells.len {
+        assert(grid.same(a.cells[i], b.cells[i]), "final shot is the actual spawn cell {i}")
+        i += 1
+    }
+}
