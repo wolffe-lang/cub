@@ -42,8 +42,12 @@ pub const WATER: int = 5
 /// Reeds: the water's edge, open.
 pub const REEDS: int = 6
 
-/// A rock jetty: solid on both tiers.
+/// A rock jetty, or the crags' stone: solid on both tiers.
 pub const ROCK: int = 7
+
+/// Shallows: the Ashwater where it can be waded (the Shallows' ford, cb04):
+/// open ground, but the current halves the cub's pace in it.
+pub const SHALLOWS: int = 8
 
 /// The water's edge: the river occupies world rows below `bank(x)`; the
 /// bank wanders about this row by `BANK_SWING`.
