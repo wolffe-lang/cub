@@ -2,10 +2,10 @@ tick 36 resting 1 capacity 2 level 1 meat 0 area 1 den_id 1 shortcuts 0 caches 0
 foe 0 kind 4 health 240 phase 0 since 0 x 7808 y 15488 heading 192 gap 52 last_hit -1 attack 0 poise 0
 foe 1 kind 0 health 8 phase 0 since 0 x -512 y 13568 heading 0 gap 59 last_hit -1 attack 0 poise 0
 foe 2 kind 0 health 8 phase 0 since 0 x 0 y 13568 heading 0 gap 59 last_hit -1 attack 0 poise 0
-foe 3 kind 0 health 8 phase 0 since 0 x 4608 y 34560 heading 0 gap 32 last_hit -1 attack 0 poise 0
-foe 4 kind 0 health 8 phase 0 since 0 x 5120 y 34560 heading 0 gap 34 last_hit -1 attack 0 poise 0
-foe 5 kind 0 health 8 phase 0 since 0 x -8832 y 13440 heading 0 gap 60 last_hit -1 attack 0 poise 0
+foe 3 kind 0 health 8 phase 0 since 0 x 4352 y 34560 heading 0 gap 31 last_hit -1 attack 0 poise 0
+foe 4 kind 0 health 8 phase 0 since 0 x 4864 y 34560 heading 0 gap 33 last_hit -1 attack 0 poise 0
+foe 5 kind 0 health 8 phase 0 since 0 x -8832 y 13696 heading 0 gap 59 last_hit -1 attack 0 poise 0
 foe 6 kind 0 health 8 phase 0 since 0 x -8320 y 13696 heading 0 gap 59 last_hit -1 attack 0 poise 0
-foe 7 kind 0 health 8 phase 0 since 0 x -7808 y 13696 heading 0 gap 59 last_hit -1 attack 0 poise 0
-foe 8 kind 1 health 24 phase 0 since 0 x 9600 y 34432 heading 0 gap 50 last_hit -1 attack 0 poise 0
-foe 9 kind 1 health 24 phase 0 since 0 x 8576 y 35200 heading 0 gap 46 last_hit -1 attack 0 poise 0
+foe 7 kind 0 health 8 phase 0 since 0 x -7808 y 13952 heading 0 gap 58 last_hit -1 attack 0 poise 0
+foe 8 kind 1 health 24 phase 0 since 0 x 9600 y 34688 heading 0 gap 50 last_hit -1 attack 0 poise 0
+foe 9 kind 1 health 24 phase 0 since 0 x 8576 y 34688 heading 0 gap 46 last_hit -1 attack 0 poise 0
