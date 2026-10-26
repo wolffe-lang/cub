@@ -196,7 +196,7 @@ def resumed_record(binary, ctx):
     session.finish()
     problems = []
     ctx.common_checks(session, 0, problems)
-    if 'journey 2' not in record.read_text():
+    if 'journey 3' not in record.read_text():
         problems.append('resumed recording lacks initial journey')
     cap = root / 'capture.bin'
     cap.write_bytes(session.out)
@@ -500,3 +500,76 @@ def level_look_recovery(binary, ctx):
 
 ROWS.update({'level-look-after-c': level_look_after_c,
              'level-look-recovery': level_look_recovery})
+
+def den_contact(binary, ctx):
+    """Walk from the den centre to its visible edge, enter, pause, leave.
+
+    No snapshot, teleports or numeric fixture: these bytes also run on trunk.
+    """
+    import re
+    root = Path(ctx.ROOT) / 'target/pty/den-contact'
+    root.mkdir(parents=True, exist_ok=True)
+    path = root / 'journey.save'
+    path.unlink(missing_ok=True)
+    Path(str(path) + '.pending').unlink(missing_ok=True)
+    s = ctx.Session([binary, '--seed', '7', '--save', str(path), '--tier', 'plain',
+                     '--trace', '--mute', '--no-title'], 24, 80, ctx.env_for())
+    s.type(b'?', settle=.15)
+    s.type(b'\x1b[C', settle=.35)
+    s.type(b'r', settle=.25)
+    # A resting cub must ignore movement/combat, not queue a held arrow.
+    s.type(b'\x1b[B ', settle=.25)
+    s.type(b'\x1b', settle=.20)
+    s.type(b'q')
+    s.finish()
+    problems = []
+    ctx.common_checks(s, 0, problems)
+    if not re.search(rb'r (?:or|/) Esc leave', s.out):
+        problems.append('visible den edge: r never entered the rest scene')
+    states = []
+    for line in s.err.decode().splitlines():
+        words = line.split()
+        if words[:2] == ['trace', 'tick']:
+            words = words[1:]
+            states.append(dict(zip(words[::2], map(int, words[1::2]))))
+    # New trace adds resting; the menu assertion above is baseline-compatible.
+    rested = [v for v in states if v.get('resting') == 1]
+    if rested and (len({(v['x'], v['y'], v['health'], v['action']) for v in rested}) != 1
+                   or states[-1].get('resting') != 0):
+        problems.append('rest did not pause, or Esc did not leave')
+    return s, problems
+
+
+def den_checkpoint(binary, ctx):
+    """Live replay of the ordinary den8 -> den2 walk/rest/leave and fatal hit."""
+    import re
+    root = Path(ctx.ROOT)
+    case = root / 'tests/cases/den-checkpoint.pk'
+    ticks = re.search(r'# frames (\d+)', case.read_text())[1]
+    session = ctx.Session([binary, '--replay', str(case), '--ticks', ticks,
+                           '--tier', 'plain', '--trace', '--mute', '--no-title'],
+                          24, 80, ctx.env_for())
+    session.finish()
+    problems = []
+    ctx.common_checks(session, 0, problems)
+    states = []
+    for line in session.err.decode().splitlines():
+        words = line.split()
+        if words[:2] == ['trace', 'tick']:
+            words = words[1:]
+            states.append(dict(zip(words[::2], map(int, words[1::2]))))
+    if not states:
+        problems.append('checkpoint trace missing')
+    else:
+        final = states[-1]
+        if not any(v.get('resting') == 1 and v['den_id'] == 2 for v in states):
+            problems.append('did not rest at den2')
+        if (final['area'], final['den_id'], final['x'], final['y'], final['deaths'], final['mark_area']) != (1, 2, 3968, 23680, 1, 1):
+            problems.append('death failed to wake at den2 with its mark in the death area')
+        if final['mark'] != 1 or final['health'] != 52:
+            problems.append('death mark or rest healing missing')
+    return session, problems
+
+
+ROWS['den-contact'] = den_contact
+ROWS['den-checkpoint'] = den_checkpoint

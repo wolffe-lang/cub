@@ -373,6 +373,29 @@ def readable(root):
     print('gameplay: every path under', root, 'readable')
 
 
+def den_progression(binary):
+    census = subprocess.run([str(binary), '--den-census'], capture_output=True, text=True, check=True)
+    (OUT / 'den-census.txt').write_text(census.stdout)
+    assert '100 den paths, 400 gate-face-tier rows, 0 skips' in census.stdout
+    for tier in ('rich', 'plain'):
+        _, states, _ = run(binary, 'den-checkpoint', tier)
+        final = states[max(states)]
+        assert any(v['resting'] == 1 and v['den_id'] == 2 for v in states.values()), 'den2 not entered'
+        assert (final['area'], final['den_id'], final['x'], final['y'], final['deaths']) == (1, 2, 3968, 23680, 1), 'wrong death checkpoint'
+        assert final['mark'] == 1 and final['mark_area'] == 1 and final['health'] == 52
+        _, spring, _ = run(binary, 'spring-found', tier)
+        assert spring[max(spring)]['capacity'] == 2, 'first spring not found through real keys'
+        assert any(v['capacity'] == 0 for v in spring.values()), 'spring fixture started already equipped'
+        _, drink, _ = run(binary, 'spring-drink', tier)
+        last = drink[max(drink)]
+        assert last['capacity'] == 2 and last['flasks'] == 1 and last['health'] == 52
+        assert any(v['action'] == 5 for v in drink.values()), 'water never animated'
+        _, refill, _ = run(binary, 'water-refill', tier)
+        last = refill[max(refill)]
+        assert last['resting'] == 1 and last['flasks'] == 2
+    print('gameplay: den entry, checkpoint, spring/drink/refill and 50-seed censuses green')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--bin', required=True)
@@ -383,6 +406,7 @@ def main():
     bosses(Path(args.bin).resolve())
     ghosts(Path(args.bin).resolve())
     fairness(Path(args.bin).resolve())
+    den_progression(Path(args.bin).resolve())
 
     feel(Path(args.bin).resolve())
     level_look(Path(args.bin).resolve())
