@@ -191,3 +191,31 @@ black. Bramblehold still hides unseen creatures, but no longer erases
 distant terrain. The texture census uses the same terrain renderer as the
 actual frame, before deliberate HUD/actor overlays, over every camera
 position of every area at both fields and on both tiers.
+
+## The bosses, the wolf and the ghosts (cb04, 2026-10-26)
+
+`boss-rich`, `boss-plain`, `wolf-rich` and `wolf-plain` in the art goldens are the sheets. Each boss is an
+original bitmap at two by four pixels a cell (the silhouette rule, R-cb02b-2 A), drawn facing north and
+turned for the other facings, its body the drawing's rectangle: the boar 12×24 (six cells by six), the
+lynx 10×20, the elk 14×28, the shadow alpha 12×24. Postures by phase: hunting, the windup (the body
+drawn back, the boar's head down, the lynx flat, the elk's rack lowered, the alpha's hackles up), the
+strike (stretched along its line), the recovery and the stagger (the body sagging); phase two marks the
+posture (the boar's foam, the lynx's bared teeth, the elk's lowered rack held, the alpha's eyes). The alpha
+alone has eyes: `●` U+25CF in red 196, dark the rest of it. A beaten boss erodes over 45 ticks at two
+fade stages (15, 30), as the foes do. Colours: the boar 130, the lynx 179, the elk 145, the alpha 244
+(plain 1, 3, 7, 8). The bar on row 1 is text in the HUD's ink with the filled cells in the boss's colour.
+
+The wolf is the cub grown one size (12×24): the end's three frames draw it crossing the ford on the far
+bank's side, the pack's four silhouettes waiting above the water, and after the end the cub is drawn as
+the wolf everywhere, with the cub's poses.
+
+A ghost is the cub's own silhouette in a dim grey by rank (251, 248, 245, 242, 239 with the dim
+attribute; plain `x`, 7 for the newest then 8), standing at the death spot in the death's facing; within
+eight cells it is drawn frame by frame from the archive's trailer (the recorded facing and pose, the
+legs alternating), through the same `draw_pose_in` as the cub, so a ghost never draws a glyph the cub
+cannot. No ghost is drawn where no death was: an empty archive, or another world's, draws nothing
+(`tools/gameplay.py`, `ghosts`).
+
+The title is a composition of its own: the name, the four boss silhouettes in a row (dim until beaten,
+lit in their colours after), their names, the key rows and "any key begins"; the river's `≈` scatter is its
+border. The end card is text alone, centred.
