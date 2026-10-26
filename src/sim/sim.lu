@@ -3564,7 +3564,7 @@ fn combo_motion(mut s: Sim) {
     var forward = 0
     var side = 0
     if s.combo == 3 {
-        if age == 3 || age == 4 { forward = FP }
+        if age == 3 || age == 4 { forward = 0 }
     } else {
         let sign = if s.combo == 1 then -1 else 1
         if age == 3 { forward = FP / 4; side = sign * COMBO_LEAN }
