@@ -1,0 +1,74 @@
+//! Original tuck-and-turn drawings and subcell combat translation.
+
+use grid
+use silhouette
+
+/// A compact curled cub, alternating tuck/extension, turned through a roll.
+pub fn roll(frame: int) -> silhouette.Bitmap {
+    let b = if frame % 2 == 0 {
+        silhouette.parse(
+            [
+                "..##....",
+                ".#####..",
+                "##..###.",
+                "##...###",
+                "###..###",
+                ".######.",
+                "..####..",
+                "...##...",
+            ],
+        )
+    } else {
+        silhouette.parse(
+            [
+                "...##...",
+                "..####..",
+                ".######.",
+                "###..###",
+                "##...###",
+                ".##.###.",
+                "..####..",
+                "....##..",
+            ],
+        )
+    }
+    silhouette.turned(b, frame / 2 % 4)
+}
+
+/// Translate a turned bitmap in 1/2-column,1/4-row pixels. Signed rounding
+/// is symmetric, so a negative half-cell cannot swallow its positive twin.
+pub fn shifted(
+    mut g: grid.Grid,
+    row: int,
+    col: int,
+    b: silhouette.Bitmap,
+    facing: int,
+    dx: int,
+    dy: int,
+    style: grid.Cell,
+) {
+    let turned = silhouette.turned(b, facing)
+    let (ar, ac) = silhouette.anchor(b, facing)
+    let px = if dx < 0 then 0 - ((0 - dx) * 2 + 128) / 256 else (dx * 2 + 128) / 256
+    let py = if dy < 0 then 0 - ((0 - dy) * 4 + 128) / 256 else (dy * 4 + 128) / 256
+    // A four-cell margin covers the committed two-cell leap too.
+    let w = turned.w + 16
+    let h = turned.h + 32
+    var pixels = List[int]()
+    var y = 0
+    while y < h {
+        var x = 0
+        while x < w {
+            (mut pixels).push(silhouette.at(turned, y - 16 - py, x - 8 - px))
+            x += 1
+        }
+        y += 1
+    }
+    silhouette.draw(
+        mut g,
+        row + ar - 4,
+        col + ac - 4,
+        silhouette.Bitmap { w: w, h: h, px: pixels },
+        style,
+    )
+}
