@@ -156,11 +156,12 @@ pub fn from_replay(r: replay.Replay, name: str) -> Ghost ! {none} {
     }
 }
 
-/// Every `.pk` under `dir` with a trailer, the newest `SHOWN` by serial
-/// (then by name), newest first. A file that is not a cub replay or has
-/// no trailer is skipped and named on standard error; a directory that
-/// cannot be read is no ghosts.
-pub fn load(dir: str) -> Set {
+/// Every `.pk` under `dir` with a trailer from the world of `seed`, the
+/// newest `SHOWN` by serial (then by name), newest first. A file that is
+/// not a cub replay, has no trailer or is another world's death (its
+/// positions mean nothing here) is skipped and named on standard error; a
+/// directory that cannot be read is no ghosts.
+pub fn load(dir: str, seed: int) -> Set {
     var set = empty()
     if dir == "" { return set }
     let names = fs.read_dir(dir) else |_| { return set }
@@ -175,6 +176,10 @@ pub fn load(dir: str) -> Set {
         }
         let r = replay.from_text(text, controls.vocab()) else |_| {
             eprint("cub: ghost {path}: not a cub replay, skipped")
+            continue
+        }
+        if r.seed != seed {
+            eprint("cub: ghost {path}: another world's death (seed {r.seed}), skipped")
             continue
         }
         let g = from_replay(r, n) else {
@@ -204,7 +209,7 @@ fn sort_names(mut xs: List[str]) {
 
 /// Put `g` into the set by rank (higher serial first, then the later
 /// name), keeping `SHOWN`.
-fn insert(mut set: Set, g: Ghost) {
+pub fn insert(mut set: Set, g: Ghost) {
     var at = set.ghosts.len
     var i = 0
     while i < set.ghosts.len {

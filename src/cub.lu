@@ -363,7 +363,7 @@ fn run_headless(o: Options, args: List[str]) -> int {
     // goldens' cases carry committed deaths).
     let shown_dir = if o.ghost_dir != "" then o.ghost_dir else script_ghost_dir(o)
     var extra = art.extra_none()
-    extra.ghosts = ghost.load(shown_dir)
+    extra.ghosts = ghost.load(shown_dir, s.seed)
     var history = ghost.history()
     let demo_r = demo.load()
     var demo_tick = 0
@@ -387,7 +387,7 @@ fn run_headless(o: Options, args: List[str]) -> int {
             archived = s.deaths
             if o.ghost_dir != "" {
                 write_ghost(r, s, history, o.ghost_dir) else |_| { return 2 }
-                extra.ghosts = ghost.load(o.ghost_dir)
+                extra.ghosts = ghost.load(o.ghost_dir, s.seed)
             }
         }
         if o.trace { eprint(state_text(s)) }
@@ -699,7 +699,7 @@ fn run_live(o: Options, args: List[str]) -> int {
         (env.get("HOME") else ".") + "/.cub/ghosts"
     }
     var extra = art.extra_none()
-    extra.ghosts = ghost.load(ghost_dir)
+    extra.ghosts = ghost.load(ghost_dir, s.seed)
     var history = ghost.history()
     let demo_r = demo.load()
     var demo_tick = 0
@@ -856,11 +856,11 @@ fn run_live(o: Options, args: List[str]) -> int {
                     ended = "a failed death archive"
                     quit = true
                 }
-                if !ghost_error { extra.ghosts = ghost.load(ghost_dir) }
+                if !ghost_error { extra.ghosts = ghost.load(ghost_dir, s.seed) }
             }
             if o.trace {
                 eprint(
-                    "trace tick {s.tick} action {s.action} aim {s.attack_heading} combo {s.combo} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} wall_us {(clock.now_ns() - t0_ns) / 1000}",
+                    "trace tick {s.tick} action {s.action} aim {s.attack_heading} combo {s.combo} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} scene {s.scene} demo {if extra.demo_on then 1 else 0} wall_us {(clock.now_ns() - t0_ns) / 1000}",
                 )
                 trace_bytes = 0
             }
