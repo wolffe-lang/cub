@@ -49,6 +49,16 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+258C | ▌ | LEFT HALF BLOCK | Block Elements | E2 96 8C | a silhouette cell lit on the left |
 | U+2590 | ▐ | RIGHT HALF BLOCK | Block Elements | E2 96 90 | a silhouette cell lit on the right |
 | U+2591 | ░ | LIGHT SHADE | Block Elements | E2 96 91 | a gravel mark, a jetty face, a log grain |
+| U+2596 | ▖ | QUADRANT LOWER LEFT | Block Elements | E2 96 96 | den volume and fire |
+| U+2597 | ▗ | QUADRANT LOWER RIGHT | Block Elements | E2 96 97 | den volume and fire |
+| U+2598 | ▘ | QUADRANT UPPER LEFT | Block Elements | E2 96 98 | den volume and fire |
+| U+2599 | ▙ | QUADRANT UPPER LEFT AND LOWER LEFT AND LOWER RIGHT | Block Elements | E2 96 99 | den volume and fire |
+| U+259A | ▚ | QUADRANT UPPER LEFT AND LOWER RIGHT | Block Elements | E2 96 9A | den volume and fire |
+| U+259B | ▛ | QUADRANT UPPER LEFT AND UPPER RIGHT AND LOWER LEFT | Block Elements | E2 96 9B | den volume and fire |
+| U+259C | ▜ | QUADRANT UPPER LEFT AND UPPER RIGHT AND LOWER RIGHT | Block Elements | E2 96 9C | den volume and fire |
+| U+259D | ▝ | QUADRANT UPPER RIGHT | Block Elements | E2 96 9D | den volume and fire |
+| U+259E | ▞ | QUADRANT UPPER RIGHT AND LOWER LEFT | Block Elements | E2 96 9E | den volume and fire |
+| U+259F | ▟ | QUADRANT UPPER RIGHT AND LOWER LEFT AND LOWER RIGHT | Block Elements | E2 96 9F | den volume and fire |
 | U+25CF | ● | BLACK CIRCLE | Geometric Shapes | E2 97 8F | the shadow alpha's eye; scent core, spring glint, bone and stepping stones |
 | U+2801 | ⠁ | BRAILLE PATTERN DOTS-1 | Braille Patterns | E2 A0 81 | a silhouette cell (braille of its lit pixels) |
 | U+2802 | ⠂ | BRAILLE PATTERN DOTS-2 | Braille Patterns | E2 A0 82 | a silhouette cell (braille of its lit pixels) |

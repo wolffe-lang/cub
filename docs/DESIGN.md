@@ -687,3 +687,106 @@ hard-to-find one-cell dot in its second half. `--look-audit` is a
 50-seed both-tier camera walk over every route row and every cache,
 shortcut and former label site, not a claim that the camera was moved
 there by player keys; the gameplay and pty rows test that separate path.
+
+## Dens, levels and found water (cb04a, 2026-10-26)
+
+This section supersedes the older den reach, linear growth cost, stat cap,
+starting water and save-schema descriptions above. Movement and the bars
+are unchanged.
+
+The split roots (den1) now lie on Bramblehold's downstream switchback,
+rows114–117, rather than rows7–10. `cub --den-census` floods the actual tiles
+from the entrance, independently of the centreline formula, over seeds0–49
+at fields80/200. It requires entrance-to-den distance to be at least a third
+of both entrance-to-exit distance and centreline length.
+
+Within three cells of a den's centre, `r rest` appears. `r` enters the
+full-screen rest scene, heals, refills found water and resets encounters;
+`r` or Esc leaves without resting a second time. The world does not advance
+while the scene is open. Arrows and attacks there are ignored rather than
+saved as held movement. The three-cell centre radius is deliberately not
+the pickup body's contact ring. Death and save resume share `sim.wake`:
+the last den rested at, with fresh encounters. The death mark stays at the
+death's area and position; a second death replaces it (R-CB-1).
+
+The basic rest, five-stat growth, water action and last-den respawn already
+existed. The inaccessible interaction was a one-cell centre radius under a
+four-by-four (or eight-by-two) cub drawing. A visible-edge `r` never rested,
+so it never updated `last_den`; death correctly returned to the still-current
+start. Water started at three but had no field charge display or discovery.
+The live `den-contact` and `den-checkpoint` rows distinguish entry from wake.
+
+### Shared levels
+
+R-cb04a-1 A recommendation: keep heart, wind, fang, paw, nose. Each starts1,
+soft cap10, hard cap40. Total level starts1 and is `sum(stats)-4`.
+
+| stat | effect through10 | after10 |
+|---|---|---|
+| heart | `40 + 12*h` health | +3 per point |
+| wind | `60 + 10*w` stamina | +2 per point |
+| fang | `6 + 2*f` bite | +1 every two points |
+| paw | `round((36 + 2*p)*WALK_PERCENT/100)` FP/tick | +1 unscaled FP every two points, then the same pace dial |
+| nose | `8 + 2*n` scent visibility cells | +1 cell every two points |
+
+The smaller lock radius is `8 + min(n,10) + max(n-10,0)/4` cells; dodge's
+secondary paw bonus is `6 + min(p,10)/2 + max(p-10,0)/8` ticks. Integer
+plateaus are shown honestly in each stat's next effect. Growth only spends
+inside the den; an unaffordable or capped choice spends nothing.
+
+R-cb04a-2 A recommendation: a single shared purchase sequence, not five
+independent prices. With current level L>=12,
+`cost(L)=round((0.02*L^3 + 3.06*L^2 + 105.6*L - 895)/20)`.
+Thus **k=0.05**. This is the published Dark Souls level-cost number series
+used as a shape, not game code or assets (reference: Dark Souls Wikidot,
+“Soul Level”, https://darksouls.wikidot.com/soul-level). Cub's own table
+below12 joins the cubic; first purchase costs three8-scent weasels.
+Rounding is positive integer half-up, identical on both backends.
+
+| current L | cost to L+1 | current L | cost to L+1 |
+|---:|---:|---:|---:|
+|1|24|11|40|
+|2|25|12|42|
+|3|26|13|52|
+|4|27|14|62|
+|5|28|15|72|
+|6|30|16|83|
+|7|32|17|94|
+|8|34|18|106|
+|9|36|19|118|
+|10|38|20|130|
+
+Schema4 keeps the prior boss/mark/cache/den fields and adds `level N`.
+Growth is1..40, capacity is0,2 or3, and the level must agree with the five
+stats. Schema1/2/3 are `save_version` by name, never reset into a new run.
+Recordings use `journey 3`, `saved-0` through `saved-29`. The level is
+redundant by design so malformed progression is rejected.
+
+### Healing
+
+R-cb04a-3 A recommendation: both found water and meat. Start with no charges.
+The first spring is on the Shingle route at local row24; touching it teaches
+water and grants two mouthfuls. The later spring at Larkmeadow row72 upgrades
+two to three. Each discovery is finite, represented by capacity0/2/3; the
+later upgrade needs the first. Every rest refills that found capacity.
+`w` spends a charge immediately, prepares for15 ticks, then heals40 over15
+more ticks. A hit interrupts the remaining animation and healing; no refund.
+Ordinary kills leave meat alongside scent:10 immediate health, clamped to
+the heart cap, once per pickup, expiring after300 ticks. Bosses leave no meat.
+
+`art.draw_water` occupies row3, columns24–48, on both tiers, clear of the
+health/stamina bars and the boss's row1. Before discovery it says to find a
+spring. `sim.healing_pickups` is the only collection path; pickup drawings
+are pure and owned by the in-level art pass.
+
+### The thorn boundary
+
+There is one thorn gate, edge0, with two visible faces. The closed five-cell
+throat is flanked by solid forest; an opened gate keeps torn thorn flanks
+and a clear five-cell gap on both sides. The bit and lunge rule are unchanged.
+History shows `f50b9c167658a9de7ba82d8cb19e25f7408348f8` (cb02), not cb03a
+or cb04, removed the opened wall's drawing and moved the wall from start+10
+to start+157. The intact closed gate was never deleted. R-cb04a-4 A restores
+the persistent boundary without adding another progression barrier.
+The census checks every gate face/tier on every seed, closed collision and
+glyph presence, open passage and remaining flanks.

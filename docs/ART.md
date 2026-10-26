@@ -302,3 +302,31 @@ pickup's logical position. The progression lane owns meat/spring spawning,
 healing and collection; the second landing wires these helpers in place
 of its temporary `+` and `~`, using the shared body-ring pickup helper.
 The water-charge HUD slot is reserved at row 3, columns 24–48 on both tiers.
+
+## Rest interiors (cb04a)
+
+A den replaces the scrolling field with an original side view of the cub
+lying toward a small fire. Its long back, haunch, lowered muzzle, pointed
+ears, closed eye and extended forepaws are a separate drawing, not a scaled
+map sprite. `restscene.cub_pixel` samples volume into half/quadrant cells;
+`fur_light` shades the fire-facing muzzle brighter than the rump and the
+underside. The shoulder follows `sim.breath`, the field posture's phase.
+The fire has four seven-tick frames and a small rising ember. Plain mode
+uses a simpler ASCII contour with the same breath and fire phases.
+
+Surroundings are region-specific: a low rock overhang with blue water for
+the Shingle; an enclosing thorn hollow for Bramblehold; gold hillside and
+thin gangly trees against the sky for Larkmeadow; cold angled ledges in the
+Teeth; reeds and blue river light in the Shallows; dark old roots and scent
+marks in Gravehollow. Sea colour is visual atmosphere, not a new sound loop.
+The same cub and fire sit in all six. The lower ten rows hold the stat
+choices and next effects, scent, shared level cost, healing and save state.
+
+`rest-{shingle,bramblehold,larkmeadow,teeth,shallows,old-den}-{80x24,120x40}`
+are the twelve case names, each rendered rich/plain. Seven-tick samples pin
+fire animation as well as the thirty-sixth tick's inhale. The rich glyph
+repertoire adds the side-view quadrants and vertical half blocks.
+
+The thorn gate now remains visible when opened: dim torn flanks either side
+of a five-cell passage. Both faces of edge0 draw the same boundary; the
+opening never draws a closed collision glyph across the passage.

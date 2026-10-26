@@ -110,3 +110,13 @@ Meat is salmon 210 with white bone and glints 231 (plain 12/15). A
 spring's stone is 250 while available and 242 afterwards (plain 15/8),
 with cyan 117 water (plain 14) and a white glint. Availability is also
 shown by the spout/ripples versus the empty dotted basin.
+
+## Rest-scene light (cb04a)
+
+The regional rich backgrounds are Shingle17, Bramblehold233, Larkmeadow60,
+Teeth236, Shallows23 and Gravehollow232. Plain uses blue4 for coast/river,
+black0 elsewhere. The cub's distance-shaded fur steps through95,137,180,223
+from dark rump to warm muzzle. Fire tips166, body214, heart229, ember208;
+plain red9/yellow11. Text250 (plain7) stays clear of the animation. These
+colours belong only to the rest scene; the existing bars are untouched.
+The charge display is117 (plain14) on235 (plain0).

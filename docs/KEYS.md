@@ -71,3 +71,19 @@ padding: the `c` in the former bones label could sit beside stamina. This
 is independent of the key's meaning. The `level-look-after-c` pty row types
 byte `63`, checks that terminal echo is disabled, and compares the live
 frame to its recorded replay at both sizes and tiers.
+
+## Den and water interaction (cb04a)
+
+Within three cells of a den centre the bottom line says `r rest`. Press
+`r` to enter its rest scene; `r` or Esc leaves. Arrows, attacks and drink
+keys do nothing inside, and do not leave movement held on exit. Keys1–5
+spend the displayed shared next-level cost on heart/wind/fang/paw/nose;
+each row shows its value and next effect. Growth is not available outside.
+
+Water must first be found at the Shingle spring. The counter at row3 beside
+the bars says `Water n/cap  w drink`, or `Water 0/0 - find a spring` before
+learning. `w` spends one immediately and heals during the second half of
+its one-second animation; a hit interrupts it. Rests refill found capacity.
+Meat from ordinary kills is collected and heals immediately, without a key.
+`den-contact` injects real arrow/r/Esc bytes at the visible den edge;
+`den-checkpoint` plays the recorded den2 walk/rest/death/wake through a pty.

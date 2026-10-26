@@ -127,3 +127,28 @@ census separately isolates each ground species with100 health to observe
 a hit without deleting the body; it preserves default cub stats and uses
 only movement, c and Space after that disclosed setup. Hawks still require
 parry, not a ground chase.
+
+## cb04a: progression (schema4, `journey 3`)
+
+Current recordings use `journey 3` and thirty values, `saved-0` through
+`saved-29`. Slot29 is the total level, checked against the five stats.
+Slot7 is discovered water capacity0/2/3, not an unconditional three.
+Older journey snapshots fail `save_version`; scripts without a snapshot
+still start a fresh cub. Versioned save files similarly refuse schema1–3.
+No key opcode changes: rest/heart/wind/fang/paw/nose/water keep their words.
+
+`--make-den-proof DIR` writes the six regional rest scenes at both sizes,
+`den-checkpoint`, `spring-drink` and `water-refill`. Scene fixtures explicitly
+start at the named den with two found mouthfuls and100 scent; they do not
+claim to prove discovery. `den-checkpoint` starts at den8, walks to den2's
+contact edge with ordinary keys, enters/leaves, walks away, then uses a
+single disclosed fatal health delta. Its death mark and wake are asserted
+through both headless and live replay. The spring/drink/refill scripts
+start fresh, reach the first spring with keys, use a disclosed30-health hit,
+drink, and return to rest. `spring-found` is the long world witness's actual
+first discovery. The fox theft witness also walks to the spring first.
+
+The live trace and `final.state` include `resting`, `capacity`, `level` and
+`meat` as applicable; these are observations, not input events. The
+`den-contact` pty row needs no fixture at all, and fails on the older
+one-cell interaction range with the same injected arrow/r/Esc bytes.
