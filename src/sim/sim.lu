@@ -2317,6 +2317,7 @@ pub fn enter_area(mut s: Sim, area: int, x: int, y: int) {
     s.y = y
     s.entered = s.tick
     s.edge_ready = false
+    s.slain[area] = 0
     restore_foes(mut s)
     s.drops = copy s.away_loot[area].drops
     s.meat = copy s.away_loot[area].meat
