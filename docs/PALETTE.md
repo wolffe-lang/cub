@@ -105,3 +105,8 @@ rather than painting a solid tile. Shape and animation distinguish it
 from the thin ground scent trail, even without colour. Closed bundles
 use 229 (plain 15) rather than fur ink; inland cache contents alternate
 229 and 220 (plain 15), with glints every 24 ticks.
+
+Meat is salmon 210 with white bone and glints 231 (plain 12/15). A
+spring's stone is 250 while available and 242 afterwards (plain 15/8),
+with cyan 117 water (plain 14) and a white glint. Availability is also
+shown by the spout/ripples versus the empty dotted basin.

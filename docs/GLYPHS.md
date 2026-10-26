@@ -34,8 +34,8 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+00B7 | · | MIDDLE DOT | Latin-1 Supplement | C2 B7 | a gravel mark |
 | U+2024 | ․ | ONE DOT LEADER | General Punctuation | E2 80 A4 | a gravel mark |
 | U+2248 | ≈ | ALMOST EQUAL TO | Mathematical Operators | E2 89 88 | a ripple on the Ashwater |
-| U+2500 | ─ | BOX DRAWINGS LIGHT HORIZONTAL | E2 94 80 | health and stamina outline |
-| U+2502 | │ | BOX DRAWINGS LIGHT VERTICAL | E2 94 82 | health and stamina outline |
+| U+2500 | ─ | BOX DRAWINGS LIGHT HORIZONTAL | E2 94 80 | health and stamina outline; landmark timber and spring basin |
+| U+2502 | │ | BOX DRAWINGS LIGHT VERTICAL | E2 94 82 | health and stamina outline; landmark timber and spring basin |
 | U+2503 | ┃ | BOX DRAWINGS HEAVY VERTICAL | Box Drawing | E2 94 83 | a trunk |
 | U+250C | ┌ | BOX DRAWINGS LIGHT DOWN AND RIGHT | E2 94 8C | health and stamina outline |
 | U+2510 | ┐ | BOX DRAWINGS LIGHT DOWN AND LEFT | E2 94 90 | health and stamina outline |
@@ -49,7 +49,7 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+258C | ▌ | LEFT HALF BLOCK | Block Elements | E2 96 8C | a silhouette cell lit on the left |
 | U+2590 | ▐ | RIGHT HALF BLOCK | Block Elements | E2 96 90 | a silhouette cell lit on the right |
 | U+2591 | ░ | LIGHT SHADE | Block Elements | E2 96 91 | a gravel mark, a jetty face, a log grain |
-| U+25CF | ● | BLACK CIRCLE | Geometric Shapes | E2 97 8F | the shadow alpha's eye |
+| U+25CF | ● | BLACK CIRCLE | Geometric Shapes | E2 97 8F | the shadow alpha's eye; scent core, spring glint, bone and stepping stones |
 | U+2801 | ⠁ | BRAILLE PATTERN DOTS-1 | Braille Patterns | E2 A0 81 | a silhouette cell (braille of its lit pixels) |
 | U+2802 | ⠂ | BRAILLE PATTERN DOTS-2 | Braille Patterns | E2 A0 82 | a silhouette cell (braille of its lit pixels) |
 | U+2803 | ⠃ | BRAILLE PATTERN DOTS-12 | Braille Patterns | E2 A0 83 | a silhouette cell (braille of its lit pixels) |
