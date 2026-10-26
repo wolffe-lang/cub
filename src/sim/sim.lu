@@ -862,7 +862,7 @@ pub fn bite_damage(fang: int) -> int { 6 + 2 * base_stat(fang) + extra_stat(fang
 
 /// Invulnerable ticks at this paw level (integer division).
 pub fn dodge_iframes(paw: int) -> int {
-    if paw >= 10 then 12 else if paw >= 5 then 11 else 10
+    if paw >= 10 then 12 else if paw >= 5 then 11 else 9
 }
 
 /// Absolute value for bounded world coordinates.
