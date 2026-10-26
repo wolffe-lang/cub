@@ -2164,7 +2164,10 @@ pub fn restore_foes(mut s: Sim) {
     var i = 0
     while i < s.foes.len {
         if !is_boss(s.foes[i].kind) {
-            if s.slain[s.area] / bit % 2 == 1 { s.foes[i].health = 0 }
+            if s.slain[s.area] / bit % 2 == 1 {
+                s.foes[i].health = 0
+                s.foes[i].died = s.tick - DROP_TICKS
+            }
             bit *= 2
         }
         i += 1
