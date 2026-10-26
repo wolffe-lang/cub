@@ -1,0 +1,49 @@
+# Bristle — the boar of the thicket: drum and timpani under a trombone, D minor.
+# Original, cb03 (2026-10-26). 8 bars of 4/4 at 120: 16 s, a loop. cb04 wires it.
+title Bristle
+cue replace fade 6
+tempo 120
+meter 4/4
+part hoof drum mf pan -10
+part hide timpani mp pan 10
+part tusk trombone mf pan 0
+part thicket strings mp pan -30
+bar 1
+hoof C2/4 C2/8 C2/8 C2/4 r/4
+hide D2/4 r/4 D2/8 D2/8 r/4
+tusk D3/4> r/4 D3/8 F3/8 E3/4
+thicket D3,A3/2* D3,A3/2*
+bar 2
+hoof C2/4 C2/8 C2/8 C2/4 C2/8 C2/8
+hide D2/4 r/4 A1/4 r/4
+tusk D3/4> r/4 F3/8 G3/8 F3/4
+thicket D3,A3/2* C3,G3/2*
+bar 3
+hoof C2/4 C2/8 C2/8 C2/4 r/4
+hide Bb1/4 r/4 Bb1/8 Bb1/8 r/4
+tusk Bb2/4> r/4 Bb2/8 D3/8 C3/4
+thicket Bb2,F3/2* Bb2,F3/2*
+bar 4
+hoof C2/4 C2/8 C2/8 C2/8 C2/8 C2/4
+hide A1/4 A1/4 A1/4 A1/4
+tusk A2/2^ A2/4' A2/4'
+thicket A2,E3/2* A2,E3/4* r/4
+bar 5
+hoof C2/4 C2/8 C2/8 C2/4 r/4
+hide D2/4 r/4 D2/8 D2/8 r/4
+tusk D3/4> E3/4 F3/4 G3/4
+thicket D3,A3/2* F3,C4/2*
+bar 6
+hoof C2/4 C2/8 C2/8 C2/4 C2/8 C2/8
+hide D2/4 r/4 A1/4 r/4
+tusk A3/2> G3/4 F3/4
+thicket A3,E4/2* G3,D4/2*
+bar 7
+hoof C2/4 C2/8 C2/8 C2/4 r/4
+hide Bb1/4 r/4 Bb1/8 Bb1/8 r/4
+tusk E3/4> F3/4 E3/4 D3/4
+thicket E3,Bb3/2* D3,A3/2*
+bar 8
+hoof C2/4 C2/4 r/2
+tusk D3/2 r/2
+thicket D3,A3/2* r/2

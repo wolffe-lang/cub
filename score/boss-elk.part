@@ -1,0 +1,49 @@
+# The Ford Runs High — the elk of the river: C minor horns over tremolo, timpani.
+# Original, cb03 (2026-10-26). 8 bars of 4/4 at 96: 20 s, a loop. cb04 wires it.
+title The Ford Runs High
+cue replace fade 6
+tempo 96
+meter 4/4
+part antler horn f pan -15
+part water strings mp pan 25
+part ford trombone mf pan 0 gain -3
+part hoof timpani mp pan -20
+bar 1
+antler C4/2 Eb4/4 G4/4
+water C4,G4/1*
+ford C3/2 r/2
+hoof C2/4 r/4 C2/4 r/4
+bar 2
+antler F4/2. Eb4/4
+water Ab3,Eb4/1*
+ford Ab2/2 r/2
+hoof Ab1/4 r/4 Ab1/4 r/4
+bar 3
+antler D4/2 F4/4 Ab4/4
+water Bb3,F4/1*
+ford Bb2/2 r/2
+hoof Bb1/4 r/4 Bb1/4 r/4
+bar 4
+antler G4/1~
+water G3,D4/1*
+ford G2/2 r/2
+hoof G1/4 r/4 G1/8 G1/8 r/4
+bar 5
+antler G4/4 C5/2 Bb4/4
+water C4,Eb4/1*
+ford C3/2 r/2
+hoof C2/4 r/4 C2/4 r/4
+bar 6
+antler Ab4/2 G4/4 F4/4
+water Ab3,C4/1*
+ford Ab2/2 r/2
+hoof Ab1/4 r/4 Ab1/4 r/4
+bar 7
+antler Eb4/2 D4/4 Bb3/4
+water Bb3,D4/1*
+ford Bb2/2 r/2
+hoof Bb1/4 r/4 Bb1/4 r/4
+bar 8
+antler C4/2. r/4
+water C4,G4/2. r/4
+ford C3/2 r/2

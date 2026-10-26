@@ -1,0 +1,23 @@
+# Embers — a den's rest: harp and flute settle on D, a short loop.
+# Original, cb03 (2026-10-26). 4 bars of 3/4 at 72: 10 s, a loop.
+title Embers
+cue replace fade 6
+tempo 72
+meter 3/4
+part glow harp mp pan -20
+part warm flute p pan 25
+part hush strings p pan 10
+bar 1
+glow D3/4 A3/4 F4/4
+hush D3,A3/2.~
+bar 2
+glow A3/4 D4/4 F4/4
+warm A4/2 F4/4
+hush D3,A3/2.
+bar 3
+glow G3/4 D4/4 Bb3/4
+warm G4/2.-
+hush G3,D4/2.~
+bar 4
+warm F4/2 r/4
+hush G3,D4/2 r/4

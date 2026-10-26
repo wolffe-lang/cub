@@ -1,0 +1,70 @@
+# Larks over Long Grass — Larkmeadow: F major, an oboe over strings and harp.
+# Original, cb03 (2026-10-26). 16 bars of 3/4 at 120: 24 s, a loop.
+title Larks over Long Grass
+cue replace fade 9
+tempo 120
+meter 3/4
+part lark oboe mf pan 15
+part grass strings mp pan -25
+part sway harp mp pan 30
+bar 1
+grass F3,C4/2.
+sway F3/4 A3/4 C4/4
+bar 2
+grass F3,C4/2.
+sway F3/4 C4/4 A3/4
+bar 3
+lark A4/2 C5/4
+grass D3,A3/2.
+sway D3/4 F3/4 A3/4
+bar 4
+lark Bb4/2 A4/4
+grass Bb2,F3/2.
+sway Bb2/4 F3/4 D4/4
+bar 5
+lark G4/2 F4/4
+grass C3,G3/2.
+sway C3/4 G3/4 E4/4
+bar 6
+lark E4/2 F4/4
+grass C3,G3/2.
+sway C3/4 E4/4 G3/4
+bar 7
+lark A4/4 C5/4 D5/4
+grass F3,C4/2.
+sway F3/4 A3/4 C4/4
+bar 8
+lark C5/2.~
+grass F3,A3/2.
+sway F3/4 C4/4 A3/4
+bar 9
+lark C5/4 A4/4 F4/4
+grass D3,A3/2.
+sway D3/4 F3/4 A3/4
+bar 10
+lark G4/2 E4/4
+grass C3,G3/2.
+sway C3/4 G3/4 E4/4
+bar 11
+lark F4/2 D4/4
+grass Bb2,F3/2.
+sway Bb2/4 F3/4 D4/4
+bar 12
+lark E4/2 C4/4
+grass C3,G3/2.
+sway C3/4 E4/4 G3/4
+bar 13
+lark F4/4 A4/4 C5/4
+grass F3,C4/2.
+sway F3/4 A3/4 C4/4
+bar 14
+lark D5/2 C5/4
+grass Bb2,F3/2.
+sway Bb2/4 F3/4 D4/4
+bar 15
+lark A4/2 G4/4
+grass C3,G3/2.
+sway C3/4 G3/4 E4/4
+bar 16
+lark F4/2 r/4
+grass F3,C4/2 r/4

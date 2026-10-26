@@ -1,0 +1,17 @@
+# Fallen — the death sting: a struck chord falling to nothing, a tam-tam, a last breath.
+# Original, cb03 (2026-10-26). 1 bar of 4/4 at 60 and two silent bars: 12 s, once.
+title Fallen
+cue replace fade 3
+tempo 60
+meter 4/4
+part fall strings ff pan 0
+part gong tamtam mf pan 0
+part last flute mp pan 20
+bar 1
+fall sfz D3,Ab3/4 > D3,G3/2. pp
+gong C3/4 r/2.
+last r/4 F4/4 E4/8 Eb4/8 D4/4-
+bar 2
+fall r/1
+bar 3
+fall r/1

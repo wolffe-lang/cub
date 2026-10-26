@@ -1,0 +1,46 @@
+# Under the Thorn — Bramblehold: D minor with a raised Eb, low tremolo, a reed.
+# Original, cb03 (2026-10-26). 10 bars of 4/4 at 100: 24 s, a loop.
+title Under the Thorn
+cue replace fade 9
+tempo 100
+meter 4/4
+part floor strings p pan -20
+part reed clarinet mp pan 20
+part skin timpani p pan 0
+part step drum p pan -10
+bar 1
+floor D3,A3/1*
+skin D2/4 r/2.
+bar 2
+floor D3,A3/1*
+reed r/2 F4/4' E4/4'
+step r/2. C2/4'
+bar 3
+floor D3,Bb3/1*
+reed D4/2. r/4
+skin D2/4 r/2.
+bar 4
+floor Eb3,Bb3/1*
+reed r/4 Eb4/8' D4/8' Bb3/2
+bar 5
+floor D3,A3/1*
+skin D2/4 r/4 A1/4 r/4
+step r/2. C2/4'
+bar 6
+floor D3,A3/1*
+reed < A4/4 Bb4/4 A4/2 mf
+bar 7
+floor C3,G3/1*
+reed G4/2 F4/4 E4/4
+skin C2/4 r/2.
+bar 8
+floor Bb2,F3/1*
+reed > D4/2. p r/4
+step r/2 C2/4' r/4
+bar 9
+floor A2,E3/1*
+reed r/2 E4/4' F4/4'
+skin A1/4 r/2.
+bar 10
+floor D3,A3/2. r/4
+reed D4/2 r/2

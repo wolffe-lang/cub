@@ -1,0 +1,42 @@
+# Claw in the Scree — the lynx of the crags: G minor tremolo, a flute's cry, a cymbal.
+# Original, cb03 (2026-10-26). 10 bars of 3/4 at 150: 12 s, a loop. cb04 wires it.
+title Claw in the Scree
+cue replace fade 4
+tempo 150
+meter 3/4
+part scree strings mf pan -20
+part cry flute mf pan 30
+part clash cymbal mp pan 0
+part rock timpani mp pan 10
+bar 1
+scree G4,D5/2.*
+rock G2/4' r/4 G2/4'
+bar 2
+scree G4,D5/4* Ab4,Eb5/4* G4,D5/4*
+cry r/4 D5/8' Eb5/8' D5/4'
+clash r/2 C4/4
+bar 3
+scree F4,C5/2.*
+rock F2/4' r/4 F2/4'
+bar 4
+scree F4,C5/4* G4,D5/4* Ab4,Eb5/4*
+cry r/4 G5/8' Ab5/8' G5/4^
+bar 5
+scree G4,D5/2.*
+cry Bb5/4' r/2
+rock G2/4' G2/4' r/4
+bar 6
+scree Eb4,Bb4/4* D4,A4/4* C4,G4/4*
+cry r/4 Eb5/8' D5/8' C5/4'
+clash r/2 C4/4
+bar 7
+scree D4,A4/2.*
+rock D2/4' r/4 D2/4'
+bar 8
+scree D4,A4/4* Eb4,Bb4/4* D4,A4/4*
+cry r/4 D5/8' Eb5/8' D5/4^
+bar 9
+scree G4,D5/2.*
+cry G5/4' r/2
+bar 10
+scree G4,D5/2 r/4
