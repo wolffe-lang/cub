@@ -298,8 +298,9 @@ pub fn ghosts(dir: str) -> int {
     var r = replay.new(1, 1, 80, 24)
     let (x0, y0) = (s.x, s.y)
     if !walker.walk(mut s, mut r, x0 + 20 * sim.FP, y0) { eprint("proof: ghost walk"); return 1 }
-    var n = 0
-    while n < 10 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
+    // A life of at least a hundred ticks: the trailer's ninety frames all
+    // from the run, none from before the start.
+    while s.tick < 100 { walker.press(mut s, mut r, walker.key(0)) }
     replay.push_arg(mut r, s.tick, controls.EV_HEALTH, -1000)
     sim.hurt(mut s, 1000)
     walker.press(mut s, mut r, walker.key(0))
@@ -310,7 +311,7 @@ pub fn ghosts(dir: str) -> int {
         eprint("proof: ghost approach")
         return 1
     }
-    n = 0
+    var n = 0
     while n < 200 { walker.press(mut t, mut q, walker.key(0)); n += 1 }
     var bytes = List[byte]()
     replay.format(q, controls.vocab(), mut bytes)
