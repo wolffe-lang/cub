@@ -47,12 +47,17 @@ and caches have original sprites instead of floating world names; their
 meanings are in `docs/ART.md`. Kills also leave small healing meat pickups.
 Enter a den with `r` within three cells: a resting cub breathes beside an
 animated fire, with different surroundings in all six regions. A larger
-right-hand panel leaves the cub and fire visible. Up/Down select a stat,
+ledger sits one sixth of the screen width left of centre, vertically
+centred, with the cub and fire beside it. Up/Down select a stat,
 Right/Left stage or remove levels, and Enter/Space on Confirm spends the
 combined cost. Esc or `r` discards pending choices and leaves. Paths have
 broader bends and more clearance; entering any part of an unlocked
 shadow doorway crosses it. Visible foes clip at the screen edges rather
-than disappearing when their centres lose sight.
+than disappearing when their centres lose sight. Slain foes stay gone across
+paths and shortcuts; only a den rest or death resets them throughout the
+forest. Living foes heal and return to their places on re-entry. Waiting
+scent and meat keep their original expiry when you leave and return;
+unclaimed loot is not carried through a save reload.
 Water must first be found at the Shingle spring (two mouthfuls), with a
 third found later; the counter beside the bars shows the charges, and
 every rest refills them. Death leaves a recoverable mark, even across area edges; a
@@ -62,13 +67,13 @@ it is installed, else the game says so once and plays on in silence.
 `--mute`, `CUB_SOUND=0` or the `m` key turn it off.
 
 The journey saves under `~/.cub/save`; resume wakes at the last den with
-reset encounters, keeping growth, shortcuts, opened caches, pouch contents,
+slain foes still gone, keeping growth, shortcuts, opened caches, pouch contents,
 the dropped mark, the bosses beaten, the end and the field the world was
 made for (the terminal's width when the journey began). `--save PATH`
 selects a separate journey. Unknown or corrupt files fail by name, never
-silently reset. This build writes schema4 and refuses older saves as
-`save_version`; use a new `--save PATH` to try it without replacing an older
-journey. A quit during a staged write preserves the previous save.
+silently reset. This build writes schema5, migrates schema4 with an empty
+slain set, and refuses earlier schemas as `save_version`; use a new
+`--save PATH` to try it without replacing an older journey. A quit during a staged write preserves the previous save.
 Live deaths leave self-contained replay files under `~/.cub/ghosts/`
 (`--ghost-dir DIR` elsewhere), each the ghost the next game shows;
 difficulty selection comes later. Every tuning proposal is in
