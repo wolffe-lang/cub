@@ -1944,6 +1944,7 @@ fn ghost_style(t: int, rank: int) -> grid.Cell {
 /// last seconds replayed as a ghost moving through the world, driven by
 /// the file's trailer alone (`ghost.playing`).
 fn draw_ghosts(s: sim.Sim, set: ghost.Set, t: int, mut g: grid.Grid) {
+    put_over(mut g, sim.screen_row(s), sim.screen_col(s) + 6, "x", ghost_style(t, 0))
     var rank = 0
     while rank < set.ghosts.len {
         let gh = copy set.ghosts[rank]
