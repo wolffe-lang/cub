@@ -14,6 +14,7 @@ use grid
 use glow
 use meadow
 use props
+use restscene
 use silhouette
 use sim
 use sprites
@@ -369,6 +370,11 @@ pub fn render_with(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid) {
     if s.scene == 1 { opening_frame(s, t, mut g); return }
     if s.scene == sim.SCENE_TITLE { title_frame(s, extra, t, mut g); return }
     if s.scene == sim.SCENE_END { end_frame(s, t, mut g); return }
+    if s.den {
+        restscene.render(s, t, mut g)
+        den_menu(s, t, mut g)
+        return
+    }
     var row = 0
     while row < s.rows {
         terrain_row(s, t, row, mut g)
@@ -929,65 +935,6 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
             1,
             "r rest at " + forest.den_name(sim.den_here(s)),
             ink(t, false),
-        )
-    }
-    if s.den {
-        let style = ink(t, true)
-        var row = 6
-        while row < 16 {
-            draw.put_text(
-                mut g,
-                row,
-                3,
-                "                                                        ",
-                style,
-            )
-            row += 1
-        }
-        draw.put_text(mut g, 6, 4, forest.den_name(s.last_den), style)
-        draw.put_text(
-            mut g,
-            8,
-            4,
-            "health {s.health}   stamina {s.stamina}   water {s.flasks}   scent {s.scent}",
-            style,
-        )
-        draw.put_text(
-            mut g,
-            10,
-            4,
-            "1 heart {s.heart} (next {40 * (s.heart + 1)})   2 wind {s.wind} (next {40 * (s.wind + 1)})",
-            style,
-        )
-        draw.put_text(
-            mut g,
-            11,
-            4,
-            "3 fang {s.fang} (next {40 * (s.fang + 1)})   4 paw {s.paw} (next {40 * (s.paw + 1)})",
-            style,
-        )
-        draw.put_text(mut g, 12, 4, "5 nose {s.nose} (next {40 * (s.nose + 1)})", style)
-        let bundles = s.caches % 2 + s.caches / 2 % 2 + s.caches / 4 % 2 + s.caches / 8 % 2
-        draw.put_text(
-            mut g,
-            13,
-            4,
-            "pouch: yarrow {s.yarrow}  marrow {s.marrow}  a bundle {bundles}",
-            style,
-        )
-        draw.put_text(mut g, 14, 4, "r or Esc leave; a stat cannot grow past ten", style)
-        draw.put_text(
-            mut g,
-            15,
-            4,
-            if s.save_status == 1 {
-                "Saving journey... q cancels this pending write"
-            } else if s.save_status == 2 {
-                "Journey saved; resume at this den"
-            } else {
-                "Journey not written in this replay"
-            },
-            style,
         )
     }
 }
@@ -2496,4 +2443,37 @@ pub fn healing_sheet(t: int, spring: bool) -> grid.Grid {
         draw_meat(mut g, t, 6, 45, 24)
     }
     g
+}
+
+fn den_menu(s: sim.Sim, t: int, mut g: grid.Grid) {
+    let style = grid.cell(
+        32,
+        if t == tier.PLAIN then 7 else 250,
+        restscene.background(s.area, t),
+        0,
+    )
+    let row = s.rows - 9
+    draw.put_text(mut g, row, 3, "Scent {s.scent}    Water {s.flasks}/{s.flask_max}", style)
+    draw.put_text(
+        mut g,
+        row + 2,
+        3,
+        "1 Heart {s.heart}     2 Wind {s.wind}     3 Fang {s.fang}",
+        style,
+    )
+    draw.put_text(mut g, row + 4, 3, "4 Paw {s.paw}       5 Nose {s.nose}", style)
+    draw.put_text(mut g, row + 6, 3, "1-5 grow    r / Esc leave", style)
+    draw.put_text(
+        mut g,
+        row + 7,
+        3,
+        if s.save_status == 1 {
+            "Saving journey..."
+        } else if s.save_status == 2 {
+            "Journey saved"
+        } else {
+            "Resting"
+        },
+        style,
+    )
 }

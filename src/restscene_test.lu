@@ -1,0 +1,43 @@
+//! member: false
+use art
+use grid
+use restscene
+use sim
+use tier
+
+fn test_cb04a_rest_regions_are_distinct_and_both_tiers_fit() {
+    var area = 0
+    while area < 6 {
+        var s = sim.new(7, 80, 24)
+        s.area = area
+        s.den = true
+        var rich = grid.new(24, 80)
+        var plain = grid.new(24, 80)
+        art.render(s, tier.RICH, mut rich)
+        art.render(s, tier.PLAIN, mut plain)
+        assert(grid.plain_ok(plain), "plain rest is console-safe")
+        assert(grid.at(rich, 0, 0).bg == restscene.background(area, tier.RICH), "region palette")
+        if area > 0 { assert(restscene.background(area, tier.RICH) != restscene.background(area - 1, tier.RICH), "distinct neighbours") }
+        sim.resize(mut s, 120, 40)
+        var wide = grid.new(40, 120)
+        art.render(s, tier.PLAIN, mut wide)
+        assert(grid.plain_ok(wide), "wide plain rest")
+        area += 1
+    }
+}
+
+fn test_cb04a_firelight_falls_off_and_breath_lifts_the_shoulder() {
+    assert(restscene.fur_light(50, 11, 0) > restscene.fur_light(8, 11, 0), "fire-facing muzzle brighter than rump")
+    assert(!restscene.cub_pixel(36, 4, 0) && restscene.cub_pixel(36, 4, 1), "shoulder rises on the posture breath")
+    var s = sim.new(7, 80, 24)
+    s.den = true
+    var a = grid.new(24, 80)
+    var b = grid.new(24, 80)
+    art.render(s, tier.RICH, mut a)
+    s.tick = 7
+    art.render(s, tier.RICH, mut b)
+    var changed = 0
+    var i = 0
+    while i < a.cells.len { if !grid.same(a.cells[i], b.cells[i]) { changed += 1 }; i += 1 }
+    assert(changed > 4, "fire has multiple actual frames")
+}

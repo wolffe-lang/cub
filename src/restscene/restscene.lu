@@ -1,0 +1,229 @@
+//! Original den interior: a low side view, never the in-level sprite.
+//! Geometry is sampled at quadrant resolution; firelight falls by distance.
+
+use draw
+use forest
+use grid
+use sim
+use tier
+
+fn abs(n: int) -> int { if n < 0 then -n else n }
+
+/// Regional ground, shadow and distant light. The plain palette stays 0..15.
+pub fn background(area: int, t: int) -> int {
+    if t == tier.PLAIN { return if area == 0 || area == 4 then 4 else 0 }
+    match area {
+        0 => 17,
+        1 => 233,
+        2 => 60,
+        3 => 236,
+        4 => 23,
+        _ => 232,
+    }
+}
+
+fn ellipse(x: int, y: int, cx: int, cy: int, rx: int, ry: int) -> bool {
+    let dx = x - cx
+    let dy = y - cy
+    dx * dx * ry * ry + dy * dy * rx * rx <= rx * rx * ry * ry
+}
+
+/// Body, haunch, lowered head, pointed ears, muzzle, forepaws and curled tail.
+/// The inhale lifts the shoulder, using the same breath phase as the field cub.
+pub fn cub_pixel(x: int, y: int, breath: int) -> bool {
+    ellipse(x, y, 22, 11, 18, 6) ||
+        ellipse(x, y, 36, 10 - breath, 9, 5) ||
+        ellipse(x, y, 43, 10, 7, 4) ||
+        x >= 46 && x <= 55 && y >= 11 && y <= 13 ||
+        x >= 28 && x <= 51 && y >= 15 && y <= 17 ||
+        x >= 7 && x <= 22 && y >= 16 && y <= 18 ||
+        x >= 36 && x <= 40 && y >= 3 && y <= 8 && x - 36 <= y - 3 ||
+        x >= 43 && x <= 46 && y >= 4 && y <= 9 && 46 - x <= y - 4 ||
+        ellipse(x, y, 5, 15, 5, 3)
+}
+
+fn quadrant(mask: int) -> int {
+    match mask {
+        1 => 0x2598,
+        2 => 0x259d,
+        3 => 0x2580,
+        4 => 0x2596,
+        5 => 0x258c,
+        6 => 0x259e,
+        7 => 0x259b,
+        8 => 0x2597,
+        9 => 0x259a,
+        10 => 0x2590,
+        11 => 0x259c,
+        12 => 0x2584,
+        13 => 0x2599,
+        14 => 0x259f,
+        _ => 0x2588,
+    }
+}
+
+/// Firelight combines distance and the body's curved upper surface, no RNG.
+pub fn fur_light(x: int, y: int, phase: int) -> int {
+    let distance = abs(66 - x) + 2 * abs(13 - y)
+    if distance < 22 + phase { return 223 }
+    if distance < 38 + phase { return 180 }
+    if distance < 54 + phase { return 137 }
+    95
+}
+
+fn surroundings(s: sim.Sim, t: int, mut g: grid.Grid, floor: int) {
+    let bg = background(s.area, t)
+    grid.fill(mut g, grid.cell(32, if t == tier.PLAIN then 7 else 250, bg, 0))
+    var r = 3
+    while r < floor + 1 {
+        var c = 0
+        while c < s.cols {
+            let x = c * 80 / s.cols
+            let y = (r - 3) * 14 / (floor - 2)
+            var cp = 32
+            var fg = if t == tier.PLAIN then 8 else 239
+            if s.area == 0 {
+                // A heavy rock lip, open to the blue sea at the left.
+                if y < 2 + x / 24 {
+                    cp = if t == tier.PLAIN then 95 else 0x2584
+                    fg = if t == tier.PLAIN then 8 else 243
+                }
+                if x < 19 && y > 4 && y < 10 && (x + y * 3) % 9 < 4 {
+                    cp = 126
+                    fg = if t == tier.PLAIN then 6 else 31
+                }
+            } else if s.area == 1 {
+                if x < 10 || x > 70 || y < 2 {
+                    cp = if (x + y) % 4 == 0 then 47 else if (x - y) % 3 == 0 then 92 else 32
+                    fg = if t == tier.PLAIN then 2 else 65
+                }
+            } else if s.area == 2 {
+                if y > 9 + x / 30 { cp = 46; fg = if t == tier.PLAIN then 3 else 137 }
+                if (x == 9 || x == 65 || x == 72) && y > 2 && y < 10 {
+                    cp = 124
+                    fg = if t == tier.PLAIN then 8 else 59
+                }
+                if (x == 8 || x == 64 || x == 71) && y == 4 { cp = 89 }
+            } else if s.area == 3 {
+                if x < 17 - y / 2 || x > 67 + y / 3 || y < 2 {
+                    cp = if (x + y) % 5 == 0 then 47 else if t == tier.PLAIN then 46 else 0x2584
+                    fg = if t == tier.PLAIN then 7 else 244
+                }
+            } else if s.area == 4 {
+                if x < 22 && y > 4 && (x + 2 * y) % 8 < 3 {
+                    cp = 126
+                    fg = if t == tier.PLAIN then 6 else 117
+                }
+                if x > 68 && (x + y / 2) % 4 == 0 {
+                    cp = 124
+                    fg = if t == tier.PLAIN then 2 else 66
+                }
+            } else {
+                if x < 13 || x > 65 || y < 2 {
+                    cp = if (x + y / 2) % 5 == 0 then 124 else 47
+                    fg = if t == tier.PLAIN then 8 else 59
+                }
+                if y > 10 && (x * 7 + y) % 13 == 0 { cp = 58 }
+            }
+            grid.put(mut g, r, c, grid.cell(cp, fg, bg, 0))
+            c += 1
+        }
+        r += 1
+    }
+}
+
+/// Full-screen resting composition. The stat menu is appended by art.
+pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
+    let floor = s.rows - 11
+    surroundings(s, t, mut g, floor)
+    let bg = background(s.area, t)
+    let left = s.cols / 2 - 21
+    let top = floor - 9
+    let phase = s.tick / 7 % 4
+    let style = grid.cell(32, if t == tier.PLAIN then 7 else 250, bg, 0)
+    draw.put_text(mut g, 1, 3, forest.den_name(s.last_den), style)
+    draw.put_text(
+        mut g,
+        2,
+        3,
+        forest.name(s.area),
+        grid.cell(32, if t == tier.PLAIN then 7 else 146, bg, 0),
+    )
+    if t == tier.PLAIN {
+        draw.put_text(mut g, top + 4, left + 17, "/\\ /\\", style)
+        draw.put_text(mut g, top + 5, left + 2, "____..------..__ / -  \\__", style)
+        draw.put_text(mut g, top + 6, left, " /     resting     \\_____.>", style)
+        draw.put_text(mut g, top + 7, left, "(____,_________..___/____)", style)
+        draw.put_text(
+            mut g,
+            top + 8,
+            left + 7,
+            if sim.breath(s) == 1 then "'--.___.'   '----'" else " '--.__.'   '----'",
+            style,
+        )
+    } else {
+        var row = 0
+        while row < 10 {
+            var col = 0
+            while col < 28 {
+                var mask = 0
+                if cub_pixel(col * 2, row * 2, sim.breath(s)) { mask += 1 }
+                if cub_pixel(col * 2 + 1, row * 2, sim.breath(s)) { mask += 2 }
+                if cub_pixel(col * 2, row * 2 + 1, sim.breath(s)) { mask += 4 }
+                if cub_pixel(col * 2 + 1, row * 2 + 1, sim.breath(s)) { mask += 8 }
+                if mask > 0 {
+                    let shade = fur_light(col * 2, row * 2, phase)
+                    grid.put(mut g, top + row, left + col, grid.cell(quadrant(mask), shade, bg, 0))
+                }
+                col += 1
+            }
+            row += 1
+        }
+        // Closed eye, dark nose and separated front paws make the animal read.
+        grid.put(mut g, top + 5, left + 23, grid.cell(0x2584, 95, 180, 0))
+        grid.put(mut g, top + 6, left + 27, grid.cell(0x2598, 52, bg, 0))
+        draw.put_text(mut g, top + 8, left + 20, "__", grid.cell(32, 95, 137, 0))
+    }
+    let fire = left + 34
+    var row = 0
+    while row < 6 {
+        var col = -3
+        while col <= 3 {
+            let width = (row + 1) / 2
+            if abs(col) <= width && row >= (phase + abs(col)) % 3 {
+                let cp = if t == tier.PLAIN {
+                    (if row < 3 then 94 else 42)
+                } else if (row + col + phase) % 2 == 0 {
+                    0x2580
+                } else {
+                    0x259e
+                }
+                let fg = if t == tier.PLAIN {
+                    (if row > 3 then 11 else 9)
+                } else if row > 3 {
+                    229
+                } else if row > 1 {
+                    214
+                } else {
+                    166
+                }
+                grid.put(mut g, floor - 7 + row, fire + col, grid.cell(cp, fg, bg, 0))
+            }
+            col += 1
+        }
+        row += 1
+    }
+    draw.put_text(
+        mut g,
+        floor - 1,
+        fire - 4,
+        "==/==\\==",
+        grid.cell(32, if t == tier.PLAIN then 3 else 94, bg, 0),
+    )
+    grid.put(
+        mut g,
+        floor - 9,
+        fire + phase - 1,
+        grid.cell(46, if t == tier.PLAIN then 9 else 208, bg, 0),
+    )
+}
