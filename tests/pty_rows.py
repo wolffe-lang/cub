@@ -524,7 +524,7 @@ def den_contact(binary, ctx):
     s.finish()
     problems = []
     ctx.common_checks(s, 0, problems)
-    if not re.search(rb'r (?:or|/) Esc leave', s.out):
+    if b'Esc discard' not in s.out:
         problems.append('visible den edge: r never entered the rest scene')
     states = []
     for line in s.err.decode().splitlines():
@@ -573,3 +573,74 @@ def den_checkpoint(binary, ctx):
 
 ROWS['den-contact'] = den_contact
 ROWS['den-checkpoint'] = den_checkpoint
+
+
+def rest_allocate(binary, ctx):
+    """Actual arrow/Enter bytes: stage two stats, refuse, lower, confirm, discard."""
+    root = Path(ctx.ROOT) / 'target/pty/cb04d-rest'
+    root.mkdir(parents=True, exist_ok=True)
+    problems = []
+    for tier in ('rich', 'plain'):
+        save = root / (tier + '.save')
+        save.unlink(missing_ok=True)
+        subprocess.run([binary, '--headless', '--script', str(Path(ctx.ROOT) / 'tests/cases/rest-menu-empty-80x24.pk'),
+                        '--frames', '1', '--save', str(save), '--dump', str(root / ('setup-' + tier))], check=True, capture_output=True)
+        session = ctx.Session([binary, '--save', str(save), '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, ctx.env_for())
+        session.type(b'?', settle=.15)
+        for key in (b'r', b'\x1b[C', b'\x1b[B', b'\x1b[C', b'\x1b[C', b'\x1b[D', b'\x1b[A', b'\x1b[A', b'\r'):
+            session.type(key, settle=.12)
+        session.type(b'\x1b[C', settle=.12)  # pending heart at row zero; still affordable
+        session.type(b'\x1b', settle=.2)
+        session.type(b'q')
+        session.finish()
+        ctx.common_checks(session, 0, problems)
+        states = trace_states(session)
+        if not any(v.get('pending') == 2 and v.get('needed') == 75 for v in states):
+            problems.append(tier + ': second stat/refused third purchase not witnessed')
+        if b'Not enough scent' not in session.out:
+            problems.append(tier + ': refusal not shown')
+        if not any(v.get('level') == 2 and v.get('scent') == 25 for v in states):
+            problems.append(tier + ': lower then confirm did not spend exactly 24')
+        if not states or states[-1].get('resting') != 0 or states[-1].get('level') != 2 or states[-1].get('scent') != 25:
+            problems.append(tier + ': Esc failed to discard next pending level')
+        (root / (tier + '.trace')).write_bytes(session.err)
+    return session, problems
+
+
+def trace_states(session):
+    states = []
+    for line in session.err.decode().splitlines():
+        words = line.split()
+        if words[:2] == ['trace', 'tick']:
+            words = words[1:]
+            states.append(dict(zip(words[::2], map(int, words[1::2]))))
+    return states
+
+
+def doorway_edge(binary, ctx):
+    """Resume at the meadow den, then inject north arrows along the shadow's east edge."""
+    root = Path(ctx.ROOT) / 'target/pty/cb04d-door'
+    root.mkdir(parents=True, exist_ok=True)
+    problems = []
+    for tier in ('rich', 'plain'):
+        save = root / (tier + '.save')
+        save.unlink(missing_ok=True)
+        subprocess.run([binary, '--headless', '--script', str(Path(ctx.ROOT) / 'tests/cases/rest-larkmeadow-80x24.pk'),
+                        '--frames', '1', '--save', str(save), '--dump', str(root / ('setup-' + tier))], check=True, capture_output=True)
+        session = ctx.Session([binary, '--save', str(save), '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, ctx.env_for())
+        session.type(b'\x1b[C', settle=.65)
+        for _ in range(20):
+            session.type(b'\x1b[A', settle=.06)
+        session.type(b'q')
+        session.finish()
+        ctx.common_checks(session, 0, problems)
+        states = trace_states(session)
+        changes = [(a, b) for a, b in zip(states, states[1:]) if a['area'] == 2 and b['area'] == 1]
+        if not changes:
+            problems.append(tier + ': northward edge approach did not leave meadow')
+        elif not any(a['x'] >= 3 * 256 and a['y'] > 2 * 256 for a, _ in changes):
+            problems.append(tier + ': crossing was not outside the old centre trigger')
+        (root / (tier + '.trace')).write_bytes(session.err)
+    return session, problems
+
+ROWS.update({'rest-allocate': rest_allocate, 'doorway-edge': doorway_edge})

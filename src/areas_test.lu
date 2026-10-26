@@ -125,12 +125,11 @@ fn test_cb04_every_area_reaches_its_dens_portals_and_arena() {
     )
 }
 
-fn test_cb04_arenas_are_open_ground_inside_their_bounds() {
+fn arenas_are_open_ground_inside_their_bounds(seed: int) {
     // Every arena cell is open (the floor, the shallows) but the crags'
     // pillars; the arena lies inside the field at both sizes. Two seeds
     // here; the audit's flood reaches every arena centre in fifty.
-    var seed = 0
-    while seed < 2 {
+    {
         var area = 0
         while area < forest.AREAS {
             if forest.has_arena(area) {
@@ -181,9 +180,12 @@ fn test_cb04_arenas_are_open_ground_inside_their_bounds() {
             }
             area += 1
         }
-        seed += 1
     }
 }
+
+fn test_cb04_arenas_are_open_ground_seed_0() { arenas_are_open_ground_inside_their_bounds(0) }
+
+fn test_cb04_arenas_are_open_ground_seed_1() { arenas_are_open_ground_inside_their_bounds(1) }
 
 fn test_cb04_the_shallows_are_waded_at_half_pace() {
     // The ford: a band of shallows across the river at the arena's rows,

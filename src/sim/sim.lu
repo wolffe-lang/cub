@@ -2302,7 +2302,9 @@ pub fn shadow_crossed(s: Sim, edge: int, old_x: int, old_y: int) -> bool {
         var x = after.x0
         while x <= after.x1 {
             if (x < before.x0 || x > before.x1 || y < before.y0 || y > before.y1) &&
-                forest.shadow_cell(s.seed, s.area, edge, x, y) { return true }
+                forest.shadow_cell(s.seed, s.area, edge, x, y) {
+                return true
+            }
             x += 1
         }
         y += 1
@@ -2318,11 +2320,17 @@ pub fn transitions(mut s: Sim, old_x: int, old_y: int) -> bool {
     while edge < forest.EDGES {
         if forest.other(s.area, edge) >= 0 {
             let (px, py) = forest.portal(s.seed, s.area, edge)
-            let touching = body.x1 >= px / FP - 3 && body.x0 <= px / FP + 3 &&
-                body.y1 >= py / FP - 1 && body.y0 <= py / FP + 1
+            let touching = body.x1 >= px / FP - 3 &&
+                body.x0 <= px / FP + 3 &&
+                body.y1 >= py / FP - 1 &&
+                body.y0 <= py / FP + 1
             if touching {
                 close = true
-                if s.edge_ready && shadow_crossed(s, edge, old_x, old_y) && cross_edge(mut s, edge) { return true }
+                if s.edge_ready &&
+                    shadow_crossed(s, edge, old_x, old_y) &&
+                    cross_edge(mut s, edge) {
+                    return true
+                }
             }
         }
         edge += 1
@@ -3296,7 +3304,9 @@ pub fn rest_key(mut s: Sim, key: int) {
             if cost <= s.scent {
                 s.rest_pending[s.rest_row] += 1
                 s.rest_refused = 0
-            } else { s.rest_refused = cost }
+            } else {
+                s.rest_refused = cost
+            }
         }
     }
     if s.rest_row == 5 && (key == controls.KEY_CONFIRM || key == controls.KEY_BITE) {

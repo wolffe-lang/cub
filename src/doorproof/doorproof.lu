@@ -1,4 +1,5 @@
 //! Exhaustive shadow-neighbour census, independent of the transition trigger.
+
 use forest
 use sim
 
@@ -38,12 +39,31 @@ pub fn census() -> int {
                                                     for facing in [0, 1, 2, 3] {
                                                         s.body_facing = facing
                                                         let b = sim.cub_body_at(s, 0, 0, facing)
-                                                        let bx = if dx > 0 then b.x1 else if dx < 0 then b.x0 else 0
-                                                        let by = if dy > 0 then b.y1 else if dy < 0 then b.y0 else 0
+                                                        let bx = if dx > 0 {
+                                                            b.x1
+                                                        } else if dx < 0 {
+                                                            b.x0
+                                                        } else {
+                                                            0
+                                                        }
+                                                        let by = if dy > 0 {
+                                                            b.y1
+                                                        } else if dy < 0 {
+                                                            b.y0
+                                                        } else {
+                                                            0
+                                                        }
                                                         s.x = (x - bx) * sim.FP + sim.FP / 2
                                                         s.y = (y - by) * sim.FP + sim.FP / 2
                                                         checked += 1
-                                                        if !sim.shadow_crossed(s, edge, s.x - dx * sim.FP, s.y - dy * sim.FP) { missed += 1 }
+                                                        if !sim.shadow_crossed(
+                                                            s,
+                                                            edge,
+                                                            s.x - dx * sim.FP,
+                                                            s.y - dy * sim.FP,
+                                                        ) {
+                                                            missed += 1
+                                                        }
                                                     }
                                                 }
                                             }

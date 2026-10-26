@@ -120,3 +120,89 @@ pub fn census() -> int {
     print("look: green seeds {seed} frames {count}")
     0
 }
+
+/// Compare the shipping actor layer against cell-clipped sprite composition at
+/// every route row. Camera moves; actor world positions do not. Any omitted
+/// in-view cell is a failure, even if another part of that foe remained visible.
+pub fn foe_census() -> int {
+    var frames = 0
+    var missing = 0
+    var legacy_hidden = 0
+    var seed = 0
+    while seed < 50 {
+        for field in [80, 200] {
+            region world {
+                var s = sim.new(seed, field, if field == 80 then 24 else 60)
+                var area = 0
+                while area < forest.AREAS {
+                    s.area = area
+                    s.foes = sim.area_foes(seed, field, area, 0)
+                    var y = 0
+                    while y <= forest.LENGTH {
+                        s.x = forest.spine(seed, area, y) * sim.FP
+                        s.y = (forest.origin(seed, area) + y) * sim.FP
+                        for t in [0, 1] {
+                            region frame {
+                                var actual = grid.new(s.rows, s.cols)
+                                var expected = grid.new(s.rows, s.cols)
+                                art.draw_foes(s, t, mut actual)
+                                var i = 0
+                                while i < s.foes.len {
+                                    let f = copy s.foes[i]
+                                    let r = sim.floor_div(f.y, sim.FP) -
+                                        sim.cell_y(s) +
+                                        sim.screen_row(s)
+                                    let c = sim.floor_div(f.x, sim.FP) -
+                                        sim.cell_x(s) +
+                                        sim.screen_col(s)
+                                    art.draw_foe(
+                                        mut expected,
+                                        t,
+                                        r,
+                                        c,
+                                        f.kind,
+                                        f.phase,
+                                        f.heading,
+                                        -1,
+                                    )
+                                    let body = sim.foe_body(f)
+                                    let left = body.x0 - sim.cell_x(s) + sim.screen_col(s)
+                                    let right = body.x1 - sim.cell_x(s) + sim.screen_col(s)
+                                    let top = body.y0 - sim.cell_y(s) + sim.screen_row(s)
+                                    let bottom = body.y1 - sim.cell_y(s) + sim.screen_row(s)
+                                    if area == 1 &&
+                                        right >= 0 &&
+                                        left < s.cols &&
+                                        bottom >= 0 &&
+                                        top < s.rows &&
+                                        !sim.visible(s, s.x, s.y, f.x, f.y) {
+                                        legacy_hidden += 1
+                                    }
+                                    i += 1
+                                }
+                                i = 0
+                                var mismatch = false
+                                while i < actual.cells.len {
+                                    if !grid.same(actual.cells[i], expected.cells[i]) {
+                                        mismatch = true
+                                    }
+                                    i += 1
+                                }
+                                if mismatch { missing += 1 }
+                                frames += 1
+                            }
+                        }
+                        y += 1
+                    }
+                    area += 1
+                }
+            }
+        }
+        print(
+            "foes: seed {seed} frames {frames} omitted_frames {missing} legacy_hidden_foe_frames {legacy_hidden}",
+        )
+        seed += 1
+    }
+    print("foes: frames {frames} omitted_frames {missing} legacy_hidden_foe_frames {legacy_hidden}")
+    if missing == 0 then 0 else 1
+}

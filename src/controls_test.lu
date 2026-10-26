@@ -87,13 +87,14 @@ fn test_the_moves_and_the_quit() {
     check("\t", one(controls.KEY_LOCK), "Tab locks on")
     check("w", one(controls.KEY_WATER), "w drinks")
     check("r", one(controls.KEY_REST), "r rests")
+    check("\r", one(controls.KEY_CONFIRM), "Enter confirms at rest")
     check("q", one(controls.KEY_QUIT), "q quits")
     check("\x1b", one(controls.KEY_RELEASE), "Esc releases")
     check("\x03", one(controls.KEY_INTERRUPT), "Ctrl-C")
     var skipped = List[int]()
     var n = 0
-    while n < 5 { (mut skipped).push(controls.KEY_SKIP); n += 1 }
-    check("abg\r\x7f", skipped, "otherwise unused keys skip a scene and are inert during play")
+    while n < 4 { (mut skipped).push(controls.KEY_SKIP); n += 1 }
+    check("abg\x7f", skipped, "otherwise unused keys skip a scene and are inert during play")
     var want = List[int]()
     (mut want).push(controls.KEY_RELEASE)
     (mut want).push(controls.KEY_BITE)

@@ -3,15 +3,15 @@ seed 7
 tier rich
 size 80x24
 t 0 down
-t 0 left
+t 0 right
 t 1 down
-t 1 left
+t 1 right
 t 2 down
-t 2 left
+t 2 right
 t 3 down
-t 3 left
+t 3 right
 t 4 down
-t 4 left
+t 4 right
 t 5 down
 t 6 down
 t 7 down
@@ -47,9 +47,8 @@ t 36 down
 t 37 down
 t 38 down
 t 39 down
-t 39 right
-t 40 right
-t 41 right
+t 40 down
+t 41 down
 t 42 down
 t 43 down
 t 44 down
@@ -80,11 +79,9 @@ t 68 down
 t 69 down
 t 70 down
 t 71 down
-t 71 left
-t 72 left
-t 73 left
+t 72 down
+t 73 down
 t 74 down
-t 74 left
 t 75 down
 t 76 down
 t 77 down
@@ -97,26 +94,19 @@ t 83 down
 t 84 down
 t 85 down
 t 86 down
-t 87 down
-t 88 down
-t 89 down
-t 90 health -30
-t 90 water
-t 126 down
-t 126 left
-t 127 down
-t 127 left
-t 128 down
-t 128 left
-t 129 down
-t 129 left
-t 130 down
-t 130 left
-t 131 left
+t 87 health -30
+t 87 water
+t 123 up
+t 124 up
+t 125 up
+t 126 up
+t 127 up
+t 128 up
+t 129 up
+t 130 up
+t 131 up
 t 132 up
-t 132 left
 t 133 up
-t 133 left
 t 134 up
 t 135 up
 t 136 up
@@ -144,11 +134,9 @@ t 157 up
 t 158 up
 t 159 up
 t 160 up
-t 160 right
-t 161 right
-t 162 right
+t 161 up
+t 162 up
 t 163 up
-t 163 right
 t 164 up
 t 165 up
 t 166 up
@@ -175,11 +163,9 @@ t 186 up
 t 187 up
 t 188 up
 t 189 up
-t 189 right
-t 190 right
-t 191 right
+t 190 up
+t 191 up
 t 192 up
-t 192 right
 t 193 up
 t 194 up
 t 195 up
@@ -196,16 +182,6 @@ t 205 up
 t 206 up
 t 207 up
 t 208 up
-t 209 up
-t 210 up
-t 211 up
-t 212 up
-t 213 up
-t 214 up
-t 215 up
-t 216 up
-t 217 up
-t 218 up
-t 219 rest
+t 209 rest
 
-# frames 220 every 220
+# frames 210 every 210

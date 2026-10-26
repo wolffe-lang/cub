@@ -1,4 +1,5 @@
 //! member: false
+
 use art
 use grid
 use sim
@@ -21,13 +22,25 @@ fn test_cb04d_foe_inside_view_is_not_culled_by_anchor_sight() {
         var expected = grid.new(24, 80)
         var actual = grid.new(24, 80)
         art.render(s, t, mut actual)
-        art.draw_foe(mut expected, t, sim.screen_row(s), sim.screen_col(s) + 12, f.kind, f.phase, f.heading, -1)
+        art.draw_foe(
+            mut expected,
+            t,
+            sim.screen_row(s),
+            sim.screen_col(s) + 12,
+            f.kind,
+            f.phase,
+            f.heading,
+            -1,
+        )
         var marks = 0
         var i = 0
         while i < expected.cells.len {
             let e = copy expected.cells[i]
             if e.cp != 32 {
-                assert(actual.cells[i].cp == e.cp && actual.cells[i].fg == e.fg, "visible foe survives centre sight cull")
+                assert(
+                    actual.cells[i].cp == e.cp && actual.cells[i].fg == e.fg,
+                    "visible foe survives centre sight cull",
+                )
                 marks += 1
             }
             i += 1
@@ -78,7 +91,10 @@ fn test_cb04d_foe_is_clipped_at_each_view_edge_not_dropped_whole() {
             var count = 0
             var i = 0
             while i < g.cells.len {
-                assert(grid.same(g.cells[i], expected.cells[i]), "edge clip retains each in-view sprite cell")
+                assert(
+                    grid.same(g.cells[i], expected.cells[i]),
+                    "edge clip retains each in-view sprite cell",
+                )
                 if g.cells[i].cp != 32 { count += 1 }
                 i += 1
             }

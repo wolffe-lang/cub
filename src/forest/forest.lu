@@ -191,28 +191,34 @@ pub fn curve(seed: int, ch: int, at: int) -> int { terrain.meander(seed, ch, at)
 
 /// Path centre in cells. The first den and final exit remain fixed, with
 /// short tapered approaches rather than a long straight corridor.
-fn raw_spine(seed: int, area: int, at: int) -> int {
+fn switchback(seed: int, at: int) -> int {
+    let amp = 18 + world.hash(seed, 91, 0, 5)
+    if at < 16 { return -amp * at / 16 }
+    if at >= 136 { return amp * (LENGTH - at) / 24 }
+    let leg = (at - 16) / 24
+    let part = (at - 16) % 24
+    let sign = if leg % 2 == 0 then -1 else 1
+    sign * (amp - 2 * amp * part / 24)
+}
+
+/// Round each switchback apex over five rows, preserving its alternating legs.
+pub fn spine(seed: int, area: int, at: int) -> int {
     if area == BRAMBLEHOLD {
-        let amp = 18 + world.hash(seed, 91, 0, 5)
-        if at < 16 { return -amp * at / 16 }
-        if at >= 136 { return amp * (LENGTH - at) / 24 }
-        let leg = (at - 16) / 24
-        let part = (at - 16) % 24
-        let sign = if leg % 2 == 0 then -1 else 1
-        return sign * (amp - 2 * amp * part / 24)
+        let part = (at + 8) % 24
+        if at < 14 || at > 138 || part > 2 && part < 22 { return switchback(seed, at) }
+        return (
+            switchback(seed, at - 2) +
+                2 * switchback(seed, at - 1) +
+                3 * switchback(seed, at) +
+                2 * switchback(seed, at + 1) +
+                switchback(seed, at + 2)
+        ) /
+            9
     }
     let c = curve(seed, 31 + area, at)
     if at < 8 { return c * at / 8 }
     if at > LENGTH - 8 { return c * (LENGTH - at) / 8 }
     c
-}
-
-/// Round each switchback apex over five rows, preserving its alternating legs.
-pub fn spine(seed: int, area: int, at: int) -> int {
-    if area != BRAMBLEHOLD || at <= 2 || at >= LENGTH - 2 { return raw_spine(seed, area, at) }
-    (raw_spine(seed, area, at - 2) + 2 * raw_spine(seed, area, at - 1) +
-        3 * raw_spine(seed, area, at) + 2 * raw_spine(seed, area, at + 1) +
-        raw_spine(seed, area, at + 2)) / 9
 }
 
 /// The path half-width breathes from a separate noise ch, 3..5 cells; the

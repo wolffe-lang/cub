@@ -240,7 +240,17 @@ pub fn panel_height(s: sim.Sim) -> int { if s.rows >= 40 then 26 else 22 }
 fn line(mut g: grid.Grid, row: int, left: int, width: int, t: int, colour: int) {
     var c = 0
     while c < width {
-        grid.put(mut g, row, left + c, grid.cell(if t == tier.PLAIN then 45 else 0x2500, colour, if t == tier.PLAIN then 0 else 232, 0))
+        grid.put(
+            mut g,
+            row,
+            left + c,
+            grid.cell(
+                if t == tier.PLAIN then 45 else 0x2500,
+                colour,
+                if t == tier.PLAIN then 0 else 232,
+                0,
+            ),
+        )
         c += 1
     }
 }
@@ -260,48 +270,137 @@ pub fn menu(s: sim.Sim, t: int, mut g: grid.Grid) {
     // Two nested frames give weight without adding an untested glyph repertoire.
     var frame = 0
     while frame < 2 {
-        draw.frame(mut g, top + frame, left + frame, h - 2 * frame, w - 2 * frame,
+        draw.frame(
+            mut g,
+            top + frame,
+            left + frame,
+            h - 2 * frame,
+            w - 2 * frame,
             grid.cell(if t == tier.PLAIN then 61 else 0x2500, gold, bg, 0),
             grid.cell(if t == tier.PLAIN then 61 else 0x2500, gold, bg, 0),
-            grid.cell(if t == tier.PLAIN then 124 else 0x2502, gold, bg, 0), style)
+            grid.cell(if t == tier.PLAIN then 124 else 0x2502, gold, bg, 0),
+            style,
+        )
         frame += 1
     }
     let col = left + 3
     let width = w - 6
-    draw.put_text(mut g, top + 3, col, forest.den_name(s.last_den), grid.cell(32, gold, bg, grid.ATTR_BOLD))
+    draw.put_text(
+        mut g,
+        top + 3,
+        col,
+        forest.den_name(s.last_den),
+        grid.cell(32, gold, bg, grid.ATTR_BOLD),
+    )
     line(mut g, top + 4, col, width, t, gold)
     let levels = sim.rest_levels(s)
     let cost = sim.rest_cost(s)
-    let needed = if s.rest_refused > 0 then s.rest_refused else if levels > 0 then cost else sim.level_cost(sim.level(s))
+    let needed = if s.rest_refused > 0 {
+        s.rest_refused
+    } else if levels > 0 {
+        cost
+    } else {
+        sim.level_cost(sim.level(s))
+    }
     draw.put_text(mut g, top + 5, col, "Level", style)
-    draw.put_text(mut g, top + 5, col + width - 12, draw.pad_left("{sim.level(s)} -> {sim.level(s) + levels}", 12), style)
+    draw.put_text(
+        mut g,
+        top + 5,
+        col + width - 12,
+        draw.pad_left("{sim.level(s)} -> {sim.level(s) + levels}", 12),
+        style,
+    )
     draw.put_text(mut g, top + 6, col, "Scent held", style)
     draw.put_text(mut g, top + 6, col + width - 12, draw.pad_left("{s.scent}", 12), style)
     draw.put_text(mut g, top + 7, col, "Scent needed", style)
-    draw.put_text(mut g, top + 7, col + width - 12, draw.pad_left("{needed}", 12), grid.cell(32, if s.scent < needed then red else bone, bg, 0))
+    draw.put_text(
+        mut g,
+        top + 7,
+        col + width - 12,
+        draw.pad_left("{needed}", 12),
+        grid.cell(32, if s.scent < needed then red else bone, bg, 0),
+    )
     draw.put_text(mut g, top + 8, col, "Scent after", style)
     draw.put_text(mut g, top + 8, col + width - 12, draw.pad_left("{s.scent - cost}", 12), style)
     line(mut g, top + 9, col, width, t, gold)
     var stat = 0
     while stat < 5 {
-        let label = match stat { 0 => "Heart / health", 1 => "Wind / stamina", 2 => "Fang / bite", 3 => "Paw / speed", _ => "Nose / reach" }
+        let label = match stat {
+            0 => "Heart / health",
+            1 => "Wind / stamina",
+            2 => "Fang / bite",
+            3 => "Paw / speed",
+            _ => "Nose / reach",
+        }
         let value = sim.stat_value(s, stat)
         let pending = value + sim.rest_delta(s, stat)
         let raised = pending > value
         let colour = if raised then green else bone
         let row = top + 10 + stat
-        draw.put_text(mut g, row, left + 2, if s.rest_row == stat then ">" else " ", grid.cell(32, gold, bg, grid.ATTR_BOLD))
+        draw.put_text(
+            mut g,
+            row,
+            left + 2,
+            if s.rest_row == stat then ">" else " ",
+            grid.cell(32, gold, bg, grid.ATTR_BOLD),
+        )
         draw.put_text(mut g, row, col, label, style)
         let vcol = left + w - 19
         draw.put_text(mut g, row, vcol, draw.pad_left("{value}", 2) + ">", style)
-        draw.put_text(mut g, row, vcol + 3, draw.pad_left("{pending}", 2), grid.cell(32, colour, bg, grid.ATTR_BOLD))
-        draw.put_text(mut g, row, vcol + 6, draw.pad_left("{sim.stat_effect(stat, value)}", 4) + ">", style)
-        draw.put_text(mut g, row, vcol + 11, draw.pad_left("{sim.stat_effect(stat, pending)}", 4), grid.cell(32, colour, bg, grid.ATTR_BOLD))
+        draw.put_text(
+            mut g,
+            row,
+            vcol + 3,
+            draw.pad_left("{pending}", 2),
+            grid.cell(32, colour, bg, grid.ATTR_BOLD),
+        )
+        draw.put_text(
+            mut g,
+            row,
+            vcol + 6,
+            draw.pad_left("{sim.stat_effect(stat, value)}", 4) + ">",
+            style,
+        )
+        draw.put_text(
+            mut g,
+            row,
+            vcol + 11,
+            draw.pad_left("{sim.stat_effect(stat, pending)}", 4),
+            grid.cell(32, colour, bg, grid.ATTR_BOLD),
+        )
         stat += 1
     }
     line(mut g, top + 15, col, width, t, gold)
-    draw.put_text(mut g, top + 16, col, if s.rest_row == 5 then "> Confirm" else "  Confirm", grid.cell(32, if s.rest_row == 5 then gold else bone, bg, grid.ATTR_BOLD))
-    draw.put_text(mut g, top + 17, col, if s.rest_refused > 0 then "Not enough scent; raise refused" else "Up/Down select   Left/Right change", grid.cell(32, if s.rest_refused > 0 then red else bone, bg, 0))
+    draw.put_text(
+        mut g,
+        top + 16,
+        col,
+        if s.rest_row == 5 then "> Confirm" else "  Confirm",
+        grid.cell(32, if s.rest_row == 5 then gold else bone, bg, grid.ATTR_BOLD),
+    )
+    draw.put_text(
+        mut g,
+        top + 17,
+        col,
+        if s.rest_refused > 0 {
+            "Not enough scent; raise refused"
+        } else {
+            "Up/Down select   Left/Right change"
+        },
+        grid.cell(32, if s.rest_refused > 0 then red else bone, bg, 0),
+    )
     draw.put_text(mut g, top + 18, col, "Enter/Space confirm   Esc discard", style)
-    draw.put_text(mut g, top + h - 3, col, if s.save_status == 1 then "Saving journey..." else if s.save_status == 2 then "Journey saved" else "Resting", style)
+    draw.put_text(
+        mut g,
+        top + h - 3,
+        col,
+        if s.save_status == 1 {
+            "Saving journey..."
+        } else if s.save_status == 2 {
+            "Journey saved"
+        } else {
+            "Resting"
+        },
+        style,
+    )
 }

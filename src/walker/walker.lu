@@ -152,6 +152,13 @@ pub fn plan(
     let outside = sim.boss_index(s) >= 0 &&
         !forest.in_arena(s.seed, s.field, s.area, start % width - w, start / width + top) &&
         !forest.in_arena(s.seed, s.field, s.area, goal % width - w, goal / width + top)
+    let doors = avoid_doorways(
+        s,
+        start % width - w,
+        start / width + top + origin,
+        goal % width - w,
+        goal / width + top + origin,
+    )
     var parent = List[int]()
     var queue = List[int]()
     var i = 0
@@ -171,6 +178,7 @@ pub fn plan(
                 let next = (ny - top) * width + nx + w
                 if parent[next] < 0 &&
                     !sim.blocked(s, nx, ny + origin) &&
+                    !door_blocked(doors, nx, ny + origin) &&
                     (!outside || !forest.in_arena(s.seed, s.field, s.area, nx, ny)) &&
                     (next == goal || !bodies || !body_on(s, nx, ny + origin)) {
                     parent[next] = at
@@ -274,4 +282,44 @@ fn walk_failure(s: sim.Sim, tx: int, ty: int, reason: str) {
         }
         i += 1
     }
+}
+
+/// Plan around an unlocked doorway unless it is this walk's source or goal.
+/// The maximum turned body envelope leaves room for ordinary steering, not a
+/// collision override. This prevents a cache walk taking an unintended shortcut.
+fn avoid_doorways(s: sim.Sim, sx: int, sy: int, gx: int, gy: int) -> List[sim.Body] {
+    var doors = List[sim.Body]()
+    var edge = 0
+    while edge < forest.EDGES {
+        if forest.other(s.area, edge) >= 0 &&
+            (forest.path_edge(edge) && (edge != 0 || s.gate_open) || sim.shortcut_open(s, edge)) {
+            let (px, py) = forest.portal(s.seed, s.area, edge)
+            var box = sim.cub_body_at(s, 0, 0, 0)
+            var facing = 0
+            while facing < 4 {
+                let b = sim.cub_body_at(s, 0, 0, facing)
+                if b.x0 < box.x0 { box.x0 = b.x0 }
+                if b.x1 > box.x1 { box.x1 = b.x1 }
+                if b.y0 < box.y0 { box.y0 = b.y0 }
+                if b.y1 > box.y1 { box.y1 = b.y1 }
+                facing += 1
+            }
+            let door = sim.Body {
+                x0: px / sim.FP - 3 - box.x1 - 1,
+                x1: px / sim.FP + 3 - box.x0 + 1,
+                y0: py / sim.FP - 1 - box.y1 - 1,
+                y1: py / sim.FP + 1 - box.y0 + 1,
+            }
+            if !inside(door, sx, sy) && !inside(door, gx, gy) { (mut doors).push(door) }
+        }
+        edge += 1
+    }
+    doors
+}
+
+fn inside(b: sim.Body, x: int, y: int) -> bool { x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1 }
+
+fn door_blocked(doors: List[sim.Body], x: int, y: int) -> bool {
+    for door in doors { if inside(door, x, y) { return true } }
+    false
 }

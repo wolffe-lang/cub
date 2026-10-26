@@ -191,7 +191,12 @@ pub fn generate(dir: str) -> int {
             return 1
         }
         walker.press(mut s, mut r, walker.key(controls.KEY_REST))
-        if !sim.cache_open(s, cache) { eprint("proof: cache remains guarded {cache}"); return 1 }
+        if !sim.cache_open(s, cache) {
+            eprint(
+                "proof: cache remains guarded {cache} area {s.area} at {sim.cell_x(s)},{sim.cell_y(s)} goal {cx / sim.FP},{cy / sim.FP}",
+            )
+            return 1
+        }
         snapshot(dir, "coast-cache-{cache}", s, r) else |_| { return 2 }
         cache += 1
     }

@@ -9,6 +9,7 @@ use controls
 use input
 use sim
 use terrain
+use forest
 
 fn one(k: int) -> List[int] {
     var v = List[int]()
@@ -123,11 +124,15 @@ fn test_the_water_stops_the_cub() {
     hold_then_rest(mut s, controls.KEY_UP, 200, 0)
     assert(s.y < y0, "the cub walked north")
     assert(s.blocked > 0, "and was stopped")
-    assert(!terrain.blocked(s.seed, sim.cell_x(s), sim.cell_y(s)), "it stands on open ground")
     assert(
-        terrain.kind(s.seed, sim.cell_x(s), sim.cell_y(s) - 1) == terrain.WATER ||
-            terrain.kind(s.seed, sim.cell_x(s), sim.cell_y(s) - 1) == terrain.REEDS ||
-            terrain.kind(s.seed, sim.cell_x(s), sim.cell_y(s) - 1) == terrain.GRASS,
+        !forest.blocked(s.seed, s.field, s.area, sim.cell_x(s), sim.cell_y(s)),
+        "it stands on open ground",
+    )
+    assert(
+        forest.kind(s.seed, s.field, s.area, sim.cell_x(s), sim.cell_y(s) - 1) == terrain.WATER ||
+            forest.kind(s.seed, s.field, s.area, sim.cell_x(s), sim.cell_y(s) - 1) ==
+                terrain.REEDS ||
+            forest.kind(s.seed, s.field, s.area, sim.cell_x(s), sim.cell_y(s) - 1) == terrain.GRASS,
         "the water or its edge is ahead",
     )
 }

@@ -182,12 +182,11 @@ fn test_cb02b_the_field_is_saved_and_never_moves() {
     assert(wide, "an impossible field is corrupt")
 }
 
-fn test_cb02b_inland_paths_end_inside_the_field() {
+fn inland_paths_end_inside_the_field(seed: int) {
     // No carved path touches the thicket's edge (the meadow's floor is
     // grass, so only Bramblehold tells a path from the ground): the cross
     // path ends at its portals, the cache branches short of the bound.
-    var seed = 0
-    while seed < 5 {
+    {
         let area = forest.BRAMBLEHOLD
         var size = 0
         while size < 2 {
@@ -218,9 +217,18 @@ fn test_cb02b_inland_paths_end_inside_the_field() {
             )
             size += 1
         }
-        seed += 1
     }
 }
+
+fn test_cb02b_inland_paths_end_inside_the_field_seed_0() { inland_paths_end_inside_the_field(0) }
+
+fn test_cb02b_inland_paths_end_inside_the_field_seed_1() { inland_paths_end_inside_the_field(1) }
+
+fn test_cb02b_inland_paths_end_inside_the_field_seed_2() { inland_paths_end_inside_the_field(2) }
+
+fn test_cb02b_inland_paths_end_inside_the_field_seed_3() { inland_paths_end_inside_the_field(3) }
+
+fn test_cb02b_inland_paths_end_inside_the_field_seed_4() { inland_paths_end_inside_the_field(4) }
 
 fn test_cb02b_cub_east_is_the_north_cub_turned() {
     // Pixel for pixel, independent of the module's own turn: the pixel at

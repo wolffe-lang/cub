@@ -396,6 +396,51 @@ def den_progression(binary):
     print('gameplay: den entry, checkpoint, spring/drink/refill and 50-seed censuses green')
 
 
+
+def paths_doors_rest(binary):
+    import collections
+    import csv
+    import io
+    import statistics
+    census = subprocess.run([str(binary), '--paths-audit'], capture_output=True, text=True, check=True)
+    (OUT / (Path(binary).parent.name + '-paths.csv')).write_text(census.stdout)
+    widths = collections.defaultdict(list)
+    routes = collections.defaultdict(list)
+    for row in csv.DictReader(io.StringIO(census.stdout)):
+        r = {k: int(v) for k, v in row.items()}
+        widths[r['area']].append(r['width'])
+        routes[tuple(r[k] for k in ('seed', 'field', 'area', 'path'))].append(r)
+    for area, minimum in enumerate((7, 9, 9, 7, 9, 9)):
+        assert statistics.median(widths[area]) >= minimum, ('path median lost two-cell widening', area)
+        turns = samples = 0
+        for key, rows in routes.items():
+            if key[2] != area:
+                continue
+            sign, last_at = 0, -100
+            samples += len(rows)
+            for row in rows:
+                direction = (row['delta'] > 0) - (row['delta'] < 0)
+                if direction:
+                    turns += bool(sign and direction != sign and row['at'] - last_at <= 3)
+                    sign, last_at = direction, row['at']
+        assert turns * 40 <= samples, ('jaggedness exceeds 0.25 reversals per ten samples', area)
+    for flag, marker in (('--doorways-audit', 'total 806400 misses 0'),
+                         ('--foes-audit', 'frames 193200 omitted_frames 0')):
+        p = subprocess.run([str(binary), flag], capture_output=True, text=True, check=True)
+        (OUT / (Path(binary).parent.name + flag + '.txt')).write_text(p.stdout)
+        assert marker in p.stdout, (flag, 'incomplete census')
+    for tier in ('rich', 'plain'):
+        for size in ('80x24', '120x40'):
+            for name in ('empty', 'pending', 'refused'):
+                dest, states, _ = run(binary, 'rest-menu-' + name + '-' + size, tier)
+                assert all(v['level'] == 1 and v['scent'] == 49 for v in states.values()), 'pending spent early'
+                text = (dest / 'final.txt').read_text()
+                assert 'Scent after' in text and 'Confirm' in text and 'Esc discard' in text
+                if name == 'refused':
+                    assert 'Not enough scent' in text, 'unaffordable raise not shown'
+    print('gameplay: door shadows, clipped foe walk, staged rest panels green')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--bin', required=True)
@@ -407,6 +452,7 @@ def main():
     ghosts(Path(args.bin).resolve())
     fairness(Path(args.bin).resolve())
     den_progression(Path(args.bin).resolve())
+    paths_doors_rest(Path(args.bin).resolve())
 
     feel(Path(args.bin).resolve())
     level_look(Path(args.bin).resolve())
