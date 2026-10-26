@@ -1,0 +1,38 @@
+cb03a Prediction — before implementation
+Base 3c1734899bd76defe4ad14953aeecd9c653264e3.
+
+The existing den generator has four stable locations: Shingle 1,
+Bramblehold 2, Larkmeadow 1 for every seed. I predict after:
+Shingle 1, Bramblehold 3 (including the trio's refuge), Larkmeadow 5
+(entry, three hawk-pair refuges, the cache trio's refuge). Each hard
+cluster means >=3 foes or a pair containing a hawk. A den's actual
+position and distance after its cluster will be censused over 50 seeds;
+the initial-foe 30-cell bar must become an entry-den bar, not prevent
+the very post-cluster refuges this task requires.
+
+Bramblehold currently has a y-monotone meander. I predict four seeded
+switchbacks and five clearings, seven to twelve cells across, route
+length 200-280 cardinal cells (before about 180-240 including its wiggle).
+These are predictions, not measurements. Shortcut and cache routes stay.
+
+The probable boomerang is the hawk's detached ground shadow during its
+stopped tell; source and frame inspection must confirm this. Fleeing deer
+currently sustain retreat faster than the cub's trot. I predict a 36-tick
+bounded flee with <=86 FP/tick versus sprint 120 FP/tick (14.06 cells/s),
+and catch within 24 cells for each ground foe at start stats over 50 seeds.
+The hawk remains an aerial parry encounter, not a ground chase target.
+
+Sprint recommendation: hold c by repeat inference, tap retains dodge;
+12 stamina per second, sprint attack 36 stamina (lunge 30). Combo envelope
+slants +/-11 heading units (about 15 degrees), third exactly zero; x uses
+facing rather than sampled arrows with two clipped backward windup steps.
+Every physical and drawn body census stays 0/0/0.
+
+All 103 existing frame/art golden directories likely move because the HUD
+returns always, plus den/tree/meadow/aim/windup/sprint/chase cases. Score
+PCM remains unchanged. Both tiers at 80x24 and 120x40 need explicit bars.
+
+Coordinator amendment received before code: this lane owns schema 3,
+string area/ordinal den ids, a list of found dens and an empty beaten-boss
+list for cb04; schema 2 refused by name. No engine or pin change. Final
+note goes in the PR body because this wrapper cannot write .md reports.
