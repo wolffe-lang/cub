@@ -1,0 +1,44 @@
+cb04 — the bosses and the ghosts: the prediction, written before any change
+2026-10-25, base trunk 0bcfd0cbc6a6226d76c82b365c5ecabb8a42bdfb (cb02c's merge), engine aa6c4dc0.
+
+THE GROUND TODAY (read, not run)
+- Three areas (Shingle 0, Bramblehold 1, Larkmeadow 2), four dens, edges 0-3 (two paths, the log,
+  the hedge); the save is schema 2 (45 words; last_den 0..3, lit_dens 1..15, shortcuts 0..3,
+  mark_area 0..2); a live recording carries `journey 1` + saved-0..24. No boss, no title card (the
+  contract's "the title card (cb01's)" names nothing in the tree: cub starts in play), no ghost
+  display: a death writes the whole run to a `.pk` (`write_ghost`) and nothing reads it back.
+- The engine's replay reader (`replay.at`, `args_at`) yields keys and numeric events by tick; a `.pk`
+  holds no position, pose or area. 47 cases, 95 golden directories, 169 checked tests, 12 pty rows.
+
+PREDICTIONS
+1. The replay reader CAN drive a ghost sprite without a sim only if the death file carries the
+   ghost's positions as the game's own numeric events (`t TICK ghost-x N` etc., the engine's `t TICK
+   WORD N` channel): keys alone need the sim's locomotion to become positions. What the reader lacks
+   for a ghost is therefore nothing in the engine — a game word per channel — and one convenience:
+   `args_at` scans every event per call (O(events) a tick); fine for a 90-tick trailer, and no engine
+   change is needed. The ghost replay matches the sim's last 90 ticks frame for frame because both
+   read the same file: the test will show 0 differing ticks over the committed death archive.
+2. Attempts-to-win per boss for the scripted real-key fighter over 50 seeds x both sizes (100 worlds),
+   waking at the area's den with the growth the bible expects by then (boar heart 2/fang 2; lynx 3/3;
+   elk 4/4; alpha 6/5): boar 1 attempt in >= 90 worlds, never above 2; lynx mostly 1, a few 2 (the
+   pounce from a ledge is the hardest read); elk 1 in >= 95 (slow, two telegraphs long); alpha 1-2,
+   the widest spread (its mirrored parry turns some bites), at most 3. No world unwon within 5.
+3. Every telegraph >= PARRY_WINDOW (9 ticks) by construction: boar gore 14 (phase 2: 12), charge 24
+   (unparryable, a 3-cell dodge beats it at 7.4 cells/s); lynx swipe 13/10, pounce 15/12, rake 18/15
+   (unparryable); elk sweep 20/16, stamp 24 (unparryable), charge 18 (phase 2); alpha bite 12/9,
+   lunge 15/12 (unparryable), its riposte bite 9 (the floor). The unparryable attack lands 0 hits on
+   the fighter in the census (it dodges on the windup); hits taken overall are from the parryable
+   ones mistimed by the body's turn, under 3 a fight on average.
+4. Golden directories that move: all 95 (every `final.state` gains the save's and the trace's new
+   fields: bosses, end, ghosts, the boss's move), plus new directories: the four boss witnesses
+   (windup, second phase, beaten frames: `boss-boar`, `boss-lynx`, `boss-elk`, `boss-alpha`, each
+   rich and plain, with `from` frames), `ghost` (the mark and the replay), `title`, `title-demo`,
+   `end`, `demo`, three new-area walks (`crags`, `river`, `old-den`), and the art sheet gains
+   `boss-rich/plain` and `wolf-rich/plain`: about 95 + 26 = 121 directories. `saved-den` is
+   regenerated for `journey 2` (the snapshot grows from 25 to 29 values).
+5. The save schema: 3 (`bosses N`, `end N`, `played N`, `lost N` added; last_den 0..6, lit_dens
+   1..127, shortcuts 0..15, mark_area 0..5); a schema-2 file is refused by name (`save_version`), a
+   `journey 1` replay likewise; the text stays under 512 bytes (about 230).
+6. The new areas pass cb02b/cb02c's censuses extended to six areas (flat run <= 2, textured >= 90 %,
+   path_off 0, reach == required, nearest foe >= 30) over 50 seeds x both fields: 600 rows.
+7. Render cost at 80x24 rises under 15 % (the ghost scan and the bar); the perf gate holds at slack 1.
