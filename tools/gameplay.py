@@ -441,11 +441,39 @@ def paths_doors_rest(binary):
     print('gameplay: door shadows, clipped foe walk, staged rest panels green')
 
 
+def den_memory(binary):
+    census = subprocess.run([str(binary), '--den-memory-census'], capture_output=True, text=True)
+    (OUT / (Path(binary).parent.name + '-den-memory-census.txt')).write_text(census.stdout + census.stderr)
+    assert census.returncode == 0 and '100 journeys failures 0 skips 0' in census.stdout, 'den-memory census revived foes'
+    for tier in ('rich', 'plain'):
+        _, states, foes = run(binary, 'den-memory', tier)
+        departures = [(t, v) for t, v in states.items() if t + 1 in states and v['area'] == 0 and states[t + 1]['area'] == 1]
+        returns = [t for t, v in states.items() if t > 1 and v['area'] == 0 and states[t - 1]['area'] == 1]
+        assert departures and len(returns) == 2, 'missing path/log crossings'
+        killed = {f['foe'] for f in foes[departures[0][0]] if f['health'] <= 0}
+        assert killed, 'witness never killed a Shingle foe'
+        assert all(any(f['foe'] == i and f['health'] <= 0 for f in foes[t]) for t in returns for i in killed), 'den-memory path/log revived slain foe'
+        assert all(v['deaths'] == 0 and not v['resting'] for v in states.values()), 'witness rested/died'
+        for cols, rows in ((80, 24), (120, 40), (200, 60)):
+            dest, _, _ = run(binary, 'rest-menu-empty-' + str(cols) + 'x' + str(rows), tier)
+            text = (dest / 'final.txt').read_text().splitlines()
+            width, height = (40 if cols == 80 else 50), (22 if rows == 24 else 26)
+            top = (rows - height) // 2
+            border = '|' if tier == 'plain' else '│'
+            edges = [i for i, c in enumerate(text[top + 2]) if c == border]
+            left = cols // 2 - cols // 6 - width // 2
+            assert edges == [left, left + width - 1], ('ledger drawn off centre', cols, edges)
+            assert len(text) == rows and all(len(line) == cols for line in text), 'ledger frame truncated'
+            print('den-memory: ledger', tier, str(cols) + 'x' + str(rows), 'centre', left + width // 2, top + height // 2)
+    print('gameplay: den-memory path/log, 100 journeys and centred ledgers green')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--bin', required=True)
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
+    den_memory(Path(args.bin).resolve())
     check(Path(args.bin).resolve())
     bodies(Path(args.bin).resolve())
     bosses(Path(args.bin).resolve())

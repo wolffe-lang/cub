@@ -1,0 +1,11 @@
+pk 1
+seed 7
+tier rich
+size 200x60
+t 0 scent 49
+t 0 rest
+t 1 right
+t 2 down
+t 3 right
+
+# frames 21 every 21

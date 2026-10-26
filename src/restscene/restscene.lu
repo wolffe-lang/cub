@@ -137,7 +137,11 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
     let floor = s.rows / 2 + 5
     surroundings(s, t, mut g, floor)
     let bg = background(s.area, t)
-    let left = (panel_left(s) - 38) / 2
+    // Keep the original cub/fire vignette opposite the left-centred ledger.
+    let group_width = if s.cols < 120 then 32 else 38
+    let left = panel_left(s) +
+        panel_width(s) +
+        (s.cols - panel_left(s) - panel_width(s) - group_width) / 2
     let top = floor - 9
     let phase = s.tick / 7 % 4
     let style = grid.cell(32, if t == tier.PLAIN then 7 else 250, bg, 0)
@@ -184,7 +188,7 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
         grid.put(mut g, top + 6, left + 27, grid.cell(0x2598, 52, bg, 0))
         draw.put_text(mut g, top + 8, left + 20, "__", grid.cell(32, 95, 137, 0))
     }
-    let fire = left + 34
+    let fire = left + (if s.cols < 120 then 28 else 34)
     var row = 0
     while row < 6 {
         var col = -3
@@ -228,11 +232,15 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
     )
 }
 
-/// Right-hand allocation panel; leave the complete 38-column cub/fire group clear.
+/// Allocation ledger retains its original size, frame, colours and purchase rows.
 pub fn panel_width(s: sim.Sim) -> int { if s.cols >= 120 then 50 else 40 }
 
-/// Left column of the panel, retaining one cell at the screen edge.
-pub fn panel_left(s: sim.Sim) -> int { s.cols - panel_width(s) - 1 }
+/// Centre one sixth of the screen left of its centre; clamp the whole panel.
+/// The supported80/120/200-column sizes require no clamp (left7/15/42).
+pub fn panel_left(s: sim.Sim) -> int {
+    let left = s.cols / 2 - s.cols / 6 - panel_width(s) / 2
+    if left < 0 then 0 else if left + panel_width(s) > s.cols then s.cols - panel_width(s) else left
+}
 
 /// A larger wide-screen panel, with every row retained at the minimum size.
 pub fn panel_height(s: sim.Sim) -> int { if s.rows >= 40 then 26 else 22 }

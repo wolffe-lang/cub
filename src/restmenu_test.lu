@@ -106,12 +106,13 @@ fn test_cb04d_empty_pending_needs_zero_scent() {
     for t in [0, 1] {
         var g = grid.new(24, 80)
         restscene.menu(s, t, mut g)
+        let value_col = restscene.panel_left(s) + restscene.panel_width(s) - 4
         assert(
-            grid.at(g, 8, 75).cp == 48 && grid.at(g, 8, 74).cp == 32,
+            grid.at(g, 8, value_col).cp == 48 && grid.at(g, 8, value_col - 1).cp == 32,
             "empty allocation costs zero, not the next level",
         )
         assert(
-            grid.at(g, 8, 75).fg == (if t == 0 then 15 else 230),
+            grid.at(g, 8, value_col).fg == (if t == 0 then 15 else 230),
             "zero needed is affordable even with zero held",
         )
     }

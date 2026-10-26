@@ -227,7 +227,7 @@ fn test_cb03_the_death_card_and_the_den_name_the_numbers() {
     var den = grid.new(24, 80)
     art.render(d, tier.PLAIN, mut den)
     assert(
-        has_text(den, 11, 42, "Heart / health") && has_text(den, 12, 42, "Wind / stamina"),
+        has_text(den, 11, 10, "Heart / health") && has_text(den, 12, 10, "Wind / stamina"),
         "the den names health and stamina effects",
     )
 }
