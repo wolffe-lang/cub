@@ -17,8 +17,13 @@ bundle alcoves, every path in the shore's own gravel; the forest is one
 trunk-and-canopy texture to every edge of the screen, the thicket and
 meadow filling the field they were made for. The cub, the foes and the
 bundle are solid pixel silhouettes, one drawing each, turned to face the
-way they go; the cub trots at 7.4 cells a second, its paws and tail
-keeping time with its stride. Every body collides as the drawing it is:
+way they go; the cub trots at 8.8 cells a second, its paws and tail
+keeping time with its stride. Health is the cub's posture, not a bar: the
+ears go back, the tail drops and the trot shortens as it is hurt, and its
+breath shows its stamina; the numbers appear at a den and on the death
+card. An original score plays through the engine's mixer: a part for each
+area, a rest at the den, a sting at a fall, the title over the opening, and
+four boss themes waiting for their bosses (`docs/SCORE.md`). Every body collides as the drawing it is:
 nothing is drawn inside another, and a foe that reaches the cub stands
 where a bite aimed its way lands. Original log and flotsam
 sprites mark the coast. Bite, lunge, parry, dodge and chain attacks; a
@@ -26,6 +31,9 @@ hawk's stopped shadow asks for a parry or an escape. Foes leave visible
 scent to collect before it fades. Dens heal, refill water and spend scent
 on growth. Death leaves a recoverable mark, even across area edges; a
 second death replaces it. An opening scene shows the broken crossing.
+On macOS the music plays through `afplay`; on Linux through `paplay` where
+it is installed, else the game says so once and plays on in silence.
+`--mute`, `CUB_SOUND=0` or the `m` key turn it off.
 
 The journey saves under `~/.cub/save`; resume wakes at the last den with
 reset encounters, keeping growth, shortcuts, opened caches, pouch contents,
@@ -33,8 +41,8 @@ the dropped mark and the field the world was made for (the terminal's
 width when the journey began). `--save PATH` selects a separate journey. Unknown or
 corrupt files fail by name, never silently reset. A quit during a staged
 write preserves the previous save. Live deaths leave self-contained replay
-files under `~/.cub/ghosts/`; ghost display, bosses, music, the larger HUD
-and difficulty selection come later. Every tuning proposal is in
+files under `~/.cub/ghosts/`; ghost display, bosses and difficulty
+selection come later. Every tuning proposal is in
 `docs/DESIGN.md`.
 
 ## Where it runs
@@ -57,6 +65,7 @@ The terminal must be at least 80 columns by 24 rows; the field grows to fill a l
 | Space / `x` / `s` / `z` / `c` | bite/combo / lunge / heavy / parry / dodge |
 | Tab / Esc | lock nearest then cycle / release lock or leave den |
 | `w` / `r` | drink / rest at a den, open a shortcut, or dig an unguarded cache |
+| `m` | the music off, on again |
 | 1–5 at the den | grow heart, wind, fang, paw, nose |
 | `q` | quit; the terminal is restored on every exit |
 | any decoded key during the opening | skip the scene without also making a move |
@@ -75,16 +84,20 @@ tools/fetch-lair               stage the engine at lair.pin into .lair/
 target/cub                     play/resume; --seed N picks a new journey, --tier plain forces plain
 target/cub --save journey      use a separate save file
 target/cub --record run.pk     record the run, including resumed state; --replay run.pk plays it back
+target/cub --mute              play without music (CUB_SOUND=0 does the same)
+target/cub --hud               the debug HUD: health and stamina bars beside the scent
 ```
 
 `cub --help` lists the rest: the headless mode that writes frames for the goldens, `--trace` (one line a
-tick on standard error), `--apply`, the glyph probe, the selftest, and `--bench` for render/diff timings.
+tick on standard error), `--apply`, the glyph probe, the selftest, `--bench` for render/diff timings, and
+the score's paths (`--score-list`, `--score-render`, `--score-wav`, `--score-replay`).
 
 ## Tests
 
 `tools/check` runs the complete local gate: formatting, checked-machine
 tests, native and release builds, decoder selftest, both-tier replay goldens
-and posture sheets, shipping-binary gameplay and persistence assertions,
+and posture sheets, the score's PCM goldens and loop seams on both backends
+(`tools/score-check`), shipping-binary gameplay and persistence assertions,
 pty restoration and replay agreement, and performance. `tools/check-linux`
 runs correctness inside `.lair/tools/in-container`; `tools/check-perf`
 measures rendering, idle wakes and key-to-frame latency.
@@ -98,7 +111,10 @@ coast cell to a useful route or cache, and every path cell in its area's
 one path colour. `--body-audit` holds the bodies apart over the same 50
 seeds at both sizes, with a three-weasel swarm from behind in each world;
 `--measure` reports the pace, the wag, the fox's chase, the path colours
-and the body census over the real-key scripts. The real-key world scripts visit all three areas, fight the hawk,
+and the body census over the real-key scripts. The sound pty rows start the
+game with music on and hold the player to a child of the game, gone with
+it; name the OSS stub's refusal; and prove `--mute`, `CUB_SOUND=0` and the
+`m` key. The real-key world scripts visit all three areas, fight the hawk,
 recover a cross-area mark, return through both shortcuts and open all four
 coast bundles. File tests
 cover save round trips, cut writes, concurrent stages, corruption and
@@ -111,7 +127,7 @@ Linux correctness on every PR, adding macOS and performance in the full tier.
 
 ## Documents
 
-`docs/DESIGN.md` the tuning proposals; `docs/ART.md` the sprites; `docs/GLYPHS.md` every code point the
+`docs/DESIGN.md` the tuning proposals; `docs/SCORE.md` the music and its cue schedule; `docs/ART.md` the sprites; `docs/GLYPHS.md` every code point the
 rich tier uses (PAX's font specification for cub); `docs/REPLAY.md` cub's words in the engine's replay
 format; `docs/PALETTE.md` the daylight and dusk colours; `docs/KEYS.md` the measured
 pty bytes, the physical Shift+Space result, and the remaining terminal rows. The design bible is in the planning repository (`sprints/lair/cub/design.md`).
