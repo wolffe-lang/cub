@@ -1,0 +1,10 @@
+cb04f memory free+inactive=17643405312 at 2026-10-26T23:11:08Z
+test src/denmemory_test.lu::test_cb04f_wounded_survivors_heal_and_home_on_reentry ... ok
+test src/denmemory_test.lu::test_cb04f_rest_and_death_reset_every_area_but_not_bosses ... ok
+test src/denmemory_test.lu::test_cb04f_loot_survives_travel_without_duplicate_collection_or_fresh_expiry ... ok
+test src/denmemory_test.lu::test_cb04f_save_and_snapshot_keep_slain_with_stable_boss_independent_ordinals ... ok
+test src/denmemory_test.lu::test_cb04f_schema4_migrates_canonically_with_empty_slain_masks ... ok
+test src/denworld_test.lu::test_cb04f_slain_survive_path_and_log ... ok
+test src/denworld_test.lu::test_cb04f_ledger_centre_at_three_sizes ... ok
+test src/denworld_test.lu::test_cb04f_narrow_ledger_does_not_slice_scene_labels ... ok
+wolf test: 8 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out

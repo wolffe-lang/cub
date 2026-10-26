@@ -1,0 +1,28 @@
+MAC PASS 1
+57870143ebbb4806b8bee40379e8c6e781f50842
+wolf 0.2.35 (wolfgang, pin cf0c13d)
+paired with lupin 0.1.56 (reference interpreter), pin 294d626
+lupin 0.1.56 (wolf-interp, reference interpreter at pin 294d626)
+2386522eb059cca5a84108562c2c0a0e72345d34
+9dc958e4e5d53fc178dd77da8cea7f63149196db26c7366a51972e4c62884cd3  /Users/mfwolffe/lanes/cb04f/cub/.lair/wolf-toolchain.toml
+MAC PASS 2
+57870143ebbb4806b8bee40379e8c6e781f50842
+wolf 0.2.35 (wolfgang, pin cf0c13d)
+paired with lupin 0.1.56 (reference interpreter), pin 294d626
+lupin 0.1.56 (wolf-interp, reference interpreter at pin 294d626)
+2386522eb059cca5a84108562c2c0a0e72345d34
+9dc958e4e5d53fc178dd77da8cea7f63149196db26c7366a51972e4c62884cd3  /Users/mfwolffe/lanes/cb04f/cub/.lair/wolf-toolchain.toml
+LINUX PASS 1
+57870143ebbb4806b8bee40379e8c6e781f50842
+wolf 0.2.35 (wolfgang, pin cf0c13d)
+paired with lupin 0.1.56 (reference interpreter), pin 294d626
+lupin 0.1.56 (wolf-interp, reference interpreter at pin 294d626)
+2386522eb059cca5a84108562c2c0a0e72345d34
+9dc958e4e5d53fc178dd77da8cea7f63149196db26c7366a51972e4c62884cd3  /home/mfwolffe/lanes/cb04f/cub/.lair/wolf-toolchain.toml
+LINUX PASS 2
+57870143ebbb4806b8bee40379e8c6e781f50842
+wolf 0.2.35 (wolfgang, pin cf0c13d)
+paired with lupin 0.1.56 (reference interpreter), pin 294d626
+lupin 0.1.56 (wolf-interp, reference interpreter at pin 294d626)
+2386522eb059cca5a84108562c2c0a0e72345d34
+9dc958e4e5d53fc178dd77da8cea7f63149196db26c7366a51972e4c62884cd3  /home/mfwolffe/lanes/cb04f/cub/.lair/wolf-toolchain.toml

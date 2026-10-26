@@ -1,0 +1,6 @@
+Linux release/native matching; 80x24 plain: borders 7..46, top 1, width 40, height 22, edge-centre (27.0, 12.0), clamp none
+Linux release/native matching; 80x24 rich: borders 7..46, top 1, width 40, height 22, edge-centre (27.0, 12.0), clamp none
+Linux release/native matching; 120x40 plain: borders 15..64, top 7, width 50, height 26, edge-centre (40.0, 20.0), clamp none
+Linux release/native matching; 120x40 rich: borders 15..64, top 7, width 50, height 26, edge-centre (40.0, 20.0), clamp none
+Linux release/native matching; 200x60 plain: borders 42..91, top 17, width 50, height 26, edge-centre (67.0, 30.0), clamp none
+Linux release/native matching; 200x60 rich: borders 42..91, top 17, width 50, height 26, edge-centre (67.0, 30.0), clamp none

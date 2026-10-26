@@ -1,0 +1,4 @@
+cb04f memory free+inactive=17429381120 at 2026-10-26T23:03:24Z
+test src/denworld_test.lu::test_cb04f_slain_survive_path_and_log ... ok
+test src/denworld_test.lu::test_cb04f_ledger_centre_at_three_sizes ... FAILED (trap(assert))
+wolf test: 1 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out
