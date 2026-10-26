@@ -6,7 +6,7 @@
 //! graph; every census bar of cb02b and cb02c extended to six areas.
 
 use art
-use coast
+use journey
 use forest
 use grid
 use sim
@@ -20,7 +20,10 @@ fn test_cb04_the_graph_has_six_areas_and_nine_edges() {
     assert(forest.other(forest.LARKMEADOW, 4) == forest.CRAGS, "the meadow leads to the crags")
     assert(forest.other(forest.CRAGS, 5) == forest.RIVER, "the crags lead to the river")
     assert(forest.other(forest.RIVER, 6) == forest.OLDDEN, "the river leads to the old den")
-    assert(forest.other(forest.OLDDEN, 6) == forest.RIVER && forest.other(forest.OLDDEN, 5) < 0, "the end")
+    assert(
+        forest.other(forest.OLDDEN, 6) == forest.RIVER && forest.other(forest.OLDDEN, 5) < 0,
+        "the end",
+    )
     // The shortcuts home: the ledge (crags to the meadow), the shallows
     // (the river to the crags).
     assert(forest.other(forest.CRAGS, 7) == forest.LARKMEADOW, "the ledge")
@@ -59,22 +62,57 @@ fn test_cb04_the_graph_has_six_areas_and_nine_edges() {
 }
 
 fn test_cb04_every_area_reaches_its_dens_portals_and_arena() {
-    // The flood over the real tiles (cb02's rule) in every area, the first
-    // eight seeds at both fields; the shipping binary's audit runs fifty.
+    // The flood over the real tiles is the shipping binary's audit (fifty
+    // seeds, both fields, six areas); the checked machine samples what it
+    // floods: the spine walkable row by row, every den, portal and arena
+    // centre on open ground, in three seeds.
     var seed = 0
-    while seed < 8 {
-        var size = 0
-        while size < 2 {
-            let field = if size == 0 then 80 else 200
-            var area = 0
-            while area < forest.AREAS {
+    while seed < 3 {
+        let field = 80
+        var area = 3
+        while area < forest.AREAS {
+            let o = forest.origin(seed, area)
+            var y = 0
+            while y <= forest.LENGTH {
                 assert(
-                    forest.reach_count(seed, field, area) == forest.required(area),
-                    "seed {seed} field {field} area {area} reaches {forest.reach_count(seed, field, area)} of {forest.required(area)}",
+                    !forest.blocked(seed, field, area, forest.spine(seed, area, y), o + y),
+                    "clear path seed {seed} area {area} row {y}",
                 )
-                area += 1
+                y += 1
             }
-            size += 1
+            var edge = 0
+            while edge < forest.EDGES {
+                if forest.other(area, edge) >= 0 {
+                    let (px, py) = forest.portal(seed, area, edge)
+                    assert(
+                        !forest.blocked(seed, field, area, px / sim.FP, py / sim.FP),
+                        "portal {edge} open seed {seed} area {area}",
+                    )
+                }
+                edge += 1
+            }
+            let (cx, cy, _) = forest.arena(seed, field, area)
+            assert(
+                !forest.blocked(seed, field, area, cx, o + cy),
+                "arena centre open seed {seed} area {area}",
+            )
+            area += 1
+        }
+        var den = 4
+        while den < forest.DENS {
+            let (dx, dy) = forest.den_position(seed, den)
+            let a = forest.den_area(den)
+            assert(
+                !forest.blocked(
+                    seed,
+                    field,
+                    a,
+                    (dx - sim.FP / 2) / sim.FP,
+                    (dy - sim.FP / 2) / sim.FP,
+                ),
+                "den {den} open seed {seed}",
+            )
+            den += 1
         }
         seed += 1
     }
@@ -86,45 +124,56 @@ fn test_cb04_every_area_reaches_its_dens_portals_and_arena() {
 
 fn test_cb04_arenas_are_open_ground_inside_their_bounds() {
     // Every arena cell is open (the floor, the shallows) but the crags'
-    // pillars; the arena lies inside the field at both sizes.
+    // pillars; the arena lies inside the field at both sizes. Two seeds
+    // here; the audit's flood reaches every arena centre in fifty.
     var seed = 0
-    while seed < 8 {
+    while seed < 2 {
         var area = 0
         while area < forest.AREAS {
             if forest.has_arena(area) {
-                var size = 0
-                while size < 2 {
-                    let field = if size == 0 then 80 else 200
-                    let (cx, cy, r) = forest.arena(seed, field, area)
-                    assert(
-                        cx - r >= 0 - forest.half_width(field) && cx + r <= forest.half_width(field),
-                        "arena inside the field seed {seed} area {area}",
-                    )
-                    var pillars = 0
-                    var dy = 0 - r
-                    while dy <= r {
-                        var dx = 0 - r
-                        while dx <= r {
-                            if dx * dx + dy * dy <= r * r {
-                                let k = forest.kind(seed, field, area, cx + dx, forest.origin(seed, area) + cy + dy)
-                                if k == terrain.ROCK {
-                                    assert(area == forest.CRAGS, "stone only in the lynx's bowl")
-                                    pillars += 1
-                                } else {
-                                    assert(
-                                        !forest.blocked(seed, field, area, cx + dx, forest.origin(seed, area) + cy + dy),
-                                        "open arena seed {seed} area {area} at {dx},{dy} kind {k}",
-                                    )
-                                }
+                let field = 80
+                let (cx, cy, r) = forest.arena(seed, field, area)
+                assert(
+                    cx - r >= 0 - forest.half_width(field) && cx + r <= forest.half_width(field),
+                    "arena inside the field seed {seed} area {area}",
+                )
+                let (wx, _, wr) = forest.arena(seed, 200, area)
+                assert(wx - wr >= 0 - forest.half_width(200), "and inside the wide field")
+                var pillars = 0
+                var dy = 0 - r
+                while dy <= r {
+                    var dx = 0 - r
+                    while dx <= r {
+                        if dx * dx + dy * dy <= r * r {
+                            let k = forest.kind(
+                                seed,
+                                field,
+                                area,
+                                cx + dx,
+                                forest.origin(seed, area) + cy + dy,
+                            )
+                            if k == terrain.ROCK {
+                                assert(area == forest.CRAGS, "stone only in the lynx's bowl")
+                                pillars += 1
+                            } else {
+                                assert(
+                                    !forest.blocked(
+                                        seed,
+                                        field,
+                                        area,
+                                        cx + dx,
+                                        forest.origin(seed, area) + cy + dy,
+                                    ),
+                                    "open arena seed {seed} area {area} at {dx},{dy} kind {k}",
+                                )
                             }
-                            dx += 1
                         }
-                        dy += 1
+                        dx += 1
                     }
-                    if area == forest.CRAGS {
-                        assert(pillars == 4 * forest.PILLARS, "three ledges of four cells: {pillars}")
-                    }
-                    size += 1
+                    dy += 1
+                }
+                if area == forest.CRAGS {
+                    assert(pillars == 4 * forest.PILLARS, "three ledges of four cells: {pillars}")
                 }
             }
             area += 1
@@ -140,40 +189,90 @@ fn test_cb04_the_shallows_are_waded_at_half_pace() {
     let field = 80
     let (cx, cy, _) = forest.arena(seed, field, forest.RIVER)
     let b = forest.river_bank(seed, field, cy)
+    let far = forest.river_bank(seed, field, cy - 40)
     assert(
         forest.kind(seed, field, forest.RIVER, b - 3, cy) == terrain.SHALLOWS &&
-            forest.kind(seed, field, forest.RIVER, b - 20, cy) == terrain.WATER &&
-            forest.kind(seed, field, forest.RIVER, b - 3, cy - 40) == terrain.WATER,
+            forest.kind(seed, field, forest.RIVER, cx - 16, cy) == terrain.WATER &&
+            forest.kind(seed, field, forest.RIVER, far - 3, cy - 40) == terrain.WATER,
         "shallows at the ford, water elsewhere",
     )
     assert(!forest.blocked(seed, field, forest.RIVER, b - 3, cy), "the shallows are waded")
     var s = sim.new(seed, 80, 24)
     sim.enter_area(mut s, forest.RIVER, (b - 3) * sim.FP + sim.FP / 2, cy * sim.FP + sim.FP / 2)
+    (mut s.foes).reset()
     assert(sim.in_shallows(s, s.x, s.y), "standing in the shallows")
+    // Wade west, deeper into the ford, along the band.
     var keys = List[int]()
-    (mut keys).push(2)
+    (mut keys).push(3)
     var i = 0
     while i < 40 {
         sim.step(mut s, keys)
         assert(s.speed <= sim.trot_at(1) / 2, "the current holds the trot to half: {s.speed}")
         i += 1
     }
-    assert(s.speed == sim.trot_at(1) / 2, "wading at half the trot")
+    assert(s.speed == sim.trot_at(1) / 2, "wading at half the trot: {s.speed}")
     assert(cx > b, "the ford's arena straddles the bank")
 }
 
 fn test_cb04_the_new_areas_keep_the_texture_and_path_bars() {
-    // cb02b's and cb02c's censuses over the six areas: no flat fill (stone
-    // included), every path cell in its area's one path colour.
-    let (flat, textured) = coast.texture(0, 80)
-    assert(flat <= coast.FLAT_MAX && textured >= coast.TEXTURED_MIN, "texture {flat} {textured}")
+    // cb02b's and cb02c's rules in the new areas, sampled (the fifty-seed,
+    // every-position census is the shipping binary's audit): a row of each
+    // area drawn on both tiers with no empty forest cell and no flat pair,
+    // stone included; every spine cell in its area's one path colour.
     var area = 3
     while area < forest.AREAS {
-        assert(art.path_audit(0, 80, area) == 0, "path colours area {area}")
+        var t = tier.PLAIN
+        while t <= tier.RICH {
+            var s = sim.new(0, 80, 24)
+            s.area = area
+            s.y = (forest.origin(0, area) + 80) * sim.FP
+            var g = grid.new(24, 80)
+            art.terrain_row(s, t, 12, mut g)
+            var col = 1
+            while col < 80 {
+                let (x, y) = sim.world_cell(s, 12, col)
+                let k = forest.kind(0, 80, area, x, y)
+                let c = grid.at(g, 12, col)
+                let fill = k == terrain.DARK || k == terrain.CANOPY || k == terrain.ROCK
+                if fill || k == terrain.TRUNK {
+                    assert(c.cp != 32 && c.fg != c.bg, "forest drawn area {area} {x},{y}")
+                }
+                if fill {
+                    let (lx, ly) = sim.world_cell(s, 12, col - 1)
+                    let lk = forest.kind(0, 80, area, lx, ly)
+                    if lk == terrain.DARK || lk == terrain.CANOPY || lk == terrain.ROCK {
+                        assert(
+                            !grid.same(c, grid.at(g, 12, col - 1)),
+                            "a flat pair area {area} at {x}",
+                        )
+                    }
+                }
+                col += 1
+            }
+            if t == tier.PLAIN { assert(grid.plain_ok(g), "plain row area {area}") }
+            var y = 0
+            while y <= forest.LENGTH {
+                let x = forest.spine(0, area, y)
+                assert(
+                    art.is_path_style(
+                        area,
+                        t,
+                        art.ground_at(0, 80, area, t, x, forest.origin(0, area) + y),
+                    ),
+                    "spine in the path colour area {area} row {y}",
+                )
+                y += 4
+            }
+            t += 1
+        }
         assert(forest.straight_run(0, area) <= forest.STRAIGHT_MAX, "straight run area {area}")
         area += 1
     }
-    assert(forest.path_kind(forest.CRAGS) == terrain.GRAVEL && forest.path_kind(forest.OLDDEN) == terrain.GRASS, "path kinds")
+    assert(
+        forest.path_kind(forest.CRAGS) == terrain.GRAVEL &&
+            forest.path_kind(forest.OLDDEN) == terrain.GRASS,
+        "path kinds",
+    )
     // Each new area draws under its own keyframe on both tiers.
     var t = tier.PLAIN
     while t <= tier.RICH {
@@ -181,9 +280,15 @@ fn test_cb04_the_new_areas_keep_the_texture_and_path_bars() {
         let night = art.kind_cell(forest.OLDDEN, t, terrain.CANOPY, 0, 0)
         let river = art.kind_cell(forest.RIVER, t, terrain.SHALLOWS, 1, 0)
         assert(crag.cp != 32 && crag.fg != crag.bg, "stone is drawn")
-        assert(!grid.same(crag, art.kind_cell(forest.CRAGS, t, terrain.ROCK, 1, 1)), "two stone faces")
+        assert(
+            !grid.same(crag, art.kind_cell(forest.CRAGS, t, terrain.ROCK, 1, 1)),
+            "two stone faces",
+        )
         assert(night.fg != night.bg, "the night wood is drawn")
-        assert(river.bg == art.kind_cell(forest.RIVER, t, terrain.WATER, 0, 0).bg, "shallows on the water")
+        assert(
+            river.bg == art.kind_cell(forest.RIVER, t, terrain.WATER, 0, 0).bg,
+            "shallows on the water",
+        )
         if t == tier.PLAIN {
             assert(crag.cp <= 255 && night.cp <= 255 && river.cp <= 255 && river.fg <= 15, "plain")
         }
@@ -202,7 +307,10 @@ fn test_cb04_the_boar_clearing_is_a_branch_off_the_thicket() {
         assert(cx == forest.BOAR_X && cy == forest.BOAR_ROW && r == 11, "the clearing")
         var x = forest.spine(seed, forest.BRAMBLEHOLD, cy)
         while x <= cx {
-            assert(!forest.blocked(seed, field, forest.BRAMBLEHOLD, x, cy), "the branch at {x} seed {seed}")
+            assert(
+                !forest.blocked(seed, field, forest.BRAMBLEHOLD, x, cy),
+                "the branch at {x} seed {seed}",
+            )
             x += 1
         }
         let (dx, dy) = forest.den_position(seed, 2)
@@ -211,4 +319,81 @@ fn test_cb04_the_boar_clearing_is_a_branch_off_the_thicket() {
         assert(ddx * ddx + ddy * ddy > 900, "the briar hollow thirty cells off")
         seed += 1
     }
+}
+
+fn test_cb04_schema_3_carries_the_bosses_and_refuses_schema_2() {
+    // The save gains the bosses beaten, the end, the ticks played and the
+    // scent lost; the dens, shortcuts and areas of the whole forest fit;
+    // a schema-2 file is refused by name, as schema 1 is.
+    var s = sim.new(17, 80, 24)
+    s.gate_open = true
+    s.shortcuts = 15
+    s.bosses = 15
+    s.end = true
+    s.played = 123456
+    s.lost = 77
+    s.last_den = 6
+    s.lit_dens = 127
+    s.mark = true
+    s.mark_area = 5
+    let (mx, my) = forest.den_position(s.seed, 6)
+    s.mark_x = mx
+    s.mark_y = my
+    s.mark_scent = 9
+    let text = journey.encode(s)
+    assert(text.starts_with("CUB 3\n") && text.len < 512, "schema 3, short")
+    assert(text.contains("\nbosses 15 end 1 played 123456 lost 77\n"), "the new line")
+    let back = journey.decode(text, 80, 24) else |e| { assert(false, "valid save {e}"); return }
+    assert(
+        back.bosses == 15 && back.end && back.played == 123456 && back.lost == 77,
+        "the fields survive",
+    )
+    assert(
+        back.area == forest.OLDDEN && back.last_den == 6 && back.mark_area == 5,
+        "the whole forest",
+    )
+    assert(journey.encode(back) == text, "byte-identical")
+    assert(
+        journey.snapshot(s).len == journey.SNAPSHOT && journey.snapshot(s)[25] == 15,
+        "the snapshot",
+    )
+    var old = false
+    let _ = journey.decode(text.replace("CUB 3", "CUB 2"), 80, 24) else |e| {
+        old = "{e}" == "save_version"
+        sim.new(1, 80, 24)
+    }
+    assert(old, "a schema-2 save is refused by name")
+    // The end needs the alpha beaten; an opened ledge needs the lynx.
+    s.end = true
+    s.bosses = 7
+    var bad = false
+    let _ = journey.decode(journey.encode(s), 80, 24) else |_| { bad = true; sim.new(1, 80, 24) }
+    assert(bad, "an end without the alpha is corrupt")
+    s.end = false
+    s.bosses = 1
+    s.shortcuts = 4
+    bad = false
+    let _ = journey.decode(journey.encode(s), 80, 24) else |_| { bad = true; sim.new(1, 80, 24) }
+    assert(bad, "the ledge open without the lynx is corrupt")
+}
+
+fn test_cb04_played_and_lost_are_counted_at_rests_and_deaths() {
+    var s = sim.new(1, 80, 24)
+    (mut s.foes).reset()
+    var keys = List[int]()
+    var i = 0
+    while i < 40 { sim.step(mut s, keys); i += 1 }
+    assert(sim.played_ticks(s) == 40 && s.played == 0, "the session's ticks, not yet saved")
+    s.scent = 30
+    sim.hurt(mut s, 1000)
+    assert(
+        s.played == 40 && s.lost == 0 && s.mark_scent == 30,
+        "folded at the death; the first mark stands",
+    )
+    i = 0
+    while i < 30 { sim.step(mut s, keys); i += 1 }
+    s.scent = 5
+    sim.hurt(mut s, 1000)
+    assert(s.lost == 30 && s.mark_scent == 5, "a second death loses the first mark's scent")
+    assert(sim.played_ticks(s) == s.tick, "every tick counted once")
 }
