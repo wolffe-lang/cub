@@ -1,4 +1,9 @@
-"""Game-owned live witnesses, using lair's pty and restore checks unchanged."""
+"""Game-owned live witnesses, using lair's pty and restore checks unchanged.
+
+Rows that do not test the music pass --mute (cb03): a sound-on start spends
+about a second rendering the WAVs before the terminal opens, and keys typed
+in that second sit in the canonical line discipline. The sound rows below
+start the game with music on deliberately."""
 import os
 from pathlib import Path
 import subprocess
@@ -9,7 +14,7 @@ def den_keys(binary, ctx):
     home.mkdir(parents=True, exist_ok=True)
     env = ctx.env_for()
     env['HOME'] = str(home)
-    s = ctx.Session([binary, '--seed', '7', '--save', str(home / 'den.save'), '--tier', 'plain'], 24, 80, env)
+    s = ctx.Session([binary, '--seed', '7', '--save', str(home / 'den.save'), '--tier', 'plain', '--mute'], 24, 80, env)
     s.type(b'?', settle=.15)
     s.type(b'r', settle=.2)
     s.type(b'12345', settle=.2)
@@ -82,7 +87,7 @@ def feel_controls(binary, ctx):
               ('lock-empty', b'\x1b[D\t', 192)]
     for tier in ('rich', 'plain'):
         for name, chord, aim in arrows:
-            session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace'], 24, 80, env)
+            session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace', '--mute'], 24, 80, env)
             session.type(b'?', settle=.15)
             session.type(chord + b'x', settle=.45)
             session.type(b'q')
@@ -91,7 +96,7 @@ def feel_controls(binary, ctx):
             (root / (tier + '-' + name + '.trace')).write_bytes(session.err)
             if not re.search(rb'action 2 aim ' + str(aim).encode() + rb' combo 0', session.err):
                 problems.append(tier + ' ' + name + ' did not commit the injected aim')
-        session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace'], 24, 80, env)
+        session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace', '--mute'], 24, 80, env)
         session.type(b'?', settle=.15)
         session.type(b'\x1b[C ', settle=.25)
         session.type(b' ', settle=.37)
@@ -103,7 +108,7 @@ def feel_controls(binary, ctx):
         for combo in (1, 2, 3):
             if not re.search(rb'action 1 aim 64 combo ' + str(combo).encode(), session.err):
                 problems.append(tier + ' live combo missing ' + str(combo))
-        session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace'], 24, 80, env)
+        session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace', '--mute'], 24, 80, env)
         session.type(b'?', settle=.15)
         session.type(b'\x1b[Cs', settle=.75)
         session.type(b'q')
@@ -131,7 +136,7 @@ def pending_save(binary, ctx):
                         '--dump', str(root / (name + '-initial'))], check=True)
         before = path.read_bytes()
         session = ctx.Session([binary, '--save', str(path), '--save-delay', '60',
-                               '--tier', 'plain'], 24, 80, ctx.env_for())
+                               '--tier', 'plain', '--mute'], 24, 80, ctx.env_for())
         session.type(b'?', settle=.25)
         if not stage.is_file():
             problems.append(name + ': no pending write existed before the exit')
@@ -156,7 +161,7 @@ def save_failure(binary, ctx):
                     '--dump', str(root / 'initial')], check=True)
     before = path.read_bytes()
     stage.write_bytes(b'another writer owns this stage')
-    session = ctx.Session([binary, '--save', str(path), '--tier', 'plain'],
+    session = ctx.Session([binary, '--save', str(path), '--tier', 'plain', '--mute'],
                           24, 80, ctx.env_for())
     session.type(b'?', settle=.2)
     session.finish()
@@ -183,7 +188,7 @@ def resumed_record(binary, ctx):
                     '--frames', frames, '--every', frames, '--dump', str(root / 'initial')], check=True)
     record = root / 'resumed.pk'
     session = ctx.Session([binary, '--save', str(path), '--record', str(record),
-                           '--tier', 'plain', '--no-truecolor', '--ticks', '30'],
+                           '--tier', 'plain', '--no-truecolor', '--ticks', '30', '--mute'],
                           24, 80, ctx.env_for())
     session.type(b'?', settle=.2)
     session.finish()
