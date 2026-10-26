@@ -1,0 +1,26 @@
+//! demo — the title's recorded demo (cb04): tests/cases/demo.pk, the
+//! real-key script the proof generates, embedded line by line so the title
+//! plays it from the binary alone. Written by tools/embed-demo.py; a test
+//! holds it to the case file.
+
+use controls
+use replay
+
+/// The demo's `.pk` lines.
+pub fn lines() -> List[str] {
+    var out = List[str]()
+    (mut out).push("pk 1")
+    (mut out).push("seed 1")
+    (mut out).push("tier rich")
+    (mut out).push("size 80x24")
+    (mut out).push("t 0 right")
+    (mut out).push("t 2 right")
+    out
+}
+
+/// The demo as a replay (`parse` cannot happen: the lines are a committed case).
+pub fn load() -> replay.Replay {
+    var text = ""
+    for l in lines() { text += l + "\n" }
+    replay.from_text(text, controls.vocab()) else replay.new(1, 1, 80, 24)
+}
