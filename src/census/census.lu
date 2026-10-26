@@ -48,15 +48,16 @@ pub fn cub_facing(s: sim.Sim) -> int {
     s.body_facing
 }
 
+/// The drawing the frame uses for the cub: the cub's, or the wolf's after
+/// the end (cb04).
+fn cub_drawing(s: sim.Sim) -> silhouette.Bitmap {
+    if s.end then silhouette.wolf(0, 0) else silhouette.cub(0, 0, 0)
+}
+
 /// The cub's footprint where it stands, without the presentation's leap
 /// or head shake: the body a foe touches.
 pub fn ground_box(s: sim.Sim) -> Box {
-    placed(
-        silhouette.cub(0, 0, 0),
-        cub_facing(s),
-        sim.floor_div(s.x, sim.FP),
-        sim.floor_div(s.y, sim.FP),
-    )
+    placed(cub_drawing(s), cub_facing(s), sim.floor_div(s.x, sim.FP), sim.floor_div(s.y, sim.FP))
 }
 
 /// The cub's footprint where the frame draws it this tick.
@@ -64,7 +65,7 @@ pub fn cub_box(s: sim.Sim) -> Box {
     let (ox, oy) = sim.attack_offset(s)
     let facing = cub_facing(s)
     var b = placed(
-        silhouette.cub(0, 0, 0),
+        cub_drawing(s),
         facing,
         sim.floor_div(s.x + ox, sim.FP),
         sim.floor_div(s.y + oy, sim.FP),

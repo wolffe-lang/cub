@@ -9,6 +9,7 @@
 
 use draw
 use forest
+use ghost
 use grid
 use silhouette
 use sim
@@ -16,6 +17,20 @@ use sprites
 use terrain
 use tier
 use world
+
+/// What a frame shows beyond the simulation (cb04): the ghosts of the
+/// journey's deaths, and on the title the demo's own world (a list of one
+/// simulation, or empty).
+pub struct Extra {
+    ghosts: ghost.Set,
+    demo: List[sim.Sim],
+    demo_on: bool,
+}
+
+/// No ghosts, no demo.
+pub fn extra_none() -> Extra {
+    Extra { ghosts: ghost.empty(), demo: List[sim.Sim](), demo_on: false }
+}
 
 /// The terrain of screen row `row` into `g` on tier `t`.
 pub fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
@@ -89,7 +104,9 @@ pub fn kind_cell(area: int, t: int, k: int, variant: int, foliage: int) -> grid.
     var cell = sprites.glyph(t, sprite_of(k), variant)
     // The Shallows' water, shallows and reeds keep the river's own colours
     // under its keyframe; everything else inland takes the area's floor.
-    let water = k == terrain.WATER || k == terrain.SHALLOWS || k == terrain.REEDS && area == forest.RIVER
+    let water = k == terrain.WATER ||
+        k == terrain.SHALLOWS ||
+        k == terrain.REEDS && area == forest.RIVER
     if area != forest.SHINGLE && !water {
         cell.bg = if t == tier.RICH then floor_of(area) else 0
         cell.fg = dusk_ink(area, t, k, foliage)
@@ -316,27 +333,18 @@ pub fn draw_cub(mut g: grid.Grid, t: int, row: int, col: int, facing: int, band:
     )
 }
 
-/// The whole frame: the ground on every row, then the cub at the centre.
-/// `g` must be the simulation's size (`assert`).
+/// The whole frame with nothing beyond the simulation (the tests', the
+/// instrument's): `render_with` and no extra.
 pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
-    assert(g.rows == s.rows && g.cols == s.cols, "art.render: the grid is the simulation's size")
-    if s.scene != 0 { opening_frame(s, t, mut g); return }
-    var row = 0
-    while row < s.rows {
-        terrain_row(s, t, row, mut g)
-        row += 1
-    }
-    shore_finds(s, t, mut g)
-    shade_exits(s, t, mut g)
-    draw_world_marks(s, t, mut g)
-    // The cub's own cell is the centre; the silhouette hangs about it.
-    let (ox, oy) = sim.attack_offset(s)
-    let r = sim.screen_row(s) + sim.floor_div(s.y + oy, sim.FP) - sim.cell_y(s)
-    let c = sim.screen_col(s) + sim.floor_div(s.x + ox, sim.FP) - sim.cell_x(s)
-    // The body's facing (cb02c): the aim's during an attack, the heading's
-    // quarter otherwise, held while a swing has no room for it.
-    let facing = s.body_facing
-    let pose = if s.exhausted {
+    render_with(s, extra_none(), t, mut g)
+}
+
+/// The pose the frame draws the cub in: 0 standing, 1 walking, 2 sneaking
+/// (and an attack's windup), 3 panting, 4 fallen (the ghosts record it).
+pub fn pose_of(s: sim.Sim) -> int {
+    if s.action == sim.FALL {
+        4
+    } else if s.exhausted {
         3
     } else if s.sneaking ||
         s.action == sim.BITE && s.tick - s.started < 3 ||
@@ -346,6 +354,52 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
         1
     } else {
         0
+    }
+}
+
+/// The whole frame: the ground on every row, the ghosts, then the cub at
+/// the centre, the bosses' bar, the lines. `g` must be the simulation's
+/// size (`assert`). A scene (the opening, the title, the end) draws its
+/// own frame instead.
+pub fn render_with(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid) {
+    assert(g.rows == s.rows && g.cols == s.cols, "art.render: the grid is the simulation's size")
+    if s.scene == 1 { opening_frame(s, t, mut g); return }
+    if s.scene == sim.SCENE_TITLE { title_frame(s, extra, t, mut g); return }
+    if s.scene == sim.SCENE_END { end_frame(s, t, mut g); return }
+    var row = 0
+    while row < s.rows {
+        terrain_row(s, t, row, mut g)
+        row += 1
+    }
+    shore_finds(s, t, mut g)
+    shade_exits(s, t, mut g)
+    draw_ghosts(s, extra.ghosts, t, mut g)
+    draw_world_marks(s, t, mut g)
+    // The cub's own cell is the centre; the silhouette hangs about it.
+    let (ox, oy) = sim.attack_offset(s)
+    let r = sim.screen_row(s) + sim.floor_div(s.y + oy, sim.FP) - sim.cell_y(s)
+    let c = sim.screen_col(s) + sim.floor_div(s.x + ox, sim.FP) - sim.cell_x(s)
+    // The body's facing (cb02c): the aim's during an attack, the heading's
+    // quarter otherwise, held while a swing has no room for it.
+    let facing = s.body_facing
+    let pose = if pose_of(s) == 4 then 0 else pose_of(s)
+    if s.end {
+        // The wolf (cb04): the cub grown one size, the same gait.
+        draw_wolf(
+            mut g,
+            t,
+            r,
+            c,
+            facing,
+            band(s.stamina, sim.stamina_max(s.wind)),
+            pose,
+            sim.legs(s),
+        )
+        draw_posture(s, t, mut g)
+        draw_hud(s, t, mut g)
+        draw_boss_bar(s, t, mut g)
+        world_lines(s, t, mut g)
+        return
     }
     let shake = sim.head_shake(s)
     if shake != 0 && t == tier.RICH {
@@ -394,6 +448,7 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
     }
     draw_posture(s, t, mut g)
     draw_hud(s, t, mut g)
+    draw_boss_bar(s, t, mut g)
     world_lines(s, t, mut g)
     if s.gate_hint_until > s.tick {
         draw.put_text(mut g, s.rows - 2, 1, "the thorns need a lunge", ink(t, true))
@@ -747,7 +802,13 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
                     mut g,
                     sim.floor_div(x, sim.FP) - 3,
                     sim.floor_div(y, sim.FP),
-                    if edge == 3 then "[ hedge ]" else if edge == 7 then "[ ledge ]" else "[ shallows ]",
+                    if edge == 3 {
+                        "[ hedge ]"
+                    } else if edge == 7 {
+                        "[ ledge ]"
+                    } else {
+                        "[ shallows ]"
+                    },
                     true,
                 )
             }
@@ -775,10 +836,10 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
         } else if f.died >= 0 {
             s.tick - f.died
         } else {
-            sim.FOE_FADE_TICKS
+            sim.BOSS_FADE_TICKS
         }
-        if fade < sim.FOE_FADE_TICKS &&
-            (s.area != forest.BRAMBLEHOLD || sim.visible(s, s.x, s.y, f.x, f.y)) {
+        let gone = if sim.is_boss(f.kind) then sim.BOSS_FADE_TICKS else sim.FOE_FADE_TICKS
+        if fade < gone && (s.area != forest.BRAMBLEHOLD || sim.visible(s, s.x, s.y, f.x, f.y)) {
             let r = sim.floor_div(f.y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
             let c = sim.floor_div(f.x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
             draw_foe(mut g, t, r, c, f.kind, f.phase, f.heading, fade)
@@ -941,7 +1002,22 @@ pub fn draw_pose(
     hurt: int,
     breath: int,
 ) {
-    let style = fur(t, band)
+    draw_pose_in(mut g, t, row, col, facing, fur(t, band), pose, legs, tail, rising)
+}
+
+/// `draw_pose` in a given style (a ghost's grey, cb04).
+pub fn draw_pose_in(
+    mut g: grid.Grid,
+    t: int,
+    row: int,
+    col: int,
+    facing: int,
+    style: grid.Cell,
+    pose: int,
+    legs: int,
+    tail: int,
+    rising: bool,
+) {
     if t == tier.RICH {
         silhouette.draw_at(
             mut g,
@@ -988,6 +1064,7 @@ pub fn draw_foe(
     heading: int,
     fade: int,
 ) {
+    if sim.is_boss(kind) { draw_boss(mut g, t, row, col, kind, phase, heading, fade); return }
     if fade >= sim.FOE_FADE_TICKS { return }
     if kind == sim.HAWK { draw_hawk(mut g, t, row, col, phase, fade); return }
     let colour = if kind == sim.DEER {
@@ -1568,5 +1645,625 @@ pub fn coast_sheet(t: int) -> grid.Grid {
         )
         col += 1
     }
+    g
+}
+
+// The bosses, the ghosts, the title and the end (cb04).
+
+/// A boss's colour on a tier: the boar's bristle brown, the lynx's tawny
+/// coat, the elk's grey, the alpha's smoke (`docs/PALETTE.md`).
+fn boss_colour(t: int, kind: int) -> int {
+    if t == tier.RICH {
+        return match kind {
+            4 => 130,
+            5 => 179,
+            6 => 145,
+            _ => 244,
+        }
+    }
+    match kind {
+        4 => 1,
+        5 => 3,
+        6 => 7,
+        _ => 8,
+    }
+}
+
+/// A boss at its cell: on the rich tier one solid silhouette turned to its
+/// heading, its tell a posture of the drawing (`silhouette.boss`), the
+/// alpha's red eyes over it; the plain tier a head, body and tail in ASCII
+/// in the same footprint. A beaten boss fades over forty-five ticks.
+pub fn draw_boss(
+    mut g: grid.Grid,
+    t: int,
+    row: int,
+    col: int,
+    kind: int,
+    phase: int,
+    heading: int,
+    fade: int,
+) {
+    if fade >= sim.BOSS_FADE_TICKS { return }
+    let style = grid.cell(
+        32,
+        boss_colour(t, kind),
+        grid.COLOR_DEFAULT,
+        if fade < 0 && kind != sim.ALPHA then grid.ATTR_BOLD else 0,
+    )
+    let facing = quarter(heading)
+    if t == tier.RICH {
+        silhouette.draw_at(mut g, row, col, silhouette.boss(kind, phase, fade), facing, style)
+    } else {
+        let rows = plain_boss(kind, phase, fade, facing)
+        let (w, h) = silhouette.foe_size(kind)
+        let (dc, dr, _, _) = silhouette.footprint(w, h, facing)
+        var i = 0
+        while i < rows.len {
+            put_over(mut g, row + dr + i, col + dc, rows[i], style)
+            i += 1
+        }
+    }
+    if kind == sim.ALPHA && fade < 15 {
+        // Two red eyes at the head's sides, whichever way it faces.
+        let (w, h) = silhouette.foe_size(kind)
+        let (dc, dr, cols, rows) = silhouette.footprint(w, h, facing)
+        var eyes = List[int]()
+        if facing == 0 {
+            (mut eyes).push(row + dr + 1)
+            (mut eyes).push(col + dc + 1)
+            (mut eyes).push(row + dr + 1)
+            (mut eyes).push(col + dc + cols - 2)
+        } else if facing == 2 {
+            (mut eyes).push(row + dr + rows - 2)
+            (mut eyes).push(col + dc + 1)
+            (mut eyes).push(row + dr + rows - 2)
+            (mut eyes).push(col + dc + cols - 2)
+        } else if facing == 1 {
+            (mut eyes).push(row + dr)
+            (mut eyes).push(col + dc + cols - 2)
+            (mut eyes).push(row + dr + rows - 1)
+            (mut eyes).push(col + dc + cols - 2)
+        } else {
+            (mut eyes).push(row + dr)
+            (mut eyes).push(col + dc + 1)
+            (mut eyes).push(row + dr + rows - 1)
+            (mut eyes).push(col + dc + 1)
+        }
+        var k = 0
+        while k < 4 {
+            var cell = grid.at(g, eyes[k], eyes[k + 1])
+            cell.cp = if t == tier.RICH then 9679 else 111
+            cell.fg = if t == tier.RICH then 196 else 9
+            cell.attrs = grid.ATTR_BOLD
+            grid.put(mut g, eyes[k], eyes[k + 1], cell)
+            k += 2
+        }
+    }
+}
+
+/// The plain tier's bosses in ASCII with the rich footprints (the boar six
+/// cells by six north, twelve by three east; the lynx five by five, ten by
+/// three; the elk seven by seven, fourteen by four; the alpha six by six,
+/// twelve by three). The head leads: a windup lowers it to `_`, a strike
+/// thrusts `'`, a stagger lifts `!`, the alpha's guard `]`; the fade erodes
+/// the head at fifteen ticks and the body at thirty.
+fn plain_boss(kind: int, phase: int, fade: int, facing: int) -> List[str] {
+    let (w, h) = silhouette.foe_size(kind)
+    let (_, _, cols, rows) = silhouette.footprint(w, h, facing)
+    let windup = phase == sim.CROUCH
+    let strike = phase == sim.STRIKE
+    let stagger = phase == sim.STAGGER
+    let guard = phase == sim.FOE_PARRY
+    let mark = if fade >= 15 {
+        "."
+    } else if windup {
+        "_"
+    } else if strike {
+        "'"
+    } else if stagger {
+        "!"
+    } else if guard {
+        "]"
+    } else if kind == sim.BOAR {
+        "o"
+    } else if kind == sim.LYNX {
+        "^"
+    } else if kind == sim.ELK {
+        "Y"
+    } else {
+        "o"
+    }
+    let body = if fade >= 30 then "." else "#"
+    var out = List[str]()
+    if facing % 2 == 0 {
+        var r = 0
+        while r < rows {
+            var line = ""
+            var c = 0
+            while c < cols {
+                let head_row = if facing == 0 then r == 0 else r == rows - 1
+                let tail_row = if facing == 0 then r == rows - 1 else r == 0
+                line += if head_row {
+                    (if c == 0 || c == cols - 1 then " " else mark)
+                } else if tail_row {
+                    (if c == cols / 2 then (if phase == sim.RETREAT then "~" else ",") else " ")
+                } else if c == 0 || c == cols - 1 {
+                    (if r == 1 || r == rows - 2 then " " else body)
+                } else {
+                    body
+                }
+                c += 1
+            }
+            (mut out).push(line)
+            r += 1
+        }
+        return out
+    }
+    var r = 0
+    while r < rows {
+        var line = ""
+        var c = 0
+        while c < cols {
+            let head_col = if facing == 1 then c >= cols - 2 else c <= 1
+            let tail_col = if facing == 1 then c == 0 else c == cols - 1
+            line += if head_col {
+                (if r == rows / 2 then mark else " ")
+            } else if tail_col {
+                (if r == rows / 2 then "," else " ")
+            } else if r == 0 || r == rows - 1 {
+                (if c % 3 == 0 then " " else body)
+            } else {
+                body
+            }
+            c += 1
+        }
+        (mut out).push(line)
+        r += 1
+    }
+    out
+}
+
+/// The wolf the cub becomes (cb04): rich, `silhouette.wolf` turned to the
+/// facing; plain, a six-by-six ASCII body (twelve by three turned).
+pub fn draw_wolf(
+    mut g: grid.Grid,
+    t: int,
+    row: int,
+    col: int,
+    facing: int,
+    band: int,
+    pose: int,
+    legs: int,
+) {
+    let style = fur(t, band)
+    if t == tier.RICH {
+        silhouette.draw_at(mut g, row, col, silhouette.wolf(pose, legs), facing, style)
+        return
+    }
+    let (w, h) = silhouette.wolf_size()
+    let (dc, dr, cols, rows) = silhouette.footprint(w, h, facing)
+    var r = 0
+    while r < rows {
+        var line = ""
+        var c = 0
+        while c < cols {
+            line += if facing % 2 == 0 {
+                let head = if facing == 0 then r == 0 else r == rows - 1
+                let tail = if facing == 0 then r == rows - 1 else r == 0
+                if head {
+                    (if c == 1 || c == cols - 2 then "^" else " ")
+                } else if tail {
+                    (if c == cols / 2 then "," else " ")
+                } else if c == 0 || c == cols - 1 {
+                    (if r == 2 || r == 3 then "#" else " ")
+                } else {
+                    "#"
+                }
+            } else {
+                let head = if facing == 1 then c == cols - 1 else c == 0
+                let tail = if facing == 1 then c == 0 else c == cols - 1
+                if head {
+                    (if r == rows / 2 then (if facing == 1 then ">" else "<") else " ")
+                } else if tail {
+                    (if r == rows / 2 then "," else " ")
+                } else if r == 0 || r == rows - 1 {
+                    (if c == 2 || c == cols - 3 then "^" else "=")
+                } else {
+                    "#"
+                }
+            }
+            c += 1
+        }
+        put_over(mut g, row + dr + r, col + dc, line, style)
+        r += 1
+    }
+}
+
+/// The boss's health bar (R-cb04-2 A): a line under the boss's name while
+/// the cub stands in the arena and the boss lives, the one number-like
+/// element the HUD allows beside the scent counter; `!` marks the second
+/// phase.
+fn draw_boss_bar(s: sim.Sim, t: int, mut g: grid.Grid) {
+    let i = sim.boss_index(s)
+    if i < 0 || !sim.cub_in_arena(s) { return }
+    let f = copy s.foes[i]
+    let text = boss_bar_text(f)
+    let left = (s.cols - text.len) / 2
+    draw.put_text(mut g, 1, left, text, ink(t, true))
+    // The filled cells in the boss's colour.
+    let filled = f.health * 20 / sim.foe_health(f.kind)
+    var k = 0
+    while k < filled {
+        var cell = grid.at(g, 1, left + sim.boss_name(f.kind).len + 2 + k)
+        cell.fg = boss_colour(t, f.kind)
+        grid.put(mut g, 1, left + sim.boss_name(f.kind).len + 2 + k, cell)
+        k += 1
+    }
+}
+
+/// The bar's text: the name, twenty cells of `#` and `.`, the phase mark.
+pub fn boss_bar_text(f: sim.Foe) -> str {
+    let filled = f.health * 20 / sim.foe_health(f.kind)
+    var bar = sim.boss_name(f.kind) + " ["
+    var k = 0
+    while k < 20 {
+        bar += if k < filled then "#" else "."
+        k += 1
+    }
+    bar + "]" + (if sim.phase_two(f) then " !" else "")
+}
+
+/// A ghost's grey by rank (0 the newest), rich and plain: fading by age
+/// (R-cb04-1 A).
+fn ghost_style(t: int, rank: int) -> grid.Cell {
+    if t == tier.RICH {
+        let shade = match rank {
+            0 => 251,
+            1 => 248,
+            2 => 245,
+            3 => 242,
+            _ => 239,
+        }
+        return grid.cell(32, shade, grid.COLOR_DEFAULT, grid.ATTR_DIM)
+    }
+    grid.cell(
+        32,
+        if rank == 0 then 7 else 8,
+        grid.COLOR_DEFAULT,
+        if rank == 0 then grid.ATTR_BOLD else 0,
+    )
+}
+
+/// The ghosts of the area: a dim silhouette lying at each death's spot
+/// (the plain tier an `x`), and when the cub is near one, that death's
+/// last seconds replayed as a ghost moving through the world, driven by
+/// the file's trailer alone (`ghost.playing`).
+fn draw_ghosts(s: sim.Sim, set: ghost.Set, t: int, mut g: grid.Grid) {
+    var rank = 0
+    while rank < set.ghosts.len {
+        let gh = copy set.ghosts[rank]
+        if gh.area == s.area {
+            let style = ghost_style(t, rank)
+            let r = sim.floor_div(gh.y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
+            let c = sim.floor_div(gh.x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
+            if t == tier.RICH {
+                silhouette.draw_at(mut g, r, c, silhouette.cub(0, 0, 0), gh.facing, style)
+            } else {
+                put_over(mut g, r, c, "x", style)
+            }
+            if sim.near(s.x, s.y, gh.x, gh.y, ghost.NEAR * sim.FP) {
+                let i = ghost.playing(gh, s.tick)
+                if i >= 0 {
+                    let f = copy gh.frames[i]
+                    let fr = sim.floor_div(f.y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
+                    let fc = sim.floor_div(f.x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
+                    draw_pose_in(
+                        mut g,
+                        t,
+                        fr,
+                        fc,
+                        f.facing,
+                        style,
+                        if f.pose == 4 then 0 else f.pose,
+                        i % 2,
+                        0,
+                        true,
+                    )
+                }
+            }
+        }
+        rank += 1
+    }
+}
+
+/// The title (cb04): over the demo's world when it plays (after ten idle
+/// seconds) or the opening's river, the game's name, the four bosses as
+/// silhouettes lit where the save says beaten, the keys, and the word that
+/// begins.
+fn title_frame(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid) {
+    if extra.demo_on && extra.demo.len > 0 {
+        render_with(extra.demo[0], extra_none(), t, mut g)
+    } else {
+        let style = grid.cell(
+            32,
+            if t == tier.RICH then 153 else 7,
+            if t == tier.RICH then 17 else 4,
+            0,
+        )
+        var row = 0
+        while row < s.rows {
+            var col = 0
+            while col < s.cols {
+                var cell = copy style
+                if (row * 7 + col + s.tick / 6) % 9 == 0 {
+                    cell.cp = if t == tier.RICH then 8776 else 126
+                }
+                grid.put(mut g, row, col, cell)
+                col += 1
+            }
+            row += 1
+        }
+    }
+    let top = (s.rows - 22) / 2
+    let mid = s.cols / 2
+    let bright = ink(t, true)
+    let dim = ink(t, false)
+    // A dark band for the card, so it reads over the demo.
+    draw.fill(mut g, top, mid - 36, 22, 72, grid.cell(32, bright.fg, bright.bg, 0))
+    draw.put_text(mut g, top + 1, mid - 9, "c  u  b", bright)
+    draw.put_text(mut g, top + 2, mid - 24, "a cub finds its way home through Thornmere", dim)
+    // The four bosses, lit when beaten: the boar, the lynx, the elk, the
+    // alpha, their names under them.
+    var k = 0
+    while k < 4 {
+        let kind = sim.BOAR + k
+        let beaten = s.bosses / sim.boss_bit(kind) % 2 == 1
+        let col = mid - 27 + k * 18
+        let style = if beaten {
+            grid.cell(32, boss_colour(t, kind), bright.bg, grid.ATTR_BOLD)
+        } else {
+            grid.cell(32, if t == tier.RICH then 240 else 8, bright.bg, 0)
+        }
+        if t == tier.RICH {
+            silhouette.draw_at(mut g, top + 7, col + 3, silhouette.boss(kind, 0, -1), 0, style)
+        } else {
+            let rows = plain_boss(kind, sim.HUNT, -1, 0)
+            let (w, h) = silhouette.foe_size(kind)
+            let (dc, dr, _, _) = silhouette.footprint(w, h, 0)
+            var i = 0
+            while i < rows.len {
+                put_over(mut g, top + 7 + dr + i, col + 3 + dc, rows[i], style)
+                i += 1
+            }
+        }
+        draw.put_text(
+            mut g,
+            top + 12,
+            col,
+            sim.boss_name(kind),
+            if beaten then copy bright else copy dim,
+        )
+        draw.put_text(mut g, top + 13, col, if beaten then "beaten" else "      ", dim)
+        k += 1
+    }
+    draw.put_text(
+        mut g,
+        top + 15,
+        mid - 34,
+        "arrows walk   Shift+arrow sneak   Space bite   x lunge   s heavy",
+        dim,
+    )
+    draw.put_text(
+        mut g,
+        top + 16,
+        mid - 34,
+        "z parry   c dodge   Tab lock   w water   r rest   q quit",
+        dim,
+    )
+    draw.put_text(mut g, top + 18, mid - 7, "any key begins", bright)
+    draw.put_text(
+        mut g,
+        top + 20,
+        mid - 20,
+        if s.end {
+            "the pack is home; the forest is yours to roam"
+        } else if s.opening_seen {
+            "the journey resumes at " + forest.den_name(s.last_den)
+        } else {
+            "a new journey; the first night is the hardest"
+        },
+        dim,
+    )
+}
+
+/// The end (cb04): the ford at dawn seen from the far bank, the wolf that
+/// crosses (three frames of ninety ticks), then the card with the run's
+/// numbers (time, deaths, scent lost, bosses) and `r` to keep playing
+/// (R-cb04-4 A).
+fn end_frame(s: sim.Sim, t: int, mut g: grid.Grid) {
+    let age = s.tick - s.scene_started
+    let dawn = grid.cell(32, if t == tier.RICH then 180 else 7, if t == tier.RICH then 17 else 4, 0)
+    let mid = s.cols / 2
+    if age < sim.END_CARD_AT {
+        // The Ashwater across the middle, the far bank above, the near below.
+        var row = 0
+        while row < s.rows {
+            var col = 0
+            while col < s.cols {
+                let cell = if row < s.rows / 3 {
+                    kind_cell(
+                        forest.SHINGLE,
+                        t,
+                        terrain.GRAVEL,
+                        if (row * 11 + col * 3) % 7 == 0 then 1 + (row + col) % 3 else 0,
+                        0,
+                    )
+                } else if row < s.rows * 2 / 3 {
+                    sprites.glyph(
+                        t,
+                        if col > mid - 12 && col < mid + 12 {
+                            sprites.SP_SHALLOWS
+                        } else {
+                            sprites.SP_WATER
+                        },
+                        if (row * 31 + col * 17 + age / 6) % 5 == 0 then 1 + (row + col) % 3 else 0,
+                    )
+                } else {
+                    kind_cell(
+                        forest.SHINGLE,
+                        t,
+                        terrain.GRAVEL,
+                        if (row * 5 + col * 13) % 7 == 0 then 1 + (row + col) % 3 else 0,
+                        0,
+                    )
+                }
+                grid.put(mut g, row, col, cell)
+                col += 1
+            }
+            row += 1
+        }
+        // The pack on the far bank, four wolves facing the river.
+        var k = 0
+        while k < 4 {
+            draw_wolf(mut g, t, s.rows / 6, mid - 24 + k * 14, 2, 0, 0, 0)
+            k += 1
+        }
+        // The wolf: at the near bank, then crossing, then among the pack.
+        let frame = age / sim.SCENE_TICKS
+        let near_row = s.rows * 5 / 6
+        let far_row = s.rows / 6 + 8
+        let r = if frame == 0 {
+            near_row
+        } else if frame == 1 {
+            near_row - (near_row - far_row) * (age - sim.SCENE_TICKS) / sim.SCENE_TICKS
+        } else {
+            far_row
+        }
+        draw_wolf(mut g, t, r, mid, 0, 0, if frame == 1 then 1 else 0, age / 6 % 2)
+        draw.put_text(
+            mut g,
+            2,
+            4,
+            if frame == 0 {
+                "Dawn at Moonford. On the far bank, the pack is waiting."
+            } else if frame == 1 {
+                "It is not a cub any more that crosses."
+            } else {
+                "The pack howls. Home."
+            },
+            dawn,
+        )
+        draw.put_text(mut g, s.rows - 2, 4, "Any key", dawn)
+        return
+    }
+    // The card.
+    var row = 0
+    while row < s.rows {
+        var col = 0
+        while col < s.cols {
+            grid.put(mut g, row, col, dawn)
+            col += 1
+        }
+        row += 1
+    }
+    let top = s.rows / 2 - 6
+    let style = ink(t, true)
+    let soft = ink(t, false)
+    draw.fill(mut g, top, mid - 22, 12, 44, grid.cell(32, style.fg, style.bg, 0))
+    draw.put_text(mut g, top + 1, mid - 2, "Home", style)
+    let secs = sim.played_ticks(s) / 30
+    let mins = secs / 60
+    let rest = secs % 60
+    draw.put_text(
+        mut g,
+        top + 3,
+        mid - 18,
+        "time        {mins}:{if rest < 10 then "0" else ""}{rest}",
+        soft,
+    )
+    draw.put_text(mut g, top + 4, mid - 18, "deaths      {s.deaths}", soft)
+    draw.put_text(mut g, top + 5, mid - 18, "scent lost  {s.lost}", soft)
+    var beaten = 0
+    var k = 0
+    while k < 4 {
+        if s.bosses / sim.boss_bit(sim.BOAR + k) % 2 == 1 { beaten += 1 }
+        k += 1
+    }
+    draw.put_text(mut g, top + 6, mid - 18, "bosses      {beaten} of 4", soft)
+    draw.put_text(mut g, top + 8, mid - 18, "The forest is yours to roam, a wolf now.", soft)
+    draw.put_text(mut g, top + 10, mid - 18, "r keeps playing; q leaves", style)
+}
+
+/// The boss study: every boss in every posture and three fade stages,
+/// north, and the east form of each, on both tiers (`docs/ART.md`).
+pub fn boss_sheet(t: int) -> grid.Grid {
+    var g = grid.new(60, 100)
+    var row = 0
+    while row < g.rows {
+        var col = 0
+        while col < g.cols {
+            grid.put(mut g, row, col, sprites.glyph(t, sprites.SP_GRAVEL, 0))
+            col += 1
+        }
+        row += 1
+    }
+    var k = 0
+    while k < 4 {
+        let kind = sim.BOAR + k
+        let top = 1 + k * 15
+        draw.put_text(
+            mut g,
+            top,
+            1,
+            sim.boss_name(kind) +
+                ":  hunt     windup   strike   recover  stagger  guard    hop      fade15   fade30   east",
+            ink(t, true),
+        )
+        var i = 0
+        while i < 9 {
+            let phase = if i < 5 {
+                i
+            } else if i == 5 {
+                sim.FOE_PARRY
+            } else if i == 6 {
+                sim.FOE_DODGE
+            } else {
+                sim.HUNT
+            }
+            let fade = if i == 7 then 15 else if i == 8 then 30 else -1
+            draw_boss(mut g, t, top + 6, 13 + i * 9, kind, phase, 0, fade)
+            i += 1
+        }
+        draw_boss(mut g, t, top + 6, 92, kind, sim.HUNT, 64, -1)
+        k += 1
+    }
+    g
+}
+
+/// The wolf study: the wolf standing and walking in the four facings, the
+/// cub beside it for the size (`docs/ART.md`).
+pub fn wolf_sheet(t: int) -> grid.Grid {
+    var g = grid.new(14, 80)
+    var row = 0
+    while row < g.rows {
+        var col = 0
+        while col < g.cols {
+            grid.put(mut g, row, col, sprites.glyph(t, sprites.SP_GRAVEL, 0))
+            col += 1
+        }
+        row += 1
+    }
+    draw.put_text(
+        mut g,
+        1,
+        1,
+        "wolf:  N          E              S          W              cub",
+        ink(t, true),
+    )
+    draw_wolf(mut g, t, 7, 9, 0, 0, 0, 0)
+    draw_wolf(mut g, t, 7, 24, 1, 0, 1, 0)
+    draw_wolf(mut g, t, 7, 42, 2, 0, 0, 0)
+    draw_wolf(mut g, t, 7, 57, 3, 0, 1, 1)
+    draw_cub(mut g, t, 7, 72, 0, 0)
     g
 }
