@@ -18,7 +18,8 @@ the numeric events, the `# score` comment). cub's words in it are its vocabulary
 | `r` | `rest` |
 | `q` | `quit` |
 | Esc | `release` |
-| 1–5 at the den | `heart`, `wind`, `fang`, `paw`, `nose` |
+| 1–5 (inert, retained for old recordings) | `heart`, `wind`, `fang`, `paw`, `nose` |
+| Enter at rest | `confirm` (new id27; earlier ids unchanged) |
 | `m` | `mute` (cb03: the music off and on; inert in the simulation) |
 | Ctrl-C as a byte | `interrupt` |
 
@@ -135,7 +136,9 @@ Current recordings use `journey 3` and thirty values, `saved-0` through
 Slot7 is discovered water capacity0/2/3, not an unconditional three.
 Older journey snapshots fail `save_version`; scripts without a snapshot
 still start a fresh cub. Versioned save files similarly refuse schema1–3.
-No key opcode changes: rest/heart/wind/fang/paw/nose/water keep their words.
+The cb04a words remain valid. Since cb04d, numeric stat keys are inert;
+arrows allocate pending levels and `confirm` (id27) or `bite` on the
+Confirm row applies them. Pending choices are replayed, never saved.
 
 `--make-den-proof DIR` writes the six regional rest scenes at both sizes,
 `den-checkpoint`, `spring-drink` and `water-refill`. Scene fixtures explicitly

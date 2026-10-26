@@ -96,6 +96,7 @@ fn usage_text() -> str {
         "  cub --apply CAPTURE --size WxH    a captured byte stream as a frame\n" +
         "  cub --art-study --dump DIR        the sprite sheets, both tiers\n" +
         "  cub --look-audit                  fifty-seed world sprite census\n" +
+        "  cub --paths-audit / --doorways-audit / --foes-audit  route and clipping censuses\n" +
         "  cub --probe-glyphs                measure the rich glyphs' widths here\n" +
         "  cub --selftest                    the decoder table and the diff property, on THIS binary\n\n" +
         "  keys: arrows walk (the cub turns at its turn rate), Shift+arrow sneaks,\n" +
