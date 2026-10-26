@@ -1,7 +1,7 @@
-!health|[============]~   ~~      ~   ~ ~  ~  ~ ~      ~       ~~      !|!||||!!
+ health [============]    ~~      ~   ~ ~  ~  ~ ~      ~       ~~      !|!||||!!
  sta                                                                           ,
- /X_                           c  u  b                                      .   
- |_/            a cub finds its way home through Thornmere                      
+                               c  u  b                                      .   
+                a cub finds its way home through Thornmere                      
                                                                               , 
                                                   YYYYY                      ,  
                oooo              ^^^              #####              oooo   |;%:

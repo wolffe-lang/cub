@@ -1,8 +1,8 @@
- health [============]~~The Shingle~         ~ ~~                     ~ ~ ~ ~   
- stamina[============]~ scent 28 ~        ~        ~      ~~            ~    ~  
-~         ~ ~  ~~   ~ ~ The Shingle - a den ahead; scent of home~  ~    ~    ~ ~
-              ~ ~~~ ~ ~~~ ~  ~~        ~       ~~  ~   ~~     ~~~   ~       ~   
-   ~                 ~    ~              ~    ~ ~    ~ ~ ~   ~    ~~    ~~~~  ~ 
+ health [============] ~The Shingle~         ~ ~~                     ~ ~ ~ ~   
+ stamina[============]  scent 28 ~        ~        ~      ~~            ~    ~  
+                        The Shingle - a den ahead; scent of home~  ~    ~    ~ ~
+                       ~~ ~  ~~        ~       ~~  ~   ~~     ~~~   ~       ~   
+                          ~              ~    ~ ~    ~ ~ ~   ~    ~~    ~~~~  ~ 
  ~     ~ ~ ~            ~        ~ ~~               ~ ~   ~   ~ ~    ~~~ ~ ~    
    ~~ ~              ~  ~   ~~~  ~  ~     ~        ~~ ~ ~~~ ~  ~     ~~  ~     ~
         ~~ ~         ~                ~ ~   ~~     ~     ~    ~   ~  ~       ~  

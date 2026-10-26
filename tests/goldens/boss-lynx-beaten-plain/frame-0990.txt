@@ -1,22 +1,22 @@
-Ohealth#[============]O#O  :  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  . "", |.#
-#stamina[=====       ]#Oscent 0O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#   '|  | 'O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#   ..#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   O   ,  #
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#  ,  #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# ".       O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# .   #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'    O   O#
+ health [============] #O  :  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  . "", |.#
+ stamina[=====       ] Oscent 40#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#   '|  | 'O
+                       #O#O#   ..#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   O   ,  #
+                       O#O#O#  ,  #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# ".       O
+                       #O#O#O# .   #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'    O   O#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#' . ' :. #O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O' "   "O "#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#     #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O        'O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   ,.O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'   |' "."#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.    O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.      '|"O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#     # #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  # "|#'  #
-#O#O#O#O#O#O#O#O#O#O#O#O#O#,    ,  .   O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# '  '  ""'O
-O#O#O#O#O#O#O#O#O#O#O#O#O#   .  ., . .^####=.#O#O#O#O#O#O#O#O#O#O#O#O '|  O'O |#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#,    ,. .   O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# '  '  ""'O
+O#O#O#O#O#O#O#O#O#O#O#O#O#   .  ., .*.^####=.#O#O#O#O#O#O#O#O#O#O#O#O '|  O'O |#
 #O#O#O#O#O#O#O#O#O#O#O#O#O           .<####=,O#O#O#O#O#O#O#O#O#O#O#O.  '#| " O.O
-O#O#O#O#O#O#O#O#O#O#O#O#O         ,        #O#O#O#O#O#O#O#O#O#O#O#O '   :'"   "#
+O#O#O#O#O#O#O#O#O#O#O#O#O       .*...      #O#O#O#O#O#O#O#O#O#O#O#O '   :'"   "#
 #O#O#O#O#O#O#O#O#O#O#O#O#      ## ## #    : #O#O#O#O#O#O#O#O#O#O#O#            O
 O#O#O#O#O#O#O#O#O#O#O#O# :    ,#######..    :#O#O#O#O#O#O#O#O#O#O#O":' ' "     #
 #O#O#O#O#O#O#O#O#O#O#O#O      :## ##.#       O#O#O#O#O#O#O#O#O#O#    "" "   "O O
-O#O#O#O#O#O#O#O#O#O#O#O,          :  #O .     O#O#O#O#O#O#O#O#O   O' , " "" :  #
+O#O#O#O#O#O#O#O#O#O#O#O,        . . .#O .     O#O#O#O#O#O#O#O#O   O' , " "" :  #
 #O#O#O#O#O#O#O#O#O#O#O#            . O#       #O#O#O#O#O#O#O'    '.. ." ''".". O
 O#O#O#O#O#O#O#O#O#O#O#O:               :    . O#O#O#   |  ' "" ""     '  #:.,' #
 #O#O#O#O#O#O#O#O#O#O#O#         : :         .,#O  #      "|"  # :  O  "  , "|' O

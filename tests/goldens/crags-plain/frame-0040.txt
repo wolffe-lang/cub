@@ -1,8 +1,8 @@
-#healthO[============]#OThe TeethO#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-Ostamina[============]O#scent 0#O#O#O#O#O#O.......O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-#O#O#O#O#O#O#O#O#O#O#O#OThe Teeth - a den ahead; scent of home#O#O#O#O#O#O#O#O#O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.......O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  .. O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+ health [============] OThe TeethO#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+ stamina[============] #scent 0#O#O#O#O#O#O.......O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+                       OThe Teeth - a den ahead; scent of home#O#O#O#O#O#O#O#O#O
+                       #O#O#O#O#O#O#O#O#O#O.......O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+                       O#O#O#O#O#O#O#O#O#O#O  .. O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#  ,: #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#~..   O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
@@ -21,4 +21,4 @@ O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   , O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 ,"" .| '  #O#O#O#O#O# .  O#O#O#O#O#O# , .O#O#    .#O#    O#O#O#O#O#O#O#O#O#O#O#O
     O   |  #O#O#O          #O#O#O#. .  :     :  O# :   .  O#O#O#O#O#      O#O#O#
  :  ,.#   . # . :            O#O#              O .:         #O#O#O    ..   O#O#O
-   .'  :,| .......         .   .        ,     . ,            #O#O             O#
+   .'  :,| ....___         .   .        ,     . ,            #O#O             O#
