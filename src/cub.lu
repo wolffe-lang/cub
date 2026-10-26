@@ -112,6 +112,8 @@ fn usage_text() -> str {
         "  --make-world-proof DIR             generate real-key world test scripts\n" +
         "  --feel-audit / --chase-audit / --mouth-audit  den, path and real-key pursuit censuses\n" +
         "  --world-audit                     graph/density census over seeds 0..49\n" +
+        "  --den-census                      shortest den paths and both faces of every thorn gate\n" +
+        "  --make-den-proof DIR              regional rest, healing and checkpoint scripts\n" +
         "  --measure [SCRIPT...]             pace, wag, chase, path styles, body census (last flag)\n" +
         "  --body-audit [SCRIPT...]          the body census over 50 seeds x 2 sizes, a swarm each\n" +
         "  --boss-census                     the fairness census: every boss fought in 50 seeds x 2 sizes\n" +
@@ -879,7 +881,7 @@ fn run_live(o: Options, args: List[str]) -> int {
             }
             if o.trace {
                 eprint(
-                    "trace tick {s.tick} action {s.action} aim {s.attack_heading} combo {s.combo} stamina {s.stamina} sprint {if s.sprinting then 1 else 0} dash_hits {sim.dash_hits(s)} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} scene {s.scene} demo {if extra.demo_on then 1 else 0} wall_us {(clock.now_ns() - t0_ns) / 1000}",
+                    "trace tick {s.tick} resting {if s.den then 1 else 0} area {s.area} den_id {s.last_den} health {s.health} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_area {s.mark_area} capacity {s.flask_max} flasks {s.flasks} action {s.action} aim {s.attack_heading} combo {s.combo} stamina {s.stamina} sprint {if s.sprinting then 1 else 0} dash_hits {sim.dash_hits(s)} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} scene {s.scene} demo {if extra.demo_on then 1 else 0} wall_us {(clock.now_ns() - t0_ns) / 1000}",
                 )
                 trace_bytes = 0
             }

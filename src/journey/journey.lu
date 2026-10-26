@@ -24,15 +24,13 @@ pub error PrepareErrors = {
 /// Named failures for CommitErrors.
 pub error CommitErrors = {save_io, save_committed_unsynced}
 
-/// Save schema identity. Unsupported versions are named errors. Schema 2
-/// (cb02b) added the journey's field width; schema 3 (cb04) adds the
-/// bosses beaten, the end, the ticks played and the scent lost, and widens
-/// the dens, shortcuts and areas to the whole forest; a schema-1 or
-/// schema-2 file is refused by name as any unknown version is.
+/// Schema four stores the shared level explicitly, accepts soft-capped
+/// growth1..40 and discovered water capacity0/2/3. Older schemas are
+/// refused as save_version, never silently reset or partially migrated.
 pub const VERSION: int = 4
 
 /// The values a replay's initial journey snapshot carries (`saved-0` to
-/// `saved-28`; the `journey 2` event names this shape).
+/// `saved-29`; the `journey 3` event names this shape).
 pub const SNAPSHOT: int = 30
 
 /// The replay's journey event version this build writes and reads.
@@ -354,6 +352,11 @@ pub fn from_snapshot(v: List[int], cols: int, rows: int) -> sim.Sim ! DecodeErro
     s.end = v[26] == 1
     s.played = v[27]
     s.lost = v[28]
+    var stat = 2
+    while stat <= 6 {
+        if v[stat] < 1 || v[stat] > sim.STAT_MAX { return save_corrupt }
+        stat += 1
+    }
     if v[29] != sim.level(s) { return save_corrupt }
     s.gate_open = v[12] == 1
     s.story = v[13]

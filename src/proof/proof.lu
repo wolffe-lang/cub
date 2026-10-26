@@ -50,6 +50,12 @@ pub fn generate(dir: str) -> int {
         stat += 1
     }
     walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
+    let (spring_x, spring_y) = sim.spring_position(s.seed, 0)
+    if !walker.walk(mut s, mut r, spring_x, spring_y) || s.flask_max != 2 {
+        eprint("proof: first spring not discovered")
+        return 1
+    }
+    snapshot(dir, "spring-found", s, r) else { return 2 }
     if !walker.walk(mut s, mut r, 0, (sim.gate_y(s) - 2) * sim.FP) {
         eprint("proof: gate approach at {sim.cell_x(s)},{sim.cell_y(s)} tick {s.tick}")
         return 1
@@ -400,6 +406,10 @@ pub fn encounters(dir: str) -> int {
         var s = sim.new(1, 80, 24)
         var r = replay.new(1, 1, 80, 24)
         let foe = if kind == 4 || kind == 5 then 2 else 0
+        if kind == 4 {
+            let (x, y) = sim.spring_position(s.seed, 0)
+            if !walker.walk(mut s, mut r, x, y) || s.flask_max != 2 { return 1 }
+        }
         if !approach(mut s, mut r, foe) { eprint("proof: encounter approach {kind}"); return 1 }
         var n = 0
         if kind == 0 {

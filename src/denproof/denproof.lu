@@ -162,6 +162,22 @@ pub fn generate(dir: str) -> int {
         }
         area += 1
     }
+    var water = sim.new(7, 80, 24)
+    var water_replay = replay.new(7, tier.RICH, 80, 24)
+    let (spring_x, spring_y) = sim.spring_position(7, 0)
+    if !walker.walk(mut water, mut water_replay, spring_x, spring_y) || water.flask_max != 2 { return 1 }
+    replay.push_arg(mut water_replay, water.tick, controls.EV_HEALTH, -30)
+    sim.hurt(mut water, 30)
+    walker.press(mut water, mut water_replay, walker.key(controls.KEY_WATER))
+    var water_ticks = 0
+    while water_ticks < 35 { walker.press(mut water, mut water_replay, walker.key(0)); water_ticks += 1 }
+    if water.flasks != 1 || water.health != 52 { return 1 }
+    write_case(dir, "spring-drink", water, water_replay, water.tick) else { return 2 }
+    let (home_x, home_y) = forest.den_position(7, 0)
+    if !walker.walk(mut water, mut water_replay, home_x, home_y) { return 1 }
+    walker.press(mut water, mut water_replay, walker.key(controls.KEY_REST))
+    if !water.den || water.flasks != 2 { return 1 }
+    write_case(dir, "water-refill", water, water_replay, water.tick) else { return 2 }
     var s = sim.new(7, 80, 24)
     s.gate_open = true
     s.last_den = 8

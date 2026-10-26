@@ -51,3 +51,15 @@ fn test_cb04a_save_names_older_schema_and_checks_the_level() {
     }
     assert(named, "older schema refused by name")
 }
+
+fn test_cb04a_snapshot_checks_stat_bounds_before_summing_the_level() {
+    let s = sim.new(7, 80, 24)
+    var values = journey.snapshot(s)
+    values[2] = 9223372036854775807
+    var refused = false
+    let _ = journey.from_snapshot(values, 80, 24) else |e| {
+        refused = "{e}" == "save_corrupt"
+        sim.new(1, 80, 24)
+    }
+    assert(refused, "untrusted stats reject, never overflow the level sum")
+}

@@ -43,3 +43,34 @@ fn test_cb04a_meat_heals_immediately_once_clamped_and_expires() {
     sim.healing_pickups(mut s)
     assert(s.health == 20 && s.meat.len == 0, "exclusive expiry")
 }
+
+fn test_cb04a_damage_interrupts_a_partly_drunk_mouthful() {
+    var s = sim.new(7, 80, 24)
+    s.flask_max = 2
+    s.flasks = 2
+    s.health = 5
+    var keys = List[int]()
+    (mut keys).push(14)
+    sim.step(mut s, keys)
+    (mut keys).reset()
+    var n = 0
+    while n < 20 { sim.step(mut s, keys); n += 1 }
+    assert(s.health > 5 && s.health < 45 && s.flasks == 1, "partial instalments, charge already spent")
+    sim.hurt(mut s, 1)
+    let health = s.health
+    n = 0
+    while n < 30 { sim.step(mut s, keys); n += 1 }
+    assert(s.health == health && s.flasks == 1 && s.action == sim.IDLE, "hit cancels remaining heal")
+}
+
+fn test_cb04a_only_discoverable_water_capacities_are_valid_saves() {
+    var s = sim.new(7, 80, 24)
+    var n = 0
+    while n <= 4 {
+        s.flask_max = n
+        var accepted = true
+        let _ = journey.decode(journey.encode(s), 80, 24) else { accepted = false; sim.new(7, 80, 24) }
+        assert(accepted == (n == 0 || n == 2 || n == 3), "capacity is a finite discovery state")
+        n += 1
+    }
+}

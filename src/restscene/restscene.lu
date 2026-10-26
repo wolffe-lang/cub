@@ -152,7 +152,7 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
     if t == tier.PLAIN {
         draw.put_text(mut g, top + 4, left + 17, "/\\ /\\", style)
         draw.put_text(mut g, top + 5, left + 2, "____..------..__ / -  \\__", style)
-        draw.put_text(mut g, top + 6, left, " /     resting     \\_____.>", style)
+        draw.put_text(mut g, top + 6, left, " /      .---.      \\_____.>", style)
         draw.put_text(mut g, top + 7, left, "(____,_________..___/____)", style)
         draw.put_text(
             mut g,
