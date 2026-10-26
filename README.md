@@ -25,12 +25,13 @@ bundle alcoves, every path in the shore's own gravel; the forest is one
 trunk-and-canopy texture to every edge of the screen, the thicket and
 meadow filling the field they were made for. The cub, the foes and the
 bundle are solid pixel silhouettes, one drawing each, turned to face the
-way they go; the cub trots at 8.8 cells a second, its paws and tail
+way they go; the cub trots at 9.375 cells a second, its paws and tail
 keeping time with its stride. Outlined red health and green stamina bars
-stay at top-left, with posture as a second channel: the
+grow with the stats at top-left, with posture as a second channel: the
 ears go back, the tail drops and the trot shortens as it is hurt, and its
-breath shows its stamina; the numbers appear at a den and on the death
-card. An original score plays through the engine's mixer: a part for each
+breath shows its stamina. Status numbers and water charges sit below the
+bars. A timely counterattack can regain recently lost health, shown in grey.
+An original score plays through the engine's mixer: a part for each
 area, a rest at the den, a sting at a fall, the title over the crossing, a sharp crack cue, and
 a theme for each boss (`docs/SCORE.md`). Seven areas: the Shingle, Cinderwick, Bramblehold,
 Larkmeadow, the Teeth, the Shallows and Gravehollow, each with its den and
@@ -67,7 +68,7 @@ forest. Living foes heal and return to their places on re-entry. Waiting
 scent and meat keep their original expiry when you leave and return;
 unclaimed loot is not carried through a save reload.
 Water must first be found at the Shingle spring (two mouthfuls), with a
-third found later; the counter beside the bars shows the charges, and
+third found later; the counter below the bars shows the charges, and
 every rest refills them. Death leaves a recoverable mark, even across area edges; a
 second death replaces it. The thirty-second opening shows pale cracked ice at Moonford, the cub freezing
 as the pack walks on, a fall into deep water, and three waking blinks onto
@@ -109,7 +110,8 @@ The terminal must be at least 80 columns by 24 rows; the field grows to fill a l
 |---|---|
 | arrows | walk; two together for a diagonal; the cub turns toward the held direction at its turn rate |
 | Shift+arrow | sneak that way: half speed, no new trail |
-| Space / `x` / `s` / `z` / `c` | aimed bite/combo / forward lunge / heavy / parry / tap dodge, hold sprint |
+| Ctrl+arrow | sprint while held, draining stamina |
+| Space / `x` / `s` / `z` / `c` | aimed bite/combo / forward lunge / heavy / parry / directional roll |
 | Tab / Esc | lock nearest then cycle / release lock or leave den |
 | `w` / `r` | drink / rest at a den, open a shortcut, or dig an unguarded cache |
 | `m` | the music off, on again |
@@ -120,12 +122,17 @@ The terminal must be at least 80 columns by 24 rows; the field grows to fill a l
 | any key on the title | begin; after ten idle seconds a demo plays behind the title |
 | `r` on the end card | keep playing as the wolf (`q` leaves) |
 
-Arrows held or pressed within 500 ms before Space aim it; lock wins.
-`x` always uses facing, with two backward windup steps. Hold `c` after its
-initial dodge to sprint; Space during sprint snaps forward.
-Press Space during bite recovery to chain left, right, then a longer forward
-hop. Shift+Space sent plain Space in the measured play terminal, so heavy
-uses `s` rather than an indistinguishable chord. See `docs/KEYS.md`.
+On terminals supporting the negotiated keyboard protocol, arrows stay
+held until release and can form diagonal chords. Space and c use the held
+direction at the press, or facing with no arrows. Ctrl+arrows sprint;
+Space during sprint snaps forward. The roll travels10 cells at paw1,
+growing to13 at paw10, with an eight-frame tuck and turn and a recovery.
+
+Press Space during recovery to chain left, right, then a committed forward
+leap; the third recovery is longest. `x` still uses facing, with two
+backward windup steps. Negotiated Shift+Space is heavy; `s` works on every
+terminal. Without protocol support, movement and Ctrl+arrow sprint use
+inferred repeat lifetimes, not true key release. See `docs/KEYS.md`.
 
 ## Build and run
 
@@ -137,6 +144,7 @@ target/cub                     play/resume; --seed N picks a new journey, --tier
 target/cub --save journey      use a separate save file
 target/cub --record run.pk     record the run, including resumed state; --replay run.pk plays it back
 target/cub --mute              play without music (CUB_SOUND=0 does the same)
+target/cub --pace 105          try player movement at105 percent of default
 target/cub --no-title          skip the title; unseen journeys still play the opening
 target/cub --ghost-dir DIR     read and write the death archives there (default ~/.cub/ghosts)
 target/cub --den-census        flood fifty seeds for den distance and every thorn-gate face
@@ -154,9 +162,9 @@ the score's paths (`--score-list`, `--score-render`, `--score-wav`, `--score-rep
 
 `tools/check` runs the complete local gate: formatting, checked-machine
 tests, native and release builds, decoder selftest, both-tier replay goldens
-and posture sheets, the score's PCM goldens and loop seams on both backends
+and posture sheets, every combo/roll frame, scaled bars and rally, the score's PCM goldens and loop seams on both backends
 (`tools/score-check`), shipping-binary gameplay and persistence assertions,
-pty restoration and replay agreement, regional rest scenes at80×24 and120×40,
+pty restoration and replay agreement, exact held-key and eight-direction chord rows, regional rest scenes at80×24 and120×40,
 found-water/drink/refill and last-den respawn, and performance. `tools/check-linux`
 runs correctness inside `.lair/tools/in-container`; `tools/check-perf`
 measures rendering, idle wakes and key-to-frame latency.
@@ -181,6 +189,7 @@ route row. Rest panels have empty, pending and refused goldens at both sizes
 and tiers, plus real arrow/confirm/discard pty witnesses. The opening has
 every shot at 80×24, 120×40 and 200×60 on both tiers, disjoint sky/ice/water
 styles, a full-length terminal run and a recorded real-key skip per shot.
+`--motion-census` separates area, terrain, heading and gait over50 seeds.
 `--feel-audit`, `--chase-audit` and `--mouth-audit` census the dens,
 switchbacks, clearings, pursuit and safe arena approaches. cb05's `--den-spacing`,
 `--foe-census`, `--bends-audit` (no bend reverses within eight cells on any inland route or
