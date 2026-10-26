@@ -1,0 +1,70 @@
+//! member: false
+
+use controls
+use grid
+use restscene
+use sim
+
+fn key(k: int) -> List[int] {
+    var keys = List[int]()
+    if k > 0 { (mut keys).push(k) }
+    keys
+}
+
+fn live(s: sim.Sim) -> int {
+    var n = 0
+    for f in s.foes { if f.health > 0 { n += 1 } }
+    n
+}
+
+fn test_cb04f_slain_survive_path_and_log() {
+    var s = sim.new(1, 80, 24)
+    // Recorded bite fixture: ordinary keys, no health or foe mutation.
+    var t = 0
+    while t < 181 {
+        var keys = List[int]()
+        if t <= 16 { (mut keys).push(controls.KEY_LEFT) }
+        if t >= 16 && t <= 176 { (mut keys).push(controls.KEY_DOWN) }
+        if t == 169 { (mut keys).push(controls.KEY_LEFT) }
+        if t == 171 { (mut keys).push(controls.KEY_RIGHT) }
+        if t == 177 {
+            (mut keys).push(controls.KEY_LOCK)
+            (mut keys).push(controls.KEY_DOWN)
+            (mut keys).push(controls.KEY_BITE)
+            (mut keys).push(controls.KEY_RELEASE)
+        }
+        sim.step(mut s, keys)
+        t += 1
+    }
+    assert(s.foes[0].health <= 0, "witness killed first Shingle foe with a bite")
+    let remaining = live(s)
+    s.gate_open = true
+    assert(sim.cross_edge(mut s, 0), "path to Bramblehold")
+    assert(sim.cross_edge(mut s, 0), "path to Shingle")
+    assert(live(s) == remaining, "cb04f path must not revive slain Shingle foe")
+    sim.open_shortcut(mut s, 2)
+    assert(sim.cross_edge(mut s, 2), "open log to Bramblehold")
+    assert(sim.cross_edge(mut s, 2), "open log to Shingle")
+    assert(live(s) == remaining, "cb04f log must not revive slain Shingle foe")
+}
+
+fn test_cb04f_ledger_centre_at_three_sizes() {
+    for cols in [80, 120, 200] {
+        let rows = if cols == 80 then 24 else if cols == 120 then 40 else 60
+        let s = sim.new(7, cols, rows)
+        let w = restscene.panel_width(s)
+        let h = restscene.panel_height(s)
+        let left = restscene.panel_left(s)
+        let top = (rows - h) / 2
+        assert(left + w / 2 == cols / 2 - cols / 6, "cb04f ledger centre is one sixth left")
+        assert(top + h / 2 == rows / 2, "cb04f ledger vertically centred")
+        assert(left >= 0 && left + w <= cols && top >= 0 && top + h <= rows, "whole ledger")
+        for tier in [0, 1] {
+            var g = grid.new(rows, cols)
+            restscene.menu(s, tier, mut g)
+            let border = if tier == 0 then 124 else 0x2502
+            assert(grid.at(g, top + 2, left).cp == border, "measured rendered left border")
+            assert(grid.at(g, top + 2, left + w - 1).cp == border, "measured rendered right border")
+        }
+    }
+}

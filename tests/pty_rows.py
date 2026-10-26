@@ -690,3 +690,31 @@ def doorway_return(binary, ctx):
     return session, problems
 
 ROWS['doorway-return'] = doorway_return
+
+
+def den_world_memory(binary, ctx):
+    """A killed Shingle encounter stays gone after a path and an open log return."""
+    import re
+    root = Path(ctx.ROOT)
+    case = root / 'tests/cases/den-memory.pk'
+    ticks = re.search(r'# frames (\d+)', case.read_text())[1]
+    session = ctx.Session([binary, '--replay', str(case), '--ticks', ticks,
+                           '--trace', '--mute', '--no-title', '--tier', 'plain'],
+                          24, 80, ctx.env_for())
+    session.finish()
+    problems = []
+    ctx.common_checks(session, 0, problems)
+    states = trace_states(session)
+    departure = next((a for a, b in zip(states, states[1:])
+                      if a['area'] == 0 and b['area'] == 1), None)
+    returns = [b for a, b in zip(states, states[1:]) if a['area'] == 1 and b['area'] == 0]
+    if departure is None or departure['live_foes'] >= 9:
+        problems.append('den-world-memory: witness never killed a Shingle foe')
+    elif len(returns) != 2 or any(b['live_foes'] > departure['live_foes'] for b in returns):
+        problems.append('den-world-memory: path/log return revived slain Shingle foes')
+    if not states or any(v['deaths'] or v['resting'] for v in states):
+        problems.append('den-world-memory: a death/rest invalidated the witness')
+    (root / 'target/pty/den-world-memory.trace').write_bytes(session.err)
+    return session, problems
+
+ROWS['den-world-memory'] = den_world_memory

@@ -18,6 +18,7 @@ use census
 use coast
 use forest
 use journey
+use denmemory
 use measure
 use look
 use clock
@@ -884,7 +885,7 @@ fn run_live(o: Options, args: List[str]) -> int {
             }
             if o.trace {
                 eprint(
-                    "trace tick {s.tick} rest_row {s.rest_row} pending {sim.rest_levels(s)} needed {s.rest_refused} level {sim.level(s)} scent {s.scent} resting {if s.den then 1 else 0} area {s.area} den_id {s.last_den} health {s.health} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_area {s.mark_area} capacity {s.flask_max} flasks {s.flasks} action {s.action} aim {s.attack_heading} combo {s.combo} stamina {s.stamina} sprint {if s.sprinting then 1 else 0} dash_hits {sim.dash_hits(s)} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} scene {s.scene} demo {if extra.demo_on then 1 else 0} wall_us {(clock.now_ns() - t0_ns) / 1000}",
+                    "trace tick {s.tick} live_foes {denmemory.live(s)} rest_row {s.rest_row} pending {sim.rest_levels(s)} needed {s.rest_refused} level {sim.level(s)} scent {s.scent} resting {if s.den then 1 else 0} area {s.area} den_id {s.last_den} health {s.health} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_area {s.mark_area} capacity {s.flask_max} flasks {s.flasks} action {s.action} aim {s.attack_heading} combo {s.combo} stamina {s.stamina} sprint {if s.sprinting then 1 else 0} dash_hits {sim.dash_hits(s)} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} scene {s.scene} demo {if extra.demo_on then 1 else 0} wall_us {(clock.now_ns() - t0_ns) / 1000}",
                 )
                 trace_bytes = 0
             }
@@ -984,6 +985,8 @@ fn main() -> int {
         let seed = args[2].to_int() else 1
         return fight.trace(kind, seed)
     }
+    if args.len > 0 && args[0] == "--den-memory-census" { return denmemory.census() }
+    if args.len > 1 && args[0] == "--make-den-memory" { return denmemory.generate(args[1]) }
     if args.len > 0 && args[0] == "--foes-audit" { return look.foe_census() }
     if args.len > 0 && args[0] == "--look-audit" { return look.census() }
     if args.len > 0 && args[0] == "--boss-census" {

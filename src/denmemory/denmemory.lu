@@ -1,0 +1,114 @@
+//! Den-cycle census and a real-key travel witness; game-owned evidence.
+
+use controls
+use forest
+use journey
+use replay
+use sim
+use std.fs
+use walker
+
+/// Number of living foes in the active area, for world-memory trace assertions.
+pub fn live(s: sim.Sim) -> int {
+    var n = 0
+    for f in s.foes { if f.health > 0 { n += 1 } }
+    n
+}
+
+fn row(s: sim.Sim, stage: str) {
+    print("memory seed {s.seed} field {s.field} stage {stage} area {s.area} live {live(s)}")
+}
+
+/// A controlled cleared-world census, not a claim of fifty played victories.
+/// Production cross_edge, rest input and wake own all resets in this route.
+pub fn census() -> int {
+    var failures = 0
+    var seed = 0
+    while seed < 50 {
+        for field in [80, 200] {
+            region sample {
+                var s = sim.new(seed, field, 24)
+                s.gate_open = true
+                s.shortcuts = 1
+                var area = 0
+                while area < forest.AREAS {
+                    sim.enter_area(mut s, area, 0, 0)
+                    row(s, "initial")
+                    area += 1
+                }
+                sim.enter_area(mut s, 0, 0, 0)
+                var i = 0
+                while i < s.foes.len { s.foes[i].health = 0; i += 1 }
+                row(s, "clear")
+                if !sim.cross_edge(mut s, 0) { return 2 }
+                row(s, "onward")
+                if !sim.cross_edge(mut s, 0) { return 2 }
+                row(s, "path-return")
+                if live(s) != 0 { failures += 1 }
+                if !sim.cross_edge(mut s, 2) || !sim.cross_edge(mut s, 2) { return 2 }
+                row(s, "log-return")
+                if live(s) != 0 { failures += 1 }
+                let (x, y) = forest.den_position(seed, 0)
+                s.x = x
+                s.y = y
+                sim.step(mut s, walker.key(controls.KEY_REST))
+                row(s, "rest")
+                if live(s) != 9 { failures += 1 }
+                if !sim.cross_edge(mut s, 0) || !sim.cross_edge(mut s, 0) { return 2 }
+                row(s, "rest-return")
+                if live(s) != 9 { failures += 1 }
+            }
+        }
+        seed += 1
+    }
+    print("den-memory: 100 journeys failures {failures} skips 0")
+    if failures == 0 then 0 else 1
+}
+
+/// An explicitly boosted initial save, followed only by recorded ordinary keys.
+/// No rest/death between the kill and either return; no teleport/debug events.
+pub fn generate(path: str) -> int {
+    var s = sim.new(1, 80, 24)
+    s.heart = 10
+    s.wind = 10
+    s.fang = 10
+    s.gate_open = true
+    s.shortcuts = 1
+    s.opening_seen = true
+    sim.wake(mut s)
+    var r = replay.new(1, 1, 80, 24)
+    replay.push_arg(mut r, 0, controls.EV_JOURNEY, journey.JOURNEY)
+    let initial = journey.snapshot(s)
+    var part = 0
+    while part < initial.len {
+        replay.push_arg(mut r, 0, controls.EV_SAVED + part, initial[part])
+        part += 1
+    }
+    let (x, y) = forest.portal(s.seed, 0, 0)
+    if !walker.walk(mut s, mut r, x, y) || s.area != 1 {
+        eprint("memory: onward failed area {s.area} tick {s.tick}")
+        return 1
+    }
+    let (back_x, back_y) = forest.portal(s.seed, 1, 0)
+    if !walker.walk(mut s, mut r, back_x, back_y) || s.area != 0 {
+        eprint("memory: path return failed area {s.area} tick {s.tick}")
+        return 1
+    }
+    if !walker.walk(mut s, mut r, x, y) || s.area != 1 {
+        eprint("memory: onward failed area {s.area} tick {s.tick}")
+        return 1
+    }
+    let (log_x, log_y) = forest.portal(s.seed, 1, 2)
+    if !walker.walk(mut s, mut r, log_x, log_y) { return 1 }
+    if s.area == 1 { walker.press(mut s, mut r, walker.key(controls.KEY_REST)) }
+    if s.area != 0 || s.deaths != 0 {
+        eprint("memory: log failed area {s.area} deaths {s.deaths} tick {s.tick}")
+        return 1
+    }
+    var bytes = List[byte]()
+    replay.format(r, controls.vocab(), mut bytes)
+    fs.write_bytes(path, bytes) else |_| { return 2 }
+    fs.append_text(path, "\n# frames {s.tick} every {s.tick}\n") else |_| { return 2 }
+    print("den-memory: wrote {path}, {s.tick} ticks, final live {live(s)}")
+    0
+}
