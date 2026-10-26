@@ -1,0 +1,170 @@
+//! member: false
+
+use art
+use glow
+use grid
+use sim
+use tier
+
+fn test_cb04c_pickup_ring_every_edge_and_outside() {
+    var s = sim.new(7, 80, 24)
+    for grown in [false, true] {
+        s.end = grown
+        for facing in [0, 1, 2, 3] {
+            s.body_facing = facing
+            for at in [-257, -1, 0, 255, 513] {
+                s.x = at
+                s.y = at
+                let b = sim.cub_body(s)
+                var y = b.y0 - 2
+                while y <= b.y1 + 2 {
+                    var x = b.x0 - 2
+                    while x <= b.x1 + 2 {
+                        let expected = x >= b.x0 - 1 &&
+                            x <= b.x1 + 1 &&
+                            y >= b.y0 - 1 &&
+                            y <= b.y1 + 1
+                        assert(
+                            sim.pickup_near(s, x * sim.FP, y * sim.FP) == expected,
+                            "body and one-cell ring only",
+                        )
+                        assert(
+                            sim.pickup_near(s, x * sim.FP + 255, y * sim.FP + 255) == expected,
+                            "whole cell, including fractional far edge",
+                        )
+                        x += 1
+                    }
+                    y += 1
+                }
+            }
+        }
+    }
+}
+
+fn test_cb04c_mark_recovers_once_at_contact_ring_with_burst() {
+    var s = sim.new(7, 80, 24)
+    s.scent = 28
+    s.x += 20 * sim.FP
+    sim.hurt(mut s, 100)
+    assert(s.mark && s.mark_scent == 28 && s.scent == 0, "actual death drops scent")
+    var n = 0
+    while n < 31 { sim.step(mut s, List[int]()); n += 1 }
+    s.foes = List[sim.Foe]()
+    s.x = s.mark_x - 3 * sim.FP
+    s.y = s.mark_y
+    s.heading = 0
+    s.body_facing = 0
+    sim.step(mut s, List[int]())
+    assert(
+        !s.mark && s.mark_scent == 0 && s.scent == 28,
+        "body ring recovers scent without exact-cell traversal",
+    )
+    assert(
+        s.pickup_at == s.tick && s.pickup_x == s.mark_x && s.pickup_y == s.mark_y,
+        "burst remains at death spot",
+    )
+    sim.step(mut s, List[int]())
+    assert(s.scent == 28, "recovery is one-shot")
+}
+
+fn test_cb04c_other_area_mark_and_second_death() {
+    var s = sim.new(7, 80, 24)
+    s.foes = List[sim.Foe]()
+    s.mark = true
+    s.mark_area = 1
+    s.mark_x = s.x
+    s.mark_y = s.y
+    s.mark_scent = 28
+    sim.step(mut s, List[int]())
+    assert(s.mark && s.scent == 0, "same coordinates in another area do not recover")
+    s.scent = 7
+    sim.hurt(mut s, 100)
+    assert(
+        s.mark_area == 0 && s.mark_scent == 7 && s.lost == 28,
+        "second death replaces rather than accumulates",
+    )
+}
+
+fn test_cb04c_drop_collection_uses_body_ring() {
+    var s = sim.new(3, 80, 24)
+    s.foes = List[sim.Foe]()
+    let b = sim.cub_body(s)
+    (mut s.drops).push(sim.Drop { x: (b.x1 + 1) * sim.FP, y: s.y, value: 8, until: 100 })
+    sim.step(mut s, List[int]())
+    assert(s.scent == 8 && s.drops.len == 0, "ordinary scent uses same contact ring")
+}
+
+fn check_local_orb(t: int) {
+    var s = sim.new(7, 80, 24)
+    s.foes = List[sim.Foe]()
+    s.mark_x = s.x + 25 * sim.FP
+    s.mark_y = s.y
+    {
+        var g = grid.new(24, 80)
+        art.render(s, t, mut g)
+        let cp = if t == tier.RICH then 9679 else 42
+        assert(grid.at(g, sim.screen_row(s), sim.screen_col(s) + 25).cp != cp, "no death, no orb")
+        s.mark = true
+        art.render(s, t, mut g)
+        assert(
+            grid.at(g, sim.screen_row(s), sim.screen_col(s) + 25).cp == cp,
+            "orb visible beyond old nose-distance cull",
+        )
+        s.mark_area = 1
+        art.render(s, t, mut g)
+        assert(
+            grid.at(g, sim.screen_row(s), sim.screen_col(s) + 25).cp != cp,
+            "foreign-area death cannot draw",
+        )
+        s.mark = false
+        s.mark_area = 0
+    }
+}
+
+fn test_cb04c_rich_orb_requires_a_local_death() { check_local_orb(tier.RICH) }
+
+fn test_cb04c_plain_orb_requires_a_local_death() { check_local_orb(tier.PLAIN) }
+
+fn test_cb04c_orb_particles_are_seeded_periodic_bounded() {
+    var differs = false
+    for seed in [-1, 0, 7, 49] {
+        var tick = 0
+        while tick < glow.CYCLE {
+            var n = 0
+            while n < glow.PARTICLES {
+                let (x, y) = glow.particle(seed, -25, 12, tick, n)
+                let (xx, yy) = glow.particle(seed, -25, 12, tick + glow.CYCLE, n)
+                let (sx, sy) = glow.particle(seed + 1, -25, 12, tick, n)
+                assert(x >= -3 && x <= 3 && y >= -5 && y <= -1, "bounded drift")
+                assert(x == xx && y == yy, "deterministic full cycle")
+                if x != sx || y != sy { differs = true }
+                n += 1
+            }
+            tick += 1
+        }
+    }
+    assert(differs, "seed changes the drift")
+}
+
+fn test_cb04c_orb_and_burst_are_bounded_and_plain() {
+    for t in [tier.RICH, tier.PLAIN] {
+        var g = grid.new(20, 30)
+        grid.fill(mut g, grid.cell(32, 7, 0, 0))
+        glow.orb(mut g, t, 10, 15, 7, 0, 0, 0)
+        var r = 0
+        while r < 20 {
+            var c = 0
+            while c < 30 {
+                if grid.at(g, r, c).cp != 32 {
+                    assert(r >= 5 && r <= 12 && c >= 12 && c <= 18, "orb is in fixed 7x8 footprint")
+                }
+                c += 1
+            }
+            r += 1
+        }
+        if t == tier.PLAIN { assert(grid.plain_ok(g), "plain orb") }
+        grid.fill(mut g, grid.cell(32, 7, 0, 0))
+        glow.burst(mut g, t, 10, 15, glow.BURST_TICKS)
+        for cell in g.cells { assert(cell.cp == 32, "burst expires exactly") }
+    }
+}

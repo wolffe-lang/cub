@@ -95,3 +95,13 @@ have contrast above3:1 on the dark field; the categorical palette checker
 also measured adjacent CVD separation18.1 (deutan),44.1 (tritan).
 Tree/stone/stump/crow/cairn ink is dark59 on235 (plain8 on0), bones180
 (plain7); warm den patches94 on52, embers208 (plain3/9 on0).
+
+## Pickup light
+
+The scent orb's white core is 231, its pale rim and motes 229, its violet
+halo alternates 99 and 60. Plain uses 15 / 14 / 13 and 5. The core and
+rim are bold; particles are not. The halo preserves the ground under it
+rather than painting a solid tile. Shape and animation distinguish it
+from the thin ground scent trail, even without colour. Closed bundles
+use 229 (plain 15) rather than fur ink; inland cache contents alternate
+229 and 220 (plain 15), with glints every 24 ticks.

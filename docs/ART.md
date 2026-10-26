@@ -271,3 +271,22 @@ The already-drawn log and coast bundle stay sprites. HUD area names,
 interaction hints, the den/death cards and dialogue remain text. In
 particular, `Ember:` on the bottom dialogue line is a speaker, not a world
 label. There are no separate lever-name draw calls in this build.
+
+## Scent and pickups
+
+The scent left by a death is a white core between bright curved rims,
+with a soft violet halo and four upward-drifting motes. It stays visible
+anywhere inside the camera, including beyond the cub's nose range. The
+halo breathes over 96 simulation ticks. Seed, death cell and tick alone
+place the motes: no emitter allocation, random wall clock or growing list.
+The entire orb stays within seven columns and eight rows: three cells
+left/right, five above and two below its centre. Its plain form is `(*)`
+with dots, stars and the same halo and drift in console colours.
+
+Ordinary scent uses the same light. Closed bundles are pale and bold,
+with slowly alternating glints that widen their visible footprint to
+nine cells. Inland hollows and burrows have their own bright contents
+and glints; opened forms keep only the dark empty container. Collection
+leaves eight sparks expanding to at most three cells and gone after
+12 ticks. Successive collections replace that one burst; there is no
+unbounded effect queue. Empty/foreign-area death marks draw no orb.

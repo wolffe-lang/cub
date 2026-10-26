@@ -11,6 +11,7 @@ use draw
 use forest
 use ghost
 use grid
+use glow
 use meadow
 use props
 use silhouette
@@ -658,6 +659,21 @@ fn at_world(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, text: str, bri
     )
 }
 
+fn world_orb(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int) {
+    let cx = sim.floor_div(x, sim.FP)
+    let cy = sim.floor_div(y, sim.FP)
+    glow.orb(
+        mut g,
+        t,
+        cy - sim.cell_y(s) + sim.screen_row(s),
+        cx - sim.cell_x(s) + sim.screen_col(s),
+        s.seed,
+        cx,
+        cy,
+        s.tick,
+    )
+}
+
 fn world_prop(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, kind: int, opened: bool) {
     props.draw_at(
         mut g,
@@ -672,15 +688,7 @@ fn world_prop(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, kind: int, o
 
 fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
     for drop in s.drops {
-        at_world(
-            s,
-            t,
-            mut g,
-            sim.floor_div(drop.x, sim.FP),
-            sim.floor_div(drop.y, sim.FP),
-            if drop.until - s.tick > sim.DROP_TICKS / 2 then "*" else ".",
-            drop.until - s.tick > sim.DROP_TICKS / 2,
-        )
+        world_orb(s, t, mut g, drop.x, drop.y)
     }
     var cache = 0
     while cache < forest.cache_count(s.area) {
@@ -693,6 +701,13 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
                 sim.floor_div(x, sim.FP) - sim.cell_x(s) + sim.screen_col(s) - 2,
                 sim.cache_open(s, cache),
             )
+            if !sim.cache_open(s, cache) {
+                let cx = sim.floor_div(x, sim.FP)
+                let cy = sim.floor_div(y, sim.FP)
+                let spread = if s.tick / 24 % 2 == 0 then 3 else 4
+                at_world(s, t, mut g, cx - spread, cy - 2, "*", true)
+                at_world(s, t, mut g, cx + spread, cy + 1, "*", true)
+            }
         } else {
             world_prop(
                 s,
@@ -704,7 +719,7 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
                 sim.cache_open(s, cache),
             )
         }
-        if sim.near(s.x, s.y, x, y, 2 * sim.FP) && !s.den {
+        if sim.pickup_near(s, x, y) && !s.den {
             draw.put_text(
                 mut g,
                 s.rows - 2,
@@ -815,17 +830,16 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
         }
         edge += 1
     }
-    if s.mark &&
-        s.mark_area == s.area &&
-        sim.near(s.x, s.y, s.mark_x, s.mark_y, (8 + s.nose * 2) * sim.FP) {
-        at_world(
-            s,
-            t,
+    if s.mark && s.mark_area == s.area {
+        world_orb(s, t, mut g, s.mark_x, s.mark_y)
+    }
+    if s.pickup_area == s.area {
+        glow.burst(
             mut g,
-            sim.floor_div(s.mark_x, sim.FP),
-            sim.floor_div(s.mark_y, sim.FP),
-            "*",
-            true,
+            t,
+            sim.floor_div(s.pickup_y, sim.FP) - sim.cell_y(s) + sim.screen_row(s),
+            sim.floor_div(s.pickup_x, sim.FP) - sim.cell_x(s) + sim.screen_col(s),
+            s.tick - s.pickup_at,
         )
     }
     var i = 0
@@ -1545,7 +1559,16 @@ pub fn draw_log(mut g: grid.Grid, t: int, row: int, col: int, hollow: bool) {
 /// solid silhouette five cells by three (`silhouette.bundle`); plain: the
 /// knot, the cord's cross and the binding in ASCII.
 pub fn draw_bundle(mut g: grid.Grid, t: int, row: int, col: int, opened: bool) {
-    let cloth = ink(t, !opened)
+    let cloth = if opened {
+        ink(t, false)
+    } else {
+        grid.cell(
+            32,
+            if t == tier.RICH then 229 else 15,
+            sprites.palette(t, sprites.C_GRAVEL),
+            grid.ATTR_BOLD,
+        )
+    }
     if t == tier.RICH {
         var style = copy cloth
         style.bg = grid.COLOR_DEFAULT

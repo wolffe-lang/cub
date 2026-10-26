@@ -660,3 +660,30 @@ contact tests passed, the walker gained ordinary Tab/Space/Esc keys:
 commit intentional lock aim, then release before following the path.
 `--mouth-audit` checks all400 actual den-to-mouth walks; the existing
 five-life fairness bar and nine-tick parry bar are unchanged.
+
+## Visible pickups (2026-10-26, proposed)
+
+`PICKUP_MARGIN = 1` cell is the shared collection margin. A pickup cell
+inside the cub's drawn body or its one-cell contact ring is reachable,
+including corners and fractional positions within those cells. The
+turned body and the grown wolf both use their actual footprints. This
+implements recommendation R-cb04c-1 A; nose growth can widen the same
+helper later. Death scent, ordinary scent and cache reach use it; cache
+collection still requires `r` and no live guard within six cells.
+
+The existing death recovery path remains in `sim.step`: collect once,
+restore the dropped amount, clear the mark. A mark in another area is
+not collected. A second death replaces the first mark, counting the
+first amount as lost. No new persistent field or replay schema is needed.
+A local burst remembers only its tick, position and area, not save state.
+Fresh ordinary drops stay for at least their first rendered tick before
+collection, so a kill never silently bypasses the pickup drawing.
+
+Presentation bounds: four motes per orb, x=-3..3 and y=-5..-1 cells,
+96-tick seeded periodic drift; halo x=-3..3, y=-2..2. The recovery burst
+is eight sparks, radius 1..3 cells, twelve ticks. Ordinary drops keep
+the 300-tick lifetime, with the bright core throughout rather than a
+hard-to-find one-cell dot in its second half. `--look-audit` is a
+50-seed both-tier camera walk over every route row and every cache,
+shortcut and former label site, not a claim that the camera was moved
+there by player keys; the gameplay and pty rows test that separate path.

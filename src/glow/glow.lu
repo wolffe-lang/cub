@@ -1,0 +1,83 @@
+//! The scent light: original cell art, deterministic from seed and tick.
+//! Four virtual motes have no mutable particle storage and cannot grow.
+
+use grid
+use tier
+use world
+
+/// Simultaneous drifting motes around one orb.
+pub const PARTICLES: int = 4
+
+/// A full drift/pulse cycle, in simulation ticks (3.2 seconds).
+pub const CYCLE: int = 96
+
+/// Largest horizontal displacement of a drift mote, in cells.
+pub const DRIFT_X: int = 3
+
+/// Largest upward displacement of a drift mote, in cells.
+pub const DRIFT_Y: int = 5
+
+/// A recovery burst lasts twelve ticks (0.4 seconds).
+pub const BURST_TICKS: int = 12
+
+/// One seeded mote, in the fixed box x=-3..3, y=-5..-1.
+pub fn particle(seed: int, x: int, y: int, tick: int, n: int) -> (int, int) {
+    let phase = (tick % CYCLE + world.hash(seed, x + n * 17, y, CYCLE)) % CYCLE
+    let base = world.hash(seed, x, y + n * 23, 5) - 2
+    let sway = if phase < 32 then -1 else if phase < 64 then 0 else 1
+    (base + sway, -1 - phase * DRIFT_Y / CYCLE)
+}
+
+fn dot(mut g: grid.Grid, row: int, col: int, cp: int, fg: int, bold: bool) {
+    let bg = grid.at(g, row, col).bg
+    grid.put(mut g, row, col, grid.cell(cp, fg, bg, if bold then grid.ATTR_BOLD else 0))
+}
+
+/// A three-cell core, a soft pulsing halo (x +/-3, y +/-2), and four motes.
+/// The death mark is never distance-culled: grid clipping is the only limit.
+pub fn orb(mut g: grid.Grid, t: int, row: int, col: int, seed: int, x: int, y: int, tick: int) {
+    let rise = tick % CYCLE < CYCLE / 2
+    let rich = t == tier.RICH
+    let halo = if rich then (if rise then 99 else 60) else (if rise then 13 else 5)
+    let rim = if rich then 229 else 14
+    let core = if rich then 231 else 15
+    let spread = if rise then 3 else 2
+    for dy in [-2, 2] {
+        for dx in [-2, 0, 2] {
+            dot(mut g, row + dy, col + dx, if rich then 183 else 46, halo, false)
+        }
+    }
+    for dx in [-spread, spread] { dot(mut g, row, col + dx, if rich then 183 else 46, halo, false) }
+    var n = 0
+    while n < PARTICLES {
+        let (dx, dy) = particle(seed, x, y, tick, n)
+        dot(mut g, row + dy, col + dx, if n % 2 == 0 then 42 else 46, rim, false)
+        n += 1
+    }
+    dot(mut g, row - 1, col, if rich then 183 else 46, rim, true)
+    dot(mut g, row + 1, col, if rich then 183 else 46, rim, true)
+    dot(mut g, row, col - 1, 40, rim, true)
+    dot(mut g, row, col + 1, 41, rim, true)
+    dot(mut g, row, col, if rich then 9679 else 42, core, true)
+}
+
+/// Eight short sparks, at most three cells from the recovered pickup.
+pub fn burst(mut g: grid.Grid, t: int, row: int, col: int, age: int) {
+    if age < 0 || age >= BURST_TICKS { return }
+    let spread = 1 + age / 4
+    let fg = if t == tier.RICH then (if age < 4 then 231 else 229) else (if age < 4 then 15 else 11)
+    for dx in [-1, 0, 1] {
+        for dy in [-1, 0, 1] {
+            if dx != 0 || dy != 0 {
+                dot(
+                    mut g,
+                    row + dy * spread,
+                    col + dx * spread,
+                    if age < 4 then 42 else 46,
+                    fg,
+                    age < 4,
+                )
+            }
+        }
+    }
+}

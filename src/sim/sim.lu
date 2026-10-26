@@ -332,6 +332,10 @@ pub struct Sim {
     mark_x: int,
     mark_y: int,
     mark_scent: int,
+    pickup_at: int,
+    pickup_x: int,
+    pickup_y: int,
+    pickup_area: int,
     gate_open: bool,
     area: int,
     last_den: int,
@@ -423,6 +427,10 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         mark_x: 0,
         mark_y: 0,
         mark_scent: 0,
+        pickup_at: -12,
+        pickup_x: 0,
+        pickup_y: 0,
+        pickup_area: 0,
         gate_open: false,
         area: forest.SHINGLE,
         last_den: 0,
@@ -1445,7 +1453,8 @@ pub fn step(mut s: Sim, keys: List[int]) {
     if transitions(mut s) { return }
     trail_step(mut s, ox, oy)
     drops_step(mut s)
-    if s.mark && s.mark_area == s.area && near(s.x, s.y, s.mark_x, s.mark_y, FP) {
+    if s.mark && s.mark_area == s.area && pickup_near(s, s.mark_x, s.mark_y) {
+        pickup_flash(mut s, s.mark_x, s.mark_y)
         s.scent += s.mark_scent
         s.mark = false
         s.mark_scent = 0
@@ -2308,6 +2317,29 @@ pub const DROP_TICKS: int = 300
 /// Each opening frame lasts this many ticks unless any key skips it.
 pub const SCENE_TICKS: int = 90
 
+/// Pickups use the drawn body plus this many whole cells on every side.
+pub const PICKUP_MARGIN: int = 1
+
+/// Contact ring, inclusive, in world cells; negative and fractional positions
+/// use the same floor as the drawing. Nose growth may widen this margin later.
+pub fn pickup_near(s: Sim, x: int, y: int) -> bool {
+    let b = cub_body(s)
+    let cx = floor_div(x, FP)
+    let cy = floor_div(y, FP)
+    cx >= b.x0 - PICKUP_MARGIN &&
+        cx <= b.x1 + PICKUP_MARGIN &&
+        cy >= b.y0 - PICKUP_MARGIN &&
+        cy <= b.y1 + PICKUP_MARGIN
+}
+
+/// Remember one bounded visual burst; successive pickups replace it.
+pub fn pickup_flash(mut s: Sim, x: int, y: int) {
+    s.pickup_at = s.tick
+    s.pickup_x = x
+    s.pickup_y = y
+    s.pickup_area = s.area
+}
+
 /// A local, transient scent pickup, distinct from the persistent death mark.
 pub struct Drop { x: int, y: int, value: int, until: int }
 
@@ -2317,9 +2349,13 @@ fn leave_drop(mut s: Sim, x: int, y: int, value: int) {
 
 fn drops_step(mut s: Sim) {
     var keep = List[Drop]()
-    for drop in s.drops {
+    var i = 0
+    while i < s.drops.len {
+        let drop = copy s.drops[i]
+        i += 1
         if drop.until > s.tick {
-            if near(s.x, s.y, drop.x, drop.y, FP) {
+            if drop.until - s.tick < DROP_TICKS && pickup_near(s, drop.x, drop.y) {
+                pickup_flash(mut s, drop.x, drop.y)
                 s.scent += drop.value
                 if drop.value == 5 {
                     s.health += 10
@@ -2370,10 +2406,11 @@ fn cache_key(mut s: Sim) {
     var cache = 0
     while cache < forest.cache_count(s.area) {
         let (x, y) = forest.cache_position(s.seed, s.field, s.area, cache)
-        if near(s.x, s.y, x, y, 2 * FP) && !cache_open(s, cache) {
+        if pickup_near(s, x, y) && !cache_open(s, cache) {
             for foe in s.foes {
                 if foe.health > 0 && near(foe.x, foe.y, x, y, 6 * FP) { return }
             }
+            pickup_flash(mut s, x, y)
             s.caches += cache_mask(s.area, cache)
             if cache == 1 {
                 if s.area == forest.LARKMEADOW { s.yarrow += 1 } else { s.marrow += 1 }
