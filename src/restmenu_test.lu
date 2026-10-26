@@ -69,19 +69,20 @@ fn test_cb04d_panel_colours_and_complete_cub_fire_fit() {
             var g = grid.new(s.rows, s.cols)
             restscene.render(s, t, mut g)
             let left = restscene.panel_left(s)
+            let right = left + restscene.panel_width(s)
             var before = List[int]()
             var r = 0
             while r < s.rows {
-                var c = 0
-                while c < left { (mut before).push(grid.at(g, r, c).cp); c += 1 }
+                var c = right
+                while c < s.cols { (mut before).push(grid.at(g, r, c).cp); c += 1 }
                 r += 1
             }
             restscene.menu(s, t, mut g)
             var n = 0
             r = 0
             while r < s.rows {
-                var c = 0
-                while c < left {
+                var c = right
+                while c < s.cols {
                     assert(grid.at(g, r, c).cp == before[n], "panel leaves cub and fire whole")
                     n += 1
                     c += 1
@@ -89,7 +90,6 @@ fn test_cb04d_panel_colours_and_complete_cub_fire_fit() {
                 r += 1
             }
             let top = (s.rows - restscene.panel_height(s)) / 2
-            let right = left + restscene.panel_width(s)
             assert(grid.at(g, top + 7, right - 4).fg == (if t == 0 then 12 else 203), "needed red")
             assert(
                 grid.at(g, top + 10, right - 5).fg == (if t == 0 then 10 else 84),

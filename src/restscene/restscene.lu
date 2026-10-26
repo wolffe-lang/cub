@@ -189,6 +189,8 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
         draw.put_text(mut g, top + 8, left + 20, "__", grid.cell(32, 95, 137, 0))
     }
     let fire = left + (if s.cols < 120 then 28 else 34)
+    // Minimum width keeps both original drawings whole by lowering the fire.
+    let fire_floor = floor + (if s.cols < 120 then 6 else 0)
     var row = 0
     while row < 6 {
         var col = -3
@@ -211,7 +213,7 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
                 } else {
                     166
                 }
-                grid.put(mut g, floor - 7 + row, fire + col, grid.cell(cp, fg, bg, 0))
+                grid.put(mut g, fire_floor - 7 + row, fire + col, grid.cell(cp, fg, bg, 0))
             }
             col += 1
         }
@@ -219,14 +221,14 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
     }
     draw.put_text(
         mut g,
-        floor - 1,
+        fire_floor - 1,
         fire - 4,
         "==/==\\==",
         grid.cell(32, if t == tier.PLAIN then 3 else 94, bg, 0),
     )
     grid.put(
         mut g,
-        floor - 9,
+        fire_floor - (if s.cols < 120 then 8 else 9),
         fire + phase - 1,
         grid.cell(46, if t == tier.PLAIN then 9 else 208, bg, 0),
     )

@@ -870,4 +870,4 @@ coordinates; its left edge is clamped to keep the full panel visible.
 Measured centres at80×24,120×40,200×60 are respectively `(27,12)`, `(40,20)`,
 `(67,30)`, with left/top `(7,1)`, `(15,7)`, `(42,17)`. None of these sizes
 clamps. The original breathing cub and animated fire sit to its right;
-at80 columns the empty space between them narrows by six columns.
+at80 columns the fire sits six rows lower, clear of the cub's muzzle.

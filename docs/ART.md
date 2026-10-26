@@ -341,8 +341,8 @@ uses doubled ASCII rules, gold3 and white15 on black0. The panel is40×22
 at80×24 (left7, top1),50×26 at120×40 (left15, top7) and200×60
 (left42, top17). Its centre is one sixth of the screen width left of the
 screen centre, and vertically centred; all three sizes fit without clamping.
-The cub/fire group sits to its right, its spacing six columns tighter at80
-columns so the complete drawings fit.
+The cub/fire group sits to its right. At80 columns the fire sits six rows
+lower so the complete drawings fit without painting over the muzzle.
 
 Sections are the den name; Level, Scent held, Scent needed, Scent after;
 the five stats and their effects; Confirm and the keyboard hint. A `>`
