@@ -1,24 +1,24 @@
- health [============] O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
- stamina[============] #scent 0#O#O#O#O#O#O.......O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+ health [============] O#O#O#O#O#O#O#O#   ..  #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+ stamina[============] #scent 0#O#O#O#O       O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
                        OThe Teeth - a den ahead; scent of home#O#O#O#O#O#O#O#O#O
-                        Water 3/3  w drink       .O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-                       O#O#O#O#O#O#O#O#O#O#O  .. O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#  ,: #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#~..   O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#_.---._.O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+                        Water 3/3  w drink       #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+                       O#O#O#O#O#O#O#_.---._. #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O(     )O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#(_ * _)#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O...,...O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#####  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O####    #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.vv.O. :  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   , O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   . O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-",  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O . . O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-   "#  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# :   #O#O#O#O#O#O#O#O#O#O#O#O#O#O
-':     #'#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#:    #O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-,"" .| '  #O#O#O#O#O# .  O#O#O#O#O#O# , .O#O#    .#O#    O#O#O#O#O#O#O#O#O#O#O#O
-    O   |  #O#O#O          #O#O#O#. .  :     :  O# :   .  O#O#O#O#O#      O#O#O#
- :  ,.#   . # . :            O#O#              O .:         #O#O#O    ..   O#O#O
-   .'  :,| ....___         .   .        ,     . ,            #O#O             O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O (_ * _)#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#........O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#     : #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     : O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     .:O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#     ..,.#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     ####O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O      #####O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#  :   .vv.O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+   #'#O#O#O#O#O#O#O#O#O.     .  O      .O#O#O#O#O#O#O#O       :#O#O#O#O#O#O#O#O#
+.| '  #O#O#O#O#O#O.   . .      .  , .   #O#O#O#O#       ,         #O#O#O#O#O#O#O
+O   |  #O#O#O#O              ,. .  :     :O#O# :   .    :.           #O#O#O#O#O#
+,.#   .   . :                                .:            ,      ..   O#O#O#O#O
+'  :,|   .             .   .        ,     . ,                                #O#
+','O|"#....___                  .         .      .   :       .              :O#O
+ #" |  .._/...     . ,                 ,         :   ,         ,    .  ~.o.~.oO#
+: . :,,_/.....    ,  . O#O#O#O#O   .         ,         O#O#O#O# .      .o.~.o.#O
+ .     "  .       O#O#O#O#O#O#O#O#O#O.           #O#O#O#O#O#O#O#O#   . ~.o.~.oO#

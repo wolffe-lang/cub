@@ -1,0 +1,24 @@
+ health [============] #O#O#O#O#O#O#O#     ::#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+ stamina[============] Oscent 40#O#O#O#    Whisper [####################]O#O#O#O
+                       #O#O#O#O#O#O#O#O., ,. :O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+                        Water 3/3  w drink       O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+                       #O#O#O#O#O#O#O#O#O ,  : .O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# .  :  #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O    : ,O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   :   O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#::::  :#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O:  ,. ,O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#:      #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O O#.^^.     #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#      ,####,  .#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O         ####., .O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O:   ..    ',..   O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O      .          O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O '
+O#O#O#O#O#O#O#O#O#O#O#O#O#O   ,               O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#  
+#O#O#O#O#O#O#O#O#O#O#O#O#O.  :      :          O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O":
+O#O#O#O#O#O#O#O#O#O#O#O#O# .     ,       :     #O#O#O#O#O#O#O#O#O#O#O#O#O#O#    
+#O#O#O#O#O#O#O#O#O#O#O#O#      O#.,          :  #O#O#O#O#O#O#O#O#O#O#O#O#O   O' 
+O#O#O#O#O#O#O#O#O#O#O#O#O  .   #O             . O#O#O#O#O#O#O#O#O#O#O#O'    '.. 
+#O#O#O#O#O#O#O#O#O#O#O#O#..  :    :___          #O#O#O#O#O#O#O#   |  ' "" ""    
+O#O#O#O#O#O#O#O#O#O#O#O#O     .    ###     : :  O#O#O#O#O#O  #      "|"  # :  O 
+#O#O#O#O#O#O#O#O#O#O#O#O     O#   ##### ,        O#O#O#O#O :  #": . " #O#  .  :O
