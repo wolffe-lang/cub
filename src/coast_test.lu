@@ -53,7 +53,7 @@ fn test_cb02a_each_branch_ends_in_an_alcove() {
                 }
                 dx += 1
             }
-            let foes = sim.area_foes(seed, 80, 0)
+            let foes = sim.area_foes(seed, 80, 0, 0)
             var guards = 0
             for f in foes {
                 if sim.near(f.x, f.y, x, y, 4 * sim.FP) && f.kind == sim.FOX && f.health == 40 {

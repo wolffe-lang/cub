@@ -85,7 +85,7 @@ fn walk(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int) -> bool {
 /// cell with a live ground foe's body: the walker routes round bodies as
 /// it routes round trunks (cb02c: bodies are the drawings' footprints).
 fn body_on(s: sim.Sim, x: int, y: int) -> bool {
-    let b = sim.cub_body_at(x * sim.FP + sim.FP / 2, y * sim.FP + sim.FP / 2, s.body_facing)
+    let b = sim.cub_body_at(s, x * sim.FP + sim.FP / 2, y * sim.FP + sim.FP / 2, s.body_facing)
     for f in s.foes {
         if sim.solid(f) && sim.overlap(b, sim.foe_body(f)) { return true }
     }

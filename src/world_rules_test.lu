@@ -95,7 +95,7 @@ fn test_cb02_spawned_bodies_stand_on_passable_ground() {
     while seed < 8 {
         var area = 0
         while area < 3 {
-            let foes = sim.area_foes(seed, 80, area)
+            let foes = sim.area_foes(seed, 80, area, 0)
             for f in foes {
                 assert(
                     !forest.blocked(

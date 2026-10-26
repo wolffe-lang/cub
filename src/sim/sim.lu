@@ -438,7 +438,7 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         scene: 0,
         scene_started: 0,
         cue: 0,
-        foes: area_foes(seed, forest.field_of(cols), forest.SHINGLE),
+        foes: area_foes(seed, forest.field_of(cols), forest.SHINGLE, 0),
         trail: List[Trail](),
         gait: 0,
         body_facing: 0,
@@ -586,7 +586,7 @@ fn locomotion(mut s: Sim) {
         pace
     }
     s.speed = toward(s.speed, want_v, if want_v > s.speed then ACCEL else BRAKE)
-    // The move, each axis on its own, so a wall along one lets the other
+    // The attack, each axis on its own, so a wall along one lets the other
     // slide; a blocked axis stops the cub.
     let dx = s.speed * sin(s.heading) / 256
     let dy = 0 - s.speed * cos(s.heading) / 256
@@ -722,6 +722,10 @@ pub struct Foe {
     hit: bool,
     last_hit: int,
     died: int,
+    attack: int,
+    poise: int,
+    poise_at: int,
+    engaged: bool,
 }
 
 /// Damage of an unmodified bite at this fang level.
@@ -764,6 +768,10 @@ pub fn spawn_foes(seed: int) -> List[Foe] {
             hit: false,
             last_hit: -1,
             died: -1,
+            attack: 0,
+            poise: 0,
+            poise_at: 0,
+            engaged: false,
         })
         i += 1
     }
@@ -878,7 +886,7 @@ fn reset_world(mut s: Sim) {
     s.riposte_foe = -1
     s.chained = false
     s.combo = 0
-    s.foes = area_foes(s.seed, s.field, s.area)
+    s.foes = area_foes(s.seed, s.field, s.area, s.bosses)
     (mut s.drops).reset()
     (mut s.trail).reset()
     var i = 0
@@ -949,6 +957,7 @@ fn start_action(mut s: Sim, action: int, cost: int) {
     s.started = s.tick
     s.speed = 0
     s.chained = false
+    alpha_reacts(mut s, action)
 }
 
 fn action_keys(mut s: Sim, keys: List[int]) {
@@ -1026,16 +1035,53 @@ fn strike_foes(mut s: Sim) {
                 damage *= 2
                 s.riposte = 0
             }
+            // The alpha's guard turns a bite (cb04): no damage, the cub's
+            // bite ends, and the alpha ripostes with a bite of its own
+            // whose windup is the parry window's floor.
+            if f.kind == ALPHA && f.phase == FOE_PARRY && s.action == BITE {
+                s.foes[i].last_hit = s.started
+                s.action = IDLE
+                s.combo = 0
+                s.chained = false
+                s.foes[i].phase = CROUCH
+                s.foes[i].attack = 0
+                s.foes[i].since = s.tick - (boss_move(ALPHA, 0, phase_two(f)).windup - PARRY_WINDOW)
+                s.foes[i].target_x = s.x
+                s.foes[i].target_y = s.y
+                i += 1
+                continue
+            }
             s.foes[i].health -= damage
             s.foes[i].last_hit = s.started
             if s.foes[i].health <= 0 {
                 s.foes[i].died = s.tick
-                leave_drop(
-                    mut s,
-                    f.x,
-                    f.y,
-                    if f.kind == FOX then 20 else if f.kind == DEER then 5 else 8,
-                )
+                if is_boss(f.kind) {
+                    beat_boss(mut s, f.kind, f.x, f.y)
+                } else {
+                    leave_drop(
+                        mut s,
+                        f.x,
+                        f.y,
+                        if f.kind == FOX then 20 else if f.kind == DEER then 5 else 8,
+                    )
+                }
+            } else if is_boss(f.kind) {
+                // Poise (the bible's section 4): a boss never staggers from
+                // a bite; a lunge or a heavy into a travelling attack's
+                // windup or run staggers it at once, and otherwise their
+                // damage within POISE_TICKS accumulates to a stagger.
+                if s.action == LUNGE || s.action == HEAVY {
+                    let travelling = boss_move(f.kind, f.attack, phase_two(f)).travel > 0 &&
+                        (f.phase == CROUCH || f.phase == STRIKE)
+                    if s.tick - f.poise_at > POISE_TICKS { s.foes[i].poise = 0 }
+                    s.foes[i].poise += damage
+                    s.foes[i].poise_at = s.tick
+                    if travelling || s.foes[i].poise >= POISE {
+                        s.foes[i].poise = 0
+                        s.foes[i].phase = STAGGER
+                        s.foes[i].since = s.tick
+                    }
+                }
             } else if s.action == LUNGE || s.action == HEAVY {
                 s.foes[i].phase = STAGGER
                 s.foes[i].since = s.tick
@@ -1054,7 +1100,7 @@ pub fn run_foe(mut s: Sim, i: int, tx: int, ty: int) {
     move_foe(mut s, i, false)
 }
 
-/// Opponents move on the ground. The presentation's arc never moves their
+/// Opponents attack on the ground. The presentation's arc never moves their
 /// body through another creature or alters the damage envelope.
 fn move_foe(mut s: Sim, i: int, away: bool) {
     let f = copy s.foes[i]
@@ -1105,6 +1151,11 @@ fn foes_step(mut s: Sim) {
         if f.health <= 0 { i += 1; continue }
         if f.kind == HAWK {
             hawk_step(mut s, i)
+            i += 1
+            continue
+        }
+        if is_boss(f.kind) {
+            boss_step(mut s, i)
             i += 1
             continue
         }
@@ -1272,11 +1323,7 @@ pub fn step(mut s: Sim, keys: List[int]) {
     s.tick += 1
     s.cue = 0
     if s.scene != 0 {
-        if keys.len > 0 || s.tick - s.scene_started >= SCENE_TICKS * 3 {
-            s.scene = 0
-            s.opening_seen = true
-            s.entered = s.tick
-        }
+        scene_step(mut s, keys.len > 0)
         return
     }
     if s.action == FALL {
@@ -1333,7 +1380,64 @@ pub fn step(mut s: Sim, keys: List[int]) {
         if s.stamina > stamina_max(s.wind) { s.stamina = stamina_max(s.wind) }
         if s.stamina >= EXHAUST_RECOVER { s.exhausted = false }
     }
+    end_due(mut s)
 }
+
+/// One tick of a scene: the opening (1) ends on a key or after its three
+/// frames; the title (2) on a key, then the opening for a new journey; the
+/// end (3) shows its three frames (a key skips to the card) and the card
+/// until a key (`r` keeps playing, R-cb04-4 A).
+fn scene_step(mut s: Sim, key: bool) {
+    let age = s.tick - s.scene_started
+    if s.scene == 1 {
+        if key || age >= SCENE_TICKS * 3 {
+            s.scene = 0
+            s.opening_seen = true
+            s.entered = s.tick
+        }
+    } else if s.scene == SCENE_TITLE {
+        if key {
+            s.scene = 0
+            s.entered = s.tick
+            opening(mut s)
+        }
+    } else if age < END_CARD_AT {
+        if key { s.scene_started = s.tick - END_CARD_AT }
+    } else if key {
+        s.scene = 0
+        s.entered = s.tick
+    }
+}
+
+/// The end begins when the alpha's fade is done: the ford, the wolf, the
+/// pack's howl, the card (cb04).
+fn end_due(mut s: Sim) {
+    var i = 0
+    while i < s.foes.len {
+        let f = copy s.foes[i]
+        if f.kind == ALPHA && f.health <= 0 && f.died >= 0 && s.tick - f.died == BOSS_FADE_TICKS {
+            s.scene = SCENE_END
+            s.scene_started = s.tick
+            s.cue = CUE_HOWL
+        }
+        i += 1
+    }
+}
+
+/// The end card follows the end's three frames (ticks into the scene).
+pub const END_CARD_AT: int = SCENE_TICKS * 3
+
+/// Show the title (the live start, and a script's `title 1` event): the
+/// four bosses' silhouettes, lit where the save says beaten, the keys, and
+/// after `TITLE_IDLE` idle ticks the recorded demo behind it.
+pub fn title(mut s: Sim) {
+    s.scene = SCENE_TITLE
+    s.scene_started = s.tick
+    s.cue = CUE_TITLE
+}
+
+/// Idle ticks on the title before the demo plays (ten seconds).
+pub const TITLE_IDLE: int = 300
 
 // Bodies (cb02c; the maintainer's word, 2026-10-25: "Enemies should never
 // overlap with the cub. They should have collision to prevent weird attack
@@ -1374,15 +1478,21 @@ pub fn wanted_facing(s: Sim) -> int {
     facing(s)
 }
 
+/// The cub's drawing's size in pixels: the cub's, or the wolf's after the
+/// end (cb04: the silhouette grows one size, and so does the body).
+pub fn cub_size(s: Sim) -> (int, int) {
+    if s.end then silhouette.wolf_size() else silhouette.cub_size()
+}
+
 /// The cub's body at fixed-point `(x, y)` facing `facing`.
-pub fn cub_body_at(x: int, y: int, facing: int) -> Body {
-    let (w, h) = silhouette.cub_size()
+pub fn cub_body_at(s: Sim, x: int, y: int, facing: int) -> Body {
+    let (w, h) = cub_size(s)
     rect(w, h, facing, floor_div(x, FP), floor_div(y, FP))
 }
 
 /// The cub's body where it stands, the way the frame draws it.
 pub fn cub_body(s: Sim) -> Body {
-    cub_body_at(s.x, s.y, s.body_facing)
+    cub_body_at(s, s.x, s.y, s.body_facing)
 }
 
 /// A foe's body at `(x, y)` with `heading`.
@@ -1457,7 +1567,7 @@ pub fn body_gap(s: Sim, i: int) -> int {
 
 /// Whether the cub's body at `(x, y)` would share a cell with a solid foe.
 fn cub_blocked_by_body(s: Sim, x: int, y: int) -> bool {
-    let b = cub_body_at(x, y, s.body_facing)
+    let b = cub_body_at(s, x, y, s.body_facing)
     for f in s.foes {
         if solid(f) && overlap(b, foe_body(f)) { return true }
     }
@@ -1532,13 +1642,13 @@ fn turn_foe(mut s: Sim, i: int, heading: int) {
 
 /// The cub's body takes the facing it wants (a turn's quarter, an
 /// attack's aim). A foe in the way of the swing steps aside (R-cb02c-5 A:
-/// the body that did not move yields to the cub's turn, as a tie goes
+/// the body that did not attack yields to the cub's turn, as a tie goes
 /// against the foe); with no room the cub's body keeps its facing this
 /// tick, so a turn never swings the cub into a foe.
 fn swing_body(mut s: Sim) {
     let want = wanted_facing(s)
     if want == s.body_facing { return }
-    let b = cub_body_at(s.x, s.y, want)
+    let b = cub_body_at(s, s.x, s.y, want)
     var clear = true
     var i = 0
     while i < s.foes.len {
@@ -1649,7 +1759,7 @@ pub fn clip_arc(s: Sim, ox: int, oy: int) -> (int, int) {
         let nx = s.x + dx
         let ny = s.y + dy
         let stops = blocked(s, floor_div(nx, FP), floor_div(ny, FP)) ||
-            drawn_body_in(s, cub_body_at(nx, ny, s.body_facing))
+            drawn_body_in(s, cub_body_at(s, nx, ny, s.body_facing))
         if stops { break }
         x = dx
         y = dy
@@ -1822,9 +1932,22 @@ pub fn den_here(s: Sim) -> int {
     -1
 }
 
-/// Initial encounters for one seeded area.
-pub fn area_foes(seed: int, field: int, area: int) -> List[Foe] {
+/// Initial encounters for one seeded area: the ordinary foes by group,
+/// the cache guards, and the area's boss at its arena's centre unless the
+/// journey has beaten it (`bosses`, the save's bits).
+pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
     var foes = List[Foe]()
+    if forest.has_arena(area) {
+        let kind = boss_of(area)
+        if bosses / boss_bit(kind) % 2 == 0 {
+            let (cx, cy, _) = forest.arena(seed, field, area)
+            var b = make_foe(kind, cx * FP + FP / 2, (forest.origin(seed, area) + cy) * FP + FP / 2)
+            // Facing the way the cub comes: north, down the route; the boar
+            // west, toward its clearing's mouth.
+            b.heading = if area == forest.BRAMBLEHOLD then 192 else 0
+            (mut foes).push(b)
+        }
+    }
     var group = 0
     while group < 3 {
         let at = (if group == 0 then 52 else if group == 1 then 76 else 134) +
@@ -1894,7 +2017,7 @@ fn make_foe(kind: int, x: int, y: int) -> Foe {
         heading: 0,
         speed: 0,
         stamina: 60,
-        health: if kind == FOX then 24 else 8,
+        health: foe_health(kind),
         phase: HUNT,
         since: 0,
         target_x: x,
@@ -1904,6 +2027,10 @@ fn make_foe(kind: int, x: int, y: int) -> Foe {
         hit: false,
         last_hit: -1,
         died: -1,
+        attack: 0,
+        poise: 0,
+        poise_at: 0,
+        engaged: false,
     }
 }
 
@@ -1914,7 +2041,7 @@ pub fn enter_area(mut s: Sim, area: int, x: int, y: int) {
     s.y = y
     s.entered = s.tick
     s.edge_ready = false
-    s.foes = area_foes(s.seed, s.field, area)
+    s.foes = area_foes(s.seed, s.field, area, s.bosses)
     (mut s.drops).reset()
     (mut s.trail).reset()
     s.locked = -1
@@ -2155,13 +2282,611 @@ fn cache_key(mut s: Sim) {
 
 /// Reserved score hooks emitted once on the corresponding interaction.
 pub fn cue_hook(cue: int) -> str {
-    if cue == 1 {
-        "shortcut.log.push"
-    } else if cue == 2 {
-        "shortcut.hedge.dig"
-    } else if cue == 3 {
-        "cache.open"
-    } else {
-        ""
+    match cue {
+        1 => "shortcut.log.push",
+        2 => "shortcut.hedge.dig",
+        3 => "cache.open",
+        4 => "boss.boar",
+        5 => "boss.lynx",
+        6 => "boss.elk",
+        7 => "boss.alpha",
+        8 => "boss.beaten",
+        9 => "howl",
+        10 => "title",
+        _ => "",
     }
 }
+
+// The bosses (cb04, M-CB4): four big bodies on cb02c's rules (never
+// overlapping, the contact ring inside the attack envelope), each holding
+// an arena it never leaves, with two or three telegraphed attacks whose
+// windups are readable at the cub's pace (every parryable telegraph at
+// least the parry window; the one unparryable attack beaten by a dodge),
+// a second phase at half health, poise instead of a stagger on every bite,
+// and a beaten state the save keeps that opens the boss's shortcut home.
+// Every number is `docs/DESIGN.md`'s, proposed (R-CB-7).
+
+/// Old Snag, the boar of the thicket.
+pub const BOAR: int = 4
+
+/// Whisper, the lynx of the crags.
+pub const LYNX: int = 5
+
+/// Alder, the elk of the river.
+pub const ELK: int = 6
+
+/// Ashgrim, the shadow alpha of the old den.
+pub const ALPHA: int = 7
+
+/// The alpha's guard: its parry, a phase of nine ticks in which a bite is
+/// turned and answered (cb04).
+pub const FOE_PARRY: int = 7
+
+/// The alpha's hop: its dodge, six ticks of invulnerable sideways travel.
+pub const FOE_DODGE: int = 8
+
+/// A beaten boss fades over this many ticks (three times a foe's).
+pub const BOSS_FADE_TICKS: int = 45
+
+/// Lunge and heavy damage within `POISE_TICKS` that staggers a boss.
+pub const POISE: int = 60
+
+/// The window poise accumulates over.
+pub const POISE_TICKS: int = 60
+
+/// The alpha's guard lasts the parry window.
+pub const GUARD_TICKS: int = PARRY_WINDOW
+
+/// The alpha's hop: ticks and cells (the cub's dodge).
+pub const HOP_TICKS: int = 6
+
+/// Whether a kind is a boss.
+pub fn is_boss(kind: int) -> bool {
+    kind >= BOAR && kind <= ALPHA
+}
+
+/// The boss an area holds (`forest.has_arena` says which areas do).
+pub fn boss_of(area: int) -> int {
+    if area == forest.BRAMBLEHOLD {
+        BOAR
+    } else if area == forest.CRAGS {
+        LYNX
+    } else if area == forest.RIVER {
+        ELK
+    } else {
+        ALPHA
+    }
+}
+
+/// The save's bit for a boss: the boar 1, the lynx 2, the elk 4, the
+/// alpha 8.
+pub fn boss_bit(kind: int) -> int {
+    match kind {
+        4 => 1,
+        5 => 2,
+        6 => 4,
+        _ => 8,
+    }
+}
+
+/// A boss's name (the bible's).
+pub fn boss_name(kind: int) -> str {
+    match kind {
+        4 => "Old Snag",
+        5 => "Whisper",
+        6 => "Alder",
+        _ => "Ashgrim",
+    }
+}
+
+/// A foe's health at birth by kind: the weasel's and fox's (the bible's),
+/// the bosses' (proposed): the boar sturdy, the lynx fast and low, the elk
+/// slow and high, the alpha between.
+pub fn foe_health(kind: int) -> int {
+    match kind {
+        1 => 24,
+        4 => 240,
+        5 => 140,
+        6 => 400,
+        7 => 300,
+        _ => 8,
+    }
+}
+
+/// The scent a beaten boss leaves (the bible's section 6; the alpha
+/// nothing: the end).
+pub fn boss_scent(kind: int) -> int {
+    match kind {
+        4 => 120,
+        5 => 200,
+        6 => 300,
+        _ => 0,
+    }
+}
+
+/// The shortcut a beaten boss opens: the boar pushes the log, the lynx
+/// frees the ledge, the elk yields the shallows; the alpha opens the end
+/// (no edge).
+pub fn boss_shortcut(kind: int) -> int {
+    match kind {
+        4 => 2,
+        5 => 7,
+        6 => 8,
+        _ => -1,
+    }
+}
+
+/// A boss's pursuit, FP units a tick: the boar slow but a charger, the
+/// lynx fast, the elk slow, the alpha the cub's own pace.
+fn boss_speed(kind: int) -> int {
+    match kind {
+        4 => 54,
+        5 => 90,
+        6 => 48,
+        _ => 63,
+    }
+}
+
+/// A boss's turn rate, heading units a tick: the boar turns slowly (the
+/// maintainer's flank), the lynx quickly.
+fn boss_turn(kind: int) -> int {
+    match kind {
+        4 => 8,
+        5 => 20,
+        6 => 10,
+        _ => 16,
+    }
+}
+
+/// One telegraphed attack: its windup (the tell, ticks), its active ticks,
+/// its recovery, its damage, its reach in cells (counted from the bodies,
+/// R-cb02c-4 A), whether a parry turns it, how fast it travels (FP units a
+/// tick along the committed line; 0 for a standing attack), and whether it
+/// hits all round (the stamp) rather than in the cone ahead.
+pub struct Move {
+    windup: int,
+    active: int,
+    recovery: int,
+    damage: int,
+    reach: int,
+    parryable: bool,
+    travel: int,
+    around: bool,
+}
+
+fn mv(
+    windup: int,
+    active: int,
+    recovery: int,
+    damage: int,
+    reach: int,
+    parryable: bool,
+    travel: int,
+    around: bool,
+) -> Move {
+    Move {
+        windup: windup,
+        active: active,
+        recovery: recovery,
+        damage: damage,
+        reach: reach,
+        parryable: parryable,
+        travel: travel,
+        around: around,
+    }
+}
+
+/// The moves a boss has (0, 1 and, in some, 2); `phase2` shortens the
+/// windups of the fast fights (the lynx, the alpha) and the boar's gore.
+/// Every parryable windup stays at or above `PARRY_WINDOW`; the one
+/// unparryable attack of each boss is the one a dodge beats.
+pub fn boss_move(kind: int, attack: int, phase2: bool) -> Move {
+    let quick = if phase2 then 3 else 0
+    if kind == BOAR {
+        // The gore (parry it); the charge (dodge sideways; a lunge into it
+        // staggers the boar); phase 2 charges twice (the second windup
+        // shorter, the run the same).
+        if attack == 0 { return mv(14 - (if phase2 then 2 else 0), 3, 20, 14, 3, true, 0, false) }
+        if attack == 1 { return mv(24, 18, 30, 22, 2, false, 96, false) }
+        return mv(12, 18, 30, 22, 2, false, 96, false)
+    }
+    if kind == LYNX {
+        // The swipe; the pounce from a ledge (its long steady tell; parry
+        // the landing); the rake, which cannot be parried.
+        if attack == 0 { return mv(13 - quick, 2, 18, 12, 3, true, 0, false) }
+        if attack == 1 { return mv(15 - quick, 6, 24, 16, 2, true, 320, false) }
+        return mv(18 - quick, 8, 20, 10, 4, false, 0, false)
+    }
+    if kind == ELK {
+        // The sweep of the antlers; the stamp, all round, unparryable;
+        // phase 2 adds the stag's charge (parry or lunge it).
+        if attack == 0 { return mv(20 - (if phase2 then 4 else 0), 4, 30, 18, 5, true, 0, false) }
+        if attack == 1 { return mv(24, 2, 36, 24, 3, false, 0, true) }
+        return mv(18, 14, 30, 20, 2, true, 80, false)
+    }
+    // The alpha: the cub's own bite and lunge mirrored, and in phase 2 a
+    // howl that heals it unless its long windup is punished.
+    if attack == 0 { return mv(12 - quick, 2, 10, 14, 2, true, 0, false) }
+    if attack == 1 { return mv(15 - quick, 4, 18, 20, 2, false, 256, false) }
+    mv(20, 1, 10, 0, 0, true, 0, false)
+}
+
+/// The moves a boss has in a phase: two, or three in phase 2 for the elk
+/// and the alpha (the lynx's three always; the boar's third is its second
+/// charge, never chosen on its own).
+fn boss_moves(kind: int, phase2: bool) -> int {
+    if kind == LYNX { return 3 }
+    if kind == BOAR { return 2 }
+    if phase2 then 3 else 2
+}
+
+/// Whether a boss is in its second phase: half its health gone.
+pub fn phase_two(f: Foe) -> bool {
+    is_boss(f.kind) && f.health * 2 < foe_health(f.kind)
+}
+
+/// Whether fixed-point `(x, y)` lies in the area's arena.
+pub fn in_arena_at(s: Sim, x: int, y: int) -> bool {
+    forest.in_arena(
+        s.seed,
+        s.field,
+        s.area,
+        floor_div(x, FP),
+        floor_div(y, FP) - forest.origin(s.seed, s.area),
+    )
+}
+
+/// Whether the cub stands in the area's arena (the bar's rule, R-cb04-2 A).
+pub fn cub_in_arena(s: Sim) -> bool {
+    in_arena_at(s, s.x, s.y)
+}
+
+/// The live boss of the area, or -1.
+pub fn boss_index(s: Sim) -> int {
+    var i = 0
+    while i < s.foes.len {
+        if is_boss(s.foes[i].kind) && s.foes[i].health > 0 { return i }
+        i += 1
+    }
+    -1
+}
+
+/// Whether a boss's body may stand at `(x, y)` with `heading`: inside its
+/// arena (it never leaves its ground), on ground its kind can take (the
+/// lynx stands on the bowl's stone, its ledges), and in no other body.
+fn boss_may_stand(s: Sim, i: int, x: int, y: int, heading: int) -> bool {
+    if !in_arena_at(s, x, y) { return false }
+    let cx = floor_div(x, FP)
+    let cy = floor_div(y, FP)
+    let k = forest.kind(s.seed, s.field, s.area, cx, cy)
+    let stone = s.foes[i].kind == LYNX && k == terrain.ROCK
+    if !stone && blocked(s, cx, cy) { return false }
+    !foe_blocked_by_body(s, i, x, y, heading)
+}
+
+/// Turn boss `i` toward `heading` at its own turn rate (halved in
+/// recovery: the boar turns slowly after a charge), the swing yielding as
+/// a foe's does.
+fn boss_turn_toward(mut s: Sim, i: int, want: int) {
+    let f = copy s.foes[i]
+    var rate = boss_turn(f.kind)
+    if f.phase == RETREAT { rate = (rate + 1) / 2 }
+    let d = turn_toward(f.heading, want)
+    let step = if d > rate then rate else if d < 0 - rate then 0 - rate else d
+    turn_foe(mut s, i, (f.heading + step + TURN) % TURN)
+}
+
+/// Run boss `i` one tick toward `(tx, ty)` at speed `v`: a turn first,
+/// then a step that yields to the arena's edge, the ground and the bodies.
+fn boss_run(mut s: Sim, i: int, tx: int, ty: int, v: int) {
+    let f = copy s.foes[i]
+    let h = heading_to(f.x, f.y, tx, ty)
+    if h < 0 { s.foes[i].speed = 0; return }
+    boss_turn_toward(mut s, i, h)
+    let g = copy s.foes[i]
+    let speed = toward(g.speed, v, if v < g.speed then BRAKE else ACCEL)
+    let nx = g.x + speed * sin(g.heading) / FP
+    let ny = g.y - speed * cos(g.heading) / FP
+    if boss_may_stand(s, i, nx, ny, g.heading) {
+        s.foes[i].x = nx
+        s.foes[i].y = ny
+        s.foes[i].speed = speed
+    } else {
+        s.foes[i].speed = 0
+    }
+}
+
+/// The lynx's nearest ledge (a pillar's middle), fixed point.
+fn nearest_perch(s: Sim, f: Foe) -> (int, int) {
+    var best_x = f.home_x
+    var best_y = f.home_y
+    var best = 1000000000
+    var k = 0
+    while k < forest.PILLARS {
+        let (px, py) = forest.pillar(s.seed, s.field, k)
+        let x = px * FP + FP
+        let y = (forest.origin(s.seed, s.area) + py) * FP + FP
+        let d = (x - f.x) * (x - f.x) + (y - f.y) * (y - f.y)
+        if d < best {
+            best = d
+            best_x = x
+            best_y = y
+        }
+        k += 1
+    }
+    (best_x, best_y)
+}
+
+/// The attack boss `i` opens with now, or -1 to keep closing: a standing
+/// attack when the cub is within its reach, a travelling one from further
+/// off, the seed's hash choosing where two fit (never a stream: the hash
+/// of the tick).
+fn pick_move(s: Sim, i: int) -> int {
+    let f = copy s.foes[i]
+    let p2 = phase_two(f)
+    let g = body_gap(s, i)
+    let roll = world.hash(s.seed, s.tick, i + 17, 6)
+    if f.kind == BOAR {
+        if g <= boss_move(BOAR, 0, p2).reach - 1 && roll < 4 { return 0 }
+        if g >= 2 && g <= 12 { return 1 }
+        if g <= 1 && roll >= 4 { return 1 }
+        return -1
+    }
+    if f.kind == LYNX {
+        if g <= 2 { return if roll < 4 then 0 else 2 }
+        if g >= 3 && g <= 9 { return 1 }
+        return -1
+    }
+    if f.kind == ELK {
+        if g <= 2 && roll < 2 { return 1 }
+        if g <= boss_move(ELK, 0, p2).reach - 1 {
+            return if p2 && roll >= 4 && g >= 3 then 2 else 0
+        }
+        if p2 && g <= 10 { return 2 }
+        return -1
+    }
+    // The alpha: a bite in reach, a lunge from a little further, in phase
+    // 2 now and then the howl.
+    if p2 && roll == 5 && g >= 3 { return 2 }
+    if g <= 1 { return 0 }
+    if g >= 2 && g <= 6 { return 1 }
+    -1
+}
+
+/// Begin attack `m` for boss `i`: the windup, aimed where the cub stands
+/// now (a travelling attack's line is committed here, so a sideways dodge
+/// beats it).
+fn begin_move(mut s: Sim, i: int, m: int) {
+    s.foes[i].phase = CROUCH
+    s.foes[i].attack = m
+    s.foes[i].since = s.tick
+    s.foes[i].target_x = s.x
+    s.foes[i].target_y = s.y
+    s.foes[i].speed = 0
+    s.foes[i].hit = false
+}
+
+/// An attack lands on the cub: turned by a parry when the attack allows it
+/// (the boss staggers, the riposte doubles the next bite), else damage
+/// unless the dodge's frames hold.
+fn boss_hit(mut s: Sim, i: int, m: Move) {
+    s.foes[i].hit = true
+    if m.parryable && parrying(s) {
+        s.foes[i].phase = STAGGER
+        s.foes[i].since = s.tick
+        s.riposte = s.tick + STAGGER_TICKS
+        s.riposte_foe = i
+        return
+    }
+    if !invulnerable(s) { hurt(mut s, m.damage) }
+}
+
+/// One tick of boss `i`.
+fn boss_step(mut s: Sim, i: int) {
+    let f = copy s.foes[i]
+    let age = s.tick - f.since
+    let p2 = phase_two(f)
+    let m = boss_move(f.kind, f.attack, p2)
+    if f.phase == HUNT {
+        let engaged = cub_in_arena(s) || body_gap(s, i) <= 4
+        if engaged && !f.engaged { s.cue = CUE_BOSS + f.kind - BOAR }
+        s.foes[i].engaged = engaged
+        if !engaged {
+            // The cub has left: the boss trots home and waits, its damage
+            // kept until a rest (R-cb04-3 A).
+            if !near(f.x, f.y, f.home_x, f.home_y, FP) {
+                boss_run(mut s, i, f.home_x, f.home_y, boss_speed(f.kind))
+            } else {
+                s.foes[i].speed = 0
+            }
+            return
+        }
+        let pick = pick_move(s, i)
+        if pick >= 0 {
+            begin_move(mut s, i, pick)
+            return
+        }
+        var tx = s.x
+        var ty = s.y
+        if f.kind == LYNX && body_gap(s, i) > 9 {
+            // The lynx keeps to its ledges until the cub is near enough to
+            // pounce on.
+            let (px, py) = nearest_perch(s, f)
+            tx = px
+            ty = py
+        }
+        if f.kind == ELK && p2 && !in_shallows(s, f.x, f.y) && body_gap(s, i) > 3 {
+            // Phase 2: the elk wades into the ford, where the cub is slow.
+            let b = forest.river_bank(s.seed, s.field, forest.ARENA_ROW)
+            tx = (b - 5) * FP + FP / 2
+            ty = (forest.origin(s.seed, s.area) + forest.ARENA_ROW) * FP + FP / 2
+        }
+        if near(f.x, f.y, tx, ty, FP / 2) {
+            s.foes[i].speed = 0
+        } else {
+            boss_run(mut s, i, tx, ty, boss_speed(f.kind))
+        }
+        return
+    }
+    if f.phase == CROUCH {
+        // The tell: the body turns toward where the cub stood, slowly.
+        let h = heading_to(f.x, f.y, f.target_x, f.target_y)
+        if h >= 0 { boss_turn_toward(mut s, i, h) }
+        s.foes[i].speed = 0
+        if age >= m.windup {
+            s.foes[i].phase = STRIKE
+            s.foes[i].since = s.tick
+            s.foes[i].hit = false
+        }
+        return
+    }
+    if f.phase == STRIKE {
+        if m.travel > 0 {
+            // The run along the committed line: a step that would enter the
+            // cub's body is the hit (bodies never overlap); a step the
+            // arena, the ground or another body refuses ends the run.
+            let nx = f.x + m.travel * sin(f.heading) / FP
+            let ny = f.y - m.travel * cos(f.heading) / FP
+            let b = foe_body_at(f, nx, ny, f.heading)
+            var stop = false
+            if !f.hit && s.action != FALL && overlap(b, cub_body(s)) {
+                boss_hit(mut s, i, m)
+                stop = true
+            } else if boss_may_stand(s, i, nx, ny, f.heading) {
+                s.foes[i].x = nx
+                s.foes[i].y = ny
+                s.foes[i].speed = m.travel
+            } else {
+                stop = true
+            }
+            if stop || age + 1 >= m.active {
+                s.foes[i].speed = 0
+                end_strike(mut s, i, p2)
+            }
+            return
+        }
+        // A standing attack: the first tick in reach and in the cone (or
+        // all round) lands once.
+        if !f.hit && age < m.active && s.action != FALL {
+            let g = body_gap(s, i)
+            let hits = g >= 0 &&
+                g <= m.reach - 1 &&
+                (m.around || in_front(f.x, f.y, f.heading, s.x, s.y))
+            if hits && m.damage > 0 { boss_hit(mut s, i, m) }
+            if f.kind == ALPHA && f.attack == 2 {
+                // The howl: the alpha heals unless its windup was punished.
+                s.foes[i].health += 30
+                if s.foes[i].health > foe_health(ALPHA) { s.foes[i].health = foe_health(ALPHA) }
+                s.foes[i].hit = true
+                s.cue = CUE_HOWL
+            }
+        }
+        if age + 1 >= m.active { end_strike(mut s, i, p2) }
+        return
+    }
+    if f.phase == RETREAT {
+        s.foes[i].speed = 0
+        if age >= m.recovery { s.foes[i].phase = HUNT; s.foes[i].since = s.tick }
+        return
+    }
+    if f.phase == STAGGER {
+        s.foes[i].speed = 0
+        if age >= STAGGER_TICKS { s.foes[i].phase = HUNT; s.foes[i].since = s.tick }
+        return
+    }
+    if f.phase == FOE_PARRY {
+        if age >= GUARD_TICKS { s.foes[i].phase = HUNT; s.foes[i].since = s.tick }
+        return
+    }
+    if f.phase == FOE_DODGE {
+        // Three cells across the cub's aim over six ticks, invulnerable.
+        let h = (f.attack + TURN) % TURN
+        let distance = (age + 1) * 3 * FP / HOP_TICKS - age * 3 * FP / HOP_TICKS
+        let nx = f.x + distance * sin(h) / FP
+        let ny = f.y - distance * cos(h) / FP
+        if boss_may_stand(s, i, nx, ny, f.heading) { s.foes[i].x = nx; s.foes[i].y = ny }
+        if age + 1 >= HOP_TICKS {
+            s.foes[i].phase = HUNT
+            s.foes[i].since = s.tick
+            s.foes[i].attack = 0
+        }
+        return
+    }
+}
+
+/// A strike's end: the recovery; the boar's first charge in phase 2 goes
+/// straight into its second windup.
+fn end_strike(mut s: Sim, i: int, p2: bool) {
+    let f = copy s.foes[i]
+    if f.kind == BOAR && f.attack == 1 && p2 {
+        begin_move(mut s, i, 2)
+        return
+    }
+    s.foes[i].phase = RETREAT
+    s.foes[i].since = s.tick
+}
+
+/// The alpha mirrors the cub (cb04): a bite begun within its reach meets
+/// its guard half the time (three quarters in phase 2); a lunge or a heavy
+/// begun within six cells meets its hop as often. The seed's hash of the
+/// tick decides, never a stream.
+fn alpha_reacts(mut s: Sim, action: int) {
+    let i = boss_index(s)
+    if i < 0 || s.foes[i].kind != ALPHA || s.foes[i].phase != HUNT { return }
+    let f = copy s.foes[i]
+    let roll = world.hash(s.seed, s.tick, 23, 4)
+    let often = if phase_two(f) then 3 else 2
+    let g = body_gap(s, i)
+    if action == BITE && g <= 2 && roll < often {
+        s.foes[i].phase = FOE_PARRY
+        s.foes[i].since = s.tick
+        return
+    }
+    if (action == LUNGE || action == HEAVY) && g <= 6 && roll < often {
+        s.foes[i].phase = FOE_DODGE
+        s.foes[i].since = s.tick
+        // Across the cub's aim, to the side with room.
+        let side = (s.attack_heading + 64) % TURN
+        let nx = f.x + 3 * FP * sin(side) / FP
+        let ny = f.y - 3 * FP * cos(side) / FP
+        s.foes[i].attack = if boss_may_stand(s, i, nx, ny, f.heading) {
+            side
+        } else {
+            (side + 128) % TURN
+        }
+    }
+}
+
+/// A boss is beaten: the save remembers it, its shortcut home opens, its
+/// scent lies where it fell (a drop, as any foe's), the cue sounds; the
+/// alpha's fall is the end (cb04's scene 3).
+fn beat_boss(mut s: Sim, kind: int, x: int, y: int) {
+    s.bosses += (if s.bosses / boss_bit(kind) % 2 == 0 then boss_bit(kind) else 0)
+    let edge = boss_shortcut(kind)
+    if edge >= 0 { open_shortcut(mut s, edge) }
+    if boss_scent(kind) > 0 { leave_drop(mut s, x, y, boss_scent(kind)) }
+    s.cue = CUE_BEATEN
+    if kind == ALPHA {
+        s.end = true
+        mark_time(mut s)
+    }
+}
+
+/// The cue a boss fight begins with: `CUE_BOSS + kind - BOAR`, one slot a
+/// boss (cb03's theme slots, named in `cue_hook`).
+pub const CUE_BOSS: int = 4
+
+/// A boss falls.
+pub const CUE_BEATEN: int = 8
+
+/// The alpha howls; the pack howls at the end.
+pub const CUE_HOWL: int = 9
+
+/// The title's own part begins.
+pub const CUE_TITLE: int = 10
+
+/// The end's scene (cb04): the ford, the wolf crossing, the end card.
+pub const SCENE_END: int = 3
+
+/// The title's scene (cb04).
+pub const SCENE_TITLE: int = 2
