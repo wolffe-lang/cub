@@ -1,0 +1,551 @@
+//! fight — the scripted real-key fighter and the fairness census (cb04,
+//! the contract's item 5). The fighter reads what the frame shows a
+//! player: the boss's posture (its phase and attack) and the bodies' gap,
+//! and presses what a hand would: a parry timed to meet a parryable
+//! telegraph's landing, a step aside and a dodge against the one attack
+//! that cannot be parried, a lunge into a charge, bites in the recovery, a
+//! mouthful when a stagger gives time. It never reads the hash, the
+//! boss's health bar beyond what the bar shows, or anything a player
+//! cannot see. `proof` records its fights as the boss witnesses; the
+//! census (`cub --boss-census`) fights every boss in fifty seeds at both
+//! sizes and counts the attempts a win took, the hits taken by attack, and
+//! the telegraphs observed against the parry window.
+
+use controls
+use forest
+use journey
+use replay
+use sim
+use walker
+
+/// Attempts a world is allowed before the census calls it unwon.
+pub const MAX_ATTEMPTS: int = 5
+
+/// Ticks a single attempt may take before it is given up.
+pub const FIGHT_TICKS: int = 2500
+
+/// Stamina the fighter keeps back for a dodge (18) when it attacks: a
+/// charge can come at any moment, and a parry (10) is cheaper still.
+pub const RESERVE: int = 18
+
+/// The growth the bible expects by each boss (section 3: heart 6-7, wind
+/// 5-6, fang 5, paw 4, nose 4 by the old den): heart, wind, fang, paw, nose.
+pub fn growth(kind: int) -> (int, int, int, int, int) {
+    match kind {
+        4 => (2, 2, 2, 1, 1),
+        5 => (3, 3, 3, 2, 2),
+        6 => (4, 4, 4, 3, 3),
+        _ => (6, 5, 5, 4, 4),
+    }
+}
+
+/// The den a boss's fight starts from: the briar hollow for the boar (the
+/// nearer thicket den), each later area's own.
+pub fn den_of(kind: int) -> int {
+    match kind {
+        4 => 2,
+        5 => 4,
+        6 => 5,
+        _ => 6,
+    }
+}
+
+/// A journey at the boss's den with the growth the bible expects there,
+/// every earlier boss beaten and its shortcut open, every den to there
+/// lit: the snapshot a witness and the census start from. Validated by
+/// the save's own decoder (a fixture the save would not accept traps).
+pub fn journey_at(seed: int, cols: int, rows: int, kind: int) -> sim.Sim {
+    var s = sim.new(seed, cols, rows)
+    let (heart, wind, fang, paw, nose) = growth(kind)
+    s.heart = heart
+    s.wind = wind
+    s.fang = fang
+    s.paw = paw
+    s.nose = nose
+    s.gate_open = true
+    s.opening_seen = true
+    s.last_den = den_of(kind)
+    var den = 0
+    s.lit_dens = 0
+    while den <= s.last_den { s.lit_dens = sim.light_den(s.lit_dens, den); den += 1 }
+    // The hedge and every beaten boss's shortcut.
+    s.shortcuts = 2
+    s.bosses = 0
+    var k = sim.BOAR
+    while k < kind {
+        s.bosses += sim.boss_bit(k)
+        s.shortcuts += forest.shortcut_bit(sim.boss_shortcut(k))
+        k += 1
+    }
+    if s.shortcuts % 2 == 0 && kind > sim.BOAR { s.shortcuts += 1 }
+    let text = journey.encode(s)
+    journey.decode(text, cols, rows) else |e| {
+        assert(false, "fight.journey_at: the fixture is not a valid save: {e}")
+        s
+    }
+}
+
+/// Where the fighter walks to before the fight: on the route just short of
+/// the arena (the boar's clearing: its mouth, west of the circle), fixed
+/// point.
+pub fn mouth(s: sim.Sim, kind: int) -> (int, int) {
+    let area = s.area
+    let o = forest.origin(s.seed, area)
+    if kind == sim.BOAR {
+        return (
+            (forest.BOAR_X - 13) * sim.FP + sim.FP / 2,
+            (o + forest.BOAR_ROW) * sim.FP + sim.FP / 2,
+        )
+    }
+    let (_, cy, r) = forest.arena(s.seed, s.field, area)
+    let row = cy - r - 3
+    (forest.spine(s.seed, area, row) * sim.FP + sim.FP / 2, (o + row) * sim.FP + sim.FP / 2)
+}
+
+/// What the fighter remembers between ticks: the side it steps to during a
+/// telegraph, the windup it chose it for, and the refused-step count it
+/// last saw (a step the ground refuses turns it to the other side).
+pub struct Fighter {
+    side: int,
+    side_since: int,
+    blocked_seen: int,
+}
+
+/// A fresh fighter.
+pub fn fighter() -> Fighter {
+    Fighter { side: 0, side_since: -1, blocked_seen: 0 }
+}
+
+/// Whether the four cells from the cub along heading `h` are open ground.
+fn open_way(s: sim.Sim, h: int) -> bool {
+    var d = 1
+    while d <= 4 {
+        let ax = sim.floor_div(s.x + d * sim.FP * sim.sin(h) / sim.FP, sim.FP)
+        let ay = sim.floor_div(s.y - d * sim.FP * sim.cos(h) / sim.FP, sim.FP)
+        if sim.blocked(s, ax, ay) { return false }
+        d += 1
+    }
+    true
+}
+
+/// Arrow keys toward heading `h` (eight ways).
+fn arrows(mut keys: List[int], h: int) {
+    walker.aim(mut keys, sim.sin(h), 0 - sim.cos(h))
+}
+
+/// The side the fighter steps to during boss `i`'s telegraph: across the
+/// boss's line to the cub, the way with open ground four cells off,
+/// chosen once per windup.
+fn side_of(s: sim.Sim, i: int, mut st: Fighter) -> int {
+    let f = copy s.foes[i]
+    if st.side_since == f.since {
+        if s.blocked != st.blocked_seen {
+            // The ground refused the step: the other way.
+            st.side = (st.side + 128) % sim.TURN
+            st.blocked_seen = s.blocked
+        }
+        return st.side
+    }
+    let line = sim.heading_to(f.x, f.y, s.x, s.y)
+    let h = if line < 0 then s.heading else line
+    var pick = (h + 64) % sim.TURN
+    let other = (h + 192) % sim.TURN
+    if !open_way(s, pick) && open_way(s, other) { pick = other }
+    st.side = pick
+    st.side_since = f.since
+    st.blocked_seen = s.blocked
+    pick
+}
+
+/// The keys the fighter presses this tick against boss `i`.
+pub fn fight_keys(s: sim.Sim, i: int, mut st: Fighter) -> List[int] {
+    var keys = List[int]()
+    if s.action == sim.FALL || s.den { return keys }
+    let f = copy s.foes[i]
+    let m = sim.boss_move(f.kind, f.attack, sim.phase_two(f))
+    let gap = sim.body_gap(s, i)
+    let age = s.tick - f.since
+    let idle = s.action == sim.IDLE
+    if f.phase == sim.CROUCH {
+        let remaining = m.windup - age
+        // A parryable attack that will land soon enough is met with the
+        // parry: a standing attack lands the tick after its windup, a
+        // leap when its run reaches the cub.
+        let lands_in = if m.travel == 0 {
+            remaining + 1
+        } else {
+            remaining + 1 + gap * sim.FP / m.travel
+        }
+        if m.parryable && m.damage > 0 && m.travel == 0 && gap > m.reach - 1 {
+            // A standing attack that cannot reach: let it miss, spend nothing.
+            return keys
+        }
+        if m.parryable && m.damage > 0 && m.travel == 0 && (s.stamina < 10 || s.exhausted) {
+            // No breath for a parry: back out of its reach while it winds
+            // up (a standing attack's tell is long enough to walk clear).
+            arrows(mut keys, sim.heading_to(f.x, f.y, s.x, s.y))
+            return keys
+        }
+        if m.parryable && m.damage > 0 && lands_in <= 8 {
+            if idle && lands_in <= 6 { (mut keys).push(controls.KEY_PARRY) }
+            return keys
+        }
+        if m.parryable &&
+            m.travel > 0 &&
+            gap <= 3 &&
+            idle &&
+            s.stamina >= 30 + RESERVE &&
+            !s.exhausted {
+            // A charge within a lunge's reach: the lunge into it staggers.
+            arrows(mut keys, sim.heading_to(s.x, s.y, f.x, f.y))
+            (mut keys).push(controls.KEY_LUNGE)
+            return keys
+        }
+        if m.parryable && m.damage > 0 {
+            // Too far for the parry's window: step aside as for a charge.
+            let side = side_of(s, i, mut st)
+            arrows(mut keys, side)
+            if lands_in <= 2 && idle && !s.exhausted && s.stamina >= 18 {
+                (mut keys).push(controls.KEY_DODGE)
+            }
+            return keys
+        }
+        if m.damage == 0 {
+            // The howl: punish its long windup with a lunge if in reach.
+            if idle && gap <= 3 && s.stamina >= 30 + RESERVE && !s.exhausted {
+                arrows(mut keys, sim.heading_to(s.x, s.y, f.x, f.y))
+                (mut keys).push(controls.KEY_LUNGE)
+            } else if gap > 1 {
+                arrows(mut keys, sim.heading_to(s.x, s.y, f.x, f.y))
+            }
+            return keys
+        }
+        // The unparryable attack: aside from the first tick of the tell,
+        // and a dodge as it lands.
+        let side = side_of(s, i, mut st)
+        if m.around {
+            // The stamp: away from the boss is the side that counts.
+            let away = (sim.heading_to(f.x, f.y, s.x, s.y) + sim.TURN) % sim.TURN
+            arrows(mut keys, if away < 0 then side else away)
+        } else {
+            arrows(mut keys, side)
+        }
+        // The dodge is timed to the landing: a standing attack's last tell
+        // tick, a run's arrival (its dodge is pressed during the run).
+        if lands_in <= 2 && idle && !s.exhausted && s.stamina >= 18 {
+            (mut keys).push(controls.KEY_DODGE)
+        }
+        return keys
+    }
+    if f.phase == sim.STRIKE {
+        if m.travel > 0 && !f.hit {
+            let side = side_of(s, i, mut st)
+            arrows(mut keys, side)
+            let arrives = gap * sim.FP / m.travel
+            if (gap <= 1 || arrives <= 2) && idle && !s.exhausted && s.stamina >= 18 {
+                (mut keys).push(controls.KEY_DODGE)
+            }
+        }
+        return keys
+    }
+    if f.phase == sim.STAGGER || f.phase == sim.RETREAT {
+        // A staggered boss is free hits; a recovering one is attacked only
+        // with the reserve kept.
+        let left = (if f.phase == sim.STAGGER then sim.STAGGER_TICKS else m.recovery) - age
+        let reserve = if f.phase == sim.STAGGER then 0 else RESERVE
+        if s.health * 2 < sim.health_max(s.heart) && s.flasks > 0 && left >= 30 && idle {
+            (mut keys).push(controls.KEY_WATER)
+            return keys
+        }
+        if idle &&
+            f.phase == sim.STAGGER &&
+            gap <= 3 &&
+            left >= 13 &&
+            s.stamina >= 30 &&
+            !s.exhausted {
+            arrows(mut keys, sim.heading_to(s.x, s.y, f.x, f.y))
+            (mut keys).push(controls.KEY_LUNGE)
+            return keys
+        }
+        if idle && sim.in_reach(s, i, 2) && s.stamina >= 12 + reserve && left >= 5 && !s.exhausted {
+            arrows(mut keys, sim.heading_to(s.x, s.y, f.x, f.y))
+            (mut keys).push(controls.KEY_BITE)
+            return keys
+        }
+        if gap > 1 && left >= 6 && s.stamina >= 12 + reserve {
+            arrows(mut keys, sim.heading_to(s.x, s.y, f.x, f.y))
+        }
+        return keys
+    }
+    if f.phase == sim.FOE_PARRY || f.phase == sim.FOE_DODGE { return keys }
+    // The hunt: close, and bite when in reach, the reserve kept; with the
+    // breath spent, stand and let it come back.
+    if s.exhausted || s.stamina < 12 + RESERVE {
+        if gap <= 2 { arrows(mut keys, sim.heading_to(f.x, f.y, s.x, s.y)) }
+        return keys
+    }
+    if idle && sim.in_reach(s, i, 2) {
+        arrows(mut keys, sim.heading_to(s.x, s.y, f.x, f.y))
+        (mut keys).push(controls.KEY_BITE)
+        return keys
+    }
+    if gap > 1 { arrows(mut keys, sim.heading_to(s.x, s.y, f.x, f.y)) }
+    keys
+}
+
+/// One world's fight: the attempts a win took (0 unwon), the hits taken by
+/// attack (0, 1, 2), the hits the unparryable attacks landed, the shortest
+/// telegraph observed by attack (ticks from the windup's start to the
+/// strike, 0 unseen), and the ticks the first win's fight took.
+pub struct Outcome {
+    attempts: int,
+    hits: List[int],
+    unparryable: int,
+    tells: List[int],
+    ticks: int,
+    first_windup: int,
+    phase2_at: int,
+    beaten_at: int,
+}
+
+fn zeros() -> List[int] {
+    var v = List[int]()
+    (mut v).push(0)
+    (mut v).push(0)
+    (mut v).push(0)
+    v
+}
+
+/// Fight boss `kind` in the world of `seed` at `cols` by `rows`, from its
+/// den, recording every key into `r`; up to `MAX_ATTEMPTS` lives.
+pub fn fight_world(seed: int, cols: int, rows: int, kind: int, mut r: replay.Replay) -> Outcome {
+    var s = journey_at(seed, cols, rows, kind)
+    var out = Outcome {
+        attempts: 0,
+        hits: zeros(),
+        unparryable: 0,
+        tells: zeros(),
+        ticks: 0,
+        first_windup: -1,
+        phase2_at: -1,
+        beaten_at: -1,
+    }
+    var attempt = 0
+    while attempt < MAX_ATTEMPTS {
+        attempt += 1
+        if s.den { walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE)) }
+        let (mx, my) = mouth(s, kind)
+        if !walker.walk(mut s, mut r, mx, my) { return out }
+        var st = fighter()
+        var n = 0
+        var crouch_since = -1
+        var planned_at = -1000
+        let start = s.tick
+        while n < FIGHT_TICKS {
+            let i = sim.boss_index(s)
+            if i < 0 { break }
+            let before = s.health
+            let f = copy s.foes[i]
+            if f.phase == sim.HUNT &&
+                (sim.body_gap(s, i) > 6 || !sim.cub_in_arena(s)) &&
+                s.tick - planned_at >= 40 {
+                // Far off: the walker's plan round the stone and the bodies,
+                // to a point five cells short of the boss, stopping when the
+                // boss winds up; planned at most once in forty ticks (a plan
+                // is a whole area's cells, and the world's region holds it).
+                planned_at = s.tick
+                let (tx, ty) = approach_point(s, i)
+                let t0 = s.tick
+                let _ = walker.walk_stop(mut s, mut r, tx, ty, i, false)
+                n += s.tick - t0
+                count_hit(s, i, before, mut out)
+                if s.action == sim.FALL { break }
+                continue
+            }
+            // The telegraph: the boss's own windup tick to its strike tick.
+            if f.phase == sim.CROUCH {
+                crouch_since = f.since
+                if out.first_windup < 0 { out.first_windup = f.since }
+            } else if f.phase == sim.STRIKE && crouch_since >= 0 && f.attack >= 0 && f.attack < 3 {
+                let tell = f.since - crouch_since
+                if out.tells[f.attack] == 0 || tell < out.tells[f.attack] {
+                    out.tells[f.attack] = tell
+                }
+                crouch_since = -1
+            } else {
+                crouch_since = -1
+            }
+            if sim.phase_two(f) && out.phase2_at < 0 { out.phase2_at = s.tick }
+            let keys = fight_keys(s, i, mut st)
+            walker.press(mut s, mut r, keys)
+            count_hit(s, i, before, mut out)
+            if s.action == sim.FALL { break }
+            n += 1
+        }
+        if sim.boss_index(s) < 0 && s.action != sim.FALL {
+            out.attempts = attempt
+            out.ticks = s.tick - start
+            var k = 0
+            while k < s.foes.len {
+                if sim.is_boss(s.foes[k].kind) { out.beaten_at = s.foes[k].died }
+                k += 1
+            }
+            return out
+        }
+        // The fall and the wake at the den (thirty ticks), then again.
+        var w = 0
+        while s.action == sim.FALL && w < 40 { walker.press(mut s, mut r, walker.key(0)); w += 1 }
+        if s.action == sim.FALL { return out }
+    }
+    out
+}
+
+/// One world's fight, narrated: a line whenever the boss's phase or either
+/// health changes (`cub --fight-trace KIND SEED`, the lane's instrument
+/// for the fighter; KIND 4 to 7).
+pub fn trace(kind: int, seed: int) -> int {
+    var s = journey_at(seed, 80, 24, kind)
+    var r = replay.new(seed, 1, 80, 24)
+    walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
+    let (mx, my) = mouth(s, kind)
+    if !walker.walk(mut s, mut r, mx, my) { print("trace: no way to the mouth"); return 1 }
+    print("trace: at the mouth tick {s.tick}")
+    var st = fighter()
+    var n = 0
+    var last = ""
+    while n < FIGHT_TICKS {
+        let i = sim.boss_index(s)
+        if i < 0 { print("trace: beaten at tick {s.tick}"); return 0 }
+        let f = copy s.foes[i]
+        let line = "boss phase {f.phase} attack {f.attack} health {f.health} gap {sim.body_gap(s, i)} cub health {s.health} stamina {s.stamina} action {s.action} flasks {s.flasks}"
+        let busy = f.phase == sim.CROUCH || f.phase == sim.STRIKE
+        if line != last || busy {
+            print(
+                "t {s.tick} {line} | boss h {f.heading} v {f.speed} at {f.x / sim.FP},{f.y / sim.FP} front {if sim.foe_faces_cub(s, i) then 1 else 0} hit {if f.hit then 1 else 0} | cub at {s.x / sim.FP},{s.y / sim.FP} v {s.speed} face {s.body_facing} blocked {s.blocked} ex {if s.exhausted then 1 else 0}",
+            )
+            last = line
+        }
+        if f.phase == sim.HUNT && (sim.body_gap(s, i) > 6 || !sim.cub_in_arena(s)) {
+            let (tx, ty) = approach_point(s, i)
+            let _ = walker.walk_stop(mut s, mut r, tx, ty, i, false)
+            n += 1
+            continue
+        }
+        let keys = fight_keys(s, i, mut st)
+        walker.press(mut s, mut r, keys)
+        if s.action == sim.FALL { print("trace: the cub fell at tick {s.tick}"); return 1 }
+        n += 1
+    }
+    print("trace: unfinished after {FIGHT_TICKS} ticks")
+    1
+}
+
+/// Where the fighter walks when the boss is far or the cub is outside the
+/// arena: the arena's centre until the cub stands inside it (a fight at its
+/// mouth has no room to step aside), then a point five cells short of the
+/// boss on its line.
+fn approach_point(s: sim.Sim, i: int) -> (int, int) {
+    let f = copy s.foes[i]
+    if !sim.cub_in_arena(s) {
+        let (cx, cy, _) = forest.arena(s.seed, s.field, s.area)
+        return (
+            cx * sim.FP + sim.FP / 2,
+            (forest.origin(s.seed, s.area) + cy) * sim.FP + sim.FP / 2,
+        )
+    }
+    let line = sim.heading_to(f.x, f.y, s.x, s.y)
+    let h = if line < 0 then 0 else line
+    (f.x + 5 * sim.FP * sim.sin(h) / sim.FP, f.y - 5 * sim.FP * sim.cos(h) / sim.FP)
+}
+
+/// A hit taken this step, by the boss's current attack.
+fn count_hit(s: sim.Sim, i: int, before: int, mut out: Outcome) {
+    if s.health >= before || i >= s.foes.len { return }
+    let g = copy s.foes[i]
+    if g.attack >= 0 && g.attack < 3 { out.hits[g.attack] += 1 }
+    if !sim.boss_move(g.kind, g.attack, sim.phase_two(g)).parryable { out.unparryable += 1 }
+}
+
+fn name_of(kind: int) -> str {
+    match kind {
+        4 => "boar",
+        5 => "lynx",
+        6 => "elk",
+        _ => "alpha",
+    }
+}
+
+/// The census: every boss in fifty seeds at both sizes, one line a world
+/// and a summary a boss; exit 1 when a world goes unwon within
+/// `MAX_ATTEMPTS` or a parryable telegraph observed falls under the parry
+/// window.
+pub fn census() -> int {
+    print("boss seed cols attempts ticks hits0 hits1 hits2 unparryable_hits tell0 tell1 tell2")
+    var status = 0
+    var kind = sim.BOAR
+    while kind <= sim.ALPHA {
+        var histogram = List[int]()
+        var k = 0
+        while k <= MAX_ATTEMPTS { (mut histogram).push(0); k += 1 }
+        var hits = zeros()
+        var unparryable = 0
+        var tells = zeros()
+        var seed = 0
+        while seed < 50 {
+            var size = 0
+            while size < 2 {
+                let cols = if size == 0 then 80 else 200
+                let rows = if size == 0 then 24 else 60
+                var attempts = 0
+                var ticks = 0
+                var h = zeros()
+                var tl = zeros()
+                var un = 0
+                // A world's fight dies with its region; what leaves are ints.
+                region world {
+                    var r = replay.new(seed, 1, cols, rows)
+                    let o = fight_world(seed, cols, rows, kind, mut r)
+                    attempts = o.attempts
+                    ticks = o.ticks
+                    un = o.unparryable
+                    var a = 0
+                    while a < 3 {
+                        h[a] = o.hits[a]
+                        tl[a] = o.tells[a]
+                        a += 1
+                    }
+                }
+                var a = 0
+                while a < 3 {
+                    hits[a] += h[a]
+                    if tl[a] > 0 && (tells[a] == 0 || tl[a] < tells[a]) { tells[a] = tl[a] }
+                    a += 1
+                }
+                unparryable += un
+                print(
+                    "{name_of(kind)} {seed} {cols} {attempts} {ticks} {h[0]} {h[1]} {h[2]} {un} {tl[0]} {tl[1]} {tl[2]}",
+                )
+                histogram[attempts] += 1
+                if attempts == 0 { status = 1 }
+                size += 1
+            }
+            seed += 1
+        }
+        var h = ""
+        k = 1
+        while k <= MAX_ATTEMPTS { h += " {k}:{histogram[k]}"; k += 1 }
+        var a = 0
+        while a < 3 {
+            let m = sim.boss_move(kind, a, true)
+            if m.parryable && m.damage > 0 && tells[a] > 0 && tells[a] < sim.PARRY_WINDOW {
+                status = 1
+            }
+            a += 1
+        }
+        print(
+            "fairness {name_of(kind)} attempts{h} unwon:{histogram[0]} hits {hits[0]} {hits[1]} {hits[2]} unparryable_hits {unparryable} tells {tells[0]} {tells[1]} {tells[2]} parry_window {sim.PARRY_WINDOW}",
+        )
+        kind += 1
+    }
+    status
+}
