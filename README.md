@@ -10,7 +10,7 @@ The second game of the lair, the wolf games collection, on the collection's shar
 (`wolffe-lang/lair`, pinned in `lair.pin`); the first is `pack`.
 
 **What is in this build:** a seeded route from the Shingle through
-Bramblehold to Larkmeadow, with four dens, meandering paths, guarded side
+Bramblehold to Larkmeadow, with eight visible dens in those areas, switchbacks and clearings, guarded side
 caches and two shortcuts home. The shore runs a screen past the view each
 way to its rock jetties, and four winding offshoots leave it for guarded
 bundle alcoves, every path in the shore's own gravel; the forest is one
@@ -18,7 +18,8 @@ trunk-and-canopy texture to every edge of the screen, the thicket and
 meadow filling the field they were made for. The cub, the foes and the
 bundle are solid pixel silhouettes, one drawing each, turned to face the
 way they go; the cub trots at 8.8 cells a second, its paws and tail
-keeping time with its stride. Health is the cub's posture, not a bar: the
+keeping time with its stride. Outlined red health and green stamina bars
+stay at top-left, with posture as a second channel: the
 ears go back, the tail drops and the trot shortens as it is hurt, and its
 breath shows its stamina; the numbers appear at a den and on the death
 card. An original score plays through the engine's mixer: a part for each
@@ -29,14 +30,16 @@ its shortcut back. Four bosses hold their ground in them: Old Snag the boar in
 his clearing, Whisper the lynx among the crags' pillars, Alder the elk at
 the ford, Ashgrim the shadow alpha at the old den; every attack is
 telegraphed long enough to parry, the one unparryable attack of each is
-dodged, a second phase begins at half health, and only a boss has a health
-bar. The last five deaths stand as fading ghosts where they fell, and
+dodged, a second phase begins at half health, and an engaged boss has its own
+health bar. The last five deaths stand as fading ghosts where they fell, and
 replay their last seconds when the cub comes near. The game opens on a
 title and, when the alpha falls, the cub crosses the ford as a wolf. Every body collides as the drawing it is:
 nothing is drawn inside another, and a foe that reaches the cub stands
 where a bite aimed its way lands. Original log and flotsam
-sprites mark the coast. Bite, lunge, parry, dodge and chain attacks; a
-hawk's stopped shadow asks for a parry or an escape. Foes leave visible
+sprites mark the coast; gangly trees, stones, bones, stumps, crows, cairns,
+scent grass and a ford fill the meadow. Bite, forward lunge, parry, dodge,
+stamina sprint and chain attacks; a
+hawk's connected wings and body ask for a parry or an escape. Foes leave visible
 scent to collect before it fades. Dens heal, refill water and spend scent
 on growth. Death leaves a recoverable mark, even across area edges; a
 second death replaces it. An opening scene shows the broken crossing.
@@ -72,7 +75,7 @@ The terminal must be at least 80 columns by 24 rows; the field grows to fill a l
 |---|---|
 | arrows | walk; two together for a diagonal; the cub turns toward the held direction at its turn rate |
 | Shift+arrow | sneak that way: half speed, no new trail |
-| Space / `x` / `s` / `z` / `c` | bite/combo / lunge / heavy / parry / dodge |
+| Space / `x` / `s` / `z` / `c` | aimed bite/combo / forward lunge / heavy / parry / tap dodge, hold sprint |
 | Tab / Esc | lock nearest then cycle / release lock or leave den |
 | `w` / `r` | drink / rest at a den, open a shortcut, or dig an unguarded cache |
 | `m` | the music off, on again |
@@ -82,7 +85,9 @@ The terminal must be at least 80 columns by 24 rows; the field grows to fill a l
 | any key on the title | begin; after ten idle seconds a demo plays behind the title |
 | `r` on the end card | keep playing as the wolf (`q` leaves) |
 
-Arrows held or pressed within 500 ms before an attack aim it; lock wins.
+Arrows held or pressed within 500 ms before Space aim it; lock wins.
+`x` always uses facing, with two backward windup steps. Hold `c` after its
+initial dodge to sprint; Space during sprint snaps forward.
 Press Space during bite recovery to chain left, right, then a longer forward
 hop. Shift+Space sent plain Space in the measured play terminal, so heavy
 uses `s` rather than an indistinguishable chord. See `docs/KEYS.md`.
@@ -97,7 +102,6 @@ target/cub                     play/resume; --seed N picks a new journey, --tier
 target/cub --save journey      use a separate save file
 target/cub --record run.pk     record the run, including resumed state; --replay run.pk plays it back
 target/cub --mute              play without music (CUB_SOUND=0 does the same)
-target/cub --hud               the debug HUD: health and stamina bars beside the scent
 target/cub --no-title          start in the forest, no title
 target/cub --ghost-dir DIR     read and write the death archives there (default ~/.cub/ghosts)
 target/cub --boss-census       fight every boss in fifty seeds at both sizes; a fairness line a boss
@@ -131,7 +135,8 @@ holds every world to a win within five lives, every parryable telegraph to
 the parry window and every boss to its arena; the gameplay gate replays the
 boss, end, ghost and title witnesses and checks a death's trailer against
 the sim frame for frame;
-`--measure` reports the pace, the wag, the fox's chase, the path colours
+`--feel-audit`, `--chase-audit` and `--mouth-audit` census the dens,
+switchbacks, clearings, pursuit and safe arena approaches. `--measure` reports the pace, the wag, the fox's chase, the path colours
 and the body census over the real-key scripts. The sound pty rows start the
 game with music on and hold the player to a child of the game, gone with
 it; name the OSS stub's refusal; and prove `--mute`, `CUB_SOUND=0` and the
