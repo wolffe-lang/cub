@@ -51,3 +51,12 @@ scene. `m` is the music's switch, recorded as `mute` and inert in the simulation
 (`docs/SCORE.md`). Otherwise unused keys are recorded as `skip` and do nothing during
 play. The new pty save rows use `q` and the engine's typed byte `03` while
 a real save stage exists; neither row sends a signal from a script.
+
+## The title and the end (cb04, 2026-10-26)
+
+The game opens on the title: any decoded key begins (the opening for a new journey, the forest for a
+resumed one) and is recorded as `title 1` then the key; `--no-title` skips it (the pty rows and the engine's
+rows start past it, `tests/lair.conf`). After ten idle seconds the demo plays behind the title; any key
+still begins. On the end card `r` keeps playing and `q` leaves; both are the ordinary keys, recorded as
+such. The title row and the title-demo row in `tests/pty_rows.py` are the live witnesses; the death
+witnesses still type bytes into the pty, never a signal from a script.
