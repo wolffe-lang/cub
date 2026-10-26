@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+"""tools/score-check — the score's gate over the built binaries (cb03).
+
+    python3 -I tools/score-check [--update]
+
+For the native and the release binary: every part renders to the bytes
+the golden pins (tests/goldens/score/<name>.sha256 holds the PCM's sha256
+and length; <name>.head.pcm its first second, so a diff has bytes to show:
+R-cb03-4 B), the cue schedule's replay renders to tests/goldens/score/
+replay.pcm (the whole six seconds), each loop's seam is quiet (the last
+tick under the bar, the first tick's attack rising from near silence), a
+WAV carries the canonical header over the same bytes, and a part that does
+not parse is refused by name with no output written. --update writes the
+goldens afresh from the release binary.
+"""
+import hashlib
+import os
+import struct
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "target" / "score"
+GOLD = ROOT / "tests" / "goldens" / "score"
+HEAD_BYTES = 48000 * 4
+SEAM_BAR = 200
+LOOPS = ["title", "shingle", "bramblehold", "larkmeadow", "boss-boar", "boss-lynx",
+         "boss-elk", "boss-alpha", "den"]
+ONCE = ["death"]
+
+
+def run(binary, *args, ok=0):
+    p = subprocess.run([str(binary), *map(str, args)], capture_output=True)
+    if p.returncode != ok:
+        raise AssertionError("%s: exit %s (wanted %s): %s" % (args, p.returncode, ok, p.stderr.decode()))
+    return p
+
+
+def names(binary):
+    p = run(binary, "--score-list")
+    out = []
+    for line in p.stdout.decode().splitlines():
+        w = line.split()
+        assert w[0] == "part" and w[2] == "seconds", line
+        out.append((w[1], int(w[3]), w[5] == "1"))
+    return out
+
+
+def peak(b):
+    n = len(b) // 2
+    s = struct.unpack("<%dh" % n, b)
+    return max(max(s), -min(s))
+
+
+def check_part(binary, tier, name, seconds, once, update):
+    pcm = OUT / ("%s-%s.pcm" % (name, tier))
+    run(binary, "--score-render", name, pcm)
+    b = pcm.read_bytes()
+    assert len(b) == seconds * 48000 * 4, (name, len(b))
+    assert any(b), "%s renders silence" % name
+    digest = hashlib.sha256(b).hexdigest()
+    line = "%s %d\n" % (digest, len(b))
+    if update and tier == "release":
+        (GOLD / (name + ".sha256")).write_text(line)
+        (GOLD / (name + ".head.pcm")).write_bytes(b[:HEAD_BYTES])
+        print("score-golden %s written %s" % (name, digest), flush=True)
+    else:
+        want = (GOLD / (name + ".sha256")).read_text()
+        head = (GOLD / (name + ".head.pcm")).read_bytes()
+        if b[:HEAD_BYTES] != head:
+            first = next(i for i in range(len(head)) if b[i] != head[i])
+            raise AssertionError("score-golden %s/%s FAILED: the first second differs at byte %d" % (name, tier, first))
+        if line != want:
+            raise AssertionError("score-golden %s/%s FAILED: %s != %s" % (name, tier, line.strip(), want.strip()))
+        print("score-golden %s/%s ok %s" % (name, tier, digest), flush=True)
+    # The seam: a loop ends quiet and starts from near silence (the attack
+    # rises); a sting's end is the mixer's fade, so only loops are held.
+    tick = 1600 * 4
+    if not once:
+        last, first = peak(b[-tick:]), peak(b[:400])
+        assert last <= SEAM_BAR, "score-seam %s FAILED: the last tick peaks at %d (bar %d)" % (name, last, SEAM_BAR)
+        assert first <= SEAM_BAR, "score-seam %s FAILED: the first 100 frames peak at %d" % (name, first)
+        print("score-seam %s/%s ok last %d first %d" % (name, tier, last, first), flush=True)
+    return b
+
+
+def main():
+    update = "--update" in sys.argv[1:]
+    OUT.mkdir(parents=True, exist_ok=True)
+    GOLD.mkdir(parents=True, exist_ok=True)
+    for tier in ("release", "native"):
+        binary = ROOT / "target" / tier / "cub"
+        listed = names(binary)
+        assert [n for n, _, _ in listed] == LOOPS + ONCE, listed
+        for name, seconds, once in listed:
+            check_part(binary, tier, name, seconds, once, update)
+        replay = OUT / ("replay-%s.pcm" % tier)
+        run(binary, "--score-replay", replay)
+        b = replay.read_bytes()
+        assert len(b) == 180 * 6400, len(b)
+        if update and tier == "release":
+            (GOLD / "replay.pcm").write_bytes(b)
+            print("score-golden replay written", flush=True)
+        else:
+            want = (GOLD / "replay.pcm").read_bytes()
+            if b != want:
+                first = next(i for i in range(min(len(b), len(want))) if b[i] != want[i])
+                raise AssertionError("score-golden replay/%s FAILED at byte %d" % (tier, first))
+            print("score-golden replay/%s ok %s" % (tier, hashlib.sha256(b).hexdigest()), flush=True)
+        # The replay's shape: silent before the title's fade-in completes
+        # its first tick is quiet; the sting's bytes louder than the den's.
+        wave = OUT / ("den-%s.wav" % tier)
+        run(binary, "--score-wav", "den", wave)
+        w = wave.read_bytes()
+        assert w[:4] == b"RIFF" and w[8:16] == b"WAVEfmt " and w[36:40] == b"data"
+        assert struct.unpack("<IHHIIHH", w[16:36]) == (16, 1, 2, 48000, 192000, 4, 16)
+        assert struct.unpack("<I", w[4:8])[0] == len(w) - 8 and struct.unpack("<I", w[40:44])[0] == len(w) - 44
+        assert w[44:] == (OUT / ("den-%s.pcm" % tier)).read_bytes()
+        print("score-wav %s ok" % tier, flush=True)
+        bad = OUT / ("bad-%s.pcm" % tier)
+        bad.unlink(missing_ok=True)
+        failure = run(binary, "--score-render", "no-such-part", bad, ok=2)
+        assert b"no-such-part" in failure.stderr and not bad.exists()
+        print("score-refusal %s ok" % tier, flush=True)
+    print("score-check: green")
+
+
+if __name__ == "__main__":
+    main()

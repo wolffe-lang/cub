@@ -204,3 +204,118 @@ def resumed_record(binary, ctx):
 
 ROWS.update({'pending-save': pending_save, 'save-failure': save_failure,
              'resumed-record': resumed_record})
+
+
+def _sound_session(binary, ctx, args, env_extra=None, keys=b'q', settle=1.2):
+    root = Path(ctx.ROOT) / 'target/pty/sound'
+    root.mkdir(parents=True, exist_ok=True)
+    env = ctx.env_for()
+    env['HOME'] = str(root)
+    if env_extra:
+        env.update(env_extra)
+    sound_dir = root / 'wavs'
+    s = ctx.Session([binary, '--seed', '7', '--save', str(root / 'sound.save'),
+                     '--sound-dir', str(sound_dir), '--tier', 'plain'] + args, 24, 80, env)
+    s.pump(settle)
+    players = subprocess.run(['ps', '-axo', 'ppid=,comm='], capture_output=True, text=True).stdout
+    mine = [l for l in players.splitlines() if l.split()[0] == str(s.job)]
+    wavs = sorted(p.name for p in sound_dir.glob('*.wav')) if sound_dir.exists() else []
+    s.type(keys)
+    s.finish()
+    after = subprocess.run(['ps', '-axo', 'ppid=,comm='], capture_output=True, text=True).stdout
+    left = [l for l in after.splitlines() if l.split()[0] == str(s.job)]
+    return s, mine, wavs, left, sound_dir
+
+
+def sound_live(binary, ctx):
+    """Sound on (cb03): the parts render to WAVs under --sound-dir, the
+    backend is probed before the terminal, and on macOS the title plays
+    through /usr/bin/afplay, a child of the game that is gone with it; on
+    Linux without paplay the refusal is named once and the WAVs are the sink."""
+    import sys
+    s, mine, wavs, left, sound_dir = _sound_session(binary, ctx, [])
+    problems = []
+    ctx.common_checks(s, 0, problems)
+    want = ['boss-alpha.wav', 'boss-boar.wav', 'boss-elk.wav', 'boss-lynx.wav', 'bramblehold.wav',
+            'death.wav', 'den.wav', 'larkmeadow.wav', 'shingle.wav', 'silence.wav', 'title.wav']
+    if wavs != want:
+        problems.append('the WAVs under --sound-dir during the run: %r' % wavs)
+    if sound_dir.exists() and list(sound_dir.glob('*.wav')):
+        problems.append('WAVs left behind after the exit')
+    if b'sound on backend' not in s.err:
+        problems.append('the closing line does not report the sound: %r' % s.err[-300:])
+    if sys.platform == 'darwin':
+        if not any('afplay' in l for l in mine):
+            problems.append('no afplay child of the game while it ran: %r' % mine)
+        if b'answers 1' not in s.err or b'cue title' not in s.err:
+            problems.append('afplay did not answer the probe or the title was not cued: %r' % s.err[-300:])
+    else:
+        if s.err.count(b'player_missing: paplay') != 1:
+            problems.append('paplay missing was not named exactly once: %r' % s.err[-300:])
+        if b'answers 0' not in s.err:
+            problems.append('a missing player must leave the sink silent')
+    if left:
+        problems.append('a player child outlived the game: %r' % left)
+    s.evidence = 'children during the run %r; %d WAVs' % ([l.split()[1] for l in mine], len(wavs))
+    return s, problems
+
+
+def sound_oss(binary, ctx):
+    """CUB_SOUND_BACKEND=oss: the engine's OSS stub refuses by name before
+    the terminal is entered; the game plays on in silence."""
+    s, mine, wavs, left, _ = _sound_session(binary, ctx, [], {'CUB_SOUND_BACKEND': 'oss'}, settle=.8)
+    problems = []
+    ctx.common_checks(s, 0, problems)
+    if s.err.count(b'oss_ioctl_unsupported') != 1:
+        problems.append('the OSS stub was not refused by name exactly once: %r' % s.err[-300:])
+    if b'backend oss answers 0' not in s.err:
+        problems.append('the closing line does not name the silent oss backend')
+    if mine or left:
+        problems.append('a player child under the oss backend: %r %r' % (mine, left))
+    return s, problems
+
+
+def sound_mute(binary, ctx):
+    """--mute and CUB_SOUND=0: no WAV written, no child, no probe."""
+    problems = []
+    for args, env in (['--mute'], None), ([], {'CUB_SOUND': '0'}):
+        s, mine, wavs, left, sound_dir = _sound_session(binary, ctx, args, env, settle=.5)
+        ctx.common_checks(s, 0, problems)
+        if wavs or mine or left:
+            problems.append('muted, yet %r %r %r' % (wavs, mine, left))
+        if b'sound off' not in s.err:
+            problems.append('the closing line does not say the sound is off: %r' % s.err[-200:])
+    return s, problems
+
+
+def mute_key(binary, ctx):
+    """m during play: the music stops (the child ends) and m again cues the
+    scene's part afresh; the key is recorded like every key."""
+    import sys
+    root = Path(ctx.ROOT) / 'target/pty/sound'
+    root.mkdir(parents=True, exist_ok=True)
+    env = ctx.env_for()
+    env['HOME'] = str(root)
+    record = root / 'mute.pk'
+    s = ctx.Session([binary, '--seed', '7', '--save', str(root / 'mute.save'), '--sound-dir',
+                     str(root / 'wavs-m'), '--record', str(record), '--tier', 'plain'], 24, 80, env)
+    s.pump(.9)
+    s.type(b'm', settle=.6)
+    players = subprocess.run(['ps', '-axo', 'ppid=,comm='], capture_output=True, text=True).stdout
+    muted = [l for l in players.splitlines() if l.split()[0] == str(s.job)]
+    s.type(b'm', settle=.6)
+    s.type(b'q')
+    s.finish()
+    problems = []
+    ctx.common_checks(s, 0, problems)
+    if 'mute' not in record.read_text():
+        problems.append('the mute key was not recorded')
+    if sys.platform == 'darwin':
+        if any('afplay' in l for l in muted):
+            problems.append('afplay still ran while muted: %r' % muted)
+        if b'starts 2 ' not in s.err:
+            problems.append('the second m did not cue the part afresh: %r' % s.err[-300:])
+    return s, problems
+
+
+ROWS.update({'sound-live': sound_live, 'sound-oss': sound_oss, 'sound-mute': sound_mute, 'mute-key': mute_key})

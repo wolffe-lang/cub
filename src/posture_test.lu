@@ -1,0 +1,258 @@
+//! member: false
+//!
+//! Posture as HUD (cb03, innovation 5): health is the cub's gait, ears
+//! and tail in four bands (R-cb03-2 A), stamina its breath; the numbers
+//! leave the running HUD for the den and the death card (R-cb03-3 A), the
+//! scent counter stays, `--hud` puts the bars back for debugging. The
+//! gait's stride and sway scale with the pace dial (R-cb03-5 A).
+
+use art
+use grid
+use silhouette
+use sim
+use tier
+
+fn test_cb03_the_health_bands() {
+    var s = sim.new(7, 80, 24)
+    assert(sim.health_max(s.heart) == 52, "a fresh cub")
+    assert(sim.hurt_band(s) == 0, "full")
+    s.health = 39
+    assert(sim.hurt_band(s) == 0, "three quarters is still full")
+    s.health = 38
+    assert(sim.hurt_band(s) == 1, "under three quarters: hurt")
+    s.health = 26
+    assert(sim.hurt_band(s) == 1, "half: hurt")
+    s.health = 25
+    assert(sim.hurt_band(s) == 2, "under half: badly hurt")
+    s.health = 13
+    assert(sim.hurt_band(s) == 2, "a quarter: badly hurt")
+    s.health = 12
+    assert(sim.hurt_band(s) == 3, "under a quarter: dying")
+    s.health = 0
+    assert(sim.hurt_band(s) == 3, "fallen: dying")
+}
+
+fn test_cb03_the_hurt_frames_are_the_one_drawing_changed() {
+    // Every band keeps the 8 by 16 drawing (what is drawn is what
+    // collides) and differs from the band above it, standing and walking.
+    var hurt = 0
+    while hurt < 4 {
+        var pose = 0
+        while pose < 2 {
+            let b = silhouette.cub_posed(pose, 0, 2, hurt, 0)
+            assert(b.w == 8 && b.h == 16, "band {hurt} pose {pose} keeps the drawing's size")
+            if hurt > 0 {
+                let above = silhouette.cub_posed(pose, 0, 2, hurt - 1, 0)
+                assert(
+                    !silhouette.same(b, above),
+                    "band {hurt} pose {pose} differs from band {hurt - 1}",
+                )
+            }
+            pose += 1
+        }
+        hurt += 1
+    }
+    assert(
+        silhouette.same(silhouette.cub_posed(1, 0, 2, 0, 0), silhouette.cub(1, 0, 2)),
+        "full is the drawing",
+    )
+    // The ears: out at full (row 4, the outer pixels), back along the head
+    // hurt, laid back at the neck badly hurt, flat dying.
+    let full = silhouette.cub_posed(0, 0, 0, 0, 0)
+    let hurt1 = silhouette.cub_posed(0, 0, 0, 1, 0)
+    let hurt2 = silhouette.cub_posed(0, 0, 0, 2, 0)
+    let dying = silhouette.cub_posed(0, 0, 0, 3, 0)
+    assert(silhouette.at(full, 4, 0) == 1 && silhouette.at(full, 4, 7) == 1, "ears out")
+    assert(
+        silhouette.at(hurt1, 4, 0) == 0 && silhouette.at(hurt1, 4, 1) == 1,
+        "ears back along the head",
+    )
+    assert(
+        silhouette.at(hurt2, 5, 0) == 1 && silhouette.at(hurt2, 4, 1) == 0,
+        "ears laid back at the neck",
+    )
+    assert(silhouette.at(dying, 4, 0) == 0 && silhouette.at(dying, 5, 0) == 0, "ears flat")
+    assert(
+        silhouette.at(dying, 0, 3) == 0 && silhouette.at(full, 0, 3) == 1,
+        "the dying head drops",
+    )
+    // The tail: the full swing at full, half of it hurt, hanging still from
+    // badly hurt on.
+    assert(
+        silhouette.at(silhouette.cub_posed(1, 0, 2, 0, 0), 15, 5) == 1,
+        "the tip swings two pixels",
+    )
+    assert(silhouette.at(silhouette.cub_posed(1, 0, 2, 1, 0), 15, 4) == 1, "hurt, one pixel")
+    assert(
+        silhouette.same(silhouette.cub_posed(1, 0, 2, 2, 0), silhouette.cub_posed(1, 0, -2, 2, 0)),
+        "badly hurt the tail hangs still: no swing",
+    )
+    // The trot shortens: both paws out a step at full, one badly hurt,
+    // none dying (the walking frame is the standing frame).
+    assert(silhouette.at(silhouette.cub_posed(1, 0, 0, 0, 0), 7, 0) == 1, "a paw out, full")
+    assert(silhouette.at(silhouette.cub_posed(1, 0, 0, 2, 0), 7, 0) == 1, "one paw out, badly hurt")
+    assert(silhouette.at(silhouette.cub_posed(1, 0, 0, 2, 0), 7, 7) == 0, "the other not")
+    assert(
+        silhouette.same(silhouette.cub_posed(1, 0, 0, 3, 0), silhouette.cub_posed(0, 0, 0, 3, 0)),
+        "dying, the trot is a stand",
+    )
+}
+
+fn test_cb03_the_breath() {
+    var s = sim.new(7, 80, 24)
+    assert(
+        sim.BREATH_TICKS == 60 && sim.PANT_TICKS == 4,
+        "two seconds a breath, eight ticks a pant",
+    )
+    s.tick = 0
+    assert(sim.breath(s) == 0, "out")
+    s.tick = 30
+    assert(sim.breath(s) == 1, "in, at a second")
+    s.tick = 60
+    assert(sim.breath(s) == 0, "out again")
+    s.stamina = 40
+    s.tick = 20
+    assert(sim.breath(s) == 1, "tired, the breath quickens (1.2 s)")
+    s.speed = 10
+    assert(sim.breath(s) == 0, "moving, the gait carries the body")
+    s.speed = 0
+    s.exhausted = true
+    s.tick = 4
+    assert(sim.breath(s) == 1, "spent: the pant's mouth open")
+    s.tick = 8
+    assert(sim.breath(s) == 0, "and closed")
+    // The in-breath widens the shoulders and the haunches a pixel each side.
+    let out = silhouette.cub_posed(0, 0, 0, 0, 0)
+    let inhale = silhouette.cub_posed(0, 0, 0, 0, 1)
+    assert(silhouette.at(out, 6, 0) == 0 && silhouette.at(inhale, 6, 0) == 1, "the shoulders")
+    assert(silhouette.at(out, 12, 1) == 0 && silhouette.at(inhale, 12, 1) == 1, "the haunches")
+    assert(silhouette.count(inhale) == silhouette.count(out) + 4, "four pixels")
+    // The pant's mouth is the breath frame.
+    let closed = silhouette.cub_posed(3, 0, 0, 0, 0)
+    let open = silhouette.cub_posed(3, 0, 0, 0, 1)
+    assert(silhouette.at(open, 0, 2) == 1 && silhouette.at(closed, 0, 2) == 0, "the mouth")
+    assert(silhouette.at(closed, 1, 3) == 1, "closed, the muzzle is the sneak's low head")
+}
+
+/// Whether `text` is written in the grid from `(row, col)`, cell for cell.
+fn has_text(g: grid.Grid, row: int, col: int, text: str) -> bool {
+    var j = 0
+    for b in text.bytes() {
+        if grid.at(g, row, col + j).cp != b as int { return false }
+        j += 1
+    }
+    true
+}
+
+fn test_cb03_the_numbers_leave_the_running_hud() {
+    var s = sim.new(7, 80, 24)
+    s.scent = 8
+    assert(art.hud_text(s) == "scent 8", "scent is the one number")
+    assert(!art.hud_text(s).contains("health"), "no health bar")
+    var g = grid.new(24, 80)
+    art.render(s, tier.PLAIN, mut g)
+    assert(
+        has_text(g, 0, 1, "scent 8") && grid.at(g, 0, 8).cp == 32,
+        "the top row: the scent alone",
+    )
+    s.hud = true
+    assert(art.hud_text(s).contains("health [") && art.hud_text(s).contains("stamina ["), "--hud")
+}
+
+fn test_cb03_health_changes_the_cub_alone() {
+    // The health tail mark (cb01) left with the bars: a hurt cub's frame
+    // differs from a full one only in the silhouette.
+    var s = sim.new(7, 80, 24)
+    s.health = 10
+    var hurt = grid.new(24, 80)
+    art.render(s, tier.RICH, mut hurt)
+    s.health = 52
+    var full = grid.new(24, 80)
+    art.render(s, tier.RICH, mut full)
+    let r = sim.screen_row(s)
+    let c = sim.screen_col(s)
+    var outside = 0
+    var inside = 0
+    var row = 0
+    while row < 24 {
+        var col = 0
+        while col < 80 {
+            if !grid.same(grid.at(hurt, row, col), grid.at(full, row, col)) {
+                if row >= r - 1 && row <= r + 2 && col >= c - 1 && col <= c + 2 {
+                    inside += 1
+                } else {
+                    outside += 1
+                }
+            }
+            col += 1
+        }
+        row += 1
+    }
+    assert(
+        inside > 0 && outside == 0,
+        "health changes the cub's cells alone: {inside} in, {outside} out",
+    )
+}
+
+fn test_cb03_the_death_card_and_the_den_name_the_numbers() {
+    var s = sim.new(7, 80, 24)
+    s.flasks = 2
+    s.scent = 5
+    sim.hurt(mut s, 100)
+    assert(s.action == sim.FALL, "fallen")
+    assert(s.scent == 0 && s.mark_scent == 5, "the scent lies where the cub fell")
+    var g = grid.new(24, 80)
+    art.render(s, tier.PLAIN, mut g)
+    let r = sim.screen_row(s)
+    let c = sim.screen_col(s)
+    assert(has_text(g, r, c - 4, "fallen - scent lost 5"), "the death card names the scent lost")
+    assert(
+        has_text(g, r + 2, c - 4, "health 0   stamina 70   water 2   scent 0"),
+        "the death card names health, stamina, water and scent",
+    )
+    var d = sim.new(7, 80, 24)
+    d.den = true
+    var den = grid.new(24, 80)
+    art.render(d, tier.PLAIN, mut den)
+    assert(has_text(den, 5, 4, "health 52   stamina 70   water 3   scent 0"), "the den names them")
+}
+
+fn test_cb03_the_sheet_holds_the_bands_and_the_breath() {
+    let r = art.sheet(tier.RICH)
+    assert(has_text(r, 17, 51, "hurt: full hurt bad dying"), "the bands' row")
+    assert(has_text(r, 23, 51, "breath: out in  pant0 pant1"), "the breath's row")
+    // Four distinct band frames side by side (rows 18..21, 5 columns each
+    // from 54), the walking cub north.
+    var i = 0
+    while i < 3 {
+        var differs = false
+        var row = 18
+        while row < 22 {
+            var col = 0
+            while col < 4 {
+                if !grid.same(
+                    grid.at(r, row, 53 + i * 5 + col),
+                    grid.at(r, row, 53 + (i + 1) * 5 + col),
+                ) {
+                    differs = true
+                }
+                col += 1
+            }
+            row += 1
+        }
+        assert(differs, "band {i} and band {i + 1} draw differently on the sheet")
+        i += 1
+    }
+    assert(grid.plain_ok(art.sheet(tier.PLAIN)), "the plain sheet keeps its promise")
+}
+
+fn test_cb03_the_gait_scales_with_the_dial() {
+    // R-cb03-5 A: a faster cub strides longer, not quicker; the wag and
+    // the paws keep cb02c's cadence in seconds (gait_test pins the ticks).
+    assert(sim.GAIT_BASE_PERCENT == 165, "cb02c's dial is the gait's base")
+    assert(sim.STRIDE == (832 * sim.WALK_PERCENT + 82) / 165, "the stride: 832 at 165")
+    assert(sim.SWAY_V == (28 * sim.WALK_PERCENT + 82) / 165, "the sway: 28 at 165")
+    assert(sim.STRIDE == 998 && sim.SWAY_V == 34, "at 198")
+    // A tail frame still holds three ticks or more at the trot.
+    assert(sim.GAIT_CYCLE / 8 / sim.trot_at(1) >= 3, "a frame holds three ticks at the trot")
+}

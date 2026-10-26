@@ -1,0 +1,243 @@
+//! member: false
+//!
+//! The score's promises (cb03): every part parses and has its written
+//! length, the binary carries the committed text, and the cue schedule
+//! does what the design says: an area's loop restarts at its length, an
+//! area change cues the new part (the engine fades the old slot out), a
+//! boss theme replaces the area's loop (the duck), the death sting stops
+//! it and is never cut short, the loop resumes at the den after it, a
+//! den's rest sounds while the cub rests, a slot without a part is the
+//! silence. The checked machine renders no audio here: the renders are
+//! tools/score-check's, over the binaries.
+
+use score
+use sound
+use std.fs
+
+fn length_of(name: str) -> int {
+    score.seconds_of(name) else |_| {
+        assert(false, "{name} does not parse")
+        0
+    }
+}
+
+fn test_cb03_every_part_parses_at_its_written_length() {
+    assert(length_of("title") == 20, "the title: 6 bars of 4/4 at 72")
+    assert(length_of("shingle") == 24, "the Shingle: 6 bars of 4/4 at 60")
+    assert(length_of("bramblehold") == 24, "Bramblehold: 10 bars of 4/4 at 100")
+    assert(length_of("larkmeadow") == 24, "Larkmeadow: 16 bars of 3/4 at 120")
+    assert(length_of("boss-boar") == 16, "the boar: 8 bars of 4/4 at 120")
+    assert(length_of("boss-lynx") == 12, "the lynx: 10 bars of 3/4 at 150")
+    assert(length_of("boss-elk") == 20, "the elk: 8 bars of 4/4 at 96")
+    assert(length_of("boss-alpha") == 24, "the shadow alpha: 6 bars of 4/4 at 60")
+    assert(length_of("den") == 10, "the den: 4 bars of 3/4 at 72")
+    assert(length_of("death") == 12, "the sting: a bar of 4/4 at 60 and two silent")
+    assert(length_of("silence") == 2, "the silence: one bar at 120")
+    assert(score.names().len == 10, "ten parts")
+    var seen = List[str]()
+    for n in score.names() {
+        for s in seen { assert(s != n, "{n} named twice") }
+        (mut seen).push(n)
+    }
+}
+
+fn test_cb03_the_binary_carries_the_committed_parts() {
+    // tools/score-embed writes src/score/parts.lu from score/*.part; a
+    // part edited without a rerun is this red row (read from the root,
+    // where tools/test runs).
+    for n in score.names() {
+        let file = fs.read_text("score/{n}.part") else |_| {
+            assert(false, "score/{n}.part is read from the repository root")
+            ""
+        }
+        assert(file == score.part_text(n), "score/{n}.part is the text the binary carries")
+        assert(file.contains("Original, cb03"), "{n} says it is original")
+    }
+}
+
+fn test_cb03_each_part_names_its_cue_fade() {
+    // Every part carries lair's cue line: a replace with a fade, so the
+    // engine fades the old slot out as the new one rises.
+    for n in score.names() {
+        var seen = false
+        for line in score.part_text(n).lines() {
+            let ws = line.words()
+            if ws.len == 4 && ws[0] == "cue" {
+                assert(ws[1] == "replace" && ws[2] == "fade", "{n}: a replace cue with a fade")
+                seen = true
+            }
+        }
+        assert(seen, "{n} names its cue")
+    }
+}
+
+fn test_cb03_the_areas_and_bosses_have_their_parts_and_slots() {
+    assert(score.area_part(0) == "shingle" && score.area_part(1) == "bramblehold", "areas")
+    assert(score.area_part(2) == "larkmeadow", "the meadow")
+    assert(
+        score.area_part(3) == "crags" &&
+            score.area_part(4) == "river" &&
+            score.area_part(5) == "old-den",
+        "cb04's slots are named",
+    )
+    assert(score.area_part(6) == "", "no seventh area")
+    assert(score.boss_part(0) == "boss-boar" && score.boss_part(3) == "boss-alpha", "bosses")
+    assert(score.boss_part(-1) == "" && score.boss_part(4) == "", "no fifth boss")
+    assert(score.plays_once("death") && !score.plays_once("shingle"), "the sting alone plays once")
+}
+
+/// Small cues for the schedule tests: lengths in ticks.
+fn cues() -> List[score.Cue] {
+    [
+        score.Cue { name: "title", ticks: 20, once: false },
+        score.Cue { name: "shingle", ticks: 30, once: false },
+        score.Cue { name: "bramblehold", ticks: 30, once: false },
+        score.Cue { name: "boss-boar", ticks: 16, once: false },
+        score.Cue { name: "den", ticks: 10, once: false },
+        score.Cue { name: "death", ticks: 12, once: true },
+        score.Cue { name: "silence", ticks: 6, once: false },
+    ]
+}
+
+fn scene(area: int) -> score.Scene {
+    score.Scene { title: false, fallen: false, den: false, boss: -1, area: area }
+}
+
+fn test_cb03_want_decides_in_order() {
+    var sc = scene(1)
+    assert(score.want(sc) == "bramblehold", "the area")
+    sc.boss = 0
+    assert(score.want(sc) == "boss-boar", "a boss over the area")
+    sc.den = true
+    assert(score.want(sc) == "den", "the den over a boss")
+    sc.title = true
+    assert(score.want(sc) == "title", "the title over the den")
+    sc.fallen = true
+    assert(score.want(sc) == "death", "the sting over everything")
+}
+
+fn test_cb03_an_area_loop_restarts_at_its_length() {
+    var sch = score.schedule(cues())
+    assert(score.step(mut sch, scene(0), 0) == "shingle", "the first tick cues the area")
+    var t = 1
+    while t < 30 {
+        assert(score.step(mut sch, scene(0), t) == "", "nothing while it sounds: tick {t}")
+        t += 1
+    }
+    assert(score.step(mut sch, scene(0), 30) == "shingle", "the loop restarts at 30 ticks")
+    assert(score.step(mut sch, scene(0), 31) == "", "and sounds on")
+    assert(score.sounding(sch, 59) && !score.sounding(sch, 60), "sounding through its length")
+}
+
+fn test_cb03_an_area_change_crossfades() {
+    var sch = score.schedule(cues())
+    let _first = score.step(mut sch, scene(0), 0)
+    assert(score.step(mut sch, scene(1), 7) == "bramblehold", "the new area's part at once")
+    // The engine's side of the crossfade: a replace cue marks every
+    // sounding slot leaving while the new slot fades in.
+    var m = sound.mixer(
+        [
+            sound.Part { name: "shingle", pcm: pcm(6400), layer: false, fade: 1 },
+            sound.Part { name: "bramblehold", pcm: pcm(6400), layer: false, fade: 1 },
+        ],
+    ) else |_| {
+        assert(false, "bank")
+        sound.Mixer { bank: [], which: [], position: [], level: [], leaving: [] }
+    }
+    assert(sound.cue(mut m, "shingle"), "cue")
+    let _one = sound.tick(mut m)
+    assert(sound.cue(mut m, "bramblehold"), "replace")
+    assert(m.leaving[0] && !m.leaving[1], "the old slot fades out, the new fades in")
+}
+
+fn pcm(frames: int) -> List[byte] {
+    var b = List[byte]()
+    var i = 0
+    while i < frames * 4 {
+        (mut b).push((if i % 2 == 0 { 0 } else { 16 }) as byte)
+        i += 1
+    }
+    b
+}
+
+fn test_cb03_a_boss_theme_ducks_the_area_loop() {
+    var sch = score.schedule(cues())
+    let _first = score.step(mut sch, scene(0), 0)
+    var fight = scene(0)
+    fight.boss = 0
+    assert(score.step(mut sch, fight, 10) == "boss-boar", "the boar's theme replaces the loop")
+    assert(score.step(mut sch, fight, 11) == "", "and holds")
+    assert(score.step(mut sch, fight, 26) == "boss-boar", "the theme loops at its 16 ticks")
+    assert(
+        score.step(mut sch, scene(0), 30) == "shingle",
+        "the area's loop returns when the boss falls",
+    )
+}
+
+fn test_cb03_the_death_sting_stops_the_loop_and_is_never_cut() {
+    var sch = score.schedule(cues())
+    let _first = score.step(mut sch, scene(0), 0)
+    var fallen = scene(0)
+    fallen.fallen = true
+    assert(score.step(mut sch, fallen, 5) == "death", "the sting replaces the loop at the fall")
+    // The wake comes before the sting ends (the fall is 30 ticks, the
+    // sting 12 here): the loop waits for its end.
+    var t = 6
+    while t < 17 {
+        assert(score.step(mut sch, scene(0), t) == "", "the sting sounds through: tick {t}")
+        t += 1
+    }
+    assert(
+        score.step(mut sch, scene(0), 17) == "shingle",
+        "the area resumes at the den once it has",
+    )
+    // A sting that ended is not restarted while the scene still falls.
+    var sch2 = score.schedule(cues())
+    assert(score.step(mut sch2, fallen, 0) == "death", "cued")
+    assert(score.step(mut sch2, fallen, 12) == "" && score.step(mut sch2, fallen, 40) == "", "once")
+}
+
+fn test_cb03_the_den_rests_and_the_loop_resumes() {
+    var sch = score.schedule(cues())
+    let _first = score.step(mut sch, scene(0), 0)
+    var den = scene(0)
+    den.den = true
+    assert(score.step(mut sch, den, 3) == "den", "the den's rest")
+    assert(score.step(mut sch, den, 13) == "den", "it loops while the cub rests")
+    assert(score.step(mut sch, scene(0), 15) == "shingle", "the area's loop resumes on leaving")
+}
+
+fn test_cb03_the_title_plays_over_the_opening() {
+    var sch = score.schedule(cues())
+    var opening = scene(0)
+    opening.title = true
+    assert(score.step(mut sch, opening, 0) == "title", "the title")
+    assert(score.step(mut sch, scene(0), 9) == "shingle", "the area's part when the scene ends")
+}
+
+fn test_cb03_a_slot_without_a_part_is_the_silence() {
+    var sch = score.schedule(cues())
+    let _first = score.step(mut sch, scene(0), 0)
+    assert(score.step(mut sch, scene(3), 4) == "silence", "the crags' slot is silent until cb04")
+    assert(score.step(mut sch, scene(3), 5) == "", "silence holds")
+    assert(score.step(mut sch, scene(0), 8) == "shingle", "back in the Shingle")
+    score.restart(mut sch)
+    assert(score.step(mut sch, scene(0), 9) == "shingle", "a restart cues the scene's part afresh")
+}
+
+fn test_cb03_the_replay_scenes_cover_the_schedule() {
+    // The golden's six seconds: the title, the Shingle, a den, the
+    // Shingle, the boar, a fall, the wake; cued in that order.
+    var sch = score.schedule(cues())
+    var cued = ""
+    var t = 0
+    while t < score.REPLAY_TICKS {
+        let c = score.step(mut sch, score.replay_scene(t), t)
+        if c != "" && !cued.ends_with(" {c}") { cued = "{cued} {c}" }
+        t += 1
+    }
+    assert(
+        cued == " title shingle den shingle boss-boar death shingle",
+        "the replay's cues in order:{cued}",
+    )
+}
