@@ -1002,7 +1002,7 @@ pub fn draw_pose(
     hurt: int,
     breath: int,
 ) {
-    draw_pose_in(mut g, t, row, col, facing, fur(t, band), pose, legs, tail, rising)
+    draw_pose_in(mut g, t, row, col, facing, fur(t, band), pose, legs, tail, rising, hurt, breath)
 }
 
 /// `draw_pose` in a given style (a ghost's grey, cb04).
@@ -1017,6 +1017,8 @@ pub fn draw_pose_in(
     legs: int,
     tail: int,
     rising: bool,
+    hurt: int,
+    breath: int,
 ) {
     if t == tier.RICH {
         silhouette.draw_at(
@@ -1971,6 +1973,8 @@ fn draw_ghosts(s: sim.Sim, set: ghost.Set, t: int, mut g: grid.Grid) {
                         i % 2,
                         0,
                         true,
+                        0,
+                        0,
                     )
                 }
             }
