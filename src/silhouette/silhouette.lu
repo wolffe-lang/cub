@@ -556,10 +556,13 @@ pub fn boss(kind: int, phase: int, fade: int) -> Bitmap {
         alpha(phase)
     }
     if fade >= 15 {
+        // The fade clears whole cell rows (four pixel rows each) from the
+        // top: a quarter of the body at 15, three quarters at 30, so a
+        // fading boss draws only cells its postures draw (and blanks).
+        let top = if fade >= 30 then b.h * 3 / 4 / 4 * 4 else b.h / 4 / 4 * 4
         var i = 0
         while i < b.px.len {
-            let pr = i / b.w
-            if pr < b.h / 4 || fade >= 30 && pr < b.h * 3 / 4 { b.px[i] = 0 }
+            if i / b.w < top { b.px[i] = 0 }
             i += 1
         }
     }
@@ -787,7 +790,11 @@ pub fn wolf(pose: int, legs: int) -> Bitmap {
 }
 
 /// The highest code point a silhouette cell can be: a braille pattern.
-const CP_MAX: int = 10240 + 256
+/// The presence table's span: U+2500 (the box drawing and block elements)
+/// up to the braille patterns' end, U+28FF; a glyph outside it would be a
+/// silhouette bug, so `collect` traps on one.
+const CP_BASE: int = 9472
+const CP_SPAN: int = 1024
 
 /// Every code point `b` can produce facing each of the four ways, each
 /// once across the whole enumeration (`seen` by code point), appended to
@@ -801,9 +808,12 @@ fn collect(b: Bitmap, mut seen: List[bool], mut cps: List[int]) {
             var cc = 0
             while cc < cols(t) {
                 let cp = cell_cp(t, cr, cc)
-                if cp != 32 && !seen[cp] {
-                    seen[cp] = true
-                    (mut cps).push(cp)
+                if cp != 32 {
+                    assert(cp >= CP_BASE && cp < CP_BASE + CP_SPAN, "a silhouette glyph outside U+2500..U+28FF")
+                    if !seen[cp - CP_BASE] {
+                        seen[cp - CP_BASE] = true
+                        (mut cps).push(cp)
+                    }
                 }
                 cc += 1
             }
@@ -820,9 +830,9 @@ fn collect(b: Bitmap, mut seen: List[bool], mut cps: List[int]) {
 pub fn all_code_points() -> List[int] {
     var cps = List[int]()
     var seen = List[bool]()
-    (mut seen).reserve(CP_MAX + 1)
+    (mut seen).reserve(CP_SPAN)
     var n = 0
-    while n <= CP_MAX { (mut seen).push(false); n += 1 }
+    while n < CP_SPAN { (mut seen).push(false); n += 1 }
     // The cub's frames, one cell row at a time with the parameters that
     // reach it (cb03: the health bands and the breath multiply the frames,
     // and the checked machine's budget is finite): rows 0-3 the head
@@ -884,16 +894,14 @@ pub fn all_code_points() -> List[int] {
         collect(hawk(phase, 10), mut seen, mut cps)
         phase += 1
     }
-    // The bosses in every posture and fade, the wolf in its two poses.
+    // The bosses in every posture, the wolf in its two poses. A boss's fade
+    // clears whole cell rows (`boss`), so it draws no cell its postures do
+    // not: the fades need no enumeration (the checked machine's budget).
     kind = 4
     while kind < 8 {
         phase = 0
         while phase < 9 {
-            if phase <= 4 || phase >= 7 {
-                collect(boss(kind, phase, -1), mut seen, mut cps)
-                collect(boss(kind, phase, 15), mut seen, mut cps)
-                collect(boss(kind, phase, 30), mut seen, mut cps)
-            }
+            if phase <= 4 || phase >= 7 { collect(boss(kind, phase, -1), mut seen, mut cps) }
             phase += 1
         }
         kind += 1

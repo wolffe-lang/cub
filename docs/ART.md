@@ -201,8 +201,9 @@ lynx 10×20, the elk 14×28, the shadow alpha 12×24. Postures by phase: hunting
 drawn back, the boar's head down, the lynx flat, the elk's rack lowered, the alpha's hackles up), the
 strike (stretched along its line), the recovery and the stagger (the body sagging); phase two marks the
 posture (the boar's foam, the lynx's bared teeth, the elk's lowered rack held, the alpha's eyes). The alpha
-alone has eyes: `●` U+25CF in red 196, dark the rest of it. A beaten boss erodes over 45 ticks at two
-fade stages (15, 30), as the foes do. Colours: the boar 130, the lynx 179, the elk 145, the alpha 244
+alone has eyes: `●` U+25CF in red 196, dark the rest of it. A beaten boss fades over 45 ticks in two
+stages (15, 30) that clear whole cell rows from the top, so a fading boss draws no glyph its postures do
+not (the glyph table needs no fade rows for it). Colours: the boar 130, the lynx 179, the elk 145, the alpha 244
 (plain 1, 3, 7, 8). The bar on row 1 is text in the HUD's ink with the filled cells in the boss's colour.
 
 The wolf is the cub grown one size (12×24): the end's three frames draw it crossing the ford on the far
