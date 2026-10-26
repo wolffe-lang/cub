@@ -360,9 +360,11 @@ t 259 down
 t 259 left
 t 260 down
 t 260 left
+t 261 lock
 t 261 down
 t 261 left
 t 261 bite
+t 261 release
 t 265 down
 t 265 left
 t 266 down

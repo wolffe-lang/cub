@@ -371,9 +371,11 @@ pub fn lines() -> List[str] {
     (mut out).push("t 259 left")
     (mut out).push("t 260 down")
     (mut out).push("t 260 left")
+    (mut out).push("t 261 lock")
     (mut out).push("t 261 down")
     (mut out).push("t 261 left")
     (mut out).push("t 261 bite")
+    (mut out).push("t 261 release")
     (mut out).push("t 265 down")
     (mut out).push("t 265 left")
     (mut out).push("t 266 down")
@@ -458,9 +460,11 @@ pub fn lines() -> List[str] {
     (mut out).push("t 305 left")
     (mut out).push("t 306 down")
     (mut out).push("t 306 left")
+    (mut out).push("t 307 lock")
     (mut out).push("t 307 down")
     (mut out).push("t 307 left")
     (mut out).push("t 307 bite")
+    (mut out).push("t 307 release")
     out
 }
 
