@@ -46,3 +46,22 @@ fn test_cb04a_den_enters_at_three_cells_and_pauses_world() {
     sim.step(mut s, den_key(15))
     assert(!s.den && s.health == 40, "leaving is not another rest")
 }
+
+fn test_cb04a_death_wakes_at_rested_den_two_not_the_start() {
+    var s = sim.new(7, 80, 24)
+    s.gate_open = true
+    let (x, y) = forest.den_position(7, 2)
+    sim.enter_area(mut s, 1, x + 3 * sim.FP, y)
+    sim.step(mut s, den_key(15))
+    assert(s.den && s.last_den == 2, "rest from the den contact edge")
+    sim.step(mut s, den_key(18))
+    s.scent = 37
+    sim.hurt(mut s, 1000)
+    let death_x = s.mark_x
+    let death_y = s.mark_y
+    var n = 0
+    while n < 30 { sim.step(mut s, den_key(0)); n += 1 }
+    assert(s.area == 1 && s.x == x && s.y == y && s.last_den == 2, "death checkpoint, not start")
+    assert(s.mark && s.mark_area == 1 && s.mark_x == death_x && s.mark_y == death_y && s.mark_scent == 37, "death spot retained")
+    assert(s.health == sim.health_max(s.heart) && s.action == sim.IDLE, "same reset as rest")
+}

@@ -1471,12 +1471,8 @@ pub fn step(mut s: Sim, keys: List[int]) {
     }
     if s.action == FALL {
         if s.tick - s.started >= 30 {
-            s.area = forest.den_area(s.last_den)
+            wake(mut s)
             s.entered = s.tick
-            let (x, y) = forest.den_position(s.seed, s.last_den)
-            s.x = x
-            s.y = y
-            reset_world(mut s)
         }
         return
     }
