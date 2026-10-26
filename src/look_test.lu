@@ -1,6 +1,7 @@
 //! member: false
 
 use art
+use controls
 use draw
 use grid
 use look
@@ -21,5 +22,30 @@ fn test_cb04c_world_words_are_not_sprites() {
         draw.put_text(mut g, 10, 10, "Ember", grid.cell(32, 7, 0, 0))
         assert(!look.no_labels(g), "the census must catch a planted name")
         assert(grid.plain_ok(props.sheet(tier.PLAIN)), "plain sprite clusters use console glyphs")
+    }
+}
+
+fn test_cb04c_stamina_edge_is_reserved_after_c() {
+    var s = sim.new(7, 80, 24)
+    s.area = 1
+    s.x = 22 * sim.FP
+    s.y = 27 * sim.FP
+    s.foes = List[sim.Foe]()
+    var keys = List[int]()
+    (mut keys).push(controls.KEY_DODGE)
+    sim.step(mut s, keys)
+    // The old bones label's c crossed the bar's right padding at this
+    // camera position. Hold the camera explicitly: this is a layer witness.
+    s.x = 22 * sim.FP
+    s.y = 27 * sim.FP
+    for t in [tier.RICH, tier.PLAIN] {
+        var g = grid.new(24, 80)
+        art.render(s, t, mut g)
+        print("HUD after c tier {t}: row3 column22 codepoint {grid.at(g, 3, 22).cp}")
+        var row = 0
+        while row < 5 {
+            assert(grid.at(g, row, 22).cp == 32, "no world glyph at stamina edge after c")
+            row += 1
+        }
     }
 }

@@ -64,3 +64,10 @@ rows start past it, `tests/lair.conf`). After ten idle seconds the demo plays be
 still begins. On the end card `r` keeps playing and `q` leaves; both are the ordinary keys, recorded as
 such. The title row and the title-demo row in `tests/pty_rows.py` are the live witnesses; the death
 witnesses still type bytes into the pty, never a signal from a script.
+
+The health/stamina panel owns a solid five-row rectangle and a one-cell
+right margin. World lettering used to remain visible through its unpainted
+padding: the `c` in the former bones label could sit beside stamina. This
+is independent of the key's meaning. The `level-look-after-c` pty row types
+byte `63`, checks that terminal echo is disabled, and compares the live
+frame to its recorded replay at both sizes and tiers.

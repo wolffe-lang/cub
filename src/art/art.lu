@@ -1245,6 +1245,10 @@ fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
     let rich = t == tier.RICH
     let outline = if rich then 250 else 7
     let background = if rich then 235 else 0
+    // The HUD owns its rectangle and one cell of right padding. Previously
+    // only strokes were painted: world lettering could show through beside
+    // the stamina bar (the c in "bones, no scent" at camera 22,27).
+    draw.fill(mut g, 0, 0, 5, 23, grid.cell(32, outline, background, 0))
     if rich {
         var row = 0
         while row <= 4 {
