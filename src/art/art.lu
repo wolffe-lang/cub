@@ -693,6 +693,18 @@ fn world_prop(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, kind: int, o
 }
 
 fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
+    // cb04c owns these pickups' final sprites; only their hooks live here.
+    for meat in s.meat {
+        at_world(s, t, mut g, sim.floor_div(meat.x, sim.FP), sim.floor_div(meat.y, sim.FP), "+", true)
+    }
+    var spring = 0
+    while spring < sim.SPRINGS {
+        if sim.spring_available(s, spring) {
+            let (x, y) = sim.spring_position(s.seed, spring)
+            at_world(s, t, mut g, sim.floor_div(x, sim.FP), sim.floor_div(y, sim.FP), "~", true)
+        }
+        spring += 1
+    }
     for drop in s.drops {
         world_orb(s, t, mut g, drop.x, drop.y)
     }
@@ -1190,6 +1202,7 @@ fn put_over(mut g: grid.Grid, row: int, col: int, text: str, style: grid.Cell) {
 pub fn hud_text(s: sim.Sim) -> str { "health stamina scent {s.scent}" }
 
 fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
+    draw_water(s, t, mut g)
     let rich = t == tier.RICH
     let outline = if rich then 250 else 7
     let background = if rich then 235 else 0
@@ -2498,4 +2511,11 @@ fn den_menu(s: sim.Sim, t: int, mut g: grid.Grid) {
         },
         style,
     )
+}
+
+
+/// Healing HUD seam: row3, column24; clear of the bars and boss row1.
+pub fn draw_water(s: sim.Sim, t: int, mut g: grid.Grid) {
+    let text = if s.flask_max == 0 then "Water 0/0 - find a spring" else "Water {s.flasks}/{s.flask_max}  w drink"
+    draw.put_text(mut g, 3, 24, text, grid.cell(32, if t == tier.PLAIN then 14 else 117, if t == tier.PLAIN then 0 else 235, 0))
 }

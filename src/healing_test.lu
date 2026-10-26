@@ -1,0 +1,38 @@
+//! member: false
+use sim
+use journey
+
+fn test_cb04a_springs_are_found_once_and_rest_refills_found_capacity() {
+    var s = sim.new(7, 80, 24)
+    assert(s.flasks == 0 && s.flask_max == 0, "water must be found")
+    let (x, y) = sim.spring_position(s.seed, 0)
+    s.x = x
+    s.y = y
+    sim.healing_pickups(mut s)
+    assert(s.flask_max == 2 && s.flasks == 2 && !sim.spring_available(s, 0), "first two mouthfuls")
+    s.flasks = 0
+    sim.healing_pickups(mut s)
+    assert(s.flasks == 0, "spring does not refill repeatedly")
+    sim.wake(mut s)
+    assert(s.flasks == 2, "rest fills discovered capacity")
+    let (ux, uy) = sim.spring_position(s.seed, 1)
+    sim.enter_area(mut s, 2, ux, uy)
+    sim.healing_pickups(mut s)
+    assert(s.flask_max == 3 && s.flasks == 3, "later spring adds one")
+    let restored = journey.decode(journey.encode(s), 80, 24) else { assert(false, "found water save"); return }
+    assert(restored.flask_max == 3, "discovery survives save")
+}
+
+fn test_cb04a_meat_heals_immediately_once_clamped_and_expires() {
+    var s = sim.new(7, 80, 24)
+    s.health = 48
+    (mut s.meat).push(sim.Meat { x: s.x, y: s.y, until: 300 })
+    sim.healing_pickups(mut s)
+    assert(s.health == 52 && s.meat.len == 0 && s.scent == 0, "small heal clamped, no currency duplication")
+    s.health = 20
+    sim.healing_pickups(mut s)
+    assert(s.health == 20, "collected only once")
+    (mut s.meat).push(sim.Meat { x: s.x, y: s.y, until: s.tick })
+    sim.healing_pickups(mut s)
+    assert(s.health == 20 && s.meat.len == 0, "exclusive expiry")
+}

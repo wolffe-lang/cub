@@ -350,6 +350,7 @@ pub struct Sim {
     save_status: int,
     gate_hint_until: int,
     drops: List[Drop],
+    meat: List[Meat],
     caches: int,
     yarrow: int,
     marrow: int,
@@ -418,7 +419,7 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         unseen: 0,
         riposte: 0,
         riposte_foe: -1,
-        flasks: FLASKS,
+        flasks: 0,
         scent: 0,
         den: false,
         death_at: 0,
@@ -438,13 +439,14 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         shortcuts: 0,
         story: 0,
         difficulty: 0,
-        flask_max: FLASKS,
+        flask_max: 0,
         mark_area: 0,
         entered: -120,
         edge_ready: true,
         save_status: 0,
         gate_hint_until: 0,
         drops: List[Drop](),
+        meat: List[Meat](),
         caches: 0,
         yarrow: 0,
         marrow: 0,
@@ -974,6 +976,7 @@ fn reset_world(mut s: Sim) {
     s.combo = 0
     s.foes = area_foes(s.seed, s.field, s.area, s.bosses)
     (mut s.drops).reset()
+    (mut s.meat).reset()
     (mut s.trail).reset()
     var i = 0
     while i < s.holds.len { s.holds[i] = input.hold_new(); i += 1 }
@@ -1509,6 +1512,7 @@ pub fn step(mut s: Sim, keys: List[int]) {
     if transitions(mut s) { return }
     trail_step(mut s, ox, oy)
     drops_step(mut s)
+    healing_pickups(mut s)
     if s.mark && s.mark_area == s.area && pickup_near(s, s.mark_x, s.mark_y) {
         pickup_flash(mut s, s.mark_x, s.mark_y)
         s.scent += s.mark_scent
@@ -2212,6 +2216,7 @@ pub fn enter_area(mut s: Sim, area: int, x: int, y: int) {
     s.edge_ready = false
     s.foes = area_foes(s.seed, s.field, area, s.bosses)
     (mut s.drops).reset()
+    (mut s.meat).reset()
     (mut s.trail).reset()
     s.locked = -1
     s.riposte = 0
@@ -2401,6 +2406,7 @@ pub struct Drop { x: int, y: int, value: int, until: int }
 
 fn leave_drop(mut s: Sim, x: int, y: int, value: int) {
     (mut s.drops).push(Drop { x: x, y: y, value: value, until: s.tick + DROP_TICKS })
+    if value <= 20 { (mut s.meat).push(Meat { x: x, y: y, until: s.tick + DROP_TICKS }) }
 }
 
 fn drops_step(mut s: Sim) {
@@ -2413,10 +2419,6 @@ fn drops_step(mut s: Sim) {
             if drop.until - s.tick < DROP_TICKS && pickup_near(s, drop.x, drop.y) {
                 pickup_flash(mut s, drop.x, drop.y)
                 s.scent += drop.value
-                if drop.value == 5 {
-                    s.health += 10
-                    if s.health > health_max(s.heart) { s.health = health_max(s.heart) }
-                }
             } else {
                 (mut keep).push(copy drop)
             }
@@ -3153,4 +3155,58 @@ fn meadow_near(s: Sim, kind: int, radius: int) -> bool {
         x < width - 4 &&
         !forest.on_path(s.seed, s.field, s.area, x, y) &&
         meadow.near_kind(s.seed, cell_x(s), cell_y(s), kind, radius)
+}
+
+
+/// A kill's small immediate heal, separate from its scent and death mark.
+pub struct Meat { x: int, y: int, until: int }
+
+/// Health restored by one fresh meat pickup, clamped to the heart cap.
+pub const MEAT_HEAL: int = 10
+
+/// The first spring teaches two mouthfuls; the second upgrades to FLASKS.
+pub const SPRINGS: int = 2
+
+/// Region of a spring's stable id.
+pub fn spring_area(id: int) -> int { if id == 0 then forest.SHINGLE else forest.LARKMEADOW }
+
+/// A spring on the carved route, beyond the entry den (fixed point).
+pub fn spring_position(seed: int, id: int) -> (int, int) {
+    let area = spring_area(id)
+    let at = if id == 0 then 24 else 72
+    (forest.spine(seed, area, at) * FP + FP / 2, (forest.origin(seed, area) + at) * FP + FP / 2)
+}
+
+/// Draw a spring until its finite discovery has been claimed. The later
+/// spring requires learning to drink first; capacity itself persists this.
+pub fn spring_available(s: Sim, id: int) -> bool {
+    id >= 0 && id < SPRINGS && s.area == spring_area(id) &&
+        (if id == 0 then s.flask_max == 0 else s.flask_max == 2)
+}
+
+// cb04c seam: replace this stand-in with pickup_near(s, x, y), and add
+// pickup_flash at each successful collection after that branch lands.
+fn cb04a_pickup_near(s: Sim, x: int, y: int) -> bool { near(s.x, s.y, x, y, FP) }
+
+/// The one collection path for meat and springs; drawing owns no effects.
+pub fn healing_pickups(mut s: Sim) {
+    var keep = List[Meat]()
+    for meat in s.meat {
+        if meat.until > s.tick {
+            if cb04a_pickup_near(s, meat.x, meat.y) {
+                s.health += MEAT_HEAL
+                if s.health > health_max(s.heart) { s.health = health_max(s.heart) }
+            } else { (mut keep).push(copy meat) }
+        }
+    }
+    s.meat = keep
+    var id = 0
+    while id < SPRINGS {
+        let (x, y) = spring_position(s.seed, id)
+        if spring_available(s, id) && cb04a_pickup_near(s, x, y) {
+            s.flask_max = if id == 0 then 2 else FLASKS
+            s.flasks = s.flask_max
+        }
+        id += 1
+    }
 }

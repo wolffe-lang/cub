@@ -226,7 +226,7 @@ fn test_cb03_the_death_card_and_the_den_name_the_numbers() {
     d.den = true
     var den = grid.new(24, 80)
     art.render(d, tier.PLAIN, mut den)
-    assert(has_text(den, 14, 3, "health 52   stamina 70   water 3/3"), "the den names them")
+    assert(has_text(den, 14, 3, "health 52   stamina 70   water 0/0"), "the den names them")
 }
 
 fn test_cb03_the_sheet_holds_the_bands_and_the_breath() {

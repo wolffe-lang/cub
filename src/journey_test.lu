@@ -13,6 +13,7 @@ fn test_cb02_save_canonical_round_trip_at_last_den() {
     s.story = 1
     s.heart = 3
     s.scent = 119
+    s.flask_max = 3
     s.flasks = 1
     s.mark = true
     s.mark_area = 2

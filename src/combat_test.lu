@@ -16,6 +16,8 @@ fn ticks(mut s: sim.Sim, n: int) {
 
 fn arena() -> sim.Sim {
     var s = sim.new(7, 80, 24)
+    s.flask_max = 3
+    s.flasks = 3
     s.heading = 64
     s.heading_target = 64
     s.foes[0].x = s.x + sim.FP * 3 / 2

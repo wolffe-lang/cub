@@ -57,6 +57,8 @@ pub fn den_of(kind: int) -> int {
 pub fn journey_at(seed: int, cols: int, rows: int, kind: int) -> sim.Sim {
     var s = sim.new(seed, cols, rows)
     let (heart, wind, fang, paw, nose) = growth(kind)
+    s.flask_max = if kind == sim.BOAR then 2 else sim.FLASKS
+    s.flasks = s.flask_max
     s.heart = heart
     s.wind = wind
     s.fang = fang
