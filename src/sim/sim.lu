@@ -3317,7 +3317,7 @@ pub fn rest_key(mut s: Sim, key: int) {
         s.fang += s.rest_pending[2]
         s.paw += s.rest_pending[3]
         s.nose += s.rest_pending[4]
-        s.scent -= cost
+        s.scent -= cost - 1
         s.health = health_max(s.heart)
         s.stamina = stamina_max(s.wind)
         rest_reset(mut s)
