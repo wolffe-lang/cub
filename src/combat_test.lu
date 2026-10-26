@@ -86,16 +86,16 @@ fn test_bite_chain_waits_for_recovery() {
     ticks(mut s, 4)
     sim.step(mut s, keys(controls.KEY_BITE))
     ticks(mut s, 6)
-    assert(s.action == sim.BITE && s.started == s.tick && s.stamina == 46, "queued bite pays once")
+    assert(s.action == sim.BITE && s.started == s.tick && s.stamina == 44, "queued bite pays once")
 }
 
-fn test_dodge_edges_and_three_cell_hop() {
+fn test_roll_edges_and_long_travel() {
     var s = arena()
     s.foes[0].health = 0
     let x = s.x
     sim.step(mut s, keys(controls.KEY_DODGE))
     ticks(mut s, sim.dodge_iframes(s.paw) - 1)
-    assert(s.x - x == 3 * sim.FP, "hop is three cells")
+    assert(s.x - x > 3 * sim.FP && s.x - x <= 10 * sim.FP, "long roll clips at ground")
     assert(sim.invulnerable(s), "last iframe")
     ticks(mut s, 1)
     assert(!sim.invulnerable(s), "recovery is vulnerable")

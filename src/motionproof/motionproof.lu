@@ -62,6 +62,8 @@ pub fn sample(seed: int, field: int, area: int, x: int, y: int, h: int, gait: in
         sim.trot_at(1)
     }
     s.speed = if sim.in_shallows(s, s.x, s.y) && gait != 1 then cap / 2 else cap
+    if sim.sin(h) > 0 { s.x -= 1 }
+    if sim.cos(h) < 0 { s.y -= 1 }
     let ox = s.x
     let oy = s.y
     sim.step(mut s, keys)
