@@ -1,0 +1,97 @@
+//! member: false
+//!
+//! cb04, the ghosts: a death's trailer carries the last `TICKS` frames as
+//! game words in tick order, the reader rebuilds them frame for frame, a
+//! replay without a trailer is no ghost, and the set keeps the newest
+//! `SHOWN` by serial (R-cb04-1 A).
+
+use controls
+use ghost
+use replay
+
+fn frame(k: int) -> ghost.Frame {
+    ghost.Frame { x: 64 * k, y: 1000 + k, facing: k % 4, pose: k % 3, area: 1 }
+}
+
+fn recorded(death_tick: int, serial: int) -> replay.Replay {
+    var h = ghost.history()
+    var t = 0
+    while t <= death_tick {
+        ghost.record(mut h, t, frame(t))
+        t += 1
+    }
+    var r = replay.new(1, 1, 80, 24)
+    replay.push_key(mut r, 3, controls.KEY_RIGHT)
+    replay.push_arg(mut r, death_tick - 1, controls.EV_HEALTH, 0)
+    ghost.trailer(mut r, h, death_tick, serial)
+    r
+}
+
+fn test_cb04_trailer_is_the_last_ticks_in_order() {
+    let r = recorded(200, 2)
+    // Ticks never decrease (the format's rule), and the five words of a
+    // frame stand at its tick.
+    var last = -1
+    var frames = 0
+    for e in r.events {
+        assert(e.tick >= last, "ticks out of order")
+        last = e.tick
+        if e.key == replay.EV_ARG + controls.EV_GHOST_X { frames += 1 }
+    }
+    assert(frames == ghost.TICKS, "trailer frame count")
+    assert(
+        replay.args_at(r, 200 - ghost.TICKS + 1, controls.EV_GHOST_X) ==
+            64 * (200 - ghost.TICKS + 1),
+        "first frame x",
+    )
+    assert(replay.args_at(r, 200, controls.EV_GHOST_Y) == 1200, "last frame y")
+    assert(replay.args_at(r, 200, controls.EV_GHOST_DEATH) == 2, "death serial")
+    assert(replay.args_at(r, 150, controls.EV_GHOST_FACE) == 150 % 4, "facing")
+    assert(replay.args_at(r, 150, controls.EV_GHOST_POSE) == 150 % 3, "pose")
+    assert(replay.args_at(r, 150, controls.EV_GHOST_AREA) == 1, "area")
+}
+
+fn test_cb04_reader_rebuilds_the_frames() {
+    let r = recorded(120, 1)
+    let g = ghost.from_replay(r, "death-1-120-0.pk") else { assert(false, "no ghost"); return }
+    assert(g.frames.len == ghost.TICKS, "frames read")
+    assert(g.serial == 1 && g.area == 1, "serial and area")
+    assert(g.x == 64 * 120 && g.y == 1120, "the death spot is the last frame")
+    var k = 0
+    while k < g.frames.len {
+        let t = 120 - ghost.TICKS + 1 + k
+        assert(g.frames[k].x == 64 * t && g.frames[k].y == 1000 + t, "frame {k}")
+        k += 1
+    }
+}
+
+fn test_cb04_a_short_life_trails_from_its_first_tick() {
+    let r = recorded(20, 1)
+    let g = ghost.from_replay(r, "short") else { assert(false, "no ghost"); return }
+    assert(g.frames.len == 21, "frames from tick 0")
+}
+
+fn test_cb04_no_trailer_is_no_ghost() {
+    var r = replay.new(1, 1, 80, 24)
+    replay.push_arg(mut r, 10, controls.EV_HEALTH, 0)
+    let g = ghost.from_replay(r, "old") else { return }
+    assert(false, "a replay without a trailer made a ghost with {g.frames.len} frames")
+}
+
+fn test_cb04_the_set_keeps_the_newest_five() {
+    var set = ghost.empty()
+    var k = 1
+    while k <= 8 {
+        let g = ghost.from_replay(recorded(100 + k, k), "death-{k}") else {
+            assert(false, "ghost {k}")
+            return
+        }
+        ghost.insert(mut set, g)
+        k += 1
+    }
+    assert(set.ghosts.len == ghost.SHOWN, "five shown")
+    assert(
+        set.ghosts[0].serial == 8 && set.ghosts[4].serial == 4,
+        "newest first, the oldest three gone",
+    )
+}
