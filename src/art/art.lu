@@ -738,7 +738,7 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
                 draw.put_text(
                     mut g,
                     2,
-                    1,
+                    24,
                     forest.name(s.area) + " - a den ahead; scent of home",
                     ink(t, true),
                 )
@@ -1217,31 +1217,49 @@ fn put_over(mut g: grid.Grid, row: int, col: int, text: str, style: grid.Cell) {
 }
 
 /// Compact bars reserve eight cells each: the debug HUD's (`--hud`).
-fn meter(value: int, maximum: int) -> str {
-    var out = "["
-    var i = 0
-    while i < 8 {
-        out += if value * 8 > i * maximum then "|" else "."
-        i += 1
-    }
-    out + "]"
-}
-
-/// The running HUD's one number (cb03, R-cb03-3 A): scent, always; health
-/// and stamina are the cub's posture, their numbers at a den and on the
-/// death card. `--hud` (`s.hud`, a debug flag off by default) puts cb01b's
-/// bars back beside it.
-pub fn hud_text(s: sim.Sim) -> str {
-    if !s.hud { return "scent {s.scent}" }
-    "health " +
-        meter(s.health, sim.health_max(s.heart)) +
-        " stamina " +
-        meter(s.stamina, sim.stamina_max(s.wind)) +
-        " scent {s.scent}"
-}
+/// Compact text description; the rendered bars retain labels as a non-colour channel.
+pub fn hud_text(s: sim.Sim) -> str { "health stamina scent {s.scent}" }
 
 fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
-    draw.put_text(mut g, 0, 1, hud_text(s), ink(t, true))
+    let rich = t == tier.RICH
+    let outline = if rich then 250 else 7
+    let background = if rich then 235 else 0
+    if rich {
+        var row = 0
+        while row <= 4 {
+            var col = 8
+            while col <= 21 {
+                let cp = if row % 2 == 1 then 9474 else if col == 8 {
+                    if row == 0 then 9484 else if row == 2 then 9500 else 9492
+                } else if col == 21 {
+                    if row == 0 then 9488 else if row == 2 then 9508 else 9496
+                } else { 9472 }
+                if row % 2 == 0 || col == 8 || col == 21 { grid.put(mut g, row, col, grid.cell(cp, outline, background, 0)) }
+                col += 1
+            }
+            row += 1
+        }
+    }
+    var bar = 0
+    while bar < 2 {
+        let row = if rich then 1 + bar * 2 else bar
+        let value = if bar == 0 then s.health else s.stamina
+        let maximum = if bar == 0 then sim.health_max(s.heart) else sim.stamina_max(s.wind)
+        let colour = if rich then (if bar == 0 then 203 else 84) else (if bar == 0 then 12 else 10)
+        draw.put_text(mut g, row, 1, if bar == 0 then "health" else "stamina", grid.cell(32, outline, background, 0))
+        if !rich {
+            grid.put(mut g, row, 8, grid.cell(91, outline, background, 0))
+            grid.put(mut g, row, 21, grid.cell(93, outline, background, 0))
+        }
+        var i = 0
+        while i < 12 {
+            let filled = value > 0 && value * 12 > i * maximum
+            grid.put(mut g, row, 9 + i, grid.cell(if filled then (if rich then 9608 else 61) else 32, colour, background, 0))
+            i += 1
+        }
+        bar += 1
+    }
+    draw.put_text(mut g, 1, 24, "scent {s.scent}", ink(t, true))
 }
 
 /// Hazard-only thorn pair, disjoint from wall and label glyph/colour pairs.
@@ -1270,7 +1288,7 @@ pub fn exit_shadow(t: int) -> grid.Cell {
 
 fn world_lines(s: sim.Sim, t: int, mut g: grid.Grid) {
     if s.tick - s.entered < sim.ENTRY_TICKS {
-        draw.put_text(mut g, 1, 1, forest.name(s.area), ink(t, true))
+        draw.put_text(mut g, 0, 24, forest.name(s.area), ink(t, true))
     }
     if s.den || s.action == sim.FALL { return }
     if s.area == forest.BRAMBLEHOLD && sim.near(s.x, s.y, -10 * sim.FP, 24 * sim.FP, 3 * sim.FP) {

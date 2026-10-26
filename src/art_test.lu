@@ -277,7 +277,7 @@ fn test_cb01b_scent_hud_updates_on_kill_death_and_recovery() {
     while t <= tier.RICH {
         var g = grid.new(24, 80)
         art.render(s, t, mut g)
-        assert(grid.at(g, 0, 1).cp == 115, "HUD survives death fade (the scent, cb03)")
+        assert(grid.at(g, 1, 24).cp == 115, "HUD survives death fade (the scent, cb03)")
         if t == tier.PLAIN { assert(grid.plain_ok(g), "death card is plain") }
         t += 1
     }

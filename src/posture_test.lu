@@ -144,22 +144,22 @@ fn has_text(g: grid.Grid, row: int, col: int, text: str) -> bool {
     true
 }
 
-fn test_cb03_the_numbers_leave_the_running_hud() {
+fn test_cb03a_outlined_bars_are_always_present_and_labelled() {
     var s = sim.new(7, 80, 24)
     s.scent = 8
-    assert(art.hud_text(s) == "scent 8", "scent is the one number")
-    assert(!art.hud_text(s).contains("health"), "no health bar")
-    var g = grid.new(24, 80)
-    art.render(s, tier.PLAIN, mut g)
-    assert(
-        has_text(g, 0, 1, "scent 8") && grid.at(g, 0, 8).cp == 32,
-        "the top row: the scent alone",
-    )
-    s.hud = true
-    assert(art.hud_text(s).contains("health [") && art.hud_text(s).contains("stamina ["), "--hud")
+    var plain = grid.new(24, 80)
+    art.render(s, tier.PLAIN, mut plain)
+    assert(has_text(plain, 0, 1, "health") && has_text(plain, 1, 1, "stamina"), "labels are not colour alone")
+    assert(has_text(plain, 0, 8, "[============]") && has_text(plain, 1, 24, "scent 8"), "outlined bars and scent")
+    assert(grid.at(plain, 0, 9).fg == 12 && grid.at(plain, 1, 9).fg == 10, "red health green stamina")
+    s.stamina = 0
+    var rich = grid.new(24, 80)
+    art.render(s, tier.RICH, mut rich)
+    assert(grid.at(rich, 0, 8).cp == 9484 && grid.at(rich, 4, 21).cp == 9496, "box outline")
+    assert(grid.at(rich, 1, 9).cp == 9608 && grid.at(rich, 3, 9).cp == 32, "full health empty stamina")
 }
 
-fn test_cb03_health_changes_the_cub_alone() {
+fn test_cb03a_health_changes_the_cub_and_its_bar() {
     // The health tail mark (cb01) left with the bars: a hurt cub's frame
     // differs from a full one only in the silhouette.
     var s = sim.new(7, 80, 24)
@@ -180,7 +180,7 @@ fn test_cb03_health_changes_the_cub_alone() {
             if !grid.same(grid.at(hurt, row, col), grid.at(full, row, col)) {
                 if row >= r - 1 && row <= r + 2 && col >= c - 1 && col <= c + 2 {
                     inside += 1
-                } else {
+                } else if row > 4 {
                     outside += 1
                 }
             }
@@ -190,7 +190,7 @@ fn test_cb03_health_changes_the_cub_alone() {
     }
     assert(
         inside > 0 && outside == 0,
-        "health changes the cub's cells alone: {inside} in, {outside} out",
+        "health changes only the cub and its bar: {inside} in, {outside} out",
     )
 }
 

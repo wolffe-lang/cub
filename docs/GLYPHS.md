@@ -34,7 +34,15 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+00B7 | · | MIDDLE DOT | Latin-1 Supplement | C2 B7 | a gravel mark |
 | U+2024 | ․ | ONE DOT LEADER | General Punctuation | E2 80 A4 | a gravel mark |
 | U+2248 | ≈ | ALMOST EQUAL TO | Mathematical Operators | E2 89 88 | a ripple on the Ashwater |
+| U+2500 | ─ | BOX DRAWINGS LIGHT HORIZONTAL | E2 94 80 | health and stamina outline |
+| U+2502 | │ | BOX DRAWINGS LIGHT VERTICAL | E2 94 82 | health and stamina outline |
 | U+2503 | ┃ | BOX DRAWINGS HEAVY VERTICAL | Box Drawing | E2 94 83 | a trunk |
+| U+250C | ┌ | BOX DRAWINGS LIGHT DOWN AND RIGHT | E2 94 8C | health and stamina outline |
+| U+2510 | ┐ | BOX DRAWINGS LIGHT DOWN AND LEFT | E2 94 90 | health and stamina outline |
+| U+2514 | └ | BOX DRAWINGS LIGHT UP AND RIGHT | E2 94 94 | health and stamina outline |
+| U+2518 | ┘ | BOX DRAWINGS LIGHT UP AND LEFT | E2 94 98 | health and stamina outline |
+| U+251C | ├ | BOX DRAWINGS LIGHT VERTICAL AND RIGHT | E2 94 9C | health and stamina outline |
+| U+2524 | ┤ | BOX DRAWINGS LIGHT VERTICAL AND LEFT | E2 94 A4 | health and stamina outline |
 | U+2580 | ▀ | UPPER HALF BLOCK | Block Elements | E2 96 80 | a silhouette cell lit above |
 | U+2584 | ▄ | LOWER HALF BLOCK | Block Elements | E2 96 84 | a silhouette cell lit below |
 | U+2588 | █ | FULL BLOCK | Block Elements | E2 96 88 | a silhouette cell lit through; a jetty face |
@@ -263,3 +271,5 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 and Box Drawing, six Block Elements (the gravel's light shade and the five silhouette fills) and 144 Braille
 Patterns (the ground's seven and the silhouettes' rest; cb02c's tail frames added U+287D and U+28DE). The ground is pack's forest and the Shingle's
 marks; the creatures are one drawing each, turned.
+
+The outlined health/stamina bars add eight box-drawing glyphs (cb03a).

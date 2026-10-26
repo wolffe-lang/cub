@@ -274,6 +274,7 @@ pub const CP_EYE: int = 9679
 pub fn rich_code_points() -> List[int] {
     var cps = silhouette.all_code_points()
     (mut cps).push(CP_EYE)
+    for cp in [9472, 9474, 9484, 9488, 9492, 9496, 9500, 9508] { (mut cps).push(cp) }
     var s = 0
     while s < SPRITE_COUNT {
         var v = 0

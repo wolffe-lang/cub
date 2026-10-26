@@ -622,3 +622,11 @@ no regeneration while sprinting, stopped at empty. Space during sprint
 commits a forward snapping lunge: cost36, reach4, damage twice bite,
 3/3/10 ticks. Its three active frames shake the head left/right/left.
 These implement R-cb03a-1 A and R-cb03a-3 A, pending play.
+
+## Always-visible bars (cb03a)
+
+The playtest ruling restores two labelled twelve-cell bars at top-left:
+red health above green stamina, outlined with box-drawing on rich and
+brackets on plain. Scent sits beside them; the area flash keeps its
+three-second duration beside the bars. Health/stamina posture remains.
+`--hud` is retired; bars cannot be disabled. Den/death numeric cards stay.
