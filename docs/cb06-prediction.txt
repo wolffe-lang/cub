@@ -1,0 +1,28 @@
+cb06 prediction, before implementation
+
+R-cb06-1 recommendation: 900 ticks / 30 seconds at 30 Hz. Enough time to read the crossing and recognise the fall without delaying a repeat journey.
+R-cb06-2 recommendation: A, one decoded key skips the whole opening and performs no move; preserve the existing event and seen flag.
+
+Shot                      ticks [start,end)     length
+Crossing                  0..210                210
+First crack               210..225               15
+Frozen cub                225..300               75
+Spreading seams           300..330               30
+Breaking plate            330..360               30
+Fall                      360..420               60
+Underwater                420..480               60
+Black                     480..510               30
+First slow opening        510..600               90
+First slow closing        600..660               60
+Second opening            660..720               60
+Second closing            720..765               45
+Third quick opening       765..789               24
+Third quick closing       789..810               21
+Clear opening             810..840               30
+Clear spawn               840..900               60
+
+crack: 150 ticks / 5 seconds, one original part at 144 BPM in 4/4, three bars. Strike at 210, thinning hold, quickening figure at 300, end at the drop at 360. Title replaces at start, crack replaces it without a fade at 210, silence under the fall, Shingle at the first blink. Skipping immediately cancels crack (unlike gameplay death's uninterruptible sting).
+
+Prediction: busiest 200x60 frame, actual Shingle under a blink mask, below 12 ms rich and 10 ms plain in the release build on kasumi CPUs 0-3. Measure rendered frame cost, not build time. Opening terrain is bounded to one grid plus linear overlays; no engine changes.
+
+Tests: shot-boundary and skip tests, disjoint sky/ice/deep-water style sets, first blink never fully open, cue at first crack, all shot goldens on 80x24 / 120x40 / 200x60 and both tiers, unskipped and per-shot skip pty rows, PCM golden on Linux/macOS. Plants on cb06-plant-blink and cb06-plant-cue, draft PRs. Preserve replay syntax and save schema; old opening recordings intentionally adopt the new animation/timing, with compatibility documented.
