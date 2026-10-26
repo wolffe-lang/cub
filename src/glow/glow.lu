@@ -93,3 +93,48 @@ pub fn sheet(t: int) -> grid.Grid {
     burst(mut g, t, 8, 72, 8)
     g
 }
+
+/// A small bright cut of meat on a bone, with a slow moving highlight.
+pub fn meat(mut g: grid.Grid, t: int, row: int, col: int, tick: int) {
+    let rich = t == tier.RICH
+    let flesh = if rich then 210 else 12
+    let bone = if rich then 231 else 15
+    for dx in [-1, 0, 1] {
+        dot(mut g, row - 1, col + dx, if rich then 9600 else 95, flesh, true)
+        dot(mut g, row + 1, col + dx, if rich then 9604 else 95, flesh, true)
+        dot(mut g, row, col + dx, if rich then 9608 else 64, flesh, true)
+    }
+    for dx in [-3, -2, 2, 3] { dot(mut g, row, col + dx, 61, bone, true) }
+    for dx in [-4, 4] { dot(mut g, row, col + dx, if rich then 9679 else 111, bone, true) }
+    let glint = if tick / 24 % 2 == 0 then -1 else 1
+    dot(mut g, row - 1, col + glint, 42, bone, true)
+}
+
+/// A pale stone basin with a cyan spout and slowly alternating ripples.
+/// Learned springs leave the empty basin; no word is drawn over the level.
+pub fn spring(mut g: grid.Grid, t: int, row: int, col: int, tick: int, available: bool) {
+    let rich = t == tier.RICH
+    let stone = if rich then (if available then 250 else 242) else (if available then 15 else 8)
+    let water = if rich then 117 else 14
+    dot(mut g, row, col - 3, 40, stone, available)
+    dot(mut g, row, col + 3, 41, stone, available)
+    for dx in [-2, -1, 0, 1, 2] {
+        dot(mut g, row + 1, col + dx, if rich then 9472 else 95, stone, available)
+        dot(
+            mut g,
+            row,
+            col + dx,
+            if available then (if rich then 8776 else 126) else 46,
+            if available then water else stone,
+            available,
+        )
+    }
+    if available {
+        let sway = if tick / 24 % 2 == 0 then -1 else 1
+        dot(mut g, row - 2, col + sway, 42, water, true)
+        dot(mut g, row - 1, col, if rich then 9474 else 124, water, true)
+        dot(mut g, row - 1, col - 1, 46, water, true)
+        dot(mut g, row - 1, col + 1, 46, water, true)
+        dot(mut g, row, col + sway * 2, if rich then 9679 else 111, if rich then 231 else 15, true)
+    }
+}

@@ -166,3 +166,36 @@ fn test_cb04c_orb_and_burst_are_bounded_and_plain() {
         for cell in g.cells { assert(cell.cp == 32, "burst expires exactly") }
     }
 }
+
+fn test_cb04c_healing_sprites_are_bright_animated_and_plain() {
+    for t in [tier.RICH, tier.PLAIN] {
+        var a = grid.new(16, 30)
+        grid.fill(mut a, grid.cell(32, 7, 0, 0))
+        var b = copy a
+        art.draw_meat(mut a, t, 8, 15, 0)
+        art.draw_meat(mut b, t, 8, 15, 24)
+        var changed = 0
+        var cells = 0
+        var i = 0
+        while i < a.cells.len {
+            if a.cells[i].cp != 32 { cells += 1 }
+            if !grid.same(a.cells[i], b.cells[i]) { changed += 1 }
+            i += 1
+        }
+        assert(cells >= 15 && changed > 0, "large meat with slow idle highlight")
+        if t == tier.PLAIN { assert(grid.plain_ok(a) && grid.plain_ok(b), "plain meat") }
+        grid.fill(mut a, grid.cell(32, 7, 0, 0))
+        grid.fill(mut b, grid.cell(32, 7, 0, 0))
+        art.draw_spring(mut a, t, 8, 15, 0, true)
+        art.draw_spring(mut b, t, 8, 15, 24, true)
+        assert(!grid.same(grid.at(a, 6, 14), grid.at(b, 6, 14)), "spring spout sways slowly")
+        assert(grid.at(a, 8, 12).cp == 40 && grid.at(a, 8, 18).cp == 41, "seven-column basin")
+        if t == tier.PLAIN { assert(grid.plain_ok(a) && grid.plain_ok(b), "plain spring") }
+        grid.fill(mut b, grid.cell(32, 7, 0, 0))
+        art.draw_spring(mut b, t, 8, 15, 24, false)
+        assert(
+            grid.at(b, 6, 16).cp == 32 && grid.at(b, 8, 15).cp == 46,
+            "learned spring is an empty basin",
+        )
+    }
+}

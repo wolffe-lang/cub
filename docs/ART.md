@@ -290,3 +290,15 @@ and glints; opened forms keep only the dark empty container. Collection
 leaves eight sparks expanding to at most three cells and gone after
 12 ticks. Successive collections replace that one burst; there is no
 unbounded effect queue. Empty/foreign-area death marks draw no orb.
+
+`meat-rich/plain` shows a bright salmon cut on a white bone, nine columns
+by three rows, with a glint moving slowly across the flesh. `spring-rich/plain`
+shows the seven-column pale stone basin, cyan spout and ripples in both
+idle phases, then the dim empty basin after learning. These pure helpers
+are `art.draw_meat(mut g, tier, row, col, tick)` and
+`art.draw_spring(mut g, tier, row, col, tick, available)`, taking screen
+cells, not simulation fields. Their 24-tick highlights never move the
+pickup's logical position. The progression lane owns meat/spring spawning,
+healing and collection; the second landing wires these helpers in place
+of its temporary `+` and `~`, using the shared body-ring pickup helper.
+The water-charge HUD slot is reserved at row 3, columns 24–48 on both tiers.

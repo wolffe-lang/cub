@@ -1249,6 +1249,8 @@ fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
     // only strokes were painted: world lettering could show through beside
     // the stamina bar (the c in "bones, no scent" at camera 22,27).
     draw.fill(mut g, 0, 0, 5, 23, grid.cell(32, outline, background, 0))
+    // The progression HUD owns water charges at row 3, columns 24..48.
+    draw.fill(mut g, 3, 23, 1, 26, grid.cell(32, outline, background, 0))
     if rich {
         var row = 0
         while row <= 4 {
@@ -2466,5 +2468,32 @@ pub fn meadow_sheet(t: int) -> grid.Grid {
         k += 1
     }
     draw.put_text(mut g, 8, 0, "v^v^  lifted crows       ~~~ creek / path ford", ink(t, true))
+    g
+}
+
+/// Draw a meat pickup at screen-cell row/column. The simulation owns its
+/// spawn/heal/expiry; this pure helper owns both-tier shape and idle glint.
+pub fn draw_meat(mut g: grid.Grid, t: int, row: int, col: int, tick: int) {
+    glow.meat(mut g, t, row, col, tick)
+}
+
+/// Draw a spring at screen-cell row/column, bright while available and an
+/// empty basin once learned. No dependency on the progression lane's fields.
+pub fn draw_spring(mut g: grid.Grid, t: int, row: int, col: int, tick: int, available: bool) {
+    glow.spring(mut g, t, row, col, tick, available)
+}
+
+/// The healing-pickup study: two idle phases, plus the spring's empty form.
+pub fn healing_sheet(t: int, spring: bool) -> grid.Grid {
+    var g = grid.new(12, 60)
+    grid.fill(mut g, grid.cell(32, 7, if t == tier.RICH then 234 else 0, 0))
+    if spring {
+        draw_spring(mut g, t, 6, 10, 0, true)
+        draw_spring(mut g, t, 6, 30, 24, true)
+        draw_spring(mut g, t, 6, 50, 0, false)
+    } else {
+        draw_meat(mut g, t, 6, 15, 0)
+        draw_meat(mut g, t, 6, 45, 24)
+    }
     g
 }

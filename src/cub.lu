@@ -449,6 +449,18 @@ fn run_art_study(o: Options) -> int {
         return 2
     }
     headless.write_frame(o.dump, "sheet-plain", art.sheet(tier.PLAIN)) else |_| { return 2 }
+    headless.write_frame(o.dump, "meat-rich", art.healing_sheet(tier.RICH, false)) else |_| {
+        return 2
+    }
+    headless.write_frame(o.dump, "meat-plain", art.healing_sheet(tier.PLAIN, false)) else |_| {
+        return 2
+    }
+    headless.write_frame(o.dump, "spring-rich", art.healing_sheet(tier.RICH, true)) else |_| {
+        return 2
+    }
+    headless.write_frame(o.dump, "spring-plain", art.healing_sheet(tier.PLAIN, true)) else |_| {
+        return 2
+    }
     headless.write_frame(o.dump, "glow-rich", glow.sheet(tier.RICH)) else |_| { return 2 }
     headless.write_frame(o.dump, "glow-plain", glow.sheet(tier.PLAIN)) else |_| { return 2 }
     headless.write_frame(o.dump, "props-rich", props.sheet(tier.RICH)) else |_| { return 2 }
