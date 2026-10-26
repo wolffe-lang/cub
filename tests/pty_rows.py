@@ -427,3 +427,76 @@ def sprint_lands(binary, ctx):
     return s, problems
 
 ROWS.update({'sprint-live': sprint_live, 'sprint-lands': sprint_lands})
+
+
+def level_look_after_c(binary, ctx):
+    """A literal 0x63 goes through the live terminal, not a synthetic event.
+    Compare its recorded run with headless output and inspect the bar's
+    reserved edge; sample ECHO while the game owns the terminal."""
+    import termios
+    root = Path(ctx.ROOT) / 'target/pty/level-look'
+    root.mkdir(parents=True, exist_ok=True)
+    problems = []
+    for tier in ('rich', 'plain'):
+        for cols, rows in ((80, 24), (120, 40)):
+            name = f'{tier}-{cols}x{rows}'
+            save = root / (name + '.save')
+            save.unlink(missing_ok=True)
+            record = root / (name + '.pk')
+            session = ctx.Session([binary, '--seed', '7', '--save', str(save),
+                                   '--record', str(record), '--tier', tier,
+                                   '--mute', '--no-title', '--no-truecolor', '--ticks', '24'],
+                                  rows, cols, ctx.env_for())
+            if termios.tcgetattr(session.master)[3] & termios.ECHO:
+                problems.append(name + ': terminal echo is enabled during play')
+            session.type(b'c', settle=.2)
+            session.finish()
+            ctx.common_checks(session, 0, problems)
+            capture = root / (name + '.bin')
+            capture.write_bytes(session.out)
+            applied = subprocess.run([binary, '--apply', str(capture), '--size', f'{cols}x{rows}'],
+                                     capture_output=True, check=True)
+            text, sty, _ = applied.stdout.decode().split('--\n')
+            dest = root / (name + '-headless')
+            subprocess.run([binary, '--headless', '--script', str(record), '--frames', '24',
+                            '--every', '24', '--tier', tier, '--dump', str(dest)], check=True)
+            if text != (dest / 'final.txt').read_text() or sty != (dest / 'final.sty').read_text():
+                problems.append(name + ': byte-c live/headless frame mismatch')
+            if any(line[22] != ' ' for line in text.splitlines()[:5]):
+                problems.append(name + ': world glyph leaked into the stamina edge')
+            if 'dodge' not in record.read_text():
+                problems.append(name + ': literal c never recorded the action')
+    session.evidence = 'byte 63, ECHO clear, 80x24/120x40 rich/plain, replay agreement and HUD edge'
+    return session, problems
+
+
+def level_look_recovery(binary, ctx):
+    root = Path(ctx.ROOT) / 'target/pty/level-recovery'
+    root.mkdir(parents=True, exist_ok=True)
+    problems = []
+    case = Path(ctx.ROOT) / 'tests/cases/scent-recover-80x24.pk'
+    for tier in ('rich', 'plain'):
+        session = ctx.Session([binary, '--replay', str(case), '--ticks', '120',
+                               '--tier', tier, '--mute', '--no-title', '--no-truecolor'],
+                              24, 80, ctx.env_for())
+        session.finish()
+        ctx.common_checks(session, 0, problems)
+        capture = root / (tier + '.bin')
+        capture.write_bytes(session.out)
+        applied = subprocess.run([binary, '--apply', str(capture), '--size', '80x24'],
+                                 capture_output=True, check=True)
+        text, sty, _ = applied.stdout.decode().split('--\n')
+        dest = root / tier
+        subprocess.run([binary, '--headless', '--script', str(case), '--frames', '120',
+                        '--every', '120', '--tier', tier, '--dump', str(dest)], check=True)
+        if text != (dest / 'final.txt').read_text() or sty != (dest / 'final.sty').read_text():
+            problems.append(tier + ': scent recovery live/headless mismatch')
+        words = (dest / 'final.state').read_text().splitlines()[0].split()
+        state = dict(zip(words[::2], map(int, words[1::2])))
+        if state['mark'] != 0 or state['scent'] != 28:
+            problems.append(tier + ': death scent was not recovered exactly')
+    return session, problems
+
+
+ROWS.update({'level-look-after-c': level_look_after_c,
+             'level-look-recovery': level_look_recovery})

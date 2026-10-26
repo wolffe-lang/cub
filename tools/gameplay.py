@@ -343,6 +343,22 @@ def feel(binary):
     print('gameplay: den/path/chase censuses, sprint costs, real-key hit and retired HUD flag: green')
 
 
+def level_look(binary):
+    p = subprocess.run([str(binary), '--look-audit'], capture_output=True, text=True, check=True)
+    (OUT / (Path(binary).parent.name + '-look-audit.txt')).write_text(p.stdout)
+    assert len([line for line in p.stdout.splitlines() if line.startswith('look: seed ')]) == 50
+    assert 'look: green seeds 50 frames ' in p.stdout
+    for tier in ('rich', 'plain'):
+        for size in ('80x24', '120x40'):
+            dest, states, _ = run(binary, 'hud-after-c-' + size, tier)
+            assert any(v['action'] == 4 for v in states.values()), 'c never dodged'
+            assert all(line[22] == ' ' for line in (dest / 'final.txt').read_text().splitlines()[:5]), 'stamina edge leak'
+            _, states, _ = run(binary, 'scent-recover-' + size, tier)
+            assert any(v['mark'] and v['mark_scent'] == 28 for v in states.values()), 'no death mark'
+            assert states[max(states)]['mark'] == 0 and states[max(states)]['scent'] == 28, 'recovery lost scent'
+    print('gameplay: fifty-seed world labels, after-c padding, scent recovery: green')
+
+
 def readable(root):
     """Nothing the gate leaves under target/gameplay may be unreadable: the
     CI artifact upload scans every path, and an owner-only directory from a
@@ -369,6 +385,7 @@ def main():
     fairness(Path(args.bin).resolve())
 
     feel(Path(args.bin).resolve())
+    level_look(Path(args.bin).resolve())
     import runpy
     world = runpy.run_path(str(ROOT / 'tools/world_checks.py'))
     world['check'](Path(args.bin).resolve())

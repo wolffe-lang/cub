@@ -1,0 +1,40 @@
+# frames 120 every 2 from 78
+pk 1
+seed 7
+tier rich
+size 80x24
+t 0 scent 28
+t 0 right
+t 2 right
+t 4 right
+t 6 right
+t 8 right
+t 10 right
+t 12 right
+t 14 right
+t 16 right
+t 18 right
+t 20 right
+t 22 right
+t 24 right
+t 26 right
+t 28 right
+t 46 health -100
+t 80 right
+t 82 right
+t 84 right
+t 86 right
+t 88 right
+t 90 right
+t 92 right
+t 94 right
+t 96 right
+t 98 right
+t 100 right
+t 102 right
+t 104 right
+t 106 right
+t 108 right
+t 110 right
+t 112 right
+t 114 right
