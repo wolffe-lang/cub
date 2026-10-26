@@ -41,11 +41,17 @@ scent grass and a ford fill the meadow. Bite, forward lunge, parry, dodge,
 stamina sprint and chain attacks; a
 hawk's connected wings and body ask for a parry or an escape. Foes leave visible
 scent as a bright pulsing orb with seeded drifting motes; death scent uses
-the same light and stays visible across the screen. Pickups are collected
-within the cub's body plus a one-cell ring, with a short recovery burst.
-Landmarks and caches have original sprites instead of floating world
-names; their meanings are in `docs/ART.md`. Dens heal, refill water and spend scent
-on growth. Death leaves a recoverable mark, even across area edges; a
+the same light within the cub's nose range. Pickups are collected within
+the cub's body plus a one-cell ring, with a short recovery burst. Landmarks
+and caches have original sprites instead of floating world names; their
+meanings are in `docs/ART.md`. Kills also leave small healing meat pickups.
+Enter a den with `r` within three cells: a resting cub breathes beside an
+animated fire, with different surroundings in all six regions. Keys1–5
+spend scent on heart, wind, fang, paw and nose along one increasing
+level-cost curve; each choice shows its next effect. Leave with `r` or Esc.
+Water must first be found at the Shingle spring (two mouthfuls), with a
+third found later; the counter beside the bars shows the charges, and
+every rest refills them. Death leaves a recoverable mark, even across area edges; a
 second death replaces it. An opening scene shows the broken crossing.
 On macOS the music plays through `afplay`; on Linux through `paplay` where
 it is installed, else the game says so once and plays on in silence.
@@ -56,7 +62,9 @@ reset encounters, keeping growth, shortcuts, opened caches, pouch contents,
 the dropped mark, the bosses beaten, the end and the field the world was
 made for (the terminal's width when the journey began). `--save PATH`
 selects a separate journey. Unknown or corrupt files fail by name, never
-silently reset. A quit during a staged write preserves the previous save.
+silently reset. This build writes schema4 and refuses older saves as
+`save_version`; use a new `--save PATH` to try it without replacing an older
+journey. A quit during a staged write preserves the previous save.
 Live deaths leave self-contained replay files under `~/.cub/ghosts/`
 (`--ghost-dir DIR` elsewhere), each the ghost the next game shows;
 difficulty selection comes later. Every tuning proposal is in
@@ -108,6 +116,7 @@ target/cub --record run.pk     record the run, including resumed state; --replay
 target/cub --mute              play without music (CUB_SOUND=0 does the same)
 target/cub --no-title          start in the forest, no title
 target/cub --ghost-dir DIR     read and write the death archives there (default ~/.cub/ghosts)
+target/cub --den-census        flood fifty seeds for den distance and every thorn-gate face
 target/cub --boss-census       fight every boss in fifty seeds at both sizes; a fairness line a boss
 target/cub --fight-trace 7 1   narrate one scripted fight (the alpha, seed 1)
 ```
@@ -122,7 +131,8 @@ the score's paths (`--score-list`, `--score-render`, `--score-wav`, `--score-rep
 tests, native and release builds, decoder selftest, both-tier replay goldens
 and posture sheets, the score's PCM goldens and loop seams on both backends
 (`tools/score-check`), shipping-binary gameplay and persistence assertions,
-pty restoration and replay agreement, and performance. `tools/check-linux`
+pty restoration and replay agreement, regional rest scenes at80×24 and120×40,
+found-water/drink/refill and last-den respawn, and performance. `tools/check-linux`
 runs correctness inside `.lair/tools/in-container`; `tools/check-perf`
 measures rendering, idle wakes and key-to-frame latency.
 
