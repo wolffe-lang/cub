@@ -165,17 +165,17 @@ pub const STAT_START: int = 1
 
 /// Health at heart `h`: `40 + 12 × h`.
 pub fn health_max(heart: int) -> int {
-    40 + 12 * heart
+    40 + 12 * base_stat(heart) + 3 * extra_stat(heart)
 }
 
 /// Stamina at wind `w`: `60 + 10 × w`.
 pub fn stamina_max(wind: int) -> int {
-    60 + 10 * wind
+    60 + 10 * base_stat(wind) + 2 * extra_stat(wind)
 }
 
 /// The trot at paw `p`.
 pub fn trot_at(paw: int) -> int {
-    ((TROT_V + 2 * paw) * WALK_PERCENT + 50) / 100
+    ((TROT_V + 2 * base_stat(paw) + extra_stat(paw) / 2) * WALK_PERCENT + 50) / 100
 }
 
 /// The quarter sine, 65 entries of `[0, 256]` over `[0, 64]` heading units.
@@ -683,8 +683,69 @@ pub const REGEN: int = 2
 /// Stamina needed to clear exhaustion.
 pub const EXHAUST_RECOVER: int = 24
 
-/// Next stat level multiplies this cost.
-pub const SCENT_LEVEL_BASE: int = 40
+/// The campaign's small stat set: soft cap ten, hard cap forty.
+pub const STAT_SOFT: int = 10
+
+/// Hard ceiling on an individual stat.
+pub const STAT_MAX: int = 40
+
+fn base_stat(n: int) -> int { if n > STAT_SOFT then STAT_SOFT else n }
+
+fn extra_stat(n: int) -> int { if n > STAT_SOFT then n - STAT_SOFT else 0 }
+
+/// One shared level, not five separately priced purchase tracks.
+pub fn level(s: Sim) -> int { s.heart + s.wind + s.fang + s.paw + s.nose - 4 }
+
+/// Published Dark Souls cubic as a numerical shape, k=1/20. L is the
+/// current level; below twelve cub's own table joins it without a jump.
+/// Integer half-up rounding avoids cross-host floating point differences.
+pub fn level_cost(l: int) -> int {
+    assert(l >= 1 && l <= 196, "bounded total level")
+    if l < 12 {
+        return match l {
+            1 => 24,
+            2 => 25,
+            3 => 26,
+            4 => 27,
+            5 => 28,
+            6 => 30,
+            7 => 32,
+            8 => 34,
+            9 => 36,
+            10 => 38,
+            _ => 40,
+        }
+    }
+    (2 * l * l * l + 306 * l * l + 10560 * l - 89500 + 1000) / 2000
+}
+
+/// Scent visibility in cells; beyond ten each two nose levels add one cell.
+pub fn scent_reach(nose: int) -> int { 8 + 2 * base_stat(nose) + extra_stat(nose) / 2 }
+
+/// Lock search retains its smaller starting radius, with the same soft cap.
+pub fn lock_reach(nose: int) -> int { SIGHT + base_stat(nose) + extra_stat(nose) / 4 }
+
+/// The value and next effect used by the den's five choices.
+pub fn stat_value(s: Sim, stat: int) -> int {
+    match stat {
+        0 => s.heart,
+        1 => s.wind,
+        2 => s.fang,
+        3 => s.paw,
+        _ => s.nose,
+    }
+}
+
+/// Effect at a given stat value, in health/stamina/damage/FP/cells.
+pub fn stat_effect(stat: int, value: int) -> int {
+    match stat {
+        0 => health_max(value),
+        1 => stamina_max(value),
+        2 => bite_damage(value),
+        3 => trot_at(value),
+        _ => scent_reach(value),
+    }
+}
 
 /// Weasel species identifier.
 pub const WEASEL: int = 0
@@ -750,10 +811,10 @@ pub struct Foe {
 }
 
 /// Damage of an unmodified bite at this fang level.
-pub fn bite_damage(fang: int) -> int { 6 + 2 * fang }
+pub fn bite_damage(fang: int) -> int { 6 + 2 * base_stat(fang) + extra_stat(fang) / 2 }
 
 /// Invulnerable ticks at this paw level (integer division).
-pub fn dodge_iframes(paw: int) -> int { 6 + paw / 2 }
+pub fn dodge_iframes(paw: int) -> int { 6 + base_stat(paw) / 2 + extra_stat(paw) / 8 }
 
 /// Absolute value for bounded world coordinates.
 pub fn abs(v: int) -> int { if v < 0 then 0 - v else v }
@@ -927,22 +988,13 @@ pub fn at_den(s: Sim) -> bool {
     den_here(s) >= 0
 }
 
-/// Spend scent on the selected stat only at a den; capped at ten.
+/// Spend the shared next-level cost on one stat, only inside a den.
 pub fn grow(mut s: Sim, stat: int) {
     if !s.den { return }
-    let level = if stat == 0 {
-        s.heart
-    } else if stat == 1 {
-        s.wind
-    } else if stat == 2 {
-        s.fang
-    } else if stat == 3 {
-        s.paw
-    } else {
-        s.nose
-    }
-    let cost = SCENT_LEVEL_BASE * (level + 1)
-    if level >= 10 || s.scent < cost { return }
+    if stat < 0 || stat > 4 { return }
+    let value = stat_value(s, stat)
+    let cost = level_cost(level(s))
+    if value >= STAT_MAX || s.scent < cost { return }
     s.scent -= cost
     if stat == 0 { s.heart += 1 }
     if stat == 1 { s.wind += 1 }
@@ -962,7 +1014,7 @@ fn lock_next(mut s: Sim) {
         let j = if s.locked < 0 then i else (s.locked + 1 + i) % s.foes.len
         let f = copy s.foes[j]
         if f.health > 0 &&
-            near(s.x, s.y, f.x, f.y, (SIGHT + s.nose) * FP) &&
+            near(s.x, s.y, f.x, f.y, lock_reach(s.nose) * FP) &&
             visible(s, s.x, s.y, f.x, f.y) {
             let d = (s.x - f.x) * (s.x - f.x) + (s.y - f.y) * (s.y - f.y)
             if s.locked >= 0 { best = j; break }
@@ -1435,7 +1487,7 @@ pub fn step(mut s: Sim, keys: List[int]) {
         if f.health <= 0 {
             s.locked = -1
         } else {
-            if near(s.x, s.y, f.x, f.y, (SIGHT + s.nose) * FP) && visible(s, s.x, s.y, f.x, f.y) {
+            if near(s.x, s.y, f.x, f.y, lock_reach(s.nose) * FP) && visible(s, s.x, s.y, f.x, f.y) {
                 s.unseen = 0
             } else {
                 s.unseen += 1

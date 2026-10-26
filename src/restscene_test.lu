@@ -1,4 +1,5 @@
 //! member: false
+
 use art
 use grid
 use restscene
@@ -17,7 +18,12 @@ fn test_cb04a_rest_regions_are_distinct_and_both_tiers_fit() {
         art.render(s, tier.PLAIN, mut plain)
         assert(grid.plain_ok(plain), "plain rest is console-safe")
         assert(grid.at(rich, 0, 0).bg == restscene.background(area, tier.RICH), "region palette")
-        if area > 0 { assert(restscene.background(area, tier.RICH) != restscene.background(area - 1, tier.RICH), "distinct neighbours") }
+        if area > 0 {
+            assert(
+                restscene.background(area, tier.RICH) != restscene.background(area - 1, tier.RICH),
+                "distinct neighbours",
+            )
+        }
         sim.resize(mut s, 120, 40)
         var wide = grid.new(40, 120)
         art.render(s, tier.PLAIN, mut wide)
@@ -27,8 +33,14 @@ fn test_cb04a_rest_regions_are_distinct_and_both_tiers_fit() {
 }
 
 fn test_cb04a_firelight_falls_off_and_breath_lifts_the_shoulder() {
-    assert(restscene.fur_light(50, 11, 0) > restscene.fur_light(8, 11, 0), "fire-facing muzzle brighter than rump")
-    assert(!restscene.cub_pixel(36, 4, 0) && restscene.cub_pixel(36, 4, 1), "shoulder rises on the posture breath")
+    assert(
+        restscene.fur_light(50, 11, 0) > restscene.fur_light(8, 11, 0),
+        "fire-facing muzzle brighter than rump",
+    )
+    assert(
+        !restscene.cub_pixel(35, 5, 0) && restscene.cub_pixel(35, 5, 1),
+        "shoulder rises on the posture breath",
+    )
     var s = sim.new(7, 80, 24)
     s.den = true
     var a = grid.new(24, 80)

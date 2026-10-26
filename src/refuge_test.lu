@@ -50,7 +50,7 @@ fn test_cb03a_each_new_den_rests_and_roundtrips_schema_three() {
         sim.step(mut s, keys)
         assert(s.den && s.last_den == den && s.health == sim.health_max(s.heart), "new den rests")
         let text = journey.encode(s)
-        assert(text.starts_with("CUB 3\n"), "schema three from cb04")
+        assert(text.starts_with("CUB 4\n"), "schema three from cb04")
         let restored = journey.decode(text, 80, 24) else {
             assert(false, "den save refused")
             return

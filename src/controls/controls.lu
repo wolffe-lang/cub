@@ -195,7 +195,7 @@ pub fn key_of(name: str) -> int ! {parse} {
 
 /// The numeric events by index: `health` and `scent` (cb01's deltas),
 /// `opening` (cb02's scene), `journey` (the snapshot's version) and the
-/// snapshot's values `saved-0` to `saved-28` (`journey.SNAPSHOT`).
+/// snapshot's values `saved-0` to `saved-29` (`journey.SNAPSHOT`).
 pub const EV_HEALTH: int = 0
 
 /// The scent delta.
@@ -212,36 +212,36 @@ pub const EV_SAVED: int = 4
 
 /// The snapshot's values (`journey.SNAPSHOT`, named here so the vocabulary
 /// imports nothing of the save).
-pub const SAVED: int = 29
+pub const SAVED: int = 30
 
 /// The title scene (cb04): `title 1` at a tick shows the title there.
-pub const EV_TITLE: int = 33
+pub const EV_TITLE: int = 34
 
 /// The bosses beaten, set as a test/debug delta (cb04): `bosses N` sets
 /// the save's bits, as `health` and `scent` move the cub's numbers.
-pub const EV_BOSSES: int = 34
+pub const EV_BOSSES: int = 35
 
 /// A ghost's trailer (cb04, `ghost`): the cub's position each of the last
 /// ticks before a death, as the game's own words.
-pub const EV_GHOST_X: int = 35
+pub const EV_GHOST_X: int = 36
 
 /// The trailer's y.
-pub const EV_GHOST_Y: int = 36
+pub const EV_GHOST_Y: int = 37
 
 /// The trailer's facing.
-pub const EV_GHOST_FACE: int = 37
+pub const EV_GHOST_FACE: int = 38
 
 /// The trailer's pose.
-pub const EV_GHOST_POSE: int = 38
+pub const EV_GHOST_POSE: int = 39
 
 /// The trailer's area.
-pub const EV_GHOST_AREA: int = 39
+pub const EV_GHOST_AREA: int = 40
 
 /// The death's serial (the journey's death count), once per trailer.
-pub const EV_GHOST_DEATH: int = 40
+pub const EV_GHOST_DEATH: int = 41
 
 /// The number of numeric events.
-pub const EV_COUNT: int = 41
+pub const EV_COUNT: int = 42
 
 /// cub's words for the replay file: the keys by number, and the numeric
 /// events by index (`EV_*`).

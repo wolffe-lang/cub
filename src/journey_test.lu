@@ -47,7 +47,7 @@ fn test_cb02_save_rejects_unknown_corrupt_and_inconsistent_data() {
         sim.new(1, 80, 24)
     }
     assert(rejected, "named unknown version")
-    s.heart = 11
+    s.heart = 41
     rejected = false
     let _ = journey.decode(journey.encode(s), 80, 24) else |_| {
         rejected = true

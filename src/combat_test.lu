@@ -154,11 +154,11 @@ fn test_den_rest_and_growth() {
     var s = arena()
     s.health = 1
     s.flasks = 0
-    s.scent = 80
+    s.scent = 24
     sim.step(mut s, keys(controls.KEY_REST))
     assert(s.den && s.health == 52 && s.flasks == 3 && s.foes[0].health == 8, "rest resets world")
     sim.step(mut s, keys(controls.KEY_HEART))
-    assert(s.heart == 2 && s.scent == 0 && s.health == 64, "next level costs eighty")
+    assert(s.heart == 2 && s.scent == 0 && s.health == 64, "first shared level costs twenty-four")
     sim.step(mut s, keys(controls.KEY_FANG))
     assert(s.fang == 1, "no credit")
 }

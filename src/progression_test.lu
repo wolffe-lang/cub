@@ -1,0 +1,53 @@
+//! member: false
+
+use sim
+use journey
+
+fn test_cb04a_level_cost_matches_the_published_cubic_scaled_by_twenty() {
+    assert(sim.level_cost(1) == 24 && sim.level_cost(11) == 40, "local early table")
+    var l = 12
+    while l <= 196 {
+        let hundredths = 2 * l * l * l + 306 * l * l + 10560 * l - 89500
+        assert(sim.level_cost(l) == (hundredths + 1000) / 2000, "cubic k=1/20")
+        assert(sim.level_cost(l) > sim.level_cost(l - 1), "strict increase at join and later")
+        l += 1
+    }
+}
+
+fn test_cb04a_level_is_shared_and_stats_have_soft_and_hard_caps() {
+    var s = sim.new(7, 80, 24)
+    s.scent = 49
+    sim.grow(mut s, 0)
+    assert(s.heart == 1, "no spending in the world")
+    s.den = true
+    sim.grow(mut s, 0)
+    sim.grow(mut s, 1)
+    assert(sim.level(s) == 3 && s.scent == 0, "one shared sequence, 24 then25")
+    assert(sim.health_max(11) - sim.health_max(10) == 3, "heart soft cap")
+    assert(sim.stamina_max(11) - sim.stamina_max(10) == 2, "wind soft cap")
+    assert(sim.bite_damage(12) - sim.bite_damage(10) == 1, "fang soft cap")
+    assert(sim.scent_reach(12) - sim.scent_reach(10) == 1, "nose soft cap")
+    assert(sim.trot_at(14) - sim.trot_at(10) < sim.trot_at(10) - sim.trot_at(6), "paw soft cap")
+    s.heart = 40
+    s.scent = 100000
+    sim.grow(mut s, 0)
+    assert(s.heart == 40 && s.scent == 100000, "cap refuses without charge")
+}
+
+fn test_cb04a_save_names_older_schema_and_checks_the_level() {
+    var s = sim.new(7, 80, 24)
+    s.heart = 40
+    let text = journey.encode(s)
+    assert(text.starts_with("CUB 4\n") && text.contains("level 40\n"), "level saved explicitly")
+    let restored = journey.decode(text, 80, 24) else {
+        assert(false, "schema four roundtrip")
+        return
+    }
+    assert(sim.level(restored) == 40, "growth retained")
+    var named = false
+    let _ = journey.decode(text.replace("CUB 4", "CUB 3"), 80, 24) else |e| {
+        named = "{e}" == "save_version"
+        sim.new(1, 80, 24)
+    }
+    assert(named, "older schema refused by name")
+}
