@@ -95,3 +95,64 @@ fn test_cb03a_tap_dodges_and_sprint_bite_costs_more_than_lunge() {
     s.tick += 1
     assert(sim.head_shake(s) == -1, "third snap left")
 }
+
+fn check_forward_contact(direction: int) {
+    var combo = 1
+    while combo <= 3 {
+        var s = sim.new(1, 80, 24)
+        var f = copy s.foes[0]
+        (mut s.foes).reset()
+        s.heading = direction
+        s.heading_target = direction
+        s.attack_heading = direction
+        s.body_facing = sim.quarter(direction)
+        s.action = sim.BITE
+        s.combo = combo
+        s.started = 0
+        s.tick = 2
+        f.heading = direction
+        f.phase = sim.STAGGER
+        f.health = 100
+        f.since = 0
+        f.last_hit = -1
+        var distance = 2 * sim.FP
+        var contact = false
+        while distance <= 12 * sim.FP {
+            f.x = s.x + distance * sim.sin(direction) / sim.FP
+            f.y = s.y - distance * sim.cos(direction) / sim.FP
+            if !sim.overlap(sim.cub_body(s), sim.foe_body(f)) &&
+                sim.gap(sim.cub_body(s), sim.foe_body(f)) == 0 {
+                contact = true
+                break
+            }
+            distance += sim.FP / 4
+        }
+        assert(contact, "contact fixture exists for direction {direction}")
+        (mut s.foes).push(f)
+        var keys = List[int]()
+        sim.step(mut s, keys)
+        assert(
+            s.body_facing == sim.quarter(direction),
+            "slant moves the head, not a ninety-degree body flip",
+        )
+        assert(
+            s.foes[0].health == 100 - sim.bite_damage(1),
+            "dead ahead contact hit {combo} direction {direction}",
+        )
+        combo += 1
+    }
+}
+
+fn test_cb03a_every_combo_hits_dead_ahead_contact_cardinals() {
+    check_forward_contact(0)
+    check_forward_contact(64)
+    check_forward_contact(128)
+    check_forward_contact(192)
+}
+
+fn test_cb03a_every_combo_hits_dead_ahead_contact_diagonals() {
+    check_forward_contact(32)
+    check_forward_contact(96)
+    check_forward_contact(160)
+    check_forward_contact(224)
+}

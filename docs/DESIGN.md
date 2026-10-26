@@ -636,3 +636,27 @@ red health above green stamina, outlined with box-drawing on rich and
 brackets on plain. Scent sits beside them; the area flash keeps its
 three-second duration beside the bars. Health/stamina posture remains.
 `--hud` is retired; bars cannot be disabled. Den/death numeric cards stay.
+
+## Approach and cone integration (cb03a)
+
+All eight committed aims times all three combo hits are tested against a
+foe dead ahead at body contact:24 hits. The slant rotates the hit envelope
+and head travel, not the body's quarter; a slight head swing must not flip
+the body90 degrees at a diagonal boundary.
+
+The switchbacks exposed an approach that cut across Old Snag's arena
+before reaching its west mouth. A carved strip west of the arena, x12–18
+from row60 through98, keeps the shortest den approach outside the fight.
+The arena itself is unchanged. R-cb03a-4 A recommends that a scripted walk
+whose start and destination are outside an unbeaten boss arena also plans
+outside it, instead of detouring around an ordinary foe through a boss.
+This is implemented in the real-key walker, with no movement override.
+The inherited lynx seed18/field200 row had won with zero measured fight
+ticks: the generic approach had killed it before the fighter began.
+
+The quarter-cell path-arrow threshold could retain a diagonal when a
+blocker was nearly cardinal (old-den seed5: bearing128, aim96). After the
+contact tests passed, the walker gained ordinary Tab/Space/Esc keys:
+commit intentional lock aim, then release before following the path.
+`--mouth-audit` checks all400 actual den-to-mouth walks; the existing
+five-life fairness bar and nine-tick parry bar are unchanged.

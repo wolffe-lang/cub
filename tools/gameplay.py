@@ -326,6 +326,11 @@ def feel(binary):
         else:
             assert {(r[0], r[1]) for r in rows} == {(s, k) for s in range(50) for k in (0, 1, 3)}
             assert all(r[4] == 1 and r[3] <= 30 * 256 and r[5:] == [0, 0, 0] for r in rows)
+    mouths = subprocess.run([str(binary), '--mouth-audit'], capture_output=True, text=True, check=True)
+    (OUT / (Path(binary).parent.name + '-mouth-audit.txt')).write_text(mouths.stdout)
+    rows = [list(map(int, line.split())) for line in mouths.stdout.splitlines()[1:]]
+    assert len(rows) == 400 and {(r[0], r[1], r[2]) for r in rows} == {(s, f, k) for s in range(50) for f in (80, 200) for k in (4, 5, 6, 7)}
+    assert all(r[3] == 1 and r[5] > 0 and r[6] == 0 for r in rows), 'den-to-mouth route failed'
     _, states, foes = run(binary, 'sprint-hit')
     assert any(v['action'] == 8 and any(f['last_hit'] == v['started'] for f in foes[t])
                for t, v in states.items()), 'sprinting attack did not land'

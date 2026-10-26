@@ -446,8 +446,13 @@ pub fn carved(seed: int, field: int, area: int, x: int, at: int) -> bool {
     let hw = half(seed, area, at)
     if x >= c - hw && x <= c + hw { return true }
     if arena_cell(seed, field, area, x, at) == path_kind(area) { return true }
+    // The den's approach stays west of the arena: the switchback must
+    // not send the shortest walk through the boss before reaching its mouth.
+    if area == BRAMBLEHOLD && at >= BOAR_ROW && at <= 98 && x >= BOAR_X - 18 && x <= BOAR_X - 12 {
+        return true
+    }
     // The boar's clearing is reached by a short branch east of the route.
-    if area == BRAMBLEHOLD && at >= BOAR_ROW - 1 && at <= BOAR_ROW + 1 && x >= 0 && x <= BOAR_X {
+    if area == BRAMBLEHOLD && at >= BOAR_ROW - 1 && at <= BOAR_ROW + 1 && x >= c && x <= BOAR_X {
         return true
     }
     var cache = 0

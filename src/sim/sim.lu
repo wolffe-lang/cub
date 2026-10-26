@@ -579,7 +579,12 @@ fn locomotion(mut s: Sim) {
     swing_body(mut s)
     // The speed: toward the trot (or the sneak) while a key is held, to a
     // stop when none is.
-    s.sprinting = s.action == IDLE && s.moving && !s.sneaking && !s.exhausted && s.stamina > 0 && sprint_held(s)
+    s.sprinting = s.action == IDLE &&
+        s.moving &&
+        !s.sneaking &&
+        !s.exhausted &&
+        s.stamina > 0 &&
+        sprint_held(s)
     var pace = if s.health * 3 < health_max(s.heart) then trot_at(s.paw) / 2 else trot_at(s.paw)
     // The Shallows' current (cb04): the cub wades at half its pace, the
     // elk's second phase's ground.
@@ -842,9 +847,7 @@ fn in_front(x: int, y: int, heading: int, tx: int, ty: int) -> bool {
 /// Cone, range and occlusion jointly determine foe sight.
 pub fn can_see(s: Sim, f: Foe) -> bool {
     // A lifted flock warns nearby hunters even behind their sight cone.
-    if s.area == forest.LARKMEADOW &&
-        meadow_near(s, 5, 5) &&
-        near(f.x, f.y, s.x, s.y, 12 * FP) {
+    if s.area == forest.LARKMEADOW && meadow_near(s, 5, 5) && near(f.x, f.y, s.x, s.y, 12 * FP) {
         return true
     }
     near(f.x, f.y, s.x, s.y, (if s.area == forest.BRAMBLEHOLD then 5 else SIGHT) * FP) &&
@@ -1379,8 +1382,7 @@ fn trail_step(mut s: Sim, ox: int, oy: int) {
             until: s.tick +
                 TRAIL_TICKS +
                 (
-                    if s.area == forest.LARKMEADOW &&
-                        meadow_near(s, 7, 3) {
+                    if s.area == forest.LARKMEADOW && meadow_near(s, 7, 3) {
                         150
                     } else {
                         0
@@ -1557,7 +1559,7 @@ pub fn quarter(heading: int) -> int {
 /// bite, a lunge or a heavy, else the heading's quarter.
 pub fn wanted_facing(s: Sim) -> int {
     if s.action == BITE || s.action == LUNGE || s.action == HEAVY || s.action == DASH {
-        return quarter(attack_direction(s))
+        return quarter(s.attack_heading)
     }
     facing(s)
 }
@@ -3051,5 +3053,10 @@ pub fn dash_hits(s: Sim) -> int {
 fn meadow_near(s: Sim, kind: int, radius: int) -> bool {
     let (x, y, _) = meadow.anchor(s.seed, cell_x(s), cell_y(s))
     let width = forest.half_width(s.field)
-    y >= 6 && y < forest.LENGTH - 4 && x > -width + 4 && x < width - 4 && !forest.on_path(s.seed, s.field, s.area, x, y) && meadow.near_kind(s.seed, cell_x(s), cell_y(s), kind, radius)
+    y >= 6 &&
+        y < forest.LENGTH - 4 &&
+        x > -width + 4 &&
+        x < width - 4 &&
+        !forest.on_path(s.seed, s.field, s.area, x, y) &&
+        meadow.near_kind(s.seed, cell_x(s), cell_y(s), kind, radius)
 }

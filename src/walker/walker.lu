@@ -61,8 +61,15 @@ pub fn drive_as(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int, passive: b
             if foe.kind != sim.HAWK && sim.in_reach(s, i, 2) && !passive {
                 fighting = true
                 if s.action == sim.IDLE {
+                    // Quarter-cell path arrows can retain a diagonal when
+                    // the foe is almost cardinal. Commit the same intentional
+                    // lock a player uses before a slanted bite; death releases it.
+                    if s.locked < 0 { (mut keys).push(controls.KEY_LOCK) }
                     aim(mut keys, foe.x - s.x, foe.y - s.y)
                     (mut keys).push(controls.KEY_BITE)
+                    // The aim is latched at Space. Release before following
+                    // the next path segment; lock otherwise steers movement.
+                    (mut keys).push(controls.KEY_RELEASE)
                 }
                 break
             }
@@ -113,11 +120,15 @@ pub fn walk_stop(
     var replans = 0
     while replans < 20 {
         let outcome = walk_once(mut s, mut r, tx, ty, stop_foe, passive)
-        if outcome != 2 { return outcome == 1 }
+        if outcome != 2 {
+            if outcome == 0 { walk_failure(s, tx, ty, "failed") }
+            return outcome == 1
+        }
         // No progress for thirty ticks: plan again from where the cub stands,
         // the foes where they now are.
         replans += 1
     }
+    walk_failure(s, tx, ty, "stalled")
     false
 }
 
@@ -135,6 +146,12 @@ pub fn plan(
     bodies: bool,
 ) -> List[int] {
     let width = w * 2 + 1
+    // An approach to an outside destination must not become an unmeasured
+    // boss fight. A body-blocked route falls back to fighting the ordinary
+    // blocker, not a detour through the arena on its other side.
+    let outside = sim.boss_index(s) >= 0 &&
+        !forest.in_arena(s.seed, s.field, s.area, start % width - w, start / width + top) &&
+        !forest.in_arena(s.seed, s.field, s.area, goal % width - w, goal / width + top)
     var parent = List[int]()
     var queue = List[int]()
     var i = 0
@@ -154,6 +171,7 @@ pub fn plan(
                 let next = (ny - top) * width + nx + w
                 if parent[next] < 0 &&
                     !sim.blocked(s, nx, ny + origin) &&
+                    (!outside || !forest.in_arena(s.seed, s.field, s.area, nx, ny)) &&
                     (next == goal || !bodies || !body_on(s, nx, ny + origin)) {
                     parent[next] = at
                     (mut queue).push(next)
@@ -241,4 +259,19 @@ pub fn walk_once(
         i -= 1
     }
     1
+}
+
+fn walk_failure(s: sim.Sim, tx: int, ty: int, reason: str) {
+    eprint(
+        "walker {reason} seed {s.seed} area {s.area} at {sim.cell_x(s)},{sim.cell_y(s)} goal {sim.floor_div(tx, sim.FP)},{sim.floor_div(ty, sim.FP)} tick {s.tick} health {s.health} stamina {s.stamina} action {s.action} goal_blocked {sim.blocked(s, sim.floor_div(tx, sim.FP), sim.floor_div(ty, sim.FP))}",
+    )
+    var i = 0
+    while i < s.foes.len {
+        if s.foes[i].health > 0 && sim.body_gap(s, i) <= 4 {
+            eprint(
+                "walker foe {i} kind {s.foes[i].kind} health {s.foes[i].health} phase {s.foes[i].phase} gap {sim.body_gap(s, i)} bearing {sim.heading_to(s.x, s.y, s.foes[i].x, s.foes[i].y)} aim {s.attack_heading} combo {s.combo}",
+            )
+        }
+        i += 1
+    }
 }

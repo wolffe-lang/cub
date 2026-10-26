@@ -119,7 +119,10 @@ fn test_cb04_every_area_reaches_its_dens_portals_and_arena() {
     assert(forest.required(forest.CRAGS) == 6, "the crags: a den, four portals, the arena")
     assert(forest.required(forest.RIVER) == 5, "the river: a den, three portals, the arena")
     assert(forest.required(forest.OLDDEN) == 3, "the old den: a den, a portal, the arena")
-    assert(forest.required(forest.LARKMEADOW) == 7, "the meadow gains the crags path and the ledge")
+    assert(
+        forest.required(forest.LARKMEADOW) == 10,
+        "the meadow has four dens, four portals and two caches",
+    )
 }
 
 fn test_cb04_arenas_are_open_ground_inside_their_bounds() {
