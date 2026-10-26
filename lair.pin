@@ -1,7 +1,11 @@
-aa6c4dc0bc5071d3c07121451d913a8837cd2a6a
+57870143ebbb4806b8bee40379e8c6e781f50842
 # lair.pin — the engine's commit (wolffe-lang/lair), the first line, forty
 # hex digits. tools/fetch-lair stages that tree into .lair/ and the engine's
 # tools (.lair/tools/*) refuse any other; src/<module> symlinks point into
 # it. Moved by a lane that re-pins, with the goldens re-run on both hosts.
 #
 # cb00 (2026-10-25): the first pin, the engine as extracted from pack.
+#
+# cb03 (2026-10-26): moved to lair trunk 57870143 (lr01's mixer merged at
+# 09f5aa54 and its note), read twice (`git rev-parse origin/trunk` and
+# `git ls-remote`, identical); the goldens re-run on both hosts prove it.
