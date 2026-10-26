@@ -3544,6 +3544,7 @@ pub fn rally_available(s: Sim) -> int {
 
 /// A landed damaging hit regains at most eight, linearly falling with age.
 pub fn rally_hit(mut s: Sim) {
+    if s.tick - s.rally_at >= RALLY_TICKS { s.health += 1; return }
     let available = rally_available(s)
     if available <= 0 { return }
     let cap = 8 * (RALLY_TICKS - (s.tick - s.rally_at)) / RALLY_TICKS
