@@ -1,0 +1,85 @@
+//! Sample actual carved routes, with transverse clear width and centreline turns.
+use forest
+use art
+use grid
+use headless
+use sim
+use terrain
+
+/// Path zero is the spine, one the shortcut, then cache branches; coast last is shore.
+pub fn point(seed: int, field: int, area: int, path: int, at: int) -> (int, int, bool) {
+    if path == 0 { return (forest.spine(seed, area, at), at, false) }
+    if path == 1 { return (at, 22 + forest.curve(seed, area + 71, at) / 2, true) }
+    if area == 0 && path == 6 {
+        return (at, terrain.bank(seed, at) + terrain.REED_ROWS + 2 - forest.origin(seed, area), true)
+    }
+    if area == 0 { return (forest.coast_branch_x(seed, field, path - 2, at), at, false) }
+    (at, forest.branch(seed, area, path - 2, at), true)
+}
+
+/// CSV retains every sample; the independent summarizer computes distributions and ranks routes.
+pub fn census() -> int {
+    print("seed,field,area,path,at,x,y,width,delta")
+    var seed = 0
+    while seed < 50 {
+        for field in [80, 200] {
+            var area = 0
+            while area < forest.AREAS {
+                var path = 0
+                while path < (2 + forest.cache_count(area) + (if area == 0 then 1 else 0)) {
+                    let start = if path == 0 || area == 0 && path >= 2 && path < 6 {
+                        0
+                    } else if area == 0 && path == 6 {
+                        -forest.coast_extent(field) + 4
+                    } else if path == 1 { -32 } else if path == 2 { -forest.half_width(field) + 13 } else { -10 }
+                    let end = if path == 0 { forest.LENGTH } else if area == 0 && path == 6 {
+                        forest.coast_extent(field) - 4
+                    } else if path == 1 { 32 } else if area == 0 {
+                        forest.coast_end(seed, path - 2)
+                    } else if path == 2 { 10 } else { forest.half_width(field) - 13 }
+                    var at = start
+                    while at <= end {
+                        let (x, y, horizontal) = point(seed, field, area, path, at)
+                        let (px, py, _) = point(seed, field, area, path, at - 1)
+                        var width = 0
+                        for side in [-1, 1] {
+                            var d = if side == -1 then 0 else 1
+                            while d <= 40 {
+                                let tx = x + (if horizontal then 0 else side * d)
+                                let ty = y + (if horizontal then side * d else 0) + forest.origin(seed, area)
+                                if !forest.on_path(seed, field, area, tx, ty) || forest.blocked(seed, field, area, tx, ty) { break }
+                                width += 1
+                                d += 1
+                            }
+                        }
+                        let delta = if at == start then 0 else if horizontal then y - py else x - px
+                        print("{seed},{field},{area},{path},{at},{x},{y},{width},{delta}")
+                        at += 1
+                    }
+                    path += 1
+                }
+                area += 1
+            }
+        }
+        seed += 1
+    }
+    0
+}
+
+/// A real rendered view of a ranked route, with no artificial actor overlays.
+pub fn view(seed: int, area: int, path: int, field: int, dir: str) -> int {
+    var s = sim.new(seed, 120, 40)
+    s.field = field
+    s.area = area
+    s.foes = List[sim.Foe]()
+    let at = if path == 0 then 80 else if area == 0 && path >= 2 && path < 6 then 20 else 0
+    let (x, y, _) = point(seed, field, area, path, at)
+    s.x = x * sim.FP
+    s.y = (y + forest.origin(seed, area)) * sim.FP
+    for t in [0, 1] {
+        var g = grid.new(s.rows, s.cols)
+        art.render(s, t, mut g)
+        headless.write_frame(dir, "seed-{seed}-area-{area}-path-{path}-tier-{t}", g) else |_| { return 2 }
+    }
+    0
+}

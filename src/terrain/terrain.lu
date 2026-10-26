@@ -160,16 +160,16 @@ pub fn start(seed: int) -> (int, int) {
     (0, (bank(seed, 0) + REED_ROWS + 2) * FP + FP / 2)
 }
 
-/// Seeded long-wave noise and alternating short-wave anchors keep curves
+/// Seeded long-wave noise and broad sixteen-cell anchors keep curves
 /// natural while avoiding long equal-cell runs after quantisation.
 pub fn meander(seed: int, ch: int, at: int) -> int {
-    var k = at / 8
-    var r = at % 8
-    if r < 0 { k -= 1; r += 8 }
+    var k = at / 16
+    var r = at % 16
+    if r < 0 { k -= 1; r += 16 }
     let sign = if (k % 2 + 2) % 2 == 0 then 1 else -1
     let a = sign * (3 + world.hash(seed, ch, k, 3))
     let b = 0 - sign * (3 + world.hash(seed, ch, k + 1, 3))
-    let t = r * FP / 8
+    let t = r * FP / 16
     let smooth = t * t / FP * (3 * FP - 2 * t) / FP
-    (world.noise(seed, ch, at * 2) - FP / 2) * 8 / FP + a + (b - a) * smooth / FP
+    (world.noise(seed, ch, at) - FP / 2) * 8 / FP + a + (b - a) * smooth / FP
 }

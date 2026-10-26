@@ -191,7 +191,7 @@ pub fn curve(seed: int, ch: int, at: int) -> int { terrain.meander(seed, ch, at)
 
 /// Path centre in cells. The first den and final exit remain fixed, with
 /// short tapered approaches rather than a long straight corridor.
-pub fn spine(seed: int, area: int, at: int) -> int {
+fn raw_spine(seed: int, area: int, at: int) -> int {
     if area == BRAMBLEHOLD {
         let amp = 18 + world.hash(seed, 91, 0, 5)
         if at < 16 { return -amp * at / 16 }
@@ -207,11 +207,19 @@ pub fn spine(seed: int, area: int, at: int) -> int {
     c
 }
 
+/// Round each switchback apex over five rows, preserving its alternating legs.
+pub fn spine(seed: int, area: int, at: int) -> int {
+    if area != BRAMBLEHOLD || at <= 2 || at >= LENGTH - 2 { return raw_spine(seed, area, at) }
+    (raw_spine(seed, area, at - 2) + 2 * raw_spine(seed, area, at - 1) +
+        3 * raw_spine(seed, area, at) + 2 * raw_spine(seed, area, at + 1) +
+        raw_spine(seed, area, at + 2)) / 9
+}
+
 /// The path half-width breathes from a separate noise ch, 3..5 cells; the
 /// crags' ledges are narrower, 2..3 (cb04: a climb).
 pub fn half(seed: int, area: int, at: int) -> int {
-    if area == CRAGS { return 2 + world.noise(seed, 45 + area, at * 3) / FP }
-    3 + world.noise(seed, 45 + area, at * 3) * 2 / FP
+    if area == CRAGS { return 3 + world.noise(seed, 45 + area, at * 3) / FP }
+    4 + world.noise(seed, 45 + area, at * 3) * 2 / FP
 }
 
 /// Den locations vary with the seed while preserving their graph roles:
@@ -291,7 +299,7 @@ pub fn coast_branch(seed: int, field: int, cache: int, x: int, at: int) -> bool 
     if dx * dx + dy * dy <= 16 { return true }
     if at < -10 || at > end { return false }
     let c = coast_branch_x(seed, field, cache, at)
-    x >= c - 2 && x <= c + 2
+    x >= c - 3 && x <= c + 3
 }
 
 /// A jetty at each end of the coast, a screen's walk from the initial
@@ -306,8 +314,8 @@ pub fn jetty(seed: int, field: int, x: int, y: int) -> bool {
     while side < 2 {
         let c = jetty_x(seed, field, side)
         if x >= c - 1 && x <= c + 1 {
-            let b = terrain.bank(seed, x)
-            if y >= b - 6 && y <= b + terrain.REED_ROWS + terrain.SHINGLE_ROWS + 3 {
+            let b = terrain.bank(seed, x) - 1
+            if y >= b - 6 && y <= b + terrain.REED_ROWS + terrain.SHINGLE_ROWS + 2 + 3 {
                 return true
             }
         }
@@ -451,11 +459,11 @@ pub fn carved(seed: int, field: int, area: int, x: int, at: int) -> bool {
     if arena_cell(seed, field, area, x, at) == path_kind(area) { return true }
     // The den's approach stays west of the arena: the switchback must
     // not send the shortest walk through the boss before reaching its mouth.
-    if area == BRAMBLEHOLD && at >= BOAR_ROW && at <= 98 && x >= BOAR_X - 18 && x <= BOAR_X - 12 {
+    if area == BRAMBLEHOLD && at >= BOAR_ROW && at <= 98 && x >= BOAR_X - 19 && x <= BOAR_X - 11 {
         return true
     }
     // The boar's clearing is reached by a short branch east of the route.
-    if area == BRAMBLEHOLD && at >= BOAR_ROW - 1 && at <= BOAR_ROW + 1 && x >= c && x <= BOAR_X {
+    if area == BRAMBLEHOLD && at >= BOAR_ROW - 2 && at <= BOAR_ROW + 2 && x >= c && x <= BOAR_X {
         return true
     }
     var cache = 0
@@ -466,10 +474,10 @@ pub fn carved(seed: int, field: int, area: int, x: int, at: int) -> bool {
             continue
         }
         let (cx, _) = cache_position(seed, field, area, cache)
-        if x >= (if cache == 0 then cx / FP - 2 else -10) &&
-            x <= (if cache == 0 then 10 else cx / FP + 2) {
+        if x >= (if cache == 0 then cx / FP - 3 else -10) &&
+            x <= (if cache == 0 then 10 else cx / FP + 3) {
             let by = branch(seed, area, cache, x)
-            if at >= by - 2 && at <= by + 2 { return true }
+            if at >= by - 3 && at <= by + 3 { return true }
         }
         cache += 1
     }
@@ -477,14 +485,14 @@ pub fn carved(seed: int, field: int, area: int, x: int, at: int) -> bool {
     // end there: a path never runs on to the area's edge. In the Shallows
     // the cross path is the gravel bar across the river the shallows
     // shortcut names.
-    if at >= 18 && at <= 27 && x >= -33 && x <= 33 {
+    if at >= 15 && at <= 30 && x >= -34 && x <= 34 {
         let by = 22 + curve(seed, area + 71, x) / 2
-        if at >= by - 2 && at <= by + 2 { return true }
+        if at >= by - 3 && at <= by + 3 { return true }
     }
     // The thorn wall sits at the end of a deliberate treeless branch.
     if area == SHINGLE && at >= 140 && at <= LENGTH {
         let exit_centre = if at < 150 then spine(seed, area, 140) * (150 - at) / 10 else 0
-        if x >= exit_centre - 2 && x <= exit_centre + 2 { return true }
+        if x >= exit_centre - 3 && x <= exit_centre + 3 { return true }
     }
     false
 }
@@ -493,8 +501,8 @@ pub fn carved(seed: int, field: int, area: int, x: int, at: int) -> bool {
 /// the jetties, or a carved cell inside the area's bounds.
 pub fn on_path(seed: int, field: int, area: int, x: int, y: int) -> bool {
     if area == SHINGLE {
-        let b = terrain.bank(seed, x)
-        if y >= b + terrain.REED_ROWS && y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS {
+        let b = terrain.bank(seed, x) - 1
+        if y >= b + terrain.REED_ROWS && y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS + 2 {
             return !jetty(seed, field, x, y) &&
                 x > jetty_x(seed, field, 0) &&
                 x < jetty_x(seed, field, 1)
@@ -513,15 +521,15 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
     // Water, one clean bank row, and a constant-width horizontal path.
     // Never clip these bands at the den's local y=0.
     if area == SHINGLE {
-        let b = terrain.bank(seed, x)
+        let b = terrain.bank(seed, x) - 1
         if jetty(seed, field, x, y) { return terrain.ROCK }
         if y < b { return terrain.WATER }
         if (x <= jetty_x(seed, field, 0) || x >= jetty_x(seed, field, 1)) &&
-            y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS {
+            y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS + 2 {
             return closed(seed, area, x, y)
         }
         if y < b + terrain.REED_ROWS { return terrain.REEDS }
-        if y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS { return path_kind(area) }
+        if y < b + terrain.REED_ROWS + terrain.SHINGLE_ROWS + 2 { return path_kind(area) }
     }
     // The coast's rows above the spawn's are the shore's own (the bank
     // wanders eight cells); inland an area begins at its entry row.
@@ -826,9 +834,9 @@ pub fn switchbacks(seed: int) -> int {
     var count = 0
     var at = 16
     while at <= 136 {
-        let a = spine(seed, BRAMBLEHOLD, at) - spine(seed, BRAMBLEHOLD, at - 4)
-        let b = spine(seed, BRAMBLEHOLD, at + 4) - spine(seed, BRAMBLEHOLD, at)
-        if a * b + 16 <= 0 { count += 1 }
+        let a = spine(seed, BRAMBLEHOLD, at) - spine(seed, BRAMBLEHOLD, at - 8)
+        let b = spine(seed, BRAMBLEHOLD, at + 8) - spine(seed, BRAMBLEHOLD, at)
+        if a * b + 64 <= 0 { count += 1 }
         at += 24
     }
     count
@@ -856,4 +864,12 @@ pub fn thorn_collar(area: int, x: int, at: int) -> bool {
 /// The same boundary seen from either incident area, in world cell rows.
 pub fn thorn_row(seed: int, area: int) -> int {
     origin(seed, area) + (if area == SHINGLE then LENGTH - 3 else 0)
+}
+
+/// The drawn seven-by-three doorway shadow, in world cells (all incident edges).
+pub fn shadow_cell(seed: int, area: int, edge: int, x: int, y: int) -> bool {
+    if other(area, edge) < 0 { return false }
+    let (px, py) = portal(seed, area, edge)
+    // Portal coordinates are exact whole cells, including negative mouths.
+    x >= px / FP - 3 && x <= px / FP + 3 && y >= py / FP - 1 && y <= py / FP + 1
 }
