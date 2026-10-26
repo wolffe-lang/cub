@@ -1,0 +1,64 @@
+READ 1 macOS
+57870143ebbb4806b8bee40379e8c6e781f50842
+# lair.pin — the engine's commit (wolffe-lang/lair), the first line, forty
+# hex digits. tools/fetch-lair stages that tree into .lair/ and the engine's
+# tools (.lair/tools/*) refuse any other; src/<module> symlinks point into
+# it. Moved by a lane that re-pins, with the goldens re-run on both hosts.
+#
+# cb00 (2026-10-25): the first pin, the engine as extracted from pack.
+#
+# cb03 (2026-10-26): moved to lair trunk 57870143 (lr01's mixer merged at
+# 09f5aa54 and its note), read twice (`git rev-parse origin/trunk` and
+# `git ls-remote`, identical); the goldens re-run on both hosts prove it.
+57870143ebbb4806b8bee40379e8c6e781f50842
+aarch64-apple-darwin wolf=240b84d079b1b9a0d88681ac08fca4816f84778e2d6c94c435ceb2dd6a5f042a lupin=9133bfdbb95f6a18745439bf0b2b5280860a5bfeaf9ae038ea120a72d58f7687 std=2386522eb059cca5a84108562c2c0a0e72345d34
+2386522eb059cca5a84108562c2c0a0e72345d34
+wolf 0.2.35 (wolfgang, pin cf0c13d)
+paired with lupin 0.1.56 (reference interpreter), pin 294d626
+READ 2 macOS
+57870143ebbb4806b8bee40379e8c6e781f50842
+# lair.pin — the engine's commit (wolffe-lang/lair), the first line, forty
+# hex digits. tools/fetch-lair stages that tree into .lair/ and the engine's
+# tools (.lair/tools/*) refuse any other; src/<module> symlinks point into
+# it. Moved by a lane that re-pins, with the goldens re-run on both hosts.
+#
+# cb00 (2026-10-25): the first pin, the engine as extracted from pack.
+#
+# cb03 (2026-10-26): moved to lair trunk 57870143 (lr01's mixer merged at
+# 09f5aa54 and its note), read twice (`git rev-parse origin/trunk` and
+# `git ls-remote`, identical); the goldens re-run on both hosts prove it.
+57870143ebbb4806b8bee40379e8c6e781f50842
+aarch64-apple-darwin wolf=240b84d079b1b9a0d88681ac08fca4816f84778e2d6c94c435ceb2dd6a5f042a lupin=9133bfdbb95f6a18745439bf0b2b5280860a5bfeaf9ae038ea120a72d58f7687 std=2386522eb059cca5a84108562c2c0a0e72345d34
+2386522eb059cca5a84108562c2c0a0e72345d34
+wolf 0.2.35 (wolfgang, pin cf0c13d)
+paired with lupin 0.1.56 (reference interpreter), pin 294d626
+READ 1 Linux
+57870143ebbb4806b8bee40379e8c6e781f50842
+# lair.pin — the engine's commit (wolffe-lang/lair), the first line, forty
+# hex digits. tools/fetch-lair stages that tree into .lair/ and the engine's
+# tools (.lair/tools/*) refuse any other; src/<module> symlinks point into
+# it. Moved by a lane that re-pins, with the goldens re-run on both hosts.
+#
+# cb00 (2026-10-25): the first pin, the engine as extracted from pack.
+#
+# cb03 (2026-10-26): moved to lair trunk 57870143 (lr01's mixer merged at
+# 09f5aa54 and its note), read twice (`git rev-parse origin/trunk` and
+# `git ls-remote`, identical); the goldens re-run on both hosts prove it.
+57870143ebbb4806b8bee40379e8c6e781f50842
+x86_64-unknown-linux-gnu wolf=4cc4045bbbb605c07835bc4f32685953c784eeef4cd3139a48b457dfc90dad1a lupin=ad703550ac4787e8e4bb26989d591a731410274d7332f2b4e8b9a64c878822cc std=2386522eb059cca5a84108562c2c0a0e72345d34
+2386522eb059cca5a84108562c2c0a0e72345d34
+READ 2 Linux
+57870143ebbb4806b8bee40379e8c6e781f50842
+# lair.pin — the engine's commit (wolffe-lang/lair), the first line, forty
+# hex digits. tools/fetch-lair stages that tree into .lair/ and the engine's
+# tools (.lair/tools/*) refuse any other; src/<module> symlinks point into
+# it. Moved by a lane that re-pins, with the goldens re-run on both hosts.
+#
+# cb00 (2026-10-25): the first pin, the engine as extracted from pack.
+#
+# cb03 (2026-10-26): moved to lair trunk 57870143 (lr01's mixer merged at
+# 09f5aa54 and its note), read twice (`git rev-parse origin/trunk` and
+# `git ls-remote`, identical); the goldens re-run on both hosts prove it.
+57870143ebbb4806b8bee40379e8c6e781f50842
+x86_64-unknown-linux-gnu wolf=4cc4045bbbb605c07835bc4f32685953c784eeef4cd3139a48b457dfc90dad1a lupin=ad703550ac4787e8e4bb26989d591a731410274d7332f2b4e8b9a64c878822cc std=2386522eb059cca5a84108562c2c0a0e72345d34
+2386522eb059cca5a84108562c2c0a0e72345d34

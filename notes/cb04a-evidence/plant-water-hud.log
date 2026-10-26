@@ -1,0 +1,9 @@
+test src/den_integration_test.lu::test_cb04a_water_survives_the_hud_clear_on_both_tiers ... FAILED (trap(assert))
+test src/den_integration_test.lu::test_cb04a_rich_nose_hides_beyond_reach ... ok
+test src/den_integration_test.lu::test_cb04a_plain_nose_hides_beyond_reach ... ok
+test src/den_integration_test.lu::test_cb04a_rich_nose_reveals_inside_reach ... ok
+test src/den_integration_test.lu::test_cb04a_plain_nose_reveals_inside_reach ... ok
+test src/den_integration_test.lu::test_cb04a_rich_nose_includes_exact_radius ... ok
+test src/den_integration_test.lu::test_cb04a_plain_nose_includes_exact_radius ... ok
+test src/den_integration_test.lu::test_cb04a_healing_uses_the_shared_ring_and_visual_burst ... ok
+wolf test: 7 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out

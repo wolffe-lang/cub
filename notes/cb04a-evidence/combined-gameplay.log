@@ -1,0 +1,256 @@
+build: target/native/cub
+build: target/release/cub
+goldens: wrote tests/goldens/aim-e-rich
+goldens: wrote tests/goldens/aim-e-plain
+goldens: wrote tests/goldens/aim-lock-rich
+goldens: wrote tests/goldens/aim-lock-plain
+goldens: wrote tests/goldens/aim-n-rich
+goldens: wrote tests/goldens/aim-n-plain
+goldens: wrote tests/goldens/aim-ne-rich
+goldens: wrote tests/goldens/aim-ne-plain
+goldens: wrote tests/goldens/aim-nw-rich
+goldens: wrote tests/goldens/aim-nw-plain
+goldens: wrote tests/goldens/aim-s-rich
+goldens: wrote tests/goldens/aim-s-plain
+goldens: wrote tests/goldens/aim-se-rich
+goldens: wrote tests/goldens/aim-se-plain
+goldens: wrote tests/goldens/aim-sw-rich
+goldens: wrote tests/goldens/aim-sw-plain
+goldens: wrote tests/goldens/aim-w-rich
+goldens: wrote tests/goldens/aim-w-plain
+goldens: wrote tests/goldens/bite-arc-rich
+goldens: wrote tests/goldens/bite-arc-plain
+goldens: wrote tests/goldens/bite-rich
+goldens: wrote tests/goldens/bite-plain
+goldens: wrote tests/goldens/boss-alpha-beaten-rich
+goldens: wrote tests/goldens/boss-alpha-beaten-plain
+goldens: wrote tests/goldens/boss-alpha-phase2-rich
+goldens: wrote tests/goldens/boss-alpha-phase2-plain
+goldens: wrote tests/goldens/boss-alpha-windup-rich
+goldens: wrote tests/goldens/boss-alpha-windup-plain
+goldens: wrote tests/goldens/boss-boar-beaten-rich
+goldens: wrote tests/goldens/boss-boar-beaten-plain
+goldens: wrote tests/goldens/boss-boar-phase2-rich
+goldens: wrote tests/goldens/boss-boar-phase2-plain
+goldens: wrote tests/goldens/boss-boar-windup-rich
+goldens: wrote tests/goldens/boss-boar-windup-plain
+goldens: wrote tests/goldens/boss-elk-beaten-rich
+goldens: wrote tests/goldens/boss-elk-beaten-plain
+goldens: wrote tests/goldens/boss-elk-phase2-rich
+goldens: wrote tests/goldens/boss-elk-phase2-plain
+goldens: wrote tests/goldens/boss-elk-windup-rich
+goldens: wrote tests/goldens/boss-elk-windup-plain
+goldens: wrote tests/goldens/boss-lynx-beaten-rich
+goldens: wrote tests/goldens/boss-lynx-beaten-plain
+goldens: wrote tests/goldens/boss-lynx-phase2-rich
+goldens: wrote tests/goldens/boss-lynx-phase2-plain
+goldens: wrote tests/goldens/boss-lynx-windup-rich
+goldens: wrote tests/goldens/boss-lynx-windup-plain
+goldens: wrote tests/goldens/coast-cache-0-rich
+goldens: wrote tests/goldens/coast-cache-0-plain
+goldens: wrote tests/goldens/coast-cache-1-rich
+goldens: wrote tests/goldens/coast-cache-1-plain
+goldens: wrote tests/goldens/coast-cache-2-rich
+goldens: wrote tests/goldens/coast-cache-2-plain
+goldens: wrote tests/goldens/coast-cache-3-rich
+goldens: wrote tests/goldens/coast-cache-3-plain
+goldens: wrote tests/goldens/crags-rich
+goldens: wrote tests/goldens/crags-plain
+goldens: wrote tests/goldens/death-recovery-rich
+goldens: wrote tests/goldens/death-recovery-plain
+goldens: wrote tests/goldens/demo-rich
+goldens: wrote tests/goldens/demo-plain
+goldens: wrote tests/goldens/den-after-cluster-rich
+goldens: wrote tests/goldens/den-after-cluster-plain
+goldens: wrote tests/goldens/den-bars-120x40-rich
+goldens: wrote tests/goldens/den-bars-120x40-plain
+goldens: wrote tests/goldens/den-bars-80x24-rich
+goldens: wrote tests/goldens/den-bars-80x24-plain
+goldens: wrote tests/goldens/den-checkpoint-rich
+goldens: wrote tests/goldens/den-checkpoint-plain
+goldens: wrote tests/goldens/diagonal-rich
+goldens: wrote tests/goldens/diagonal-plain
+goldens: wrote tests/goldens/dodge-rich
+goldens: wrote tests/goldens/dodge-plain
+goldens: wrote tests/goldens/end-rich
+goldens: wrote tests/goldens/end-plain
+goldens: wrote tests/goldens/forward-windup-rich
+goldens: wrote tests/goldens/forward-windup-plain
+goldens: wrote tests/goldens/fox-feint-rich
+goldens: wrote tests/goldens/fox-feint-plain
+goldens: wrote tests/goldens/ghost-death-rich
+goldens: wrote tests/goldens/ghost-death-plain
+goldens: wrote tests/goldens/ghost-rich
+goldens: wrote tests/goldens/ghost-plain
+goldens: wrote tests/goldens/hawk-shadow-rich
+goldens: wrote tests/goldens/hawk-shadow-plain
+goldens: wrote tests/goldens/hawk-stoop-rich
+goldens: wrote tests/goldens/hawk-stoop-plain
+goldens: wrote tests/goldens/heavy-rich
+goldens: wrote tests/goldens/heavy-plain
+goldens: wrote tests/goldens/hud-after-c-120x40-rich
+goldens: wrote tests/goldens/hud-after-c-120x40-plain
+goldens: wrote tests/goldens/hud-after-c-80x24-rich
+goldens: wrote tests/goldens/hud-after-c-80x24-plain
+goldens: wrote tests/goldens/meadow-ford-rich
+goldens: wrote tests/goldens/meadow-ford-plain
+goldens: wrote tests/goldens/meadow-landmarks-rich
+goldens: wrote tests/goldens/meadow-landmarks-plain
+goldens: wrote tests/goldens/natural-death-rich
+goldens: wrote tests/goldens/natural-death-plain
+goldens: wrote tests/goldens/old-den-rich
+goldens: wrote tests/goldens/old-den-plain
+goldens: wrote tests/goldens/opening-skip-rich
+goldens: wrote tests/goldens/opening-skip-plain
+goldens: wrote tests/goldens/opening-rich
+goldens: wrote tests/goldens/opening-plain
+goldens: wrote tests/goldens/parry-rich
+goldens: wrote tests/goldens/parry-plain
+goldens: wrote tests/goldens/posture-badly-rich
+goldens: wrote tests/goldens/posture-badly-plain
+goldens: wrote tests/goldens/posture-dying-rich
+goldens: wrote tests/goldens/posture-dying-plain
+goldens: wrote tests/goldens/posture-full-rich
+goldens: wrote tests/goldens/posture-full-plain
+goldens: wrote tests/goldens/posture-hurt-rich
+goldens: wrote tests/goldens/posture-hurt-plain
+goldens: wrote tests/goldens/resize-rich
+goldens: wrote tests/goldens/resize-plain
+goldens: wrote tests/goldens/rest-bramblehold-120x40-rich
+goldens: wrote tests/goldens/rest-bramblehold-120x40-plain
+goldens: wrote tests/goldens/rest-bramblehold-80x24-rich
+goldens: wrote tests/goldens/rest-bramblehold-80x24-plain
+goldens: wrote tests/goldens/rest-larkmeadow-120x40-rich
+goldens: wrote tests/goldens/rest-larkmeadow-120x40-plain
+goldens: wrote tests/goldens/rest-larkmeadow-80x24-rich
+goldens: wrote tests/goldens/rest-larkmeadow-80x24-plain
+goldens: wrote tests/goldens/rest-old-den-120x40-rich
+goldens: wrote tests/goldens/rest-old-den-120x40-plain
+goldens: wrote tests/goldens/rest-old-den-80x24-rich
+goldens: wrote tests/goldens/rest-old-den-80x24-plain
+goldens: wrote tests/goldens/rest-shallows-120x40-rich
+goldens: wrote tests/goldens/rest-shallows-120x40-plain
+goldens: wrote tests/goldens/rest-shallows-80x24-rich
+goldens: wrote tests/goldens/rest-shallows-80x24-plain
+goldens: wrote tests/goldens/rest-shingle-120x40-rich
+goldens: wrote tests/goldens/rest-shingle-120x40-plain
+goldens: wrote tests/goldens/rest-shingle-80x24-rich
+goldens: wrote tests/goldens/rest-shingle-80x24-plain
+goldens: wrote tests/goldens/rest-teeth-120x40-rich
+goldens: wrote tests/goldens/rest-teeth-120x40-plain
+goldens: wrote tests/goldens/rest-teeth-80x24-rich
+goldens: wrote tests/goldens/rest-teeth-80x24-plain
+goldens: wrote tests/goldens/rest-rich
+goldens: wrote tests/goldens/rest-plain
+goldens: wrote tests/goldens/river-rich
+goldens: wrote tests/goldens/river-plain
+goldens: wrote tests/goldens/saved-den-rich
+goldens: wrote tests/goldens/saved-den-plain
+goldens: wrote tests/goldens/scent-orb-120x40-rich
+goldens: wrote tests/goldens/scent-orb-120x40-plain
+goldens: wrote tests/goldens/scent-orb-80x24-rich
+goldens: wrote tests/goldens/scent-orb-80x24-plain
+goldens: wrote tests/goldens/scent-recover-120x40-rich
+goldens: wrote tests/goldens/scent-recover-120x40-plain
+goldens: wrote tests/goldens/scent-recover-80x24-rich
+goldens: wrote tests/goldens/scent-recover-80x24-plain
+goldens: wrote tests/goldens/scroll-rich
+goldens: wrote tests/goldens/scroll-plain
+goldens: wrote tests/goldens/sneak-rich
+goldens: wrote tests/goldens/sneak-plain
+goldens: wrote tests/goldens/spring-drink-rich
+goldens: wrote tests/goldens/spring-drink-plain
+goldens: wrote tests/goldens/spring-found-rich
+goldens: wrote tests/goldens/spring-found-plain
+goldens: wrote tests/goldens/sprint-120x40-rich
+goldens: wrote tests/goldens/sprint-120x40-plain
+goldens: wrote tests/goldens/sprint-80x24-rich
+goldens: wrote tests/goldens/sprint-80x24-plain
+goldens: wrote tests/goldens/sprint-hit-rich
+goldens: wrote tests/goldens/sprint-hit-plain
+goldens: wrote tests/goldens/stand-rich
+goldens: wrote tests/goldens/stand-plain
+goldens: wrote tests/goldens/thorn-gate-rich
+goldens: wrote tests/goldens/thorn-gate-plain
+goldens: wrote tests/goldens/three-bites-rich
+goldens: wrote tests/goldens/three-bites-plain
+goldens: wrote tests/goldens/title-demo-rich
+goldens: wrote tests/goldens/title-demo-plain
+goldens: wrote tests/goldens/title-rich
+goldens: wrote tests/goldens/title-plain
+goldens: wrote tests/goldens/trail-fading-rich
+goldens: wrote tests/goldens/trail-fading-plain
+goldens: wrote tests/goldens/turn-east-rich
+goldens: wrote tests/goldens/turn-east-plain
+goldens: wrote tests/goldens/walk-north-rich
+goldens: wrote tests/goldens/walk-north-plain
+goldens: wrote tests/goldens/water-refill-rich
+goldens: wrote tests/goldens/water-refill-plain
+goldens: wrote tests/goldens/weasel-retreat-rich
+goldens: wrote tests/goldens/weasel-retreat-plain
+goldens: wrote tests/goldens/wide-rich
+goldens: wrote tests/goldens/wide-plain
+goldens: wrote tests/goldens/world-den-rich
+goldens: wrote tests/goldens/world-den-plain
+goldens: wrote tests/goldens/world-gate-rich
+goldens: wrote tests/goldens/world-gate-plain
+goldens: wrote tests/goldens/world-hawk-rich
+goldens: wrote tests/goldens/world-hawk-plain
+goldens: wrote tests/goldens/world-meadow-rich
+goldens: wrote tests/goldens/world-meadow-plain
+goldens: wrote tests/goldens/world-open-rich
+goldens: wrote tests/goldens/world-open-plain
+goldens: wrote tests/goldens/world-recovered-rich
+goldens: wrote tests/goldens/world-recovered-plain
+goldens: wrote tests/goldens/world-return-rich
+goldens: wrote tests/goldens/world-return-plain
+goldens: wrote tests/goldens/world-thorns-rich
+goldens: wrote tests/goldens/world-thorns-plain
+goldens: wrote tests/goldens/art
+gameplay: native bite rich ok
+gameplay: native parry rich ok
+gameplay: native dodge rich ok
+gameplay: native weasel-retreat rich ok
+gameplay: native fox-feint rich ok
+gameplay: native trail-fading rich ok
+gameplay: native rest rich ok
+gameplay: native death-recovery rich ok
+gameplay: native thorn-gate rich ok
+gameplay: native bite plain ok
+gameplay: native parry plain ok
+gameplay: native dodge plain ok
+gameplay: native weasel-retreat plain ok
+gameplay: native fox-feint plain ok
+gameplay: native trail-fading plain ok
+gameplay: native rest plain ok
+gameplay: native death-recovery plain ok
+gameplay: native thorn-gate plain ok
+gameplay: native aim/combo/heavy rich ok
+gameplay: native aim/combo/heavy plain ok
+gameplay: connected journey, hawk, opening and recovery rich ok
+gameplay: connected journey, hawk, opening and recovery plain ok
+gameplay: death archive replay-verified at tick 841
+gameplay: native body census over 103 scripts: census total ticks 58516 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 1528 contact_unreachable 0 contact_behind 795 foe_overlap 0
+gameplay: native body audit, 100 worlds: total ticks 330240 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 2030 contact_unreachable 0 contact_behind 702 foe_overlap 0
+gameplay: native boar rich windup/phase2/beaten ok, 18 telegraphs, shortest 12
+gameplay: native lynx rich windup/phase2/beaten ok, 9 telegraphs, shortest 10
+gameplay: native elk rich windup/phase2/beaten ok, 17 telegraphs, shortest 16
+gameplay: native alpha rich windup/phase2/beaten ok, 19 telegraphs, shortest 9
+gameplay: end, the three new areas, the title rich ok
+gameplay: native boar plain windup/phase2/beaten ok, 18 telegraphs, shortest 12
+gameplay: native lynx plain windup/phase2/beaten ok, 9 telegraphs, shortest 10
+gameplay: native elk plain windup/phase2/beaten ok, 17 telegraphs, shortest 16
+gameplay: native alpha plain windup/phase2/beaten ok, 19 telegraphs, shortest 9
+gameplay: end, the three new areas, the title plain ok
+gameplay: ghost trailer, display and absence rich ok
+gameplay: ghost trailer, display and absence plain ok
+gameplay: fairness boar attempts 1:94 2:6 3:0 4:0 5:0 unwon:0 hits 116 16 124 unparryable_hits 140 tells 12 24 12 parry_window 9 arena_breaches 0
+gameplay: fairness lynx attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 44 6 28 unparryable_hits 28 tells 10 12 15 parry_window 9 arena_breaches 0
+gameplay: fairness elk attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 40 12 0 unparryable_hits 12 tells 16 24 18 parry_window 9 arena_breaches 0
+gameplay: fairness alpha attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 226 0 0 unparryable_hits 0 tells 9 12 0 parry_window 9 arena_breaches 0
+gameplay: den entry, checkpoint, spring/drink/refill and 50-seed censuses green
+gameplay: den/path/chase censuses, sprint costs, real-key hit and retired HUD flag: green
+gameplay: fifty-seed world labels, after-c padding, scent recovery: green
+world: 50 seeds, all dens/exits/caches, meanders, density, save roundtrip/cut/busy/corrupt/mark: green
+gameplay: every path under /work/target/gameplay readable
+gameplay: green (0 skips)
