@@ -9,6 +9,7 @@ mkdir -p target/test-home
 export HOME="$ROOT/target/test-home"
 .lair/tools/check
 .lair/tools/goldens --bin target/native/cub
+python3 -I tools/score-check
 python3 -I tools/gameplay.py --bin target/native/cub
 python3 -I tools/gameplay.py --bin target/release/cub
 .lair/tools/perf
