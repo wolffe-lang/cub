@@ -66,3 +66,21 @@ Scent drops share the mark's star, dimming to a dot halfway through their
 interpretations. The hawk's stopping shadow and wings are posture, not
 colour alone. Its separate sheet covers circle, stop, stoop, recovery and
 three fade stages. Deer use antlers, a two-cell body and legs on both tiers.
+
+## The Teeth, the Shallows, Gravehollow and the bosses (cb04, 2026-10-26, proposed)
+
+| role | rich | plain |
+|---|---:|---:|
+| the Teeth: stone (two tones) / gravel / grass / trunk / floor | 243, 250 / 245 / 101 / 95 / 236 | 7, 15 / 7 / 2 / 3 / 0 |
+| the Teeth: canopy, light / deep | 58 / 22 | 2 / 2 |
+| the Shallows: bank shingle / grass / trunk / floor | 250 / 66 / 94 / 233 | 7 / 2 / 3 / 0 |
+| the Shallows: canopy, light / deep; water / ripple (the river's) | 66 / 23; 24 / 31 | 2 / 2; 4 / 6 |
+| the shallows (the ford's water half) | `≈` 117 on the water | `~` 14 on 4 |
+| Gravehollow: trunk / grass / floor; canopy, light / deep | 59 / 240 / 232; 23 / 17 | 3 / 8 / 0; 2 / 2 |
+| Gravehollow: the old scent marks on the grass | `:` `.` 240 | `:` `.` 8 |
+| the boar / the lynx / the elk / the alpha | 130 / 179 / 145 / 244 | 1 / 3 / 7 / 8 |
+| the alpha's eyes | `●` 196 | none: the plain alpha is its ASCII shape in 8 |
+| a ghost by rank, newest first | 251, 248, 245, 242, 239, dim | 7, then 8 |
+
+The new areas' paths are gravel (the Teeth, the Shallows) or the thicket's grass (Gravehollow); the world
+audit's `path_off` holds them to `art.path_styles` as before.
