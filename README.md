@@ -13,10 +13,14 @@ The second game of the lair, the wolf games collection, on the collection's shar
 Bramblehold to Larkmeadow, with four dens, meandering paths, guarded side
 caches and two shortcuts home. The shore runs a screen past the view each
 way to its rock jetties, and four winding offshoots leave it for guarded
-bundle alcoves; the forest is one trunk-and-canopy texture to every edge
-of the screen, the thicket and meadow filling the field they were made
-for. The cub, the foes and the bundle are solid pixel silhouettes, one
-drawing each, turned to face the way they go. Original log and flotsam
+bundle alcoves, every path in the shore's own gravel; the forest is one
+trunk-and-canopy texture to every edge of the screen, the thicket and
+meadow filling the field they were made for. The cub, the foes and the
+bundle are solid pixel silhouettes, one drawing each, turned to face the
+way they go; the cub trots at 7.4 cells a second, its paws and tail
+keeping time with its stride. Every body collides as the drawing it is:
+nothing is drawn inside another, and a foe that reaches the cub stands
+where a bite aimed its way lands. Original log and flotsam
 sprites mark the coast. Bite, lunge, parry, dodge and chain attacks; a
 hawk's stopped shadow asks for a parry or an escape. Foes leave visible
 scent to collect before it fades. Dens heal, refill water and spend scent
@@ -89,8 +93,12 @@ The two compiler backends and both hosts must reproduce identical glyphs,
 styles and integer snapshots. `--world-audit` floods the actual terrain for
 50 seeds at both fields, checking every den, exit and cache, the meander
 bound and enemy spacing, the forest's texture at every camera position
-(no flat run, no empty cell) and a bounded walk from every den-reachable
-coast cell to a useful route or cache. The real-key world scripts visit all three areas, fight the hawk,
+(no flat run, no empty cell), a bounded walk from every den-reachable
+coast cell to a useful route or cache, and every path cell in its area's
+one path colour. `--body-audit` holds the bodies apart over the same 50
+seeds at both sizes, with a three-weasel swarm from behind in each world;
+`--measure` reports the pace, the wag, the fox's chase, the path colours
+and the body census over the real-key scripts. The real-key world scripts visit all three areas, fight the hawk,
 recover a cross-area mark, return through both shortcuts and open all four
 coast bundles. File tests
 cover save round trips, cut writes, concurrent stages, corruption and
