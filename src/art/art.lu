@@ -863,6 +863,11 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
             s.tick - s.pickup_at,
         )
     }
+    draw_foes(s, t, mut g)
+}
+
+/// Actor layer: every live/fading foe is cell-clipped, never centre-sight culled.
+pub fn draw_foes(s: sim.Sim, t: int, mut g: grid.Grid) {
     var i = 0
     while i < s.foes.len {
         let f = copy s.foes[i]
@@ -2463,57 +2468,7 @@ pub fn healing_sheet(t: int, spring: bool) -> grid.Grid {
 }
 
 fn den_menu(s: sim.Sim, t: int, mut g: grid.Grid) {
-    let style = grid.cell(
-        32,
-        if t == tier.PLAIN then 7 else 250,
-        restscene.background(s.area, t),
-        0,
-    )
-    let row = s.rows - 10
-    draw.put_text(
-        mut g,
-        row,
-        3,
-        "health {s.health}   stamina {s.stamina}   water {s.flasks}/{s.flask_max}",
-        style,
-    )
-    draw.put_text(
-        mut g,
-        row + 1,
-        3,
-        "Level {sim.level(s)}    Scent {s.scent}    Next level {sim.level_cost(sim.level(s))}",
-        style,
-    )
-    var stat = 0
-    while stat < 5 {
-        let name = match stat {
-            0 => "Heart / health",
-            1 => "Wind / stamina",
-            2 => "Fang / bite",
-            3 => "Paw / pace FP",
-            _ => "Nose / scent cells",
-        }
-        let value = sim.stat_value(s, stat)
-        let now = sim.stat_effect(stat, value)
-        let next = sim.stat_effect(stat, value + 1)
-        let effect = if value >= sim.STAT_MAX then "capped" else "{now} -> {next}"
-        draw.put_text(mut g, row + 3 + stat, 3, "{stat + 1}  {name}  {value}   {effect}", style)
-        stat += 1
-    }
-    draw.put_text(mut g, row + 8, 3, "1-5 spend scent    r / Esc leave", style)
-    draw.put_text(
-        mut g,
-        row + 9,
-        3,
-        if s.save_status == 1 {
-            "Saving journey..."
-        } else if s.save_status == 2 {
-            "Journey saved"
-        } else {
-            "Resting"
-        },
-        style,
-    )
+    restscene.menu(s, t, mut g)
 }
 
 /// Healing HUD seam: row3, column24; clear of the bars and boss row1.

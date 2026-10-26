@@ -93,7 +93,7 @@ pub const KEY_NOSE: int = 23
 pub const KEY_HEAVY: int = 24
 
 /// Number of replay key identifiers.
-pub const KEY_COUNT: int = 27
+pub const KEY_COUNT: int = 28
 
 /// What a character means, or `KEY_NONE`.
 fn char_key(b: int) -> int {
@@ -129,6 +129,7 @@ fn char_key(b: int) -> int {
 /// cub's key for one of the engine's, or `KEY_NONE` for one cub does not
 /// read.
 pub fn map(k: int) -> int {
+    if k == input.KEY_ENTER { return KEY_CONFIRM }
     if k == input.KEY_UP {
         return KEY_UP
     }
@@ -247,7 +248,7 @@ pub const EV_COUNT: int = 42
 /// events by index (`EV_*`).
 pub fn vocab() -> replay.Vocab {
     var names = List[str]()
-    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt release heart wind fang paw nose heavy skip mute".
+    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt release heart wind fang paw nose heavy skip mute confirm".
         words() {
         (mut names).push(w)
     }
@@ -270,3 +271,6 @@ pub const KEY_SKIP: int = 25
 /// `m`: the music off, on again (cb03); the live loop's, inert in the
 /// simulation, recorded like every key so a replay is complete.
 pub const KEY_MUTE: int = 26
+
+/// Enter confirms the staged den purchases; inert outside rest.
+pub const KEY_CONFIRM: int = 27

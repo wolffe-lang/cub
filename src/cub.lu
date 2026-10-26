@@ -24,6 +24,7 @@ use clock
 use controls
 use demo
 use denproof
+use doorproof
 use fight
 use ghost
 use grid
@@ -31,6 +32,7 @@ use glow
 use headless
 use input
 use probe
+use pathaudit
 use props
 use proof
 use replay
@@ -952,6 +954,11 @@ fn run_live(o: Options, args: List[str]) -> int {
 
 fn main() -> int {
     let args = env.args()
+    if args.len > 0 && args[0] == "--doorways-audit" { return doorproof.census() }
+    if args.len == 6 && args[0] == "--route-view" {
+        return pathaudit.view(args[1].to_int() else 0, args[2].to_int() else 0, args[3].to_int() else 0, args[4].to_int() else 80, args[5])
+    }
+    if args.len > 0 && args[0] == "--paths-audit" { return pathaudit.census() }
     if args.len > 0 && args[0] == "--den-census" { return denproof.census() }
     if args.len == 2 && args[0] == "--make-den-proof" { return denproof.generate(args[1]) }
     if args.len > 0 && args[0] == "--mouth-audit" { return run_mouth_audit() }

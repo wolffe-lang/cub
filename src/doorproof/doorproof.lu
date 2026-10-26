@@ -1,0 +1,71 @@
+//! Exhaustive shadow-neighbour census, independent of the transition trigger.
+use forest
+use sim
+
+/// Every drawn shadow cell with an outside neighbour, all eight approach vectors,
+/// four body quarters, cub and grown wolf, fifty seeds and both field sizes.
+pub fn census() -> int {
+    var checked = 0
+    var missed = 0
+    var seed = 0
+    while seed < 50 {
+        for field in [80, 200] {
+            region world {
+                var s = sim.new(seed, field, if field == 80 then 24 else 60)
+                s.gate_open = true
+                s.shortcuts = 15
+                var area = 0
+                while area < forest.AREAS {
+                    s.area = area
+                    var edge = 0
+                    while edge < forest.EDGES {
+                        if forest.other(area, edge) >= 0 {
+                            let (px, py) = forest.portal(seed, area, edge)
+                            var sy = -1
+                            while sy <= 1 {
+                                var sx = -3
+                                while sx <= 3 {
+                                    for dx in [-1, 0, 1] {
+                                        for dy in [-1, 0, 1] {
+                                            let x = px / sim.FP + sx
+                                            let y = py / sim.FP + sy
+                                            // Independent fixed drawing dimensions, not shadow_cell.
+                                            let nx = sx - dx
+                                            let ny = sy - dy
+                                            if outside(nx, ny) {
+                                                for grown in [false, true] {
+                                                    s.end = grown
+                                                    for facing in [0, 1, 2, 3] {
+                                                        s.body_facing = facing
+                                                        let b = sim.cub_body_at(s, 0, 0, facing)
+                                                        let bx = if dx > 0 then b.x1 else if dx < 0 then b.x0 else 0
+                                                        let by = if dy > 0 then b.y1 else if dy < 0 then b.y0 else 0
+                                                        s.x = (x - bx) * sim.FP + sim.FP / 2
+                                                        s.y = (y - by) * sim.FP + sim.FP / 2
+                                                        checked += 1
+                                                        if !sim.shadow_crossed(s, edge, s.x - dx * sim.FP, s.y - dy * sim.FP) { missed += 1 }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    sx += 1
+                                }
+                                sy += 1
+                            }
+                        }
+                        edge += 1
+                    }
+                    area += 1
+                }
+            }
+        }
+        print("doorways: seed {seed} checked {checked} misses {missed}")
+        seed += 1
+    }
+    print("doorways: total {checked} misses {missed}")
+    if missed == 0 then 0 else 1
+}
+
+/// The renderer's fixed seven-by-three shadow, independent of the trigger.
+pub fn outside(x: int, y: int) -> bool { x < -3 || x > 3 || y < -1 || y > 1 }

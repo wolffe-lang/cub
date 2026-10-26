@@ -35,3 +35,54 @@ fn test_cb04d_foe_inside_view_is_not_culled_by_anchor_sight() {
         assert(marks > 0, "nonempty foe witness")
     }
 }
+
+fn test_cb04d_doorway_edge_crosses_and_arrival_does_not_bounce() {
+    var s = sim.new(7, 80, 24)
+    s.gate_open = true
+    s.area = 1
+    s.x = 4 * sim.FP
+    s.y = 159 * sim.FP
+    s.body_facing = 0
+    assert(sim.transitions(mut s, 5 * sim.FP, s.y), "right edge of drawn shadow enters meadow")
+    assert(s.area == 2 && s.y == 3 * sim.FP, "unchanged arrival placement")
+    let x = s.x
+    let y = s.y
+    assert(!sim.transitions(mut s, x, y) && s.area == 2, "no bounce on arrival")
+    s.y += 8 * sim.FP
+    assert(!sim.transitions(mut s, x, y) && s.edge_ready, "leave shadow to rearm")
+    s.x = 4 * sim.FP
+    s.y = sim.FP
+    assert(sim.transitions(mut s, 5 * sim.FP, s.y) && s.area == 1, "return from shadow edge")
+}
+
+fn test_cb04d_foe_is_clipped_at_each_view_edge_not_dropped_whole() {
+    var s = sim.new(7, 80, 24)
+    s.area = 1
+    s.x = 0
+    s.y = 0
+    var f = copy s.foes[0]
+    f.health = 8
+    f.kind = sim.FOX
+    f.phase = sim.HUNT
+    f.heading = 64
+    s.foes = List[sim.Foe]()
+    (mut s.foes).push(f)
+    for t in [0, 1] {
+        for col in [-1, 0, 79, 80] {
+            s.foes[0].x = (col - sim.screen_col(s)) * sim.FP
+            s.foes[0].y = (10 - sim.screen_row(s)) * sim.FP
+            var g = grid.new(24, 80)
+            art.draw_foes(s, t, mut g)
+            var expected = grid.new(24, 80)
+            art.draw_foe(mut expected, t, 10, col, f.kind, f.phase, f.heading, -1)
+            var count = 0
+            var i = 0
+            while i < g.cells.len {
+                assert(grid.same(g.cells[i], expected.cells[i]), "edge clip retains each in-view sprite cell")
+                if g.cells[i].cp != 32 { count += 1 }
+                i += 1
+            }
+            assert(count > 0, "partially visible footprint")
+        }
+    }
+}

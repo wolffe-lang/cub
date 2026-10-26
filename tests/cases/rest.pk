@@ -38,5 +38,9 @@ t 0 scent 49
 t 1 health -30
 t 2 water
 t 33 rest
-t 35 heart
-t 36 wind
+t 35 right
+t 36 down
+t 36 right
+t 37 up
+t 37 up
+t 38 confirm

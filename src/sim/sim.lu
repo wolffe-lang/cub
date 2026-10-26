@@ -326,6 +326,9 @@ pub struct Sim {
     flasks: int,
     scent: int,
     den: bool,
+    rest_row: int,
+    rest_pending: List[int],
+    rest_refused: int,
     death_at: int,
     deaths: int,
     mark: bool,
@@ -422,6 +425,9 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         flasks: 0,
         scent: 0,
         den: false,
+        rest_row: 0,
+        rest_pending: List[int](),
+        rest_refused: 0,
         death_at: 0,
         deaths: 0,
         mark: false,
@@ -1051,14 +1057,8 @@ fn start_action(mut s: Sim, action: int, cost: int) {
 
 fn action_keys(mut s: Sim, keys: List[int]) {
     for k in keys {
-        // Rest owns input: movement must not accumulate a held key in the den.
-        if s.den {
-            if k == controls.KEY_RELEASE || k == controls.KEY_REST { s.den = false }
-            if k >= controls.KEY_HEART && k <= controls.KEY_NOSE {
-                grow(mut s, k - controls.KEY_HEART)
-            }
-            continue
-        }
+        // Rest consumes these inputs; no held motion leaks out of the menu.
+        if s.den { rest_key(mut s, k); continue }
         if controls.is_move(k) {
             let i = k - controls.KEY_UP
             if s.holds[i].last != s.tick { input.hold_press(mut s.holds[i], s.tick) }
@@ -1074,6 +1074,7 @@ fn action_keys(mut s: Sim, keys: List[int]) {
             mark_time(mut s)
             reset_world(mut s)
             s.den = true
+            rest_reset(mut s)
         }
         if s.den { continue }
         if k == controls.KEY_REST && !at_den(s) { cache_key(mut s); shortcut_key(mut s) }
@@ -1513,7 +1514,7 @@ pub fn step(mut s: Sim, keys: List[int]) {
     action_step(mut s, want)
     foes_step(mut s)
     if s.action == FALL { return }
-    if transitions(mut s) { return }
+    if transitions(mut s, ox, oy) { return }
     trail_step(mut s, ox, oy)
     drops_step(mut s)
     healing_pickups(mut s)
@@ -2291,15 +2292,37 @@ fn shortcut_key(mut s: Sim) {
     }
 }
 
-fn transitions(mut s: Sim) -> bool {
+/// Any newly occupied body cell entering a doorway shadow counts, including diagonals.
+pub fn shadow_crossed(s: Sim, edge: int, old_x: int, old_y: int) -> bool {
+    if old_x == s.x && old_y == s.y { return false }
+    let before = cub_body_at(s, old_x, old_y, s.body_facing)
+    let after = cub_body(s)
+    var y = after.y0
+    while y <= after.y1 {
+        var x = after.x0
+        while x <= after.x1 {
+            if (x < before.x0 || x > before.x1 || y < before.y0 || y > before.y1) &&
+                forest.shadow_cell(s.seed, s.area, edge, x, y) { return true }
+            x += 1
+        }
+        y += 1
+    }
+    false
+}
+
+/// Arrival suppression lasts until the entire body leaves every shadow.
+pub fn transitions(mut s: Sim, old_x: int, old_y: int) -> bool {
     var close = false
     var edge = 0
+    let body = cub_body(s)
     while edge < forest.EDGES {
-        if forest.path_edge(edge) && forest.other(s.area, edge) >= 0 {
-            let (x, y) = forest.portal(s.seed, s.area, edge)
-            if near(s.x, s.y, x, y, FP) {
+        if forest.other(s.area, edge) >= 0 {
+            let (px, py) = forest.portal(s.seed, s.area, edge)
+            let touching = body.x1 >= px / FP - 3 && body.x0 <= px / FP + 3 &&
+                body.y1 >= py / FP - 1 && body.y0 <= py / FP + 1
+            if touching {
                 close = true
-                if s.edge_ready && cross_edge(mut s, edge) { return true }
+                if s.edge_ready && shadow_crossed(s, edge, old_x, old_y) && cross_edge(mut s, edge) { return true }
             }
         }
         edge += 1
@@ -3219,5 +3242,74 @@ pub fn healing_pickups(mut s: Sim) {
             s.flasks = s.flask_max
         }
         id += 1
+    }
+}
+
+/// Discard every unconfirmed choice. This state is deliberately absent from schema four.
+pub fn rest_reset(mut s: Sim) {
+    s.rest_row = 0
+    s.rest_refused = 0
+    (mut s.rest_pending).reset()
+    var i = 0
+    while i < 5 { (mut s.rest_pending).push(0); i += 1 }
+}
+
+/// Pending increments of a stat, including a freshly entered fixture's empty menu.
+pub fn rest_delta(s: Sim, stat: int) -> int {
+    if stat >= 0 && stat < s.rest_pending.len then s.rest_pending[stat] else 0
+}
+
+/// Number of staged purchases, not five independently priced tracks.
+pub fn rest_levels(s: Sim) -> int {
+    var n = 0
+    for delta in s.rest_pending { n += delta }
+    n
+}
+
+/// Sum cb04a's shared curve at each intervening level.
+pub fn rest_cost(s: Sim) -> int {
+    var cost = 0
+    var n = 0
+    while n < rest_levels(s) { cost += level_cost(level(s) + n); n += 1 }
+    cost
+}
+
+/// Menu input: wrap over five stats and Confirm; apply as one transaction.
+pub fn rest_key(mut s: Sim, key: int) {
+    if !s.den { return }
+    if s.rest_pending.len != 5 { rest_reset(mut s) }
+    if key == controls.KEY_RELEASE || key == controls.KEY_REST {
+        rest_reset(mut s)
+        s.den = false
+        return
+    }
+    if key == controls.KEY_UP { s.rest_row = (s.rest_row + 5) % 6 }
+    if key == controls.KEY_DOWN { s.rest_row = (s.rest_row + 1) % 6 }
+    if s.rest_row < 5 && key == controls.KEY_LEFT {
+        if s.rest_pending[s.rest_row] > 0 { s.rest_pending[s.rest_row] -= 1 }
+        s.rest_refused = 0
+    }
+    if s.rest_row < 5 && key == controls.KEY_RIGHT {
+        let value = stat_value(s, s.rest_row) + rest_delta(s, s.rest_row)
+        if value < STAT_MAX {
+            let cost = rest_cost(s) + level_cost(level(s) + rest_levels(s))
+            if cost <= s.scent {
+                s.rest_pending[s.rest_row] += 1
+                s.rest_refused = 0
+            } else { s.rest_refused = cost }
+        }
+    }
+    if s.rest_row == 5 && (key == controls.KEY_CONFIRM || key == controls.KEY_BITE) {
+        let cost = rest_cost(s)
+        if cost > s.scent { s.rest_refused = cost; return }
+        s.heart += s.rest_pending[0]
+        s.wind += s.rest_pending[1]
+        s.fang += s.rest_pending[2]
+        s.paw += s.rest_pending[3]
+        s.nose += s.rest_pending[4]
+        s.scent -= cost
+        s.health = health_max(s.heart)
+        s.stamina = stamina_max(s.wind)
+        rest_reset(mut s)
     }
 }

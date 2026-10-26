@@ -43,12 +43,16 @@ pub fn generate(dir: str) -> int {
     replay.push_arg(mut r, 0, 1, 10000)
     s.scent = 10000
     walker.press(mut s, mut r, walker.key(controls.KEY_REST))
-    var stat = controls.KEY_HEART
-    while stat <= controls.KEY_FANG {
+    var stat = 0
+    while stat < 3 {
         var n = 0
-        while n < 9 { walker.press(mut s, mut r, walker.key(stat)); n += 1 }
+        while n < 9 { walker.press(mut s, mut r, walker.key(controls.KEY_RIGHT)); n += 1 }
+        walker.press(mut s, mut r, walker.key(controls.KEY_DOWN))
         stat += 1
     }
+    walker.press(mut s, mut r, walker.key(controls.KEY_DOWN))
+    walker.press(mut s, mut r, walker.key(controls.KEY_DOWN))
+    walker.press(mut s, mut r, walker.key(controls.KEY_CONFIRM))
     walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
     let (spring_x, spring_y) = sim.spring_position(s.seed, 0)
     if !walker.walk(mut s, mut r, spring_x, spring_y) || s.flask_max != 2 {

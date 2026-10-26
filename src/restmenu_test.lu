@@ -1,0 +1,81 @@
+//! member: false
+use controls
+use grid
+use journey
+use restscene
+use sim
+
+fn test_cb04d_confirm_spends_each_intervening_level_cost() {
+    var s = sim.new(7, 80, 24)
+    s.den = true
+    s.scent = 49
+    sim.rest_key(mut s, controls.KEY_RIGHT)
+    sim.rest_key(mut s, controls.KEY_DOWN)
+    sim.rest_key(mut s, controls.KEY_RIGHT)
+    assert(s.heart == 1 && s.wind == 1 && s.scent == 49, "pending is not committed")
+    assert(sim.rest_cost(s) == 24 + 25 && sim.rest_levels(s) == 2, "shared sequence sum")
+    sim.rest_key(mut s, controls.KEY_RIGHT)
+    assert(s.rest_refused == 75 && sim.rest_delta(s, 1) == 1, "unaffordable raise refused")
+    let saved = journey.decode(journey.encode(s), 80, 24) else { assert(false, "pending save"); return }
+    assert(saved.heart == 1 && saved.wind == 1 && sim.rest_levels(saved) == 0, "pending never saved")
+    var i = 0
+    while i < 4 { sim.rest_key(mut s, controls.KEY_DOWN); i += 1 }
+    sim.rest_key(mut s, controls.KEY_CONFIRM)
+    assert(s.heart == 2 && s.wind == 2 && s.scent == 0, "confirm spends exact multi-level sum")
+    assert(s.health == 64 && s.stamina == 80, "bars read new maxima immediately")
+    let confirmed = journey.decode(journey.encode(s), 80, 24) else { assert(false, "confirmed save"); return }
+    assert(confirmed.heart == 2 && confirmed.wind == 2 && confirmed.scent == 0, "confirmed saved")
+}
+
+fn test_cb04d_rest_lower_wrap_discard_and_numeric_keys() {
+    var s = sim.new(7, 80, 24)
+    s.den = true
+    s.scent = 100
+    sim.rest_key(mut s, controls.KEY_UP)
+    assert(s.rest_row == 5, "up wraps to confirm")
+    sim.rest_key(mut s, controls.KEY_DOWN)
+    sim.rest_key(mut s, controls.KEY_LEFT)
+    assert(sim.rest_delta(s, 0) == 0, "never below current")
+    sim.rest_key(mut s, controls.KEY_RIGHT)
+    sim.rest_key(mut s, controls.KEY_LEFT)
+    assert(sim.rest_levels(s) == 0, "lower removes pending")
+    sim.rest_key(mut s, controls.KEY_RIGHT)
+    sim.rest_key(mut s, controls.KEY_HEART)
+    sim.rest_key(mut s, controls.KEY_RELEASE)
+    assert(!s.den && s.heart == 1 && s.scent == 100 && sim.rest_levels(s) == 0, "Esc discards; numbers never buy")
+}
+
+fn test_cb04d_panel_colours_and_complete_cub_fire_fit() {
+    for cols in [80, 120] {
+        var s = sim.new(7, cols, if cols == 80 then 24 else 40)
+        s.den = true
+        s.scent = 24
+        sim.rest_key(mut s, controls.KEY_RIGHT)
+        sim.rest_key(mut s, controls.KEY_RIGHT)
+        for t in [0, 1] {
+            var g = grid.new(s.rows, s.cols)
+            restscene.render(s, t, mut g)
+            let left = restscene.panel_left(s)
+            var before = List[int]()
+            var r = 0
+            while r < s.rows {
+                var c = 0
+                while c < left { (mut before).push(grid.at(g, r, c).cp); c += 1 }
+                r += 1
+            }
+            restscene.menu(s, t, mut g)
+            var n = 0
+            r = 0
+            while r < s.rows {
+                var c = 0
+                while c < left { assert(grid.at(g, r, c).cp == before[n], "panel leaves cub and fire whole"); n += 1; c += 1 }
+                r += 1
+            }
+            let top = (s.rows - restscene.panel_height(s)) / 2
+            let right = left + restscene.panel_width(s)
+            assert(grid.at(g, top + 7, right - 4).fg == (if t == 0 then 12 else 203), "needed red")
+            assert(grid.at(g, top + 10, right - 5).fg == (if t == 0 then 10 else 84), "pending effect green")
+            if t == 0 { assert(grid.plain_ok(g), "ASCII panel") }
+        }
+    }
+}
