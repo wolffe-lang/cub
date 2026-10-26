@@ -1,0 +1,112 @@
+//! member: false
+
+use controls
+use forest
+use input
+use motionproof
+use sim
+use terrain
+
+fn clearing() -> sim.Sim {
+    var s = sim.new(1, 200, 40)
+    (mut s.foes).reset()
+    s.area = forest.BRAMBLEHOLD
+    let (x, y, _) = forest.arena(1, 200, s.area)
+    s.x = x * sim.FP + sim.FP / 2
+    s.y = (forest.origin(1, s.area) + y) * sim.FP + sim.FP / 2
+    s.key_state = input.state_new(true)
+    s
+}
+
+fn test_cb04b_roll_latches_held_direction_all_eight() {
+    for h in [0, 32, 64, 96, 128, 160, 192, 224] {
+        var s = clearing()
+        var keys = motionproof.arrows(h, false)
+        (mut keys).push(controls.KEY_DODGE)
+        let x = s.x
+        let y = s.y
+        sim.step(mut s, keys)
+        assert(s.attack_heading == h, "roll uses held arrow, never stale facing {h}")
+        var n = 1
+        while n < 14 { sim.step(mut s, List[int]()); n += 1 }
+        let dx = s.x - x
+        let dy = s.y - y
+        assert(sim.abs(dx - 10 * sim.sin(h)) <= 1, "ten-cell roll x {h}: {dx}")
+        assert(sim.abs(dy + 10 * sim.cos(h)) <= 1, "ten-cell roll y {h}: {dy}")
+        assert(s.heading == h, "unlocked facing follows roll")
+    }
+}
+
+fn test_cb04b_roll_iframe_last_tick_misses_then_hit_lands() {
+    var s = clearing()
+    s.action = sim.DODGE
+    s.started = 10
+    s.tick = 19
+    let before = s.health
+    sim.hurt(mut s, 10)
+    assert(s.health == before, "last stated iframe age9 must miss")
+    s.tick = 20
+    sim.hurt(mut s, 10)
+    assert(s.health == before - 10, "first vulnerable recovery age10 must hit")
+    assert(
+        sim.dodge_iframes(1) == 10 && sim.dodge_iframes(5) == 11 && sim.dodge_iframes(40) == 12,
+        "capped iframe curve",
+    )
+    assert(sim.roll_cells(1) == 10 && sim.roll_cells(10) == 13, "ruled distances")
+}
+
+fn test_cb04b_roll_chord_survives_thirty_ticks_and_no_arrow_uses_facing() {
+    var s = clearing()
+    sim.step(mut s, [controls.KEY_LEFT, controls.KEY_UP])
+    var n = 0
+    while n < 30 { sim.step(mut s, List[int]()); n += 1 }
+    sim.step(mut s, [controls.KEY_DODGE])
+    assert(s.attack_heading == 224, "long held diagonal plus c")
+    var no_arrow = clearing()
+    no_arrow.heading = 96
+    sim.step(mut no_arrow, [controls.KEY_DODGE])
+    assert(no_arrow.attack_heading == 96, "no arrows means facing")
+}
+
+fn test_cb04b_rally_expires_at_window_end() {
+    var s = clearing()
+    sim.hurt(mut s, 20)
+    assert(sim.rally_available(s) == 20, "damage opens grey pool")
+    sim.rally_hit(mut s)
+    assert(s.health == sim.health_max(1) - 12, "immediate counter restores capped eight")
+    s.tick = s.rally_at + 45
+    let before = s.health
+    sim.rally_hit(mut s)
+    assert(s.health == before && sim.rally_available(s) == 0, "no regain at or after window end")
+    s.tick += 10
+    sim.rally_hit(mut s)
+    assert(s.health == before, "late attack never revives stale pool")
+}
+
+fn test_cb04b_rally_falls_linearly_and_never_exceeds_missing_health() {
+    var s = clearing()
+    sim.hurt(mut s, 20)
+    s.tick += 22
+    assert(sim.rally_available(s) == 10, "grey is half gone mid-window")
+    sim.rally_hit(mut s)
+    assert(s.health == sim.health_max(1) - 16, "mid-window cap is four")
+    s.health = sim.health_max(1) - 1
+    sim.rally_hit(mut s)
+    assert(s.health == sim.health_max(1), "other healing clamps regain")
+}
+
+fn test_cb04b_roll_slides_along_water_wall_without_tunnelling() {
+    var s = sim.new(1, 200, 40)
+    (mut s.foes).reset()
+    s.x = sim.FP / 2
+    s.y = (terrain.bank(1, 0) - 1) * sim.FP + sim.FP / 2
+    let x = s.x
+    sim.step(mut s, [controls.KEY_UP, controls.KEY_RIGHT, controls.KEY_DODGE])
+    var n = 1
+    while n < 8 { sim.step(mut s, List[int]()); n += 1 }
+    assert(s.x > x + 2 * sim.FP, "unblocked east axis keeps sliding")
+    assert(
+        s.blocked > 0 && !sim.blocked(s, sim.cell_x(s), sim.cell_y(s)),
+        "north wall clips, never tunnels",
+    )
+}

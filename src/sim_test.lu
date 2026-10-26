@@ -152,15 +152,15 @@ fn test_the_camera_keeps_the_cub_at_the_centre() {
 fn test_the_stats_give_the_bars() {
     assert(sim.health_max(1) == 52 && sim.health_max(7) == 124, "heart")
     assert(sim.stamina_max(1) == 70 && sim.stamina_max(6) == 120, "wind")
-    assert(sim.trot_at(1) == 75 && sim.trot_at(4) == 87, "paw")
+    assert(sim.trot_at(1) == 80 && sim.trot_at(4) == 93, "paw")
     let s = sim.new(1, 80, 24)
     assert(s.health == 52 && s.stamina == 70, "a fresh cub")
 }
 
 fn test_cb01b_speed_scaling_keeps_the_weasel_bars() {
     // cb01b's bars at cb03's pace (R-cb02c-1 A: the dial at 198 since cb03).
-    assert(sim.WALK_PERCENT == 198, "a fifth faster again than cb02c's 165")
-    assert(sim.trot_at(1) == (38 * 198 + 50) / 100, "walk rounded to nearest FP unit")
+    assert(sim.WALK_PERCENT == 211, "a fifth faster again than cb02c's 165")
+    assert(sim.trot_at(1) == (38 * 211 + 50) / 100, "walk rounded to nearest FP unit")
     assert(sim.SNEAK_V == sim.trot_at(1) / 2, "sneak half the walk")
     assert(sim.FOE_STALK_V > sim.trot_at(1), "weasel outruns starting cub")
     assert(sim.SNEAK_V < sim.FOE_STALK_V, "sneak below stalk")
@@ -176,5 +176,8 @@ fn test_cb01b_speed_scaling_keeps_the_weasel_bars() {
     sim.step(mut s, one(controls.KEY_DODGE))
     var i = 1
     while i < sim.dodge_iframes(s.paw) { sim.step(mut s, none()); i += 1 }
-    assert(s.x - x == 3 * sim.FP, "dodge stays three cells")
+    assert(
+        s.x - x > 3 * sim.FP && s.x - x <= sim.roll_cells(1) * sim.FP,
+        "roll travels farther, clipping at terrain",
+    )
 }

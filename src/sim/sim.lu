@@ -39,7 +39,7 @@ pub const TROT_V: int = 36
 /// "The cub moves much too slowly … Bump the cub speed by 20 %", so 198
 /// (cb03). The one constant to move: everything below
 /// follows it, rounded to the nearest unit.
-pub const WALK_PERCENT: int = 198
+pub const WALK_PERCENT: int = 211
 
 /// cb01b's pace, the base the dial's products are scaled from.
 pub const PACE_BASE_PERCENT: int = 110
@@ -296,6 +296,14 @@ pub struct Sim {
     heading: int,
     heading_target: int,
     speed: int,
+    pace_percent: int,
+    motion_rx: int,
+    motion_ry: int,
+    action_x: int,
+    action_y: int,
+    rally_at: int,
+    rally_pool: int,
+    rally_spent: int,
     sneaking: bool,
     moving: bool,
     blocked: int,
@@ -396,6 +404,14 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         heading: 0,
         heading_target: 0,
         speed: 0,
+        pace_percent: 100,
+        motion_rx: 0,
+        motion_ry: 0,
+        action_x: x,
+        action_y: y,
+        rally_at: -45,
+        rally_pool: 0,
+        rally_spent: 0,
         sneaking: false,
         moving: false,
         blocked: 0,
@@ -509,7 +525,7 @@ pub fn screen_col(s: Sim) -> int {
 /// The world cell under screen `(row, col)`: the camera's corner plus the
 /// offset, the cub's own cell at the centre.
 pub fn world_cell(s: Sim, row: int, col: int) -> (int, int) {
-    (cell_x(s) - screen_col(s) + col, cell_y(s) - screen_row(s) + row)
+    (camera_x(s) - screen_col(s) + col, camera_y(s) - screen_row(s) + row)
 }
 
 /// The cub's world column.
@@ -569,6 +585,18 @@ pub fn heading_of(up: bool, down: bool, left: bool, right: bool) -> int {
 /// the heading turned, the speed changed, the cub moved where the ground
 /// lets it.
 fn locomotion(mut s: Sim) {
+    if s.action == DODGE {
+        s.speed = 0
+        s.sprinting = false
+        if s.locked < 0 {
+            s.heading = s.attack_heading
+            s.heading_target = s.heading
+        } else {
+            s.heading = heading_to(s.x, s.y, s.foes[s.locked].x, s.foes[s.locked].y)
+        }
+        swing_body(mut s)
+        return
+    }
     var held = List[bool]()
     var i = 0
     while i < 8 {
@@ -616,11 +644,20 @@ fn locomotion(mut s: Sim) {
     } else {
         pace
     }
-    s.speed = toward(s.speed, want_v, if want_v > s.speed then ACCEL else BRAKE)
+    let acceleration = (if want_v > s.speed then ACCEL else BRAKE) * s.pace_percent / 100
+    s.speed = toward(
+        s.speed,
+        want_v * s.pace_percent / 100,
+        if acceleration < 1 then 1 else acceleration,
+    )
     // The attack, each axis on its own, so a wall along one lets the other
     // slide; a blocked axis stops the cub.
-    let dx = s.speed * sin(s.heading) / 256
-    let dy = 0 - s.speed * cos(s.heading) / 256
+    let rx = s.speed * sin(s.heading) + s.motion_rx
+    let ry = 0 - s.speed * cos(s.heading) + s.motion_ry
+    let dx = rx / FP
+    let dy = ry / FP
+    s.motion_rx = rx % FP
+    s.motion_ry = ry % FP
     let nx = s.x + dx
     if !blocked(s, floor_div(nx, FP), cell_y(s)) && !cub_blocked_by_body(s, nx, s.y) {
         s.x = nx
@@ -824,7 +861,9 @@ pub struct Foe {
 pub fn bite_damage(fang: int) -> int { 6 + 2 * base_stat(fang) + extra_stat(fang) / 2 }
 
 /// Invulnerable ticks at this paw level (integer division).
-pub fn dodge_iframes(paw: int) -> int { 6 + base_stat(paw) / 2 + extra_stat(paw) / 8 }
+pub fn dodge_iframes(paw: int) -> int {
+    if paw >= 10 then 12 else if paw >= 5 then 11 else 10
+}
 
 /// Absolute value for bounded world coordinates.
 pub fn abs(v: int) -> int { if v < 0 then 0 - v else v }
@@ -951,10 +990,15 @@ pub fn invulnerable(s: Sim) -> bool {
 /// Apply damage unless protected; zero health replaces the scent mark.
 pub fn hurt(mut s: Sim, damage: int) {
     if s.action == FALL || s.den || invulnerable(s) { return }
+    let lost = if damage > s.health then s.health else damage
+    s.rally_pool = rally_available(s) + lost
+    s.rally_spent = 0
+    s.rally_at = s.tick
     s.health -= damage
     if s.action == DRINK { s.action = IDLE }
     if s.health <= 0 {
         s.health = 0
+        s.rally_pool = 0
         s.action = FALL
         s.started = s.tick
         s.death_at = s.tick
@@ -976,6 +1020,7 @@ pub fn hurt(mut s: Sim, damage: int) {
 
 fn reset_world(mut s: Sim) {
     s.health = health_max(s.heart)
+    s.rally_pool = 0
     s.stamina = stamina_max(s.wind)
     s.flasks = s.flask_max
     s.action = IDLE
@@ -1018,6 +1063,7 @@ pub fn grow(mut s: Sim, stat: int) {
     if stat == 3 { s.paw += 1 }
     if stat == 4 { s.nose += 1 }
     s.health = health_max(s.heart)
+    s.rally_pool = 0
     s.stamina = stamina_max(s.wind)
 }
 
@@ -1050,6 +1096,12 @@ fn start_action(mut s: Sim, action: int, cost: int) {
     s.stamina -= cost
     if s.stamina == 0 { s.exhausted = true }
     s.attack_heading = if action == LUNGE || action == DASH then s.heading else attack_aim(s)
+    if action == DODGE {
+        let aim = held_direction(s)
+        s.attack_heading = if aim >= 0 then aim else s.heading
+    }
+    s.action_x = s.x
+    s.action_y = s.y
     s.action = action
     s.combo = if action == BITE then 1 else 0
     s.started = s.tick
@@ -1096,11 +1148,13 @@ fn action_keys(mut s: Sim, keys: List[int]) {
         if s.den { continue }
         if k == controls.KEY_REST && !at_den(s) { cache_key(mut s); shortcut_key(mut s) }
         if k == controls.KEY_BITE {
-            if s.action == BITE && s.tick - s.started >= 5 && s.tick - s.started < 11 {
+            if s.action == BITE &&
+                s.tick - s.started >= 5 &&
+                s.tick - s.started < combo_duration(s.combo) {
                 s.chained = true
                 s.chained_heading = attack_aim(s)
             }
-            if s.sprinting {
+            if sprint_held(s) && held_direction(s) >= 0 && !s.sneaking && !s.exhausted {
                 start_action(mut s, DASH, DASH_COST)
             } else {
                 start_action(mut s, BITE, 12)
@@ -1172,6 +1226,7 @@ fn strike_foes(mut s: Sim) {
                 i += 1
                 continue
             }
+            rally_hit(mut s)
             s.foes[i].health -= damage
             s.foes[i].last_hit = s.started
             if s.foes[i].health <= 0 {
@@ -1413,25 +1468,27 @@ fn foes_step(mut s: Sim) {
     }
 }
 
-fn action_step(mut s: Sim, want: int) {
+fn action_step(mut s: Sim, _want: int) {
     let age = s.tick - s.started
-    if s.action == DODGE && age < dodge_iframes(s.paw) {
-        let h = if want < 0 then s.heading else want
-        let frames = dodge_iframes(s.paw)
-        let distance = (age + 1) * 3 * FP / frames - age * 3 * FP / frames
-        let nx = s.x + distance * sin(h) / FP
-        let ny = s.y - distance * cos(h) / FP
-        let body = cub_blocked_by_body(s, nx, ny)
-        if !body && !blocked(s, floor_div(nx, FP), floor_div(ny, FP)) { s.x = nx; s.y = ny }
+    if s.action == DODGE && age < ROLL_TRAVEL {
+        let before = roll_progress(s.paw, age)
+        let after = roll_progress(s.paw, age + 1)
+        let h = s.attack_heading
+        move_cub(
+            mut s,
+            after * sin(h) / FP - before * sin(h) / FP,
+            0 - after * cos(h) / FP + before * cos(h) / FP,
+        )
     }
     if s.action == DRINK && age >= 15 && age < 30 {
         let healed = (age - 14) * FLASK_HEAL / 15 - (age - 15) * FLASK_HEAL / 15
         s.health += healed
         if s.health > health_max(s.heart) { s.health = health_max(s.heart) }
     }
+    combo_motion(mut s)
     strike_foes(mut s)
     let duration = if s.action == BITE {
-        11
+        combo_duration(s.combo)
     } else if s.action == LUNGE {
         24
     } else if s.action == DASH {
@@ -1441,7 +1498,7 @@ fn action_step(mut s: Sim, want: int) {
     } else if s.action == PARRY {
         15
     } else if s.action == DODGE {
-        dodge_iframes(s.paw) + 4
+        ROLL_TRAVEL + ROLL_RECOVERY
     } else if s.action == DRINK {
         30
     } else {
@@ -1454,7 +1511,7 @@ fn action_step(mut s: Sim, want: int) {
         s.action = IDLE
         if chain {
             let aim = s.chained_heading
-            start_action(mut s, BITE, 12)
+            start_action(mut s, BITE, combo_cost(next_combo))
             if s.action == BITE { s.attack_heading = aim; s.combo = next_combo }
         }
     }
@@ -1663,6 +1720,22 @@ pub fn cub_size(s: Sim) -> (int, int) {
 /// The cub's body at fixed-point `(x, y)` facing `facing`.
 pub fn cub_body_at(s: Sim, x: int, y: int, facing: int) -> Body {
     let (w, h) = cub_size(s)
+    if s.action == BITE {
+        let dx = x - s.action_x
+        let dy = y - s.action_y
+        var b = rect(
+            w,
+            h,
+            facing,
+            floor_div(s.action_x, FP) + floor_div(dx, FP),
+            floor_div(s.action_y, FP) + floor_div(dy, FP),
+        )
+        // Union of subcell-rich and signed-cell-plain drawings, both tiers
+        // collide identically. Fractional translations can cover an extra cell.
+        if dx % FP != 0 { b.x1 += 1 }
+        if dy % FP != 0 { b.y1 += 1 }
+        return b
+    }
     rect(w, h, facing, floor_div(x, FP), floor_div(y, FP))
 }
 
@@ -1898,18 +1971,7 @@ fn aim_axis_order(s: Sim, axis: int) -> int {
 
 /// Lock wins; otherwise latest opposing arrow wins per axis, then facing.
 pub fn attack_aim(s: Sim) -> int {
-    let held = held_direction(s)
-    if held >= 0 { return held }
-    if input.exact(s.key_state) { return s.heading }
-    if s.locked >= 0 && s.locked < s.foes.len && s.foes[s.locked].health > 0 {
-        let h = heading_to(s.x, s.y, s.foes[s.locked].x, s.foes[s.locked].y)
-        if h >= 0 { return h }
-    }
-    let up = aim_axis_order(s, 0)
-    let down = aim_axis_order(s, 1)
-    let left = aim_axis_order(s, 2)
-    let right = aim_axis_order(s, 3)
-    let h = heading_of(up > down, down > up, left > right, right > left)
+    let h = held_direction(s)
     if h >= 0 then h else s.heading
 }
 
@@ -1953,20 +2015,7 @@ pub fn clip_arc(s: Sim, ox: int, oy: int) -> (int, int) {
 /// The cub's bounded presentation offset, pure and independent of tier.
 pub fn attack_offset(s: Sim) -> (int, int) {
     let age = s.tick - s.started
-    if s.action == BITE {
-        let distance = if s.combo == 3 then COMBO_FINISH_ARC else BITE_ARC
-        let (x, y) = leap_arc(attack_direction(s), age - 2, 3, distance)
-        let lean = if age >= 3 && age < 5 {
-            if s.combo == 1 then 0 - COMBO_LEAN else if s.combo == 2 then COMBO_LEAN else 0
-        } else {
-            0
-        }
-        return clip_arc(
-            s,
-            x + cos(s.attack_heading) * lean / FP,
-            y + sin(s.attack_heading) * lean / FP,
-        )
-    }
+    if s.action == BITE { return (0, 0) }
     if s.action == DASH {
         let (x, y) = leap_arc(s.attack_heading, age - 2, 4, 4 * FP)
         return clip_arc(s, x, y)
@@ -3437,8 +3486,118 @@ fn input_key(mut s: Sim, k: int) -> bool {
         sync_holds(mut s)
     } else if k == controls.KEY_CTRL_DOWN {
         input.hold_press(mut s.sprint_hold, s.tick)
-    } else if k == controls.KEY_CTRL_UP {
-        s.sprint_hold = input.hold_new()
     }
     true
+}
+
+/// Eight travel ticks followed by six recovery ticks. At paw1 the first
+/// two recovery ticks are still inside the ten-tick invulnerability window.
+pub const ROLL_TRAVEL: int = 8
+
+/// Recovery is immobile and cannot act; its last four ticks are vulnerable at paw1.
+pub const ROLL_RECOVERY: int = 6
+
+/// Ruled distance, in cells: at least twice a fourteen-tick walk.
+pub fn roll_cells(paw: int) -> int {
+    let n = (2 * 14 * trot_at(paw) + FP - 1) / FP
+    if n < 10 then 10 else n
+}
+
+/// Cumulative ease-out travel in fixed point, including both exact endpoints.
+pub fn roll_progress(paw: int, tick: int) -> int {
+    let t = if tick < 0 then 0 else if tick > 8 then 8 else tick
+    roll_cells(paw) * FP * (16 * t - t * t) / 64
+}
+
+fn move_cub(mut s: Sim, dx: int, dy: int) {
+    let span = if abs(dx) > abs(dy) then abs(dx) else abs(dy)
+    let steps = span / (FP / 8) + 1
+    var n = 1
+    while n <= steps {
+        let nx = s.x + dx * n / steps - dx * (n - 1) / steps
+        if !blocked(s, floor_div(nx, FP), cell_y(s)) && !cub_blocked_by_body(s, nx, s.y) {
+            s.x = nx
+        } else {
+            s.blocked += 1
+        }
+        let ny = s.y + dy * n / steps - dy * (n - 1) / steps
+        if !blocked(s, cell_x(s), floor_div(ny, FP)) && !cub_blocked_by_body(s, s.x, ny) {
+            s.y = ny
+        } else {
+            s.blocked += 1
+        }
+        n += 1
+    }
+}
+
+/// A damage event opens a half-open 1.5-second rally window.
+pub const RALLY_TICKS: int = 45
+
+/// Regainable missing health: initial pool decays linearly, all gains deducted.
+pub fn rally_available(s: Sim) -> int {
+    let age = s.tick - s.rally_at
+    if age < 0 || age >= RALLY_TICKS || s.health <= 0 { return 0 }
+    let pool = s.rally_pool * (RALLY_TICKS - age) / RALLY_TICKS - s.rally_spent
+    let missing = health_max(s.heart) - s.health
+    if pool < 0 then 0 else if pool > missing then missing else pool
+}
+
+/// A landed damaging hit regains at most eight, linearly falling with age.
+pub fn rally_hit(mut s: Sim) {
+    let available = rally_available(s)
+    if available <= 0 { return }
+    let cap = 8 * (RALLY_TICKS - (s.tick - s.rally_at)) / RALLY_TICKS
+    let gain = if available < cap then available else cap
+    s.health += gain
+    s.rally_spent += gain
+}
+
+/// Distinct committed recoveries: six, eight, twelve ticks after the 3/2 attack.
+pub fn combo_duration(hit: int) -> int { if hit == 3 then 17 else if hit == 2 then 13 else 11 }
+
+/// Each accepted link spends stamina; a refused link cannot advance the combo.
+pub fn combo_cost(hit: int) -> int { if hit == 3 then 18 else if hit == 2 then 14 else 12 }
+
+fn combo_motion(mut s: Sim) {
+    if s.action != BITE { return }
+    let age = s.tick - s.started
+    var forward = 0
+    var side = 0
+    if s.combo == 3 {
+        if age == 3 || age == 4 { forward = FP }
+    } else {
+        let sign = if s.combo == 1 then -1 else 1
+        if age == 3 { forward = FP / 4; side = sign * COMBO_LEAN }
+        if age == 5 || age == 6 { side = 0 - sign * COMBO_LEAN / 2 }
+    }
+    let h = s.attack_heading
+    move_cub(
+        mut s,
+        (forward * sin(h) + side * cos(h)) / FP,
+        (side * sin(h) - forward * cos(h)) / FP,
+    )
+}
+
+/// During a bite the camera stays at the commitment point, so body movement
+/// reads on screen instead of being cancelled by the following camera.
+pub fn camera_x(s: Sim) -> int { if s.action == BITE then floor_div(s.action_x, FP) else cell_x(s) }
+
+/// The matching camera row.
+pub fn camera_y(s: Sim) -> int { if s.action == BITE then floor_div(s.action_y, FP) else cell_y(s) }
+
+/// Disclosed test setup only (--combat-witness); ordinary play never calls it.
+/// It exercises the real input loop in a clear arena, without foe interference.
+pub fn combat_witness(mut s: Sim) {
+    s.area = forest.BRAMBLEHOLD
+    let (x, y, _) = forest.arena(s.seed, s.field, s.area)
+    s.x = x * FP + FP / 2
+    s.y = (forest.origin(s.seed, s.area) + y) * FP + FP / 2
+    (mut s.foes).reset()
+    s.scene = 0
+    s.opening_seen = true
+    s.heading = 0
+    s.heading_target = 0
+    s.speed = 0
+    s.health = health_max(s.heart)
+    s.stamina = stamina_max(s.wind)
 }
