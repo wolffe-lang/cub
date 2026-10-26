@@ -19,6 +19,7 @@ the numeric events, the `# score` comment). cub's words in it are its vocabulary
 | `q` | `quit` |
 | Esc | `release` |
 | 1–5 at the den | `heart`, `wind`, `fang`, `paw`, `nose` |
+| `m` | `mute` (cb03: the music off and on; inert in the simulation) |
 | Ctrl-C as a byte | `interrupt` |
 
 Every key is recorded. Numeric `health N` and `scent N` events are explicit

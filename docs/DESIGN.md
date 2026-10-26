@@ -13,21 +13,21 @@ The connected Shingle, Bramblehold and Larkmeadow share one fight, rest, death a
 | `STAT_START` | 1 | heart, wind, fang, paw and nose at the start; each 1-10, grown at dens with scent (cb01) | 2026-10-25 proposed |
 | `health_max(heart)` | `40 + 12 × heart` | health at a heart level: 52 at the start | 2026-10-25 proposed (the bible) |
 | `stamina_max(wind)` | `60 + 10 × wind` | stamina at a wind level: 70 at the start; moves spend it | 2026-10-25 proposed (the bible) |
-| `trot_at(paw)` | `round((TROT_V + 2 × paw) × WALK_PERCENT / 100)` | the trot at a paw level: 63 at the start (7.38 cells a second), 92 at paw 10 | 2026-10-25 proposed (the bible); the dial 165 since cb02c |
+| `trot_at(paw)` | `round((TROT_V + 2 × paw) × WALK_PERCENT / 100)` | the trot at a paw level: 75 at the start (8.79 cells a second), 111 at paw 10 | 2026-10-25 proposed (the bible); the dial 198 since cb03 |
 
 ## The cub's motion (`src/sim/sim.lu`)
 
 | constant | value | meaning | set |
 |---|---|---|---|
 | `TROT_V` | 36 | the unscaled stat base, fixed-point units a tick (256 a cell); `trot_at` applies the pace dial | 2026-10-25 proposed |
-| `WALK_PERCENT` | 165 | the pace dial (R-cb02c-1 A): the trot, the sneak, the turn rate, acceleration, braking and the foes' speeds are its products of cb01b's values (`PACE_BASE_PERCENT` 110), rounded to the nearest unit; the one constant to move | 2026-10-25 cb02c, proposed |
-| `SNEAK_V` | 31 | a sneak (Shift+arrow): half the current paw-dependent trot (the ratio the dial keeps); no trail is laid and foes perceive by sight only | 2026-10-25 proposed (the bible, section 4) |
-| `ACCEL` | 6 | acceleration, FP units a tick each tick: 4 × 165/110; the starting trot from a stop still in 11 ticks | 2026-10-25 cb02c, proposed |
-| `BRAKE` | 12 | braking: 8 × 165/110; a stop from the starting trot in 6 ticks; a cub stops faster than it starts | 2026-10-25 cb02c, proposed |
+| `WALK_PERCENT` | 198 | the pace dial (R-cb02c-1 A): the trot, the sneak, the turn rate, acceleration, braking, the foes' speeds, the stride and the sway are its products of cb01b's values (`PACE_BASE_PERCENT` 110) and cb02c's (`GAIT_BASE_PERCENT` 165), rounded to the nearest unit; the one constant to move. 165 was cb02c's; the maintainer's standing word on that build, 2026-10-26: "Bump the cub speed by 20 %" | 2026-10-26 cb03, proposed |
+| `SNEAK_V` | 37 | a sneak (Shift+arrow): half the current paw-dependent trot (the ratio the dial keeps); no trail is laid and foes perceive by sight only | 2026-10-25 proposed (the bible, section 4) |
+| `ACCEL` | 7 | acceleration, FP units a tick each tick: 4 × 198/110; the starting trot from a stop still in 11 ticks | 2026-10-26 cb03 (derived), proposed |
+| `BRAKE` | 14 | braking: 8 × 198/110; a stop from the starting trot in 6 ticks (5 measured after the hold lapses); a cub stops faster than it starts | 2026-10-26 cb03 (derived), proposed |
 | `TURN` | 256 | heading units a full turn: 0 north, 64 east, 128 south, 192 west; the diagonals between when two arrows are held | 2026-10-25 cb00 |
-| `TURN_RATE` | 24 | the maximum turn rate, heading units a tick: 16 × 165/110, so the turning circle (speed over turn rate) is cb01b's, 0.46 cells measured; a quarter turn in 3 ticks, about in 6 (200 ms); the cub turns, never pivots | 2026-10-25 cb02c, proposed |
-| `STRIDE`, `GAIT_CYCLE` | 832, 1664 | a stride, FP units of travel (both paws once), and a wag (two strides): the tail and paws are tied to the ground covered, never the tick (R-cb02c-2 A) | 2026-10-25 cb02c, proposed |
-| `SWAY_V` | 28 | the gait's floor, units a tick: a standing (or winding-up) cub's tail still sways, one wag in 59 ticks | 2026-10-25 cb02c, proposed |
+| `TURN_RATE` | 29 | the maximum turn rate, heading units a tick: 16 × 198/110, so the turning circle (speed over turn rate) is cb01b's, 0.55 cells measured; a quarter turn in 3 ticks, about in 6 (200 ms); the cub turns, never pivots | 2026-10-26 cb03 (derived), proposed |
+| `STRIDE`, `GAIT_CYCLE` | 998, 1996 | a stride, FP units of travel (both paws once), and a wag (two strides): the tail and paws are tied to the ground covered, never the tick (R-cb02c-2 A); 832 at the dial's 165, scaled with it (R-cb03-5 A) so the wag keeps its 0.9 s at the trot | 2026-10-26 cb03 (derived), proposed |
+| `SWAY_V` | 34 | the gait's floor, units a tick: a standing (or winding-up) cub's tail still sways, one wag in 59 ticks; 28 at the dial's 165, scaled with the stride (R-cb03-5 A) | 2026-10-26 cb03 (derived), proposed |
 | the held key | the engine's `input.Hold` | a press holds `HOLD_TAP_TICKS` 12; an autorepeat run holds one interval plus `HOLD_MARGIN` past its last press (pack's pk01 model, in the engine) | 2026-10-25 the engine's |
 | the camera | the cub's cell at the centre | R-CB-3: the world scrolls under the cub in every direction; a resize keeps it at the centre | 2026-10-25 ruling #130 |
 
@@ -79,10 +79,10 @@ Additional proposed values, all 2026-10-25:
 | mechanic | values |
 |---|---|
 | stamina | `REGEN` 2 standing, 1 walking, none during moves; exhausted at zero; `EXHAUST_RECOVER` 24; no sprint binding exists yet |
-| posture | fresh above 2/3, tired above 1/3, spent below; limp halves trot below 1/3 health |
+| posture | stamina: fresh above 2/3, tired above 1/3, spent below (the fur, and the breath since cb03); health: full at 3/4 and above, hurt at 1/2, badly hurt at 1/4, dying below (the ears, tail and trot since cb03); limp halves trot below 1/3 health |
 | weasel | health 8, damage 10, scent 8 (bible); crouch 12, active 2, retreat/recovery 24 ticks |
 | fox | health 24, damage 16, scent 20 (bible); feint 10, gap 6, real crouch 12, active 3, retreat 24 ticks; steals one water on a hit |
-| foe motion | 66 pursuit / 72 retreat FP units per tick (44 / 48 × 165/110), acceleration 6 (the cub's), turn rate `FOE_TURN_RATE` 16 (cb01b's, not scaled), a turn it cannot make in one tick checks it toward `FOE_TURN_V` 33, stamina cap 60, attack costs 12, hunt restores 1/tick |
+| foe motion | 79 pursuit / 86 retreat FP units per tick (44 / 48 × 198/110), acceleration 6 (the cub's), turn rate `FOE_TURN_RATE` 16 (cb01b's, not scaled), a turn it cannot make in one tick checks it toward `FOE_TURN_V` 33, stamina cap 60, attack costs 12, hunt restores 1/tick |
 | perception | 90-degree forward cone, sight 8 cells; scent search 6 cells, newest unexpired visible sample; half-cell ray sampling |
 | trail | 300-tick lifetime (bible); one sample per changed cell, none sneaking; old trail remains until expiry |
 | water and death | 3 mouthfuls; 40 healed; 30-tick death fade (bible); mark recovery within 1 cell |
@@ -422,3 +422,53 @@ real-key scripts: before, a foe's drawing shared a cell with the cub's on 1,879 
 scripts' keys and a three-weasel swarm from behind in fifty seeds at both sizes: 360,956 ticks, no overlap,
 no contact out of reach, no foe in another; the swarm reaches the cub and is fought in all hundred worlds.
 
+
+## The pace, +20 %, 2026-10-26 (cb03, proposed)
+
+The maintainer's standing word on cb02b's build: "The cub moves much too slowly … Bump the cub speed by
+20 %." The dial `WALK_PERCENT` 165 → 198, the one constant; the turn rate, acceleration, braking and the
+foes' speeds stay its products as cb02c left them. The numbers are `cub --measure`'s (before:
+`notes/cb03-evidence/measure-before.txt`; after: `measure-after.txt`).
+
+| measure (30 Hz, paw 1) | before (165) | after (198) |
+|---|---|---|
+| trot, straight | 63 FP/tick, 7.38 cells/s | 75, 8.78 cells/s (+19 %: the integer floor of 75.7) |
+| diagonal | 7.28 cells/s | 8.77 cells/s (the instrument now measures the diagonal from a standing start; cb02c's window met the woods at this pace) |
+| a quarter turn | 3 ticks, radius 0.46 cells | 3 ticks, radius 0.55 |
+| to the trot / to a stop | 11 / 5 ticks | 11 / 5 ticks |
+| sneak | 31 | 37 |
+| foes' pursuit / retreat | 66 / 72 | 79 / 86 |
+| paw 10 trot | 92 | 111 |
+
+**R-cb03-5 A, the gait.** The wag and the paws are tied to the ground covered (cb02c), so a faster cub
+would wag faster: 22 ticks a wag at the trot, a tail frame of two ticks, the flicker the maintainer's word
+retired creeping back at a grown paw. Instead the stride and the standing sway scale with the dial from
+cb02c's 165 (`GAIT_BASE_PERCENT`): `STRIDE` 832 → 998 (3.9 cells, still under the body's four), `SWAY_V`
+28 → 34, so the wag keeps its 0.9 s at the trot (26.6 ticks measured), 0.6 s at paw 10 (18.0) and 2 s
+standing (58.75), and a frame holds three ticks or more at the trot. B, the stride kept, was the faster
+wag. The overlap census over the regenerated real-key scripts stays 0 / 0 / 0.
+
+## Posture as HUD, 2026-10-26 (cb03, proposed)
+
+Campaign innovation 5 (pack's ART.md was read for the idea, never copied): the numbers leave the running
+HUD. Health is the cub's gait, ears and tail (R-cb03-2 A, four bands as frame sets of the one silhouette:
+`sim.hurt_band`, `silhouette.cub_posed`; `docs/ART.md` draws them); stamina is the breath: standing, the
+shoulders and haunches widen a pixel each side on the in-breath, one breath in two seconds fresh
+(`BREATH_TICKS` 60), 1.2 s tired, and spent the pant's mouth opens and closes every four ticks
+(`PANT_TICKS`). The fur still dims when tired or spent. The health tail mark (cb01) is gone with the bars.
+The numbers show at a den and on the death card only (R-cb03-3 A); `--hud` (B, a debug flag off by
+default) puts cb01b's bars back beside the scent. The scent counter stays the one number on screen; the
+area name shows for `ENTRY_TICKS` (three seconds) at an area change; the lock-on reticle is unchanged.
+
+| band | health | ears | tail | trot |
+|---|---|---|---|---|
+| full | 3/4 and above | out | the full wag, two pixels each side | both paws out a step |
+| hurt | 1/2 and above | back along the head | half the wag | both paws |
+| badly hurt | 1/4 and above | laid back at the neck | hanging still | one paw out a step |
+| dying | below 1/4 | flat; the head drops like the sneak's | hanging still | none: the trot is a stand |
+
+## The score, 2026-10-26 (cb03)
+
+`docs/SCORE.md`: ten original parts, the cue schedule (an area's loop, the title, the den's rest, a boss
+theme as the duck, the death sting once, the resume at the den), `--mute`, `CUB_SOUND=0`, the `m` key, and
+the music path today (R-cb03-1 B: WAVs per part played by cue, since lr01's engine streams nothing).

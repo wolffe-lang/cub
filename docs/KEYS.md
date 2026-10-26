@@ -16,6 +16,7 @@ remain unmeasured. The decoder selftest checks every split of each sequence.
 | Tab | `09` | lock nearest, then cycle |
 | w | `77` | drink |
 | r | `72` | rest at a nearby den; interact with a shortcut or cache |
+| m | `6D` | the music off, on again (cb03; `--mute` and `CUB_SOUND=0` keep it off) |
 | 1 / 2 / 3 / 4 / 5 | `31` / `32` / `33` / `34` / `35` | grow heart / wind / fang / paw / nose at the den |
 | q | `71` | quit |
 
@@ -46,6 +47,7 @@ in lair before cub can bind the chord. No protocol is enabled by this build.
 In connected areas, `r` rests at any den, pushes/crosses the fallen log,
 digs/crosses the hedge, or digs an unguarded cache. Context chooses the
 operation; stat growth remains den-only. Any decoded key skips the opening
-scene. Otherwise unused keys are recorded as `skip` and do nothing during
+scene. `m` is the music's switch, recorded as `mute` and inert in the simulation
+(`docs/SCORE.md`). Otherwise unused keys are recorded as `skip` and do nothing during
 play. The new pty save rows use `q` and the engine's typed byte `03` while
 a real save stage exists; neither row sends a signal from a script.

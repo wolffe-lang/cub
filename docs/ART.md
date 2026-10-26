@@ -45,7 +45,27 @@ tail at each offset; `docs/GLYPHS.md` gained two braille cells for them. The pla
 the side the rich tail swings to, and its walking paw `'` steps at the haunches' corners, inside the
 footprint. Stamina is the fur: fresh, dim when tired or spent. The plain
 tier keeps the footprints in ASCII (`.^^.` over `####` over `.,..` north; `.=####^.` over `,=####>.`
-east). The health tail and the posture marks sit clear of the silhouette in every facing.
+east). The posture marks sit clear of the silhouette in every facing.
+
+2026-10-26 (cb03) — posture as HUD (campaign innovation 5; pack's idea, cub's drawing): the numbers leave
+the running HUD, and health is read from the cub as one reads a dog. The one silhouette gains a hurt set
+(`silhouette.cub_posed`, R-cb03-2 A), four bands by health:
+
+| band | the drawing, facing north |
+|---|---|
+| full (3/4 and above) | as above: the ears out (`#.####.#`), the tail's full wag, both paws out a step |
+| hurt (1/2 and above) | the ears back along the head (`.######.` over `.######.`), the tail's wag halved |
+| badly hurt (1/4 and above) | the ears laid back at the neck (`..####..` over `#.####.#`), the tail hanging still down the middle, one paw out a step |
+| dying (under 1/4) | the ears flat, the head dropped like the sneak's, the tail still, the trot a stand |
+
+Stamina is the breath: standing, the shoulders (`.######.` → `########`) and the haunches (`..####..` →
+`.######.`) widen a pixel each side on the in-breath, every two seconds fresh and every 1.2 s tired
+(`sim.breath`); spent, the pant's mouth (`..#..#..`) opens and closes every four ticks. Every frame is the
+same 8 by 16 drawing, so what is drawn is still what collides. The sheet's `hurt` row draws the four bands
+walking north, its `breath` row the out-breath, the in-breath and the pant's two frames; `docs/GLYPHS.md`
+gained sixteen braille cells for them. The plain tier shows the hurt set (the ears' low row from hurt on,
+the tail `,` still on the left from badly hurt on) and the pant; it has no breath. cb01's health tail
+mark (`/ - _`) is gone with the bars; the numbers show at a den and on the death card (R-cb03-3 A).
 
 ## Bodies (cb02c)
 
