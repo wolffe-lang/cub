@@ -1,0 +1,9 @@
+cb04f prediction, before implementation; base 5b10fec (code 7e2c6a77)
+
+The checked test cb04f_slain_survive_path_and_log and pty row den-world-memory will fail on trunk: killed Shingle foes return after a path crossing and an opened-log crossing. The new ledger centre test will fail because trunk places its panel at the right edge.
+
+Fifty seeds, fields 80/200: initial live counts per area [9,10,11,5,5,5] (bosses unbeaten). Clear Shingle: 0; Bramblehold:10; path return Shingle before9/after0; log return Shingle before9/after0; rest then Shingle9. Other areas keep slain until a rest; wounded living foes heal and return to their seeded places. Death resets every area's ordinary foes; bosses remain beaten.
+
+Ledger centres (edge-coordinate convention left+width/2, top+height/2): 80x24=(27,12), 120x40=(40,20), 200x60=(67,30). Widths40/50/50, heights22/26/26; left7/15/42 and top1/7/17. None of these sizes needs clamping; smaller hypothetical placement clamps to the first/last fully visible column.
+
+R-cb04f-1 A and R-cb04f-2 A as contracted. Recommend R-cb04f-3 A: save carries the six slain masks, preserving them when resuming at the last den; schema4 migrates with empty masks, earlier schemas remain unsupported. Replay snapshots gain six masks while old journey3 recordings remain readable. Pending drops/meat persist across area travel with their existing absolute-tick expiry, but are not carried by checkpoint saves (as today); no taken pickup is recreated by travel or reload. The slain masks use ordinary-foe ordinals independent of whether an area's boss is present.
