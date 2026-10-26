@@ -549,7 +549,10 @@ fn locomotion(mut s: Sim) {
     swing_body(mut s)
     // The speed: toward the trot (or the sneak) while a key is held, to a
     // stop when none is.
-    let pace = if s.health * 3 < health_max(s.heart) then trot_at(s.paw) / 2 else trot_at(s.paw)
+    var pace = if s.health * 3 < health_max(s.heart) then trot_at(s.paw) / 2 else trot_at(s.paw)
+    // The Shallows' current (cb04): the cub wades at half its pace, the
+    // elk's second phase's ground.
+    if in_shallows(s, s.x, s.y) { pace = pace / 2 }
     let want_v = if !s.moving || s.action != IDLE {
         0
     } else if s.sneaking {
@@ -746,6 +749,11 @@ pub fn spawn_foes(seed: int) -> List[Foe] {
 pub fn gate_y(s: Sim) -> int {
     let (_, y) = terrain.start(s.seed)
     floor_div(y, FP) + forest.LENGTH - 3
+}
+
+/// Whether fixed-point `(x, y)` stands in the Shallows' water (cb04).
+pub fn in_shallows(s: Sim, x: int, y: int) -> bool {
+    forest.kind(s.seed, s.field, s.area, floor_div(x, FP), floor_div(y, FP)) == terrain.SHALLOWS
 }
 
 /// Terrain and unopened thorns block a world cell.
@@ -1768,14 +1776,16 @@ pub const ENTRY_TICKS: int = 90
 
 /// Set the selected den bit, leaving other lit dens unchanged.
 pub fn light_den(bits: int, den: int) -> int {
-    let mask = if den == 0 then 1 else if den == 1 then 2 else if den == 2 then 4 else 8
+    var mask = 1
+    var i = 0
+    while i < den { mask *= 2; i += 1 }
     if bits / mask % 2 == 0 then bits + mask else bits
 }
 
 /// The den in resting reach, or -1.
 pub fn den_here(s: Sim) -> int {
     var den = 0
-    while den < 4 {
+    while den < forest.DENS {
         let (x, y) = forest.den_position(s.seed, den)
         if s.area == forest.den_area(den) && near(s.x, s.y, x, y, FP) { return den }
         den += 1
@@ -1791,13 +1801,16 @@ pub fn area_foes(seed: int, field: int, area: int) -> List[Foe] {
         let at = (if group == 0 then 52 else if group == 1 then 76 else 134) +
             world.hash(seed, area, group + 131, 5)
         // The second thicket den sits at 90..93: do not spawn near it.
-        if area != forest.BRAMBLEHOLD || group != 1 {
-            let count = if area == forest.LARKMEADOW then 2 else if group == 1 then 1 else 2
+        // The second thicket den sits at 90..93; the arenas at 100..124 in
+        // the last three areas: the middle group stays out of both.
+        if group != 1 || area == forest.SHINGLE || area == forest.LARKMEADOW {
+            let open = area == forest.LARKMEADOW || area == forest.RIVER
+            let count = if open then 2 else if group == 1 then 1 else 2
             var member = 0
             while member < count {
-                let kind = if area == forest.LARKMEADOW {
+                let kind = if open {
                     (if member == 0 then HAWK else DEER)
-                } else if group == 1 {
+                } else if group == 1 || area == forest.CRAGS || area == forest.OLDDEN {
                     FOX
                 } else {
                     WEASEL
@@ -1892,43 +1905,49 @@ pub fn enter_area(mut s: Sim, area: int, x: int, y: int) {
     settle_bodies(mut s)
 }
 
+/// Whether the journey has opened shortcut `edge`.
+pub fn shortcut_open(s: Sim, edge: int) -> bool {
+    let bit = forest.shortcut_bit(edge)
+    bit > 0 && s.shortcuts / bit % 2 == 1
+}
+
+/// Open shortcut `edge` in the journey (idempotent).
+pub fn open_shortcut(mut s: Sim, edge: int) {
+    if !shortcut_open(s, edge) { s.shortcuts += forest.shortcut_bit(edge) }
+}
+
 /// Traverse an unlocked incident edge; false for unavailable edges.
 pub fn cross_edge(mut s: Sim, edge: int) -> bool {
     let to = forest.other(s.area, edge)
     if to < 0 || edge == 0 && !s.gate_open { return false }
-    if edge == 2 && s.shortcuts % 2 == 0 || edge == 3 && s.shortcuts / 2 % 2 == 0 { return false }
+    if !forest.path_edge(edge) && !shortcut_open(s, edge) { return false }
     let (x, y) = forest.portal(s.seed, to, edge)
-    // Arrival is off the trigger; a return requires walking back to it.
+    // Arrival is off the trigger; a return requires walking back to it:
+    // north of a far-end portal (the way back), south of an entry.
     enter_area(
         mut s,
         to,
         x,
-        y +
-            (
-                if edge == 0 && to == forest.SHINGLE || edge == 1 && to == forest.BRAMBLEHOLD {
-                    -2 * FP
-                } else {
-                    2 * FP
-                }
-            ),
+        y + (if forest.path_edge(edge) && forest.exit_end(to, edge) then -2 * FP else 2 * FP),
     )
     true
 }
 
 fn shortcut_key(mut s: Sim) {
-    var edge = 2
-    while edge < 4 {
-        if forest.other(s.area, edge) >= 0 {
+    var edge = 0
+    while edge < forest.EDGES {
+        if !forest.path_edge(edge) && forest.other(s.area, edge) >= 0 {
             let (x, y) = forest.portal(s.seed, s.area, edge)
             if near(s.x, s.y, x, y, 2 * FP) {
-                // Open only from the far side, then either side can traverse it.
-                if edge == 2 && s.area == forest.BRAMBLEHOLD && s.shortcuts % 2 == 0 {
+                // Open only from the far side, then either side can traverse
+                // it; the ledge and the shallows are opened by their bosses.
+                if edge == 2 && s.area == forest.BRAMBLEHOLD && !shortcut_open(s, edge) {
                     s.cue = 1
-                    s.shortcuts += 1
+                    open_shortcut(mut s, edge)
                 }
-                if edge == 3 && s.area == forest.LARKMEADOW && s.shortcuts / 2 % 2 == 0 {
+                if edge == 3 && s.area == forest.LARKMEADOW && !shortcut_open(s, edge) {
                     s.cue = 2
-                    s.shortcuts += 2
+                    open_shortcut(mut s, edge)
                 }
                 let _ = cross_edge(mut s, edge)
                 return
@@ -1941,8 +1960,8 @@ fn shortcut_key(mut s: Sim) {
 fn transitions(mut s: Sim) -> bool {
     var close = false
     var edge = 0
-    while edge < 2 {
-        if forest.other(s.area, edge) >= 0 {
+    while edge < forest.EDGES {
+        if forest.path_edge(edge) && forest.other(s.area, edge) >= 0 {
             let (x, y) = forest.portal(s.seed, s.area, edge)
             if near(s.x, s.y, x, y, FP) {
                 close = true
