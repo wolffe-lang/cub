@@ -145,11 +145,12 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
     let top = floor - 9
     let phase = s.tick / 7 % 4
     let style = grid.cell(32, if t == tier.PLAIN then 7 else 250, bg, 0)
-    draw.put_text(mut g, 1, 3, forest.den_name(s.last_den), style)
+    let label_left = if s.rows < 26 then panel_left(s) + panel_width(s) + 2 else 3
+    draw.put_text(mut g, 1, label_left, forest.den_name(s.last_den), style)
     draw.put_text(
         mut g,
         2,
-        3,
+        label_left,
         forest.name(s.area),
         grid.cell(32, if t == tier.PLAIN then 7 else 146, bg, 0),
     )

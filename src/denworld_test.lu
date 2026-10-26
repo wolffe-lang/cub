@@ -68,3 +68,21 @@ fn test_cb04f_ledger_centre_at_three_sizes() {
         }
     }
 }
+
+fn test_cb04f_narrow_ledger_does_not_slice_scene_labels() {
+    let s = sim.new(7, 80, 24)
+    for tier in [0, 1] {
+        var g = grid.new(24, 80)
+        restscene.render(s, tier, mut g)
+        restscene.menu(s, tier, mut g)
+        let left = restscene.panel_left(s) + restscene.panel_width(s) + 2
+        assert(
+            grid.at(g, 1, left).cp == 84 && grid.at(g, 1, left + 13).cp == 103,
+            "whole hollow-log name beside ledger",
+        )
+        assert(
+            grid.at(g, 2, left).cp == 84 && grid.at(g, 2, left + 10).cp == 101,
+            "whole regional name beside ledger",
+        )
+    }
+}
