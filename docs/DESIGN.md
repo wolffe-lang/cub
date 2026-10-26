@@ -871,3 +871,74 @@ Measured centres at80×24,120×40,200×60 are respectively `(27,12)`, `(40,20)`,
 `(67,30)`, with left/top `(7,1)`, `(15,7)`, `(42,17)`. None of these sizes
 clamps. The original breathing cub and animated fire sit to its right;
 at80 columns the fire sits six rows lower, clear of the cub's muzzle.
+
+## Held motion and combat (cb04b,2026-10-26)
+
+This section supersedes the historical198 dial, recent-arrow attack
+window, c-held sprint, three-cell dodge, presentation-only combo and
+fixed-width HUD above. The default pace dial is211, up6.5657% from198.
+Paw1 trot80FP/tick (9.375 cells/s), paw10 118 (13.828125). Sprint is8/5
+trot:128 and188FP/tick. Sneak is half trot. Acceleration8, braking15,
+turn31, foe pursuit84/retreat92, stride1064 and sway36 remain derived from
+the one constant. Signed fractional integration carries diagonal residues
+rather than losing each tick's fractions. There is no Bramblehold penalty.
+Shallows visibly wade at half walk/sprint; sneak already uses half trot
+and is not halved again. The existing low-health limp halves normal walk.
+
+Exact holds are engine KeyState views. Press/repeat/release and modifier
+changes are represented by game replay words, including the negotiated
+mode at the start. Opposites cancel; non-opposing axes combine. Space
+commits held arrows, else facing. c is a tap roll, never sprint; Ctrl-held
+arrows sprint for12 stamina/second, no regeneration while sprinting, and
+stop at zero. The sprint snap attack remains36 stamina,3/3/10 ticks,
+reach4 and twice bite damage. The fallback and its limits are in KEYS.
+
+### The ruled roll
+
+Distance in cells is `max(10,ceil(2*14*trot_at(paw)/256))`:10 at paw1,
+13 at paw10. Eight travel ticks use cumulative `d*(16t-t*t)/64`,t=0..8;
+six further ticks recover without movement or actions. Direction latches
+at c's press and ignores turn rate; no arrows uses facing. Unlocked the
+cub faces that direction; locked it keeps facing the target. Cumulative
+per-axis rounding makes a diagonal the same distance within fixed-point
+quantisation. Eighth-cell path samples prevent tunnelling, and each axis
+clips independently against terrain/bodies, allowing a wall slide.
+
+The iframe interval is half-open: ages0..9 at paw1; age10 is vulnerable.
+Paw5 adds one tick and paw10 another, capped12. **The first two of the
+six recovery ticks are invulnerable at paw1**; the last four are not.
+At paw10 the first four recovery ticks are protected, the last two not.
+Stamina18 and refusal while exhausted remain. The roll has eight original
+tuck-and-turn frames, not an invulnerability blink.
+
+### Three committed bites
+
+The body, not only the hit envelope, moves. Hit1 lunges a quarter-cell
+forward and half-cell to aim-left, hit2 to aim-right; both settle their
+sideways lean in recovery. Hit3 travels two cells forwards during its
+active ticks and stays there. Path/body collision can shorten the travel.
+The camera holds at commitment during the bite so the body motion remains
+visible. Rich uses pixel/subcell translation; plain rounds either sign
+away from zero rather than asymmetrically dropping positive half cells.
+Both tiers share a conservative union footprint for the translated body.
+
+All three retain3 windup/2 active ticks and base bite damage. Recoveries
+are6/8/12, totals11/13/17; costs12/14/18. A recovery input queues one next
+bite with its own committed aim. A refused link spends nothing and cannot
+advance. A lapsed chain starts from1 again. The third recovery is longest.
+
+### Rally and the HUD
+
+Actual damage opens a45-tick (1.5s) window. The initial lost-health pool
+falls linearly with elapsed ticks; previous regained points are deducted.
+A damaging hit restores at most `floor(8*remaining/45)` health and never
+more than the remaining pool or missing health. A new hit received carries
+only the then-regainable pool into the new window plus its actual loss.
+Death/rest/growth clear it. At age45 nothing is regainable.
+
+Health stays red; regainable health is grey stipple/dots immediately after
+it, with an explicit rally number. Stamina stays green. Each bar has one
+cell per10 maximum points rounded up, capped30; labels and outlines stay
+at rows1/3 on both tiers. Status numbers are row5 and water row6, after the
+HUD clear. Stat levels1/10/40 are golden at80x24 and120x40. The boss bar
+retains its own size and row1 area to the right of these bars.

@@ -354,3 +354,18 @@ accepted pending choices, never an unaccepted debt.
 
 `rest-menu-{empty,pending,refused}-{80x24,120x40,200x60}` pin all three states on
 both tiers. The frame uses existing horizontal/vertical rule glyphs only.
+
+## Combat motion studies (cb04b)
+
+The art study now includes every age of each of the three bites at all
+eight aims, every age of a straight and diagonal roll, and full/mid-rally
+bars at stat levels1/10/40 at both sizes. These disclosed empty-arena
+studies call production sim steps and drawing paths, not mock frames.
+
+Bites move the collision body with the camera held at the commitment
+point. Half-cell side motion is translated at the rich silhouette's pixel
+resolution; the plain body shifts symmetrically for either sign. The third
+bite commits two cells forward, clipped by real obstacles. Roll travel
+uses eight compact original tuck/turn drawings instead of the standing
+body plus an o mark; recovery returns to the ordinary body without blink.
+Water is now row6,column1, below the status numbers and both scalable bars.

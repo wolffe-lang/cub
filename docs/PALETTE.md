@@ -125,3 +125,12 @@ The allocation panel (cb04d) uses near-black232, muted-gold179 borders,
 and bone-white230 labels; pending increases use84 and refused totals203.
 Plain equivalents are black0, gold3, white15, green10 and red12. Arrows,
 current/pending numbers and the refusal text duplicate the colour meaning.
+
+## Regainable health (cb04b)
+
+The existing red203/plain12 health and green84/plain10 stamina stay.
+Regainable health is grey249/plain7, stippled on rich and dotted on plain,
+with the rally number below: no meaning relies on colour alone. Outlines
+and labels stay neutral250/plain7 on235/plain0. These status fills pass
+3:1 contrast on the rich HUD surface; grey is deliberately neutral, not
+a categorical-series hue. The water charge colour remains117/plain14.
