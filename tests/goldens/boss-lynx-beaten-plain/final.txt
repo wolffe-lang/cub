@@ -1,4 +1,4 @@
-#health [|||||||.] stamina [|||||||.] scent 20#O#O#O#O#O#O#O#O#O#O#O#O  . "", |.
+#scent 20O#O#O#O#O#O#O#O#O  :  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  . "", |.
 O#O#O#O#O#O#O#O#O#O#O#O#O#O  ., O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#   '|  | '
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#   ..#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   O   ,  
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#  ,  #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# ".       
@@ -9,11 +9,11 @@ O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#     #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O        '
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   ,.O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'   |' "."
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.    O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.      '|"
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#     # #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  # "|#'  
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#,    ,  ....O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# '  '  ""'
-#O#O#O#O#O#O#O#O#O#O#O#O#O#   .  ., ..^####=,O#O#O#O#O#O#O#O#O#O#O#O#O '|  O'O |
-O#O#O#O#O#O#O#O#O#O#O#O#O#O          .<####=.#O#O#O#O#O#O#O#O#O#O#O#O.  '#| " O.
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#,    ,  .   O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# '  '  ""'
+#O#O#O#O#O#O#O#O#O#O#O#O#O#   .  ., ..^####=.O#O#O#O#O#O#O#O#O#O#O#O#O '|  O'O |
+O#O#O#O#O#O#O#O#O#O#O#O#O#O          .<####=,#O#O#O#O#O#O#O#O#O#O#O#O.  '#| " O.
 #O#O#O#O#O#O#O#O#O#O#O#O#O         ,        #O#O#O#O#O#O#O#O#O#O#O#O '   :'"   "
-O#O#O#O#O#O#O#O#O#O#O#O#O#            ./   : #O#O#O#O#O#O#O#O#O#O#O#            
+O#O#O#O#O#O#O#O#O#O#O#O#O#            .    : #O#O#O#O#O#O#O#O#O#O#O#            
 #O#O#O#O#O#O#O#O#O#O#O#O# :        *         :#O#O#O#O#O#O#O#O#O#O#O":' ' "     
 O#O#O#O#O#O#O#O#O#O#O#O#O      :     .        O#O#O#O#O#O#O#O#O#O#    "" "   "O 
 #O#O#O#O#O#O#O#O#O#O#O#O,          :  #O .     O#O#O#O#O#O#O#O#O   O' , " "" :  

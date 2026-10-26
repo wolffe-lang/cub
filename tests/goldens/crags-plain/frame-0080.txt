@@ -1,4 +1,4 @@
-#health [||||||||] stamina [||||||||] scent 0O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+#scent 0#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
 OThe TeethO#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.......O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.......#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.......O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
@@ -13,7 +13,7 @@ O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O..,. O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#####  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O####    #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.vv.O. :  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O/O#O#O   , O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   , O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   . O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
 ",  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O . . O#O#O#O#O#O#O#O#O#O#O#O#O#O#
    "#  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# :   #O#O#O#O#O#O#O#O#O#O#O#O#O#O

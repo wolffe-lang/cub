@@ -1,0 +1,24 @@
+#scent 20O#O#O#O#O#O#O#O#O  :  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  . "", |.
+O#O#O#O#O#O#O#O#O#O#O#O#O#O  ., O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#   '|  | '
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#   ..#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   O   ,  
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#  ,  #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# ".       
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# .   #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'    O   O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#' . ' :. #
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O' "   "O "
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#     #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O        '
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   ,.O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'   |' "."
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.    O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.      '|"
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#     # #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  # "|#'  
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#,    ,  ....O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# '  '  ""'
+#O#O#O#O#O#O#O#O#O#O#O#O#O#   .  ., ..^####=,O#O#O#O#O#O#O#O#O#O#O#O#O '|  O'O |
+O#O#O#O#O#O#O#O#O#O#O#O#O#O          .<####=.#O#O#O#O#O#O#O#O#O#O#O#O.  '#| " O.
+#O#O#O#O#O#O#O#O#O#O#O#O#O         ,        #O#O#O#O#O#O#O#O#O#O#O#O '   :'"   "
+O#O#O#O#O#O#O#O#O#O#O#O#O#      ## ## #    : #O#O#O#O#O#O#O#O#O#O#O#            
+#O#O#O#O#O#O#O#O#O#O#O#O# :    ,#######..    :#O#O#O#O#O#O#O#O#O#O#O":' ' "     
+O#O#O#O#O#O#O#O#O#O#O#O#O      :## ##.#       O#O#O#O#O#O#O#O#O#O#    "" "   "O 
+#O#O#O#O#O#O#O#O#O#O#O#O,          :  #O .     O#O#O#O#O#O#O#O#O   O' , " "" :  
+O#O#O#O#O#O#O#O#O#O#O#O#            . O#       #O#O#O#O#O#O#O'    '.. ." ''".". 
+#O#O#O#O#O#O#O#O#O#O#O#O:               :    . O#O#O#   |  ' "" ""     '  #:.,' 
+O#O#O#O#O#O#O#O#O#O#O#O#         : :         .,#O  #      "|"  # :  O  "  , "|' 
+#O#O#O#O#O#O#O#O#O#O#O#  ,: #O,         :        :  #": . " #O#  .  :O: '':  "' 
+O#O#O#O#O#O#O#O#O#O#O#O#    O#   . .:      .:     .#O  "' '# "  " |  ":       . 
