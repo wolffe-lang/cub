@@ -780,6 +780,10 @@ pub fn encounters(dir: str) -> int {
             }
             if s.action != sim.FALL { eprint("proof: natural death never happened"); return 1 }
         } else {
+            // Let the legacy approach chord expire before testing one held
+            // Right against a lock. Otherwise inferred opposites may cancel.
+            var wait = 0
+            while wait < 15 { walker.press(mut s, mut r, walker.key(0)); wait += 1 }
             var keys = walker.key(controls.KEY_RIGHT)
             (mut keys).push(controls.KEY_LOCK)
             (mut keys).push(controls.KEY_BITE)
