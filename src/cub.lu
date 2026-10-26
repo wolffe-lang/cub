@@ -1103,7 +1103,7 @@ fn run_world_audit() -> int {
             let (flat, textured) = coast.texture(seed, field)
             let steps = coast.walk_bound(seed, field)
             var area = 0
-            while area < 3 {
+            while area < forest.AREAS {
                 let reached = forest.reach_count(seed, field, area)
                 let required = forest.required(area)
                 let straight = forest.straight_run(seed, area)
@@ -1121,7 +1121,7 @@ fn run_world_audit() -> int {
                         return 1
                     }
                     var den = 0
-                    while den < 4 {
+                    while den < forest.DENS {
                         if forest.den_area(den) == area {
                             let (x, y) = forest.den_position(seed, den)
                             let dx = (foe.x - x) / sim.FP

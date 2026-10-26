@@ -147,7 +147,7 @@ pub fn screen_of(field: int) -> (int, int) {
 }
 
 /// Inspect the actual renderer's terrain layer over every camera position
-/// of every area at the field's own screen size and on both tiers,
+/// of every area (the six since cb04) at the field's own screen size and on both tiers,
 /// avoiding the deliberate HUD, actor and prop overlays. Returns the
 /// longest run of identical adjacent foliage cells and the textured share
 /// of forest cells, percent; traps on an empty forest cell, on a flat run
@@ -158,7 +158,7 @@ pub fn texture(seed: int, field: int) -> (int, int) {
     var forest_cells = 0
     var flat_cells = 0
     var area = 0
-    while area < 3 {
+    while area < forest.AREAS {
         let w = forest.bound(field, area)
         var t = tier.PLAIN
         while t <= tier.RICH {
@@ -182,7 +182,11 @@ pub fn texture(seed: int, field: int) -> (int, int) {
                                 let (x, y) = sim.world_cell(s, row, col)
                                 let k = forest.kind(seed, field, area, x, y)
                                 let c = grid.at(g, row, col)
-                                let foliage = k == terrain.DARK || k == terrain.CANOPY
+                                // Stone is fill as foliage is (cb04: the
+                                // crags), held to the same rule.
+                                let foliage = k == terrain.DARK ||
+                                    k == terrain.CANOPY ||
+                                    k == terrain.ROCK
                                 if foliage || k == terrain.TRUNK {
                                     forest_cells += 1
                                     assert(
