@@ -1,0 +1,48 @@
+gameplay: native bite rich ok
+gameplay: native parry rich ok
+gameplay: native dodge rich ok
+gameplay: native weasel-retreat rich ok
+gameplay: native fox-feint rich ok
+gameplay: native trail-fading rich ok
+gameplay: native rest rich ok
+gameplay: native death-recovery rich ok
+gameplay: native thorn-gate rich ok
+gameplay: native bite plain ok
+gameplay: native parry plain ok
+gameplay: native dodge plain ok
+gameplay: native weasel-retreat plain ok
+gameplay: native fox-feint plain ok
+gameplay: native trail-fading plain ok
+gameplay: native rest plain ok
+gameplay: native death-recovery plain ok
+gameplay: native thorn-gate plain ok
+gameplay: native aim/combo/heavy rich ok
+gameplay: native aim/combo/heavy plain ok
+gameplay: connected journey, hawk, opening and recovery rich ok
+gameplay: connected journey, hawk, opening and recovery plain ok
+gameplay: death archive replay-verified at tick 504
+gameplay: native body census over 109 scripts: census total ticks 50328 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 995 contact_unreachable 0 contact_behind 382 foe_overlap 0
+gameplay: native body audit, 100 worlds: total ticks 220370 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 4282 contact_unreachable 0 contact_behind 1186 foe_overlap 0
+gameplay: native boar rich windup/phase2/beaten ok, 23 telegraphs, shortest 12
+gameplay: native lynx rich windup/phase2/beaten ok, 11 telegraphs, shortest 10
+gameplay: native elk rich windup/phase2/beaten ok, 15 telegraphs, shortest 16
+gameplay: native alpha rich windup/phase2/beaten ok, 20 telegraphs, shortest 9
+gameplay: end, the three new areas, the title rich ok
+gameplay: native boar plain windup/phase2/beaten ok, 23 telegraphs, shortest 12
+gameplay: native lynx plain windup/phase2/beaten ok, 11 telegraphs, shortest 10
+gameplay: native elk plain windup/phase2/beaten ok, 15 telegraphs, shortest 16
+gameplay: native alpha plain windup/phase2/beaten ok, 20 telegraphs, shortest 9
+gameplay: end, the three new areas, the title plain ok
+gameplay: ghost trailer, display and absence rich ok
+gameplay: ghost trailer, display and absence plain ok
+gameplay: fairness boar attempts 1:94 2:6 3:0 4:0 5:0 unwon:0 hits 118 22 136 unparryable_hits 158 tells 12 24 12 parry_window 9 arena_breaches 0
+gameplay: fairness lynx attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 44 2 18 unparryable_hits 18 tells 10 12 15 parry_window 9 arena_breaches 0
+gameplay: fairness elk attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 46 2 0 unparryable_hits 2 tells 16 24 18 parry_window 9 arena_breaches 0
+gameplay: fairness alpha attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 324 0 0 unparryable_hits 0 tells 9 12 0 parry_window 9 arena_breaches 0
+gameplay: den entry, checkpoint, spring/drink/refill and 50-seed censuses green
+gameplay: door shadows, clipped foe walk, staged rest panels green
+gameplay: den/path/chase censuses, sprint costs, real-key hit and retired HUD flag: green
+gameplay: fifty-seed world labels, after-c padding, scent recovery: green
+world: 50 seeds, all dens/exits/caches, meanders, density, save roundtrip/cut/busy/corrupt/mark: green
+gameplay: every path under /work/target/gameplay readable
+gameplay: green (0 skips)

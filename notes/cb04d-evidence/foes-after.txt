@@ -41,11 +41,11 @@ foes: seed 39 frames 154560 omitted_frames 0 legacy_hidden_foe_frames 31802
 foes: seed 40 frames 158424 omitted_frames 0 legacy_hidden_foe_frames 32588
 foes: seed 41 frames 162288 omitted_frames 0 legacy_hidden_foe_frames 33322
 foes: seed 42 frames 166152 omitted_frames 0 legacy_hidden_foe_frames 34158
-foes: seed 43 frames 170016 omitted_frames 0 legacy_hidden_foe_frames 35032
-foes: seed 44 frames 173880 omitted_frames 0 legacy_hidden_foe_frames 35836
-foes: seed 45 frames 177744 omitted_frames 0 legacy_hidden_foe_frames 36650
-foes: seed 46 frames 181608 omitted_frames 0 legacy_hidden_foe_frames 37440
-foes: seed 47 frames 185472 omitted_frames 0 legacy_hidden_foe_frames 38264
-foes: seed 48 frames 189336 omitted_frames 0 legacy_hidden_foe_frames 39046
-foes: seed 49 frames 193200 omitted_frames 0 legacy_hidden_foe_frames 39798
-foes: frames 193200 omitted_frames 0 legacy_hidden_foe_frames 39798
+foes: seed 43 frames 170016 omitted_frames 0 legacy_hidden_foe_frames 34994
+foes: seed 44 frames 173880 omitted_frames 0 legacy_hidden_foe_frames 35798
+foes: seed 45 frames 177744 omitted_frames 0 legacy_hidden_foe_frames 36612
+foes: seed 46 frames 181608 omitted_frames 0 legacy_hidden_foe_frames 37402
+foes: seed 47 frames 185472 omitted_frames 0 legacy_hidden_foe_frames 38226
+foes: seed 48 frames 189336 omitted_frames 0 legacy_hidden_foe_frames 39008
+foes: seed 49 frames 193200 omitted_frames 0 legacy_hidden_foe_frames 39760
+foes: frames 193200 omitted_frames 0 legacy_hidden_foe_frames 39760

@@ -1,0 +1,53 @@
+build: target/native/cub
+witness spring-found tick 122 area 0 scent 7606 mark 0 shortcuts 0
+witness world-gate tick 697 area 0 scent 7630 mark 0 shortcuts 0
+witness world-thorns tick 714 area 0 scent 7630 mark 0 shortcuts 0
+witness thorn-gate tick 725 area 0 scent 7630 mark 0 shortcuts 0
+witness world-open tick 740 area 0 scent 7630 mark 0 shortcuts 0
+witness world-den tick 1323 area 1 scent 7638 mark 0 shortcuts 0
+witness world-meadow tick 1631 area 2 scent 7638 mark 0 shortcuts 0
+witness hawk-shadow tick 1784 from 1781 area 2
+witness hawk-stoop tick 1799 from 1797 area 2
+witness world-hawk tick 1799 area 2 scent 7638 mark 0 shortcuts 0
+witness world-recovered tick 2290 area 2 scent 7638 mark 0 shortcuts 0
+witness world-return tick 2747 area 0 scent 7650 mark 0 shortcuts 3
+witness coast-cache-0 tick 2862 area 0 scent 7670 mark 0 shortcuts 3
+witness coast-cache-1 tick 3424 area 0 scent 7670 mark 0 shortcuts 3
+witness coast-cache-2 tick 4206 area 0 scent 7690 mark 0 shortcuts 3
+witness coast-cache-3 tick 5116 area 0 scent 7710 mark 0 shortcuts 3
+witness bite tick 212 area 0 scent 16 mark 0 shortcuts 0
+witness parry tick 193 area 0 scent 0 mark 0 shortcuts 0
+witness dodge tick 193 area 0 scent 0 mark 0 shortcuts 0
+witness weasel-retreat tick 193 area 0 scent 0 mark 0 shortcuts 0
+witness fox-feint tick 341 area 0 scent 8 mark 0 shortcuts 0
+witness natural-death tick 504 area 0 scent 0 mark 8 shortcuts 0
+witness aim-lock tick 190 area 0 scent 0 mark 0 shortcuts 0
+witness sprint-hit tick 205 from 180 area 0
+boss boar attempts 1 ticks 1049 windup 125 phase2 497 beaten 1172 hits 3 1 0 unparryable 1
+witness boss-boar-windup frames 132 every 1 from 130
+witness boss-boar-phase2 frames 499 every 1 from 498
+witness boss-boar-beaten frames 1218 every 15 from 1173
+boss lynx attempts 1 ticks 508 windup 524 phase2 689 beaten 1006 hits 0 0 1 unparryable 1
+witness boss-lynx-windup frames 531 every 1 from 529
+witness boss-lynx-phase2 frames 691 every 1 from 690
+witness boss-lynx-beaten frames 1052 every 15 from 1007
+boss elk attempts 1 ticks 854 windup 422 phase2 879 beaten 1225 hits 0 0 0 unparryable 0
+witness boss-elk-windup frames 429 every 1 from 427
+witness boss-elk-phase2 frames 881 every 1 from 880
+witness boss-elk-beaten frames 1271 every 15 from 1226
+boss alpha attempts 1 ticks 743 windup 331 phase2 704 beaten 1037 hits 5 0 0 unparryable 0
+witness boss-alpha-windup frames 338 every 1 from 336
+witness boss-alpha-phase2 frames 706 every 1 from 705
+witness end frames 1382 every 45 from 1082
+witness boss-alpha-beaten frames 1083 every 15 from 1038
+witness ghost-death tick 101 area 0 scent 0 mark 0 shortcuts 0
+witness ghost tick 253
+witness crags frames 121 every 40 from 1
+witness river frames 121 every 40 from 1
+witness old-den frames 121 every 40 from 1
+witness demo tick 477 area 0 scent 0 mark 0 shortcuts 0
+den-proof: green, den2 wake at 3968,23680; death at 3966,24858; 252 ticks
+demo.lu: 188 lines
+pty: doorway-return ok (linux x86_64, exit 0, 103235 bytes captured)
+pty: doorway-edge ok (linux x86_64, exit 0, 70823 bytes captured)
+pty: rest-allocate ok (linux x86_64, exit 0, 22438 bytes captured)

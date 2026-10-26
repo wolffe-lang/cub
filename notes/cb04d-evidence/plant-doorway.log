@@ -1,0 +1,4 @@
+test /Users/mfwolffe/lanes/cb04d/plant-doorway/src/doorrest_test.lu::test_cb04d_foe_inside_view_is_not_culled_by_anchor_sight ... ok
+test /Users/mfwolffe/lanes/cb04d/plant-doorway/src/doorrest_test.lu::test_cb04d_doorway_edge_crosses_and_arrival_does_not_bounce ... FAILED (trap(assert))
+test /Users/mfwolffe/lanes/cb04d/plant-doorway/src/doorrest_test.lu::test_cb04d_foe_is_clipped_at_each_view_edge_not_dropped_whole ... ok
+wolf test: 2 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out

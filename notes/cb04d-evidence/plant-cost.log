@@ -1,0 +1,4 @@
+test /Users/mfwolffe/lanes/cb04d/plant-cost/src/restmenu_test.lu::test_cb04d_confirm_spends_each_intervening_level_cost ... FAILED (trap(assert))
+test /Users/mfwolffe/lanes/cb04d/plant-cost/src/restmenu_test.lu::test_cb04d_rest_lower_wrap_discard_and_numeric_keys ... ok
+test /Users/mfwolffe/lanes/cb04d/plant-cost/src/restmenu_test.lu::test_cb04d_panel_colours_and_complete_cub_fire_fit ... ok
+wolf test: 2 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out
