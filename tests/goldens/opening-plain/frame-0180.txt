@@ -20,5 +20,5 @@
         ~        ~        ~        ~        ~        ~        ~        ~        
  ~        ~        ~        ~        ~        ~        ~        ~        ~      
    ~        ~        ~        ~        ~        ~        ~        ~        ~    
-    Any key skips      ~        ~        ~        ~        ~        ~        ~  
+    Any key skips; m mutes the music     ~        ~        ~        ~        ~  
        ~        ~        ~        ~        ~        ~        ~        ~        ~

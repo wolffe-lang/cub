@@ -1,0 +1,16 @@
+# frames 80 every 20 — the cub hurt to band 2 (health 52-32) stands two seconds, then walks north: the hurt frames at rest and at the trot (cb03)
+pk 1
+seed 1
+tier rich
+size 80x24
+t 1 health -32
+t 60 up
+t 62 up
+t 64 up
+t 66 up
+t 68 up
+t 70 up
+t 72 up
+t 74 up
+t 76 up
+t 78 up

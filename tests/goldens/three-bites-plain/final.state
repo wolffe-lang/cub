@@ -1,4 +1,4 @@
-tick 36 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 0 y 640 heading 64 action 0 started 23 health 52 stamina 40 flasks 3 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 0 lock -1 aim 64 combo 0 body 1 gait 1008
+tick 36 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 0 y 640 heading 64 action 0 started 23 health 52 stamina 40 flasks 3 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 0 lock -1 aim 64 combo 0 body 1 gait 1224
 foe 0 kind 0 health 8 phase 0 since 0 x 0 y 13824 heading 0 gap 49
 foe 1 kind 0 health 8 phase 0 since 0 x 512 y 13824 heading 0 gap 49
 foe 2 kind 1 health 24 phase 0 since 0 x 768 y 20992 heading 0 gap 77
