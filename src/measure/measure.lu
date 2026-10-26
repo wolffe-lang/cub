@@ -101,19 +101,23 @@ pub fn pace() -> str {
     // Radius: path length over the angle (a quarter turn is pi/2; in
     // hundredths of a cell, path * 2 / pi).
     let radius = path * 100 * 2 * 1000 / (3142 * sim.FP)
-    // The diagonal: down and right together from the top row.
+    // The diagonal: down and right together from the top row, at once (a
+    // 30-tick run east first, cb02c's window, meets the woods at cb03's
+    // pace: `diagonal_clear` says whether the measured ticks met ground).
     var d = shore_cub()
-    i = 0
-    while i < 30 { press(mut d, controls.KEY_RIGHT); i += 1 }
     var di = 0
     while di < 12 { press2(mut d, controls.KEY_RIGHT, controls.KEY_DOWN); di += 1 }
     let dx1 = d.x
     let dy1 = d.y
+    let blocked1 = d.blocked
     di = 0
     while di < 8 { press2(mut d, controls.KEY_RIGHT, controls.KEY_DOWN); di += 1 }
     let diag = cps100(isqrt((d.x - dx1) * (d.x - dx1) + (d.y - dy1) * (d.y - dy1)), 8)
+    // Whether the diagonal's measured ticks met the ground (cb03): a
+    // faster cub covers more of the shore in the same window.
+    let diag_clear = d.blocked == blocked1
     let (up, down) = start_stop()
-    "pace trot_fp {sim.trot_at(1)} to_trot_ticks {up} to_stop_ticks {down} straight_cps {hundredths(straight)} clear {clear} diagonal_cps {hundredths(diag)} quarter_turn_ticks {turn_ticks} turning_cps {hundredths(turning)} turn_radius_cells {hundredths(radius)} sneak_fp {sim.trot_at(1) / 2} foe_stalk_fp {sim.FOE_STALK_V} foe_retreat_fp {sim.FOE_RETREAT_V}"
+    "pace trot_fp {sim.trot_at(1)} to_trot_ticks {up} to_stop_ticks {down} straight_cps {hundredths(straight)} clear {clear} diagonal_cps {hundredths(diag)} diagonal_clear {diag_clear} quarter_turn_ticks {turn_ticks} turning_cps {hundredths(turning)} turn_radius_cells {hundredths(radius)} sneak_fp {sim.trot_at(1) / 2} foe_stalk_fp {sim.FOE_STALK_V} foe_retreat_fp {sim.FOE_RETREAT_V}"
 }
 
 /// A key for the frame's tail cells: the two west columns of an

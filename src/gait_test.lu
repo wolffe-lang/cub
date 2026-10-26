@@ -132,8 +132,8 @@ fn test_cb02c_the_forest_is_not_the_path() {
 fn test_cb02c_the_pace_scales_through_walk_percent() {
     // R-cb02c-1 A: one dial; the turn rate, acceleration, braking and the
     // foes' speeds are its products of cb01b's values, to the nearest unit.
-    assert(sim.WALK_PERCENT == 165, "half as fast again")
-    assert(sim.trot_at(1) == 63, "the trot: 7.38 cells a second")
+    assert(sim.WALK_PERCENT == 198, "a fifth faster again (cb03)")
+    assert(sim.trot_at(1) == 75, "the trot: 8.79 cells a second")
     let base = sim.PACE_BASE_PERCENT
     assert(sim.abs(sim.TURN_RATE * base - 16 * sim.WALK_PERCENT) * 2 <= base, "turn rate")
     assert(sim.abs(sim.ACCEL * base - 4 * sim.WALK_PERCENT) * 2 <= base, "acceleration")
