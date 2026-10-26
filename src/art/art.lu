@@ -1924,7 +1924,7 @@ fn draw_boss_bar(s: sim.Sim, t: int, mut g: grid.Grid) {
     // cub at the arena's mouth under a charge sees it too.
     if !f.engaged || f.health <= 0 { return }
     let text = boss_bar_text(f)
-    let left = (s.cols - text.len) / 2
+    let left = if (s.cols - text.len) / 2 < 43 then 43 else (s.cols - text.len) / 2
     draw.put_text(mut g, 1, left, text, ink(t, true))
     // The filled cells in the boss's colour.
     let filled = f.health * 20 / sim.foe_health(f.kind)

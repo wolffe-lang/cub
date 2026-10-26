@@ -589,7 +589,7 @@ fn locomotion(mut s: Sim) {
     } else if s.sneaking {
         trot_at(s.paw) / 2
     } else if s.sprinting {
-        sprint_at(s.paw)
+        if in_shallows(s, s.x, s.y) then sprint_at(s.paw) / 2 else sprint_at(s.paw)
     } else {
         pace
     }

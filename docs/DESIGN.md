@@ -562,12 +562,18 @@ scent lost (the mark's scent lost to a second death), bosses n of 4. `r` keeps p
 `q` leaves; the save records `end`.
 
 **Save schema 3** (`journey.lu`, 53 words): schema 2's fields and one line, `bosses N end N played N
-lost N`, before the check; `last_den` 0..6, `lit_dens` 1..127, `shortcuts` 0..15 (bit 4 needs the lynx,
+lost N`, before the check; `last_den` implemented ids 0..6 and 8..11, `lit_dens` a 16-bit mask (reserved bits refused), `shortcuts` 0..15 (bit 4 needs the lynx,
 8 the elk), `mark_area` 0..5, `end` needs the alpha's bit; a schema-2 file is `save_version`, never read
 as 3. A live recording begins with `journey 2` and `saved-0` .. `saved-28` (the four new values last).
 The world checks hold every save under 512 bytes.
 
 ## Findable dens (cb03a, proposed)
+
+Rebased over cb04 at `1855009b2ed0a7b1a0a4fb3cbd00a9629bf5adc6`.
+The earlier schema-2 plan is superseded: cb04 landed schema 3 first.
+Its boss/ghost/title/end state is retained. The boss bar stays on row1,
+starting at column43 or further right, beside the player bars and scent.
+
 
 Schema 3 from cb04 and all its fields stay unchanged. Den ids 0–3 retain their
 meanings. Ids 4–7 are reserved for the later areas; 8–15 are reserved for
