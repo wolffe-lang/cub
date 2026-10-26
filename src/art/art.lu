@@ -394,7 +394,9 @@ pub fn render_with(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid) {
     // quarter otherwise, held while a swing has no room for it.
     let facing = s.body_facing
     let pose = if pose_of(s) == 4 then 0 else pose_of(s)
-    if s.end {
+    if s.end &&
+        s.action != sim.BITE &&
+        !(s.action == sim.DODGE && s.tick - s.started < sim.ROLL_TRAVEL) {
         // The wolf (cb04): the cub grown one size, the same gait.
         draw_wolf(
             mut g,
@@ -2137,7 +2139,7 @@ fn title_frame(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid) {
         mut g,
         top + 16,
         mid - 34,
-        "z parry   c dodge   Tab lock   w water   r rest   q quit",
+        "z parry  c roll  Ctrl+arrow sprint  Tab lock  w water  r rest  q quit",
         dim,
     )
     draw.put_text(mut g, top + 18, mid - 7, "any key begins", bright)
@@ -2550,13 +2552,17 @@ pub fn draw_combo(s: sim.Sim, t: int, mut g: grid.Grid) {
     let ar = sim.screen_row(s)
     let ac = sim.screen_col(s)
     if t == tier.RICH {
-        let body = silhouette.cub_posed(
-            pose,
-            sim.legs(s),
-            silhouette.wag(sim.tail_phase(s), pose == 1),
-            sim.hurt_band(s),
-            sim.breath(s),
-        )
+        let body = if s.end {
+            silhouette.wolf(pose, sim.legs(s))
+        } else {
+            silhouette.cub_posed(
+                pose,
+                sim.legs(s),
+                silhouette.wag(sim.tail_phase(s), pose == 1),
+                sim.hurt_band(s),
+                sim.breath(s),
+            )
+        }
         motionart.shifted(
             mut g,
             ar,
@@ -2572,6 +2578,19 @@ pub fn draw_combo(s: sim.Sim, t: int, mut g: grid.Grid) {
         // instead of flooring -half to -1 but +half to zero.
         let dc = signed_cell(dx)
         let dr = signed_cell(dy)
+        if s.end {
+            draw_wolf(
+                mut g,
+                t,
+                ar + dr,
+                ac + dc,
+                facing,
+                band(s.stamina, sim.stamina_max(s.wind)),
+                pose,
+                sim.legs(s),
+            )
+            return
+        }
         draw_pose(
             mut g,
             t,

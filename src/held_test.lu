@@ -1,6 +1,7 @@
 //! member: false
 
 use controls
+use forest
 use input
 use sim
 
@@ -53,4 +54,20 @@ fn test_cb04b_bite_aim_latches_each_held_diagonal() {
         sim.step(mut s, [controls.KEY_UP])
         assert(s.attack_heading == h, "attack aim stays latched")
     }
+}
+
+fn test_cb04b_exact_arrow_remains_held_across_a_doorway() {
+    var s = exact_cub()
+    sim.step(mut s, [controls.KEY_DOWN])
+    let (x, y) = forest.portal(s.seed, 0, 0)
+    s.x = x
+    s.y = y - 3 * sim.FP - 1
+    s.heading = 128
+    s.heading_target = 128
+    s.speed = sim.trot_at(1)
+    s.gate_open = true
+    s.edge_ready = true
+    sim.step(mut s, List[int]())
+    assert(s.area == 1, "body crossed the doorway")
+    assert(sim.held_direction(s) == 128, "physical Down survives area entry")
 }
