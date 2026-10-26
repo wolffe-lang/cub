@@ -23,7 +23,16 @@ ears go back, the tail drops and the trot shortens as it is hurt, and its
 breath shows its stamina; the numbers appear at a den and on the death
 card. An original score plays through the engine's mixer: a part for each
 area, a rest at the den, a sting at a fall, the title over the opening, and
-four boss themes waiting for their bosses (`docs/SCORE.md`). Every body collides as the drawing it is:
+a theme for each boss (`docs/SCORE.md`). Six areas: the Shingle, Bramblehold,
+Larkmeadow, the Teeth, the Shallows and Gravehollow, each with its den and
+its shortcut back. Four bosses hold their ground in them: Old Snag the boar in
+his clearing, Whisper the lynx among the crags' pillars, Alder the elk at
+the ford, Ashgrim the shadow alpha at the old den; every attack is
+telegraphed long enough to parry, the one unparryable attack of each is
+dodged, a second phase begins at half health, and only a boss has a health
+bar. The last five deaths stand as fading ghosts where they fell, and
+replay their last seconds when the cub comes near. The game opens on a
+title and, when the alpha falls, the cub crosses the ford as a wolf. Every body collides as the drawing it is:
 nothing is drawn inside another, and a foe that reaches the cub stands
 where a bite aimed its way lands. Original log and flotsam
 sprites mark the coast. Bite, lunge, parry, dodge and chain attacks; a
@@ -37,12 +46,13 @@ it is installed, else the game says so once and plays on in silence.
 
 The journey saves under `~/.cub/save`; resume wakes at the last den with
 reset encounters, keeping growth, shortcuts, opened caches, pouch contents,
-the dropped mark and the field the world was made for (the terminal's
-width when the journey began). `--save PATH` selects a separate journey. Unknown or
-corrupt files fail by name, never silently reset. A quit during a staged
-write preserves the previous save. Live deaths leave self-contained replay
-files under `~/.cub/ghosts/`; ghost display, bosses and difficulty
-selection come later. Every tuning proposal is in
+the dropped mark, the bosses beaten, the end and the field the world was
+made for (the terminal's width when the journey began). `--save PATH`
+selects a separate journey. Unknown or corrupt files fail by name, never
+silently reset. A quit during a staged write preserves the previous save.
+Live deaths leave self-contained replay files under `~/.cub/ghosts/`
+(`--ghost-dir DIR` elsewhere), each the ghost the next game shows;
+difficulty selection comes later. Every tuning proposal is in
 `docs/DESIGN.md`.
 
 ## Where it runs
@@ -69,6 +79,8 @@ The terminal must be at least 80 columns by 24 rows; the field grows to fill a l
 | 1–5 at the den | grow heart, wind, fang, paw, nose |
 | `q` | quit; the terminal is restored on every exit |
 | any decoded key during the opening | skip the scene without also making a move |
+| any key on the title | begin; after ten idle seconds a demo plays behind the title |
+| `r` on the end card | keep playing as the wolf (`q` leaves) |
 
 Arrows held or pressed within 500 ms before an attack aim it; lock wins.
 Press Space during bite recovery to chain left, right, then a longer forward
@@ -86,6 +98,10 @@ target/cub --save journey      use a separate save file
 target/cub --record run.pk     record the run, including resumed state; --replay run.pk plays it back
 target/cub --mute              play without music (CUB_SOUND=0 does the same)
 target/cub --hud               the debug HUD: health and stamina bars beside the scent
+target/cub --no-title          start in the forest, no title
+target/cub --ghost-dir DIR     read and write the death archives there (default ~/.cub/ghosts)
+target/cub --boss-census       fight every boss in fifty seeds at both sizes; a fairness line a boss
+target/cub --fight-trace 7 1   narrate one scripted fight (the alpha, seed 1)
 ```
 
 `cub --help` lists the rest: the headless mode that writes frames for the goldens, `--trace` (one line a
@@ -110,6 +126,11 @@ bound and enemy spacing, the forest's texture at every camera position
 coast cell to a useful route or cache, and every path cell in its area's
 one path colour. `--body-audit` holds the bodies apart over the same 50
 seeds at both sizes, with a three-weasel swarm from behind in each world;
+`--boss-census` fights every boss in the same fifty seeds at both sizes and
+holds every world to a win within five lives, every parryable telegraph to
+the parry window and every boss to its arena; the gameplay gate replays the
+boss, end, ghost and title witnesses and checks a death's trailer against
+the sim frame for frame;
 `--measure` reports the pace, the wag, the fox's chase, the path colours
 and the body census over the real-key scripts. The sound pty rows start the
 game with music on and hold the player to a child of the game, gone with
