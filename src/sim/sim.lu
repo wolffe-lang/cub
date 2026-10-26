@@ -355,6 +355,11 @@ pub struct Sim {
     body_facing: int,
     boss: int,
     hud: bool,
+    bosses: int,
+    end: bool,
+    played: int,
+    played_at: int,
+    lost: int,
 }
 
 /// A new cub at the Shingle's start, facing north toward the water, still.
@@ -439,7 +444,27 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         body_facing: 0,
         boss: -1,
         hud: false,
+        bosses: 0,
+        end: false,
+        played: 0,
+        played_at: 0,
+        lost: 0,
     }
+}
+
+/// The ticks the journey has been played, across sessions: the saved
+/// count plus this session's since it was last folded in (cb04: the end
+/// card's time).
+pub fn played_ticks(s: Sim) -> int {
+    s.played + s.tick - s.played_at
+}
+
+/// Fold this session's ticks into the saved count, at a rest or a death
+/// (the moments the journey is written anyway; a save a tick would be no
+/// save at all).
+fn mark_time(mut s: Sim) {
+    s.played += s.tick - s.played_at
+    s.played_at = s.tick
 }
 
 /// The screen's size changed: the camera keeps the cub at the centre.
@@ -826,7 +851,10 @@ pub fn hurt(mut s: Sim, damage: int) {
         s.started = s.tick
         s.death_at = s.tick
         s.deaths += 1
-        // Replace, never accumulate: a second death destroys the first mark.
+        mark_time(mut s)
+        // Replace, never accumulate: a second death destroys the first mark;
+        // the scent it held is lost for good (R-CB-1), and counted (cb04).
+        if s.mark { s.lost += s.mark_scent }
         s.mark = true
         s.mark_area = s.area
         s.mark_x = s.x
@@ -937,6 +965,7 @@ fn action_keys(mut s: Sim, keys: List[int]) {
         if k == controls.KEY_REST && at_den(s) {
             s.last_den = den_here(s)
             s.lit_dens = light_den(s.lit_dens, s.last_den)
+            mark_time(mut s)
             reset_world(mut s)
             s.den = !s.den
         }

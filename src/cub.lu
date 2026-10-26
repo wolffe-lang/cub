@@ -337,7 +337,11 @@ fn run_headless(o: Options, args: List[str]) -> int {
         sim.new(r.seed, r.cols, r.rows)
     }
     if seed_given(args) &&
-        (s.seed != o.seed || replay.args_at(r, 0, 3) == 1 && replay.args_at(r, 0, 4) != o.seed) {
+        (
+            s.seed != o.seed ||
+                replay.args_at(r, 0, controls.EV_JOURNEY) != 0 &&
+                    replay.args_at(r, 0, controls.EV_SAVED) != o.seed
+        ) {
         eprint("cub: save_seed_conflict: a saved journey keeps its seed")
         return 2
     }
@@ -590,9 +594,12 @@ fn run_live(o: Options, args: List[str]) -> int {
         rec.seed = s.seed
         s.entered = 0
         let initial = journey.snapshot(s)
-        replay.push_arg(mut rec, 0, 3, 1)
+        replay.push_arg(mut rec, 0, controls.EV_JOURNEY, journey.JOURNEY)
         var part = 0
-        while part < initial.len { replay.push_arg(mut rec, 0, 4 + part, initial[part]); part += 1 }
+        while part < initial.len {
+            replay.push_arg(mut rec, 0, controls.EV_SAVED + part, initial[part])
+            part += 1
+        }
         sim.opening(mut s)
         if s.scene != 0 { replay.push_arg(mut rec, 0, 2, 1) }
     }
@@ -1079,12 +1086,15 @@ fn replay_initial(r: replay.Replay, fallback: sim.Sim) -> sim.Sim ! {
     save_version,
     save_difficulty,
 } {
-    let version = replay.args_at(r, 0, 3)
+    let version = replay.args_at(r, 0, controls.EV_JOURNEY)
     if version == 0 { return copy fallback }
-    if version != 1 { return save_version }
+    if version != journey.JOURNEY { return save_version }
     var values = List[int]()
     var i = 0
-    while i < 25 { (mut values).push(replay.args_at(r, 0, 4 + i)); i += 1 }
+    while i < journey.SNAPSHOT {
+        (mut values).push(replay.args_at(r, 0, controls.EV_SAVED + i))
+        i += 1
+    }
     let initial = journey.from_snapshot(values, r.cols, r.rows)?
     if initial.seed != r.seed { return save_corrupt }
     initial

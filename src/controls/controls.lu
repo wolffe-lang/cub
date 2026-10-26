@@ -193,8 +193,29 @@ pub fn key_of(name: str) -> int ! {parse} {
     replay.key_of(vocab(), name)
 }
 
-/// cub's words for the replay file: the seventeen keys by number, and no
-/// numeric event yet (cb01's `health` and `scent`).
+/// The numeric events by index: `health` and `scent` (cb01's deltas),
+/// `opening` (cb02's scene), `journey` (the snapshot's version) and the
+/// snapshot's values `saved-0` to `saved-28` (`journey.SNAPSHOT`).
+pub const EV_HEALTH: int = 0
+
+/// The scent delta.
+pub const EV_SCENT: int = 1
+
+/// The opening scene.
+pub const EV_OPENING: int = 2
+
+/// The journey snapshot's version.
+pub const EV_JOURNEY: int = 3
+
+/// The first snapshot value; `EV_SAVED + i` is `saved-i`.
+pub const EV_SAVED: int = 4
+
+/// The snapshot's values (`journey.SNAPSHOT`, named here so the vocabulary
+/// imports nothing of the save).
+pub const SAVED: int = 29
+
+/// cub's words for the replay file: the keys by number, and the numeric
+/// events by index (`EV_*`).
 pub fn vocab() -> replay.Vocab {
     var names = List[str]()
     for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt release heart wind fang paw nose heavy skip mute".
@@ -207,7 +228,7 @@ pub fn vocab() -> replay.Vocab {
     (mut args).push("opening")
     (mut args).push("journey")
     var part = 0
-    while part < 25 { (mut args).push("saved-{part}"); part += 1 }
+    while part < SAVED { (mut args).push("saved-{part}"); part += 1 }
     replay.vocab(take names, take args)
 }
 

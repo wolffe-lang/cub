@@ -25,9 +25,18 @@ pub error PrepareErrors = {
 pub error CommitErrors = {save_io, save_committed_unsynced}
 
 /// Save schema identity. Unsupported versions are named errors. Schema 2
-/// (cb02b) adds the journey's field width; a schema-1 file is refused by
-/// name as any unknown version is.
-pub const VERSION: int = 2
+/// (cb02b) added the journey's field width; schema 3 (cb04) adds the
+/// bosses beaten, the end, the ticks played and the scent lost, and widens
+/// the dens, shortcuts and areas to the whole forest; a schema-1 or
+/// schema-2 file is refused by name as any unknown version is.
+pub const VERSION: int = 3
+
+/// The values a replay's initial journey snapshot carries (`saved-0` to
+/// `saved-28`; the `journey 2` event names this shape).
+pub const SNAPSHOT: int = 29
+
+/// The replay's journey event version this build writes and reads.
+pub const JOURNEY: int = 2
 
 /// The widest field a save may name.
 pub const FIELD_MAX: int = 10000
@@ -42,7 +51,8 @@ pub fn payload(s: sim.Sim) -> str {
         "gate {if s.gate_open then 1 else 0} story {s.story} deaths {s.deaths}\n" +
         "mark {if s.mark then 1 else 0} {s.mark_area} {s.mark_x} {s.mark_y} {s.mark_scent}\n" +
         "cache {s.caches} pouch {s.yarrow} {s.marrow} opening {if s.opening_seen then 1 else 0}\n" +
-        "field {s.field}\n"
+        "field {s.field}\n" +
+        "bosses {s.bosses} end {if s.end then 1 else 0} played {s.played} lost {s.lost}\n"
 }
 
 /// Small non-cryptographic corruption check; intermediate products fit int64.
@@ -66,8 +76,8 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     var words = List[str]()
     for word in text.words() { (mut words).push(word) }
     if words.len < 2 || words[0] != "CUB" { return save_corrupt }
-    if words[1] != "2" { return save_version }
-    if words.len != 45 { return save_corrupt }
+    if words[1] != "3" { return save_version }
+    if words.len != 53 { return save_corrupt }
     var values = List[int]()
     var i = 0
     while i < words.len {
@@ -89,7 +99,11 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
             i == 38 ||
             i == 40 ||
             i == 42 ||
-            i == 44 {
+            i == 44 ||
+            i == 46 ||
+            i == 48 ||
+            i == 50 ||
+            i == 52 {
             (mut values).push(words[i].to_int() else |_| { return save_corrupt })
         }
         i += 1
@@ -124,6 +138,23 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     s.yarrow = values[22]
     s.marrow = values[23]
     s.opening_seen = values[24] == 1
+    s.bosses = values[26]
+    s.end = values[27] == 1
+    s.played = values[28]
+    s.lost = values[29]
+    if s.bosses < 0 ||
+        s.bosses > 15 ||
+        values[27] < 0 ||
+        values[27] > 1 ||
+        s.played < 0 ||
+        s.played > 1000000000 ||
+        s.lost < 0 ||
+        s.lost > 1000000000 ||
+        s.end && s.bosses / 8 % 2 == 0 ||
+        s.shortcuts / 4 % 2 == 1 && s.bosses / 2 % 2 == 0 ||
+        s.shortcuts / 8 % 2 == 1 && s.bosses / 4 % 2 == 0 {
+        return save_corrupt
+    }
     if s.caches < 0 ||
         s.caches > 255 ||
         s.yarrow < 0 ||
@@ -142,11 +173,11 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
         s.scent < 0 ||
         s.scent > 1000000000 ||
         s.last_den < 0 ||
-        s.last_den > 3 ||
+        s.last_den >= forest.DENS ||
         s.lit_dens < 1 ||
-        s.lit_dens > 15 ||
+        s.lit_dens > 127 ||
         s.shortcuts < 0 ||
-        s.shortcuts > 3 ||
+        s.shortcuts > 15 ||
         values[13] < 0 ||
         values[13] > 1 ||
         s.story < 0 ||
@@ -156,7 +187,7 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
         values[16] < 0 ||
         values[16] > 1 ||
         s.mark_area < 0 ||
-        s.mark_area > 2 ||
+        s.mark_area >= forest.AREAS ||
         s.mark_x < -1000000000 ||
         s.mark_x > 1000000000 ||
         s.mark_y < -1000000000 ||
@@ -273,12 +304,16 @@ pub fn snapshot(s: sim.Sim) -> List[int] {
     (mut values).push(s.marrow)
     (mut values).push(if s.opening_seen then 1 else 0)
     (mut values).push(s.field)
+    (mut values).push(s.bosses)
+    (mut values).push(if s.end then 1 else 0)
+    (mut values).push(s.played)
+    (mut values).push(s.lost)
     values
 }
 
 /// Validate a complete initial replay journey before applying it.
 pub fn from_snapshot(v: List[int], cols: int, rows: int) -> sim.Sim ! DecodeErrors {
-    if v.len != 25 || v[0] < -1000000000 || v[0] > 1000000000 { return save_corrupt }
+    if v.len != SNAPSHOT || v[0] < -1000000000 || v[0] > 1000000000 { return save_corrupt }
     var s = sim.new(v[0], cols, rows)
     if v[24] < forest.FIELD_MIN || v[24] > FIELD_MAX { return save_corrupt }
     s.field = v[24]
@@ -293,9 +328,20 @@ pub fn from_snapshot(v: List[int], cols: int, rows: int) -> sim.Sim ! DecodeErro
     s.last_den = v[9]
     s.lit_dens = v[10]
     s.shortcuts = v[11]
-    if v[12] < 0 || v[12] > 1 || v[15] < 0 || v[15] > 1 || v[23] < 0 || v[23] > 1 {
+    if v[12] < 0 ||
+        v[12] > 1 ||
+        v[15] < 0 ||
+        v[15] > 1 ||
+        v[23] < 0 ||
+        v[23] > 1 ||
+        v[26] < 0 ||
+        v[26] > 1 {
         return save_corrupt
     }
+    s.bosses = v[25]
+    s.end = v[26] == 1
+    s.played = v[27]
+    s.lost = v[28]
     s.gate_open = v[12] == 1
     s.story = v[13]
     s.deaths = v[14]
