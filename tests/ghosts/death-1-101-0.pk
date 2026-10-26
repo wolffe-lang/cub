@@ -12,533 +12,520 @@ t 6 right
 t 7 right
 t 8 right
 t 9 right
-t 9 ghost-x 266
-t 9 ghost-y 632
-t 9 ghost-face 1
-t 9 ghost-pose 1
-t 9 ghost-area 0
 t 10 right
-t 10 ghost-x 326
-t 10 ghost-y 632
-t 10 ghost-face 1
-t 10 ghost-pose 1
-t 10 ghost-area 0
 t 11 right
-t 11 ghost-x 389
-t 11 ghost-y 632
-t 11 ghost-face 1
-t 11 ghost-pose 1
-t 11 ghost-area 0
 t 12 right
-t 12 ghost-x 452
-t 12 ghost-y 632
+t 12 ghost-x 531
+t 12 ghost-y 633
 t 12 ghost-face 1
 t 12 ghost-pose 1
 t 12 ghost-area 0
 t 13 right
-t 13 ghost-x 515
-t 13 ghost-y 632
+t 13 ghost-x 606
+t 13 ghost-y 633
 t 13 ghost-face 1
 t 13 ghost-pose 1
 t 13 ghost-area 0
 t 14 right
-t 14 ghost-x 578
-t 14 ghost-y 632
+t 14 ghost-x 681
+t 14 ghost-y 633
 t 14 ghost-face 1
 t 14 ghost-pose 1
 t 14 ghost-area 0
 t 15 right
-t 15 ghost-x 641
-t 15 ghost-y 632
+t 15 ghost-x 756
+t 15 ghost-y 633
 t 15 ghost-face 1
 t 15 ghost-pose 1
 t 15 ghost-area 0
 t 16 right
-t 16 ghost-x 704
-t 16 ghost-y 632
+t 16 ghost-x 831
+t 16 ghost-y 633
 t 16 ghost-face 1
 t 16 ghost-pose 1
 t 16 ghost-area 0
 t 17 right
-t 17 ghost-x 767
-t 17 ghost-y 632
+t 17 ghost-x 906
+t 17 ghost-y 633
 t 17 ghost-face 1
 t 17 ghost-pose 1
 t 17 ghost-area 0
 t 18 right
-t 18 ghost-x 830
-t 18 ghost-y 632
+t 18 ghost-x 981
+t 18 ghost-y 633
 t 18 ghost-face 1
 t 18 ghost-pose 1
 t 18 ghost-area 0
 t 19 right
-t 19 ghost-x 893
-t 19 ghost-y 632
+t 19 ghost-x 1056
+t 19 ghost-y 633
 t 19 ghost-face 1
 t 19 ghost-pose 1
 t 19 ghost-area 0
 t 20 right
-t 20 ghost-x 956
-t 20 ghost-y 632
+t 20 ghost-x 1131
+t 20 ghost-y 633
 t 20 ghost-face 1
 t 20 ghost-pose 1
 t 20 ghost-area 0
 t 21 right
-t 21 ghost-x 1019
-t 21 ghost-y 632
+t 21 ghost-x 1206
+t 21 ghost-y 633
 t 21 ghost-face 1
 t 21 ghost-pose 1
 t 21 ghost-area 0
 t 22 right
-t 22 ghost-x 1082
-t 22 ghost-y 632
+t 22 ghost-x 1281
+t 22 ghost-y 633
 t 22 ghost-face 1
 t 22 ghost-pose 1
 t 22 ghost-area 0
 t 23 right
-t 23 ghost-x 1145
-t 23 ghost-y 632
+t 23 ghost-x 1356
+t 23 ghost-y 633
 t 23 ghost-face 1
 t 23 ghost-pose 1
 t 23 ghost-area 0
 t 24 right
-t 24 ghost-x 1208
-t 24 ghost-y 632
+t 24 ghost-x 1431
+t 24 ghost-y 633
 t 24 ghost-face 1
 t 24 ghost-pose 1
 t 24 ghost-area 0
 t 25 right
-t 25 ghost-x 1271
-t 25 ghost-y 632
+t 25 ghost-x 1506
+t 25 ghost-y 633
 t 25 ghost-face 1
 t 25 ghost-pose 1
 t 25 ghost-area 0
 t 26 right
-t 26 ghost-x 1334
-t 26 ghost-y 632
+t 26 ghost-x 1581
+t 26 ghost-y 633
 t 26 ghost-face 1
 t 26 ghost-pose 1
 t 26 ghost-area 0
 t 27 right
-t 27 ghost-x 1397
-t 27 ghost-y 632
+t 27 ghost-x 1656
+t 27 ghost-y 633
 t 27 ghost-face 1
 t 27 ghost-pose 1
 t 27 ghost-area 0
 t 28 right
-t 28 ghost-x 1460
-t 28 ghost-y 632
+t 28 ghost-x 1731
+t 28 ghost-y 633
 t 28 ghost-face 1
 t 28 ghost-pose 1
 t 28 ghost-area 0
 t 29 right
-t 29 ghost-x 1523
-t 29 ghost-y 632
+t 29 ghost-x 1806
+t 29 ghost-y 633
 t 29 ghost-face 1
 t 29 ghost-pose 1
 t 29 ghost-area 0
 t 30 right
-t 30 ghost-x 1586
-t 30 ghost-y 632
+t 30 ghost-x 1881
+t 30 ghost-y 633
 t 30 ghost-face 1
 t 30 ghost-pose 1
 t 30 ghost-area 0
 t 31 right
-t 31 ghost-x 1649
-t 31 ghost-y 632
+t 31 ghost-x 1956
+t 31 ghost-y 633
 t 31 ghost-face 1
 t 31 ghost-pose 1
 t 31 ghost-area 0
 t 32 right
-t 32 ghost-x 1712
-t 32 ghost-y 632
+t 32 ghost-x 2031
+t 32 ghost-y 633
 t 32 ghost-face 1
 t 32 ghost-pose 1
 t 32 ghost-area 0
 t 33 right
-t 33 ghost-x 1775
-t 33 ghost-y 632
+t 33 ghost-x 2106
+t 33 ghost-y 633
 t 33 ghost-face 1
 t 33 ghost-pose 1
 t 33 ghost-area 0
 t 34 right
-t 34 ghost-x 1838
-t 34 ghost-y 632
+t 34 ghost-x 2181
+t 34 ghost-y 633
 t 34 ghost-face 1
 t 34 ghost-pose 1
 t 34 ghost-area 0
 t 35 right
-t 35 ghost-x 1901
-t 35 ghost-y 632
+t 35 ghost-x 2256
+t 35 ghost-y 633
 t 35 ghost-face 1
 t 35 ghost-pose 1
 t 35 ghost-area 0
 t 36 right
-t 36 ghost-x 1964
-t 36 ghost-y 632
+t 36 ghost-x 2331
+t 36 ghost-y 633
 t 36 ghost-face 1
 t 36 ghost-pose 1
 t 36 ghost-area 0
 t 37 right
-t 37 ghost-x 2027
-t 37 ghost-y 632
+t 37 ghost-x 2406
+t 37 ghost-y 633
 t 37 ghost-face 1
 t 37 ghost-pose 1
 t 37 ghost-area 0
 t 38 right
-t 38 ghost-x 2090
-t 38 ghost-y 632
+t 38 ghost-x 2481
+t 38 ghost-y 633
 t 38 ghost-face 1
 t 38 ghost-pose 1
 t 38 ghost-area 0
 t 39 right
-t 39 ghost-x 2153
-t 39 ghost-y 632
+t 39 ghost-x 2556
+t 39 ghost-y 633
 t 39 ghost-face 1
 t 39 ghost-pose 1
 t 39 ghost-area 0
 t 40 right
-t 40 ghost-x 2216
-t 40 ghost-y 632
+t 40 ghost-x 2631
+t 40 ghost-y 633
 t 40 ghost-face 1
 t 40 ghost-pose 1
 t 40 ghost-area 0
 t 41 right
-t 41 ghost-x 2279
-t 41 ghost-y 632
+t 41 ghost-x 2706
+t 41 ghost-y 633
 t 41 ghost-face 1
 t 41 ghost-pose 1
 t 41 ghost-area 0
 t 42 right
-t 42 ghost-x 2342
-t 42 ghost-y 632
+t 42 ghost-x 2781
+t 42 ghost-y 633
 t 42 ghost-face 1
 t 42 ghost-pose 1
 t 42 ghost-area 0
 t 43 right
-t 43 ghost-x 2405
-t 43 ghost-y 632
+t 43 ghost-x 2856
+t 43 ghost-y 633
 t 43 ghost-face 1
 t 43 ghost-pose 1
 t 43 ghost-area 0
 t 44 right
-t 44 ghost-x 2468
-t 44 ghost-y 632
+t 44 ghost-x 2931
+t 44 ghost-y 633
 t 44 ghost-face 1
 t 44 ghost-pose 1
 t 44 ghost-area 0
 t 45 right
-t 45 ghost-x 2531
-t 45 ghost-y 632
+t 45 ghost-x 3006
+t 45 ghost-y 633
 t 45 ghost-face 1
 t 45 ghost-pose 1
 t 45 ghost-area 0
 t 46 right
-t 46 ghost-x 2594
-t 46 ghost-y 632
+t 46 ghost-x 3081
+t 46 ghost-y 633
 t 46 ghost-face 1
 t 46 ghost-pose 1
 t 46 ghost-area 0
 t 47 right
-t 47 ghost-x 2657
-t 47 ghost-y 632
+t 47 ghost-x 3156
+t 47 ghost-y 633
 t 47 ghost-face 1
 t 47 ghost-pose 1
 t 47 ghost-area 0
 t 48 right
-t 48 ghost-x 2720
-t 48 ghost-y 632
+t 48 ghost-x 3231
+t 48 ghost-y 633
 t 48 ghost-face 1
 t 48 ghost-pose 1
 t 48 ghost-area 0
 t 49 right
-t 49 ghost-x 2783
-t 49 ghost-y 632
+t 49 ghost-x 3306
+t 49 ghost-y 633
 t 49 ghost-face 1
 t 49 ghost-pose 1
 t 49 ghost-area 0
 t 50 right
-t 50 ghost-x 2846
-t 50 ghost-y 632
+t 50 ghost-x 3381
+t 50 ghost-y 633
 t 50 ghost-face 1
 t 50 ghost-pose 1
 t 50 ghost-area 0
 t 51 right
-t 51 ghost-x 2909
-t 51 ghost-y 632
+t 51 ghost-x 3456
+t 51 ghost-y 633
 t 51 ghost-face 1
 t 51 ghost-pose 1
 t 51 ghost-area 0
 t 52 right
-t 52 ghost-x 2972
-t 52 ghost-y 632
+t 52 ghost-x 3531
+t 52 ghost-y 633
 t 52 ghost-face 1
 t 52 ghost-pose 1
 t 52 ghost-area 0
 t 53 right
-t 53 ghost-x 3035
-t 53 ghost-y 632
+t 53 ghost-x 3606
+t 53 ghost-y 633
 t 53 ghost-face 1
 t 53 ghost-pose 1
 t 53 ghost-area 0
 t 54 right
-t 54 ghost-x 3098
-t 54 ghost-y 632
+t 54 ghost-x 3681
+t 54 ghost-y 633
 t 54 ghost-face 1
 t 54 ghost-pose 1
 t 54 ghost-area 0
 t 55 right
-t 55 ghost-x 3161
-t 55 ghost-y 632
+t 55 ghost-x 3756
+t 55 ghost-y 633
 t 55 ghost-face 1
 t 55 ghost-pose 1
 t 55 ghost-area 0
 t 56 right
-t 56 ghost-x 3224
-t 56 ghost-y 632
+t 56 ghost-x 3831
+t 56 ghost-y 633
 t 56 ghost-face 1
 t 56 ghost-pose 1
 t 56 ghost-area 0
 t 57 right
-t 57 ghost-x 3287
-t 57 ghost-y 632
+t 57 ghost-x 3906
+t 57 ghost-y 633
 t 57 ghost-face 1
 t 57 ghost-pose 1
 t 57 ghost-area 0
 t 58 right
-t 58 ghost-x 3350
-t 58 ghost-y 632
+t 58 ghost-x 3981
+t 58 ghost-y 633
 t 58 ghost-face 1
 t 58 ghost-pose 1
 t 58 ghost-area 0
 t 59 right
-t 59 ghost-x 3413
-t 59 ghost-y 632
+t 59 ghost-x 4056
+t 59 ghost-y 633
 t 59 ghost-face 1
 t 59 ghost-pose 1
 t 59 ghost-area 0
 t 60 right
-t 60 ghost-x 3476
-t 60 ghost-y 632
+t 60 ghost-x 4131
+t 60 ghost-y 633
 t 60 ghost-face 1
 t 60 ghost-pose 1
 t 60 ghost-area 0
 t 61 right
-t 61 ghost-x 3539
-t 61 ghost-y 632
+t 61 ghost-x 4206
+t 61 ghost-y 633
 t 61 ghost-face 1
 t 61 ghost-pose 1
 t 61 ghost-area 0
 t 62 right
-t 62 ghost-x 3602
-t 62 ghost-y 632
+t 62 ghost-x 4281
+t 62 ghost-y 633
 t 62 ghost-face 1
 t 62 ghost-pose 1
 t 62 ghost-area 0
 t 63 right
-t 63 ghost-x 3665
-t 63 ghost-y 632
+t 63 ghost-x 4356
+t 63 ghost-y 633
 t 63 ghost-face 1
 t 63 ghost-pose 1
 t 63 ghost-area 0
 t 64 right
-t 64 ghost-x 3728
-t 64 ghost-y 632
+t 64 ghost-x 4431
+t 64 ghost-y 633
 t 64 ghost-face 1
 t 64 ghost-pose 1
 t 64 ghost-area 0
 t 65 right
-t 65 ghost-x 3791
-t 65 ghost-y 632
+t 65 ghost-x 4506
+t 65 ghost-y 633
 t 65 ghost-face 1
 t 65 ghost-pose 1
 t 65 ghost-area 0
 t 66 right
-t 66 ghost-x 3854
-t 66 ghost-y 632
+t 66 ghost-x 4581
+t 66 ghost-y 633
 t 66 ghost-face 1
 t 66 ghost-pose 1
 t 66 ghost-area 0
 t 67 right
-t 67 ghost-x 3917
-t 67 ghost-y 632
+t 67 ghost-x 4656
+t 67 ghost-y 633
 t 67 ghost-face 1
 t 67 ghost-pose 1
 t 67 ghost-area 0
 t 68 right
-t 68 ghost-x 3980
-t 68 ghost-y 632
+t 68 ghost-x 4731
+t 68 ghost-y 633
 t 68 ghost-face 1
 t 68 ghost-pose 1
 t 68 ghost-area 0
 t 69 right
-t 69 ghost-x 4043
-t 69 ghost-y 632
+t 69 ghost-x 4806
+t 69 ghost-y 633
 t 69 ghost-face 1
 t 69 ghost-pose 1
 t 69 ghost-area 0
 t 70 right
-t 70 ghost-x 4106
-t 70 ghost-y 632
+t 70 ghost-x 4881
+t 70 ghost-y 633
 t 70 ghost-face 1
 t 70 ghost-pose 1
 t 70 ghost-area 0
 t 71 right
-t 71 ghost-x 4169
-t 71 ghost-y 632
+t 71 ghost-x 4956
+t 71 ghost-y 633
 t 71 ghost-face 1
 t 71 ghost-pose 1
 t 71 ghost-area 0
 t 72 right
-t 72 ghost-x 4232
-t 72 ghost-y 632
+t 72 ghost-x 5031
+t 72 ghost-y 633
 t 72 ghost-face 1
 t 72 ghost-pose 1
 t 72 ghost-area 0
 t 73 right
-t 73 ghost-x 4295
-t 73 ghost-y 632
+t 73 ghost-x 5106
+t 73 ghost-y 633
 t 73 ghost-face 1
 t 73 ghost-pose 1
 t 73 ghost-area 0
-t 74 right
-t 74 ghost-x 4358
-t 74 ghost-y 632
+t 74 ghost-x 5181
+t 74 ghost-y 633
 t 74 ghost-face 1
 t 74 ghost-pose 1
 t 74 ghost-area 0
-t 75 right
-t 75 ghost-x 4421
-t 75 ghost-y 632
+t 75 ghost-x 5256
+t 75 ghost-y 633
 t 75 ghost-face 1
 t 75 ghost-pose 1
 t 75 ghost-area 0
-t 76 right
-t 76 ghost-x 4484
-t 76 ghost-y 632
+t 76 ghost-x 5317
+t 76 ghost-y 633
 t 76 ghost-face 1
 t 76 ghost-pose 1
 t 76 ghost-area 0
-t 77 right
-t 77 ghost-x 4547
-t 77 ghost-y 632
+t 77 ghost-x 5364
+t 77 ghost-y 633
 t 77 ghost-face 1
 t 77 ghost-pose 1
 t 77 ghost-area 0
-t 78 right
-t 78 ghost-x 4610
-t 78 ghost-y 632
+t 78 ghost-x 5397
+t 78 ghost-y 633
 t 78 ghost-face 1
 t 78 ghost-pose 1
 t 78 ghost-area 0
-t 79 right
-t 79 ghost-x 4673
-t 79 ghost-y 632
+t 79 ghost-x 5416
+t 79 ghost-y 633
 t 79 ghost-face 1
 t 79 ghost-pose 1
 t 79 ghost-area 0
-t 80 right
-t 80 ghost-x 4736
-t 80 ghost-y 632
+t 80 ghost-x 5421
+t 80 ghost-y 633
 t 80 ghost-face 1
 t 80 ghost-pose 1
 t 80 ghost-area 0
-t 81 right
-t 81 ghost-x 4799
-t 81 ghost-y 632
+t 81 ghost-x 5421
+t 81 ghost-y 633
 t 81 ghost-face 1
-t 81 ghost-pose 1
+t 81 ghost-pose 0
 t 81 ghost-area 0
-t 82 right
-t 82 ghost-x 4862
-t 82 ghost-y 632
+t 82 ghost-x 5421
+t 82 ghost-y 633
 t 82 ghost-face 1
-t 82 ghost-pose 1
+t 82 ghost-pose 0
 t 82 ghost-area 0
-t 83 right
-t 83 ghost-x 4925
-t 83 ghost-y 632
+t 83 ghost-x 5421
+t 83 ghost-y 633
 t 83 ghost-face 1
-t 83 ghost-pose 1
+t 83 ghost-pose 0
 t 83 ghost-area 0
-t 84 right
-t 84 ghost-x 4988
-t 84 ghost-y 632
+t 84 ghost-x 5421
+t 84 ghost-y 633
 t 84 ghost-face 1
-t 84 ghost-pose 1
+t 84 ghost-pose 0
 t 84 ghost-area 0
-t 85 right
-t 85 ghost-x 5051
-t 85 ghost-y 632
+t 85 ghost-x 5421
+t 85 ghost-y 633
 t 85 ghost-face 1
-t 85 ghost-pose 1
+t 85 ghost-pose 0
 t 85 ghost-area 0
-t 86 right
-t 86 ghost-x 5114
-t 86 ghost-y 632
+t 86 ghost-x 5421
+t 86 ghost-y 633
 t 86 ghost-face 1
-t 86 ghost-pose 1
+t 86 ghost-pose 0
 t 86 ghost-area 0
-t 87 ghost-x 5177
-t 87 ghost-y 632
+t 87 ghost-x 5421
+t 87 ghost-y 633
 t 87 ghost-face 1
-t 87 ghost-pose 1
+t 87 ghost-pose 0
 t 87 ghost-area 0
-t 88 ghost-x 5240
-t 88 ghost-y 632
+t 88 ghost-x 5421
+t 88 ghost-y 633
 t 88 ghost-face 1
-t 88 ghost-pose 1
+t 88 ghost-pose 0
 t 88 ghost-area 0
-t 89 ghost-x 5291
-t 89 ghost-y 632
+t 89 ghost-x 5421
+t 89 ghost-y 633
 t 89 ghost-face 1
-t 89 ghost-pose 1
+t 89 ghost-pose 0
 t 89 ghost-area 0
-t 90 ghost-x 5330
-t 90 ghost-y 632
+t 90 ghost-x 5421
+t 90 ghost-y 633
 t 90 ghost-face 1
-t 90 ghost-pose 1
+t 90 ghost-pose 0
 t 90 ghost-area 0
-t 91 ghost-x 5357
-t 91 ghost-y 632
+t 91 ghost-x 5421
+t 91 ghost-y 633
 t 91 ghost-face 1
-t 91 ghost-pose 1
+t 91 ghost-pose 0
 t 91 ghost-area 0
-t 92 ghost-x 5372
-t 92 ghost-y 632
+t 92 ghost-x 5421
+t 92 ghost-y 633
 t 92 ghost-face 1
-t 92 ghost-pose 1
+t 92 ghost-pose 0
 t 92 ghost-area 0
-t 93 ghost-x 5375
-t 93 ghost-y 632
+t 93 ghost-x 5421
+t 93 ghost-y 633
 t 93 ghost-face 1
-t 93 ghost-pose 1
+t 93 ghost-pose 0
 t 93 ghost-area 0
-t 94 ghost-x 5375
-t 94 ghost-y 632
+t 94 ghost-x 5421
+t 94 ghost-y 633
 t 94 ghost-face 1
 t 94 ghost-pose 0
 t 94 ghost-area 0
-t 95 ghost-x 5375
-t 95 ghost-y 632
+t 95 ghost-x 5421
+t 95 ghost-y 633
 t 95 ghost-face 1
 t 95 ghost-pose 0
 t 95 ghost-area 0
-t 96 ghost-x 5375
-t 96 ghost-y 632
+t 96 ghost-x 5421
+t 96 ghost-y 633
 t 96 ghost-face 1
 t 96 ghost-pose 0
 t 96 ghost-area 0
-t 97 health -1000
-t 97 health 0
-t 97 ghost-x 5375
-t 97 ghost-y 632
+t 97 ghost-x 5421
+t 97 ghost-y 633
 t 97 ghost-face 1
 t 97 ghost-pose 0
 t 97 ghost-area 0
-t 98 ghost-x 5375
-t 98 ghost-y 632
+t 98 ghost-x 5421
+t 98 ghost-y 633
 t 98 ghost-face 1
-t 98 ghost-pose 4
+t 98 ghost-pose 0
 t 98 ghost-area 0
-t 98 ghost-death 1
+t 99 ghost-x 5421
+t 99 ghost-y 633
+t 99 ghost-face 1
+t 99 ghost-pose 0
+t 99 ghost-area 0
+t 100 health -1000
+t 100 health 0
+t 100 ghost-x 5421
+t 100 ghost-y 633
+t 100 ghost-face 1
+t 100 ghost-pose 0
+t 100 ghost-area 0
+t 101 ghost-x 5421
+t 101 ghost-y 633
+t 101 ghost-face 1
+t 101 ghost-pose 4
+t 101 ghost-area 0
+t 101 ghost-death 1

@@ -76,19 +76,6 @@ t 70 right
 t 71 right
 t 72 right
 t 73 right
-t 74 right
-t 75 right
-t 76 right
-t 77 right
-t 78 right
-t 79 right
-t 80 right
-t 81 right
-t 82 right
-t 83 right
-t 84 right
-t 85 right
-t 86 right
-t 97 health -1000
+t 100 health -1000
 
-# frames 98 every 98
+# frames 101 every 101
