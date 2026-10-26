@@ -97,7 +97,13 @@ fn test_cb02_hawk_stopping_shadow_and_parry() {
     }
     (mut keys).push(controls.KEY_PARRY)
     sim.step(mut s, keys)
-    assert(s.foes[0].health == 0 && s.health == 52 && s.scent == 12, "parry kills hawk")
+    assert(
+        s.foes[0].health == 0 && s.health == 52 && s.scent == 0 && s.drops.len == 1,
+        "parry kills hawk and shows fresh scent",
+    )
+    (mut keys).reset()
+    sim.step(mut s, keys)
+    assert(s.scent == 12 && s.drops.len == 0, "contact ring collects after the visible first tick")
 }
 
 fn test_cb02_hawk_airborne_and_committed_strike() {

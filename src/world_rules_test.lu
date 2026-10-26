@@ -16,12 +16,17 @@ fn key(k: int) -> List[int] {
 
 fn test_cb02_scent_pickup_expires_and_never_double_collects() {
     var s = sim.new(1, 80, 24)
-    (mut s.drops).push(sim.Drop { x: s.x + 2 * sim.FP, y: s.y, value: 8, until: 2 })
+    (mut s.drops).push(sim.Drop {
+        x: (sim.cub_body(s).x1 + sim.PICKUP_MARGIN + 1) * sim.FP,
+        y: s.y,
+        value: 8,
+        until: 2,
+    })
     sim.step(mut s, key(0))
     assert(s.drops.len == 1 && s.scent == 0, "visible before expiry")
     sim.step(mut s, key(0))
     assert(s.drops.len == 0 && s.scent == 0, "lost at exclusive expiry")
-    (mut s.drops).push(sim.Drop { x: s.x, y: s.y, value: 12, until: 500 })
+    (mut s.drops).push(sim.Drop { x: s.x, y: s.y, value: 12, until: s.tick + sim.DROP_TICKS })
     sim.step(mut s, key(0))
     sim.step(mut s, key(0))
     assert(s.scent == 12 && s.drops.len == 0, "collected once on overlap")
