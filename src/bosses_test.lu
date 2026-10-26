@@ -310,8 +310,12 @@ fn test_cb04_the_alpha_turns_a_bite_and_hops_a_lunge() {
     assert(t.foes[0].phase == sim.HUNT, "then the hunt again")
 }
 
-fn test_cb04_the_health_bar_shows_in_the_arena_only() {
+fn test_cb04_the_health_bar_shows_while_the_boss_is_engaged() {
+    // The bar is the boss's alone (R-cb04-2 A): drawn while the boss is
+    // engaged (the cub in the arena, or within four cells of it, as at
+    // the arena's mouth under a charge), gone when the cub has left.
     var s = arena_with(sim.ELK, 1)
+    s.foes[0].engaged = true
     var g = grid.new(24, 80)
     art.render(s, tier.PLAIN, mut g)
     assert(grid.plain_ok(g), "plain fight frame")
@@ -319,20 +323,35 @@ fn test_cb04_the_health_bar_shows_in_the_arena_only() {
     var c = 0
     while c < 80 { row1 += "{grid.at(g, 1, c).cp as char}"; c += 1 }
     assert(row1.contains("Alder [####################]"), "the bar under the name: {row1}")
-    let (cx, cy, r) = forest.arena(s.seed, s.field, s.area)
-    let _ = cx
-    s.y = (forest.origin(s.seed, s.area) + cy - r - 6) * sim.FP
-    s.x = forest.spine(s.seed, s.area, cy - r - 6) * sim.FP
-    var h = grid.new(24, 80)
-    art.render(s, tier.RICH, mut h)
+    s.foes[0].engaged = false
+    var k = grid.new(24, 80)
+    art.render(s, tier.RICH, mut k)
     var row = ""
     c = 0
-    while c < 80 { row += "{grid.at(h, 1, c).cp as char}"; c += 1 }
-    assert(!row.contains("Alder"), "no bar outside the arena")
+    while c < 80 { row += "{grid.at(k, 1, c).cp as char}"; c += 1 }
+    assert(!row.contains("Alder"), "no bar once the boss has let the cub go")
     assert(
         sim.boss_name(sim.BOAR) == "Old Snag" && sim.boss_name(sim.ALPHA) == "Ashgrim",
         "the names",
     )
+}
+
+fn test_cb04_the_health_bar_follows_the_cub_to_the_arena_mouth() {
+    // Outside the arena but engaged (within four cells, or under a
+    // charge): the bar still shows.
+    var s = arena_with(sim.ELK, 1)
+    s.foes[0].engaged = true
+    let (cx, cy, r) = forest.arena(s.seed, s.field, s.area)
+    let _ = cx
+    s.y = (forest.origin(s.seed, s.area) + cy - r - 6) * sim.FP
+    s.x = forest.spine(s.seed, s.area, cy - r - 6) * sim.FP
+    assert(!sim.cub_in_arena(s), "the cub stands outside")
+    var h = grid.new(24, 80)
+    art.render(s, tier.RICH, mut h)
+    var row = ""
+    var c = 0
+    while c < 80 { row += "{grid.at(h, 1, c).cp as char}"; c += 1 }
+    assert(row.contains("Alder ["), "the bar at the mouth while engaged: {row}")
 }
 
 fn test_cb04_bosses_are_the_drawings_and_never_overlap_the_cub() {

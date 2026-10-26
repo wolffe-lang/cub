@@ -1885,8 +1885,11 @@ pub fn draw_wolf(
 /// phase.
 fn draw_boss_bar(s: sim.Sim, t: int, mut g: grid.Grid) {
     let i = sim.boss_index(s)
-    if i < 0 || !sim.cub_in_arena(s) { return }
+    if i < 0 { return }
     let f = copy s.foes[i]
+    // The bar is the boss's, shown while it is engaged (R-cb04-2 A): the
+    // cub at the arena's mouth under a charge sees it too.
+    if !f.engaged || f.health <= 0 { return }
     let text = boss_bar_text(f)
     let left = (s.cols - text.len) / 2
     draw.put_text(mut g, 1, left, text, ink(t, true))
