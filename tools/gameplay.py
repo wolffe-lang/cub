@@ -462,7 +462,7 @@ def den_memory(binary):
             border = '|' if tier == 'plain' else '│'
             edges = [i for i, c in enumerate(text[top + 2]) if c == border]
             left = cols // 2 - cols // 6 - width // 2
-            assert edges == [left, left + width - 1], ('ledger drawn off centre', cols, edges)
+            assert edges == [left, left + 1, left + width - 2, left + width - 1], ('ledger drawn off centre', cols, edges)
             assert len(text) == rows and all(len(line) == cols for line in text), 'ledger frame truncated'
             print('den-memory: ledger', tier, str(cols) + 'x' + str(rows), 'centre', left + width // 2, top + height // 2)
     print('gameplay: den-memory path/log, 100 journeys and centred ledgers green')
