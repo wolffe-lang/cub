@@ -119,24 +119,28 @@ pub fn pace() -> str {
 /// A key for the frame's tail cells: the two west columns of an
 /// east-facing cub (the north drawing's last cell row, turned), each the
 /// silhouette's glyph where the fur is drawn, else nothing (the ground
-/// passing under the cub is not the tail moving).
-fn tail_key(s: sim.Sim) -> str {
-    var g = grid.new(s.rows, s.cols)
-    art.render(s, tier.RICH, mut g)
-    let r = sim.screen_row(s)
-    let c = sim.screen_col(s)
-    let fur = sprites.palette(tier.RICH, sprites.C_FUR)
-    let dim = sprites.palette(tier.RICH, sprites.C_FUR_DIM)
-    var key = ""
-    var dr = 0
-    while dr < 2 {
-        var dc = -3
-        while dc < -1 {
-            let cell = grid.at(g, r + dr, c + dc)
-            key += if cell.fg == fur || cell.fg == dim then "{cell.cp}," else "_,"
-            dc += 1
+/// passing under the cub is not the tail moving), folded into one number.
+/// The frame dies with the call's region (a flat instrument).
+fn tail_key(s: sim.Sim) -> int {
+    var key: int = 0
+    region frame {
+        var g = grid.new(s.rows, s.cols)
+        art.render(s, tier.RICH, mut g)
+        let r = sim.screen_row(s)
+        let c = sim.screen_col(s)
+        let fur = sprites.palette(tier.RICH, sprites.C_FUR)
+        let dim = sprites.palette(tier.RICH, sprites.C_FUR_DIM)
+        var dr = 0
+        while dr < 2 {
+            var dc = -3
+            while dc < -1 {
+                let cell = grid.at(g, r + dr, c + dc)
+                let v = if cell.fg == fur || cell.fg == dim then cell.cp % 509 + 1 else 0
+                key = key * 512 + v
+                dc += 1
+            }
+            dr += 1
         }
-        dr += 1
     }
     key
 }
@@ -150,14 +154,16 @@ fn wag_of(k: int, paw: int, settle: int, n: int) -> (int, int) {
     s.paw = paw
     var i = 0
     while i < settle { press(mut s, k); i += 1 }
-    var keys = List[str]()
-    var seen = List[str]()
+    var keys = List[int]()
+    var seen = List[int]()
     i = 0
     while i < n {
         press(mut s, k)
         let key = tail_key(s)
         (mut keys).push(key)
-        add_once(mut seen, key)
+        var have = false
+        for x in seen { if x == key { have = true } }
+        if !have { (mut seen).push(key) }
         i += 1
     }
     // The period: the mean gap between entries into the frame entered
@@ -572,21 +578,30 @@ pub fn body_audit(scripts: List[str]) -> int {
         while size < 2 {
             let cols = if size == 0 then 80 else 200
             let rows = if size == 0 then 24 else 60
-            let (sw, engaged, kills) = swarm(seed, cols, rows, 0, 600)
             var c = census.counts()
-            census.add(mut c, sw)
-            var scripted = census.counts()
-            for p in scripts {
-                let one = census_as(p, seed, cols, rows) else |e| {
-                    eprint("body audit: {p}: {e}")
-                    return 2
+            var engaged = 0
+            var kills = 0
+            var sw_contact = 0
+            var scripted_contact = 0
+            // A world's runs die with its region; what leaves are ints.
+            region world {
+                let (sw, e, k) = swarm(seed, cols, rows, 0, 600)
+                census.add(mut c, sw)
+                engaged = e
+                kills = k
+                sw_contact = sw.contact
+                for p in scripts {
+                    let one = census_as(p, seed, cols, rows) else |err| {
+                        eprint("body audit: {p}: {err}")
+                        return 2
+                    }
+                    census.add(mut c, one)
+                    scripted_contact += one.contact
                 }
-                census.add(mut scripted, one)
+                print(
+                    "{seed} {cols} {engaged} {sw_contact} {kills} {scripted_contact} {c.overlap} {c.contact_unreachable} {c.foe_overlap}",
+                )
             }
-            census.add(mut c, scripted)
-            print(
-                "{seed} {cols} {engaged} {sw.contact} {kills} {scripted.contact} {c.overlap} {c.contact_unreachable} {c.foe_overlap}",
-            )
             census.add(mut total, c)
             if c.overlap != 0 ||
                 c.contact_unreachable != 0 ||
@@ -635,12 +650,15 @@ pub fn report(paths_in: List[str]) -> int {
     print(glyphs())
     var total = census.counts()
     for p in paths_in {
-        let c = census_of(p) else |e| {
-            eprint("measure: {p}: {e}")
-            return 2
+        // A script's run dies with its region; the counts are ints.
+        region script {
+            let c = census_of(p) else |e| {
+                eprint("measure: {p}: {e}")
+                return 2
+            }
+            print("census {p} {census.line(c)}")
+            census.add(mut total, c)
         }
-        print("census {p} {census.line(c)}")
-        census.add(mut total, c)
     }
     print("census total {census.line(total)}")
     0

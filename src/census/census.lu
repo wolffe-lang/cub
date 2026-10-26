@@ -164,36 +164,41 @@ fn solid(f: sim.Foe) -> bool {
 pub fn observe(mut c: Counts, s: sim.Sim) {
     c.ticks += 1
     if s.scene != 0 || s.action == sim.FALL || s.den { return }
-    // Overlap is what the frame draws (the leap and the shake included);
-    // contact is the bodies where they stand.
-    let drawn = cub_box(s)
-    let ground = ground_box(s)
+    // Each tick's drawings die with the tick: a census over hundreds of
+    // thousands of ticks stays flat in memory (cb02c's first run grew to
+    // 13 GB without this).
     var any = false
-    var i = 0
-    while i < s.foes.len {
-        let f = copy s.foes[i]
-        if solid(f) {
-            let fb = foe_box(f)
-            let out = !reachable(s, i)
-            let back = behind(s, i)
-            if gap(ground, fb) <= 0 {
-                c.contact += 1
-                if out { c.contact_unreachable += 1 }
-                if back { c.contact_behind += 1 }
+    region tick {
+        // Overlap is what the frame draws (the leap and the shake
+        // included); contact is the bodies where they stand.
+        let drawn = cub_box(s)
+        let ground = ground_box(s)
+        var i = 0
+        while i < s.foes.len {
+            let f = copy s.foes[i]
+            if solid(f) {
+                let fb = foe_box(f)
+                let out = !reachable(s, i)
+                let back = behind(s, i)
+                if gap(ground, fb) <= 0 {
+                    c.contact += 1
+                    if out { c.contact_unreachable += 1 }
+                    if back { c.contact_behind += 1 }
+                }
+                if gap(drawn, fb) < 0 {
+                    any = true
+                    c.overlap += 1
+                    if out { c.overlap_unreachable += 1 }
+                    if back { c.overlap_behind += 1 }
+                }
+                var j = i + 1
+                while j < s.foes.len {
+                    if solid(s.foes[j]) && overlap(fb, foe_box(s.foes[j])) { c.foe_overlap += 1 }
+                    j += 1
+                }
             }
-            if gap(drawn, fb) < 0 {
-                any = true
-                c.overlap += 1
-                if out { c.overlap_unreachable += 1 }
-                if back { c.overlap_behind += 1 }
-            }
-            var j = i + 1
-            while j < s.foes.len {
-                if solid(s.foes[j]) && overlap(fb, foe_box(s.foes[j])) { c.foe_overlap += 1 }
-                j += 1
-            }
+            i += 1
         }
-        i += 1
     }
     if any { c.overlap_ticks += 1 }
 }
