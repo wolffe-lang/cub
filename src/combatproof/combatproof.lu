@@ -1,0 +1,72 @@
+//! Explicit visual studies use production sim steps and drawing paths.
+//! Empty-arena setup is disclosed; these are not claimed as played journeys.
+
+use art
+use controls
+use grid
+use headless
+use motionproof
+use sim
+use tier
+
+fn write(s: sim.Sim, t: int, dir: str, name: str) -> () ! {io} {
+    var g = grid.new(s.rows, s.cols)
+    art.render(s, t, mut g)
+    headless.write_frame(dir, name, g)?
+}
+
+/// Every combo age/aim, every straight/diagonal roll age, growing bars and rally.
+pub fn generate(dir: str) -> () ! {io} {
+    for t in [tier.PLAIN, tier.RICH] {
+        let tier_name = if t == tier.PLAIN then "plain" else "rich"
+        for h in [0, 32, 64, 96, 128, 160, 192, 224] {
+            for hit in [1, 2, 3] {
+                var s = sim.new(1, 80, 24)
+                sim.combat_witness(mut s)
+                s.heading = h
+                s.heading_target = h
+                var keys = motionproof.arrows(h, false)
+                (mut keys).push(controls.KEY_BITE)
+                sim.step(mut s, keys)
+                s.combo = hit
+                s.stamina -= sim.combo_cost(hit) - sim.combo_cost(1)
+                var age = 0
+                while age < sim.combo_duration(hit) {
+                    region frame { write(s, t, dir, "combo-{h}-{hit}-{age}-{tier_name}")? }
+                    sim.step(mut s, List[int]())
+                    age += 1
+                }
+            }
+        }
+        for h in [64, 96] {
+            var s = sim.new(1, 80, 24)
+            sim.combat_witness(mut s)
+            var keys = motionproof.arrows(h, false)
+            (mut keys).push(controls.KEY_DODGE)
+            sim.step(mut s, keys)
+            var age = 0
+            while age < 14 {
+                region frame { write(s, t, dir, "roll-{h}-{age}-{tier_name}")? }
+                sim.step(mut s, List[int]())
+                age += 1
+            }
+        }
+        for stat in [1, 10, 40] {
+            for cols in [80, 120] {
+                let rows = if cols == 80 then 24 else 40
+                var s = sim.new(1, cols, rows)
+                sim.combat_witness(mut s)
+                s.heart = stat
+                s.wind = stat
+                s.health = sim.health_max(stat)
+                s.stamina = sim.stamina_max(stat)
+                s.flask_max = 2
+                s.flasks = 2
+                write(s, t, dir, "bars-{stat}-{cols}x{rows}-{tier_name}")?
+                sim.hurt(mut s, s.health / 2)
+                s.tick += 22
+                write(s, t, dir, "rally-{stat}-{cols}x{rows}-{tier_name}")?
+            }
+        }
+    }
+}

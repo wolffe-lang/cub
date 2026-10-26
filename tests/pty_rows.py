@@ -385,7 +385,7 @@ ROWS.update({'title': title, 'title-demo': title_demo})
 
 
 def sprint_live(binary, ctx):
-    """Actual repeated c bytes drain stamina; Space chooses the snapping attack."""
+    """Actual repeated Ctrl+arrow bytes drain stamina; Space chooses the snapping attack."""
     import re
     root = Path(ctx.ROOT) / 'target/pty/cb03a'
     root.mkdir(parents=True, exist_ok=True)
@@ -395,7 +395,7 @@ def sprint_live(binary, ctx):
                      '--trace', '--mute', '--no-title', '--tier', 'plain'], 24, 80, env)
     s.type(b'?', settle=.15)
     for _ in range(12):
-        s.type(b'\x1b[Cc', settle=.09)
+        s.type(b'\x1b[1;5C', settle=.09)
     s.type(b' ', settle=.2)
     s.type(b'q')
     s.finish()
@@ -984,3 +984,107 @@ def yard_cache(binary, ctx):
 
 ROWS.update({'town-passage': town_passage, 'ashen-parry': ashen_parry,
              'ember-touch': ember_touch, 'yard-cache': yard_cache})
+
+
+def cb04b_traces(session):
+    import re
+    rows = []
+    for line in session.err.decode(errors='replace').splitlines():
+        if line.startswith('trace tick '):
+            rows.append({k: int(v) for k, v in re.findall(r'(\w+) (-?\d+)', line)})
+    return rows
+
+
+def cb04b_event(key, kind=1, mods=1):
+    if key in 'ABCD':
+        return f'\x1b[1;{mods}:{kind}{key}'.encode()
+    return f'\x1b[{ord(key)};{mods}:{kind}u'.encode()
+
+
+def cb04b_session(binary, ctx, name, tier):
+    dest = Path(ctx.ROOT) / 'target' / 'pty' / ('cb04b-' + name + '-' + tier)
+    dest.mkdir(parents=True, exist_ok=True)
+    save = dest / 'save'
+    if save.exists():
+        save.unlink()
+    env = ctx.env_for()
+    env['HOME'] = str(dest)
+    s = ctx.Session([binary, '--seed', '1', '--tier', tier, '--trace', '--mute',
+                     '--no-title', '--combat-witness', '--save', str(save),
+                     '--record', str(dest / 'record.pk')], 40, 120, env,
+                    replies=[(b'\x1b[?u', b'\x1b[?0u')])
+    return s, dest
+
+
+def cb04b_direction_row(aim, arrows, action, hold=0):
+    def row(binary, ctx):
+        problems = []
+        for tier in ('rich', 'plain'):
+            s, dest = cb04b_session(binary, ctx, f'{action}-{aim}-{hold}', tier)
+            if hold:
+                s.type(b''.join(cb04b_event(k) for k in arrows), settle=hold / 30 + .05)
+                before = cb04b_traces(s)[-1]
+                s.type(cb04b_event(action), settle=.62)
+            else:
+                before = cb04b_traces(s)[-1]
+                s.type(b''.join(cb04b_event(k) for k in arrows) + cb04b_event(action), settle=.62)
+            s.type(cb04b_event('q'))
+            s.finish()
+            ctx.common_checks(s, 0, problems)
+            rows = cb04b_traces(s)
+            active = [r for r in rows if r.get('action') == (4 if action == 'c' else 1)
+                      and r['tick'] > before['tick']]
+            if not active or any(r['aim'] != aim for r in active):
+                problems.append(f'{tier}: held aim {aim} did not latch')
+            if not any(r.get('exact') == 1 for r in rows):
+                problems.append(f'{tier}: no negotiated exact state')
+            if b'\x1b[>11u' not in s.out or b'\x1b[<u' not in s.out:
+                problems.append(f'{tier}: missing keyboard push/pop')
+            if active and action == 'c':
+                last = active[-1]
+                dx, dy = last['x'] - before['x'], last['y'] - before['y']
+                print(f'cb04b roll tier={tier} aim={aim} hold={hold} dx={dx} dy={dy} heading={last["heading"]} blocked={last["blocked"]}')
+                if last['heading'] != aim:
+                    problems.append(f'{tier}: roll did not keep facing {aim}')
+                if not hold and aim in (0, 64, 128, 192):
+                    expected = {0: (0, -2560), 64: (2560, 0), 128: (0, 2560), 192: (-2560, 0)}[aim]
+                    if (dx, dy) != expected:
+                        problems.append(f'{tier}: clear cardinal distance {(dx, dy)} != {expected}')
+            (dest / 'trace.txt').write_bytes(s.err)
+        return s, problems
+    return row
+
+
+def cb04b_held_resume(binary, ctx):
+    problems = []
+    for tier in ('rich', 'plain'):
+        s, dest = cb04b_session(binary, ctx, 'resume', tier)
+        s.type(cb04b_event('B'), settle=.12)
+        s.type(cb04b_event('D'), settle=.12)
+        s.type(cb04b_event('D', 3), settle=.18)
+        rows = cb04b_traces(s)
+        if rows[-1].get('held') != 128:
+            problems.append(f'{tier}: releasing Left lost still-held Down')
+        s.type(cb04b_event('B', 3) + cb04b_event('C', mods=5), settle=.15)
+        if cb04b_traces(s)[-1].get('sprint') != 1:
+            problems.append(f'{tier}: Ctrl+Right did not sprint')
+        # Modifier mask on a physical Control release, Right stays held.
+        s.type(b'\x1b[57442;1:3u', settle=.15)
+        last = cb04b_traces(s)[-1]
+        if last.get('sprint') != 0 or last.get('held') != 64:
+            problems.append(f'{tier}: Control release stopped the arrow or kept sprinting')
+        s.type(cb04b_event('q'))
+        s.finish()
+        ctx.common_checks(s, 0, problems)
+        (dest / 'trace.txt').write_bytes(s.err)
+    return s, problems
+
+
+ROWS['cb04b-held-resume'] = cb04b_held_resume
+for _aim, _arrows in [(0, 'A'), (32, 'AC'), (64, 'C'), (96, 'BC'),
+                     (128, 'B'), (160, 'BD'), (192, 'D'), (224, 'AD')]:
+    ROWS[f'cb04b-roll-{_aim}'] = cb04b_direction_row(_aim, _arrows, 'c')
+    ROWS[f'cb04b-bite-{_aim}'] = cb04b_direction_row(_aim, _arrows, ' ')
+ROWS['cb04b-roll-none'] = cb04b_direction_row(0, '', 'c')
+ROWS['cb04b-roll-held30-right'] = cb04b_direction_row(64, 'C', 'c', 30)
+ROWS['cb04b-roll-held30-diagonal'] = cb04b_direction_row(224, 'AD', 'c', 30)

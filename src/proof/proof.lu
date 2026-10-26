@@ -812,7 +812,7 @@ fn sprint_witness(dir: str) -> int {
     while n < 180 && s.action != sim.FALL {
         var keys = List[int]()
         walker.aim(mut keys, s.foes[0].x - s.x, s.foes[0].y - s.y)
-        (mut keys).push(controls.KEY_DODGE)
+        (mut keys).push(controls.KEY_CTRL_DOWN)
         if s.sprinting && sim.in_reach(s, 0, 4) { (mut keys).push(controls.KEY_BITE) }
         walker.press(mut s, mut r, keys)
         if s.action == sim.DASH && s.foes[0].health < health { landed = true; break }
