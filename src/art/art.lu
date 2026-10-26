@@ -912,8 +912,8 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
     }
     if s.den {
         let style = ink(t, true)
-        var row = 3
-        while row < 13 {
+        var row = 6
+        while row < 16 {
             draw.put_text(
                 mut g,
                 row,
@@ -923,41 +923,41 @@ fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {
             )
             row += 1
         }
-        draw.put_text(mut g, 3, 4, forest.den_name(s.last_den), style)
+        draw.put_text(mut g, 6, 4, forest.den_name(s.last_den), style)
         draw.put_text(
             mut g,
-            5,
+            8,
             4,
             "health {s.health}   stamina {s.stamina}   water {s.flasks}   scent {s.scent}",
             style,
         )
         draw.put_text(
             mut g,
-            7,
+            10,
             4,
             "1 heart {s.heart} (next {40 * (s.heart + 1)})   2 wind {s.wind} (next {40 * (s.wind + 1)})",
             style,
         )
         draw.put_text(
             mut g,
-            8,
+            11,
             4,
             "3 fang {s.fang} (next {40 * (s.fang + 1)})   4 paw {s.paw} (next {40 * (s.paw + 1)})",
             style,
         )
-        draw.put_text(mut g, 9, 4, "5 nose {s.nose} (next {40 * (s.nose + 1)})", style)
+        draw.put_text(mut g, 12, 4, "5 nose {s.nose} (next {40 * (s.nose + 1)})", style)
         let bundles = s.caches % 2 + s.caches / 2 % 2 + s.caches / 4 % 2 + s.caches / 8 % 2
         draw.put_text(
             mut g,
-            10,
+            13,
             4,
             "pouch: yarrow {s.yarrow}  marrow {s.marrow}  a bundle {bundles}",
             style,
         )
-        draw.put_text(mut g, 11, 4, "r or Esc leave; a stat cannot grow past ten", style)
+        draw.put_text(mut g, 14, 4, "r or Esc leave; a stat cannot grow past ten", style)
         draw.put_text(
             mut g,
-            12,
+            15,
             4,
             if s.save_status == 1 {
                 "Saving journey... q cancels this pending write"
@@ -1233,8 +1233,12 @@ fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
                     if row == 0 then 9484 else if row == 2 then 9500 else 9492
                 } else if col == 21 {
                     if row == 0 then 9488 else if row == 2 then 9508 else 9496
-                } else { 9472 }
-                if row % 2 == 0 || col == 8 || col == 21 { grid.put(mut g, row, col, grid.cell(cp, outline, background, 0)) }
+                } else {
+                    9472
+                }
+                if row % 2 == 0 || col == 8 || col == 21 {
+                    grid.put(mut g, row, col, grid.cell(cp, outline, background, 0))
+                }
                 col += 1
             }
             row += 1
@@ -1246,7 +1250,13 @@ fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
         let value = if bar == 0 then s.health else s.stamina
         let maximum = if bar == 0 then sim.health_max(s.heart) else sim.stamina_max(s.wind)
         let colour = if rich then (if bar == 0 then 203 else 84) else (if bar == 0 then 12 else 10)
-        draw.put_text(mut g, row, 1, if bar == 0 then "health" else "stamina", grid.cell(32, outline, background, 0))
+        draw.put_text(
+            mut g,
+            row,
+            1,
+            if bar == 0 then "health" else "stamina",
+            grid.cell(32, outline, background, 0),
+        )
         if !rich {
             grid.put(mut g, row, 8, grid.cell(91, outline, background, 0))
             grid.put(mut g, row, 21, grid.cell(93, outline, background, 0))
@@ -1254,7 +1264,17 @@ fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
         var i = 0
         while i < 12 {
             let filled = value > 0 && value * 12 > i * maximum
-            grid.put(mut g, row, 9 + i, grid.cell(if filled then (if rich then 9608 else 61) else 32, colour, background, 0))
+            grid.put(
+                mut g,
+                row,
+                9 + i,
+                grid.cell(
+                    if filled then (if rich then 9608 else 61) else 32,
+                    colour,
+                    background,
+                    0,
+                ),
+            )
             i += 1
         }
         bar += 1
@@ -2338,19 +2358,41 @@ pub fn meadow_finds(s: sim.Sim, t: int, mut g: grid.Grid) {
         while col < s.cols {
             let (x, y) = sim.world_cell(s, row, col)
             let (ax, ay, kind) = meadow.anchor(s.seed, x, y)
-            if ay >= 6 && ay < forest.LENGTH - 4 && ax > -forest.half_width(s.field) + 4 && ax < forest.half_width(s.field) - 4 && !forest.on_path(s.seed, s.field, s.area, ax, ay) {
+            if ay >= 6 &&
+                ay < forest.LENGTH - 4 &&
+                ax > -forest.half_width(s.field) + 4 &&
+                ax < forest.half_width(s.field) - 4 &&
+                !forest.on_path(s.seed, s.field, s.area, ax, ay) {
                 var dx = x - ax + 1
                 if kind == 1 {
                     if x < ax - 1 { dx += 3 }
                     if x > ax + 2 { dx -= 3 }
                 }
                 let line = y - ay + 2
-                if dx >= 0 && dx < 4 && line >= 0 && line < 3 && !forest.on_path(s.seed, s.field, s.area, x, y) {
+                if dx >= 0 &&
+                    dx < 4 &&
+                    line >= 0 &&
+                    line < 3 &&
+                    !forest.on_path(s.seed, s.field, s.area, x, y) {
                     let lifted = sim.near(s.x, s.y, ax * sim.FP, ay * sim.FP, 5 * sim.FP)
                     let text = meadow.row(kind, line, lifted)
                     let cp = text.bytes()[dx] as int
                     if cp != 32 {
-                        grid.put(mut g, row, col, grid.cell(if t == tier.RICH && cp == 124 then 9475 else cp, if t == tier.RICH then (if kind == 3 then 180 else 59) else (if kind == 3 then 7 else 8), if t == tier.RICH then 235 else 0, 0))
+                        grid.put(
+                            mut g,
+                            row,
+                            col,
+                            grid.cell(
+                                if t == tier.RICH && cp == 124 then 9475 else cp,
+                                if t == tier.RICH {
+                                    (if kind == 3 then 180 else 59)
+                                } else {
+                                    (if kind == 3 then 7 else 8)
+                                },
+                                if t == tier.RICH then 235 else 0,
+                                0,
+                            ),
+                        )
                     }
                 }
             }
@@ -2371,7 +2413,17 @@ pub fn meadow_sheet(t: int) -> grid.Grid {
             let text = meadow.row(k, line, false)
             while x < 4 {
                 let cp = text.bytes()[x] as int
-                grid.put(mut g, 2 + line, k * 8 + x, grid.cell(if t == tier.RICH && cp == 124 then 9475 else cp, if t == tier.RICH then 59 else 8, if t == tier.RICH then 235 else 0, 0))
+                grid.put(
+                    mut g,
+                    2 + line,
+                    k * 8 + x,
+                    grid.cell(
+                        if t == tier.RICH && cp == 124 then 9475 else cp,
+                        if t == tier.RICH then 59 else 8,
+                        if t == tier.RICH then 235 else 0,
+                        0,
+                    ),
+                )
                 x += 1
             }
             line += 1

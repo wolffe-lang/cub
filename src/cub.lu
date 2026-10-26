@@ -14,6 +14,7 @@
 //! and the areas are cb01's and cb02's.
 
 use art
+use census
 use coast
 use forest
 use journey
@@ -70,7 +71,6 @@ struct Options {
     world_audit: bool,
     make_proof: str,
     mute: bool,
-    hud: bool,
     sound_dir: str,
     score_render: str,
     score_wav: str,
@@ -94,7 +94,6 @@ fn usage_text() -> str {
         "        Space bite/combo, x lunge, s heavy, z parry, c dodge, Tab lock, Esc release, q quit,\n" +
         "        w water, r rest; at the den 1–5 grow heart, wind, fang, paw, nose\n" +
         "  --mute                            no music (CUB_SOUND=0 too; m toggles it in play)\n" +
-        "  --hud                             the debug HUD: health and stamina bars beside the scent\n" +
         "  --sound-dir DIR                   where the rendered WAVs go (default ~/.cub/sound)\n" +
         "  --score-list                      every part with its length\n" +
         "  --score-render NAME OUT           a part as raw stereo S16_LE PCM, its own length\n" +
@@ -150,7 +149,6 @@ fn options_default() -> Options {
         world_audit: false,
         make_proof: "",
         mute: false,
-        hud: false,
         sound_dir: "",
         score_render: "",
         score_wav: "",
@@ -173,8 +171,6 @@ fn parse_args(args: List[str]) -> Options ! {usage, parse} {
             o.make_proof = args[i]
         } else if a == "--mute" {
             o.mute = true
-        } else if a == "--hud" {
-            o.hud = true
         } else if a == "--score-list" {
             o.score_list = true
         } else if more && a == "--sound-dir" {
@@ -356,7 +352,6 @@ fn run_headless(o: Options, args: List[str]) -> int {
         return 2
     }
     s = replay_initial(r, s) else |e| { eprint("cub: {e}"); return 2 }
-    s.hud = o.hud
     if o.script == "" && o.replay_path == "" { sim.opening(mut s) }
     // The ghosts a script shows: the flag's directory, or the one a case
     // names on a `# ghost-dir DIR` line (read only, never written: the
@@ -636,7 +631,6 @@ fn run_live(o: Options, args: List[str]) -> int {
         if s.scene == sim.SCENE_TITLE { replay.push_arg(mut rec, 0, controls.EV_TITLE, 1) }
     }
     if replaying { s = replay_initial(rp, s) else |e| { eprint("cub: {e}"); return 2 } }
-    s.hud = o.hud
     // The score (cb03): the parts rendered to WAVs and the backend probed
     // before the terminal is entered, so every refusal names itself on a
     // plain stderr. Off for a replay, under --mute and under CUB_SOUND=0.
@@ -862,7 +856,7 @@ fn run_live(o: Options, args: List[str]) -> int {
             }
             if o.trace {
                 eprint(
-                    "trace tick {s.tick} action {s.action} aim {s.attack_heading} combo {s.combo} stamina {s.stamina} sprint {if s.sprinting then 1 else 0} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} scene {s.scene} demo {if extra.demo_on then 1 else 0} wall_us {(clock.now_ns() - t0_ns) / 1000}",
+                    "trace tick {s.tick} action {s.action} aim {s.attack_heading} combo {s.combo} stamina {s.stamina} sprint {if s.sprinting then 1 else 0} dash_hits {sim.dash_hits(s)} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} scene {s.scene} demo {if extra.demo_on then 1 else 0} wall_us {(clock.now_ns() - t0_ns) / 1000}",
                 )
                 trace_bytes = 0
             }
@@ -933,6 +927,7 @@ fn run_live(o: Options, args: List[str]) -> int {
 
 fn main() -> int {
     let args = env.args()
+    if args.len > 0 && args[0] == "--chase-audit" { return run_chase_audit() }
     if args.len > 0 && args[0] == "--feel-audit" { return run_feel_audit() }
     if args.len > 0 && args[0] == "--body-audit" {
         // Fifty seeds at both sizes: the swarm and the given scripts' keys.
@@ -1107,7 +1102,7 @@ fn state_text(s: sim.Sim) -> str {
     var i = 0
     while i < s.foes.len {
         let f = copy s.foes[i]
-        text += "foe {i} kind {f.kind} health {f.health} phase {f.phase} since {f.since} x {f.x} y {f.y} heading {f.heading} gap {sim.body_gap(s, i)} attack {f.attack} poise {f.poise}\n"
+        text += "foe {i} kind {f.kind} health {f.health} phase {f.phase} since {f.since} x {f.x} y {f.y} heading {f.heading} gap {sim.body_gap(s, i)} last_hit {f.last_hit} attack {f.attack} poise {f.poise}\n"
         i += 1
     }
     text
@@ -1321,9 +1316,79 @@ fn run_feel_audit() -> int {
                 den += 1
             }
             if count == 1 { low = 0 }
-            print("{seed} {area} {count} {low} {high} {if area == 1 then forest.switchbacks(seed) else 0} {if area == 1 then forest.CLEARINGS else 0} {forest.path_length(seed, area)}")
+            print(
+                "{seed} {area} {count} {low} {high} {if area == 1 then forest.switchbacks(seed) else 0} {if area == 1 then forest.CLEARINGS else 0} {forest.path_length(seed, area)}",
+            )
             if count < 1 || count != forest.den_count(area) { return 1 }
             area += 1
+        }
+        seed += 1
+    }
+    0
+}
+
+fn run_chase_audit() -> int {
+    print("seed kind ticks travel_fp caught overlap unreachable foe_overlap")
+    var seed = 0
+    while seed < 50 {
+        var kind = 0
+        while kind < 4 {
+            if kind == sim.HAWK { kind += 1; continue }
+            region chase {
+                var s = sim.new(seed, 80, 24)
+                let y = 40
+                let x = forest.spine(seed, 2, y)
+                sim.enter_area(mut s, 2, x * sim.FP, y * sim.FP)
+                var foe = copy s.foes[0]
+                foe.kind = kind
+                foe.x = x * sim.FP
+                foe.y = (y + 7) * sim.FP
+                foe.heading = 128
+                foe.health = 100
+                foe.stamina = 60
+                foe.phase = sim.RETREAT
+                foe.since = 0
+                foe.target_x = s.x
+                foe.target_y = s.y
+                (mut s.foes).reset()
+                (mut s.foes).push(foe)
+                s.heading = 128
+                s.heading_target = 128
+                var ticks = 0
+                var travel = 0
+                var caught = false
+                var c = census.counts()
+                while ticks < 240 && s.health > 0 {
+                    var keys = List[int]()
+                    let f = copy s.foes[0]
+                    let h = sim.heading_to(s.x, s.y, f.x, f.y)
+                    if h == 0 || h == 32 || h == 224 { (mut keys).push(controls.KEY_UP) }
+                    if h == 96 || h == 128 || h == 160 { (mut keys).push(controls.KEY_DOWN) }
+                    if h == 160 || h == 192 || h == 224 { (mut keys).push(controls.KEY_LEFT) }
+                    if h == 32 || h == 64 || h == 96 { (mut keys).push(controls.KEY_RIGHT) }
+                    (mut keys).push(controls.KEY_DODGE)
+                    if s.sprinting && sim.in_reach(s, 0, 4) { (mut keys).push(controls.KEY_BITE) }
+                    let ox = s.x
+                    let oy = s.y
+                    sim.step(mut s, keys)
+                    travel += sim.abs(s.x - ox) + sim.abs(s.y - oy)
+                    region frame { census.observe(mut c, s) }
+                    if s.foes[0].health < 100 { caught = true }
+                    ticks += 1
+                    if caught { break }
+                }
+                print(
+                    "{seed} {kind} {ticks} {travel} {if caught then 1 else 0} {c.overlap} {c.contact_unreachable} {c.foe_overlap}",
+                )
+                if !caught ||
+                    travel > 30 * sim.FP ||
+                    c.overlap != 0 ||
+                    c.contact_unreachable != 0 ||
+                    c.foe_overlap != 0 {
+                    return 1
+                }
+            }
+            kind += 1
         }
         seed += 1
     }

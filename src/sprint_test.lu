@@ -1,4 +1,5 @@
 //! member: false
+
 use sim
 use controls
 use input
@@ -29,9 +30,15 @@ fn test_cb03a_combo_cones_slant_left_right_forward() {
     while direction < 256 {
         s.attack_heading = direction
         s.combo = 1
-        assert(sim.attack_direction(s) == (direction + 245) % 256, "first slants left fifteen degrees")
+        assert(
+            sim.attack_direction(s) == (direction + 245) % 256,
+            "first slants left fifteen degrees",
+        )
         s.combo = 2
-        assert(sim.attack_direction(s) == (direction + 11) % 256, "second slants right fifteen degrees")
+        assert(
+            sim.attack_direction(s) == (direction + 11) % 256,
+            "second slants right fifteen degrees",
+        )
         s.combo = 3
         assert(sim.attack_direction(s) == direction, "third is exactly forward")
         direction += 32

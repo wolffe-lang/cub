@@ -1,0 +1,11 @@
+# frames 25 every 1
+pk 1
+seed 7
+tier rich
+size 80x24
+t 0 right
+t 1 right
+t 2 right
+t 3 right
+t 4 left
+t 4 lunge

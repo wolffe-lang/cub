@@ -149,14 +149,26 @@ fn test_cb03a_outlined_bars_are_always_present_and_labelled() {
     s.scent = 8
     var plain = grid.new(24, 80)
     art.render(s, tier.PLAIN, mut plain)
-    assert(has_text(plain, 0, 1, "health") && has_text(plain, 1, 1, "stamina"), "labels are not colour alone")
-    assert(has_text(plain, 0, 8, "[============]") && has_text(plain, 1, 24, "scent 8"), "outlined bars and scent")
-    assert(grid.at(plain, 0, 9).fg == 12 && grid.at(plain, 1, 9).fg == 10, "red health green stamina")
+    assert(
+        has_text(plain, 0, 1, "health") && has_text(plain, 1, 1, "stamina"),
+        "labels are not colour alone",
+    )
+    assert(
+        has_text(plain, 0, 8, "[============]") && has_text(plain, 1, 24, "scent 8"),
+        "outlined bars and scent",
+    )
+    assert(
+        grid.at(plain, 0, 9).fg == 12 && grid.at(plain, 1, 9).fg == 10,
+        "red health green stamina",
+    )
     s.stamina = 0
     var rich = grid.new(24, 80)
     art.render(s, tier.RICH, mut rich)
     assert(grid.at(rich, 0, 8).cp == 9484 && grid.at(rich, 4, 21).cp == 9496, "box outline")
-    assert(grid.at(rich, 1, 9).cp == 9608 && grid.at(rich, 3, 9).cp == 32, "full health empty stamina")
+    assert(
+        grid.at(rich, 1, 9).cp == 9608 && grid.at(rich, 3, 9).cp == 32,
+        "full health empty stamina",
+    )
 }
 
 fn test_cb03a_health_changes_the_cub_and_its_bar() {
@@ -214,7 +226,7 @@ fn test_cb03_the_death_card_and_the_den_name_the_numbers() {
     d.den = true
     var den = grid.new(24, 80)
     art.render(d, tier.PLAIN, mut den)
-    assert(has_text(den, 5, 4, "health 52   stamina 70   water 3   scent 0"), "the den names them")
+    assert(has_text(den, 8, 4, "health 52   stamina 70   water 3   scent 0"), "the den names them")
 }
 
 fn test_cb03_the_sheet_holds_the_bands_and_the_breath() {

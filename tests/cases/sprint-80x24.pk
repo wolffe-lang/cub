@@ -1,0 +1,36 @@
+# frames 60 every 10
+pk 1
+seed 7
+tier rich
+size 80x24
+t 0 right
+t 0 dodge
+t 3 right
+t 3 dodge
+t 6 right
+t 6 dodge
+t 9 right
+t 9 dodge
+t 12 right
+t 12 dodge
+t 15 right
+t 15 dodge
+t 18 right
+t 18 dodge
+t 21 right
+t 21 dodge
+t 24 right
+t 24 dodge
+t 24 bite
+t 27 right
+t 27 dodge
+t 30 right
+t 30 dodge
+t 33 right
+t 33 dodge
+t 36 right
+t 36 dodge
+t 39 right
+t 39 dodge
+t 42 right
+t 42 dodge

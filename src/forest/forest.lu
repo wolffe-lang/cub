@@ -774,11 +774,31 @@ pub fn clearing(seed: int, n: int) -> (int, int, int) {
 
 /// A room's existing attraction, not an empty widening.
 pub fn clearing_reason(n: int) -> str {
-    if n == 0 || n == 3 || n == 4 then "den" else if n == 1 then "shortcut view" else if n == 2 then "scent cache" else "foe cluster"
+    if n == 0 || n == 3 || n == 4 {
+        "den"
+    } else if n == 1 {
+        "shortcut view"
+    } else if n == 2 {
+        "scent cache"
+    } else {
+        "foe cluster"
+    }
 }
 
 fn clearing_row(n: int) -> int {
-    if n == 0 then 8 else if n == 1 then 22 else if n == 2 then 52 else if n == 3 then 68 else if n == 4 then 92 else 134
+    if n == 0 {
+        8
+    } else if n == 1 {
+        22
+    } else if n == 2 {
+        52
+    } else if n == 3 {
+        68
+    } else if n == 4 {
+        92
+    } else {
+        134
+    }
 }
 
 fn in_clearing(seed: int, x: int, y: int) -> bool {

@@ -25,6 +25,8 @@ def den_keys(binary, ctx):
     s.finish()
     problems = []
     ctx.common_checks(s, 0, problems)
+    if b'a den ahead' not in s.out:
+        problems.append('the den was not marked before resting')
     if b'The hollow log' not in s.out:
         problems.append('rest never drew the den')
     if b'ended by the quit key' not in s.err:
@@ -89,12 +91,12 @@ def feel_controls(binary, ctx):
         for name, chord, aim in arrows:
             session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
             session.type(b'?', settle=.15)
-            session.type(chord + b'x', settle=.45)
+            session.type(chord + b' ', settle=.45)
             session.type(b'q')
             session.finish()
             ctx.common_checks(session, 0, problems)
             (root / (tier + '-' + name + '.trace')).write_bytes(session.err)
-            if not re.search(rb'action 2 aim ' + str(aim).encode() + rb' combo 0', session.err):
+            if not re.search(rb'action 1 aim ' + str(aim).encode() + rb' combo 1', session.err):
                 problems.append(tier + ' ' + name + ' did not commit the injected aim')
         session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
         session.type(b'?', settle=.15)
@@ -379,3 +381,49 @@ def title_demo(binary, ctx):
 
 
 ROWS.update({'title': title, 'title-demo': title_demo})
+
+
+
+def sprint_live(binary, ctx):
+    """Actual repeated c bytes drain stamina; Space chooses the snapping attack."""
+    import re
+    root = Path(ctx.ROOT) / 'target/pty/cb03a'
+    root.mkdir(parents=True, exist_ok=True)
+    env = ctx.env_for()
+    env['HOME'] = str(root)
+    s = ctx.Session([binary, '--seed', '7', '--save', str(root / 'sprint.save'),
+                     '--trace', '--mute', '--no-title', '--tier', 'plain'], 24, 80, env)
+    s.type(b'?', settle=.15)
+    for _ in range(12):
+        s.type(b'\x1b[Cc', settle=.09)
+    s.type(b' ', settle=.2)
+    s.type(b'q')
+    s.finish()
+    problems = []
+    ctx.common_checks(s, 0, problems)
+    values = [int(m[0]) for m in re.findall(rb'stamina (\d+) sprint (1)', s.err)]
+    if len(values) < 2 or min(values) >= max(values):
+        problems.append('held sprint did not visibly drain stamina')
+    if not re.search(rb'action 8 aim ', s.err):
+        problems.append('Space while sprinting never became the snapping attack')
+    if b'a den ahead' not in s.out:
+        problems.append('entry den was not discoverable')
+    return s, problems
+
+
+def sprint_lands(binary, ctx):
+    """Replay ordinary keys through the live loop and require the actual hit."""
+    import re
+    root = Path(ctx.ROOT)
+    case = root / 'tests/cases/sprint-hit.pk'
+    ticks = re.search(r'# frames (\d+)', case.read_text())[1]
+    s = ctx.Session([binary, '--replay', str(case), '--ticks', ticks, '--trace', '--mute', '--no-title',
+                     '--tier', 'plain'], 24, 80, ctx.env_for())
+    s.finish()
+    problems = []
+    ctx.common_checks(s, 0, problems)
+    if not re.search(rb'action 8 .*dash_hits [1-9]', s.err):
+        problems.append('sprint hit replay never landed on a foe')
+    return s, problems
+
+ROWS.update({'sprint-live': sprint_live, 'sprint-lands': sprint_lands})

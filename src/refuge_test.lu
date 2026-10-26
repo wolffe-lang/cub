@@ -86,7 +86,37 @@ fn check_clearings(first: int) {
 }
 
 fn test_cb03a_clearings_seeds_0_9() { check_clearings(0) }
+
 fn test_cb03a_clearings_seeds_10_19() { check_clearings(10) }
+
 fn test_cb03a_clearings_seeds_20_29() { check_clearings(20) }
+
 fn test_cb03a_clearings_seeds_30_39() { check_clearings(30) }
+
 fn test_cb03a_clearings_seeds_40_49() { check_clearings(40) }
+
+fn test_cb03a_reserved_den_bits_are_not_valid_found_locations() {
+    var s = sim.new(1, 80, 24)
+    s.gate_open = true
+    s.lit_dens = 17
+    var refused = false
+    let _ = journey.decode(journey.encode(s), 80, 24) else { refused = true; sim.new(1, 80, 24) }
+    assert(refused, "reserved id4 must not enter a schema2 save before it exists")
+}
+
+fn test_cb03a_every_hard_cluster_has_a_downstream_refuge() {
+    var seed = 0
+    while seed < 50 {
+        // The branch trios rejoin at row52 +/- the curve; the meadow's
+        // hawk pairs occupy rows52..56,76..80,134..138.
+        var n = 0
+        while n < 4 {
+            let id = if n == 0 then 8 else n + 8
+            let (_, y) = forest.den_position(seed, id)
+            let after = if n < 2 then 60 else if n == 2 then 80 else 138
+            assert(y / sim.FP > after && y / sim.FP <= after + 20, "refuge after hard cluster")
+            n += 1
+        }
+        seed += 1
+    }
+}

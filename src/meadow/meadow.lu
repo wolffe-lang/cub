@@ -1,4 +1,5 @@
 //! Original meadow landmarks, deterministic and independent of rendering.
+
 use world
 
 /// The tile's landmark: trees, stones, bones, stumps, crows, cairns, scent grass.
@@ -36,7 +37,13 @@ pub fn row(kind: int, line: int, lifted: bool) -> str {
     if kind == 2 { return if line == 1 then " /| " else if line == 2 then "[__]" else "    " }
     if kind == 3 { return if line == 1 then "o}}{{o" else if line == 2 then " == " else "    " }
     if kind == 4 { return if line == 1 then " __ " else if line == 2 then "[xx]" else "    " }
-    if kind == 5 { return if line == (if lifted then 0 else 2) then (if lifted then "v^v^" else "vvvv") else "    " }
+    if kind == 5 {
+        return if line == (if lifted then 0 else 2) {
+            (if lifted then "v^v^" else "vvvv")
+        } else {
+            "    "
+        }
+    }
     if kind == 6 { return if line == 0 then " .  " else if line == 1 then " oo " else "oooo" }
     if line == 2 then "*::*" else "    "
 }

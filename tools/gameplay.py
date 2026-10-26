@@ -85,10 +85,10 @@ def check(binary):
                           ('sw', 160), ('w', 192), ('nw', 224)]:
             _, states, _ = run(binary, 'aim-' + name, tier)
             assert all(state['aim'] == aim for state in states.values()), ('aim', name)
-            assert states[1]['action'] == 2, 'aim fixture did not attack'
+            assert states[1]['action'] == 1, 'aim fixture did not attack'
         _, locked, _ = run(binary, 'aim-lock', tier)
         last = locked[max(locked)]
-        assert any(v['action'] == 2 and v['lock'] >= 0 and v['aim'] != 64 for v in locked.values()), 'nearby lock failed to override right arrow'
+        assert any(v['action'] == 1 and v['lock'] >= 0 and v['aim'] != 64 for v in locked.values()), 'nearby lock failed to override right arrow'
         dest, states, _ = run(binary, 'three-bites', tier)
         starts = [(n, v['combo']) for n, v in states.items()
                   if v['action'] == 1 and v['started'] == n]
@@ -313,6 +313,30 @@ def fairness(binary):
         assert 'unwon:0' in words and words[-1] == '0' and words[-2] == 'arena_breaches', line
         print('gameplay:', line)
 
+def feel(binary):
+    for option, columns in [('--feel-audit', 8), ('--chase-audit', 8)]:
+        p = subprocess.run([str(binary), option], capture_output=True, text=True, check=True)
+        (OUT / (Path(binary).parent.name + option + '.txt')).write_text(p.stdout)
+        rows = [list(map(int, line.split())) for line in p.stdout.splitlines()[1:]]
+        assert len(rows) == 150 and all(len(row) == columns for row in rows), option
+        if option == '--feel-audit':
+            assert {(r[0], r[1]) for r in rows} == {(s, a) for s in range(50) for a in range(3)}
+            assert all(r[2] == (1, 3, 4)[r[1]] for r in rows), 'den census accepted missing dens'
+            assert all(r[5] >= 4 and r[6] == 6 and r[7] > 260 for r in rows if r[1] == 1)
+        else:
+            assert {(r[0], r[1]) for r in rows} == {(s, k) for s in range(50) for k in (0, 1, 3)}
+            assert all(r[4] == 1 and r[3] <= 30 * 256 and r[5:] == [0, 0, 0] for r in rows)
+    _, states, foes = run(binary, 'sprint-hit')
+    assert any(v['action'] == 8 and any(f['last_hit'] == v['started'] for f in foes[t])
+               for t, v in states.items()), 'sprinting attack did not land'
+    for size in ('80x24', '120x40'):
+        _, states, _ = run(binary, 'sprint-' + size)
+        values = [v['stamina'] for v in states.values() if v['sprint']]
+        assert len(values) > 1 and min(values) < max(values), 'sprint did not cost stamina'
+    retired = subprocess.run([str(binary), '--hud'], capture_output=True)
+    assert retired.returncode == 2, '--hud was not retired'
+    print('gameplay: den/path/chase censuses, sprint costs, real-key hit and retired HUD flag: green')
+
 
 def readable(root):
     """Nothing the gate leaves under target/gameplay may be unreadable: the
@@ -338,6 +362,8 @@ def main():
     bosses(Path(args.bin).resolve())
     ghosts(Path(args.bin).resolve())
     fairness(Path(args.bin).resolve())
+
+    feel(Path(args.bin).resolve())
     import runpy
     world = runpy.run_path(str(ROOT / 'tools/world_checks.py'))
     world['check'](Path(args.bin).resolve())

@@ -186,6 +186,7 @@ pub fn generate(dir: str) -> int {
         cache += 1
     }
     if encounters(dir) != 0 { return 1 }
+    if sprint_witness(dir) != 0 { return 1 }
     if bosses(dir) != 0 { return 1 }
     if ghosts(dir) != 0 { return 1 }
     if areas(dir) != 0 { return 1 }
@@ -433,7 +434,7 @@ pub fn encounters(dir: str) -> int {
         } else {
             var keys = walker.key(controls.KEY_RIGHT)
             (mut keys).push(controls.KEY_LOCK)
-            (mut keys).push(controls.KEY_LUNGE)
+            (mut keys).push(controls.KEY_BITE)
             walker.press(mut s, mut r, keys)
             n = 0
             while n < 12 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
@@ -450,5 +451,28 @@ pub fn encounters(dir: str) -> int {
         snapshot(dir, name, s, r) else |_| { return 2 }
         kind += 1
     }
+    0
+}
+
+fn sprint_witness(dir: str) -> int {
+    var s = sim.new(1, 80, 24)
+    var r = replay.new(1, 1, 80, 24)
+    if !approach_as(mut s, mut r, 0, true) { return 1 }
+    let health = s.foes[0].health
+    var n = 0
+    var landed = false
+    while n < 180 && s.action != sim.FALL {
+        var keys = List[int]()
+        walker.aim(mut keys, s.foes[0].x - s.x, s.foes[0].y - s.y)
+        (mut keys).push(controls.KEY_DODGE)
+        if s.sprinting && sim.in_reach(s, 0, 4) { (mut keys).push(controls.KEY_BITE) }
+        walker.press(mut s, mut r, keys)
+        if s.action == sim.DASH && s.foes[0].health < health { landed = true; break }
+        n += 1
+    }
+    if !landed { eprint("proof: sprint attack never landed"); return 1 }
+    var n2 = 0
+    while n2 < 12 { walker.press(mut s, mut r, walker.key(0)); n2 += 1 }
+    snapshot_from(dir, "sprint-hit", s, r, s.tick - 25) else |_| { return 2 }
     0
 }

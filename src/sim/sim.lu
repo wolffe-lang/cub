@@ -842,7 +842,11 @@ fn in_front(x: int, y: int, heading: int, tx: int, ty: int) -> bool {
 /// Cone, range and occlusion jointly determine foe sight.
 pub fn can_see(s: Sim, f: Foe) -> bool {
     // A lifted flock warns nearby hunters even behind their sight cone.
-    if s.area == forest.LARKMEADOW && meadow.near_kind(s.seed, cell_x(s), cell_y(s), 5, 5) && near(f.x, f.y, s.x, s.y, 12 * FP) { return true }
+    if s.area == forest.LARKMEADOW &&
+        meadow_near(s, 5, 5) &&
+        near(f.x, f.y, s.x, s.y, 12 * FP) {
+        return true
+    }
     near(f.x, f.y, s.x, s.y, (if s.area == forest.BRAMBLEHOLD then 5 else SIGHT) * FP) &&
         in_front(f.x, f.y, f.heading, s.x, s.y) &&
         visible(s, f.x, f.y, s.x, s.y)
@@ -961,7 +965,9 @@ fn lock_next(mut s: Sim) {
 
 fn start_action(mut s: Sim, action: int, cost: int) {
     if s.action != IDLE || s.stamina < cost { return }
-    if s.exhausted && (action == LUNGE || action == HEAVY || action == DASH || action == DODGE) { return }
+    if s.exhausted && (action == LUNGE || action == HEAVY || action == DASH || action == DODGE) {
+        return
+    }
     s.stamina -= cost
     if s.stamina == 0 { s.exhausted = true }
     s.attack_heading = if action == LUNGE || action == DASH then s.heading else attack_aim(s)
@@ -998,7 +1004,11 @@ fn action_keys(mut s: Sim, keys: List[int]) {
                 s.chained = true
                 s.chained_heading = attack_aim(s)
             }
-            if s.sprinting { start_action(mut s, DASH, DASH_COST) } else { start_action(mut s, BITE, 12) }
+            if s.sprinting {
+                start_action(mut s, DASH, DASH_COST)
+            } else {
+                start_action(mut s, BITE, 12)
+            }
         }
         if k == controls.KEY_HEAVY { start_action(mut s, HEAVY, HEAVY_COST) }
         if k == controls.KEY_LUNGE { start_action(mut s, LUNGE, 30) }
@@ -1363,7 +1373,20 @@ fn trail_step(mut s: Sim, ox: int, oy: int) {
     for tr in s.trail { if tr.until > s.tick { (mut kept).push(tr) } }
     s.trail = kept
     if !s.sneaking && (floor_div(ox, FP) != cell_x(s) || floor_div(oy, FP) != cell_y(s)) {
-        (mut s.trail).push(Trail { x: s.x, y: s.y, until: s.tick + TRAIL_TICKS + (if s.area == forest.LARKMEADOW && meadow.near_kind(s.seed, cell_x(s), cell_y(s), 7, 3) then 150 else 0) })
+        (mut s.trail).push(Trail {
+            x: s.x,
+            y: s.y,
+            until: s.tick +
+                TRAIL_TICKS +
+                (
+                    if s.area == forest.LARKMEADOW &&
+                        meadow_near(s, 7, 3) {
+                        150
+                    } else {
+                        0
+                    }
+                ),
+        })
     }
 }
 
@@ -1430,7 +1453,11 @@ pub fn step(mut s: Sim, keys: List[int]) {
         if s.sprint_charge >= 30 {
             s.sprint_charge -= 30
             s.stamina -= 1
-            if s.stamina <= 0 { s.stamina = 0; s.exhausted = true; s.sprinting = false }
+            if s.stamina <= 0 {
+                s.stamina = 0
+                s.exhausted = true
+                s.sprinting = false
+            }
         }
     } else if s.action == IDLE {
         s.stamina += if s.moving then REGEN / 2 else REGEN
@@ -1852,7 +1879,11 @@ pub fn attack_offset(s: Sim) -> (int, int) {
     if s.action == LUNGE {
         if age < 9 {
             let back = if age < 3 then 0 else if age < 6 then FP else 2 * FP
-            return clip_arc(s, 0 - sin(s.attack_heading) * back / FP, cos(s.attack_heading) * back / FP)
+            return clip_arc(
+                s,
+                0 - sin(s.attack_heading) * back / FP,
+                cos(s.attack_heading) * back / FP,
+            )
         }
         let (x, y) = leap_arc(s.attack_heading, age - 8, 4, LUNGE_ARC)
         return clip_arc(s, x, y)
@@ -1897,7 +1928,9 @@ pub const COMBO_FINISH_ARC: int = 2 * FP
 pub fn head_shake(s: Sim) -> int {
     if s.action != DASH && (s.action != BITE || s.combo != 3) { return 0 }
     let age = s.tick - s.started
-    let shake = if s.action == DASH { if age == 3 || age == 5 then -1 else if age == 4 then 1 else 0 } else { if age == 5 then -1 else if age == 6 then 1 else 0 }
+    let shake = if s.action == DASH {
+        if age == 3 || age == 5 then -1 else if age == 4 then 1 else 0
+    } else if age == 5 then -1 else if age == 6 then 1 else 0
     if shake == 0 { return 0 }
     // The head moves a cell across the aim; it never moves into a body
     // (cb02c): with a foe against that side the head holds still.
@@ -2995,6 +3028,28 @@ pub const DASH_COST: int = 36
 
 /// Combo's hit cone and presentation rotate about the committed eight-way aim.
 pub fn attack_direction(s: Sim) -> int {
-    let slant = if s.action != BITE then 0 else if s.combo == 1 then -11 else if s.combo == 2 then 11 else 0
+    let slant = if s.action != BITE {
+        0
+    } else if s.combo == 1 {
+        -11
+    } else if s.combo == 2 {
+        11
+    } else {
+        0
+    }
     (s.attack_heading + slant + TURN) % TURN
+}
+
+/// Hits landed by the current snapping lunge, for real-key and pty witnesses.
+pub fn dash_hits(s: Sim) -> int {
+    if s.action != DASH { return 0 }
+    var n = 0
+    for f in s.foes { if f.last_hit == s.started { n += 1 } }
+    n
+}
+
+fn meadow_near(s: Sim, kind: int, radius: int) -> bool {
+    let (x, y, _) = meadow.anchor(s.seed, cell_x(s), cell_y(s))
+    let width = forest.half_width(s.field)
+    y >= 6 && y < forest.LENGTH - 4 && x > -width + 4 && x < width - 4 && !forest.on_path(s.seed, s.field, s.area, x, y) && meadow.near_kind(s.seed, cell_x(s), cell_y(s), kind, radius)
 }

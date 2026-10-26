@@ -1,4 +1,5 @@
 //! member: false
+
 use meadow
 use forest
 use art
@@ -17,7 +18,10 @@ fn test_cb03a_landmark_rules_and_original_atlas() {
             let (ax, ay, kind) = meadow.anchor(7, x, y)
             counts[kind] += 1
             assert(meadow.near_kind(7, ax, ay, kind, 0), "seeded anchor")
-            assert(meadow.solid(7, ax, ay) == (kind <= 2 || kind == 4), "only roots stones and stumps collide")
+            assert(
+                meadow.solid(7, ax, ay) == (kind <= 2 || kind == 4),
+                "only roots stones and stumps collide",
+            )
             y += 14
         }
         x += 14
