@@ -339,25 +339,30 @@ pub fn fight_world(seed: int, cols: int, rows: int, kind: int, mut r: replay.Rep
         attempt += 1
         if s.den { walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE)) }
         let (mx, my) = mouth(s, kind)
-        if !walker.walk(mut s, mut r, mx, my) { return out }
+        // Hand off on the first tell, even if it starts before the mouth.
+        // The generic walker must not fight a boss instead of this fighter.
+        if !walker.walk_stop(mut s, mut r, mx, my, sim.boss_index(s), false) { return out }
         var st = fighter()
         var n = 0
         var crouch_since = -1
         var planned_at = -1000
+        var blocked_at_plan = s.blocked
         let start = s.tick
         while n < FIGHT_TICKS {
             let i = sim.boss_index(s)
             if i < 0 { break }
             let before = s.health
             let f = copy s.foes[i]
-            if f.phase == sim.HUNT &&
-                (sim.body_gap(s, i) > 6 || !sim.cub_in_arena(s)) &&
+            let obstructed = s.blocked >= blocked_at_plan + 3 && sim.body_gap(s, i) > 1
+            if (f.phase == sim.HUNT || f.phase == sim.RETREAT && obstructed) &&
+                (sim.body_gap(s, i) > 6 || !sim.cub_in_arena(s) || obstructed) &&
                 s.tick - planned_at >= 40 {
                 // Far off: the walker's plan round the stone and the bodies,
                 // to a point five cells short of the boss, stopping when the
                 // boss winds up; planned at most once in forty ticks (a plan
                 // is a whole area's cells, and the world's region holds it).
                 planned_at = s.tick
+                blocked_at_plan = s.blocked
                 let (tx, ty) = approach_point(s, i)
                 let t0 = s.tick
                 let _ = walker.walk_stop(mut s, mut r, tx, ty, i, false)
@@ -412,7 +417,10 @@ pub fn trace(kind: int, seed: int) -> int {
     var r = replay.new(seed, 1, 80, 24)
     walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
     let (mx, my) = mouth(s, kind)
-    if !walker.walk(mut s, mut r, mx, my) { print("trace: no way to the mouth"); return 1 }
+    if !walker.walk_stop(mut s, mut r, mx, my, sim.boss_index(s), false) {
+        print("trace: no way to the mouth")
+        return 1
+    }
     print("trace: at the mouth tick {s.tick}")
     var st = fighter()
     var n = 0
