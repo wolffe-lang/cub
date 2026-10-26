@@ -1098,7 +1098,7 @@ fn start_action(mut s: Sim, action: int, cost: int) {
     s.attack_heading = if action == LUNGE || action == DASH then s.heading else attack_aim(s)
     if action == DODGE {
         let aim = held_direction(s)
-        s.attack_heading = if aim >= 0 then aim else s.heading
+        s.attack_heading = if aim >= 0 then s.heading else s.heading
     }
     s.action_x = s.x
     s.action_y = s.y
