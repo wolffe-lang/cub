@@ -10,11 +10,11 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / 'target' / 'gameplay'
 
 
-def run(binary, name, tier='rich', frames=None, ghosts=None):
+def run(binary, name, tier='rich', frames=None, ghosts=None, label=''):
     case = ROOT / 'tests' / 'cases' / (name + '.pk')
     if frames is None:
         frames = int(re.search(r'# frames (\d+)', case.read_text())[1])
-    dest = OUT / (Path(binary).parent.name + '-' + name + '-' + tier)
+    dest = OUT / (Path(binary).parent.name + '-' + name + '-' + tier + label)
     args = [str(binary), '--headless', '--script', str(case), '--frames', str(frames),
             '--every', str(frames), '--tier', tier, '--trace', '--dump', str(dest)]
     if ghosts:
@@ -127,7 +127,8 @@ def check(binary):
     assert len(set(ghosts.glob('*.pk')) - set(preserved)) == len(files), 'repeat death reused a filename'
     for path in sorted(files):
         text = path.read_text()
-        last = max(int(m) for m in re.findall(r'^t (\d+)', text, re.M)) + 1
+        # The last game event (the trailer's ghost words stand at the death tick itself).
+        last = max(int(m) for m in re.findall(r'^t (\d+) (?!ghost-)', text, re.M)) + 1
         assert states[last]['action'] == 6 and states[last]['health'] == 0
         dest = OUT / ('verify-' + path.stem)
         subprocess.run([str(binary), '--headless', '--script', str(path), '--frames', str(last),
@@ -171,6 +172,138 @@ def bodies(binary):
     print('gameplay:', Path(binary).parent.name, 'body audit, 100 worlds:', p.stdout.splitlines()[-1])
 
 
+BOSSES = {4: 'boar', 5: 'lynx', 6: 'elk', 7: 'alpha'}
+BOSS_HEALTH = {4: 240, 5: 140, 6: 400, 7: 300}
+BOSS_BIT = {4: 1, 5: 2, 6: 4, 7: 8}
+BOSS_SHORTCUT = {4: 1, 5: 4, 6: 8, 7: 0}
+BOSS_AREA = {4: 1, 5: 3, 6: 4, 7: 5}
+# Parryable attacks by boss (sim.boss_move); the howl (alpha 2) does no damage.
+PARRYABLE = {4: {0}, 5: {0, 1}, 6: {0, 2}, 7: {0}}
+PARRY_WINDOW = 9
+
+
+def boss_rows(foes, kind):
+    """The boss's row at every tick of a trace."""
+    return {t: next(f for f in fs if f['kind'] == kind) for t, fs in foes.items()
+            if any(f['kind'] == kind for f in fs)}
+
+
+def tells(rows):
+    """(start, strike, attack) of every windup that reached its strike."""
+    out, start = [], None
+    for t in sorted(rows):
+        f = rows[t]
+        if f['phase'] == 1 and start is None:
+            start = f['since']
+        elif f['phase'] == 2 and start is not None:
+            out.append((start, f['since'], f['attack']))
+            start = None
+        elif f['phase'] not in (1, 2):
+            start = None
+    return out
+
+
+def bosses(binary):
+    """cb04: the four bosses on their real-key scripts, in both tiers: every
+    parryable telegraph at least the parry window, phase two at half health,
+    the beaten bit and shortcut in the state, the end after the alpha."""
+    for tier in ('rich', 'plain'):
+        for kind, name in BOSSES.items():
+            _, states, foes = run(binary, 'boss-%s-windup' % name, tier)
+            rows = boss_rows(foes, kind)
+            final = states[max(states)]
+            assert rows[max(rows)]['phase'] == 1, (name, 'windup case ends outside a windup')
+            assert final['bosses'] & BOSS_BIT[kind] == 0 and final['area'] == BOSS_AREA[kind]
+            _, states, foes = run(binary, 'boss-%s-phase2' % name, tier)
+            rows = boss_rows(foes, kind)
+            last = rows[max(rows)]
+            assert 0 < last['health'] <= BOSS_HEALTH[kind] // 2, (name, 'phase two not reached', last)
+            _, states, foes = run(binary, 'boss-%s-beaten' % name, tier)
+            rows = boss_rows(foes, kind)
+            final = states[max(states)]
+            assert final['bosses'] & BOSS_BIT[kind], (name, 'beaten bit missing')
+            assert final['shortcuts'] & BOSS_SHORTCUT[kind] == BOSS_SHORTCUT[kind], (name, 'shortcut closed')
+            assert any(f['health'] <= 0 for f in rows.values()), (name, 'boss never fell')
+            seen = tells(rows)
+            assert seen, (name, 'no telegraph reached its strike')
+            for start, strike, attack in seen:
+                if attack in PARRYABLE[kind]:
+                    assert strike - start >= PARRY_WINDOW, (name, 'telegraph under the parry window', start, strike, attack)
+            assert final['deaths'] == 0, (name, 'the fighter fell')
+            print('gameplay:', Path(binary).parent.name, name, tier, 'windup/phase2/beaten ok,',
+                  len(seen), 'telegraphs, shortest', min(s - a for a, s, _ in seen))
+        _, states, _ = run(binary, 'end', tier)
+        final = states[max(states)]
+        card = next(t for t, s in states.items() if s['scene'] == 3)
+        assert final['end'] == 1 and final['bosses'] == 15, final
+        assert final['scene'] == 0 and max(states) > card, 'r did not keep the game playing'
+        # Foe kinds: 1 fox, 2 hawk, 5 lynx, 6 elk, 7 alpha.
+        for name, area, kinds in (('crags', 3, {1, 5}), ('river', 4, {2, 6}), ('old-den', 5, {1, 7})):
+            _, states, foes = run(binary, name, tier)
+            final = states[max(states)]
+            assert final['area'] == area, (name, final['area'])
+            assert kinds <= {f['kind'] for f in foes[max(foes)] if f['health'] > 0}, (name, 'foes missing')
+        _, states, _ = run(binary, 'title', tier)
+        assert states[1]['scene'] == 2 and states[2]['scene'] == 2
+        _, states, _ = run(binary, 'title-demo', tier)
+        assert states[331]['scene'] == 2, 'the title did not hold through the idle time'
+        print('gameplay: end, the three new areas, the title', tier, 'ok')
+
+
+def ghosts(binary):
+    """cb04: a death's trailer matches the sim frame for frame; the committed
+    archive draws a ghost; an empty archive, or another world's, draws none."""
+    import shutil
+    import tempfile
+    for tier in ('rich', 'plain'):
+        archive = OUT / (Path(binary).parent.name + '-ghost-archive-' + tier)
+        shutil.rmtree(archive, ignore_errors=True)
+        archive.mkdir(parents=True)
+        _, states, _ = run(binary, 'ghost-death', tier, ghosts=archive)
+        files = sorted(archive.glob('*.pk'))
+        assert len(files) == 1, 'the death wrote %d archives' % len(files)
+        text = files[0].read_text()
+        frames = {}
+        for m in re.finditer(r'^t (\d+) ghost-(x|y|area) (-?\d+)$', text, re.M):
+            frames.setdefault(int(m[1]), {})[m[2]] = int(m[3])
+        death = re.search(r'^t (\d+) ghost-death (\d+)$', text, re.M)
+        assert frames and death, 'no trailer in the archive'
+        assert len(frames) == 90 and max(frames) == int(death[1]), (len(frames), max(frames), death[1])
+        assert states[int(death[1])]['deaths'] == int(death[2]) == 1
+        for t, f in frames.items():
+            assert (f['x'], f['y'], f['area']) == (states[t]['x'], states[t]['y'], states[t]['area']), (t, f, states[t])
+        committed = ROOT / 'tests' / 'ghosts'
+        assert [p.name for p in files] == [p.name for p in committed.glob('*.pk')]
+        assert re.sub(r'^tier .*$', '', text, flags=re.M) == re.sub(r'^tier .*$', '', next(committed.glob('*.pk')).read_text(), flags=re.M), 'committed archive differs from a fresh death'
+        shown, states_a, _ = run(binary, 'ghost', tier, ghosts=committed, label='-shown')
+        empty = Path(tempfile.mkdtemp(prefix='cub-no-ghosts-', dir=OUT))
+        none, states_b, _ = run(binary, 'ghost', tier, ghosts=empty, label='-none')
+        other = Path(tempfile.mkdtemp(prefix='cub-other-world-', dir=OUT))
+        (other / files[0].name).write_text(text.replace('seed 1\n', 'seed 2\n', 1))
+        foreign, states_c, _ = run(binary, 'ghost', tier, ghosts=other, label='-foreign')
+        assert states_a == states_b == states_c, 'ghosts changed the simulation'
+        a, b, c = ((d / 'final.txt').read_text() for d in (shown, none, foreign))
+        assert a != b, 'the archive drew no ghost'
+        assert b == c, "another world's death drew a ghost"
+        if tier == 'plain':
+            # The plain mark is one `x` at the death spot, over the forest's own marks.
+            assert a.count('x') == b.count('x') + 1, (a.count('x'), b.count('x'))
+        print('gameplay: ghost trailer, display and absence', tier, 'ok')
+
+
+def fairness(binary):
+    """cb04: the census on the shipping binary, its summary kept for the note."""
+    p = subprocess.run([str(binary), '--boss-census'], capture_output=True, text=True)
+    (OUT / (Path(binary).parent.name + '-boss-census.txt')).write_text(p.stdout + p.stderr)
+    assert p.returncode == 0, ('boss census', p.returncode, p.stdout[-600:])
+    lines = [l for l in p.stdout.splitlines() if l.startswith('fairness ')]
+    assert len(lines) == 4, lines
+    for line in lines:
+        words = line.split()
+        assert 'unwon:0' in words and words[-1] == '0' and words[-2] == 'arena_breaches', line
+        print('gameplay:', line)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--bin', required=True)
@@ -178,6 +311,9 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     check(Path(args.bin).resolve())
     bodies(Path(args.bin).resolve())
+    bosses(Path(args.bin).resolve())
+    ghosts(Path(args.bin).resolve())
+    fairness(Path(args.bin).resolve())
     import runpy
     world = runpy.run_path(str(ROOT / 'tools/world_checks.py'))
     world['check'](Path(args.bin).resolve())
