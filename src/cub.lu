@@ -105,7 +105,7 @@ fn usage_text() -> str {
         "  cub --probe-glyphs                measure the rich glyphs' widths here\n" +
         "  cub --selftest                    the decoder table and the diff property, on THIS binary\n\n" +
         "  keys: arrows walk (the cub turns at its turn rate), Shift+arrow sneaks,\n" +
-        "        Space bite/combo, x forward lunge, s heavy, z parry, c tap dodge/hold sprint, Tab lock, Esc release, q quit,\n" +
+        "        Space bite/combo, x forward lunge, s heavy, z parry, c roll, Ctrl+arrow sprint, Tab lock, Esc release, q quit,\n" +
         "        w water, r rest; at the den arrows allocate, Enter/Space confirms, Esc discards\n" +
         "  --mute                            no music (CUB_SOUND=0 too; m toggles it in play)\n" +
         "  --sound-dir DIR                   where the rendered WAVs go (default ~/.cub/sound)\n" +
@@ -1442,8 +1442,12 @@ fn run_chase_audit() -> int {
                     if h == 96 || h == 128 || h == 160 { (mut keys).push(controls.KEY_DOWN) }
                     if h == 160 || h == 192 || h == 224 { (mut keys).push(controls.KEY_LEFT) }
                     if h == 32 || h == 64 || h == 96 { (mut keys).push(controls.KEY_RIGHT) }
-                    (mut keys).push(controls.KEY_DODGE)
-                    if s.sprinting && sim.in_reach(s, 0, 4) { (mut keys).push(controls.KEY_BITE) }
+                    (mut keys).push(controls.KEY_CTRL_DOWN)
+                    if s.sprinting &&
+                        sim.in_reach(s, 0, 3) &&
+                        sim.abs(sim.turn_toward(s.heading, h)) <= 32 {
+                        (mut keys).push(controls.KEY_BITE)
+                    }
                     let ox = s.x
                     let oy = s.y
                     sim.step(mut s, keys)

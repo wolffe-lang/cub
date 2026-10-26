@@ -95,12 +95,12 @@ pub fn mouth(s: sim.Sim, kind: int) -> (int, int) {
     let o = forest.origin(s.seed, area)
     if kind == sim.BOAR {
         return (
-            (forest.BOAR_X - 13) * sim.FP + sim.FP / 2,
+            (forest.BOAR_X - 16) * sim.FP + sim.FP / 2,
             (o + forest.BOAR_ROW) * sim.FP + sim.FP / 2,
         )
     }
     let (_, cy, r) = forest.arena(s.seed, s.field, area)
-    let row = cy - r - 3
+    let row = cy - r - 5
     (forest.spine(s.seed, area, row) * sim.FP + sim.FP / 2, (o + row) * sim.FP + sim.FP / 2)
 }
 

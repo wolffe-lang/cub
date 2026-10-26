@@ -88,12 +88,12 @@ def check(binary):
             assert states[1]['action'] == 1, 'aim fixture did not attack'
         _, locked, _ = run(binary, 'aim-lock', tier)
         last = locked[max(locked)]
-        assert any(v['action'] == 1 and v['lock'] >= 0 and v['aim'] != 64 for v in locked.values()), 'nearby lock failed to override right arrow'
+        assert any(v['action'] == 1 and v['lock'] >= 0 and v['aim'] == 64 for v in locked.values()), 'held right arrow failed to override nearby lock'
         dest, states, _ = run(binary, 'three-bites', tier)
         starts = [(n, v['combo']) for n, v in states.items()
                   if v['action'] == 1 and v['started'] == n]
-        assert starts == [(1, 1), (12, 2), (23, 3)], starts
-        assert states[34]['combo'] == 0, 'lapsed chain failed to reset'
+        assert starts == [(1, 1), (12, 2), (25, 3)], starts
+        assert states[42]['combo'] == 0, 'lapsed chain failed to reset'
         _, states, _ = run(binary, 'heavy', tier)
         assert states[1]['action'] == 7 and states[1]['stamina'] == 28
         assert states[39]['action'] == 7 and states[40]['action'] == 0
