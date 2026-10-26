@@ -1732,7 +1732,7 @@ pub fn draw_boss(
         var k = 0
         while k < 4 {
             var cell = grid.at(g, eyes[k], eyes[k + 1])
-            cell.cp = if t == tier.RICH then 9679 else 111
+            cell.cp = if t == tier.RICH then sprites.CP_EYE else 111
             cell.fg = if t == tier.RICH then 196 else 9
             cell.attrs = grid.ATTR_BOLD
             grid.put(mut g, eyes[k], eyes[k + 1], cell)

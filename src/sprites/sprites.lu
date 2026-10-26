@@ -264,12 +264,16 @@ fn plain(sprite: int, v: int) -> grid.Cell {
     }
 }
 
+/// The shadow alpha's eyes (cb04): a black circle in red over its head.
+pub const CP_EYE: int = 9679
+
 /// Every code point the rich tier can draw, each once, ascending: the
-/// ground's sprites and every silhouette in every facing: the list
-/// `docs/GLYPHS.md` must name (a test holds the two together), and PAX's
-/// font row's specification for cub.
+/// ground's sprites, every silhouette in every facing and the alpha's eye:
+/// the list `docs/GLYPHS.md` must name (a test holds the two together),
+/// and PAX's font row's specification for cub.
 pub fn rich_code_points() -> List[int] {
     var cps = silhouette.all_code_points()
+    (mut cps).push(CP_EYE)
     var s = 0
     while s < SPRITE_COUNT {
         var v = 0
