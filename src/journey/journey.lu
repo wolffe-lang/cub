@@ -172,7 +172,7 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     if values[30] != sim.level(s) { return save_corrupt }
     if s.seed < -1000000000 ||
         s.seed > 1000000000 ||
-        (s.flask_max != 0 && s.flask_max != 2 && s.flask_max != 3) ||
+        s.flask_max != 0 && s.flask_max != 2 && s.flask_max != 3 ||
         s.scent < 0 ||
         s.scent > 1000000000 ||
         s.last_den < 0 ||

@@ -1,4 +1,5 @@
 //! member: false
+
 use sim
 use journey
 
@@ -19,7 +20,10 @@ fn test_cb04a_springs_are_found_once_and_rest_refills_found_capacity() {
     sim.enter_area(mut s, 2, ux, uy)
     sim.healing_pickups(mut s)
     assert(s.flask_max == 3 && s.flasks == 3, "later spring adds one")
-    let restored = journey.decode(journey.encode(s), 80, 24) else { assert(false, "found water save"); return }
+    let restored = journey.decode(journey.encode(s), 80, 24) else {
+        assert(false, "found water save")
+        return
+    }
     assert(restored.flask_max == 3, "discovery survives save")
 }
 
@@ -28,7 +32,10 @@ fn test_cb04a_meat_heals_immediately_once_clamped_and_expires() {
     s.health = 48
     (mut s.meat).push(sim.Meat { x: s.x, y: s.y, until: 300 })
     sim.healing_pickups(mut s)
-    assert(s.health == 52 && s.meat.len == 0 && s.scent == 0, "small heal clamped, no currency duplication")
+    assert(
+        s.health == 52 && s.meat.len == 0 && s.scent == 0,
+        "small heal clamped, no currency duplication",
+    )
     s.health = 20
     sim.healing_pickups(mut s)
     assert(s.health == 20, "collected only once")

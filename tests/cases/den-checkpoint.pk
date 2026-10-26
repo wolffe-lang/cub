@@ -1,0 +1,262 @@
+pk 1
+seed 7
+tier rich
+size 80x24
+t 0 journey 3
+t 0 saved-0 7
+t 0 saved-1 0
+t 0 saved-2 1
+t 0 saved-3 1
+t 0 saved-4 1
+t 0 saved-5 1
+t 0 saved-6 1
+t 0 saved-7 2
+t 0 saved-8 0
+t 0 saved-9 8
+t 0 saved-10 257
+t 0 saved-11 0
+t 0 saved-12 1
+t 0 saved-13 0
+t 0 saved-14 0
+t 0 saved-15 0
+t 0 saved-16 0
+t 0 saved-17 0
+t 0 saved-18 0
+t 0 saved-19 0
+t 0 saved-20 0
+t 0 saved-21 0
+t 0 saved-22 0
+t 0 saved-23 1
+t 0 saved-24 80
+t 0 saved-25 0
+t 0 saved-26 0
+t 0 saved-27 0
+t 0 saved-28 0
+t 0 saved-29 1
+t 0 right
+t 1 right
+t 2 right
+t 3 right
+t 4 right
+t 5 right
+t 6 right
+t 7 right
+t 8 right
+t 9 right
+t 10 right
+t 11 right
+t 12 right
+t 13 right
+t 14 right
+t 15 right
+t 16 right
+t 17 right
+t 18 right
+t 19 right
+t 20 right
+t 21 right
+t 22 right
+t 23 right
+t 24 down
+t 24 right
+t 25 down
+t 26 down
+t 27 down
+t 28 down
+t 29 down
+t 30 down
+t 30 right
+t 31 right
+t 32 right
+t 33 right
+t 34 right
+t 35 right
+t 36 down
+t 36 right
+t 37 down
+t 38 down
+t 39 down
+t 39 right
+t 40 right
+t 41 right
+t 42 right
+t 43 right
+t 44 right
+t 45 down
+t 45 right
+t 46 down
+t 47 down
+t 48 right
+t 49 right
+t 50 down
+t 50 right
+t 51 down
+t 52 down
+t 53 down
+t 53 right
+t 54 right
+t 55 right
+t 56 right
+t 57 right
+t 58 right
+t 59 right
+t 60 right
+t 61 right
+t 62 right
+t 63 down
+t 64 down
+t 65 down
+t 65 right
+t 66 right
+t 67 right
+t 68 right
+t 69 right
+t 70 right
+t 71 down
+t 71 right
+t 72 down
+t 73 down
+t 74 down
+t 74 right
+t 75 right
+t 76 right
+t 77 right
+t 78 right
+t 79 right
+t 80 down
+t 80 right
+t 81 down
+t 82 down
+t 82 right
+t 83 right
+t 84 right
+t 85 down
+t 86 down
+t 87 down
+t 88 right
+t 89 right
+t 90 right
+t 91 right
+t 92 right
+t 93 right
+t 94 down
+t 94 right
+t 95 down
+t 96 down
+t 97 down
+t 97 right
+t 98 right
+t 99 right
+t 100 right
+t 101 right
+t 102 right
+t 103 down
+t 103 right
+t 104 down
+t 105 down
+t 105 right
+t 106 right
+t 107 right
+t 108 right
+t 109 right
+t 110 right
+t 111 right
+t 112 right
+t 113 right
+t 114 right
+t 115 right
+t 116 right
+t 117 right
+t 118 right
+t 119 right
+t 120 right
+t 121 right
+t 122 right
+t 123 right
+t 124 right
+t 125 right
+t 126 right
+t 127 right
+t 128 right
+t 129 right
+t 130 right
+t 131 down
+t 131 right
+t 132 down
+t 132 right
+t 133 down
+t 134 down
+t 135 down
+t 136 down
+t 137 down
+t 138 down
+t 139 down
+t 140 down
+t 141 down
+t 142 down
+t 143 down
+t 144 down
+t 145 down
+t 146 down
+t 147 down
+t 148 down
+t 149 down
+t 150 down
+t 151 down
+t 152 down
+t 153 down
+t 154 down
+t 155 down
+t 156 down
+t 157 down
+t 158 down
+t 159 down
+t 160 down
+t 161 down
+t 162 down
+t 163 down
+t 164 down
+t 165 down
+t 166 down
+t 167 down
+t 168 down
+t 169 down
+t 170 down
+t 171 down
+t 172 rest
+t 193 release
+t 194 down
+t 194 left
+t 195 down
+t 195 left
+t 196 left
+t 197 left
+t 198 left
+t 199 left
+t 200 left
+t 201 left
+t 202 left
+t 203 left
+t 204 left
+t 205 down
+t 205 left
+t 206 down
+t 207 down
+t 208 down
+t 209 down
+t 210 down
+t 211 down
+t 212 down
+t 213 down
+t 214 down
+t 215 down
+t 216 down
+t 217 down
+t 218 down
+t 219 down
+t 220 down
+t 221 down
+t 222 scent 37
+t 222 health -10000
+
+# frames 252 every 252
