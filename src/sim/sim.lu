@@ -3482,6 +3482,7 @@ fn input_key(mut s: Sim, k: int) -> bool {
         kind = input.RELEASE
     }
     input.update(mut s.key_state, input.Event { key: key, mods: mods, kind: kind }, s.tick)
+    if kind == input.RELEASE { input.clear(mut s.key_state) }
     if input.exact(s.key_state) {
         sync_holds(mut s)
     } else if k == controls.KEY_CTRL_DOWN {
