@@ -19,6 +19,7 @@ use coast
 use forest
 use journey
 use measure
+use motionproof
 use look
 use clock
 use controls
@@ -965,6 +966,7 @@ fn main() -> int {
             args[5],
         )
     }
+    if args.len > 0 && args[0] == "--motion-census" { return motionproof.census() }
     if args.len > 0 && args[0] == "--paths-audit" { return pathaudit.census() }
     if args.len > 0 && args[0] == "--den-census" { return denproof.census() }
     if args.len == 2 && args[0] == "--make-den-proof" { return denproof.generate(args[1]) }
