@@ -1610,7 +1610,10 @@ fn push_out(mut s: Sim, i: int, from: Body) -> bool {
         while n <= 32 {
             let x = f.x + sin(dir) * n * FP / 4 / FP
             let y = f.y - cos(dir) * n * FP / 4 / FP
-            if !blocked(s, floor_div(x, FP), floor_div(y, FP)) &&
+            // A boss yields only within its arena (cb04: it never leaves).
+            let kept = !is_boss(f.kind) || in_arena_at(s, x, y)
+            if kept &&
+                !blocked(s, floor_div(x, FP), floor_div(y, FP)) &&
                 !foe_blocked_by_body(s, i, x, y, f.heading) {
                 s.foes[i].x = x
                 s.foes[i].y = y
