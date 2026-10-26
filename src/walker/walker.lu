@@ -117,6 +117,7 @@ pub fn walk_stop(
     stop_foe: int,
     passive: bool,
 ) -> bool {
+    if !clear_arrival(mut s, mut r, tx, ty) { return false }
     var replans = 0
     while replans < 20 {
         let outcome = walk_once(mut s, mut r, tx, ty, stop_foe, passive)
@@ -322,4 +323,56 @@ fn inside(b: sim.Body, x: int, y: int) -> bool { x >= b.x0 && x <= b.x1 && y >= 
 fn door_blocked(doors: List[sim.Body], x: int, y: int) -> bool {
     for door in doors { if inside(door, x, y) { return true } }
     false
+}
+
+// A non-return route first clears its arrival shadow straight ahead. A
+// parry permits the ordinary arrow turn while standing still, so steering
+// across an already-overlapping side never becomes an unintended return.
+fn clear_arrival(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int) -> bool {
+    if s.tick - s.entered > 3 { return true }
+    let area = s.area
+    var edge = 0
+    while edge < forest.EDGES {
+        if forest.other(area, edge) >= 0 {
+            let (px, py) = forest.portal(s.seed, area, edge)
+            let body = sim.cub_body(s)
+            let touching = body.x1 >= px / sim.FP - 3 &&
+                body.x0 <= px / sim.FP + 3 &&
+                body.y1 >= py / sim.FP - 1 &&
+                body.y0 <= py / sim.FP + 1
+            if touching &&
+                !forest.shadow_cell(
+                    s.seed,
+                    area,
+                    edge,
+                    sim.floor_div(tx, sim.FP),
+                    sim.floor_div(ty, sim.FP),
+                ) {
+                let heading = if s.y > py then 128 else 0
+                let arrow = if heading == 128 then controls.KEY_DOWN else controls.KEY_UP
+                if s.heading != heading {
+                    var wait = 0
+                    while (s.action != sim.IDLE || s.stamina < 10) && wait < 60 {
+                        press(mut s, mut r, key(0))
+                        wait += 1
+                    }
+                    if s.action != sim.IDLE || s.stamina < 10 { return false }
+                    var keys = key(arrow)
+                    (mut keys).push(controls.KEY_PARRY)
+                    press(mut s, mut r, keys)
+                }
+                var steps = 0
+                while steps < 90 {
+                    let b = sim.cub_body(s)
+                    if b.y1 < py / sim.FP - 1 || b.y0 > py / sim.FP + 1 { return true }
+                    press(mut s, mut r, key(arrow))
+                    if s.area != area || s.action == sim.FALL { return false }
+                    steps += 1
+                }
+                return false
+            }
+        }
+        edge += 1
+    }
+    true
 }

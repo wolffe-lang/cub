@@ -147,7 +147,10 @@ pub fn generate(dir: str) -> int {
     let (lx, ly) = forest.portal(s.seed, 1, 2)
     if !walker.walk(mut s, mut r, lx, ly) { eprint("proof: log approach"); return 1 }
     walker.press(mut s, mut r, walker.key(controls.KEY_REST))
-    if s.area != 0 || s.shortcuts != 3 { eprint("proof: log not opened"); return 1 }
+    if s.area != 0 || s.shortcuts != 3 {
+        eprint("proof: log not opened area {s.area} shortcuts {s.shortcuts} at {s.x},{s.y}")
+        return 1
+    }
     snapshot(dir, "world-return", s, r) else |_| { return 2 }
     var cache = 0
     while cache < forest.cache_count(0) {
