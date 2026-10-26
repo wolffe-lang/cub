@@ -786,10 +786,43 @@ pub fn wolf(pose: int, legs: int) -> Bitmap {
     parse(r)
 }
 
+/// The highest code point a silhouette cell can be: a braille pattern.
+const CP_MAX: int = 10240 + 256
+
+/// Every code point `b` can produce facing each of the four ways, each
+/// once across the whole enumeration (`seen` by code point), appended to
+/// `cps` (32 excluded).
+fn collect(b: Bitmap, mut seen: List[bool], mut cps: List[int]) {
+    var f = 0
+    while f < 4 {
+        let t = turned(b, f)
+        var cr = 0
+        while cr < rows(t) {
+            var cc = 0
+            while cc < cols(t) {
+                let cp = cell_cp(t, cr, cc)
+                if cp != 32 && !seen[cp] {
+                    seen[cp] = true
+                    (mut cps).push(cp)
+                }
+                cc += 1
+            }
+            cr += 1
+        }
+        f += 1
+    }
+}
+
 /// Every code point every silhouette can draw, facing each way, each once,
-/// ascending: what `docs/GLYPHS.md` must list for them.
+/// ascending: what `docs/GLYPHS.md` must list for them. A presence table
+/// does the dedup (cb04: the bosses doubled the drawings, and a linear
+/// scan per cell put the checked tests over their budget).
 pub fn all_code_points() -> List[int] {
     var cps = List[int]()
+    var seen = List[bool]()
+    (mut seen).reserve(CP_MAX + 1)
+    var n = 0
+    while n <= CP_MAX { (mut seen).push(false); n += 1 }
     // The cub's frames, one cell row at a time with the parameters that
     // reach it (cb03: the health bands and the breath multiply the frames,
     // and the checked machine's budget is finite): rows 0-3 the head
@@ -803,15 +836,15 @@ pub fn all_code_points() -> List[int] {
     while pose < 4 {
         var breath = 0
         while breath < 2 {
-            code_points(cell_row(cub_posed(pose, 0, 0, 0, breath), 0), mut cps)
-            code_points(cell_row(cub_posed(pose, 0, 0, 3, breath), 0), mut cps)
+            collect(cell_row(cub_posed(pose, 0, 0, 0, breath), 0), mut seen, mut cps)
+            collect(cell_row(cub_posed(pose, 0, 0, 3, breath), 0), mut seen, mut cps)
             var legs = 0
             while legs < 2 {
                 var hurt = 0
                 while hurt < 4 {
-                    code_points(cell_row(cub_posed(pose, legs, 0, hurt, breath), 1), mut cps)
+                    collect(cell_row(cub_posed(pose, legs, 0, hurt, breath), 1), mut seen, mut cps)
                     if breath == 0 {
-                        code_points(cell_row(cub_posed(pose, legs, 0, hurt, 0), 2), mut cps)
+                        collect(cell_row(cub_posed(pose, legs, 0, hurt, 0), 2), mut seen, mut cps)
                     }
                     hurt += 1
                 }
@@ -825,8 +858,8 @@ pub fn all_code_points() -> List[int] {
     while hurt < 4 {
         var tail = -2
         while tail <= 2 {
-            code_points(cell_row(cub_posed(0, 0, tail, hurt, 0), 3), mut cps)
-            code_points(cell_row(cub_posed(0, 0, tail, hurt, 1), 3), mut cps)
+            collect(cell_row(cub_posed(0, 0, tail, hurt, 0), 3), mut seen, mut cps)
+            collect(cell_row(cub_posed(0, 0, tail, hurt, 1), 3), mut seen, mut cps)
             tail += 1
         }
         hurt += 1
@@ -836,9 +869,9 @@ pub fn all_code_points() -> List[int] {
         if kind != 2 {
             var phase = 0
             while phase < 7 {
-                code_points(foe(kind, phase, -1), mut cps)
-                code_points(foe(kind, phase, 5), mut cps)
-                code_points(foe(kind, phase, 10), mut cps)
+                collect(foe(kind, phase, -1), mut seen, mut cps)
+                collect(foe(kind, phase, 5), mut seen, mut cps)
+                collect(foe(kind, phase, 10), mut seen, mut cps)
                 phase += 1
             }
         }
@@ -846,9 +879,9 @@ pub fn all_code_points() -> List[int] {
     }
     var phase = 0
     while phase < 4 {
-        code_points(hawk(phase, -1), mut cps)
-        code_points(hawk(phase, 5), mut cps)
-        code_points(hawk(phase, 10), mut cps)
+        collect(hawk(phase, -1), mut seen, mut cps)
+        collect(hawk(phase, 5), mut seen, mut cps)
+        collect(hawk(phase, 10), mut seen, mut cps)
         phase += 1
     }
     // The bosses in every posture and fade, the wolf in its two poses.
@@ -857,19 +890,19 @@ pub fn all_code_points() -> List[int] {
         phase = 0
         while phase < 9 {
             if phase <= 4 || phase >= 7 {
-                code_points(boss(kind, phase, -1), mut cps)
-                code_points(boss(kind, phase, 15), mut cps)
-                code_points(boss(kind, phase, 30), mut cps)
+                collect(boss(kind, phase, -1), mut seen, mut cps)
+                collect(boss(kind, phase, 15), mut seen, mut cps)
+                collect(boss(kind, phase, 30), mut seen, mut cps)
             }
             phase += 1
         }
         kind += 1
     }
-    code_points(wolf(0, 0), mut cps)
-    code_points(wolf(1, 0), mut cps)
-    code_points(wolf(1, 1), mut cps)
-    code_points(bundle(false), mut cps)
-    code_points(bundle(true), mut cps)
+    collect(wolf(0, 0), mut seen, mut cps)
+    collect(wolf(1, 0), mut seen, mut cps)
+    collect(wolf(1, 1), mut seen, mut cps)
+    collect(bundle(false), mut seen, mut cps)
+    collect(bundle(true), mut seen, mut cps)
     var i = 1
     while i < cps.len {
         var j = i
