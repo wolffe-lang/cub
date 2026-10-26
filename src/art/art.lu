@@ -880,9 +880,17 @@ pub fn draw_foes(s: sim.Sim, t: int, mut g: grid.Grid) {
         }
         let gone = if sim.is_boss(f.kind) then sim.BOSS_FADE_TICKS else sim.FOE_FADE_TICKS
         // Perception controls AI, never presentation. Drawing clips each cell.
-        if fade < gone {
+        if fade < gone && (s.area != forest.BRAMBLEHOLD || sim.visible(s, s.x, s.y, f.x, f.y)) {
             let r = sim.floor_div(f.y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
             let c = sim.floor_div(f.x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
+            let body = sim.foe_body(f)
+            if body.x0 - sim.cell_x(s) + sim.screen_col(s) < 0 ||
+                body.x1 - sim.cell_x(s) + sim.screen_col(s) >= s.cols ||
+                body.y0 - sim.cell_y(s) + sim.screen_row(s) < 0 ||
+                body.y1 - sim.cell_y(s) + sim.screen_row(s) >= s.rows {
+                i += 1
+                continue
+            }
             draw_foe(mut g, t, r, c, f.kind, f.phase, f.heading, fade)
             if s.locked == i { draw.put_text(mut g, r + 2, c, "[]", ink(t, true)) }
         }
