@@ -1,0 +1,17 @@
+cb04b prediction, before implementation
+Base cub 5b10fec (7e2c6a77 game code plus materialised note); lair 74bf5781689a56a65945335d2ba829ed05fa92af.
+
+Pace: WALK_PERCENT 198 -> 211 (+6.5657%, R-cb04b-2 recommendation).
+At paw1 expect trot 75 -> 80 FP/tick, straight 8.7890625 -> 9.375 cells/s; paw10 111 -> 118, 13.0078125 -> 13.828125. Sneak half, sprint 8/5. All six areas should agree on unobstructed dry terrain. Shallows halves pace; low-health limp halves walk; sneak and turning/collision explain apparent variation, with no Bramblehold terrain penalty in locomotion. Census fifty seeds, terrain/heading/area and both tiers before and after; frame timing measured separately. Diagonal integer truncation presently costs up to one FP/axis/tick; expect residual-carry integration to remove long-run directional bias. Foes remain derived from the same dial; body overlap counts must stay 0/0/0.
+
+Roll: old paw1 is 3 cells in 6 travel +4 recovery ticks; paw10 3 in11+4. Five cells is insufficient: at full speed over14 ticks the revised walk is4.375 cells at paw1 and6.453125 at paw10; sprint7 and10.28125. R-cb04b-3 recommend travel max(10 cells, ceil(2*14*trot_at(paw)/256) cells),8 ticks ease-out then6 recovery, i.e.10 cells paw1 and13 paw10 (over twice the walk). Ease-out cumulative d*(16t-t*t)/64 for t=0..8, exact endpoint with per-axis cumulative rounding; diagonals same Euclidean length within fixed-point quantisation. Iframes10 ticks at paw1, +1 at paw5 and paw10, cap12, leaving at least2 vulnerable recovery ticks. R-cb04b-4 A: no-arrow roll uses facing; held direction latches at press, ignores turn rate; lock retains target-facing. Boss/fox outcomes measured rather than predicted fair; unchanged fairness bars.
+
+Combo: trunk rounds -half-cell to -1 and +half-cell to0. Expect rich subcell/pixel translation to show symmetric first/second lean for all8 aims, plain symmetric signed one-cell translation. Third hit moves body forward >=1 cell when clear; collision clips every path sample and body overlaps remain0. Distinct recovery proposals6/8/12 ticks, stamina12/14/18, 3/2 active timing retained. Goldens every hit and roll frame at both tiers; all world/HUD frames expected to change, title/score not (except corrected key wording).
+
+Held keys: adopt open_input/close_input, feed_events and KeyState, record press/repeat/release with negotiated mode for deterministic replay; exact direction resumes after another arrow release. Ctrl, not c, drives sprint; c only rolls. R-cb04b-1 A implemented as recommended. Fallback explicitly retains inferred holds and cannot promise true releases.
+
+Rally:45 ticks (1.5s), linear regainable pool decay; landed hit capped at8 health scaled linearly by remaining window, never beyond lost pool/max health. Further damage starts a new pool from then-regainable health plus actual new loss (cap missing health); rest/death clears it. Expiry is half-open. Health red, regainable grey.
+
+Bars: propose10 health/stamina points per cell, ceiling, cap30 cells, labels separate, status below both bars; preserve visible water after HUD clear. Level1/10/40 at80x24 and120x40, rich/plain.
+
+Required plants: release clears all holds; third hit omits leap; rally after45 ticks; roll ignores held direction; iframes one tick short. Fix tests committed before plants. No engine edits; cb04f owns enter_area foe reset and rest placement. Full report goes in PR body because this agent cannot write Markdown report files.
