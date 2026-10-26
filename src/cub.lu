@@ -599,7 +599,7 @@ fn run_selftest() -> int {
 /// The live game: the terminal opened and entered, one run, the terminal
 /// left on every path out.
 fn run_live(o: Options, args: List[str]) -> int {
-    var t = term.open() else |e| {
+    let t = term.open() else |e| {
         eprint(term.message("{e}", "cub"))
         return 2
     }
@@ -690,21 +690,25 @@ fn run_live(o: Options, args: List[str]) -> int {
     var pen = grid.pen_new()
     var out = List[byte]()
     var keys = List[int]()
-    var raw = List[int]()
+    var raw = List[input.Event]()
     var tick_keys = List[int]()
     var d = input.new()
-    term.enter(mut t) else |_| {
+    var session = term.open_input(term.MIN_COLS, term.MIN_ROWS) else |_| {
         eprint(term.message("io", "cub"))
         return 3
     }
+    if session.keyboard && !replaying { (mut keys).push(controls.KEY_EXACT) }
+    input.events_all(mut d, session.startup, clock.now_ns() / 1000000, mut raw)
+    controls.events(raw, mut keys)
+    (mut raw).reset()
     if !replaying && !fs.exists(save_path) {
         journey.prepare(save_path, s, o.save_cut) else |e| {
-            term.leave(mut t)
+            term.close_input(mut session)
             eprint("cub: {e}")
             return 2
         }
         journey.commit(save_path) else |e| {
-            term.leave(mut t)
+            term.close_input(mut session)
             eprint("cub: {e}")
             return 2
         }
@@ -748,9 +752,9 @@ fn run_live(o: Options, args: List[str]) -> int {
         let now_ms = now / 1000000
         if w.meaning != 0 {
             if w.meaning == 16384 {
-                if term.resize(mut t) && !replaying {
-                    cols = t.cols
-                    rows = t.rows
+                if term.resize_input(mut session) && !replaying {
+                    cols = session.terminal.cols
+                    rows = session.terminal.rows
                     sim.resize(mut s, cols, rows)
                     front = grid.new(rows, cols)
                     back = grid.new(rows, cols)
@@ -771,16 +775,16 @@ fn run_live(o: Options, args: List[str]) -> int {
                 List[byte]()
             }
             let before = keys.len
-            input.feed_all(mut d, got, now_ms, mut raw)
-            controls.map_all(raw, mut keys)
+            input.events_all(mut d, got, now_ms, mut raw)
+            controls.events(raw, mut keys)
             (mut raw).reset()
             trace_bytes += got.len
             if keys.len > before && trace_first_key_ns == 0 {
                 trace_first_key_ns = now
             }
         }
-        input.flush(mut d, now_ms, mut raw)
-        controls.map_all(raw, mut keys)
+        input.flush_events(mut d, now_ms, mut raw)
+        controls.events(raw, mut keys)
         (mut raw).reset()
         let due = clock.advance(mut c, now)
         var n = 0
@@ -939,7 +943,7 @@ fn run_live(o: Options, args: List[str]) -> int {
         }
         eprint("cub: pending save cancelled; previous journey preserved")
     }
-    term.leave(mut t)
+    term.close_input(mut session)
     if sound_on { score.close(mut player) }
     if o.record_path != "" {
         var text = List[byte]()

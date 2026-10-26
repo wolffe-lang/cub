@@ -42,7 +42,7 @@ fn sprint_keys(mut s: sim.Sim, mut keys: List[int]) {
     // Baseline binding. Changed alongside the binding, not the measurement.
     input.hold_press(mut s.sprint_hold, s.tick - 1)
     input.hold_press(mut s.sprint_hold, s.tick)
-    (mut keys).push(controls.KEY_DODGE)
+    (mut keys).push(controls.KEY_CTRL_DOWN)
 }
 
 /// One unobstructed steady-state tick, with a genuine terrain sample.
