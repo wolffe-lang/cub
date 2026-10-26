@@ -346,7 +346,7 @@ fn test_cb04_schema_3_carries_the_bosses_and_refuses_schema_2() {
     s.mark_y = my
     s.mark_scent = 9
     let text = journey.encode(s)
-    assert(text.starts_with("CUB 4\n") && text.len < 512, "schema 3, short")
+    assert(text.starts_with("CUB 5\n") && text.len < 512, "schema 3, short")
     assert(text.contains("\nbosses 15 end 1 played 123456 lost 77\n"), "the new line")
     let back = journey.decode(text, 80, 24) else |e| { assert(false, "valid save {e}"); return }
     assert(
@@ -363,7 +363,7 @@ fn test_cb04_schema_3_carries_the_bosses_and_refuses_schema_2() {
         "the snapshot",
     )
     var old = false
-    let _ = journey.decode(text.replace("CUB 4", "CUB 2"), 80, 24) else |e| {
+    let _ = journey.decode(text.replace("CUB 5", "CUB 2"), 80, 24) else |e| {
         old = "{e}" == "save_version"
         sim.new(1, 80, 24)
     }

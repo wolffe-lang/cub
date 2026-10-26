@@ -81,7 +81,7 @@ pub fn generate(path: str) -> int {
     let initial = journey.snapshot(s)
     var part = 0
     while part < initial.len {
-        replay.push_arg(mut r, 0, controls.EV_SAVED + part, initial[part])
+        replay.push_arg(mut r, 0, controls.saved_event(part), initial[part])
         part += 1
     }
     let (x, y) = forest.portal(s.seed, 0, 0)

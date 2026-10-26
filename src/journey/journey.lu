@@ -24,24 +24,32 @@ pub error PrepareErrors = {
 /// Named failures for CommitErrors.
 pub error CommitErrors = {save_io, save_committed_unsynced}
 
-/// Schema four stores the shared level explicitly, accepts soft-capped
-/// growth1..40 and discovered water capacity0/2/3. Older schemas are
-/// refused as save_version, never silently reset or partially migrated.
-pub const VERSION: int = 4
+/// Schema five adds six ordinary-foe slain masks. Schema four migrates
+/// with empty masks; earlier shapes remain named save_version failures.
+pub const VERSION: int = 5
 
 /// The values a replay's initial journey snapshot carries (`saved-0` to
 /// `saved-29`; the `journey 3` event names this shape).
-pub const SNAPSHOT: int = 30
+pub const SNAPSHOT: int = 36
 
 /// The replay's journey event version this build writes and reads.
-pub const JOURNEY: int = 3
+pub const JOURNEY: int = 4
 
 /// The widest field a save may name.
 pub const FIELD_MAX: int = 10000
 
-/// Canonical persistent state; transient health/foes reset at the last den.
-pub fn payload(s: sim.Sim) -> str {
-    "CUB {VERSION}\n" +
+/// Canonical persistent state; health resets at the last den, slain foes do not.
+pub fn payload(s: sim.Sim) -> str { payload_version(s, VERSION) }
+
+fn payload_version(s: sim.Sim, version: int) -> str {
+    var masks = ""
+    if version == 5 {
+        masks = "slain"
+        var area = 0
+        while area < forest.AREAS { masks += " {sim.slain_mask(s, area)}"; area += 1 }
+        masks += "\n"
+    }
+    "CUB {version}\n" +
         "seed {s.seed} difficulty {s.difficulty}\n" +
         "growth {s.heart} {s.wind} {s.fang} {s.paw} {s.nose}\n" +
         "water {s.flask_max} scent {s.scent}\n" +
@@ -51,7 +59,8 @@ pub fn payload(s: sim.Sim) -> str {
         "cache {s.caches} pouch {s.yarrow} {s.marrow} opening {if s.opening_seen then 1 else 0}\n" +
         "field {s.field}\n" +
         "bosses {s.bosses} end {if s.end then 1 else 0} played {s.played} lost {s.lost}\n" +
-        "level {sim.level(s)}\n"
+        "level {sim.level(s)}\n" +
+        masks
 }
 
 /// Small non-cryptographic corruption check; intermediate products fit int64.
@@ -75,8 +84,9 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     var words = List[str]()
     for word in text.words() { (mut words).push(word) }
     if words.len < 2 || words[0] != "CUB" { return save_corrupt }
-    if words[1] != "4" { return save_version }
-    if words.len != 55 { return save_corrupt }
+    if words[1] != "4" && words[1] != "5" { return save_version }
+    let version = if words[1] == "4" then 4 else 5
+    if words.len != (if version == 4 then 55 else 62) { return save_corrupt }
     var values = List[int]()
     var i = 0
     while i < words.len {
@@ -222,8 +232,24 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
         ) {
         return save_corrupt
     }
-    if encode(s) != text { return save_corrupt }
+    if version == 5 {
+        var area = 0
+        while area < forest.AREAS {
+            let mask = words[54 + area].to_int() else |_| { return save_corrupt }
+            let foes = sim.area_foes(s.seed, s.field, area, 15)
+            var limit = 1
+            for _ in foes { limit *= 2 }
+            if mask < 0 || mask >= limit { return save_corrupt }
+            s.slain[area] = mask
+            area += 1
+        }
+    }
+    let canonical = payload_version(s, version)
+    if canonical + "check {checksum(canonical)}\n" != text { return save_corrupt }
+    let remembered = copy s.slain
     sim.wake(mut s)
+    s.slain = remembered
+    sim.restore_foes(mut s)
     s.save_status = 2
     s.entered = 0
     s
@@ -318,12 +344,16 @@ pub fn snapshot(s: sim.Sim) -> List[int] {
     (mut values).push(s.played)
     (mut values).push(s.lost)
     (mut values).push(sim.level(s))
+    var area = 0
+    while area < forest.AREAS { (mut values).push(sim.slain_mask(s, area)); area += 1 }
     values
 }
 
 /// Validate a complete initial replay journey before applying it.
 pub fn from_snapshot(v: List[int], cols: int, rows: int) -> sim.Sim ! DecodeErrors {
-    if v.len != SNAPSHOT || v[0] < -1000000000 || v[0] > 1000000000 { return save_corrupt }
+    if v.len != SNAPSHOT && v.len != 30 || v[0] < -1000000000 || v[0] > 1000000000 {
+        return save_corrupt
+    }
     var s = sim.new(v[0], cols, rows)
     if v[24] < forest.FIELD_MIN || v[24] > FIELD_MAX { return save_corrupt }
     s.field = v[24]
@@ -370,5 +400,9 @@ pub fn from_snapshot(v: List[int], cols: int, rows: int) -> sim.Sim ! DecodeErro
     s.yarrow = v[21]
     s.marrow = v[22]
     s.opening_seen = v[23] == 1
+    if v.len == SNAPSHOT {
+        var area = 0
+        while area < forest.AREAS { s.slain[area] = v[30 + area]; area += 1 }
+    }
     decode(encode(s), cols, rows)?
 }

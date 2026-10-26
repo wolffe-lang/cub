@@ -218,7 +218,7 @@ fn snapshot_replay(s: sim.Sim) -> replay.Replay {
     replay.push_arg(mut r, 0, controls.EV_JOURNEY, journey.JOURNEY)
     let v = journey.snapshot(s)
     var i = 0
-    while i < v.len { replay.push_arg(mut r, 0, controls.EV_SAVED + i, v[i]); i += 1 }
+    while i < v.len { replay.push_arg(mut r, 0, controls.saved_event(i), v[i]); i += 1 }
     r
 }
 

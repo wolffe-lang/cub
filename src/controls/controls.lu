@@ -242,7 +242,7 @@ pub const EV_GHOST_AREA: int = 40
 pub const EV_GHOST_DEATH: int = 41
 
 /// The number of numeric events.
-pub const EV_COUNT: int = 42
+pub const EV_COUNT: int = 48
 
 /// cub's words for the replay file: the keys by number, and the numeric
 /// events by index (`EV_*`).
@@ -262,6 +262,8 @@ pub fn vocab() -> replay.Vocab {
     for w in "title bosses ghost-x ghost-y ghost-face ghost-pose ghost-area ghost-death".words() {
         (mut args).push(w)
     }
+    part = 30
+    while part < 36 { (mut args).push("saved-{part}"); part += 1 }
     replay.vocab(take names, take args)
 }
 
@@ -274,3 +276,6 @@ pub const KEY_MUTE: int = 26
 
 /// Enter confirms the staged den purchases; inert outside rest.
 pub const KEY_CONFIRM: int = 27
+
+/// Snapshot event slots30..35 are appended, never renumbering older events.
+pub fn saved_event(part: int) -> int { if part < 30 then EV_SAVED + part else 42 + part - 30 }
