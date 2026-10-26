@@ -32,10 +32,29 @@ column of the four (R-cb02b-2 A; `grove_test` holds the east drawing to the nort
 Each cell becomes the full block where all eight pixels are lit, a half block where exactly one half is,
 and the braille pattern of its lit pixels otherwise, so the silhouette is solid where it is thick and
 drawn where it is thin; the ground shows through its unlit cells. The poses are frames of the same
-drawing: a walk swings the tail and sets a paw out, a sneak tucks the muzzle and lays the ears back, a
-pant lays them flat and opens the mouth. Stamina is the fur: fresh, dim when tired or spent. The plain
+drawing: a walk sets the paws out, a sneak tucks the muzzle and lays the ears back, a pant lays them flat
+and opens the mouth.
+
+2026-10-25 (cb02c) — the maintainer's word: "its tail oscillates too quickly. Make it natural." The tail and
+the paws follow the gait, the ground the cub covers, never the tick (R-cb02c-2 A): the paws step twice a
+stride, the tail wags once in two strides, through five frames walking (the tip two pixels either side of
+the middle, the root one) and three standing, sneaking or panting (one pixel each side, a slow sway). At the
+trot a wag is 0.9 s, at a grown paw's trot 0.6 s, standing 2 s. `silhouette.wag` holds the eight steps of a
+wag; the frames are still the one drawing, turned. The sheet's `wag` row draws the walking cub north with its
+tail at each offset; `docs/GLYPHS.md` gained two braille cells for them. The plain tier's tail `,` swings to
+the side the rich tail swings to, and its walking paw `'` steps at the haunches' corners, inside the
+footprint. Stamina is the fur: fresh, dim when tired or spent. The plain
 tier keeps the footprints in ASCII (`.^^.` over `####` over `.,..` north; `.=####^.` over `,=####>.`
 east). The health tail and the posture marks sit clear of the silhouette in every facing.
+
+## Bodies (cb02c)
+
+2026-10-25 — the maintainer's word: "Enemies should never overlap with the cub. They should have collision
+to prevent weird attack moments where the enemy is behind the cub and can't be hit." What is drawn is what
+collides: a body is its drawing's rectangle (`silhouette.footprint`, held to the bitmaps by `gait_test`),
+the cub's turned the way the frame draws it. No two bodies share a cell; the leaps stop at a body, drawn or
+fading; the head shake holds against one. The frame draws the cub's body facing (`sim.Sim.body_facing`):
+its turn's or its attack's, held for a tick when a foe in the way has no room to step aside.
 
 ## The foes and the bundle
 
