@@ -874,7 +874,8 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
             sim.BOSS_FADE_TICKS
         }
         let gone = if sim.is_boss(f.kind) then sim.BOSS_FADE_TICKS else sim.FOE_FADE_TICKS
-        if fade < gone && (s.area != forest.BRAMBLEHOLD || sim.visible(s, s.x, s.y, f.x, f.y)) {
+        // Perception controls AI, never presentation. Drawing clips each cell.
+        if fade < gone {
             let r = sim.floor_div(f.y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
             let c = sim.floor_div(f.x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
             draw_foe(mut g, t, r, c, f.kind, f.phase, f.heading, fade)

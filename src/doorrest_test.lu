@@ -1,0 +1,37 @@
+//! member: false
+use art
+use grid
+use sim
+
+fn test_cb04d_foe_inside_view_is_not_culled_by_anchor_sight() {
+    var s = sim.new(7, 80, 24)
+    s.area = 1
+    s.x = 0
+    s.y = 80 * sim.FP
+    var f = copy s.foes[0]
+    f.x = 12 * sim.FP
+    f.y = s.y
+    f.health = 8
+    f.kind = sim.WEASEL
+    f.phase = sim.HUNT
+    f.heading = 0
+    s.foes = List[sim.Foe]()
+    (mut s.foes).push(f)
+    for t in [0, 1] {
+        var expected = grid.new(24, 80)
+        var actual = grid.new(24, 80)
+        art.render(s, t, mut actual)
+        art.draw_foe(mut expected, t, sim.screen_row(s), sim.screen_col(s) + 12, f.kind, f.phase, f.heading, -1)
+        var marks = 0
+        var i = 0
+        while i < expected.cells.len {
+            let e = copy expected.cells[i]
+            if e.cp != 32 {
+                assert(actual.cells[i].cp == e.cp && actual.cells[i].fg == e.fg, "visible foe survives centre sight cull")
+                marks += 1
+            }
+            i += 1
+        }
+        assert(marks > 0, "nonempty foe witness")
+    }
+}
