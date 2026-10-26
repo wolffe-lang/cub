@@ -196,7 +196,7 @@ def resumed_record(binary, ctx):
     session.finish()
     problems = []
     ctx.common_checks(session, 0, problems)
-    if 'journey 3' not in record.read_text():
+    if 'journey 4' not in record.read_text():
         problems.append('resumed recording lacks initial journey')
     cap = root / 'capture.bin'
     cap.write_bytes(session.out)

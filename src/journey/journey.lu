@@ -29,7 +29,7 @@ pub error CommitErrors = {save_io, save_committed_unsynced}
 pub const VERSION: int = 5
 
 /// The values a replay's initial journey snapshot carries (`saved-0` to
-/// `saved-29`; the `journey 3` event names this shape).
+/// `saved-35`; the `journey 4` event names this shape).
 pub const SNAPSHOT: int = 36
 
 /// The replay's journey event version this build writes and reads.

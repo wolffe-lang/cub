@@ -471,11 +471,12 @@ fn census_as(path: str, seed: int, cols: int, rows: int) -> census.Counts ! {io,
     }
     let frames = frames_of(text)
     var s = sim.new(r.seed, r.cols, r.rows)
-    if replay.args_at(r, 0, controls.EV_JOURNEY) == journey.JOURNEY {
+    let version = replay.args_at(r, 0, controls.EV_JOURNEY)
+    if version == journey.JOURNEY || version == 3 {
         var values = List[int]()
         var i = 0
-        while i < journey.SNAPSHOT {
-            (mut values).push(replay.args_at(r, 0, controls.EV_SAVED + i))
+        while i < (if version == 3 then 30 else journey.SNAPSHOT) {
+            (mut values).push(replay.args_at(r, 0, controls.saved_event(i)))
             i += 1
         }
         s = journey.from_snapshot(values, r.cols, r.rows) else |_| { return parse }
