@@ -2566,7 +2566,6 @@ pub fn boss_index(s: Sim) -> int {
 /// arena (it never leaves its ground), on ground its kind can take (the
 /// lynx stands on the bowl's stone, its ledges), and in no other body.
 fn boss_may_stand(s: Sim, i: int, x: int, y: int, heading: int) -> bool {
-    if !in_arena_at(s, x, y) { return false }
     let cx = floor_div(x, FP)
     let cy = floor_div(y, FP)
     let k = forest.kind(s.seed, s.field, s.area, cx, cy)
