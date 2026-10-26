@@ -3189,16 +3189,19 @@ pub fn spring_available(s: Sim, id: int) -> bool {
         (if id == 0 then s.flask_max == 0 else s.flask_max == 2)
 }
 
-// cb04c seam: replace this stand-in with pickup_near(s, x, y), and add
-// pickup_flash at each successful collection after that branch lands.
-fn cb04a_pickup_near(s: Sim, x: int, y: int) -> bool { near(s.x, s.y, x, y, FP) }
+// One collection seam, using cb04c's body/contact-ring rule unchanged.
+fn cb04a_pickup_near(s: Sim, x: int, y: int) -> bool { pickup_near(s, x, y) }
 
 /// The one collection path for meat and springs; drawing owns no effects.
 pub fn healing_pickups(mut s: Sim) {
     var keep = List[Meat]()
-    for meat in s.meat {
+    var i = 0
+    while i < s.meat.len {
+        let meat = copy s.meat[i]
+        i += 1
         if meat.until > s.tick {
-            if cb04a_pickup_near(s, meat.x, meat.y) {
+            if meat.until - s.tick < DROP_TICKS && cb04a_pickup_near(s, meat.x, meat.y) {
+                pickup_flash(mut s, meat.x, meat.y)
                 s.health += MEAT_HEAL
                 if s.health > health_max(s.heart) { s.health = health_max(s.heart) }
             } else {
@@ -3211,6 +3214,7 @@ pub fn healing_pickups(mut s: Sim) {
     while id < SPRINGS {
         let (x, y) = spring_position(s.seed, id)
         if spring_available(s, id) && cb04a_pickup_near(s, x, y) {
+            pickup_flash(mut s, x, y)
             s.flask_max = if id == 0 then 2 else FLASKS
             s.flasks = s.flask_max
         }

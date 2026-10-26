@@ -276,7 +276,7 @@ label. There are no separate lever-name draw calls in this build.
 
 The scent left by a death is a white core between bright curved rims,
 with a soft violet halo and four upward-drifting motes. It stays visible
-anywhere inside the camera, including beyond the cub's nose range. The
+inside the camera and the cub's nose range (`sim.scent_reach`). The
 halo breathes over 96 simulation ticks. Seed, death cell and tick alone
 place the motes: no emitter allocation, random wall clock or growing list.
 The entire orb stays within seven columns and eight rows: three cells
@@ -298,10 +298,11 @@ idle phases, then the dim empty basin after learning. These pure helpers
 are `art.draw_meat(mut g, tier, row, col, tick)` and
 `art.draw_spring(mut g, tier, row, col, tick, available)`, taking screen
 cells, not simulation fields. Their 24-tick highlights never move the
-pickup's logical position. The progression lane owns meat/spring spawning,
-healing and collection; the second landing wires these helpers in place
-of its temporary `+` and `~`, using the shared body-ring pickup helper.
-The water-charge HUD slot is reserved at row 3, columns 24–48 on both tiers.
+pickup's logical position. Meat and spring logic now calls these helpers
+directly, using the shared body-ring pickup predicate and recovery burst.
+Fresh meat, like ordinary scent, survives its first rendered tick. Learned
+springs keep their empty basin. `art.draw_water` fills row3, columns24–48
+after the HUD's background clear on both tiers.
 
 ## Rest interiors (cb04a)
 

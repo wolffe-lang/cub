@@ -772,7 +772,8 @@ later upgrade needs the first. Every rest refills that found capacity.
 `w` spends a charge immediately, prepares for15 ticks, then heals40 over15
 more ticks. A hit interrupts the remaining animation and healing; no refund.
 Ordinary kills leave meat alongside scent:10 immediate health, clamped to
-the heart cap, once per pickup, expiring after300 ticks. Bosses leave no meat.
+the heart cap, once per pickup, expiring after300 ticks. Each fresh drop
+gets one visible frame before body-ring collection. Bosses leave no meat.
 
 `art.draw_water` occupies row3, columns24–48, on both tiers, clear of the
 health/stamina bars and the boss's row1. Before discovery it says to find a

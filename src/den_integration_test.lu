@@ -1,0 +1,77 @@
+//! member: false
+
+use art
+use grid
+use sim
+use tier
+
+fn test_cb04a_water_survives_the_hud_clear_on_both_tiers() {
+    var s = sim.new(7, 80, 24)
+    s.flask_max = 2
+    s.flasks = 1
+    for t in [tier.RICH, tier.PLAIN] {
+        var g = grid.new(24, 80)
+        art.render(s, t, mut g)
+        let text = "Water 1/2  w drink"
+        var i = 0
+        while i < text.len {
+            assert(grid.at(g, 3, 24 + i).cp == text.bytes()[i] as int, "charge HUD after its clear")
+            i += 1
+        }
+    }
+}
+
+fn equal(a: grid.Grid, b: grid.Grid) -> bool {
+    var i = 0
+    while i < a.cells.len { if !grid.same(a.cells[i], b.cells[i]) { return false }; i += 1 }
+    true
+}
+
+fn check_nose(t: int, nose: int, distance: int, shown: bool) {
+    var s = sim.new(7, 80, 24)
+    s.nose = nose
+    s.mark_area = s.area
+    s.mark_x = s.x + distance * sim.FP
+    s.mark_y = s.y
+    var absent = grid.new(24, 80)
+    var marked = grid.new(24, 80)
+    art.render(s, t, mut absent)
+    s.mark = true
+    art.render(s, t, mut marked)
+    assert(equal(absent, marked) != shown, "nose visibility, inclusive boundary")
+}
+
+fn test_cb04a_rich_nose_hides_beyond_reach() { check_nose(tier.RICH, 1, 14, false) }
+
+fn test_cb04a_plain_nose_hides_beyond_reach() { check_nose(tier.PLAIN, 1, 14, false) }
+
+fn test_cb04a_rich_nose_reveals_inside_reach() { check_nose(tier.RICH, 5, 14, true) }
+
+fn test_cb04a_plain_nose_reveals_inside_reach() { check_nose(tier.PLAIN, 5, 14, true) }
+
+fn test_cb04a_rich_nose_includes_exact_radius() { check_nose(tier.RICH, 5, 18, true) }
+
+fn test_cb04a_plain_nose_includes_exact_radius() { check_nose(tier.PLAIN, 5, 18, true) }
+
+fn test_cb04a_healing_uses_the_shared_ring_and_visual_burst() {
+    var s = sim.new(7, 80, 24)
+    s.health = 20
+    let b = sim.cub_body(s)
+    let x = (b.x1 + sim.PICKUP_MARGIN) * sim.FP
+    let y = s.y
+    (mut s.meat).push(sim.Meat { x: x, y: y, until: sim.DROP_TICKS })
+    sim.healing_pickups(mut s)
+    assert(s.meat.len == 1 && s.health == 20, "fresh kill gets a visible frame")
+    s.tick = 1
+    sim.healing_pickups(mut s)
+    assert(
+        s.meat.len == 0 && s.health == 30 && s.pickup_at == 1 && s.pickup_x == x,
+        "ring heals and flashes",
+    )
+    let (sx, sy) = sim.spring_position(s.seed, 0)
+    s.x = sx
+    s.y = sy
+    s.tick = 2
+    sim.healing_pickups(mut s)
+    assert(s.flask_max == 2 && s.pickup_at == 2 && s.pickup_x == sx, "spring flashes too")
+}

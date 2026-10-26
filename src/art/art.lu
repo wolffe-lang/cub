@@ -693,23 +693,27 @@ fn world_prop(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, kind: int, o
 }
 
 fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
-    // cb04c owns these pickups' final sprites; only their hooks live here.
     for meat in s.meat {
-        at_world(
-            s,
-            t,
+        draw_meat(
             mut g,
-            sim.floor_div(meat.x, sim.FP),
-            sim.floor_div(meat.y, sim.FP),
-            "+",
-            true,
+            t,
+            sim.floor_div(meat.y, sim.FP) - sim.cell_y(s) + sim.screen_row(s),
+            sim.floor_div(meat.x, sim.FP) - sim.cell_x(s) + sim.screen_col(s),
+            s.tick,
         )
     }
     var spring = 0
     while spring < sim.SPRINGS {
-        if sim.spring_available(s, spring) {
+        if s.area == sim.spring_area(spring) {
             let (x, y) = sim.spring_position(s.seed, spring)
-            at_world(s, t, mut g, sim.floor_div(x, sim.FP), sim.floor_div(y, sim.FP), "~", true)
+            draw_spring(
+                mut g,
+                t,
+                sim.floor_div(y, sim.FP) - sim.cell_y(s) + sim.screen_row(s),
+                sim.floor_div(x, sim.FP) - sim.cell_x(s) + sim.screen_col(s),
+                s.tick,
+                sim.spring_available(s, spring),
+            )
         }
         spring += 1
     }
@@ -845,7 +849,8 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
         }
         edge += 1
     }
-    if s.mark && s.mark_area == s.area &&
+    if s.mark &&
+        s.mark_area == s.area &&
         sim.near(s.x, s.y, s.mark_x, s.mark_y, sim.scent_reach(s.nose) * sim.FP) {
         world_orb(s, t, mut g, s.mark_x, s.mark_y)
     }
@@ -1199,7 +1204,6 @@ fn put_over(mut g: grid.Grid, row: int, col: int, text: str, style: grid.Cell) {
 pub fn hud_text(s: sim.Sim) -> str { "health stamina scent {s.scent}" }
 
 fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
-    draw_water(s, t, mut g)
     let rich = t == tier.RICH
     let outline = if rich then 250 else 7
     let background = if rich then 235 else 0
@@ -1265,6 +1269,7 @@ fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
         bar += 1
     }
     draw.put_text(mut g, 1, 24, "scent {s.scent}", ink(t, true))
+    draw_water(s, t, mut g)
 }
 
 /// Hazard-only thorn pair, disjoint from wall and label glyph/colour pairs.
