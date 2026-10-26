@@ -2504,9 +2504,11 @@ pub fn boss_move(kind: int, attack: int, phase2: bool) -> Move {
         if attack == 1 { return mv(24, 2, 36, 24, 3, false, 0, true) }
         return mv(18, 14, 30, 20, 2, true, 80, false)
     }
-    // The alpha: the cub's own bite and lunge mirrored, and in phase 2 a
-    // howl that heals it unless its long windup is punished.
-    if attack == 0 { return mv(12 - quick, 2, 10, 14, 2, true, 0, false) }
+    // The alpha: the cub's own bite and lunge mirrored (the bite's reach a
+    // cell more than the cub's: a big body's turn during the tell can
+    // open a cell), and in phase 2 a howl that heals it unless its long
+    // windup is punished.
+    if attack == 0 { return mv(12 - quick, 2, 10, 14, 3, true, 0, false) }
     if attack == 1 { return mv(15 - quick, 4, 18, 20, 2, false, 256, false) }
     mv(20, 1, 10, 0, 0, true, 0, false)
 }
@@ -2539,6 +2541,12 @@ pub fn in_arena_at(s: Sim, x: int, y: int) -> bool {
 /// Whether the cub stands in the area's arena (the bar's rule, R-cb04-2 A).
 pub fn cub_in_arena(s: Sim) -> bool {
     in_arena_at(s, s.x, s.y)
+}
+
+/// Whether foe `i` faces the cub (the cone its standing attacks land in).
+pub fn foe_faces_cub(s: Sim, i: int) -> bool {
+    let f = copy s.foes[i]
+    in_front(f.x, f.y, f.heading, s.x, s.y)
 }
 
 /// The live boss of the area, or -1.
@@ -2648,8 +2656,8 @@ fn pick_move(s: Sim, i: int) -> int {
     // The alpha: a bite in reach, a lunge from a little further, in phase
     // 2 now and then the howl.
     if p2 && roll == 5 && g >= 3 { return 2 }
-    if g <= 1 { return 0 }
-    if g >= 2 && g <= 6 { return 1 }
+    if g <= 2 { return 0 }
+    if g >= 3 && g <= 6 { return 1 }
     -1
 }
 
@@ -2751,6 +2759,8 @@ fn boss_step(mut s: Sim, i: int) {
             var stop = false
             if !f.hit && s.action != FALL && overlap(b, cub_body(s)) {
                 boss_hit(mut s, i, m)
+                // A parry turned it: the stagger stands, the run is over.
+                if s.foes[i].phase == STAGGER { s.foes[i].speed = 0; return }
                 stop = true
             } else if boss_may_stand(s, i, nx, ny, f.heading) {
                 s.foes[i].x = nx
@@ -2772,7 +2782,11 @@ fn boss_step(mut s: Sim, i: int) {
             let hits = g >= 0 &&
                 g <= m.reach - 1 &&
                 (m.around || in_front(f.x, f.y, f.heading, s.x, s.y))
-            if hits && m.damage > 0 { boss_hit(mut s, i, m) }
+            if hits && m.damage > 0 {
+                boss_hit(mut s, i, m)
+                // A parry turned it: the stagger stands past the strike's end.
+                if s.foes[i].phase == STAGGER { return }
+            }
             if f.kind == ALPHA && f.attack == 2 {
                 // The howl: the alpha heals unless its windup was punished.
                 s.foes[i].health += 30
