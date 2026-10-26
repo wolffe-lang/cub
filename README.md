@@ -46,9 +46,13 @@ the cub's body plus a one-cell ring, with a short recovery burst. Landmarks
 and caches have original sprites instead of floating world names; their
 meanings are in `docs/ART.md`. Kills also leave small healing meat pickups.
 Enter a den with `r` within three cells: a resting cub breathes beside an
-animated fire, with different surroundings in all six regions. Keys1–5
-spend scent on heart, wind, fang, paw and nose along one increasing
-level-cost curve; each choice shows its next effect. Leave with `r` or Esc.
+animated fire, with different surroundings in all six regions. A larger
+right-hand panel leaves the cub and fire visible. Up/Down select a stat,
+Right/Left stage or remove levels, and Enter/Space on Confirm spends the
+combined cost. Esc or `r` discards pending choices and leaves. Paths have
+broader bends and more clearance; entering any part of an unlocked
+shadow doorway crosses it. Visible foes clip at the screen edges rather
+than disappearing when their centres lose sight.
 Water must first be found at the Shingle spring (two mouthfuls), with a
 third found later; the counter beside the bars shows the charges, and
 every rest refills them. Death leaves a recoverable mark, even across area edges; a
@@ -91,7 +95,8 @@ The terminal must be at least 80 columns by 24 rows; the field grows to fill a l
 | Tab / Esc | lock nearest then cycle / release lock or leave den |
 | `w` / `r` | drink / rest at a den, open a shortcut, or dig an unguarded cache |
 | `m` | the music off, on again |
-| 1–5 at the den | grow heart, wind, fang, paw, nose |
+| Up/Down, Left/Right at the den | select a stat or Confirm; stage/remove a level |
+| Enter/Space on Confirm | apply all staged levels; Esc discards |
 | `q` | quit; the terminal is restored on every exit |
 | any decoded key during the opening | skip the scene without also making a move |
 | any key on the title | begin; after ten idle seconds a demo plays behind the title |
@@ -150,6 +155,10 @@ the parry window and every boss to its arena; the gameplay gate replays the
 boss, end, ghost and title witnesses and checks a death's trailer against
 the sim frame for frame;
 `--look-audit` scans fifty seeded camera walks for leftover world labels on both tiers.
+`--paths-audit` measures carved widths and centreline steps; `--doorways-audit`
+checks all shadow neighbours; `--foes-audit` checks clipped sprites on every
+route row. Rest panels have empty, pending and refused goldens at both sizes
+and tiers, plus real arrow/confirm/discard pty witnesses.
 `--feel-audit`, `--chase-audit` and `--mouth-audit` census the dens,
 switchbacks, clearings, pursuit and safe arena approaches. `--measure` reports the pace, the wag, the fox's chase, the path colours
 and the body census over the real-key scripts. The sound pty rows start the
