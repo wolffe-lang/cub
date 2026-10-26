@@ -41,16 +41,21 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+258C | ▌ | LEFT HALF BLOCK | Block Elements | E2 96 8C | a silhouette cell lit on the left |
 | U+2590 | ▐ | RIGHT HALF BLOCK | Block Elements | E2 96 90 | a silhouette cell lit on the right |
 | U+2591 | ░ | LIGHT SHADE | Block Elements | E2 96 91 | a gravel mark, a jetty face, a log grain |
+| U+25CF | ● | BLACK CIRCLE | Geometric Shapes | E2 97 8F | the shadow alpha's eye |
 | U+2801 | ⠁ | BRAILLE PATTERN DOTS-1 | Braille Patterns | E2 A0 81 | a silhouette cell (braille of its lit pixels) |
 | U+2802 | ⠂ | BRAILLE PATTERN DOTS-2 | Braille Patterns | E2 A0 82 | a silhouette cell (braille of its lit pixels) |
 | U+2803 | ⠃ | BRAILLE PATTERN DOTS-12 | Braille Patterns | E2 A0 83 | a silhouette cell (braille of its lit pixels) |
 | U+2804 | ⠄ | BRAILLE PATTERN DOTS-3 | Braille Patterns | E2 A0 84 | a silhouette cell (braille of its lit pixels) |
+| U+2805 | ⠅ | BRAILLE PATTERN DOTS-13 | Braille Patterns | E2 A0 85 | a silhouette cell (braille of its lit pixels) |
 | U+2806 | ⠆ | BRAILLE PATTERN DOTS-23 | Braille Patterns | E2 A0 86 | a silhouette cell (braille of its lit pixels) |
 | U+2807 | ⠇ | BRAILLE PATTERN DOTS-123 | Braille Patterns | E2 A0 87 | reeds |
 | U+2808 | ⠈ | BRAILLE PATTERN DOTS-4 | Braille Patterns | E2 A0 88 | a silhouette cell (braille of its lit pixels) |
 | U+2809 | ⠉ | BRAILLE PATTERN DOTS-14 | Braille Patterns | E2 A0 89 | a silhouette cell (braille of its lit pixels) |
 | U+280A | ⠊ | BRAILLE PATTERN DOTS-24 | Braille Patterns | E2 A0 8A | a silhouette cell (braille of its lit pixels) |
 | U+280B | ⠋ | BRAILLE PATTERN DOTS-124 | Braille Patterns | E2 A0 8B | a silhouette cell (braille of its lit pixels) |
+| U+280C | ⠌ | BRAILLE PATTERN DOTS-34 | Braille Patterns | E2 A0 8C | a silhouette cell (braille of its lit pixels) |
+| U+280D | ⠍ | BRAILLE PATTERN DOTS-134 | Braille Patterns | E2 A0 8D | a silhouette cell (braille of its lit pixels) |
+| U+280E | ⠎ | BRAILLE PATTERN DOTS-234 | Braille Patterns | E2 A0 8E | a silhouette cell (braille of its lit pixels) |
 | U+280F | ⠏ | BRAILLE PATTERN DOTS-1234 | Braille Patterns | E2 A0 8F | a silhouette cell (braille of its lit pixels) |
 | U+2810 | ⠐ | BRAILLE PATTERN DOTS-5 | Braille Patterns | E2 A0 90 | a silhouette cell (braille of its lit pixels) |
 | U+2811 | ⠑ | BRAILLE PATTERN DOTS-15 | Braille Patterns | E2 A0 91 | a silhouette cell (braille of its lit pixels) |
@@ -59,6 +64,7 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+2814 | ⠔ | BRAILLE PATTERN DOTS-35 | Braille Patterns | E2 A0 94 | a silhouette cell (braille of its lit pixels) |
 | U+2815 | ⠕ | BRAILLE PATTERN DOTS-135 | Braille Patterns | E2 A0 95 | a silhouette cell (braille of its lit pixels) |
 | U+2816 | ⠖ | BRAILLE PATTERN DOTS-235 | Braille Patterns | E2 A0 96 | grass, reeds |
+| U+2817 | ⠗ | BRAILLE PATTERN DOTS-1235 | Braille Patterns | E2 A0 97 | a silhouette cell (braille of its lit pixels) |
 | U+2818 | ⠘ | BRAILLE PATTERN DOTS-45 | Braille Patterns | E2 A0 98 | a silhouette cell (braille of its lit pixels) |
 | U+2819 | ⠙ | BRAILLE PATTERN DOTS-145 | Braille Patterns | E2 A0 99 | a silhouette cell (braille of its lit pixels) |
 | U+281A | ⠚ | BRAILLE PATTERN DOTS-245 | Braille Patterns | E2 A0 9A | a silhouette cell (braille of its lit pixels) |
@@ -69,23 +75,33 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+2822 | ⠢ | BRAILLE PATTERN DOTS-26 | Braille Patterns | E2 A0 A2 | a silhouette cell (braille of its lit pixels) |
 | U+2823 | ⠣ | BRAILLE PATTERN DOTS-126 | Braille Patterns | E2 A0 A3 | a silhouette cell (braille of its lit pixels) |
 | U+2824 | ⠤ | BRAILLE PATTERN DOTS-36 | Braille Patterns | E2 A0 A4 | a silhouette cell (braille of its lit pixels) |
+| U+2825 | ⠥ | BRAILLE PATTERN DOTS-136 | Braille Patterns | E2 A0 A5 | a silhouette cell (braille of its lit pixels) |
+| U+2826 | ⠦ | BRAILLE PATTERN DOTS-236 | Braille Patterns | E2 A0 A6 | a silhouette cell (braille of its lit pixels) |
 | U+2827 | ⠧ | BRAILLE PATTERN DOTS-1236 | Braille Patterns | E2 A0 A7 | a silhouette cell (braille of its lit pixels) |
+| U+2828 | ⠨ | BRAILLE PATTERN DOTS-46 | Braille Patterns | E2 A0 A8 | a silhouette cell (braille of its lit pixels) |
+| U+2829 | ⠩ | BRAILLE PATTERN DOTS-146 | Braille Patterns | E2 A0 A9 | a silhouette cell (braille of its lit pixels) |
 | U+282A | ⠪ | BRAILLE PATTERN DOTS-246 | Braille Patterns | E2 A0 AA | a silhouette cell (braille of its lit pixels) |
 | U+282B | ⠫ | BRAILLE PATTERN DOTS-1246 | Braille Patterns | E2 A0 AB | a silhouette cell (braille of its lit pixels) |
 | U+282E | ⠮ | BRAILLE PATTERN DOTS-2346 | Braille Patterns | E2 A0 AE | a silhouette cell (braille of its lit pixels) |
+| U+282F | ⠯ | BRAILLE PATTERN DOTS-12346 | Braille Patterns | E2 A0 AF | a silhouette cell (braille of its lit pixels) |
 | U+2830 | ⠰ | BRAILLE PATTERN DOTS-56 | Braille Patterns | E2 A0 B0 | a silhouette cell (braille of its lit pixels) |
+| U+2832 | ⠲ | BRAILLE PATTERN DOTS-256 | Braille Patterns | E2 A0 B2 | a silhouette cell (braille of its lit pixels) |
 | U+2833 | ⠳ | BRAILLE PATTERN DOTS-1256 | Braille Patterns | E2 A0 B3 | a silhouette cell (braille of its lit pixels) |
+| U+2834 | ⠴ | BRAILLE PATTERN DOTS-356 | Braille Patterns | E2 A0 B4 | a silhouette cell (braille of its lit pixels) |
 | U+2835 | ⠵ | BRAILLE PATTERN DOTS-1356 | Braille Patterns | E2 A0 B5 | a silhouette cell (braille of its lit pixels) |
 | U+2836 | ⠶ | BRAILLE PATTERN DOTS-2356 | Braille Patterns | E2 A0 B6 | grass, thin canopy, deep forest |
 | U+2837 | ⠷ | BRAILLE PATTERN DOTS-12356 | Braille Patterns | E2 A0 B7 | a silhouette cell (braille of its lit pixels) |
 | U+2838 | ⠸ | BRAILLE PATTERN DOTS-456 | Braille Patterns | E2 A0 B8 | a silhouette cell (braille of its lit pixels) |
 | U+2839 | ⠹ | BRAILLE PATTERN DOTS-1456 | Braille Patterns | E2 A0 B9 | a silhouette cell (braille of its lit pixels) |
+| U+283A | ⠺ | BRAILLE PATTERN DOTS-2456 | Braille Patterns | E2 A0 BA | a silhouette cell (braille of its lit pixels) |
 | U+283B | ⠻ | BRAILLE PATTERN DOTS-12456 | Braille Patterns | E2 A0 BB | a silhouette cell (braille of its lit pixels) |
 | U+283C | ⠼ | BRAILLE PATTERN DOTS-3456 | Braille Patterns | E2 A0 BC | a silhouette cell (braille of its lit pixels) |
+| U+283D | ⠽ | BRAILLE PATTERN DOTS-13456 | Braille Patterns | E2 A0 BD | a silhouette cell (braille of its lit pixels) |
 | U+283E | ⠾ | BRAILLE PATTERN DOTS-23456 | Braille Patterns | E2 A0 BE | a silhouette cell (braille of its lit pixels) |
 | U+283F | ⠿ | BRAILLE PATTERN DOTS-123456 | Braille Patterns | E2 A0 BF | a silhouette cell (braille of its lit pixels) |
 | U+2840 | ⡀ | BRAILLE PATTERN DOTS-7 | Braille Patterns | E2 A1 80 | a silhouette cell (braille of its lit pixels) |
 | U+2841 | ⡁ | BRAILLE PATTERN DOTS-17 | Braille Patterns | E2 A1 81 | a silhouette cell (braille of its lit pixels) |
+| U+2842 | ⡂ | BRAILLE PATTERN DOTS-27 | Braille Patterns | E2 A1 82 | a silhouette cell (braille of its lit pixels) |
 | U+2843 | ⡃ | BRAILLE PATTERN DOTS-127 | Braille Patterns | E2 A1 83 | a silhouette cell (braille of its lit pixels) |
 | U+2844 | ⡄ | BRAILLE PATTERN DOTS-37 | Braille Patterns | E2 A1 84 | a silhouette cell (braille of its lit pixels) |
 | U+2845 | ⡅ | BRAILLE PATTERN DOTS-137 | Braille Patterns | E2 A1 85 | a silhouette cell (braille of its lit pixels) |
@@ -111,10 +127,14 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+2864 | ⡤ | BRAILLE PATTERN DOTS-367 | Braille Patterns | E2 A1 A4 | a silhouette cell (braille of its lit pixels) |
 | U+2865 | ⡥ | BRAILLE PATTERN DOTS-1367 | Braille Patterns | E2 A1 A5 | a silhouette cell (braille of its lit pixels) |
 | U+2867 | ⡧ | BRAILLE PATTERN DOTS-12367 | Braille Patterns | E2 A1 A7 | a silhouette cell (braille of its lit pixels) |
+| U+2868 | ⡨ | BRAILLE PATTERN DOTS-467 | Braille Patterns | E2 A1 A8 | a silhouette cell (braille of its lit pixels) |
 | U+286A | ⡪ | BRAILLE PATTERN DOTS-2467 | Braille Patterns | E2 A1 AA | a silhouette cell (braille of its lit pixels) |
 | U+286B | ⡫ | BRAILLE PATTERN DOTS-12467 | Braille Patterns | E2 A1 AB | a silhouette cell (braille of its lit pixels) |
 | U+286C | ⡬ | BRAILLE PATTERN DOTS-3467 | Braille Patterns | E2 A1 AC | a silhouette cell (braille of its lit pixels) |
 | U+286D | ⡭ | BRAILLE PATTERN DOTS-13467 | Braille Patterns | E2 A1 AD | a silhouette cell (braille of its lit pixels) |
+| U+286E | ⡮ | BRAILLE PATTERN DOTS-23467 | Braille Patterns | E2 A1 AE | a silhouette cell (braille of its lit pixels) |
+| U+286F | ⡯ | BRAILLE PATTERN DOTS-123467 | Braille Patterns | E2 A1 AF | a silhouette cell (braille of its lit pixels) |
+| U+2870 | ⡰ | BRAILLE PATTERN DOTS-567 | Braille Patterns | E2 A1 B0 | a silhouette cell (braille of its lit pixels) |
 | U+2871 | ⡱ | BRAILLE PATTERN DOTS-1567 | Braille Patterns | E2 A1 B1 | a silhouette cell (braille of its lit pixels) |
 | U+2872 | ⡲ | BRAILLE PATTERN DOTS-2567 | Braille Patterns | E2 A1 B2 | a silhouette cell (braille of its lit pixels) |
 | U+2873 | ⡳ | BRAILLE PATTERN DOTS-12567 | Braille Patterns | E2 A1 B3 | a silhouette cell (braille of its lit pixels) |
@@ -123,13 +143,16 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+2876 | ⡶ | BRAILLE PATTERN DOTS-23567 | Braille Patterns | E2 A1 B6 | a silhouette cell (braille of its lit pixels) |
 | U+2877 | ⡷ | BRAILLE PATTERN DOTS-123567 | Braille Patterns | E2 A1 B7 | a silhouette cell (braille of its lit pixels) |
 | U+2878 | ⡸ | BRAILLE PATTERN DOTS-4567 | Braille Patterns | E2 A1 B8 | a silhouette cell (braille of its lit pixels) |
+| U+287A | ⡺ | BRAILLE PATTERN DOTS-24567 | Braille Patterns | E2 A1 BA | a silhouette cell (braille of its lit pixels) |
 | U+287B | ⡻ | BRAILLE PATTERN DOTS-124567 | Braille Patterns | E2 A1 BB | a silhouette cell (braille of its lit pixels) |
 | U+287D | ⡽ | BRAILLE PATTERN DOTS-134567 | Braille Patterns | E2 A1 BD | a silhouette cell (braille of its lit pixels) |
 | U+287E | ⡾ | BRAILLE PATTERN DOTS-234567 | Braille Patterns | E2 A1 BE | a silhouette cell (braille of its lit pixels) |
 | U+287F | ⡿ | BRAILLE PATTERN DOTS-1234567 | Braille Patterns | E2 A1 BF | a silhouette cell (braille of its lit pixels) |
 | U+2880 | ⢀ | BRAILLE PATTERN DOTS-8 | Braille Patterns | E2 A2 80 | a silhouette cell (braille of its lit pixels) |
+| U+2881 | ⢁ | BRAILLE PATTERN DOTS-18 | Braille Patterns | E2 A2 81 | a silhouette cell (braille of its lit pixels) |
 | U+2883 | ⢃ | BRAILLE PATTERN DOTS-128 | Braille Patterns | E2 A2 83 | a silhouette cell (braille of its lit pixels) |
 | U+2884 | ⢄ | BRAILLE PATTERN DOTS-38 | Braille Patterns | E2 A2 84 | a silhouette cell (braille of its lit pixels) |
+| U+2885 | ⢅ | BRAILLE PATTERN DOTS-138 | Braille Patterns | E2 A2 85 | a silhouette cell (braille of its lit pixels) |
 | U+2887 | ⢇ | BRAILLE PATTERN DOTS-1238 | Braille Patterns | E2 A2 87 | a silhouette cell (braille of its lit pixels) |
 | U+2888 | ⢈ | BRAILLE PATTERN DOTS-48 | Braille Patterns | E2 A2 88 | a silhouette cell (braille of its lit pixels) |
 | U+288B | ⢋ | BRAILLE PATTERN DOTS-1248 | Braille Patterns | E2 A2 8B | a silhouette cell (braille of its lit pixels) |
@@ -138,6 +161,7 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+2894 | ⢔ | BRAILLE PATTERN DOTS-358 | Braille Patterns | E2 A2 94 | a silhouette cell (braille of its lit pixels) |
 | U+2895 | ⢕ | BRAILLE PATTERN DOTS-1358 | Braille Patterns | E2 A2 95 | a silhouette cell (braille of its lit pixels) |
 | U+2896 | ⢖ | BRAILLE PATTERN DOTS-2358 | Braille Patterns | E2 A2 96 | a silhouette cell (braille of its lit pixels) |
+| U+2897 | ⢗ | BRAILLE PATTERN DOTS-12358 | Braille Patterns | E2 A2 97 | a silhouette cell (braille of its lit pixels) |
 | U+2898 | ⢘ | BRAILLE PATTERN DOTS-458 | Braille Patterns | E2 A2 98 | a silhouette cell (braille of its lit pixels) |
 | U+2899 | ⢙ | BRAILLE PATTERN DOTS-1458 | Braille Patterns | E2 A2 99 | a silhouette cell (braille of its lit pixels) |
 | U+289A | ⢚ | BRAILLE PATTERN DOTS-2458 | Braille Patterns | E2 A2 9A | a silhouette cell (braille of its lit pixels) |
@@ -153,6 +177,7 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+28A4 | ⢤ | BRAILLE PATTERN DOTS-368 | Braille Patterns | E2 A2 A4 | a silhouette cell (braille of its lit pixels) |
 | U+28A5 | ⢥ | BRAILLE PATTERN DOTS-1368 | Braille Patterns | E2 A2 A5 | a silhouette cell (braille of its lit pixels) |
 | U+28A6 | ⢦ | BRAILLE PATTERN DOTS-2368 | Braille Patterns | E2 A2 A6 | a silhouette cell (braille of its lit pixels) |
+| U+28A7 | ⢧ | BRAILLE PATTERN DOTS-12368 | Braille Patterns | E2 A2 A7 | a silhouette cell (braille of its lit pixels) |
 | U+28A8 | ⢨ | BRAILLE PATTERN DOTS-468 | Braille Patterns | E2 A2 A8 | a silhouette cell (braille of its lit pixels) |
 | U+28AA | ⢪ | BRAILLE PATTERN DOTS-2468 | Braille Patterns | E2 A2 AA | a silhouette cell (braille of its lit pixels) |
 | U+28AC | ⢬ | BRAILLE PATTERN DOTS-3468 | Braille Patterns | E2 A2 AC | a silhouette cell (braille of its lit pixels) |
@@ -161,25 +186,39 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+28B0 | ⢰ | BRAILLE PATTERN DOTS-568 | Braille Patterns | E2 A2 B0 | a silhouette cell (braille of its lit pixels) |
 | U+28B1 | ⢱ | BRAILLE PATTERN DOTS-1568 | Braille Patterns | E2 A2 B1 | a silhouette cell (braille of its lit pixels) |
 | U+28B2 | ⢲ | BRAILLE PATTERN DOTS-2568 | Braille Patterns | E2 A2 B2 | a silhouette cell (braille of its lit pixels) |
+| U+28B3 | ⢳ | BRAILLE PATTERN DOTS-12568 | Braille Patterns | E2 A2 B3 | a silhouette cell (braille of its lit pixels) |
+| U+28B4 | ⢴ | BRAILLE PATTERN DOTS-3568 | Braille Patterns | E2 A2 B4 | a silhouette cell (braille of its lit pixels) |
+| U+28B5 | ⢵ | BRAILLE PATTERN DOTS-13568 | Braille Patterns | E2 A2 B5 | a silhouette cell (braille of its lit pixels) |
 | U+28B6 | ⢶ | BRAILLE PATTERN DOTS-23568 | Braille Patterns | E2 A2 B6 | a silhouette cell (braille of its lit pixels) |
 | U+28B7 | ⢷ | BRAILLE PATTERN DOTS-123568 | Braille Patterns | E2 A2 B7 | a silhouette cell (braille of its lit pixels) |
 | U+28B9 | ⢹ | BRAILLE PATTERN DOTS-14568 | Braille Patterns | E2 A2 B9 | a silhouette cell (braille of its lit pixels) |
 | U+28BA | ⢺ | BRAILLE PATTERN DOTS-24568 | Braille Patterns | E2 A2 BA | a silhouette cell (braille of its lit pixels) |
 | U+28BB | ⢻ | BRAILLE PATTERN DOTS-124568 | Braille Patterns | E2 A2 BB | a silhouette cell (braille of its lit pixels) |
 | U+28BC | ⢼ | BRAILLE PATTERN DOTS-34568 | Braille Patterns | E2 A2 BC | a silhouette cell (braille of its lit pixels) |
+| U+28BD | ⢽ | BRAILLE PATTERN DOTS-134568 | Braille Patterns | E2 A2 BD | a silhouette cell (braille of its lit pixels) |
 | U+28BE | ⢾ | BRAILLE PATTERN DOTS-234568 | Braille Patterns | E2 A2 BE | a silhouette cell (braille of its lit pixels) |
 | U+28BF | ⢿ | BRAILLE PATTERN DOTS-1234568 | Braille Patterns | E2 A2 BF | a silhouette cell (braille of its lit pixels) |
 | U+28C0 | ⣀ | BRAILLE PATTERN DOTS-78 | Braille Patterns | E2 A3 80 | a silhouette cell (braille of its lit pixels) |
+| U+28C2 | ⣂ | BRAILLE PATTERN DOTS-278 | Braille Patterns | E2 A3 82 | a silhouette cell (braille of its lit pixels) |
 | U+28C4 | ⣄ | BRAILLE PATTERN DOTS-378 | Braille Patterns | E2 A3 84 | a silhouette cell (braille of its lit pixels) |
 | U+28C5 | ⣅ | BRAILLE PATTERN DOTS-1378 | Braille Patterns | E2 A3 85 | a silhouette cell (braille of its lit pixels) |
 | U+28C6 | ⣆ | BRAILLE PATTERN DOTS-2378 | Braille Patterns | E2 A3 86 | a silhouette cell (braille of its lit pixels) |
 | U+28C7 | ⣇ | BRAILLE PATTERN DOTS-12378 | Braille Patterns | E2 A3 87 | a silhouette cell (braille of its lit pixels) |
 | U+28C9 | ⣉ | BRAILLE PATTERN DOTS-1478 | Braille Patterns | E2 A3 89 | a silhouette cell (braille of its lit pixels) |
+| U+28CB | ⣋ | BRAILLE PATTERN DOTS-12478 | Braille Patterns | E2 A3 8B | a silhouette cell (braille of its lit pixels) |
 | U+28CC | ⣌ | BRAILLE PATTERN DOTS-3478 | Braille Patterns | E2 A3 8C | a silhouette cell (braille of its lit pixels) |
 | U+28CF | ⣏ | BRAILLE PATTERN DOTS-123478 | Braille Patterns | E2 A3 8F | a silhouette cell (braille of its lit pixels) |
+| U+28D0 | ⣐ | BRAILLE PATTERN DOTS-578 | Braille Patterns | E2 A3 90 | a silhouette cell (braille of its lit pixels) |
+| U+28D2 | ⣒ | BRAILLE PATTERN DOTS-2578 | Braille Patterns | E2 A3 92 | a silhouette cell (braille of its lit pixels) |
+| U+28D4 | ⣔ | BRAILLE PATTERN DOTS-3578 | Braille Patterns | E2 A3 94 | a silhouette cell (braille of its lit pixels) |
 | U+28D5 | ⣕ | BRAILLE PATTERN DOTS-13578 | Braille Patterns | E2 A3 95 | a silhouette cell (braille of its lit pixels) |
+| U+28D6 | ⣖ | BRAILLE PATTERN DOTS-23578 | Braille Patterns | E2 A3 96 | a silhouette cell (braille of its lit pixels) |
+| U+28D7 | ⣗ | BRAILLE PATTERN DOTS-123578 | Braille Patterns | E2 A3 97 | a silhouette cell (braille of its lit pixels) |
 | U+28DA | ⣚ | BRAILLE PATTERN DOTS-24578 | Braille Patterns | E2 A3 9A | a silhouette cell (braille of its lit pixels) |
+| U+28DB | ⣛ | BRAILLE PATTERN DOTS-124578 | Braille Patterns | E2 A3 9B | a silhouette cell (braille of its lit pixels) |
+| U+28DD | ⣝ | BRAILLE PATTERN DOTS-134578 | Braille Patterns | E2 A3 9D | a silhouette cell (braille of its lit pixels) |
 | U+28DE | ⣞ | BRAILLE PATTERN DOTS-234578 | Braille Patterns | E2 A3 9E | a silhouette cell (braille of its lit pixels) |
+| U+28DF | ⣟ | BRAILLE PATTERN DOTS-1234578 | Braille Patterns | E2 A3 9F | a silhouette cell (braille of its lit pixels) |
 | U+28E0 | ⣠ | BRAILLE PATTERN DOTS-678 | Braille Patterns | E2 A3 A0 | a silhouette cell (braille of its lit pixels) |
 | U+28E1 | ⣡ | BRAILLE PATTERN DOTS-1678 | Braille Patterns | E2 A3 A1 | a silhouette cell (braille of its lit pixels) |
 | U+28E2 | ⣢ | BRAILLE PATTERN DOTS-2678 | Braille Patterns | E2 A3 A2 | a silhouette cell (braille of its lit pixels) |
@@ -189,8 +228,11 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+28E8 | ⣨ | BRAILLE PATTERN DOTS-4678 | Braille Patterns | E2 A3 A8 | a silhouette cell (braille of its lit pixels) |
 | U+28EA | ⣪ | BRAILLE PATTERN DOTS-24678 | Braille Patterns | E2 A3 AA | a silhouette cell (braille of its lit pixels) |
 | U+28EC | ⣬ | BRAILLE PATTERN DOTS-34678 | Braille Patterns | E2 A3 AC | a silhouette cell (braille of its lit pixels) |
+| U+28ED | ⣭ | BRAILLE PATTERN DOTS-134678 | Braille Patterns | E2 A3 AD | a silhouette cell (braille of its lit pixels) |
 | U+28EE | ⣮ | BRAILLE PATTERN DOTS-234678 | Braille Patterns | E2 A3 AE | canopy, deep forest |
+| U+28EF | ⣯ | BRAILLE PATTERN DOTS-1234678 | Braille Patterns | E2 A3 AF | a silhouette cell (braille of its lit pixels) |
 | U+28F0 | ⣰ | BRAILLE PATTERN DOTS-5678 | Braille Patterns | E2 A3 B0 | a silhouette cell (braille of its lit pixels) |
+| U+28F2 | ⣲ | BRAILLE PATTERN DOTS-25678 | Braille Patterns | E2 A3 B2 | a silhouette cell (braille of its lit pixels) |
 | U+28F3 | ⣳ | BRAILLE PATTERN DOTS-125678 | Braille Patterns | E2 A3 B3 | a silhouette cell (braille of its lit pixels) |
 | U+28F4 | ⣴ | BRAILLE PATTERN DOTS-35678 | Braille Patterns | E2 A3 B4 | a silhouette cell (braille of its lit pixels) |
 | U+28F5 | ⣵ | BRAILLE PATTERN DOTS-135678 | Braille Patterns | E2 A3 B5 | a silhouette cell (braille of its lit pixels) |
@@ -198,7 +240,10 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+28F7 | ⣷ | BRAILLE PATTERN DOTS-1235678 | Braille Patterns | E2 A3 B7 | a silhouette cell (braille of its lit pixels) |
 | U+28F8 | ⣸ | BRAILLE PATTERN DOTS-45678 | Braille Patterns | E2 A3 B8 | a silhouette cell (braille of its lit pixels) |
 | U+28F9 | ⣹ | BRAILLE PATTERN DOTS-145678 | Braille Patterns | E2 A3 B9 | a silhouette cell (braille of its lit pixels) |
+| U+28FA | ⣺ | BRAILLE PATTERN DOTS-245678 | Braille Patterns | E2 A3 BA | a silhouette cell (braille of its lit pixels) |
+| U+28FB | ⣻ | BRAILLE PATTERN DOTS-1245678 | Braille Patterns | E2 A3 BB | a silhouette cell (braille of its lit pixels) |
 | U+28FC | ⣼ | BRAILLE PATTERN DOTS-345678 | Braille Patterns | E2 A3 BC | a silhouette cell (braille of its lit pixels) |
+| U+28FD | ⣽ | BRAILLE PATTERN DOTS-1345678 | Braille Patterns | E2 A3 BD | a silhouette cell (braille of its lit pixels) |
 | U+28FE | ⣾ | BRAILLE PATTERN DOTS-2345678 | Braille Patterns | E2 A3 BE | a silhouette cell (braille of its lit pixels) |
 | U+28FF | ⣿ | BRAILLE PATTERN DOTS-12345678 | Braille Patterns | E2 A3 BF | dense canopy, deep forest |
 
