@@ -44,12 +44,16 @@ pub fn ground_at(seed: int, field: int, area: int, t: int, x: int, y: int) -> gr
     let foliage = 2 * (((x + y) % 2 + 2) % 2) + world.hash(seed + 31, x, y, 2)
     let variant = if k == terrain.GRAVEL {
         if terrain.variant(seed, x, y, 7) == 0 then 1 + v % 3 else 0
-    } else if k == terrain.WATER {
+    } else if k == terrain.WATER || k == terrain.SHALLOWS {
         if terrain.variant(seed, x, y, 5) == 0 then 1 + v % 3 else 0
     } else if k == terrain.TRUNK {
         0
     } else if k == terrain.CANOPY || k == terrain.DARK {
         foliage
+    } else if k == terrain.ROCK {
+        // Stone alternates its two faces by parity too (cb04: the crags
+        // are stone, and stone is held to the no-flat-fill rule).
+        ((x + y) % 2 + 2) % 2
     } else {
         v
     }
@@ -72,6 +76,8 @@ fn sprite_of(k: int) -> int {
         sprites.SP_ROCK
     } else if k == terrain.REEDS {
         sprites.SP_REEDS
+    } else if k == terrain.SHALLOWS {
+        sprites.SP_SHALLOWS
     } else {
         sprites.SP_DARK
     }
@@ -81,15 +87,30 @@ fn sprite_of(k: int) -> int {
 /// then the area's dusk keyframe over it inland.
 pub fn kind_cell(area: int, t: int, k: int, variant: int, foliage: int) -> grid.Cell {
     var cell = sprites.glyph(t, sprite_of(k), variant)
-    if area != forest.SHINGLE {
-        cell.bg = if t == tier.RICH {
-            (if area == forest.BRAMBLEHOLD then 233 else 235)
-        } else {
-            0
-        }
+    // The Shallows' water, shallows and reeds keep the river's own colours
+    // under its keyframe; everything else inland takes the area's floor.
+    let water = k == terrain.WATER || k == terrain.SHALLOWS || k == terrain.REEDS && area == forest.RIVER
+    if area != forest.SHINGLE && !water {
+        cell.bg = if t == tier.RICH then floor_of(area) else 0
         cell.fg = dusk_ink(area, t, k, foliage)
+        // The old den's open floor carries the pack's scent: a dim mark on
+        // every other grass cell (cb04).
+        if area == forest.OLDDEN && k == terrain.GRASS && variant % 2 == 0 {
+            cell.cp = if variant % 4 == 0 then 58 else 46
+        }
     }
     cell
+}
+
+/// An inland area's floor colour on the rich tier (`docs/PALETTE.md`).
+fn floor_of(area: int) -> int {
+    match area {
+        1 => 233,
+        2 => 235,
+        3 => 236,
+        4 => 233,
+        _ => 232,
+    }
 }
 
 /// Every style a path cell of an area draws on a tier (cb02c): the area's
@@ -150,6 +171,9 @@ fn among(styles: List[grid.Cell], c: grid.Cell) -> bool {
 /// per foliage kind keep the forest's texture under the recolour.
 fn dusk_ink(area: int, t: int, k: int, foliage: int) -> int {
     let thicket = area == forest.BRAMBLEHOLD
+    if area == forest.CRAGS { return crag_ink(t, k, foliage) }
+    if area == forest.OLDDEN { return night_ink(t, k, foliage) }
+    if area == forest.RIVER { return river_ink(t, k, foliage) }
     if t != tier.RICH {
         if k == terrain.TRUNK { return 3 }
         if k == terrain.GRASS || k == terrain.REEDS { return if thicket then 2 else 3 }
@@ -166,6 +190,52 @@ fn dusk_ink(area: int, t: int, k: int, foliage: int) -> int {
         }
     }
     if thicket then 23 else 58
+}
+
+/// The Teeth's keyframe (cb04): grey stone in two faces, pale gravel marks
+/// on the ledges, scree tufts in a dry green, dead pines.
+fn crag_ink(t: int, k: int, foliage: int) -> int {
+    if t != tier.RICH {
+        if k == terrain.ROCK { return if foliage % 2 == 0 then 7 else 15 }
+        if k == terrain.GRASS { return 2 }
+        if k == terrain.TRUNK { return 3 }
+        return 7
+    }
+    if k == terrain.ROCK { return if foliage % 2 == 0 then 243 else 250 }
+    if k == terrain.GRAVEL { return 245 }
+    if k == terrain.GRASS { return 101 }
+    if k == terrain.TRUNK { return 95 }
+    if k == terrain.CANOPY { return if foliage % 4 < 2 then 58 else 22 }
+    240
+}
+
+/// Gravehollow's keyframe (cb04): night in the deep wood, the brush in
+/// two cold greens over a black floor, the pack's scent marks dim grey.
+fn night_ink(t: int, k: int, foliage: int) -> int {
+    if t != tier.RICH {
+        if k == terrain.TRUNK { return 3 }
+        if k == terrain.GRASS { return 8 }
+        return 2
+    }
+    if k == terrain.TRUNK { return 59 }
+    if k == terrain.GRASS { return 240 }
+    if k == terrain.CANOPY { return if foliage % 4 < 2 then 23 else 17 }
+    17
+}
+
+/// The Shallows' keyframe (cb04): willow greens over a dark floor, the
+/// bank's shingle in a cold grey; the water keeps the river's colours.
+fn river_ink(t: int, k: int, foliage: int) -> int {
+    if t != tier.RICH {
+        if k == terrain.TRUNK { return 3 }
+        if k == terrain.GRAVEL { return 7 }
+        return 2
+    }
+    if k == terrain.TRUNK { return 94 }
+    if k == terrain.GRAVEL { return 250 }
+    if k == terrain.GRASS { return 66 }
+    if k == terrain.CANOPY { return if foliage % 4 < 2 then 66 else 23 }
+    23
 }
 
 /// The cub's fur on a tier for a stamina band: fresh, tired or spent.
@@ -603,7 +673,7 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
         )
     }
     var den = 0
-    while den < 4 {
+    while den < forest.DENS {
         if forest.den_area(den) == s.area {
             let (dx, dy) = forest.den_position(s.seed, den)
             if den == 0 {
@@ -644,15 +714,23 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
         at_world(s, t, mut g, -5, sim.gate_y(s) - 3, "Bramblehold", false)
     } else if s.area == forest.BRAMBLEHOLD {
         at_world(s, t, mut g, -3, forest.LENGTH - 3, "Larkmeadow", false)
-        at_world(s, t, mut g, 7, 24, "Old Snag's clearing", false)
+        at_world(s, t, mut g, 9, forest.BOAR_ROW - 2, "Old Snag's clearing", false)
         at_world(s, t, mut g, -11, 24, "Ember", true)
         at_world(s, t, mut g, -7, 18, "bones, no scent", false)
-    } else {
+    } else if s.area == forest.LARKMEADOW {
         at_world(s, t, mut g, 7, 24, "scent-marked tree", false)
+        at_world(s, t, mut g, -3, forest.LENGTH - 3, "The Teeth", false)
+    } else if s.area == forest.CRAGS {
+        at_world(s, t, mut g, -4, forest.LENGTH - 3, "The Shallows", false)
+        at_world(s, t, mut g, 5, 30, "the old pack's marks", false)
+    } else if s.area == forest.RIVER {
+        at_world(s, t, mut g, -4, forest.LENGTH - 3, "Gravehollow", false)
+    } else {
+        at_world(s, t, mut g, -6, 36, "the pack's scent, everywhere", false)
     }
-    var edge = 2
-    while edge < 4 {
-        if forest.other(s.area, edge) >= 0 {
+    var edge = 0
+    while edge < forest.EDGES {
+        if !forest.path_edge(edge) && forest.other(s.area, edge) >= 0 {
             let (x, y) = forest.portal(s.seed, s.area, edge)
             if edge == 2 {
                 draw_log(
@@ -669,7 +747,7 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
                     mut g,
                     sim.floor_div(x, sim.FP) - 3,
                     sim.floor_div(y, sim.FP),
-                    "[ hedge ]",
+                    if edge == 3 then "[ hedge ]" else if edge == 7 then "[ ledge ]" else "[ shallows ]",
                     true,
                 )
             }
@@ -1132,32 +1210,12 @@ fn world_lines(s: sim.Sim, t: int, mut g: grid.Grid) {
             ink(t, true),
         )
     }
-    var edge = 2
-    while edge < 4 {
-        if forest.other(s.area, edge) >= 0 {
+    var edge = 0
+    while edge < forest.EDGES {
+        if !forest.path_edge(edge) && forest.other(s.area, edge) >= 0 {
             let (x, y) = forest.portal(s.seed, s.area, edge)
             if sim.near(s.x, s.y, x, y, 2 * sim.FP) {
-                draw.put_text(
-                    mut g,
-                    s.rows - 1,
-                    1,
-                    if edge == 2 {
-                        if s.shortcuts % 2 == 1 {
-                            "r cross the fallen log"
-                        } else if s.area == forest.BRAMBLEHOLD {
-                            "r push the fallen log toward the bank"
-                        } else {
-                            "The log must be pushed from Bramblehold"
-                        }
-                    } else if s.shortcuts / 2 % 2 == 1 {
-                        "r crawl through the hedge"
-                    } else if s.area == forest.LARKMEADOW {
-                        "r dig under the hedge"
-                    } else {
-                        "The roots yield from the meadow side"
-                    },
-                    ink(t, true),
-                )
+                draw.put_text(mut g, s.rows - 1, 1, shortcut_hint(s, edge), ink(t, true))
             }
         }
         edge += 1
@@ -1288,9 +1346,44 @@ pub fn opening_frame(s: sim.Sim, t: int, mut g: grid.Grid) {
     draw.put_text(mut g, s.rows - 2, 4, "Any key skips; m mutes the music", style)
 }
 
+/// The line at a shortcut's mouth: how it opens, or that it is open.
+fn shortcut_hint(s: sim.Sim, edge: int) -> str {
+    if edge == 2 {
+        if sim.shortcut_open(s, edge) {
+            "r cross the fallen log"
+        } else if s.area == forest.BRAMBLEHOLD {
+            "r push the fallen log toward the bank"
+        } else {
+            "The log must be pushed from Bramblehold"
+        }
+    } else if edge == 3 {
+        if sim.shortcut_open(s, edge) {
+            "r crawl through the hedge"
+        } else if s.area == forest.LARKMEADOW {
+            "r dig under the hedge"
+        } else {
+            "The roots yield from the meadow side"
+        }
+    } else if edge == 7 {
+        if sim.shortcut_open(s, edge) {
+            "r jump the ledge"
+        } else if s.area == forest.CRAGS {
+            "The ledge is the lynx's; beat it and the way down is yours"
+        } else {
+            "A ledge too high to climb; the way round is through the Teeth"
+        }
+    } else if sim.shortcut_open(s, edge) {
+        "r wade the shallows"
+    } else if s.area == forest.RIVER {
+        "The ford is the elk's; beat it and the shallows are yours"
+    } else {
+        "The current is too strong here; the ford is upstream"
+    }
+}
+
 fn shade_exits(s: sim.Sim, t: int, mut g: grid.Grid) {
     var edge = 0
-    while edge < 4 {
+    while edge < forest.EDGES {
         if forest.other(s.area, edge) >= 0 {
             let (x, y) = forest.portal(s.seed, s.area, edge)
             let row = sim.floor_div(y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)

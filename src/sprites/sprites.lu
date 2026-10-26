@@ -44,12 +44,18 @@ pub const SP_WATER: int = 5
 /// Reeds at the water's edge (variant 0-1).
 pub const SP_REEDS: int = 6
 
-/// Jetty stone: mottled faces, distinct from foliage.
+/// Jetty stone, the crags' rock: mottled faces, distinct from foliage
+/// (variant 0-1, alternated by the cell's parity so no two neighbours
+/// match).
 pub const SP_ROCK: int = 7
+
+/// Shallows: the Ashwater where it can be waded (variant 0-3: still,
+/// three ripples), lighter than the deep water (cb04).
+pub const SP_SHALLOWS: int = 8
 
 /// The number of sprites (every id below this). The cub and the foes are
 /// not sprites here: they are `silhouette`'s bitmaps.
-pub const SPRITE_COUNT: int = 8
+pub const SPRITE_COUNT: int = 9
 
 /// The most variants any sprite has (the canopy's and the gravel's four).
 pub const VARIANT_COUNT: int = 4
@@ -98,8 +104,11 @@ pub const C_WEASEL: int = 12
 /// Fox threat colour, separate from cub and trail.
 pub const C_FOX: int = 13
 
+/// The shallows' ripples (fg).
+pub const C_SHALLOW: int = 14
+
 /// Number of named colour roles.
-pub const ROLE_COUNT: int = 14
+pub const ROLE_COUNT: int = 15
 
 /// The colour index a palette role has on a tier (the afternoon; the dusk
 /// and night keyframes come with the areas, cb02).
@@ -120,6 +129,7 @@ pub fn palette(t: int, role: int) -> int {
             12 => 130,
             13 => 166,
             11 => 65,  // C_REED
+            14 => 117,  // C_SHALLOW
             _ => grid.COLOR_DEFAULT,
         }
     }
@@ -138,6 +148,7 @@ pub fn palette(t: int, role: int) -> int {
         12 => 1,
         13 => 9,
         11 => 2,  // C_REED
+        14 => 14,  // C_SHALLOW
         _ => grid.COLOR_DEFAULT,
     }
 }
@@ -211,6 +222,7 @@ fn rich(sprite: int, v: int) -> grid.Cell {
         5 => c(t, if v % 4 == 0 then 32 else 8776, C_RIPPLE, C_WATER, 0),  // SP_WATER
         6 => c(t, if v % 2 == 0 then 10247 else 10262, C_REED, C_WATER, 0),  // SP_REEDS
         7 => c(t, if v % 2 == 0 then 9617 else 9608, C_MARK, C_GRAVEL, 0),  // SP_ROCK
+        8 => c(t, if v % 4 == 0 then 32 else 8776, C_SHALLOW, C_WATER, 0),  // SP_SHALLOWS
         _ => grid.blank(),
     }
 }
@@ -247,6 +259,7 @@ fn plain(sprite: int, v: int) -> grid.Cell {
         5 => c(t, if v % 4 == 0 then 32 else 126, C_RIPPLE, C_WATER, 0),  // SP_WATER
         6 => c(t, if v % 2 == 0 then 124 else 33, C_REED, C_WATER, 0),  // SP_REEDS
         7 => c(t, if v % 2 == 0 then 79 else 35, C_MARK, C_GRAVEL, 0),  // SP_ROCK
+        8 => c(t, if v % 4 == 0 then 32 else 126, C_SHALLOW, C_WATER, 0),  // SP_SHALLOWS
         _ => grid.blank(),
     }
 }
