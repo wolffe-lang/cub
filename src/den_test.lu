@@ -1,0 +1,48 @@
+//! member: false
+
+use forest
+use sim
+
+fn test_cb04a_bramblehold_den_is_down_a_winding_leg() {
+    var seed = 0
+    while seed < 50 {
+        let (_, y) = forest.den_position(seed, 1)
+        let at = y / sim.FP
+        var walked = 0
+        var row = 1
+        while row <= at {
+            let dx = forest.spine(seed, 1, row) - forest.spine(seed, 1, row - 1)
+            walked += 1 + (if dx < 0 then -dx else dx)
+            row += 1
+        }
+        assert(walked * 3 >= forest.path_length(seed, 1), "den beyond one third of the path")
+        assert(at > 56, "past the first foe cluster")
+        seed += 1
+    }
+}
+
+fn den_key(k: int) -> List[int] {
+    var keys = List[int]()
+    if k > 0 { (mut keys).push(k) }
+    keys
+}
+
+fn test_cb04a_den_enters_at_three_cells_and_pauses_world() {
+    var s = sim.new(7, 80, 24)
+    s.x += 3 * sim.FP
+    s.health = 1
+    sim.step(mut s, den_key(15))
+    assert(s.den && s.health == 52, "r enters at the visible den edge")
+    let x = s.x
+    let foe_x = s.foes[0].x
+    sim.step(mut s, den_key(4))
+    sim.step(mut s, den_key(9))
+    assert(s.den && s.x == x && s.foes[0].x == foe_x && s.action == sim.IDLE, "rest pauses play")
+    sim.step(mut s, den_key(18))
+    assert(!s.den && s.x == x, "Esc leaves without stale held motion")
+    sim.step(mut s, den_key(15))
+    assert(s.den, "r reenters")
+    s.health = 40
+    sim.step(mut s, den_key(15))
+    assert(!s.den && s.health == 40, "leaving is not another rest")
+}

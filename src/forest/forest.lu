@@ -215,12 +215,14 @@ pub fn half(seed: int, area: int, at: int) -> int {
 }
 
 /// Den locations vary with the seed while preserving their graph roles:
-/// every den but the briar hollow (rows 90..93) sits near its area's
-/// entry, rows 7..10.
+/// the split roots now sit on the final switchback, beyond the first
+/// cluster. Stable ids preserve save/checkpoint identities.
 pub fn den_position(seed: int, den: int) -> (int, int) {
     if den == 0 { return terrain.start(seed) }
     let area = den_area(den)
-    let base = if den == 2 || den == 10 {
+    let base = if den == 1 {
+        114
+    } else if den == 2 || den == 10 {
         90
     } else if den == 8 || den == 9 {
         66
