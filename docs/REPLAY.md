@@ -85,3 +85,31 @@ explicit growth-scent fixture, not extra health or teleports. The default-
 growth natural-death witness re-engages the fox after retreats. Source
 replays are regenerated when routes change; semantic gates still require
 the fights, gate opening, deaths, shortcuts and cache collection to occur.
+
+## cb04: the title, the bosses, the ghosts' trailer (schema 3, `journey 2`)
+
+A live recording begins with `journey 2` and `saved-0` .. `saved-28`: schema 2's twenty-five values
+(above) then `bosses`, `end`, `played`, `lost`. `title 1` at tick 0 starts the title scene (recorded by a
+live game without `--no-title`; the key that ends it follows as itself); `bosses N` is an explicit fixture
+for the beaten bits. The new words:
+
+| word | meaning |
+|---|---|
+| `title 1` | the title scene from this tick |
+| `bosses N` | the beaten bits (1 boar, 2 lynx, 4 elk, 8 alpha), a fixture |
+| `ghost-x`, `ghost-y`, `ghost-face`, `ghost-pose`, `ghost-area` | one frame of a death's trailer, at its tick (fixed-point x and y, the body's facing 0..3, the pose, the area) |
+| `ghost-death N` | the death's serial, at the death tick |
+
+A death archive is the run through the fall as before, with the trailer merged in tick order (the last 90
+ticks); the ghost reader (`src/ghost/ghost.lu`) is the engine's `replay.from_text` and `replay.args_at`,
+nothing the sim does. A headless case shows an archive directory with a `# ghost-dir DIR` comment line
+(read only; `--ghost-dir` on the command line wins, and alone enables writes). An archive from another
+seed, or without a trailer, is skipped by name.
+
+`--make-world-proof DIR` also writes the boss scripts (`boss-<name>-windup`, `-phase2`, `-beaten`: the
+scripted fighter's real keys from the boss's den, cut at its first windup, its second phase and the win),
+`end` (the alpha beaten, the three frames, the card, `r`), `ghost-death` and `ghost` (a walk, a fall, and
+the walk past its archive in `tests/ghosts/`), `crags`, `river`, `old-den` and `demo`. `--boss-census`
+fights every boss in fifty seeds at both sizes and prints a `fairness` line a boss (exit 1 on a world
+unwon within five lives, a parryable telegraph under the parry window or a boss tick outside its arena);
+`--fight-trace KIND SEED` narrates one fight a tick.
