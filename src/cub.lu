@@ -33,6 +33,7 @@ use headless
 use input
 use probe
 use pathaudit
+use wide
 use props
 use proof
 use replay
@@ -114,6 +115,7 @@ fn usage_text() -> str {
         "  --save-delay N                    ticks between staging and replacement (test witness)\n" +
         "  --make-world-proof DIR             generate real-key world test scripts\n" +
         "  --feel-audit / --chase-audit / --mouth-audit  den, path and real-key pursuit censuses\n" +
+        "  --den-spacing / --foe-census / --bends-audit / --spurs-audit / --gen-bench  the wide forest's censuses (cb05)\n" +
         "  --world-audit                     graph/density census over seeds 0..49\n" +
         "  --den-census                      shortest den paths and both faces of every thorn gate\n" +
         "  --make-den-proof DIR              regional rest, healing and checkpoint scripts\n" +
@@ -956,6 +958,11 @@ fn run_live(o: Options, args: List[str]) -> int {
 fn main() -> int {
     let args = env.args()
     if args.len > 0 && args[0] == "--doorways-audit" { return doorproof.census() }
+    if args.len > 0 && args[0] == "--den-spacing" { return wide.den_spacing() }
+    if args.len > 0 && args[0] == "--foe-census" { return wide.foe_census() }
+    if args.len > 0 && args[0] == "--bends-audit" { return wide.bends() }
+    if args.len > 0 && args[0] == "--spurs-audit" { return wide.spurs() }
+    if args.len > 0 && args[0] == "--gen-bench" { return wide.gen_bench() }
     if args.len == 6 && args[0] == "--route-view" {
         return pathaudit.view(
             args[1].to_int() else 0,
