@@ -602,7 +602,8 @@ fn locomotion(mut s: Sim) {
             s.heading = s.attack_heading
             s.heading_target = s.heading
         } else {
-            s.heading = heading_to(s.x, s.y, s.foes[s.locked].x, s.foes[s.locked].y)
+            let target = heading_to(s.x, s.y, s.foes[s.locked].x, s.foes[s.locked].y)
+            if target >= 0 { s.heading = target }
         }
         swing_body(mut s)
         return
@@ -1172,7 +1173,11 @@ fn action_keys(mut s: Sim, keys: List[int]) {
                 s.chained = true
                 s.chained_heading = attack_aim(s)
             }
-            if sprint_held(s) && held_direction(s) >= 0 && !s.sneaking && !s.exhausted {
+            if s.sprinting &&
+                sprint_held(s) &&
+                held_direction(s) >= 0 &&
+                !s.sneaking &&
+                !s.exhausted {
                 start_action(mut s, DASH, DASH_COST)
             } else {
                 start_action(mut s, BITE, 12)
@@ -1591,6 +1596,12 @@ pub fn step(mut s: Sim, keys: List[int]) {
             s.entered = s.tick
         }
         return
+    }
+    // The roll owns ages0..13. Input at age14 is already outside recovery,
+    // not discarded for an extra tick by the usual action-update ordering.
+    if s.action == DODGE && s.tick - s.started >= ROLL_TRAVEL + ROLL_RECOVERY {
+        s.action = IDLE
+        s.sprinting = false
     }
     action_keys(mut s, keys)
     if s.den { return }

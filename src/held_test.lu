@@ -71,3 +71,20 @@ fn test_cb04b_exact_arrow_remains_held_across_a_doorway() {
     assert(s.area == 1, "body crossed the doorway")
     assert(sim.held_direction(s) == 128, "physical Down survives area entry")
 }
+
+fn test_cb04b_ctrl_release_before_space_ends_the_sprint_snap() {
+    var s = exact_cub()
+    sim.step(mut s, [controls.KEY_CTRL_DOWN, controls.KEY_RIGHT])
+    assert(s.sprinting, "fixture is already sprinting")
+    sim.step(mut s, [controls.KEY_CTRL_UP, controls.KEY_BITE])
+    assert(
+        s.action == sim.BITE && s.attack_heading == 64,
+        "release Control before Space gives an aimed bite",
+    )
+    var fresh = exact_cub()
+    sim.step(mut fresh, [controls.KEY_CTRL_DOWN, controls.KEY_RIGHT, controls.KEY_BITE])
+    assert(
+        fresh.action == sim.BITE && fresh.attack_heading == 64,
+        "a standing chord is not a stale-facing sprint snap",
+    )
+}

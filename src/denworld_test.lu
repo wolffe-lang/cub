@@ -3,6 +3,7 @@
 use grid
 use replay
 use restscene
+use replay
 use sim
 use walker
 

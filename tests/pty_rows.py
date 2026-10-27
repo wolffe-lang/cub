@@ -1001,7 +1001,7 @@ def cb04b_event(key, kind=1, mods=1):
     return f'\x1b[{ord(key)};{mods}:{kind}u'.encode()
 
 
-def cb04b_session(binary, ctx, name, tier):
+def cb04b_session(binary, ctx, name, tier, pace=100, ticks=0):
     dest = Path(ctx.ROOT) / 'target' / 'pty' / ('cb04b-' + name + '-' + tier)
     dest.mkdir(parents=True, exist_ok=True)
     save = dest / 'save'
@@ -1011,8 +1011,13 @@ def cb04b_session(binary, ctx, name, tier):
     env['HOME'] = str(dest)
     s = ctx.Session([binary, '--seed', '1', '--tier', tier, '--trace', '--mute',
                      '--no-title', '--combat-witness', '--save', str(save),
-                     '--record', str(dest / 'record.pk')], 40, 120, env,
+                     '--record', str(dest / 'record.pk'), '--pace', str(pace),
+                     '--ticks', str(ticks), '--no-truecolor'], 40, 120, env,
                     replies=[(b'\x1b[?u', b'\x1b[?0u')])
+    import time
+    until = time.monotonic() + 3
+    while not cb04b_traces(s) and time.monotonic() < until:
+        s.pump(.01)
     return s, dest
 
 
@@ -1042,8 +1047,14 @@ def cb04b_direction_row(aim, arrows, action, hold=0):
                 problems.append(f'{tier}: missing keyboard push/pop')
             if active and action == 'c':
                 last = active[-1]
+                held_ticks = 0
+                if hold:
+                    first_held = next((r['tick'] for r in rows if r.get('held') == aim), active[0]['tick'])
+                    held_ticks = active[0]['tick'] - first_held
+                    if held_ticks < hold:
+                        problems.append(f'{tier}: chord held only {held_ticks} ticks, wanted at least {hold}')
                 dx, dy = last['x'] - before['x'], last['y'] - before['y']
-                print(f'cb04b roll tier={tier} aim={aim} hold={hold} dx={dx} dy={dy} heading={last["heading"]} blocked={last["blocked"]}')
+                print(f'cb04b roll tier={tier} aim={aim} hold_min={hold} held_ticks={held_ticks} dx={dx} dy={dy} heading={last["heading"]} blocked={last["blocked"]}')
                 if last['heading'] != aim:
                     problems.append(f'{tier}: roll did not keep facing {aim}')
                 if not hold and aim in (0, 64, 128, 192):
@@ -1088,3 +1099,32 @@ for _aim, _arrows in [(0, 'A'), (32, 'AC'), (64, 'C'), (96, 'BC'),
 ROWS['cb04b-roll-none'] = cb04b_direction_row(0, '', 'c')
 ROWS['cb04b-roll-held30-right'] = cb04b_direction_row(64, 'C', 'c', 30)
 ROWS['cb04b-roll-held30-diagonal'] = cb04b_direction_row(224, 'AD', 'c', 30)
+
+
+def cb04b_pace_replay(binary, ctx):
+    problems = []
+    for tier in ('rich', 'plain'):
+        s, dest = cb04b_session(binary, ctx, 'pace-replay', tier, pace=150, ticks=24)
+        s.type(cb04b_event('C'), settle=.1)
+        s.finish()
+        ctx.common_checks(s, 0, problems)
+        trace = cb04b_traces(s)
+        if not trace or max(r['speed'] for r in trace) != 120:
+            problems.append(tier + ': --pace150 did not reach120 FP/tick')
+        record = dest / 'record.pk'
+        if 't 0 pace 150' not in record.read_text() or 'exact' not in record.read_text():
+            problems.append(tier + ': pace/exact mode missing from recording')
+        capture = dest / 'capture.bin'
+        capture.write_bytes(s.out)
+        applied = subprocess.run([binary, '--apply', str(capture), '--size', '120x40'],
+                                 capture_output=True, check=True)
+        text, sty, _ = applied.stdout.decode().split('--\n')
+        replayed = dest / 'replayed'
+        subprocess.run([binary, '--headless', '--script', str(record), '--frames', '24',
+                        '--every', '24', '--tier', tier, '--dump', str(replayed)], check=True)
+        if text != (replayed / 'final.txt').read_text() or sty != (replayed / 'final.sty').read_text():
+            problems.append(tier + ': exact input/pace replay differs from live frame')
+    return s, problems
+
+
+ROWS['cb04b-pace-replay'] = cb04b_pace_replay

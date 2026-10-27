@@ -110,3 +110,75 @@ fn test_cb04b_roll_slides_along_water_wall_without_tunnelling() {
         "north wall clips, never tunnels",
     )
 }
+
+fn test_cb04b_roll_lock_keeps_facing_target_and_body_blocks_travel() {
+    var s = clearing()
+    let foes = sim.spawn_foes(1)
+    var f = copy foes[0]
+    f.x = s.x + 8 * sim.FP
+    f.y = s.y
+    f.health = 100
+    f.phase = sim.STAGGER
+    f.since = s.tick
+    (mut s.foes).push(f)
+    s.locked = 0
+    sim.step(mut s, [controls.KEY_UP, controls.KEY_DODGE])
+    var n = 1
+    while n < 14 { sim.step(mut s, List[int]()); n += 1 }
+    assert(s.attack_heading == 0, "lock cannot redirect the travel")
+    assert(
+        s.heading == sim.heading_to(s.x, s.y, s.foes[0].x, s.foes[0].y),
+        "locked recovery faces target",
+    )
+    var block = clearing()
+    var obstacle = copy foes[0]
+    obstacle.x = block.x + 8 * sim.FP
+    obstacle.y = block.y
+    obstacle.health = 100
+    obstacle.phase = sim.STAGGER
+    obstacle.since = block.tick
+    (mut block.foes).push(obstacle)
+    let x = block.x
+    sim.step(mut block, [controls.KEY_RIGHT, controls.KEY_DODGE])
+    n = 1
+    while n < 14 {
+        assert(
+            !sim.overlap(sim.cub_body(block), sim.foe_body(block.foes[0])),
+            "roll never tunnels through body",
+        )
+        sim.step(mut block, List[int]())
+        n += 1
+    }
+    assert(
+        block.x > x && block.x < x + 10 * sim.FP && block.blocked > 0,
+        "standing body shortens roll",
+    )
+}
+
+fn test_cb04b_roll_ignores_a_direction_change_until_recovery_ends() {
+    var s = clearing()
+    let x = s.x
+    let y = s.y
+    sim.step(mut s, [controls.KEY_UP, controls.KEY_DODGE])
+    sim.step(mut s, [controls.KEY_ARROW_RELEASE, controls.KEY_RIGHT])
+    var n = 2
+    while n < 14 { sim.step(mut s, List[int]()); n += 1 }
+    assert(
+        s.x == x && s.y == y - 10 * sim.FP && s.heading == 0,
+        "roll stays on its committed north line",
+    )
+    assert(sim.held_direction(s) == 64, "new direction is retained for movement after the roll")
+}
+
+fn test_cb04b_roll_accepts_an_action_after_exactly_fourteen_ticks() {
+    var s = clearing()
+    sim.step(mut s, [controls.KEY_DODGE])
+    var n = 1
+    while n < 14 { sim.step(mut s, List[int]()); n += 1 }
+    assert(s.action == sim.DODGE && !sim.invulnerable(s), "last recovery tick still cannot act")
+    sim.step(mut s, [controls.KEY_BITE])
+    assert(
+        s.action == sim.BITE && s.started == s.tick && s.stamina == 40,
+        "age14 accepts the next action, without a fifteenth locked tick",
+    )
+}
