@@ -1047,6 +1047,15 @@ pub fn all_code_points() -> List[int] {
         }
         hurt += 1
     }
+    // Measured diagonal repertoire, independently checked by the exhaustive
+    // native art study. Rebuilding all410 states here exhausts the checked
+    // machine's budget before the glyph-document test reaches its assertion.
+    for cp in diagonal_code_points() {
+        if !seen[cp - CP_BASE] {
+            seen[cp - CP_BASE] = true
+            (mut cps).push(cp)
+        }
+    }
     var kind = 0
     while kind < 4 {
         if kind != 2 {
@@ -1096,4 +1105,100 @@ pub fn all_code_points() -> List[int] {
         i += 1
     }
     cps
+}
+
+/// The measured diagonal repertoire, from all410 cub/wolf parameter
+/// states and their four rotations. `diagonalstudy.write_all` independently
+/// verifies this exact set against the rendered rich cells on every art
+/// golden run. Cache only the enumeration, never the drawings.
+pub fn diagonal_code_points() -> List[int] {
+    [
+        9600,
+        9604,
+        9608,
+        10241,
+        10243,
+        10246,
+        10247,
+        10248,
+        10249,
+        10250,
+        10251,
+        10254,
+        10255,
+        10259,
+        10262,
+        10264,
+        10265,
+        10268,
+        10270,
+        10271,
+        10279,
+        10281,
+        10288,
+        10291,
+        10292,
+        10294,
+        10296,
+        10297,
+        10299,
+        10303,
+        10304,
+        10305,
+        10308,
+        10310,
+        10313,
+        10315,
+        10324,
+        10327,
+        10335,
+        10336,
+        10343,
+        10352,
+        10356,
+        10359,
+        10366,
+        10367,
+        10368,
+        10375,
+        10376,
+        10383,
+        10399,
+        10400,
+        10404,
+        10406,
+        10407,
+        10416,
+        10417,
+        10418,
+        10419,
+        10425,
+        10426,
+        10427,
+        10428,
+        10430,
+        10431,
+        10432,
+        10434,
+        10436,
+        10438,
+        10439,
+        10440,
+        10447,
+        10463,
+        10464,
+        10470,
+        10471,
+        10472,
+        10480,
+        10481,
+        10484,
+        10485,
+        10486,
+        10487,
+        10489,
+        10492,
+        10493,
+        10494,
+    ]
 }

@@ -1,0 +1,159 @@
+//! diagonalstudy — exhaustive diagonal pose goldens. All parameter
+//! combinations are indexed, but identical bitmaps share one four-facing
+//! sheet. Each unique drawing has rich/plain, 80x24 and 200x60 goldens.
+
+use art
+use grid
+use headless
+use silhouette
+use std.fs
+use tier
+
+fn signature(b: silhouette.Bitmap, grown: bool) -> str {
+    var text = if grown then "wolf:" else "cub:"
+    for p in b.px { text += if p == 0 then "." else "#" }
+    text
+}
+
+fn sheet(
+    t: int,
+    field: int,
+    grown: bool,
+    pose: int,
+    legs: int,
+    tail: int,
+    hurt: int,
+    breath: int,
+) -> grid.Grid {
+    let rows = if field == 80 then 24 else 60
+    var g = grid.new(rows, field)
+    var quarter = 0
+    while quarter < 4 {
+        let col = field * (quarter + 1) / 5
+        if grown {
+            art.draw_wolf(mut g, t, rows / 2, col, quarter * 2 + 1, 0, pose, legs)
+        } else {
+            art.draw_pose(
+                mut g,
+                t,
+                rows / 2,
+                col,
+                quarter * 2 + 1,
+                0,
+                pose,
+                legs,
+                tail,
+                true,
+                hurt,
+                breath,
+            )
+        }
+        quarter += 1
+    }
+    g
+}
+
+fn sample(
+    dir: str,
+    mut signatures: List[str],
+    mut actual: List[bool],
+    grown: bool,
+    pose: int,
+    legs: int,
+    tail: int,
+    hurt: int,
+    breath: int,
+) -> int ! {write} {
+    let b = if grown {
+        silhouette.wolf_diagonal(pose, legs)
+    } else {
+        silhouette.cub_diagonal(pose, legs, tail, hurt, breath)
+    }
+    let key = signature(b, grown)
+    var i = 0
+    while i < signatures.len {
+        if signatures[i] == key { return i }
+        i += 1
+    }
+    (mut signatures).push(copy key)
+    for field in [80, 200] {
+        for t in [tier.PLAIN, tier.RICH] {
+            region frame {
+                let name = "diagonal-pose-{i}-{if t == tier.RICH then "rich" else "plain"}-{field}"
+                let g = sheet(t, field, grown, pose, legs, tail, hurt, breath)
+                if t == tier.RICH {
+                    for cell in g.cells {
+                        if cell.cp != 32 {
+                            assert(cell.cp >= 9472 && cell.cp < 10496, "diagonal glyph range")
+                            actual[cell.cp - 9472] = true
+                        }
+                    }
+                }
+                headless.write_frame(dir, name, g) else |_| { return write }
+            }
+        }
+    }
+    i
+}
+
+/// Write sheets and a complete parameter-to-sheet manifest; nonzero on
+/// any failed frame/manifest write. Identical drawings share a golden,
+/// never omit a pose from the manifest. Per-sample regions bound memory.
+pub fn write_all(dir: str) -> int {
+    var signatures = List[str]()
+    var actual = List[bool]()
+    var cp = 9472
+    while cp < 10496 { (mut actual).push(false); cp += 1 }
+    var manifest = "# Every diagonal state: four rotations, rich/plain, fields80/200\n"
+    var states = 0
+    for pose in [0, 1, 2, 3, 5] {
+        for legs in [0, 1] {
+            for tail in [-2, -1, 0, 1, 2] {
+                for hurt in [0, 1, 2, 3] {
+                    for breath in [0, 1] {
+                        region state {
+                            let i = sample(
+                                dir,
+                                mut signatures,
+                                mut actual,
+                                false,
+                                pose,
+                                legs,
+                                tail,
+                                hurt,
+                                breath,
+                            ) else |_| { return 2 }
+                            manifest = copy (
+                                manifest +
+                                    "cub pose {pose} legs {legs} tail {tail} hurt {hurt} breath {breath} sample {i}\n"
+                            )
+                            states += 1
+                        }
+                    }
+                }
+            }
+            let i = sample(dir, mut signatures, mut actual, true, pose, legs, 0, 0, 0) else |_| {
+                return 2
+            }
+            manifest += "wolf pose {pose} legs {legs} sample {i}\n"
+            states += 1
+        }
+    }
+    let declared = silhouette.diagonal_code_points()
+    cp = 9472
+    while cp < 10496 {
+        var present = false
+        for listed in declared { if listed == cp { present = true } }
+        if actual[cp - 9472] != present {
+            eprint("diagonal-study: glyph cache differs at {cp}")
+            return 1
+        }
+        cp += 1
+    }
+    manifest += "states {states} unique {signatures.len}\n"
+    fs.write_text(dir + "/diagonal-manifest.txt", manifest) else |_| { return 2 }
+    print(
+        "diagonal-study: {states} states, {signatures.len} unique drawings, four facings, both fields and tiers",
+    )
+    0
+}

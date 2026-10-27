@@ -28,6 +28,7 @@ use controls
 use cross
 use combatproof
 use demo
+use diagonalstudy
 use denproof
 use doorproof
 use fight
@@ -517,7 +518,7 @@ fn run_art_study(o: Options) -> int {
             art.diagonal_sheet(tier.PLAIN, field),
         ) else |_| { return 2 }
     }
-    0
+    diagonalstudy.write_all(o.dump)
 }
 
 /// The environment's tier and colour depth, where the flags left them.

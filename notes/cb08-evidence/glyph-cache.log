@@ -1,0 +1,8 @@
+cb08 glyph-cache start 2026-10-27T08:26:58Z
+cb08 glyph-cache waiting for cores 8-11 2026-10-27T08:26:58Z
+cb08 glyph-cache acquired cores 4-7 2026-10-27T08:26:58Z
+build: target/native/cub
+diagonal-study: 410 states, 75 unique drawings, four facings, both fields and tiers
+test src/glyphs_test.lu::test_glyphs_doc_matches_the_tier ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 316 filtered out
+glyph-cache EXIT 0 2026-10-27T08:27:08Z
