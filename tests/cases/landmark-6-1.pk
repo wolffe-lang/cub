@@ -328,18 +328,15 @@ t 290 left
 t 291 left
 t 292 left
 t 293 left
-t 294 down
 t 294 left
-t 295 down
-t 296 down
-t 297 down
-t 298 down
-t 299 down
-t 300 down
+t 295 left
+t 296 left
+t 297 left
+t 298 left
+t 299 left
 t 300 left
-t 301 left
+t 301 down
 t 302 down
-t 302 left
 t 303 down
 t 304 down
 t 305 down
@@ -356,5 +353,10 @@ t 315 down
 t 316 down
 t 317 down
 t 318 down
+t 319 down
+t 320 down
+t 321 down
+t 322 down
+t 323 down
 
-# frames 325 every 1 from 325
+# frames 330 every 1 from 330
