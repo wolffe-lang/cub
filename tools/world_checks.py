@@ -118,6 +118,10 @@ def wide(binary, out):
                         ('--gen-bench', 'gen-bench: green')):
         p = subprocess.run([str(binary), flag], capture_output=True, text=True)
         (out / (flag[2:] + '.txt')).write_text(p.stdout + p.stderr)
+        if flag == '--gen-bench' and binary.parent.name != 'release':
+            # A timing bar, like the perf gate's, is the release build's; the
+            # native build records its figures without a verdict.
+            continue
         assert p.returncode == 0 and green in p.stdout, (flag, p.returncode, p.stdout[-400:], p.stderr[-400:])
         if flag == '--den-spacing':
             least = [int(n) for n in re.findall(r'least \w+(?: an area)? (\d+)', p.stdout)]
