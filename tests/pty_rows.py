@@ -1252,3 +1252,136 @@ def predecessor_save_row(name):
 
 ROWS['trunk-save-resume'] = predecessor_save_row('trunk-95a4889d')
 ROWS['cb05-save-resume'] = predecessor_save_row('cb05-4a7cd345')
+def cb07_fur_centroid(text, sty, rows, cols, rich):
+    """The centroid of the cub's drawn pixels in a dumped frame: cells in the fur
+    colour (180 rich, bold 11 plain) within the frame's middle, decoded to pixels
+    (two across and four down a cell; braille and block cells on the rich tier,
+    a cell a pixel on the plain), as combatproof.lit does in the game."""
+    lines = text.split('\n')
+    sx = sy = n = 0
+    for r, sl in enumerate(sty.split('\n')):
+        if not sl or r not in rows:
+            continue
+        c = 0
+        for run in sl.split():
+            spec, count = run.split('*')
+            fg = int(spec.split(',')[0])
+            count = int(count)
+            if fg == (180 if rich else 11):
+                for cc in range(c, c + count):
+                    if cc not in cols or cc >= len(lines[r]):
+                        continue
+                    cp = ord(lines[r][cc])
+                    if cp == 32:
+                        continue
+                    if not rich:
+                        sx += cc * 2
+                        sy += r * 4
+                        n += 1
+                        continue
+                    bits = {0x2588: 255, 0x2580: 27, 0x2584: 228, 0x258C: 71, 0x2590: 184}.get(cp)
+                    if bits is None:
+                        bits = cp - 0x2800 if 0x2800 <= cp < 0x2900 else 255
+                    for bit in (1, 2, 4, 8, 16, 32, 64, 128):
+                        if bits & bit:
+                            sx += cc * 2 + (1 if bit in (8, 16, 32, 128) else 0)
+                            sy += r * 4 + {1: 0, 8: 0, 2: 1, 16: 1, 4: 2, 32: 2, 64: 3, 128: 3}[bit]
+                            n += 1
+            c += count
+    return (sx / n, sy / n, n) if n else (0, 0, 0)
+
+
+def cb07_strikes(binary, ctx):
+    """Three Space presses through the real input loop (cb07): the recorded
+    journey is replayed headless a frame a tick, and the frames must show the
+    three strikes as the strike census does: the first hit's body a cell forward
+    and a cell to the aim's left for four ticks, the second's a cell forward and
+    right, the third's two cells forward with the head out on both swings."""
+    import re
+    problems = []
+    for tier in ('rich', 'plain'):
+        s, dest = cb04b_session(binary, ctx, 'strikes', tier)
+        s.type(cb04b_event('C'), settle=.12)
+        s.type(cb04b_event('C', 3), settle=.30)
+        s.type(cb04b_event(' '), settle=.25)
+        s.type(cb04b_event(' '), settle=.37)
+        s.type(cb04b_event(' '), settle=.70)
+        s.type(cb04b_event('q'))
+        s.finish()
+        ctx.common_checks(s, 0, problems)
+        (dest / 'trace.txt').write_bytes(s.err)
+        live = cb04b_traces(s)
+        for combo in (1, 2, 3):
+            if not any(r.get('action') == 1 and r.get('combo') == combo and r.get('aim') == 64 for r in live):
+                problems.append(f'{tier}: live combo {combo} aimed east never committed')
+        record = dest / 'record.pk'
+        if not record.exists():
+            problems.append(f'{tier}: no recording')
+            continue
+        ticks = max(r['tick'] for r in live)
+        frames = dest / 'frames'
+        p = subprocess.run([binary, '--headless', '--script', str(record), '--frames', str(ticks),
+                            '--every', '1', '--tier', tier, '--trace', '--size', '120x40', '--dump', str(frames)],
+                           capture_output=True, text=True)
+        if p.returncode != 0:
+            problems.append(f'{tier}: headless replay of the recording failed: {p.stderr[-200:]}')
+            continue
+        states = {}
+        for line in p.stderr.splitlines():
+            words = line.split()
+            if words[:1] == ['tick']:
+                st = dict(zip(words[::2], map(int, words[1::2])))
+                states[st['tick']] = st
+        rich = tier == 'rich'
+        rows = range(20 - 6, 20 + 7)
+        cols = range(60 - 9, 60 + 10)
+        centroids = {}
+        for tick, st in states.items():
+            f = frames / f'frame-{tick:04d}'
+            if not (f.with_suffix('.txt')).exists():
+                continue
+            centroids[tick] = cb07_fur_centroid(f.with_suffix('.txt').read_text(), f.with_suffix('.sty').read_text(), rows, cols, rich)
+        # Each bite: the standing centroid is the last frame of the previous
+        # action (the cub idle, or the previous recovery's last tick, both
+        # at the commitment point). Aim east: forward is +x, left is -y.
+        bites = {}
+        for tick in sorted(states):
+            st = states[tick]
+            if st.get('action') == 1 and st.get('combo') in (1, 2, 3):
+                bites.setdefault(st['combo'], []).append(tick)
+        for combo, bite_ticks in sorted(bites.items()):
+            start = bite_ticks[0]
+            before = centroids.get(start - 1)
+            if not before or before[2] == 0:
+                problems.append(f'{tier}: no standing frame before hit {combo}')
+                continue
+            peaks = []
+            for age, tick in enumerate(bite_ticks):
+                c = centroids.get(tick)
+                if not c or c[2] == 0:
+                    continue
+                forward = (c[0] - before[0]) / 2
+                left = -(c[1] - before[1]) / 4
+                peaks.append((age, round(forward, 2), round(left, 2), c[2]))
+            print(f'cb07 strikes tier={tier} hit={combo} ' + ' '.join(f'{a}:{f}/{l}' for a, f, l, _ in peaks))
+            held = [(a, f, l) for a, f, l, _ in peaks if 3 <= a <= (8 if combo == 3 else 6)]
+            if combo == 1 and not (len(held) >= 4 and all(f >= 1 and l >= 1 for _, f, l in held)):
+                problems.append(f'{tier}: hit 1 is not a cell forward-left for four ticks: {held}')
+            if combo == 2 and not (len(held) >= 4 and all(f >= 1 and l <= -1 for _, f, l in held)):
+                problems.append(f'{tier}: hit 2 is not a cell forward-right for four ticks: {held}')
+            if combo == 3 and not (len(held) >= 6 and all(f >= 2 for _, f, _l in held)):
+                problems.append(f'{tier}: hit 3 is not two cells forward for six ticks: {held}')
+            if combo == 3:
+                swings = [(a, l) for a, f, l, _ in peaks if 5 <= a <= 12]
+                lefts = [l for a, l in swings if (a - 5) // 2 % 2 == 0]
+                rights = [l for a, l in swings if (a - 5) // 2 % 2 == 1]
+                if not (len(lefts) == 4 and len(rights) == 4 and min(lefts) > max(rights)):
+                    problems.append(f'{tier}: hit 3 head does not swing left then right twice: {swings}')
+            last = bite_ticks[-1]
+            c = centroids.get(last)
+            if c and c[2] and (abs(c[0] - before[0]) > 1 or abs(c[1] - before[1]) > 2):
+                problems.append(f'{tier}: hit {combo} did not ease back to the commitment point')
+    return s, problems
+
+
+ROWS['cb07-strikes'] = cb07_strikes
