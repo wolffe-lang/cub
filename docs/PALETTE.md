@@ -54,7 +54,9 @@ presentation, not its collision body. Both tiers cover identical sim ticks.
 | hawk wings / ground | 181 / 235 | 13 / 0 |
 | thorn hazard / ground | 196 / 234 | 12 / 0 |
 | exit shadow ink / ground | 238 / 232 | 8 / 0 |
-| opening river ink / ground | 153 / 17 | 7 / 4 |
+| opening sky ink / ground | 245 / 232 | 8 / 0 |
+| opening ice seam / field | 24 / 153 | 8 / 7 |
+| opening deep-water ripple / field | 25 / 17 | 6 / 4 |
 
 The thicket keeps distant foliage visible while sight still limits creatures;
 the meadow keeps long views. Each dusk area keeps two foliage tones (cb02b),

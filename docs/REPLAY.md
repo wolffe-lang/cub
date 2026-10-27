@@ -155,3 +155,10 @@ The live trace and `final.state` include `resting`, `capacity`, `level` and
 `meat` as applicable; these are observations, not input events. The
 `den-contact` pty row needs no fixture at all, and fails on the older
 one-cell interaction range with the same injected arrow/r/Esc bytes.
+
+
+The opening keeps `opening 1` and normal key events. Since cb06 the
+sequence lasts 900 ticks instead of 270; its shot table is in DESIGN.
+Existing recordings parse unchanged but use the new animation and timing.
+New recordings reproduce it deterministically; no journey/save field or
+replay-format version changes. A skip key is consumed by the scene.

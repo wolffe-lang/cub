@@ -164,11 +164,26 @@ The meadow hawk has its own seven-column posture/fade sheet on both tiers.
 A scent pickup shares the death mark's star, fades to a dot, and disappears
 on collection or expiry.
 
-The opening uses three original compositions: the pack over broken bands
-of river ice, the cub below the split crossing, and the gravel bank at dawn.
-Each carries no more than two lines of story. Simulation ticks select the
-frame; skipping is an ordinary recorded key. Later story scenes use the
-named hooks documented in DESIGN.md, not borrowed art or text.
+The opening is a side-view composition of Moonford: near-black sky and a
+moon, a far-bank treeline, a broad pale scored ice field, and a horizontal
+shingle/reed coast along the bottom. Original side silhouettes make the
+three adults larger than the last, smallest cub. A first seam radiates
+under its feet; the cub holds while the pack walks on, then six branching
+seams spread rapidly. The plate opens onto moving deep-blue water; the
+cub drops and is progressively occluded, then drifts beneath a shrinking
+surface light. Ice seams never paint the bank.
+
+Sky, ice and deep water have disjoint foreground/background/attribute
+sets even for blank cells, tested independently on both tiers. The ice's
+sparse scored lines are static; water's ripples move. The separation does
+not depend on a caption or rich glyphs.
+
+Three rounded eyelid blinks open slowly/dimly, then faster and wider;
+only the last reveal reaches a clear view. That view is the actual seeded
+spawn frame, not a substitute painting. At 840 it is cell-for-cell the
+gameplay view; play resumes at 900. The shot table is in DESIGN. Every
+shot and each closed blink is pinned at 80×24, 120×40 and 200×60, rich and
+plain. Scene time and skips stay in the ordinary replay stream.
 
 
 ## Coast sprites

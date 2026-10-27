@@ -1,6 +1,6 @@
 # The score
 
-cub's music is original: ten parts written for the game in the part format the engine reads (pax's
+cub's music is original: eleven parts written for the game in the part format the engine reads (pax's
 `notes/px32-format.md`; lair's `docs/SOUND.md`), committed as text under `score/` and carried inside the
 binary (`tools/score-embed` writes `src/score/parts.lu`; `src/score_test.lu` holds the two equal). Nothing
 is sampled, quoted or borrowed; no public-domain piece is used. The engine's mixer (lair, lr01) renders
@@ -21,7 +21,7 @@ is a rest, so the release tails finish before the restart (`tools/score-check` h
 
 | cue | title | tempo and meter | length | parts | what it is |
 |---|---|---|---|---|---|
-| `title` | The Ford at Dawn | 72, 4/4, 6 bars | 20 s | horn, two strings, harp | The pack's call in D minor, a horn over sustained strings and a harp's eighths, lifting to F and settling back: the opening's own, over the three story frames. |
+| `title` | The Ford at Dawn | 72, 4/4, 6 bars | 20 s | horn, two strings, harp | The pack's call in D minor, a horn over sustained strings and a harp's eighths, lifting to F and settling back: the crossing's music until the first crack. |
 | `shingle` | Gravel and Slack Water | 60, 4/4, 6 bars | 24 s, loops | flute, harp, two strings | A minor, open and slow: a harp ripple under a flute's two-note breaths, the strings a pedal that moves to G and F and home. The Shingle's part. |
 | `bramblehold` | Under the Thorn | 100, 4/4, 10 bars | 24 s, loops | strings, clarinet, timpani, drum | D minor with a raised E flat: low tremolo strings, a clarinet that answers in short phrases, a timpani and a drum that never fall on the same beat. Bramblehold's part. |
 | `larkmeadow` | Larks over Long Grass | 120, 3/4, 16 bars | 24 s, loops | oboe, strings, harp | F major, a lilt in three: an oboe line over strings and a harp that walks the triad, the second half answering the first. Larkmeadow's part. |
@@ -32,9 +32,11 @@ is a rest, so the release tails finish before the restart (`tools/score-check` h
 | `den` | Embers | 72, 3/4, 4 bars | 10 s, loops | harp, flute, strings | A den's rest: a harp settling on D, a flute that enters on the second bar, strings beneath. Plays while the cub rests. |
 | `death` | Fallen | 60, 4/4, 1 bar and two silent | 12 s, once | strings, tam-tam, flute | The sting: a struck chord falling to nothing over a tam-tam, a flute's last four notes down to D. Plays once at a fall; the area resumes when it has sounded. |
 
+| `crack` | A Footstep Too Light | 144, 4/4, 3 bars | 5 s, once | timpani, strings, harp | A low struck C/G-flat chord, a thinning string hold, then eighths quickening into sixteenths; ends as the cub drops. Original, not the death sting's notes. |
+
 Named slots for cb04's areas, silent until their parts exist (the schedule cues the silence for them):
 `crags`, `river`, `old-den` (`score.area_part` 3, 4, 5). The bank holds at most sixteen cues (the
-engine's bound): ten parts, the silence and three slots leave two.
+engine's bound): eleven parts, the silence and three slots leave one.
 
 ## The cue schedule (`src/score/score.lu`)
 
@@ -43,13 +45,24 @@ den, the boss, the area) and the schedule answers the cue to start, if any:
 
 | moment | cue |
 |---|---|
-| the opening's frames | `title`; the area's part when any key ends the scene |
+| opening ticks 0–209 | `title`, continuing from the title screen when already playing |
+| first crack, tick 210 | `crack` replaces the title on this same simulation tick; one-tick mixer fade (the shortest supported), live a cut |
+| fall, ticks 360–509 | `silence`; the sting has ended, the river takes the cub |
+| waking, tick 510 onward | `shingle`, through the blinks and into play |
+| opening skipped | the area's cue immediately; `crack` is interruptible, unlike `death` |
 | in an area | its part, looping: restarted when its length is up |
 | an area change | the new area's part at once; in the mixer the old slot fades out as the new fades in (the part's `cue replace fade N`, 9 ticks for the areas), live a cut |
 | a boss (`sim.boss_theme`, cb04) | its theme replaces the area's loop (the engine's replace fade is the duck); the area's loop returns when the boss falls |
 | a fall | `death`, at once; it plays once and is never cut short, so the area's loop resumes at the den when it has sounded |
 | the den (`r`) | `den`, looping while the cub rests; the area's loop on leaving |
 | `m` | the music off (the player's child ended); `m` again cues the scene's part afresh |
+
+The first crack strikes at tick 210, the hold lasts through the freeze,
+and the harp begins near the rapid-spread transition. The live sink's
+usual cut is intentional here: the title must not soften the shock. The
+mixer uses its minimum supported fade, one tick (33 ms); no engine change.
+Mute and `CUB_SOUND=0` still prepare and play nothing. The new part's full
+PCM digest, byte length and one-second PCM head are pinned on both hosts.
 
 The deterministic sink is the engine's mixer: `cub --score-replay OUT` runs a fixed six-second scene
 replay (the title, the Shingle, a den, the Shingle, the boar, a fall, the wake) through `sound.cue` and
