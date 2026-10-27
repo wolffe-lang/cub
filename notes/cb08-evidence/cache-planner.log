@@ -1,0 +1,46 @@
+tiers-test: PASS T1 push is full
+tiers-test: PASS T1 schedule is full
+tiers-test: PASS T1 workflow_dispatch is full
+tiers-test: PASS T1 the full-matrix label is full
+tiers-test: PASS T1 another label is a noop
+tiers-test: PASS T1 a dispatch naming jobs is partial
+tiers-test: PASS T1 a dispatch naming an unknown job is refused
+tiers-test: PASS T2 code is pr
+tiers-test: PASS T2 prose alone is noop
+tiers-test: PASS T2 prose beside code is pr
+tiers-test: PASS T2 tests/goldens/trot-rich/final.txt is pr
+tiers-test: PASS T2 wolf-toolchain.toml is pr
+tiers-test: PASS T2 .github/workflows/ci.yml is pr
+tiers-test: PASS T2 ci/tiers.py is pr
+tiers-test: PASS T3 a path no rule names is full
+tiers-test: PASS T3 unreadable paths are full
+tiers-test: PASS T3 no paths is full
+tiers-test: PASS T4 the workflow's jobs are the planner's (plan plan-test linux macos perf tier nightly-red)
+tiers-test: PASS T4 plan-test needs the plan and runs when named
+tiers-test: PASS T4 linux needs the plan and runs when named
+tiers-test: PASS T4 macos needs the plan and runs when named
+tiers-test: PASS T4 perf needs the plan and runs when named
+tiers-test: PASS T4 tier needs every job
+tiers-test: PASS T4 tier runs on !cancelled() and calls the verdict
+tiers-test: PASS T4 cancel-in-progress for pull requests only
+tiers-test: PASS T4 the trunk push, the nightly, the label and the dispatch input
+tiers-test: PASS T4 plan-test and linux are pull-request jobs (plan-test linux)
+tiers-test: PASS T4 macos and perf are no pull-request job
+tiers-test: PASS T4 the pull-request tier is less than the full one
+tiers-test: PASS T4 macos runs on a macOS runner
+tiers-test: PASS T4 nightly-red runs on a failed schedule after the verdict
+tiers-test: PASS T6 a green full run
+tiers-test: PASS T6 a green pr run
+tiers-test: PASS T6 a green noop run
+tiers-test: PASS T6 a green partial run
+tiers-test: PASS T6 a chosen job failed is red
+tiers-test: PASS T6 a chosen job skipped is red
+tiers-test: PASS T6 a job that ran unasked is red
+tiers-test: PASS T6 a failed plan is red
+tiers-test: PASS T6 a plan with no tier is red
+tiers-test: PASS T6 a full that chose less is red
+tiers-test: PASS T8 no open issue: one is opened
+tiers-test: PASS T8 an open issue is commented on
+tiers-test: PASS T8 a label that exists is no failure
+tiers-test: PASS T8 the script refuses without its environment
+tiers-test: 0 failure(s)

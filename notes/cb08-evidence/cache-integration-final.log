@@ -1,0 +1,25 @@
+cb08 cache-integration-final start 2026-10-27T19:15:27Z
+cb08 cache-integration-final waiting for cores 8-11 2026-10-27T19:15:27Z
+cb08 cache-integration-final acquired cores 4-7 2026-10-27T19:15:27Z
+ci-stage container-provision START utc=2026-10-27T19:15:27.463171+00:00
+Getting image source signatures
+Copying blob sha256:e1a4641240ce54dc162a13de1ccd5ed17fc6526f361b041252adb496258ab460
+Copying blob sha256:d81fb2a7c6ee3be05fdefaa7fd223be219c1ab172083ec1b994c3ecda33ac0a8
+Copying config sha256:c1ee0c477add2a6d59354c57bc32ac654394b03cc1b9af372df2454fc18fbab1
+Writing manifest to image destination
+Loaded image: localhost/pack-ci:fbee7e864f7dbee6
+ci-container source=cache image=localhost/pack-ci:fbee7e864f7dbee6 archive_bytes=701505536
+ci-stage container-provision END utc=2026-10-27T19:15:27.993457+00:00 elapsed_seconds=0.530 status=0
+ci-stage linux-tests START utc=2026-10-27T19:15:28.029602+00:00
+ci-container source=build image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=13
+.ci-container source=local image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=13
+.........ci-container source=cache image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=12
+...................
+----------------------------------------------------------------------
+Ran 29 tests in 0.034s
+
+OK
+prepare-pty: retained previous engine fixture in /work/target/pty-fixture-tests/tmpg71fwixh/engine-previous-7r3uqm9x
+prepare-pty: engine fixture already fresh
+ci-stage linux-tests END utc=2026-10-27T19:15:28.607221+00:00 elapsed_seconds=0.578 status=0
+cache-integration-final EXIT 0 2026-10-27T19:15:28Z

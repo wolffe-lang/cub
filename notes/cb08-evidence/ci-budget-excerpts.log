@@ -1,0 +1,30 @@
+run 40521782832 job 122250809829; gh run view 40521782832 --repo wolffe-lang/cub --job 122250809829 --log
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:31:30.1634200Z #6 9.034 Get:42 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libllvm18 amd64 1:18.1.3-1ubuntu1 [27.5 MB]
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:31:30.3625960Z #6 9.384 Get:43 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libclang-cpp18 amd64 1:18.1.3-1ubuntu1 [13.5 MB]
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:31:43.2147724Z #6 DONE 22.2s
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:31:44.6403410Z #8 DONE 1.4s
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:31:45.2756959Z check-fmt: canonical
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:35:39.0274250Z wolf test: 397 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:35:44.2908873Z build: target/native/cub
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:36:04.7726113Z build: target/release/cub
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:36:09.6443944Z goldens: art ok
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:45:56.3019834Z check-linux: green
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:46:11.3893838Z goldens: art ok
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:46:16.0966150Z score-check: green
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:54:38.3920230Z gameplay: green (0 skips)
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:57:54.8189219Z gameplay: green (0 skips)
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T14:57:54.8245717Z cub check-linux: green
+run 40557106593 job 122376657813; gh run view 40557106593 --repo wolffe-lang/cub --job 122376657813 --log
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T18:22:39.1540535Z #6 450.5 Get:42 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libllvm18 amd64 1:18.1.3-1ubuntu1 [27.5 MB]
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T18:29:26.0509377Z #6 857.4 Get:43 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libclang-cpp18 amd64 1:18.1.3-1ubuntu1 [13.5 MB]
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T18:36:18.6595970Z #6 DONE 1270.0s
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T18:36:20.5985678Z #8 DONE 1.9s
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T18:36:21.5448662Z check-fmt: canonical
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T18:42:56.6027628Z wolf test: 419 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T18:43:04.5840210Z build: target/native/cub
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T18:43:34.7729296Z build: target/release/cub
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T18:43:42.8421442Z goldens: art ok
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T18:54:35.1773712Z check-linux: green
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T18:55:02.7859305Z goldens: art ok
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T18:55:09.1399935Z score-check: green
+linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)	the Linux leg, in the container	2026-10-27T18:55:09.2597695Z ##[error]The operation was canceled.
