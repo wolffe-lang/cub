@@ -610,3 +610,48 @@ fn test_cb05_an_ashen_hears_ten_cells_and_two_sneaking() {
         "R-cb05-5's numbers",
     )
 }
+
+fn test_cb05_the_town_is_a_rectangle_across_the_field() {
+    // Item 8 (b): at the 80 field the side streets at x = ±44 are the
+    // town's edge, 94 cells of the field's 97; at 200 a second row of
+    // plots faces them and the ring at ±80 closes the blocks. The cross
+    // streets run open across the width, the side streets open from the
+    // first cross street to the last, both fields, three seeds.
+    assert(town.half_across(80) == 47 && !town.wide(80), "the side streets are the edge at 80")
+    assert(town.half_across(200) == 83 && town.wide(200), "the ring is the edge at 200")
+    assert(forest.length(forest.TOWN) == 240 && town.PLOTS == 14, "240 rows, fourteen plots")
+    var seed = 0
+    while seed < 3 {
+        for field in [80, 200] {
+            let half = town.half_across(field)
+            for k in [2, 10] {
+                let row = town.bottom(k) + 1 + town.CROSS_ROWS / 2
+                var x = 0 - half
+                while x <= half {
+                    assert(
+                        !forest.blocked(seed, field, forest.TOWN, x, row),
+                        "the cross street after plot {k} open at {x}, seed {seed} field {field}",
+                    )
+                    x += 1
+                }
+            }
+            for sx in [0 - town.SIDE, town.SIDE] {
+                var at = town.bottom(2) + 1
+                while at <= town.bottom(10) + town.CROSS_ROWS {
+                    assert(
+                        !forest.blocked(seed, field, forest.TOWN, sx, at),
+                        "the side street at {sx} open at row {at}, seed {seed} field {field}",
+                    )
+                    at += 1
+                }
+            }
+            // Beyond the town's edge the wood is closed, three cells on.
+            assert(
+                forest.blocked(seed, field, forest.TOWN, half + 3, town.top(4) + 3) &&
+                    forest.blocked(seed, field, forest.TOWN, 0 - half - 3, town.top(4) + 3),
+                "the wood past the edge, seed {seed} field {field}",
+            )
+        }
+        seed += 1
+    }
+}
