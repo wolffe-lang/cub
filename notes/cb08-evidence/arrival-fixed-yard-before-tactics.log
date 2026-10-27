@@ -1,0 +1,58 @@
+cb08 replay-regeneration6 start 2026-10-27T09:21:25Z
+cb08 replay-regeneration6 waiting for cores 4-7 2026-10-27T09:21:25Z
+cb08 replay-regeneration6 acquired cores 8-11 2026-10-27T09:21:25Z
+test src/diagonalwalk_test.lu::test_cb08_horizontal_arrival_clears_the_source_before_a_sideways_walk ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 332 filtered out
+build: target/release/cub
+witness spring-found tick 122 area 0 scent 7606 mark 0 shortcuts 0
+witness world-gate tick 683 area 0 scent 7622 mark 0 shortcuts 0
+witness world-thorns tick 700 area 0 scent 7622 mark 0 shortcuts 0
+witness thorn-gate tick 711 area 0 scent 7622 mark 0 shortcuts 0
+witness world-open tick 726 area 0 scent 7622 mark 0 shortcuts 0
+witness town-den tick 1321 area 6 scent 7672 mark 0 shortcuts 0
+witness world-den tick 2854 area 1 scent 7717 mark 0 shortcuts 0
+witness world-meadow tick 3212 area 2 scent 7717 mark 0 shortcuts 0
+witness hawk-shadow tick 3339 from 3336 area 2
+witness hawk-stoop tick 3354 from 3352 area 2
+witness world-hawk tick 3354 area 2 scent 7717 mark 0 shortcuts 0
+witness world-recovered tick 3866 area 2 scent 7717 mark 0 shortcuts 0
+witness world-return tick 4333 area 0 scent 7729 mark 0 shortcuts 3
+witness coast-cache-0 tick 4453 area 0 scent 7749 mark 0 shortcuts 3
+witness coast-cache-1 tick 5012 area 0 scent 7769 mark 0 shortcuts 3
+witness coast-cache-2 tick 5716 area 0 scent 7789 mark 0 shortcuts 3
+witness coast-cache-3 tick 6608 area 0 scent 7789 mark 0 shortcuts 3
+witness bite tick 225 area 0 scent 16 mark 0 shortcuts 0
+witness parry tick 189 area 0 scent 0 mark 0 shortcuts 0
+witness dodge tick 189 area 0 scent 0 mark 0 shortcuts 0
+witness weasel-retreat tick 189 area 0 scent 0 mark 0 shortcuts 0
+witness fox-feint tick 333 area 0 scent 8 mark 0 shortcuts 0
+witness natural-death tick 497 area 0 scent 0 mark 8 shortcuts 0
+witness aim-lock tick 186 area 0 scent 0 mark 0 shortcuts 0
+witness sprint-hit tick 201 from 176 area 0
+boss boar attempts 1 ticks 652 windup 103 phase2 441 beaten 765 hits 2 0 2 unparryable 2
+witness boss-boar-windup frames 110 every 1 from 108
+witness boss-boar-phase2 frames 443 every 1 from 442
+witness boss-boar-beaten frames 811 every 15 from 766
+boss lynx attempts 1 ticks 563 windup 702 phase2 1126 beaten 1228 hits 1 0 0 unparryable 0
+witness boss-lynx-windup frames 709 every 1 from 707
+witness boss-lynx-phase2 frames 1128 every 1 from 1127
+witness boss-lynx-beaten frames 1274 every 15 from 1229
+boss elk attempts 1 ticks 1057 windup 719 phase2 1121 beaten 1691 hits 0 0 0 unparryable 0
+witness boss-elk-windup frames 726 every 1 from 724
+witness boss-elk-phase2 frames 1123 every 1 from 1122
+witness boss-elk-beaten frames 1737 every 15 from 1692
+boss alpha attempts 1 ticks 427 windup 542 phase2 718 beaten 920 hits 0 0 0 unparryable 0
+witness boss-alpha-windup frames 549 every 1 from 547
+witness boss-alpha-phase2 frames 720 every 1 from 719
+witness end frames 1265 every 45 from 965
+witness boss-alpha-beaten frames 966 every 15 from 921
+witness ghost-death tick 101 area 0 scent 0 mark 0 shortcuts 0
+witness ghost tick 253
+witness crags frames 121 every 40 from 1
+witness river frames 121 every 40 from 1
+witness old-den frames 121 every 40 from 1
+walker failed seed 1 area 6 at 6,109 goal 11,83 tick 453 health 0 stamina 81 action 6 goal_blocked false
+walker foe 2 kind 8 health 36 phase 1 gap 0 bearing 192 aim 224 combo 0
+walker foe 3 kind 8 health 36 phase 2 gap 0 bearing 224 aim 224 combo 0
+proof: the passage's mouth
+replay-regeneration6 EXIT 1 2026-10-27T09:21:47Z

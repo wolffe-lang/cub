@@ -1085,7 +1085,8 @@ pub fn grow(mut s: Sim, stat: int) {
     s.stamina = stamina_max(s.wind)
 }
 
-fn lock_next(mut s: Sim) {
+/// Cycle the visible lock target; shared by real Tab input and witness planning copies.
+pub fn lock_next(mut s: Sim) {
     var best = -1
     var distance = 999999999
     var i = 0
@@ -2019,7 +2020,7 @@ fn turn_foe(mut s: Sim, i: int, heading: int) {
     }
 }
 
-/// The cub's body takes the facing it wants (a turn's quarter, an
+/// The cub's body takes the facing it wants (a turn's eighth, an
 /// attack's aim). A foe in the way of the swing steps aside (R-cb02c-5 A:
 /// the body that did not attack yields to the cub's turn, as a tie goes
 /// against the foe); with no room the cub's body keeps its facing this

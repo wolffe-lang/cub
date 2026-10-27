@@ -182,6 +182,10 @@ pub fn generate(dir: str) -> int {
             }
             return 1
         }
+        if s.area != forest.SHINGLE {
+            eprint("proof: coast cache {cache} walk crossed an unintended doorway to area {s.area}")
+            return 1
+        }
         // The guard must be fought before the dig: hunt every live guard
         // within the dig's six cells, by ordinary keys.
         var guard = 0

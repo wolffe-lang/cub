@@ -1,0 +1,20 @@
+cb08 replay-regeneration2 start 2026-10-27T09:08:48Z
+cb08 replay-regeneration2 acquired cores 4-7 2026-10-27T09:08:48Z
+cb08 replay-regeneration2 waiting for cores 8-11 2026-10-27T09:08:48Z
+build: target/release/cub
+witness spring-found tick 122 area 0 scent 7606 mark 0 shortcuts 0
+witness world-gate tick 683 area 0 scent 7622 mark 0 shortcuts 0
+witness world-thorns tick 700 area 0 scent 7622 mark 0 shortcuts 0
+witness thorn-gate tick 711 area 0 scent 7622 mark 0 shortcuts 0
+witness world-open tick 726 area 0 scent 7622 mark 0 shortcuts 0
+witness town-den tick 1321 area 6 scent 7672 mark 0 shortcuts 0
+witness world-den tick 2898 area 1 scent 7717 mark 0 shortcuts 0
+witness world-meadow tick 3255 area 2 scent 7717 mark 0 shortcuts 0
+witness hawk-shadow tick 3384 from 3381 area 2
+witness hawk-stoop tick 3399 from 3397 area 2
+witness world-hawk tick 3399 area 2 scent 7717 mark 0 shortcuts 0
+witness world-recovered tick 3944 area 2 scent 7729 mark 0 shortcuts 0
+witness world-return tick 4385 area 0 scent 7729 mark 0 shortcuts 3
+witness coast-cache-0 tick 4538 area 1 scent 7737 mark 0 shortcuts 3
+proof: cache remains guarded 1 area 1 at 34,46 goal 34,46
+replay-regeneration2 EXIT 1 2026-10-27T09:09:04Z

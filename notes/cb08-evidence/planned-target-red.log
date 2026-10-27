@@ -1,0 +1,6 @@
+cb08 planned-target-valid-red start 2026-10-27T09:45:40Z
+cb08 planned-target-valid-red acquired cores 4-7 2026-10-27T09:45:40Z
+cb08 planned-target-valid-red waiting for cores 8-11 2026-10-27T09:45:40Z
+test src/diagonalwalk_test.lu::test_cb08_walker_locks_the_foe_its_jaw_stance_was_planned_for ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 334 filtered out
+planned-target-valid-red EXIT 1 2026-10-27T09:45:45Z

@@ -70,6 +70,11 @@ fn jaw_stance(s: sim.Sim, i: int, x: int, y: int) -> bool {
 // Ordinary arrows to the nearest clear stance within four cells. The
 // real step still enforces terrain and actors; no position is assigned.
 fn align_jaws(s: sim.Sim, i: int, mut keys: List[int]) {
+    // Combat sidesteps obey the same doorway exclusion as the route.
+    // Otherwise a jaw-alignment step can leave the area through a nearby
+    // unlocked shortcut while the route itself correctly avoids it.
+    let doors = avoid_doorways(s, sim.cell_x(s), sim.cell_y(s), sim.cell_x(s), sim.cell_y(s))
+    let outside = sim.boss_index(s) >= 0 && !sim.cub_in_arena(s)
     var best = 1000000000
     var tx = s.x
     var ty = s.y
@@ -82,6 +87,17 @@ fn align_jaws(s: sim.Sim, i: int, mut keys: List[int]) {
             let distance = (x - s.x) * (x - s.x) + (y - s.y) * (y - s.y)
             if distance > 0 &&
                 distance < best &&
+                !door_blocked(doors, sim.floor_div(x, sim.FP), sim.floor_div(y, sim.FP)) &&
+                (
+                    !outside ||
+                        !forest.in_arena(
+                            s.seed,
+                            s.field,
+                            s.area,
+                            sim.floor_div(x, sim.FP),
+                            sim.floor_div(y, sim.FP),
+                        )
+                ) &&
                 sim.visible(s, s.x, s.y, x, y) &&
                 jaw_stance(s, i, x, y) {
                 best = distance
@@ -96,6 +112,28 @@ fn align_jaws(s: sim.Sim, i: int, mut keys: List[int]) {
     aim(mut keys, tx - s.x, ty - s.y)
 }
 
+// Plan the same Tab cycle the real input handler applies. The nearest
+// visible foe is not necessarily the ordinal whose stance was selected.
+// Only key codes leave this planning region; live state is never assigned.
+fn lock_onto(s: sim.Sim, target: int, mut keys: List[int]) {
+    region selection {
+        var probe = copy s
+        var tabs = 0
+        while probe.locked != target && tabs <= s.foes.len {
+            sim.lock_next(mut probe)
+            tabs += 1
+        }
+        if probe.locked == target {
+            var n = 0
+            while n < tabs { (mut keys).push(controls.KEY_LOCK); n += 1 }
+            return
+        }
+    }
+    // A target outside the lock's sight/range still gets the ordinary
+    // arrow aim, never a lock silently redirected to a different foe.
+    if s.locked >= 0 { (mut keys).push(controls.KEY_RELEASE) }
+}
+
 /// One tick toward `(x, y)`, fighting any foe in reach on the way.
 pub fn drive(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int) {
     drive_as(mut s, mut r, x, y, false)
@@ -105,6 +143,33 @@ pub fn drive(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int) {
 /// witness lets the fox win).
 pub fn drive_as(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int, passive: bool) {
     var keys = List[int]()
+    // Choose the earliest Ashen blow across the pair, not the first
+    // ordinal. A jaw-alignment detour can put both in reach; waiting for
+    // the first one's long windup must not ignore the second one's strike.
+    if s.action == sim.IDLE {
+        var due = 1000000
+        var threat = 0
+        while threat < s.foes.len {
+            let f = copy s.foes[threat]
+            if f.health > 0 && f.kind == sim.ASHEN && sim.in_reach(s, threat, 2) {
+                let remaining = if f.phase == sim.CROUCH {
+                    sim.ASHEN_WINDUP - (s.tick - f.since)
+                } else if f.phase == sim.STRIKE && !f.hit {
+                    0
+                } else {
+                    1000000
+                }
+                if remaining < due { due = remaining }
+            }
+            threat += 1
+        }
+        // Do not begin an eleven-tick bite inside another blow's window.
+        if due <= 11 {
+            if due <= 2 { (mut keys).push(controls.KEY_PARRY) }
+            press(mut s, mut r, keys)
+            return
+        }
+    }
     var fighting = false
     var i = 0
     while i < s.foes.len {
@@ -140,7 +205,7 @@ pub fn drive_as(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int, passive: b
                     // Quarter-cell path arrows can retain a diagonal when
                     // the foe is almost cardinal. Commit the same intentional
                     // lock a player uses before a slanted bite; death releases it.
-                    if s.locked < 0 { (mut keys).push(controls.KEY_LOCK) }
+                    lock_onto(s, i, mut keys)
                     aim_at(mut keys, sim.heading_to(s.x, s.y, foe.x, foe.y))
                     (mut keys).push(controls.KEY_BITE)
                     // The aim is latched at Space. Release before following
@@ -431,27 +496,45 @@ fn avoid_doorways(s: sim.Sim, sx: int, sy: int, gx: int, gy: int) -> List[sim.Bo
         if forest.other(s.area, edge) >= 0 &&
             (forest.path_edge(edge) && (edge != 0 || s.gate_open) || sim.shortcut_open(s, edge)) {
             let (px, py) = forest.portal(s.seed, s.area, edge)
-            var box = sim.cub_body_at(s, 0, 0, 0)
-            var facing = 0
-            while facing < 4 {
-                let b = sim.cub_body_at(s, 0, 0, facing)
-                if b.x0 < box.x0 { box.x0 = b.x0 }
-                if b.x1 > box.x1 { box.x1 = b.x1 }
-                if b.y0 < box.y0 { box.y0 = b.y0 }
-                if b.y1 > box.y1 { box.y1 = b.y1 }
-                facing += 1
+            let door = door_envelope(s, px, py, 1)
+            let physical = door_envelope(s, px, py, 0)
+            if !inside(door, gx, gy) {
+                if !inside(door, sx, sy) {
+                    (mut doors).push(door)
+                } else if !inside(physical, sx, sy) {
+                    // Arrival can clear the shadow without clearing the
+                    // extra planning margin: the next row may be a wall.
+                    // Keep the physical envelope forbidden while escaping
+                    // that margin sideways, rather than omitting the door.
+                    (mut doors).push(physical)
+                }
             }
-            let door = sim.Body {
-                x0: px / sim.FP - 3 - box.x1 - 1,
-                x1: px / sim.FP + 3 - box.x0 + 1,
-                y0: py / sim.FP - 1 - box.y1 - 1,
-                y1: py / sim.FP + 1 - box.y0 + 1,
-            }
-            if !inside(door, sx, sy) && !inside(door, gx, gy) { (mut doors).push(door) }
         }
         edge += 1
     }
     doors
+}
+
+// One envelope for planning and departure clearance. Clearing only the
+// current drawing can leave the anchor inside the plan's wider envelope;
+// the next route then omits its arrival door and walks straight back in.
+fn door_envelope(s: sim.Sim, px: int, py: int, margin: int) -> sim.Body {
+    var box = sim.cub_body_at(s, 0, 0, 0)
+    var facing = 1
+    while facing < 8 {
+        let b = sim.cub_body_at(s, 0, 0, facing)
+        if b.x0 < box.x0 { box.x0 = b.x0 }
+        if b.x1 > box.x1 { box.x1 = b.x1 }
+        if b.y0 < box.y0 { box.y0 = b.y0 }
+        if b.y1 > box.y1 { box.y1 = b.y1 }
+        facing += 1
+    }
+    sim.Body {
+        x0: px / sim.FP - 3 - box.x1 - margin,
+        x1: px / sim.FP + 3 - box.x0 + margin,
+        y0: py / sim.FP - 1 - box.y1 - margin,
+        y1: py / sim.FP + 1 - box.y0 + margin,
+    }
 }
 
 fn inside(b: sim.Body, x: int, y: int) -> bool { x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1 }
@@ -471,11 +554,8 @@ fn clear_arrival(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int) -> bool
     while edge < forest.EDGES {
         if forest.other(area, edge) >= 0 {
             let (px, py) = forest.portal(s.seed, area, edge)
-            let body = sim.cub_body(s)
-            let touching = body.x1 >= px / sim.FP - 3 &&
-                body.x0 <= px / sim.FP + 3 &&
-                body.y1 >= py / sim.FP - 1 &&
-                body.y0 <= py / sim.FP + 1
+            let arrival = door_envelope(s, px, py, 0)
+            let touching = inside(arrival, sim.cell_x(s), sim.cell_y(s))
             if touching &&
                 !forest.shadow_cell(
                     s.seed,
@@ -499,8 +579,8 @@ fn clear_arrival(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int) -> bool
                 }
                 var steps = 0
                 while steps < 90 {
-                    let b = sim.cub_body(s)
-                    if b.y1 < py / sim.FP - 1 || b.y0 > py / sim.FP + 1 { return true }
+                    let envelope = door_envelope(s, px, py, 0)
+                    if sim.cell_y(s) < envelope.y0 || sim.cell_y(s) > envelope.y1 { return true }
                     press(mut s, mut r, key(arrow))
                     if s.area != area || s.action == sim.FALL { return false }
                     steps += 1

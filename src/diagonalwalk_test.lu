@@ -1,0 +1,74 @@
+//! member: false
+//! cb08 — actual movement keys, not rectangle-only doorway checks.
+
+use controls
+use forest
+use hitcensus
+use replay
+use sim
+use walker
+
+fn test_cb08_horizontal_arrival_clears_the_source_before_a_sideways_walk() {
+    var s = sim.new(1, 80, 24)
+    s.gate_open = true
+    s.shortcuts = 3
+    sim.enter_area(mut s, forest.BRAMBLEHOLD, 0, 10 * sim.FP)
+    s.heading = 192
+    s.heading_target = 192
+    s.body_facing = 6
+    assert(sim.cross_edge(mut s, 2), "fixture enters the Shingle through the open log")
+    (mut s.foes).reset()
+    let (x, y) = forest.cache_position(s.seed, s.field, forest.SHINGLE, 0)
+    var r = replay.new(s.seed, 1, 80, 24)
+    assert(walker.walk(mut s, mut r, x, y), "ordinary keys reach the first coast cache")
+    assert(s.area == forest.SHINGLE, "the sideways walk never returns through its source door")
+    assert(r.events.len > 0, "the walk is recorded keys, not a teleport")
+}
+
+fn test_cb08_walker_parries_the_imminent_ashen_not_the_first_ordinal() {
+    var s = sim.new(1, 80, 24)
+    s.tick = 100
+    (mut s.foes).reset()
+    var early = sim.make_ashen(s.x + 3 * sim.FP, s.y)
+    early.phase = sim.CROUCH
+    early.since = s.tick - 3
+    var imminent = sim.make_ashen(s.x - 3 * sim.FP, s.y)
+    imminent.phase = sim.CROUCH
+    imminent.since = s.tick - sim.ASHEN_WINDUP + 2
+    (mut s.foes).push(early)
+    (mut s.foes).push(imminent)
+    var r = replay.new(1, 1, 80, 24)
+    walker.drive(mut s, mut r, s.x, s.y)
+    assert(s.action == sim.PARRY, "later ordinal's imminent blow gets the parry")
+    assert(
+        r.events.len == 1 && r.events[0].key == controls.KEY_PARRY,
+        "ordinary recorded parry key",
+    )
+}
+
+fn test_cb08_walker_locks_the_foe_its_jaw_stance_was_planned_for() {
+    var s = hitcensus.fixture(sim.BOAR)
+    s.action = sim.IDLE
+    s.heading = 192
+    s.heading_target = 192
+    s.body_facing = 6
+    (mut s.foes).reset()
+    var first = sim.make_ashen(s.x - 5 * sim.FP, s.y)
+    first.phase = sim.STAGGER
+    first.since = 100000
+    var nearer = sim.make_ashen(s.x - 3 * sim.FP, s.y - 3 * sim.FP)
+    nearer.phase = sim.STAGGER
+    nearer.since = 100000
+    (mut s.foes).push(first)
+    (mut s.foes).push(nearer)
+    assert(
+        sim.in_reach(s, 0, 2) && sim.in_reach(s, 1, 2),
+        "both foes are eligible body-ring threats",
+    )
+    var r = replay.new(1, 1, 200, 60)
+    walker.drive(mut s, mut r, s.x, s.y)
+    assert(
+        s.action == sim.BITE && s.attack_heading == 192,
+        "bite the planned west foe, not the nearer north-west foe",
+    )
+}

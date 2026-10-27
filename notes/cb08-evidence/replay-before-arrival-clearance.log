@@ -1,0 +1,18 @@
+cb08 replay-regeneration start 2026-10-27T09:03:55Z
+cb08 replay-regeneration acquired cores 4-7 2026-10-27T09:03:55Z
+cb08 replay-regeneration waiting for cores 8-11 2026-10-27T09:03:55Z
+build: target/release/cub
+witness spring-found tick 122 area 0 scent 7606 mark 0 shortcuts 0
+witness world-gate tick 683 area 0 scent 7622 mark 0 shortcuts 0
+witness world-thorns tick 700 area 0 scent 7622 mark 0 shortcuts 0
+witness thorn-gate tick 711 area 0 scent 7622 mark 0 shortcuts 0
+witness world-open tick 726 area 0 scent 7622 mark 0 shortcuts 0
+witness town-den tick 1321 area 6 scent 7672 mark 0 shortcuts 0
+witness world-den tick 2854 area 1 scent 7717 mark 0 shortcuts 0
+witness world-meadow tick 3212 area 2 scent 7717 mark 0 shortcuts 0
+witness hawk-shadow tick 3339 from 3336 area 2
+witness hawk-stoop tick 3354 from 3352 area 2
+witness world-hawk tick 3354 area 2 scent 7717 mark 0 shortcuts 0
+witness world-recovered tick 3866 area 2 scent 7717 mark 0 shortcuts 0
+proof: log not opened area 1 shortcuts 2 at 8192,6400
+replay-regeneration EXIT 1 2026-10-27T09:04:11Z

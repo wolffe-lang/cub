@@ -1,0 +1,7 @@
+cb08 planned-target-green start 2026-10-27T09:46:10Z
+cb08 planned-target-green acquired cores 8-11 2026-10-27T09:46:10Z
+cb08 planned-target-green waiting for cores 4-7 2026-10-27T09:46:10Z
+test src/diagonalwalk_test.lu::test_cb08_walker_parries_the_imminent_ashen_not_the_first_ordinal ... ok
+test src/diagonalwalk_test.lu::test_cb08_walker_locks_the_foe_its_jaw_stance_was_planned_for ... ok
+wolf test: 2 passed; 0 failed; 0 rejected; 0 unsupported; 333 filtered out
+planned-target-green EXIT 0 2026-10-27T09:46:15Z
