@@ -124,6 +124,8 @@ fn usage_text() -> str {
         "  --score-render NAME OUT           a part as raw stereo S16_LE PCM, its own length\n" +
         "  --score-wav NAME OUT              the same PCM in a WAV\n" +
         "  --score-replay OUT                the cue schedule through the mixer, 180 ticks of PCM\n" +
+        "  --allocation-probe N SAVE MODE     named-region allocation census; SAVE '-' is fresh seed 7\n" +
+        "                                    MODE sim|render|terrain|actor|hud|history|save|all\n" +
         "  --bench                           render/diff timings for the performance gate\n" +
         "  --save PATH                       journey file (live default ~/.cub/save)\n" +
         "  --save-cut                        test a cut write; previous save stays intact\n" +

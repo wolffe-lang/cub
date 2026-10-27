@@ -133,6 +133,8 @@ jobs:
         env:
           LAIR_MEMORY_GATE: '0'
         run: .lair/tools/build --all
+      - name: resident growth, crash checkpoint and fresh seed
+        run: sh tools/check-memory target/release/cub
       - name: the goldens, both tiers
         env:
           LAIR_MEMORY_GATE: '0'
