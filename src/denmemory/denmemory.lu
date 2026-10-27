@@ -84,18 +84,30 @@ pub fn generate(path: str) -> int {
         replay.push_arg(mut r, 0, controls.saved_event(part), initial[part])
         part += 1
     }
+    // The path: the thorn gate opens on Cinderwick (cb05); out and back,
+    // out and back. The log: the Shingle's own mouth of it (edge 2) into
+    // Bramblehold and the log back.
     let (x, y) = forest.portal(s.seed, 0, 0)
-    if !walker.walk(mut s, mut r, x, y) || s.area != 1 {
+    if !walker.walk(mut s, mut r, x, y) || s.area != forest.TOWN {
         eprint("memory: onward failed area {s.area} tick {s.tick}")
         return 1
     }
-    let (back_x, back_y) = forest.portal(s.seed, 1, 0)
+    let (back_x, back_y) = forest.portal(s.seed, forest.TOWN, 0)
     if !walker.walk(mut s, mut r, back_x, back_y) || s.area != 0 {
         eprint("memory: path return failed area {s.area} tick {s.tick}")
         return 1
     }
-    if !walker.walk(mut s, mut r, x, y) || s.area != 1 {
+    if !walker.walk(mut s, mut r, x, y) || s.area != forest.TOWN {
         eprint("memory: onward failed area {s.area} tick {s.tick}")
+        return 1
+    }
+    if !walker.walk(mut s, mut r, back_x, back_y) || s.area != 0 {
+        eprint("memory: path return failed area {s.area} tick {s.tick}")
+        return 1
+    }
+    let (mouth_x, mouth_y) = forest.portal(s.seed, 0, 2)
+    if !walker.walk(mut s, mut r, mouth_x, mouth_y) || s.area != 1 {
+        eprint("memory: log onward failed area {s.area} tick {s.tick}")
         return 1
     }
     let (log_x, log_y) = forest.portal(s.seed, 1, 2)

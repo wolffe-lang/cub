@@ -132,7 +132,10 @@ fn test_cb04f_schema4_migrates_canonically_with_empty_slain_masks() {
         return
     }
     assert(journey.encode(migrated).starts_with("CUB 5\n"), "new write upgrades schema")
-    assert(journey.encode(migrated).contains("slain 0 0 0 0 0 0\n"), "empty old masks")
+    assert(
+        journey.encode(migrated).contains("slain 0 0 0 0 0 0 0\n"),
+        "empty old masks (a mask an area, seven since cb05)",
+    )
     var rejected = false
     let _ = journey.decode(old + "check 0\n", 80, 24) else |_| {
         rejected = true

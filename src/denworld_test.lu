@@ -1,9 +1,10 @@
 //! member: false
 
-use controls
 use grid
+use replay
 use restscene
 use sim
+use walker
 
 fn key(k: int) -> List[int] {
     var keys = List[int]()
@@ -19,28 +20,20 @@ fn live(s: sim.Sim) -> int {
 
 fn test_cb04f_slain_survive_path_and_log() {
     var s = sim.new(1, 80, 24)
-    // Recorded bite fixture: ordinary keys, no health or foe mutation.
+    // The first Shingle foe bitten dead by the test walker's ordinary keys
+    // (cb05 moved the Shingle's curve under cb04f's hand-recorded keys; the
+    // walker presses the same keys, no health or foe mutation).
+    var r = replay.new(1, 1, 80, 24)
     var t = 0
-    while t < 181 {
-        var keys = List[int]()
-        if t <= 16 { (mut keys).push(controls.KEY_LEFT) }
-        if t >= 16 && t <= 176 { (mut keys).push(controls.KEY_DOWN) }
-        if t == 169 { (mut keys).push(controls.KEY_LEFT) }
-        if t == 171 { (mut keys).push(controls.KEY_RIGHT) }
-        if t == 177 {
-            (mut keys).push(controls.KEY_LOCK)
-            (mut keys).push(controls.KEY_DOWN)
-            (mut keys).push(controls.KEY_BITE)
-            (mut keys).push(controls.KEY_RELEASE)
-        }
-        sim.step(mut s, keys)
+    while t < 2400 && s.foes[0].health > 0 && s.action != sim.FALL {
+        walker.drive(mut s, mut r, s.foes[0].x, s.foes[0].y)
         t += 1
     }
     assert(s.foes[0].health <= 0, "witness killed first Shingle foe with a bite")
     let remaining = live(s)
     s.gate_open = true
-    assert(sim.cross_edge(mut s, 0), "path to Bramblehold")
-    assert(sim.cross_edge(mut s, 0), "path to Shingle")
+    assert(sim.cross_edge(mut s, 0), "path to Cinderwick (the gate opens on the town since cb05)")
+    assert(sim.cross_edge(mut s, 0), "path back to the Shingle")
     assert(live(s) == remaining, "cb04f path must not revive slain Shingle foe")
     sim.open_shortcut(mut s, 2)
     assert(sim.cross_edge(mut s, 2), "open log to Bramblehold")
