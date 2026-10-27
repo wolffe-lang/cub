@@ -106,41 +106,48 @@ fn test_cb07_hit_three_shakes_its_head_two_full_swings_each_side_two_ticks_rich(
     shakes(tier.RICH)
 }
 
-fn eases(t: int) {
-    for hit in [1, 2, 3] {
-        let rows = combatproof.strike_rows(64, hit, t)
-        let last = copy rows[rows.len - 1]
+fn eases(t: int, hit: int) {
+    let rows = combatproof.strike_rows(64, hit, t)
+    let last = copy rows[rows.len - 1]
+    assert(
+        last.changed == 0 && last.forward == 0 && last.left == 0,
+        "hit {hit} {tier_name(t)}: the last age stands at the commitment point",
+    )
+    // The ease is monotone: no age after the hold is further forward
+    // than the one before it.
+    var age = sim.strike_hold(hit) + 1
+    while age < rows.len {
         assert(
-            last.changed == 0 && last.forward == 0 && last.left == 0,
-            "hit {hit} {tier_name(t)}: the last age stands at the commitment point",
+            rows[age].forward <= rows[age - 1].forward + 10,
+            "hit {hit} {tier_name(t)}: age {age} eases back",
         )
-        // The ease is monotone: no age after the hold is further forward
-        // than the one before it.
-        var age = sim.strike_hold(hit) + 1
-        while age < rows.len {
-            assert(
-                rows[age].forward <= rows[age - 1].forward + 10,
-                "hit {hit} {tier_name(t)}: age {age} eases back",
-            )
-            age += 1
-        }
+        age += 1
     }
 }
 
-fn test_cb07_every_strike_eases_back_to_the_commitment_point_plain() { eases(tier.PLAIN) }
+fn test_cb07_hit_one_eases_back_to_the_commitment_point_plain() { eases(tier.PLAIN, 1) }
 
-fn test_cb07_every_strike_eases_back_to_the_commitment_point_rich() { eases(tier.RICH) }
+fn test_cb07_hit_two_eases_back_to_the_commitment_point_plain() { eases(tier.PLAIN, 2) }
 
-fn test_cb07_no_row_of_the_strike_census_breaks_the_contract_east_rich() {
-    for hit in [1, 2, 3] {
-        for r in combatproof.strike_rows(64, hit, tier.RICH) {
-            assert(
-                !combatproof.strike_row_breaks(hit, r),
-                "hit {hit} age {r.age} breaks the contract",
-            )
-        }
+fn test_cb07_hit_three_eases_back_to_the_commitment_point_plain() { eases(tier.PLAIN, 3) }
+
+fn test_cb07_hit_one_eases_back_to_the_commitment_point_rich() { eases(tier.RICH, 1) }
+
+fn test_cb07_hit_two_eases_back_to_the_commitment_point_rich() { eases(tier.RICH, 2) }
+
+fn test_cb07_hit_three_eases_back_to_the_commitment_point_rich() { eases(tier.RICH, 3) }
+
+fn breaks(hit: int) {
+    for r in combatproof.strike_rows(64, hit, tier.RICH) {
+        assert(!combatproof.strike_row_breaks(hit, r), "hit {hit} age {r.age} breaks the contract")
     }
 }
+
+fn test_cb07_no_row_of_hit_one_breaks_the_contract_east_rich() { breaks(1) }
+
+fn test_cb07_no_row_of_hit_two_breaks_the_contract_east_rich() { breaks(2) }
+
+fn test_cb07_no_row_of_hit_three_breaks_the_contract_east_rich() { breaks(3) }
 
 fn test_cb07_strike_offsets_are_whole_cells_at_the_peak_and_zero_at_the_end() {
     let (f1, s1) = sim.strike_offset(1, 3)

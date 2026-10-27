@@ -52,9 +52,13 @@ fn test_cb04c_stamina_edge_is_reserved_after_c() {
                 !(cp >= 65 && cp <= 90 || cp >= 97 && cp <= 122),
                 "no lettering at the stamina edge after c",
             )
+            // The ground's own cell (its glyph and colours; Bramblehold's
+            // sight dims the attrs of far cells, `art.terrain_row`).
             let (wx, wy) = sim.world_cell(s, row, 22)
+            let ground = art.ground_at(s.seed, s.field, s.area, t, wx, wy)
+            let shown = grid.at(g, row, 22)
             assert(
-                grid.same(grid.at(g, row, 22), art.ground_at(s.seed, s.field, s.area, t, wx, wy)),
+                shown.cp == ground.cp && shown.fg == ground.fg && shown.bg == ground.bg,
                 "the stamina edge is the ground's own cell (cb07)",
             )
             row += 1
