@@ -90,3 +90,15 @@ its one-second animation; a hit interrupts it. Rests refill found capacity.
 Meat from ordinary kills is collected and heals immediately, without a key.
 `den-contact` injects real arrow/r/Esc bytes at the visible den edge;
 `den-checkpoint` plays the recorded den2 walk/rest/death/wake through a pty.
+
+## Cinderwick (cb05)
+
+No new key. `r` beside an ash heap in a yard digs it as it digs a burrow
+(a guard stands by every one; the marrow or the herb goes to the pouch); `r`
+beside a hollow with old bones reads the forest's line instead, shown four
+seconds under the bars. An ember underfoot burns a little every ten ticks
+with no key at all: step off it. The Ashen's blow is parried with `z` in its
+window as any blow is; the parry opens a sixty-tick riposte. The four pty
+rows `town-passage`, `ashen-parry`, `ember-touch` and `yard-cache` replay the
+real-key scripts the proof generates and hold the live frame to the
+headless one.
