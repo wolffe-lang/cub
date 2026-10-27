@@ -1,0 +1,74 @@
+//! lore — what the forest says when the cub finds a thing (cb05). Every
+//! line is original and in the bible's register: plain, old-forest, what a
+//! cub smells and sees. A cache that holds a lore line shows it on the
+//! bottom row for `LINE_TICKS` when it is dug; a landmark's line shows
+//! while the cub stands near it. The ids are stable: a replay that dug a
+//! cache shows the same words.
+
+/// How long a found line stays on the bottom row.
+pub const LINE_TICKS: int = 240
+
+/// The hollow in Bramblehold (cb02's line, kept).
+pub const OLD_BONES: int = 0
+
+/// Cinderwick: the doorway.
+pub const TOWN_DOORWAY: int = 1
+
+/// Cinderwick: where the fire went (ties the meadow's names).
+pub const TOWN_FIRE: int = 2
+
+/// Cinderwick: the burnt bed.
+pub const TOWN_BED: int = 3
+
+/// Cinderwick: bones without scent.
+pub const TOWN_BONES: int = 4
+
+/// Bramblehold's third cache: Ember's half-dug bone.
+pub const FOX_CACHE: int = 5
+
+/// Larkmeadow's third cache: the grass over the burn.
+pub const GREEN_BURN: int = 6
+
+/// An old scent mark (the dead ends' reward): a wolf going up.
+pub const MARK_UP: int = 7
+
+/// An old scent mark: not the pack's.
+pub const MARK_OLDER: int = 8
+
+/// An old scent mark in the town: the Ashen pass it.
+pub const MARK_TOWN: int = 9
+
+/// The number of lines.
+pub const COUNT: int = 10
+
+/// The line itself.
+pub fn line(id: int) -> str {
+    match id {
+        0 => "Old bones. Nothing here carries a scent.",
+        1 => "A doorway, and inside it a smell older than the ash: people. They all went up the valley at once, and none came back down.",
+        2 => "The ash lies thickest toward the thicket. The fire went that way: up the thicket's edge, over the long grass, and stopped at a hollow that is still warm.",
+        3 => "A bed of rushes burnt to its shape. The Ashen walk past it every night as if the roof were still on.",
+        4 => "Bones by a hearth, and no scent on them. The bones in the thicket are the same. Something in this forest takes the scent out of the dead.",
+        5 => "A marrow bone under the thorns, half dug. Ember was here, and left in a hurry.",
+        6 => "The grass grows back greenest where the fire burned. Under it, a scent that is nearly the pack's, and nearly not.",
+        7 => "An old scent mark on a stump: a wolf, going up. Not the pack's. The forest remembers it.",
+        8 => "A mark older than the burn, high on the bark, where only a big wolf could leave it.",
+        _ => "A wolf's mark on the hearthstone, under the soot. The Ashen walk round it; even they will not cross it.",
+    }
+}
+
+/// What a cache holds when dug: a lore line (`LORE`), a marrow bone or a
+/// sprig of yarrow.
+pub const LORE: int = 0
+
+/// The reward: marrow (the bible's section 7).
+pub const MARROW: int = 1
+
+/// The reward: yarrow.
+pub const YARROW: int = 2
+
+/// The line the cub hears at a dug cache that held a consumable.
+pub fn pouch_line(reward: int, bundle: bool) -> str {
+    if bundle { return "The wrapping is empty; a bundle is in your pouch." }
+    if reward == MARROW then "The hollow is empty; its marrow is in your pouch." else "The burrow is empty; its herb is in your pouch."
+}
