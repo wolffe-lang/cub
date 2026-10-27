@@ -428,7 +428,7 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
 /// this and the whole frame and reads the difference: every cell that
 /// differs is a cell the HUD painted.
 pub fn render_bare(s: sim.Sim, t: int, mut g: grid.Grid) {
-    frame(s, extra_none(), t, mut g, false)
+    region frame_scratch { frame(s, extra_none(), t, mut g, false) }
 }
 
 /// The pose the frame draws the cub in: 0 standing, 1 walking, 2 sneaking
@@ -457,7 +457,9 @@ pub fn pose_of(s: sim.Sim) -> int {
 /// size (`assert`). A scene (the opening, the title, the end) draws its
 /// own frame instead.
 pub fn render_with(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid) {
-    frame(s, extra, t, mut g, true)
+    // Only cells survive the draw. Terrain lookup tables, poses, HUD plans
+    // and composed sprite scratch die with this frame, not with the game.
+    region frame_scratch { frame(s, extra, t, mut g, true) }
 }
 
 fn frame(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid, hud: bool) {

@@ -1,4 +1,5 @@
 //! Allocation census, separate from gameplay: no save or ghost writes.
+
 use art
 use ghost
 use grid
@@ -11,49 +12,62 @@ use tier
 #[allow(w0314)]
 pub fn census(ticks: int, save: str, mode: str) -> int {
     if ticks < 1 || ticks > 10000 { return 2 }
-    if mode != "sim" && mode != "render" && mode != "history" && mode != "save" && mode != "all" && mode != "terrain" && mode != "actor" && mode != "hud" {
+    if mode != "sim" &&
+        mode != "render" &&
+        mode != "history" &&
+        mode != "save" &&
+        mode != "all" &&
+        mode != "terrain" &&
+        mode != "actor" &&
+        mode != "hud" {
         return 2
     }
     region census {
-    var s = if save == "-" {
-        sim.new(7, 120, 40)
-    } else {
-        journey.load(save, 7, 120, 40) else |e| { eprint("cub: {e}"); return 2 }
-    }
-    var g = grid.new(40, 120)
-    let extra = art.extra_none()
-    let keys = List[int]()
-    var history = ghost.history()
-    var total = 0
-    var i = 0
-    let initial = live_region_bytes()
-    while i < ticks {
-        let before = live_region_bytes()
-        if mode == "sim" || mode == "all" { sim.step(mut s, keys) }
-        if mode == "terrain" {
-            var row = 0
-            while row < s.rows { art.terrain_row(s, tier.RICH, row, mut g); row += 1 }
+        var s = if save == "-" {
+            sim.new(7, 120, 40)
+        } else {
+            journey.load(save, 7, 120, 40) else |e| { eprint("cub: {e}"); return 2 }
         }
-        if mode == "actor" { art.draw_actor(s, tier.RICH, mut g) }
-        if mode == "hud" {
-            let plan = art.hud_plan(s, tier.RICH)
-            if plan.len == 0 { return 1 }
+        var g = grid.new(40, 120)
+        let extra = art.extra_none()
+        let keys = List[int]()
+        var history = ghost.history()
+        var total = 0
+        var i = 0
+        let initial = live_region_bytes()
+        while i < ticks {
+            let before = live_region_bytes()
+            if mode == "sim" || mode == "all" { sim.step(mut s, keys) }
+            if mode == "terrain" {
+                var row = 0
+                while row < s.rows { art.terrain_row(s, tier.RICH, row, mut g); row += 1 }
+            }
+            if mode == "actor" { art.draw_actor(s, tier.RICH, mut g) }
+            if mode == "hud" {
+                let plan = art.hud_plan(s, tier.RICH)
+                if plan.len == 0 { return 1 }
+            }
+            if mode == "render" || mode == "all" { art.render_with(s, extra, tier.RICH, mut g) }
+            if mode == "history" || mode == "all" {
+                ghost.record(mut history, i, ghost.Frame {
+                    x: s.x,
+                    y: s.y,
+                    facing: s.body_facing,
+                    pose: 0,
+                    area: s.area,
+                })
+            }
+            if mode == "save" || mode == "all" {
+                let encoded = journey.encode(s)
+                if encoded.len == 0 { return 1 }
+            }
+            total += live_region_bytes() - before
+            i += 1
         }
-        if mode == "render" || mode == "all" { art.render_with(s, extra, tier.RICH, mut g) }
-        if mode == "history" || mode == "all" {
-            ghost.record(mut history, i, ghost.Frame {
-                x: s.x, y: s.y, facing: s.body_facing, pose: 0, area: s.area,
-            })
-        }
-        if mode == "save" || mode == "all" {
-            let encoded = journey.encode(s)
-            if encoded.len == 0 { return 1 }
-        }
-        total += live_region_bytes() - before
-        i += 1
-    }
-    let final = live_region_bytes()
-    print("allocation mode {mode} ticks {ticks} area {s.area} initial {initial} final {final} charged {total} bytes_per_tick {total / ticks}")
+        let final = live_region_bytes()
+        print(
+            "allocation mode {mode} ticks {ticks} area {s.area} initial {initial} final {final} charged {total} bytes_per_tick {total / ticks}",
+        )
     }
     0
 }

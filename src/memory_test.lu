@@ -1,0 +1,49 @@
+use art
+use grid
+use journey
+use sim
+use tier
+
+/// Pin every numeric field: a hash or a prefix cannot replace exact equality.
+fn test_cb09_checkpoint_comparison_checks_every_saved_word() {
+    let s = sim.new(7, 80, 24)
+    let expected = journey.snapshot(s)
+    var changed = journey.snapshot(s)
+    assert(journey.same_snapshot(expected, changed))
+    var i = 0
+    while i < expected.len {
+        changed[i] += 1
+        assert(!journey.same_snapshot(expected, changed))
+        changed[i] -= 1
+        i += 1
+    }
+    (mut changed).push(0)
+    assert(!journey.same_snapshot(expected, changed))
+}
+
+fn test_cb09_checkpoint_buffer_reuses_capacity_and_matches_encoding() {
+    var s = sim.new(7, 80, 24)
+    var values = journey.snapshot(s)
+    let before = journey.encode(s)
+    journey.snapshot_into(s, mut values)
+    assert(journey.same_snapshot(values, journey.snapshot(s)))
+    assert(before == journey.encode(s))
+    s.scent += 1
+    journey.snapshot_into(s, mut values)
+    assert(!journey.same_snapshot(values, journey.snapshot(sim.new(7, 80, 24))))
+    assert(before != journey.encode(s))
+    assert(values.len == journey.SNAPSHOT)
+}
+
+/// Both render entry points must return only cells, never frame scratch.
+fn test_cb09_render_releases_frame_scratch() {
+    region trial {
+        let s = sim.new(7, 80, 24)
+        var g = grid.new(24, 80)
+        let before = live_region_bytes()
+        art.render(s, tier.RICH, mut g)
+        assert(live_region_bytes() == before)
+        art.render_bare(s, tier.PLAIN, mut g)
+        assert(live_region_bytes() == before)
+    }
+}

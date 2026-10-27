@@ -320,6 +320,13 @@ pub fn commit(path: str) -> () ! CommitErrors {
 /// Versioned replay snapshot uses the same validated journey representation.
 pub fn snapshot(s: sim.Sim) -> List[int] {
     var values = List[int]()
+    snapshot_into(s, mut values)
+    values
+}
+
+/// Reuse a fixed-size numeric checkpoint; idle save comparison allocates nothing.
+pub fn snapshot_into(s: sim.Sim, mut values: List[int]) {
+    (mut values).reset()
     (mut values).push(s.seed)
     (mut values).push(s.difficulty)
     (mut values).push(s.heart)
@@ -352,7 +359,14 @@ pub fn snapshot(s: sim.Sim) -> List[int] {
     (mut values).push(sim.level(s))
     var area = 0
     while area < forest.AREAS { (mut values).push(sim.slain_mask(s, area)); area += 1 }
-    values
+}
+
+/// Exact equality, never a hash: every canonical payload field is represented.
+pub fn same_snapshot(a: List[int], b: List[int]) -> bool {
+    if a.len != b.len { return false }
+    var i = 0
+    while i < a.len { if a[i] != b[i] { return false }; i += 1 }
+    true
 }
 
 /// Validate a complete initial replay journey before applying it.

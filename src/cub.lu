@@ -726,8 +726,9 @@ fn run_live(o: Options, args: List[str]) -> int {
         let _answers = score.probe(mut player)
         prepared_us = (clock.now_ns() - p0) / 1000
     }
-    var saved = journey.encode(s)
-    var pending = ""
+    var saved = journey.snapshot(s)
+    var pending = List[int]()
+    var current = List[int]()
     var pending_at = 0
     var save_error = false
     var front = grid.new(rows, cols)
@@ -894,7 +895,7 @@ fn run_live(o: Options, args: List[str]) -> int {
             // previously staged save whose delay has elapsed before exiting;
             // quit forbids NEW stages below, not an already-due commit.
             if !replaying {
-                if pending != "" && s.tick - pending_at >= o.save_delay {
+                if pending.len > 0 && s.tick - pending_at >= o.save_delay {
                     journey.commit(save_path) else |e| {
                         eprint("cub: {e}")
                         save_error = true
@@ -902,13 +903,15 @@ fn run_live(o: Options, args: List[str]) -> int {
                         ended = "a failed save"
                     }
                     if !save_error {
+                        let old = saved
                         saved = pending
-                        pending = ""
+                        pending = old
+                        (mut pending).reset()
                         s.save_status = 2
                     }
                 }
-                let current = journey.encode(s)
-                if !quit && pending == "" && current != saved {
+                journey.snapshot_into(s, mut current)
+                if !quit && pending.len == 0 && !journey.same_snapshot(current, saved) {
                     journey.prepare(save_path, s, o.save_cut) else |e| {
                         eprint("cub: {e}")
                         save_error = true
@@ -916,7 +919,9 @@ fn run_live(o: Options, args: List[str]) -> int {
                         ended = "a failed save"
                     }
                     if !save_error {
+                        let spare = pending
                         pending = current
+                        current = spare
                         pending_at = s.tick
                         s.save_status = 1
                     }
@@ -984,7 +989,7 @@ fn run_live(o: Options, args: List[str]) -> int {
             break
         }
     }
-    if pending != "" {
+    if pending.len > 0 {
         journey.abort(save_path) else |e| {
             eprint("cub: {e} while cancelling save")
             save_error = true
