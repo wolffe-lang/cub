@@ -10,7 +10,7 @@ The second game of the lair, the wolf games collection, on the collection's shar
 (`wolffe-lang/lair`, pinned in `lair.pin`); the first is `pack`.
 
 **What is in this build:** a seeded route from the Shingle through
-Cinderwick and Bramblehold to Larkmeadow and on, the wide forest of cb05: areas of 288 and 224 cells
+Cinderwick and Bramblehold to Larkmeadow and on, the wide forest of cb05: areas of 288, 240 and 224 cells
 (the Shingle's 160 stays the tutorial), at most two dens an area and never under 110 route cells apart,
 each den drawn as the place its name promises and the retired dens standing as landmarks (the coal roots'
 stump-field, the low embers' ring of coals, the ash shelter's charred frame), cache branches in four smooth

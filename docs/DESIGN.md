@@ -859,7 +859,8 @@ of the fire there. The people who did not leave are the Ashen. The graph is re-t
 now opening on the town; edge 9 the town's way on; the log, edge 2, still runs Bramblehold - the Shingle).
 
 **R-cb05-2 (recommended A): lengths.** `forest.length(area)`: the Shingle 160 (the tutorial, unchanged),
-Cinderwick, Bramblehold and Larkmeadow 288, the Teeth, the Shallows and Gravehollow 224. Every row position
+Bramblehold and Larkmeadow 288, Cinderwick 240 (shrunk from 288 to pay for its width, item 8), the Teeth, the
+Shallows and Gravehollow 224. Every row position
 derives from the length: the arenas at seven tenths (156 of 224), the caches at 60 / 136 / 232, the foe
 groups every 44 rows from 40.
 
@@ -873,7 +874,7 @@ row), lighting it. Den 7 is the cold hearth, Cinderwick's.
 | den | area | local row | the place its name promises |
 |---|---|---|---|
 | 0 the hollow log | the Shingle | the start | the cut timber the cub rests inside (`art.den_rows`) |
-| 7 the cold hearth | Cinderwick | 132..135, in the square, nine cells off the lane | a ring of hearth stones, the fire in the middle |
+| 7 the cold hearth | Cinderwick | 124..127, in the square, nine cells off the lane | a ring of hearth stones, the fire in the middle |
 | 2 the briar hollow | Bramblehold | 100..103 | a bowl in the brambles |
 | 1 the split roots | Bramblehold | 196..199 | the roots under the lightning-split oak, the oak six cells east (`LM_SPLIT_OAK`) |
 | 3 the grass nest | Larkmeadow | 8..11 | a flattened ring of grass; Quill's first perch seven cells east at row 30 |
@@ -892,7 +893,7 @@ yard's, behind its walls), the first on the ember and the rest a body's length d
 | area | length | dens | caches | foes (boss excluded) | landmarks |
 |---|---|---|---|---|---|
 | the Shingle | 160 | 1 | 4 bundles | 9 | — |
-| Cinderwick | 288 | 1 | 4 yards (bits 8..11) | 16: the Ashen only (five lane pairs, six yard guards) | 2 scent marks in yards |
+| Cinderwick | 240 | 1 | 4 yards (bits 8..11) | 14: the Ashen only (four lane pairs, six yard guards; at most two on the trail at once, R-cb05-5) | 2 scent marks in yards |
 | Bramblehold | 288 | 2 | 3 (bits 4, 5, 12) | 18: weasel and fox pairs, a trio and two foxes at the caches | the coal roots, the split oak, 2 scent marks |
 | Larkmeadow | 288 | 2 | 3 (bits 6, 7, 13) | 18: hawks over every open stretch with deer under them, weasels in the grass, a fox pair | Quill's perch, the low embers, the ash shelter, a scent mark |
 | the Teeth | 224 | 1 | 0 | 8: fox pairs, a weasel pair, two hawks | the cleft, a scent mark |
@@ -909,6 +910,66 @@ apexes at rows 20 + 36 k: the way in runs straight for four rows (the arrival ce
 slants straight to the first apex (a smoothstep there bent one way and then the other within eight rows, a
 reversal the bends census sees). `STRAIGHT_MAX` 12 holds (measured 9 inland, 8 on the Shingle, 10 on the
 town's lane).
+
+**The lane** (`town.lane`) is a street, not a path through wood, and three censuses pull three ways on a
+street: the straight-run bar (no run over twelve), cb04d's jaggedness (no step out and back within three
+samples) and the bends census (no opposite turns within eight cells). The route meander failed the first
+and cut house corners (it wanders five cells within a plot); a plot-pitched smoothstep failed the first;
+two-row eases failed the second; four-row eases on a plot pitch failed the third. The lane that satisfies
+all three weaves on anchors every two plots (`LANE_PITCH` 28 rows, at the even plots' middle rows), three
+to six cells to alternate sides, three beside the road in and out, zero beyond (the thorn throat and the
+way on stand at x = 0); each anchor sits mid-cell so the apex row never pokes a cell out of its flat; the
+blend eases four rows out of an anchor, slants straight (a cell every two or three rows: no counted turn)
+and eases four rows into the next. A house's near wall is placed by the lane's farthest reach toward it
+over its plot's rows (`lane_edge`: an end row, or the middle where the plot holds an anchor swung that
+way), so the verge widens where the street bends away and no wall is ever carved.
+
+**Measured on the final generator** (fifty seeds, both fields; `notes/cb05-evidence/`): den spacing least
+within an area 122 route cells, least onward 116 (bar 110); foes 9 / 16 / 18 / 18 / 8 / 8 / 9 an area in
+every seed, none within 30 cells of a den; 0 reversals within eight cells on any route or branch (7,676
+counted turns); cb04d's jaggedness per ten samples 0.068 / 0.105 / 0.057 / 0.100 / 0.103 / 0.111 against
+0.090 / 0.186 / 0.133 / 0.168 / 0.190 / 0.170 before, widths 7/9/9/7/9/11 at the median; 700 world-audit
+rows with 0 unreached and the longest straight run 10; every spur ends at a cache, a landmark or a den;
+generation at field 200 on the Mac release build 17 / 8 / 8 / 3 / 3 / 3 / 4 ms (bar 50); render means 174 /
+164 µs at 80×24 and 1264 / 1252 at 200×60 (cb04d: 182 / 174, 1306 / 1296).
+
+**The branches** (`forest.Branch`, `branch_point`, `in_branch`): a cache branch leaves the route at its
+row on the side the switchback has swung away from (Bramblehold) or by parity, with half width 3 and an
+alcove of radius 4 at its end, in one of four shapes drawn from a seeded order of the four so no two in an
+area are alike where the field allows: a slow S (the amplitude 6..12), a hook (a run, a quarter turn of
+radius 7, a climb of 12..18), a loop (a ring of radius 10 round a copse, entered at its pole, the cache at
+the far pole), a 180-degree turn (radius 8, back three fifths of the way) where the reach allows (46 cells,
+the 200 field; the hook needs 20, the loop 30). Every shape bends toward the side whose nearest den is
+the farther off. Bramblehold also has a fork that rejoins (rows 92..188, 14..18 cells west, eased over 24
+rows inside one leg each end), a second way into the boar's clearing from the south (row 130) and two
+pockets; the meadow, the Teeth and Gravehollow one pocket each: a stub of 7..9 cells with an old scent
+mark at its end.
+
+**Cinderwick** (`src/town/town.lu`; the block plan of item 8, from the maintainer's play of `cd7e5022`: "I
+was hoping the town map would be more rectangular, that is take up more width of the screen"): a rectangle
+across the field. The lane (half width 4, the route's spine) runs the town's 240 rows with a verge of 4
+cells of ash; 14 plots a side from row 20 every 14 rows (a thirteen-row house with its walls on the first
+and last rows, then the one-cell passage), the passage after plots 2 and 10 grown into a cross street of 8
+rows that runs the town's whole width; plots 6 and 7 are the square, open ash across the width with rubble
+(never about the hearth), the hearth nine cells off the lane, an ember each side. A side street (half width
+3) runs north–south at x = ±44 from the first cross street to the last, so every street loops: the lane,
+two cross streets, the square and the side streets make the blocks, and every passage row runs on behind
+the yards to the side street (a corridor a cell wide). A house is 8..10 cells wide with a two-row door in
+its near wall and a ruin's fallen cells (one in nine, never a corner, never the far wall); behind it a yard
+5..8 deep with one two-cell gap in its top or bottom wall into the corridor and a back wall (the lane's
+plots reach x = ±34 at most, a cell of wood short of the side street); beyond the back walls the closed
+wood. At the 80 field (half width 48) the side streets are the town's edge: 94 cells of the field's 97. At
+the 200 field (108) a second row of plots faces the side streets' outer sides (near walls at ±52, back walls
+to ±72) and an outer ring at x = ±80 closes the blocks: the same plan scaled by blocks, never by wider
+streets; `town.wide(field)` says which. An ember (`terrain.EMBER`) stands in 42 % of the plots, in the
+verge for the odd plots and the yard for the even (the side plots the same); light 2 within three columns
+of one, 1 within six (the ash and the walls warm up; the lane's cobbles keep their one style for the path
+audit); a cub any part of whose body covers one (`sim.on_ember`, the body as the frame draws it) loses
+`EMBER_HURT` 2 every `EMBER_TICKS` 10. Caches in the yards of plots 2, 4, 9 and 12 (lore, marrow, lore,
+lore: `lore.lu`), every guard thirty cells and more from the hearth; scent marks in the yards of plots 3
+and 10. The town's bound (`town.bound`): from six rows before the first plot to six after the last, within
+the side streets' outer edge (the ring's at 200). The length shrank from 288 to 240 to pay for the width;
+the hearth sits at rows 124..127, so the den spacing holds (least onward 116, the 110 bar).
 
 **The lane** (`town.lane`) is a street, not a path through wood, and three censuses pull three ways on a
 street: the straight-run bar (no run over twelve), cb04d's jaggedness (no step out and back within three
