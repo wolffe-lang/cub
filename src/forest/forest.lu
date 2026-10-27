@@ -8,16 +8,28 @@
 //! `half_width` each side of their spine, so the world fills the screen it
 //! was made for and the shore is a screen's walk long before its jetty.
 //!
-//! cb04 adds the last three areas the bosses need: the Teeth (the crags, a
-//! climb of narrow ledges between stone, the lynx's ground), the Shallows
+//! cb04 added the last three areas the bosses need: the Teeth (the crags,
+//! a climb of narrow ledges between stone, the lynx's ground), the Shallows
 //! (the river upstream, the Ashwater along the west and the ford the elk
 //! keeps) and Gravehollow (the old den in the deep wood, the pack's scent
-//! everywhere, the shadow alpha's clearing). Each has a den near its entry,
-//! a path in, an arena on its route and a shortcut home that a beaten boss
-//! opens; the boar's clearing is a side branch of Bramblehold.
+//! everywhere, the shadow alpha's clearing).
+//!
+//! cb05 widened the forest (the maintainer's word, 2026-10-26: "areas are
+//! also too small ... Dens are too frequent and too close ... Remove
+//! sawtooth paths"): every area has its own length (`length`, R-cb05-2 A),
+//! at most two dens an area at least `DEN_SPACING` route cells apart
+//! (R-cb05-3 A; the retired dens are landmarks now), cache branches drawn
+//! from four smooth shapes (a slow S, a hook, a loop, a 180-degree turn
+//! where the field has room; `branch_point` is their centreline), a fork
+//! that rejoins and a second way into the boar's clearing in Bramblehold,
+//! short pockets that end at an old scent mark, the burn's landmarks, and
+//! Cinderwick (`town`, area 6) threaded between the Shingle and
+//! Bramblehold: Shingle - Cinderwick - Bramblehold - Larkmeadow - the Teeth
+//! - the Shallows - Gravehollow.
 
 use meadow
 use terrain
+use town
 use world
 
 /// Area identities are stable save-format values.
@@ -38,24 +50,40 @@ pub const RIVER: int = 4
 /// Gravehollow: the old den in the deep wood, the shadow alpha's (cb04).
 pub const OLDDEN: int = 5
 
+/// Cinderwick: the burnt town between the Shingle and Bramblehold (cb05).
+pub const TOWN: int = 6
+
 /// The number of areas (every id below this).
-pub const AREAS: int = 6
+pub const AREAS: int = 7
 
-/// The number of dens (ids 0..6): the hollow log, the split roots, the
-/// briar hollow, the grass nest, the ledge cleft, the willow root, the
-/// cold den.
-pub const DENS: int = 7
+/// The number of dens in the first bank of ids (0..7): the hollow log, the
+/// split roots, the briar hollow, the grass nest, the ledge cleft, the
+/// willow root, the cold den, the cold hearth. Ids 8..15 are the second
+/// bank (`DEN_LIMIT`): 11 the last warm hollow; 8, 9 and 10 retired.
+pub const DENS: int = 8
 
-/// The number of edges (ids 0..8): the thorn path, the meadow path, the
-/// log, the hedge, the crags path, the river path, the old den's path,
-/// the ledge, the shallows.
-pub const EDGES: int = 9
+/// The number of edges (ids 0..9): the thorn path (the Shingle into
+/// Cinderwick), the meadow path, the log, the hedge, the crags path, the
+/// river path, the old den's path, the ledge, the shallows, the town's way
+/// on into Bramblehold.
+pub const EDGES: int = 10
 
 /// The smallest field: the engine's minimum terminal width.
 pub const FIELD_MIN: int = 80
 
-/// Distance along each area, cells.
+/// Distance along the Shingle, cells: the tutorial's length, unchanged;
+/// every other area's is `length`.
 pub const LENGTH: int = 160
+
+/// The longest area, cells: the size of every per-row buffer.
+pub const LENGTH_MAX: int = 288
+
+/// At most this many dens an area (R-cb05-3 A).
+pub const DENS_PER_AREA: int = 2
+
+/// At least this many route cells between any two dens, along the way on
+/// (R-cb05-3 A); a shortcut is short by design and measured apart.
+pub const DEN_SPACING: int = 110
 
 /// Fixed-point units per cell.
 pub const FP: int = 256
@@ -74,15 +102,69 @@ pub const COAST_MIN: int = 120
 /// from the shore, the thorn route or an alcove.
 pub const OPEN_REACH: int = 16
 
-/// The local row a boss's arena is centred on in the crags, the river and
-/// the old den: on the route, two thirds of the way in, the den far behind.
-pub const ARENA_ROW: int = 112
-
 /// The boar's clearing in Bramblehold: a side branch east of the route.
 pub const BOAR_X: int = 30
 
-/// Its local row.
-pub const BOAR_ROW: int = 60
+/// Its local row (two fifths of the way in).
+pub const BOAR_ROW: int = 108
+
+/// A cache branch's half width, cells.
+pub const BRANCH_HALF: int = 3
+
+/// The branch shapes (`branch_shape`): a slow S, a hook (a run, a quarter
+/// turn, a climb), a loop round a copse, a 180-degree turn back toward
+/// the route.
+pub const SHAPE_S: int = 0
+
+/// A hook.
+pub const SHAPE_HOOK: int = 1
+
+/// A loop.
+pub const SHAPE_LOOP: int = 2
+
+/// A 180-degree turn.
+pub const SHAPE_UTURN: int = 3
+
+/// The hook's turning radius, cells.
+pub const HOOK_RADIUS: int = 7
+
+/// The loop's radius, cells (its copse inside).
+pub const LOOP_RADIUS: int = 10
+
+/// The 180-degree turn's radius, cells.
+pub const UTURN_RADIUS: int = 8
+
+/// Landmark kinds (cb05): the low embers (a ring of coals still warm in
+/// the grass), the ash shelter (the charred frame of a hut), the coal roots
+/// (a burnt stump-field at the thicket's edge), the lightning-split oak by
+/// the split roots, the crack in the stone by the ledge cleft, the willow
+/// over the water by the willow root, Quill's first perch, an old scent
+/// mark (the dead ends' reward).
+pub const LM_COALS: int = 0
+
+/// The ash shelter.
+pub const LM_FRAME: int = 1
+
+/// The coal roots.
+pub const LM_STUMPS: int = 2
+
+/// The split oak.
+pub const LM_SPLIT_OAK: int = 3
+
+/// The cleft.
+pub const LM_CLEFT: int = 4
+
+/// The willow.
+pub const LM_WILLOW: int = 5
+
+/// Quill's perch.
+pub const LM_PERCH: int = 6
+
+/// An old scent mark.
+pub const LM_SCENT: int = 7
+
+/// The number of landmark kinds.
+pub const LM_COUNT: int = 8
 
 /// The field a terminal of `cols` columns starts: never below `FIELD_MIN`.
 pub fn field_of(cols: int) -> int {
@@ -110,6 +192,15 @@ pub fn bound(field: int, area: int) -> int {
     if area == SHINGLE then coast_extent(field) else half_width(field)
 }
 
+/// An area's length along its route, cells (R-cb05-2 A): the Shingle's
+/// 160 (the tutorial), 288 for the town, the thicket and the meadow, 224
+/// for the Teeth, the Shallows and Gravehollow.
+pub fn length(area: int) -> int {
+    if area == SHINGLE { return LENGTH }
+    if area == TOWN || area == BRAMBLEHOLD || area == LARKMEADOW { return LENGTH_MAX }
+    224
+}
+
 /// The area entry line.
 pub fn name(area: int) -> str {
     match area {
@@ -118,20 +209,30 @@ pub fn name(area: int) -> str {
         2 => "Larkmeadow",
         3 => "The Teeth",
         4 => "The Shallows",
-        _ => "Gravehollow",
+        5 => "Gravehollow",
+        _ => "Cinderwick",
     }
 }
 
-/// Area containing a persistent den id.
+/// The den ids the save format holds: 0..15.
 pub const DEN_LIMIT: int = 16
 
-/// Ids 4..7 belong to the later areas; 8..15 to refuges in these three.
-/// Unknown/reserved ids are not locations until their area is implemented.
+/// Whether a den id is a place the cub can rest at: 0..7 and 11. Ids 8, 9
+/// and 10 are retired (cb05: landmarks now, `den_retired`); 12..15 are
+/// reserved. Unknown/reserved ids are not locations.
 pub fn den_exists(den: int) -> bool {
-    den >= 0 && den <= 6 || den >= 8 && den <= 11
+    den >= 0 && den <= 7 || den == 11
 }
 
-/// Area containing a den, or -1 for an unimplemented reserved id.
+/// Whether a den id was a den once and is a landmark now (cb05): the coal
+/// roots, the low embers, the ash shelter. The save keeps the ids; a
+/// journey whose last den is one wakes at the nearest kept den.
+pub fn den_retired(den: int) -> bool {
+    den >= 8 && den <= 10
+}
+
+/// Area containing a den, or -1 for an unimplemented, reserved or retired
+/// id.
 pub fn den_area(den: int) -> int {
     if !den_exists(den) { return -1 }
     match den {
@@ -142,12 +243,17 @@ pub fn den_area(den: int) -> int {
         4 => CRAGS,
         5 => RIVER,
         6 => OLDDEN,
-        8 => BRAMBLEHOLD,
+        7 => TOWN,
         _ => LARKMEADOW,
     }
 }
 
-/// Count implemented dens, including the extra refuges.
+/// The area a retired den stood in (for the migration and its landmark).
+pub fn retired_area(den: int) -> int {
+    if den == 8 then BRAMBLEHOLD else if den == 9 || den == 10 then LARKMEADOW else -1
+}
+
+/// Count implemented dens in an area.
 pub fn den_count(area: int) -> int {
     var n = 0
     var id = 0
@@ -158,7 +264,8 @@ pub fn den_count(area: int) -> int {
     n
 }
 
-/// Display name of a persistent den id.
+/// Display name of a persistent den id (the retired ones keep their names
+/// as landmarks).
 pub fn den_name(den: int) -> str {
     match den {
         0 => "The hollow log",
@@ -168,6 +275,7 @@ pub fn den_name(den: int) -> str {
         4 => "The ledge cleft",
         5 => "The willow root",
         6 => "The cold den",
+        7 => "The cold hearth",
         8 => "The coal roots",
         9 => "The low embers",
         10 => "The ash shelter",
@@ -189,23 +297,75 @@ pub fn origin(seed: int, area: int) -> int {
 /// is queried independently; no random stream or host floating point.
 pub fn curve(seed: int, ch: int, at: int) -> int { terrain.meander(seed, ch, at) }
 
-/// Path centre in cells. The first den and final exit remain fixed, with
-/// short tapered approaches rather than a long straight corridor.
-fn switchback(seed: int, at: int) -> int {
-    let amp = 18 + world.hash(seed, 91, 0, 5)
-    if at < 16 { return -amp * at / 16 }
-    if at >= 136 { return amp * (LENGTH - at) / 24 }
-    let leg = (at - 16) / 24
-    let part = (at - 16) % 24
-    let sign = if leg % 2 == 0 then -1 else 1
-    sign * (amp - 2 * amp * part / 24)
+/// Smoothstep of `t` in `[0, FP]`, in `[0, FP]`.
+fn ss(t: int) -> int {
+    let c = if t < 0 then 0 else if t > FP then FP else t
+    c * c / FP * (3 * FP - 2 * c) / FP
 }
 
-/// Round each switchback apex over five rows, preserving its alternating legs.
+/// A route through wood (cb05: "Make the path shapes more varied"):
+/// anchors every `ROUTE_LATTICE` rows carry a slow drift, so the path
+/// sweeps one way and then the other over `SWEEP_ANCHORS` anchors (a
+/// drift of 8..12 cells), while the alternation at each anchor (7..10
+/// cells, wider and slower than the Shingle's 3..5 every sixteen rows)
+/// bends the route every screen. One smoothstep between combined anchors,
+/// plus the noise: two curves summed would run straight where their slopes
+/// cancel, and a sixteen-row alternation with these swings would reverse
+/// within three cells at every apex (measured over fifty seeds: 0.50
+/// reversals per ten samples); this shape measures 0.07 against cb04d's
+/// 0.15, with no straight run over eleven cells.
+fn route_anchor_fp(seed: int, ch: int, k: int) -> int {
+    var j = k / SWEEP_ANCHORS
+    var r = k % SWEEP_ANCHORS
+    if r < 0 { j -= 1; r += SWEEP_ANCHORS }
+    let sign = if (j % 2 + 2) % 2 == 0 then 1 else -1
+    let a = sign * (8 + world.hash(seed, ch + 1000, j, 5)) * FP
+    let b = 0 - sign * (8 + world.hash(seed, ch + 1000, j + 1, 5)) * FP
+    let slow = a + (b - a) / FP * ss(r * FP / SWEEP_ANCHORS)
+    let fast = if (k % 2 + 2) % 2 == 0 then 1 else -1
+    slow + fast * (7 + world.hash(seed, ch, k, 4)) * FP
+}
+
+/// The route's centre in fixed point (`route_anchor_fp` between anchors
+/// every `ROUTE_LATTICE` rows, the meander's noise on top, rounded once).
+fn route_fp(seed: int, ch: int, at: int) -> int {
+    var k = at / ROUTE_LATTICE
+    var r = at % ROUTE_LATTICE
+    if r < 0 { k -= 1; r += ROUTE_LATTICE }
+    let a = route_anchor_fp(seed, ch, k)
+    let b = route_anchor_fp(seed, ch, k + 1)
+    (world.noise(seed, ch, at) - FP / 2) * 8 + a + (b - a) / FP * ss(r * FP / ROUTE_LATTICE)
+}
+
+/// Rows between a route's anchors.
+pub const ROUTE_LATTICE: int = 32
+
+/// Anchors between the drift's turns: six (a hundred and ninety-two rows).
+pub const SWEEP_ANCHORS: int = 6
+
+/// Bramblehold's switchbacks (cb03a, lengthened by cb05): six legs of
+/// thirty-six rows between rows 16 and 232 swinging `amp` (24..28) cells
+/// either side (a wider swing than cb03a's 18..22, so the longer legs
+/// still meet at ninety degrees), a taper in over the first sixteen rows
+/// and out over the last fifty-six. The first den and final exit remain fixed, with short
+/// tapered approaches rather than a long straight corridor.
+fn switchback(seed: int, at: int) -> int {
+    let amp = 24 + world.hash(seed, 91, 0, 5)
+    if at < 16 { return -amp * at / 16 }
+    if at >= 232 { return -amp * (LENGTH_MAX - at) / 56 }
+    let leg = (at - 16) / 36
+    let part = (at - 16) % 36
+    let sign = if leg % 2 == 0 then -1 else 1
+    sign * (amp - 2 * amp * part / 36)
+}
+
+/// Path centre in cells. Bramblehold's switchbacks round each apex over
+/// five rows (cb04d); the town's lane is the town's own; the other areas
+/// ride the short meander on the long sweep, tapered to the portals.
 pub fn spine(seed: int, area: int, at: int) -> int {
     if area == BRAMBLEHOLD {
-        let part = (at + 8) % 24
-        if at < 14 || at > 138 || part > 2 && part < 22 { return switchback(seed, at) }
+        let part = (at - 16 + 2 + 36) % 36
+        if at < 14 || at > 234 || part > 4 { return switchback(seed, at) }
         return (
             switchback(seed, at - 2) +
                 2 * switchback(seed, at - 1) +
@@ -215,42 +375,83 @@ pub fn spine(seed: int, area: int, at: int) -> int {
         ) /
             9
     }
-    let c = curve(seed, 31 + area, at)
+    if area == TOWN { return town.lane(seed, at) }
+    let c = if area == SHINGLE {
+        curve(seed, 31 + area, at)
+    } else {
+        terrain.floor_cells(route_fp(seed, 31 + area, at))
+    }
+    let l = length(area)
     if at < 8 { return c * at / 8 }
-    if at > LENGTH - 8 { return c * (LENGTH - at) / 8 }
+    if at > l - 8 { return c * (l - at) / 8 }
     c
 }
 
-/// The path half-width breathes from a separate noise ch, 3..5 cells; the
-/// crags' ledges are narrower, 2..3 (cb04: a climb).
+/// The path half-width breathes from a separate noise ch, 4..6 cells
+/// (cb04d: a cell of clearance each side for the body); the crags' ledges
+/// are narrower, 3..4 (cb04: a climb); the town's lane is fixed.
 pub fn half(seed: int, area: int, at: int) -> int {
+    if area == TOWN { return town.LANE_HALF }
     if area == CRAGS { return 3 + world.noise(seed, 45 + area, at * 3) / FP }
     4 + world.noise(seed, 45 + area, at * 3) * 2 / FP
 }
 
-/// Den locations vary with the seed while preserving their graph roles:
-/// the split roots now sit on the final switchback, beyond the first
-/// cluster. Stable ids preserve save/checkpoint identities.
+/// A den's local row (cb05, R-cb05-3 A): the briar hollow a third into
+/// Bramblehold and the split roots two thirds; the grass nest a screen into
+/// Larkmeadow and the last warm hollow past its middle; the cold hearth in
+/// Cinderwick's square; the later areas' dens near their entries (the
+/// ledge cleft a little further in, so the way on from the last warm
+/// hollow is a den's spacing). The seed moves each by up to three rows.
+pub fn den_row(seed: int, den: int) -> int {
+    let base = match den {
+        1 => 196,
+        2 => 100,
+        3 => 24,
+        4 => 18,
+        7 => 132,
+        11 => 190,
+        _ => 7,
+    }
+    base + world.hash(seed, den, 92, 4)
+}
+
+/// Den locations vary with the seed while preserving their graph roles.
+/// Stable ids preserve save/checkpoint identities.
 pub fn den_position(seed: int, den: int) -> (int, int) {
     if den == 0 { return terrain.start(seed) }
-    let area = den_area(den)
-    let base = if den == 1 {
-        114
-    } else if den == 2 || den == 10 {
-        90
-    } else if den == 8 || den == 9 {
-        66
-    } else if den == 11 {
-        146
-    } else {
-        7
+    if den == 7 {
+        let (hx, hy) = town.hearth(seed)
+        return (hx * FP + FP / 2, hy * FP + FP / 2)
     }
-    let y = base + world.hash(seed, den, 92, 4)
+    let area = den_area(den)
+    let y = den_row(seed, den)
     ((spine(seed, area, y) + world.hash(seed, den, 91, 3) - 1) * FP + FP / 2, y * FP + FP / 2)
 }
 
-/// Finite caches in an area: two inland, reached by curved side branches;
-/// on the Shingle the coast's offshoots (`cache_count`).
+/// The kept den a retired den's journey wakes at (cb05): the kept den of
+/// the same area nearest the retired den's old row (the coal roots at 66
+/// of 160, the low embers at 66, the ash shelter at 90, as rows of the
+/// lengthened area).
+pub fn nearest_kept_den(seed: int, den: int) -> int {
+    let area = retired_area(den)
+    if area < 0 { return 0 }
+    let old = (if den == 10 then 90 else 66) * length(area) / LENGTH
+    var best = 0
+    var best_gap = 100000
+    var id = 0
+    while id < DEN_LIMIT {
+        if den_area(id) == area {
+            let gap = abs(den_row(seed, id) - old)
+            if gap < best_gap { best = id; best_gap = gap }
+        }
+        id += 1
+    }
+    best
+}
+
+/// Finite caches in an area: three inland in the thicket and the meadow,
+/// reached by shaped side branches; four in the town's yards; on the
+/// Shingle the coast's offshoots (`cache_count`).
 pub fn cache_position(seed: int, field: int, area: int, cache: int) -> (int, int) {
     if area == SHINGLE {
         let at = coast_end(seed, cache)
@@ -259,20 +460,375 @@ pub fn cache_position(seed: int, field: int, area: int, cache: int) -> (int, int
             (origin(seed, area) + at) * FP + FP / 2,
         )
     }
-    // Inland caches lie out toward the field's edge, ten to thirteen cells
-    // short of it, so the grove's branches cross the screen they were
-    // made for.
-    let x = (if cache == 0 then -1 else 1) *
-        (half_width(field) - 13 + world.hash(seed, area, cache + 62, 4))
-    let y = origin(seed, area) +
-        (if cache == 0 then 52 else 132) +
-        curve(seed, 61 + area + cache, x) / 2
-    (x * FP + FP / 2, y * FP + FP / 2)
+    if area == TOWN {
+        let (x, at) = town.cache(seed, cache)
+        return (x * FP + FP / 2, at * FP + FP / 2)
+    }
+    let (x, at) = branch_point(seed, field, area, cache, branch_len(seed, field, area, cache))
+    (x * FP + FP / 2, (origin(seed, area) + at) * FP + FP / 2)
 }
 
-/// The row of a side branch as it approaches its cache.
-pub fn branch(seed: int, area: int, cache: int, x: int) -> int {
-    (if cache == 0 then 52 else 132) + curve(seed, 61 + area + cache, x) / 2
+/// The row a cache branch leaves the route: a fifth, a half and four
+/// fifths of the way in, the seed moving each by up to four rows.
+pub fn cache_row(seed: int, area: int, cache: int) -> int {
+    (if cache == 0 then 60 else if cache == 1 then 144 else 232) +
+        world.hash(seed, area, cache + 62, 5)
+}
+
+/// A cache branch's geometry (cb05), computed once per query: its mouth
+/// row, side, the route's column there, its reach, shape, bend direction,
+/// the S's amplitude, the hook's climb, its centreline's length and its
+/// end (the cache).
+pub struct Branch {
+    m: int,
+    side: int,
+    x0: int,
+    r: int,
+    shape: int,
+    dir: int,
+    amp: int,
+    climb: int,
+    len: int,
+    end_x: int,
+    end_y: int,
+}
+
+/// The side a cache branch leaves on: even caches west, odd east; in
+/// Bramblehold the side the switchback has swung away from, so every
+/// branch has the field's width to run in.
+pub fn branch_side(seed: int, area: int, cache: int) -> int {
+    if area == BRAMBLEHOLD {
+        return if spine(seed, area, cache_row(seed, area, cache)) > 0 then -1 else 1
+    }
+    if cache % 2 == 0 then -1 else 1
+}
+
+/// The shape of cache branch `cache` (cb05): the area's branches take
+/// distinct shapes from a seeded order of the four (a slow S, a hook, a
+/// loop, a 180-degree turn), each folded into the shapes it has room for
+/// (the turn needs forty-six cells of reach, the loop thirty, the hook
+/// twenty), so no two branches in sight are alike where the field allows.
+fn shape_of(seed: int, area: int, cache: int, r: int) -> int {
+    let n = if r >= 46 then 4 else if r >= 30 then 3 else if r >= 20 then 2 else 1
+    // The twenty-four orders of 0..3 as four digits.
+    let orders = [
+        123, 132, 213, 231, 312, 321, 1023, 1032, 1203, 1230, 1302, 1320, 2013, 2031, 2103, 2130,
+        2301, 2310, 3012, 3021, 3102, 3120, 3201, 3210,
+    ]
+    let order = orders[world.hash(seed, area, 90, 24)]
+    let digit = if cache == 0 {
+        order / 1000
+    } else if cache == 1 {
+        order / 100 % 10
+    } else {
+        order / 10 % 10
+    }
+    digit % n
+}
+
+/// The hook's and the turn's bend direction, and the S's: away from the
+/// area's nearest den (by row), so no branch bends into a den's quiet
+/// radius; north (-1) or south (1).
+fn branch_dir(seed: int, area: int, cache: int) -> int {
+    let m = cache_row(seed, area, cache)
+    var nearest = -1000
+    var id = 0
+    while id < DEN_LIMIT {
+        if den_area(id) == area && id != 0 {
+            let row = den_row(seed, id)
+            if abs(row - m) < abs(nearest - m) { nearest = row }
+        }
+        id += 1
+    }
+    if nearest == -1000 { return if world.hash(seed, area, cache + 74, 2) == 0 then -1 else 1 }
+    if nearest > m then -1 else 1
+}
+
+/// sin of `i` twelfths of a quarter turn, in `[0, FP]`.
+fn qsin(i: int) -> int {
+    let table = [0, 33, 66, 98, 128, 157, 181, 203, 221, 237, 248, 254, 256]
+    let k = if i < 0 then 0 else if i > 12 then 12 else i
+    table[k]
+}
+
+/// Samples along a quarter arc.
+const ARC_Q: int = 12
+
+/// The branch's geometry, from its mouth's row and the route's column
+/// there (`x0`, one spine evaluation: callers that know it pass it).
+pub fn branch_geom_at(seed: int, field: int, area: int, cache: int, m: int, x0: int) -> Branch {
+    let side = if area == BRAMBLEHOLD then (if x0 > 0 then -1 else 1) else branch_side(seed, area, cache)
+    let edge = half_width(field) - 13 + world.hash(seed, area, cache + 66, 4)
+    let r = edge - side * x0
+    let shape = shape_of(seed, area, cache, r)
+    let dir = branch_dir(seed, area, cache)
+    let amp = dir * (6 + world.hash(seed, area, cache + 78, 7))
+    let climb = 12 + world.hash(seed, area, cache + 82, 7)
+    var g = Branch {
+        m: m,
+        side: side,
+        x0: x0,
+        r: r,
+        shape: shape,
+        dir: dir,
+        amp: amp,
+        climb: climb,
+        len: 0,
+        end_x: 0,
+        end_y: 0,
+    }
+    g.len = if shape == SHAPE_S {
+        r
+    } else if shape == SHAPE_HOOK {
+        r - HOOK_RADIUS - 1 + ARC_Q + climb
+    } else if shape == SHAPE_LOOP {
+        r - 2 * LOOP_RADIUS + 2 * ARC_Q
+    } else {
+        let r1 = r - UTURN_RADIUS - BRANCH_HALF - 1
+        r1 + 2 * ARC_Q + r1 * 3 / 5
+    }
+    let (ex, ey) = point_on(g, g.len)
+    g.end_x = ex
+    g.end_y = ey
+    g
+}
+
+/// The branch's geometry.
+pub fn branch_geom(seed: int, field: int, area: int, cache: int) -> Branch {
+    let m = cache_row(seed, area, cache)
+    branch_geom_at(seed, field, area, cache, m, spine(seed, area, m))
+}
+
+/// The shape a cache branch takes.
+pub fn branch_shape(seed: int, field: int, area: int, cache: int) -> int {
+    branch_geom(seed, field, area, cache).shape
+}
+
+/// The length of a cache branch's centreline in samples (one a cell along
+/// the runs; `ARC_Q` a quarter turn).
+pub fn branch_len(seed: int, field: int, area: int, cache: int) -> int {
+    branch_geom(seed, field, area, cache).len
+}
+
+/// The centreline of a branch at sample `t` (0 at the route, `len` at the
+/// cache), local cells: the shapes' runs, arcs and climbs.
+fn point_on(g: Branch, t: int) -> (int, int) {
+    let m = g.m
+    let side = g.side
+    let x0 = g.x0
+    let r = g.r
+    let dir = g.dir
+    if g.shape == SHAPE_S {
+        let u = if t < 0 then 0 else if t > r then r else t
+        return (x0 + side * u, m + g.amp * (2 * ss(u * FP / r) - FP) / FP)
+    }
+    if g.shape == SHAPE_HOOK {
+        let r1 = r - HOOK_RADIUS - 1
+        if t <= r1 { return (x0 + side * t, m) }
+        let cx = x0 + side * r1
+        let cy = m + dir * HOOK_RADIUS
+        if t <= r1 + ARC_Q {
+            let i = t - r1
+            return (
+                cx + side * HOOK_RADIUS * qsin(i) / FP,
+                cy - dir * HOOK_RADIUS * qsin(12 - i) / FP,
+            )
+        }
+        let c = t - r1 - ARC_Q
+        return (cx + side * HOOK_RADIUS, cy + dir * (if c > g.climb then g.climb else c))
+    }
+    if g.shape == SHAPE_LOOP {
+        let r1 = r - 2 * LOOP_RADIUS
+        if t <= r1 { return (x0 + side * t, m) }
+        let cx = x0 + side * (r1 + LOOP_RADIUS)
+        // Round the copse from the near point: the first quarter turns
+        // `dir`; the centreline ends at the far point, two quarters round,
+        // where the cache is (the ring is carved all the way round).
+        let i = t - r1
+        let q = (i / ARC_Q) % 4
+        let j = i % ARC_Q
+        let (sx, sy) = if q == 0 {
+            (0 - qsin(12 - j), dir * qsin(j))
+        } else if q == 1 {
+            (qsin(j), dir * qsin(12 - j))
+        } else if q == 2 {
+            (qsin(12 - j), 0 - dir * qsin(j))
+        } else {
+            (0 - qsin(j), 0 - dir * qsin(12 - j))
+        }
+        return (cx + side * LOOP_RADIUS * sx / FP, m + LOOP_RADIUS * sy / FP)
+    }
+    // The 180-degree turn: out along the row, a half turn, back along the
+    // row two radii off for three fifths of the way.
+    let r1 = r - UTURN_RADIUS - BRANCH_HALF - 1
+    if t <= r1 { return (x0 + side * t, m) }
+    let cx = x0 + side * r1
+    let cy = m + dir * UTURN_RADIUS
+    if t <= r1 + 2 * ARC_Q {
+        let i = t - r1
+        if i <= ARC_Q {
+            return (
+                cx + side * UTURN_RADIUS * qsin(i) / FP,
+                cy - dir * UTURN_RADIUS * qsin(12 - i) / FP,
+            )
+        }
+        let j = i - ARC_Q
+        return (
+            cx + side * UTURN_RADIUS * qsin(12 - j) / FP,
+            cy + dir * UTURN_RADIUS * qsin(j) / FP,
+        )
+    }
+    let back = t - r1 - 2 * ARC_Q
+    let r2 = r1 * 3 / 5
+    (cx - side * (if back > r2 then r2 else back), m + 2 * dir * UTURN_RADIUS)
+}
+
+/// The centreline of cache branch `cache` at sample `t` (0 at the route,
+/// `branch_len` at the cache), local cells (`docs/DESIGN.md`, "The wide
+/// forest").
+pub fn branch_point(seed: int, field: int, area: int, cache: int, t: int) -> (int, int) {
+    point_on(branch_geom(seed, field, area, cache), t)
+}
+
+/// Whether local cell `(x, at)` lies within `half` of a point on a run
+/// along a row, between two columns inclusive.
+fn on_run(x: int, at: int, row: int, xa: int, xb: int, hw: int) -> bool {
+    let lo = if xa < xb then xa else xb
+    let hi = if xa < xb then xb else xa
+    x >= lo - hw && x <= hi + hw && abs(at - row) <= hw
+}
+
+/// Whether local cell `(x, at)` lies within `half` of an arc of radius
+/// `radius` round `(cx, cy)`, restricted to the quadrant(s) `qx` (the sign
+/// of x - cx, 0 for both) and `qy` (the sign of at - cy, 0 for both).
+fn on_arc(x: int, at: int, cx: int, cy: int, radius: int, hw: int, qx: int, qy: int) -> bool {
+    let dx = x - cx
+    let dy = at - cy
+    if qx != 0 && qx * dx < 0 || qy != 0 && qy * dy < 0 { return false }
+    let d2 = dx * dx + dy * dy
+    d2 >= (radius - hw) * (radius - hw) && d2 <= (radius + hw) * (radius + hw)
+}
+
+/// Whether local cell `(x, at)` lies on a branch (its shape's runs, arcs
+/// and climb, and the alcove at its end).
+fn on_branch(g: Branch, x: int, at: int) -> bool {
+    let m = g.m
+    let side = g.side
+    let x0 = g.x0
+    let r = g.r
+    let dir = g.dir
+    let hw = BRANCH_HALF
+    if side * (x - x0) < 0 - hw || side * (x - x0) > r + hw { return false }
+    if (x - g.end_x) * (x - g.end_x) + (at - g.end_y) * (at - g.end_y) <= 16 { return true }
+    if g.shape == SHAPE_S {
+        let u = side * (x - x0)
+        if u < 0 || u > r { return false }
+        return abs(at - (m + g.amp * (2 * ss(u * FP / r) - FP) / FP)) <= hw
+    }
+    if g.shape == SHAPE_HOOK {
+        let r1 = r - HOOK_RADIUS - 1
+        if on_run(x, at, m, x0, x0 + side * r1, hw) { return true }
+        let cx = x0 + side * r1
+        let cy = m + dir * HOOK_RADIUS
+        if on_arc(x, at, cx, cy, HOOK_RADIUS, hw, side, 0 - dir) { return true }
+        return abs(x - (cx + side * HOOK_RADIUS)) <= hw &&
+            dir * (at - cy) >= 0 &&
+            dir * (at - cy) <= g.climb
+    }
+    if g.shape == SHAPE_LOOP {
+        let r1 = r - 2 * LOOP_RADIUS
+        if on_run(x, at, m, x0, x0 + side * r1, hw) { return true }
+        return on_arc(x, at, x0 + side * (r1 + LOOP_RADIUS), m, LOOP_RADIUS, hw, 0, 0)
+    }
+    let r1 = r - UTURN_RADIUS - BRANCH_HALF - 1
+    if on_run(x, at, m, x0, x0 + side * r1, hw) { return true }
+    let cx = x0 + side * r1
+    let cy = m + dir * UTURN_RADIUS
+    if on_arc(x, at, cx, cy, UTURN_RADIUS, hw, side, 0) { return true }
+    let r2 = r1 * 3 / 5
+    on_run(x, at, m + 2 * dir * UTURN_RADIUS, cx, cx - side * r2, hw)
+}
+
+/// Whether local cell `(x, at)` lies on cache branch `cache` of an inland
+/// area. The row band is tested first (a hash), then the side of the
+/// route (one spine evaluation), and only then the shape.
+pub fn in_branch(seed: int, field: int, area: int, cache: int, x: int, at: int) -> bool {
+    let m = cache_row(seed, area, cache)
+    if abs(at - m) > 32 { return false }
+    let x0 = spine(seed, area, m)
+    let side = if area == BRAMBLEHOLD then (if x0 > 0 then -1 else 1) else branch_side(seed, area, cache)
+    if side * (x - x0) < 0 - BRANCH_HALF { return false }
+    on_branch(branch_geom_at(seed, field, area, cache, m, x0), x, at)
+}
+
+/// Short carved pockets off the route (cb05, "every dead end rewards"):
+/// seven to nine cells deep, two cells of half width, an alcove at the end
+/// with an old scent mark in it. Two in Bramblehold, one each in the
+/// meadow, the Teeth and Gravehollow.
+pub fn pocket_count(area: int) -> int {
+    if area == BRAMBLEHOLD then 2 else if area == LARKMEADOW || area == CRAGS || area == OLDDEN then 1 else 0
+}
+
+/// A pocket's row and side.
+pub fn pocket_mouth(area: int, k: int) -> (int, int) {
+    if area == BRAMBLEHOLD { return if k == 0 then (36, 1) else (214, 1) }
+    if area == LARKMEADOW { return (210, 1) }
+    if area == CRAGS { return (60, -1) }
+    (120, 1)
+}
+
+/// A pocket's end (the scent mark's cell), local.
+pub fn pocket_end(seed: int, area: int, k: int) -> (int, int) {
+    let (row, side) = pocket_mouth(area, k)
+    let depth = 7 + world.hash(seed, area, k + 86, 3)
+    (spine(seed, area, row) + side * (half(seed, area, row) + depth), row)
+}
+
+/// Whether local cell `(x, at)` lies in pocket `k`.
+fn in_pocket(seed: int, area: int, k: int, x: int, at: int) -> bool {
+    let (row, side) = pocket_mouth(area, k)
+    if abs(at - row) > 3 { return false }
+    let (ex, _) = pocket_end(seed, area, k)
+    if (x - ex) * (x - ex) + (at - row) * (at - row) <= 4 { return true }
+    on_run(x, at, row, spine(seed, area, row), ex, 2) && side * (x - spine(seed, area, row)) >= 0
+}
+
+/// Bramblehold's fork (cb05, "forks that rejoin"): a second way between
+/// rows 120 and 176, fourteen to eighteen cells west of the switchbacks,
+/// tapering back to the route at both ends.
+pub const FORK_FROM: int = 120
+
+/// Where the fork rejoins.
+pub const FORK_TO: int = 176
+
+/// The fork's centre at a local row (the spine's when outside its rows);
+/// it never comes within six cells of the field's edge.
+pub fn fork(seed: int, field: int, at: int) -> int {
+    let c = spine(seed, BRAMBLEHOLD, at)
+    if at < FORK_FROM || at > FORK_TO { return c }
+    let d = 14 + world.hash(seed, 93, 0, 5)
+    let edge = if at - FORK_FROM < FORK_TO - at then at - FORK_FROM else FORK_TO - at
+    let t = if edge > 12 then FP else edge * FP / 12
+    let f = c - d * ss(t) / FP
+    let limit = 6 - half_width(field)
+    if f < limit then limit else f
+}
+
+fn in_fork(seed: int, field: int, x: int, at: int) -> bool {
+    at >= FORK_FROM && at <= FORK_TO && abs(x - fork(seed, field, at)) <= 3
+}
+
+/// The second way into the boar's clearing (cb05): from the route at row
+/// `BOAR_ROW + 22`, a run east and a climb north into the clearing's
+/// south side, rounded by a short arc.
+fn in_boar_back(seed: int, x: int, at: int) -> bool {
+    let row = BOAR_ROW + 22
+    if at > row + 3 || at < row - 16 || x < 0 { return false }
+    let c = spine(seed, BRAMBLEHOLD, row)
+    let cx = BOAR_X - 6 - 5
+    if on_run(x, at, row, c, cx, 3) { return true }
+    if on_arc(x, at, cx, row - 5, 5, 3, 1, 1) { return true }
+    abs(x - (cx + 5)) <= 3 && at <= row - 5 && at >= row - 16
 }
 
 /// Seeded end of a shore offshoot, well beyond the den's quiet radius.
@@ -368,19 +924,29 @@ pub fn near_route(seed: int, field: int, x: int, at: int) -> bool {
 /// coast, for the shore, the thorn route, every branch and alcove, the
 /// log branch and the gate's exit alike; the grass inland, under the
 /// area's dusk keyframe; the crags' ledges and the river's bank are
-/// gravel (stone and shingle) under their own keyframes. Every carved cell
+/// gravel (stone and shingle) under their own keyframes; the town's lane
+/// is gravel too (its cobbles under the night keyframe). Every carved cell
 /// returns this kind, so a new path cannot drift into another colour
 /// (`docs/PALETTE.md`, "path"); `art.path_styles` is the one set of styles
 /// a path cell may draw in, and `--world-audit`'s `path_off` holds every
 /// area to it.
 pub fn path_kind(area: int) -> int {
-    if area == SHINGLE || area == CRAGS || area == RIVER then terrain.GRAVEL else terrain.GRASS
+    if area == SHINGLE || area == CRAGS || area == RIVER || area == TOWN {
+        terrain.GRAVEL
+    } else {
+        terrain.GRASS
+    }
 }
 
-/// Whether an area holds a boss arena (every area but the Shingle and the
-/// meadow).
+/// Whether an area holds a boss arena (every area but the Shingle, the
+/// town and the meadow).
 pub fn has_arena(area: int) -> bool {
     area == BRAMBLEHOLD || area == CRAGS || area == RIVER || area == OLDDEN
+}
+
+/// Whether an area has a shortcut mouth (and so the cross path at row 22).
+pub fn has_shortcut(area: int) -> bool {
+    area != TOWN && area != OLDDEN
 }
 
 /// The west bank of the Ashwater in the Shallows at local row `at`: the
@@ -388,23 +954,39 @@ pub fn has_arena(area: int) -> bool {
 /// fourteen cells west of the spine whatever the field, so the ford's
 /// arena always straddles the route.
 pub fn river_bank(seed: int, field: int, at: int) -> int {
-    spine(seed, RIVER, at) - 14 + curve(seed, 97, at) + (field - field)
+    river_bank_at(seed, field, at, spine(seed, RIVER, at))
+}
+
+/// `river_bank` with the route's centre at the row already evaluated.
+fn river_bank_at(seed: int, field: int, at: int, c: int) -> int {
+    c - 14 + curve(seed, 97, at) + (field - field)
+}
+
+/// The local row a boss's arena is centred on in the crags, the river and
+/// the old den: on the route, seven tenths of the way in, the den far
+/// behind (156 of 224).
+pub fn arena_row(area: int) -> int {
+    length(area) * 7 / 10
 }
 
 /// A boss arena, local cells: `(cx, cy, radius)`. The boar's clearing is a
 /// side branch east of Bramblehold's route; the lynx's bowl, the elk's
-/// ford and the alpha's clearing lie on their routes at `ARENA_ROW`, the
+/// ford and the alpha's clearing lie on their routes at `arena_row`, the
 /// elk's astride the bank so the shallows are half of it.
 pub fn arena(seed: int, field: int, area: int) -> (int, int, int) {
     if area == BRAMBLEHOLD { return (BOAR_X, BOAR_ROW, 11) }
-    if area == RIVER { return (river_bank(seed, field, ARENA_ROW) + 4, ARENA_ROW, 14) }
-    (spine(seed, area, ARENA_ROW), ARENA_ROW, 12)
+    let row = arena_row(area)
+    if area == RIVER { return (river_bank(seed, field, row) + 4, row, 14) }
+    (spine(seed, area, row), row, 12)
 }
 
 /// Whether local cell `(x, at)` lies inside the area's arena (within its
 /// radius of the centre, inclusive).
 pub fn in_arena(seed: int, field: int, area: int, x: int, at: int) -> bool {
     if !has_arena(area) { return false }
+    // The row first: the centre's column costs a spine evaluation.
+    let cy0 = if area == BRAMBLEHOLD then BOAR_ROW else arena_row(area)
+    if abs(at - cy0) > 14 { return false }
     let (cx, cy, r) = arena(seed, field, area)
     let dx = x - cx
     let dy = at - cy
@@ -454,44 +1036,55 @@ pub fn arena_cell(seed: int, field: int, area: int, x: int, at: int) -> int {
 }
 
 /// Whether local cell `(x, at)` (inside the area's bounds) is carved: the
-/// route, a branch or its alcove, a shortcut branch, the gate's exit, an
-/// arena's open floor and the boar clearing's branch.
+/// route, a branch or its alcove, a pocket, the fork, a shortcut branch,
+/// the gate's exit, an arena's open floor and the boar clearing's two
+/// branches. In the town only the lane is carved: the rest of the town is
+/// the town's own ground (`town.kind`).
 pub fn carved(seed: int, field: int, area: int, x: int, at: int) -> bool {
+    carved_at(seed, field, area, x, at, spine(seed, area, at))
+}
+
+/// `carved`, with the route's centre at the row already evaluated (one
+/// spine evaluation a cell, cb05: `kind` passes it on).
+fn carved_at(seed: int, field: int, area: int, x: int, at: int, c: int) -> bool {
     if area == BRAMBLEHOLD && in_clearing(seed, x, at) { return true }
     if thorn_collar(area, x, at) { return false }
-    let c = spine(seed, area, at)
     let hw = half(seed, area, at)
     if x >= c - hw && x <= c + hw { return true }
+    if area == TOWN { return false }
     if arena_cell(seed, field, area, x, at) == path_kind(area) { return true }
-    // The den's approach stays west of the arena: the switchback must
-    // not send the shortest walk through the boss before reaching its mouth.
-    if area == BRAMBLEHOLD && at >= BOAR_ROW && at <= 98 && x >= BOAR_X - 19 && x <= BOAR_X - 11 {
-        return true
-    }
-    // The boar's clearing is reached by a short branch east of the route.
-    if area == BRAMBLEHOLD && at >= BOAR_ROW - 2 && at <= BOAR_ROW + 2 && x >= c && x <= BOAR_X {
-        return true
+    if area == BRAMBLEHOLD {
+        // The den's approach stays west of the arena: the switchback must
+        // not send the shortest walk through the boss before reaching its
+        // mouth.
+        if at >= BOAR_ROW && at <= BOAR_ROW + 38 && x >= BOAR_X - 19 && x <= BOAR_X - 11 {
+            return true
+        }
+        // The boar's clearing is reached by a short branch east of the
+        // route, and from the south by a second way (cb05).
+        if at >= BOAR_ROW - 2 && at <= BOAR_ROW + 2 && x >= c && x <= BOAR_X { return true }
+        if in_boar_back(seed, x, at) { return true }
+        if in_fork(seed, field, x, at) { return true }
     }
     var cache = 0
     while cache < cache_count(area) {
         if area == SHINGLE {
             if coast_branch(seed, field, cache, x, at) { return true }
-            cache += 1
-            continue
-        }
-        let (cx, _) = cache_position(seed, field, area, cache)
-        if x >= (if cache == 0 then cx / FP - 3 else -10) &&
-            x <= (if cache == 0 then 10 else cx / FP + 3) {
-            let by = branch(seed, area, cache, x)
-            if at >= by - 3 && at <= by + 3 { return true }
+        } else if in_branch(seed, field, area, cache, x, at) {
+            return true
         }
         cache += 1
+    }
+    var k = 0
+    while k < pocket_count(area) {
+        if in_pocket(seed, area, k, x, at) { return true }
+        k += 1
     }
     // Shortcut branches also curve, each toward its fixed graph mouth, and
     // end there: a path never runs on to the area's edge. In the Shallows
     // the cross path is the gravel bar across the river the shallows
     // shortcut names.
-    if at >= 15 && at <= 30 && x >= -34 && x <= 34 {
+    if has_shortcut(area) && at >= 15 && at <= 30 && x >= -34 && x <= 34 {
         let by = 22 + curve(seed, area + 71, x) / 2
         if at >= by - 3 && at <= by + 3 { return true }
     }
@@ -517,8 +1110,123 @@ pub fn on_path(seed: int, field: int, area: int, x: int, y: int) -> bool {
     }
     let at = y - origin(seed, area)
     let w = bound(field, area)
-    if x < 0 - w || x > w || at < 0 && area != SHINGLE || at > LENGTH { return false }
+    if x < 0 - w || x > w || at < 0 && area != SHINGLE || at > length(area) { return false }
     carved(seed, field, area, x, at)
+}
+
+/// The number of landmarks in an area (cb05).
+pub fn landmark_count(area: int) -> int {
+    match area {
+        1 => 4,
+        2 => 4,
+        3 => 2,
+        4 => 1,
+        5 => 1,
+        6 => 2,
+        _ => 0,
+    }
+}
+
+/// Landmark `k` of an area: its kind and local cell. The den features
+/// stand within sight of their dens (the split oak east of the split
+/// roots, the cleft west of the ledge cleft, the willow over the water
+/// west of the willow root); the burn's landmarks where the retired dens
+/// stood (the coal roots at the thicket's edge, the low embers and the ash
+/// shelter in the meadow's burn); Quill's perch a screen into the meadow;
+/// the scent marks at the pockets' and the yards' ends.
+pub fn landmark(seed: int, field: int, area: int, k: int) -> (int, int, int) {
+    if area == BRAMBLEHOLD {
+        if k == 0 { return (LM_STUMPS, spine(seed, area, 56) - 9, 56) }
+        if k == 1 {
+            let (dx, dy) = den_position(seed, 1)
+            return (LM_SPLIT_OAK, (dx - FP / 2) / FP + 6, (dy - FP / 2) / FP - 2)
+        }
+        let (px, py) = pocket_end(seed, area, k - 2)
+        return (LM_SCENT, px, py)
+    }
+    if area == LARKMEADOW {
+        if k == 0 { return (LM_PERCH, spine(seed, area, 30) + 7, 30) }
+        if k == 1 { return (LM_COALS, spine(seed, area, 96) + 7, 96) }
+        if k == 2 { return (LM_FRAME, spine(seed, area, 140) - 11, 140) }
+        let (px, py) = pocket_end(seed, area, 0)
+        return (LM_SCENT, px, py)
+    }
+    if area == CRAGS {
+        if k == 0 {
+            let (dx, dy) = den_position(seed, 4)
+            return (LM_CLEFT, (dx - FP / 2) / FP - 6, (dy - FP / 2) / FP)
+        }
+        let (px, py) = pocket_end(seed, area, 0)
+        return (LM_SCENT, px, py)
+    }
+    if area == RIVER {
+        let (dx, dy) = den_position(seed, 5)
+        return (LM_WILLOW, (dx - FP / 2) / FP - 7, (dy - FP / 2) / FP - 1)
+    }
+    if area == OLDDEN {
+        let (px, py) = pocket_end(seed, area, 0)
+        return (LM_SCENT, px, py)
+    }
+    let (sx, sy) = town.scent_mark(seed, k)
+    (LM_SCENT, sx, sy)
+}
+
+/// A landmark's row alone (cheap: a hash at most), for the row guard the
+/// per-cell test takes before it asks for the column.
+pub fn landmark_row(seed: int, area: int, k: int) -> int {
+    if area == BRAMBLEHOLD {
+        if k == 0 { return 56 }
+        if k == 1 { return den_row(seed, 1) - 2 }
+        let (row, _) = pocket_mouth(area, k - 2)
+        return row
+    }
+    if area == LARKMEADOW {
+        if k == 0 { return 30 }
+        if k == 1 { return 96 }
+        if k == 2 { return 140 }
+        let (row, _) = pocket_mouth(area, 0)
+        return row
+    }
+    if area == CRAGS {
+        if k == 0 { return den_row(seed, 4) }
+        let (row, _) = pocket_mouth(area, 0)
+        return row
+    }
+    if area == RIVER { return den_row(seed, 5) - 1 }
+    if area == OLDDEN {
+        let (row, _) = pocket_mouth(area, 0)
+        return row
+    }
+    let (_, sy) = town.scent_mark(seed, k)
+    sy
+}
+
+/// Whether a local cell lies in a landmark's cleared patch (seven cells by
+/// three; the stump-field's is the open ash its stumps stand round).
+pub fn landmark_clear(seed: int, field: int, area: int, x: int, at: int) -> bool {
+    var k = 0
+    while k < landmark_count(area) {
+        if abs(at - landmark_row(seed, area, k)) <= 1 {
+            let (_, lx, ly) = landmark(seed, field, area, k)
+            if abs(x - lx) <= 3 && abs(at - ly) <= 1 { return true }
+        }
+        k += 1
+    }
+    false
+}
+
+/// Whether a local cell lies in the burn (cb05): the stump-field at the
+/// thicket's edge (rows 34..78) and the meadow's burnt ground (rows
+/// 84..152), where the fire's noise ran hot; ash underfoot, the odd
+/// burnt stump standing.
+pub fn burnt(seed: int, area: int, x: int, at: int) -> bool {
+    if area == BRAMBLEHOLD {
+        return at >= 34 && at <= 78 && terrain.noise2(seed + 7, 8, x, at) > 118
+    }
+    if area == LARKMEADOW {
+        return at >= 84 && at <= 152 && terrain.noise2(seed + 7, 8, x, at) > 128
+    }
+    false
 }
 
 /// Seeded collision tile after route carving.
@@ -540,10 +1248,17 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
     // The coast's rows above the spawn's are the shore's own (the bank
     // wanders eight cells); inland an area begins at its entry row.
     let w = bound(field, area)
-    if x < 0 - w || x > w || at < 0 && area != SHINGLE || at > LENGTH {
+    if x < 0 - w || x > w || at < 0 && area != SHINGLE || at > length(area) {
         return closed(seed, area, x, y)
     }
     if thorn_collar(area, x, at) { return closed(seed, area, x, y) }
+    // The route's centre at this row, evaluated once for the cell.
+    let c = spine(seed, area, at)
+    if area == TOWN {
+        // The lane is the route; everything else is the town's.
+        if carved_at(seed, field, area, x, at, c) { return path_kind(area) }
+        return town.kind(seed, x, at)
+    }
     let forced = arena_cell(seed, field, area, x, at)
     if forced >= 0 { return forced }
     if area == RIVER {
@@ -551,21 +1266,28 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
         // arena reaches into it (the ford), a row of reeds, three of
         // shingle; the carved gravel bar of the cross path crosses the
         // river itself.
-        let b = river_bank(seed, field, at)
+        let b = river_bank_at(seed, field, at, c)
         if x < b {
-            if carved(seed, field, area, x, at) { return path_kind(area) }
+            if carved_at(seed, field, area, x, at, c) { return path_kind(area) }
             if in_arena(seed, field, area, x, at) { return terrain.SHALLOWS }
             return terrain.WATER
         }
         if x == b {
-            return if carved(seed, field, area, x, at) then path_kind(area) else terrain.REEDS
+            return if carved_at(seed, field, area, x, at, c) then path_kind(area) else terrain.REEDS
         }
         if x <= b + 3 { return path_kind(area) }
     }
-    if carved(seed, field, area, x, at) { return path_kind(area) }
+    if carved_at(seed, field, area, x, at, c) { return path_kind(area) }
     if area == SHINGLE && !near_route(seed, field, x, at) { return closed(seed, area, x, y) }
-    let n = terrain.noise2(seed + area * 101, 5, x, y)
     let h = world.hash(seed + area * 79, x, y, 100)
+    if landmark_clear(seed, field, area, x, at) {
+        return if burnt(seed, area, x, at) then terrain.ASH else terrain.GRASS
+    }
+    if burnt(seed, area, x, at) {
+        // Ash underfoot, burnt stumps standing (more at the coal roots).
+        return if h < (if area == BRAMBLEHOLD then 9 else 4) then terrain.TRUNK else terrain.ASH
+    }
+    let n = terrain.noise2(seed + area * 101, 5, x, y)
     if area == LARKMEADOW {
         if at == meadow.creek(seed, x) { return terrain.WATER }
         if meadow.solid(seed, x, y) { return terrain.TRUNK }
@@ -593,19 +1315,24 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
 /// Terrain collision, shared by actors and the independent reachability flood.
 pub fn blocked(seed: int, field: int, area: int, x: int, y: int) -> bool {
     let k = kind(seed, field, area, x, y)
-    k == terrain.TRUNK || k == terrain.DARK || k == terrain.WATER || k == terrain.ROCK
+    k == terrain.TRUNK ||
+        k == terrain.DARK ||
+        k == terrain.WATER ||
+        k == terrain.ROCK ||
+        k == terrain.WALL
 }
 
 /// Whether an edge is a path (an area's entry or exit, crossed by walking
 /// through) rather than a shortcut (opened, then crossed with `r`).
 pub fn path_edge(edge: int) -> bool {
-    edge == 0 || edge == 1 || edge == 4 || edge == 5 || edge == 6
+    edge == 0 || edge == 1 || edge == 4 || edge == 5 || edge == 6 || edge == 9
 }
 
 /// Whether a path edge's portal in `area` is the area's far end (local row
-/// `LENGTH - 1`), the way on; else its entry (row 1), the way back.
+/// `length - 1`), the way on; else its entry (row 1), the way back.
 pub fn exit_end(area: int, edge: int) -> bool {
     edge == 0 && area == SHINGLE ||
+        edge == 9 && area == TOWN ||
         edge == 1 && area == BRAMBLEHOLD ||
         edge == 4 && area == LARKMEADOW ||
         edge == 5 && area == CRAGS ||
@@ -621,11 +1348,12 @@ pub fn shortcut_x(area: int, edge: int) -> int {
 }
 
 /// Portals: thorn path, meadow path, fallen log, hedge tunnel, the crags
-/// path, the river path, the old den's path, the ledge, the shallows.
+/// path, the river path, the old den's path, the ledge, the shallows, the
+/// town's way on.
 pub fn portal(seed: int, area: int, edge: int) -> (int, int) {
     let o = origin(seed, area)
     if path_edge(edge) {
-        return if exit_end(area, edge) then (0, (o + LENGTH - 1) * FP) else (0, FP)
+        return if exit_end(area, edge) then (0, (o + length(area) - 1) * FP) else (0, FP)
     }
     let x = shortcut_x(area, edge)
     (x * FP, (o + 22 + curve(seed, area + 71, x) / 2) * FP)
@@ -633,7 +1361,13 @@ pub fn portal(seed: int, area: int, edge: int) -> (int, int) {
 
 /// Other area for an incident edge, -1 otherwise.
 pub fn other(area: int, edge: int) -> int {
-    if edge == 0 || edge == 2 {
+    if edge == 0 {
+        return if area == SHINGLE then TOWN else if area == TOWN then SHINGLE else -1
+    }
+    if edge == 9 {
+        return if area == TOWN then BRAMBLEHOLD else if area == BRAMBLEHOLD then TOWN else -1
+    }
+    if edge == 2 {
         return if area == SHINGLE then BRAMBLEHOLD else if area == BRAMBLEHOLD then SHINGLE else -1
     }
     if edge == 1 || edge == 3 {
@@ -674,7 +1408,7 @@ pub fn straight_run(seed: int, area: int) -> int {
     var longest = 1
     var run = 1
     var y = 1
-    while y <= LENGTH {
+    while y <= length(area) {
         if spine(seed, area, y) == spine(seed, area, y - 1) { run += 1 } else { run = 1 }
         if run > longest { longest = run }
         y += 1
@@ -686,18 +1420,19 @@ pub fn straight_run(seed: int, area: int) -> int {
 /// either side of the spawn's, so shore cells lie north of local row 0.
 pub const COAST_TOP: int = -16
 
-/// BFS of actual tiles, independent of path-carving logic. Returns the
-/// number of reached required destinations: dens + incident portals +
-/// caches + the arena's centre.
-pub fn reach_count(seed: int, field: int, area: int) -> int {
+/// The flood of an area's actual tiles from its entry: the reached flags,
+/// one a cell, `width` cells a row from `top`. Independent of path
+/// carving: it asks `blocked` alone.
+pub fn flood(seed: int, field: int, area: int) -> List[int] {
     let w = bound(field, area)
     let width = w * 2 + 1
     let top = if area == SHINGLE then COAST_TOP else 0
     let o = origin(seed, area)
+    let l = length(area)
     var seen = List[int]()
     var queue = List[int]()
     var i = 0
-    while i < width * (LENGTH - top + 1) { (mut seen).push(0); i += 1 }
+    while i < width * (l - top + 1) { (mut seen).push(0); i += 1 }
     let start = (0 - top) * width + w
     seen[start] = 1
     (mut queue).push(start)
@@ -710,7 +1445,7 @@ pub fn reach_count(seed: int, field: int, area: int) -> int {
         while d < 4 {
             let nx = x + (if d == 0 then -1 else if d == 1 then 1 else 0)
             let ny = y + (if d == 2 then -1 else if d == 3 then 1 else 0)
-            if nx >= 0 - w && nx <= w && ny >= top && ny <= LENGTH {
+            if nx >= 0 - w && nx <= w && ny >= top && ny <= l {
                 let at = (ny - top) * width + nx + w
                 if seen[at] == 0 && !blocked(seed, field, area, nx, ny + o) {
                     seen[at] = 1
@@ -721,12 +1456,30 @@ pub fn reach_count(seed: int, field: int, area: int) -> int {
         }
         head += 1
     }
+    seen
+}
+
+/// Whether the flood reached local cell `(x, at)`.
+pub fn reached(seen: List[int], field: int, area: int, x: int, at: int) -> bool {
+    let w = bound(field, area)
+    let width = w * 2 + 1
+    let top = if area == SHINGLE then COAST_TOP else 0
+    if x < 0 - w || x > w || at < top || at > length(area) { return false }
+    seen[(at - top) * width + x + w] == 1
+}
+
+/// BFS of actual tiles, independent of path-carving logic. Returns the
+/// number of reached required destinations: dens + incident portals +
+/// caches + the arena's centre + the landmarks.
+pub fn reach_count(seed: int, field: int, area: int) -> int {
+    let seen = flood(seed, field, area)
+    let o = origin(seed, area)
     var count = 0
     var den = 0
     while den < DEN_LIMIT {
         if den_area(den) == area {
             let (x, y) = den_position(seed, den)
-            count += seen[((y - FP / 2) / FP - o - top) * width + (x - FP / 2) / FP + w]
+            if reached(seen, field, area, (x - FP / 2) / FP, (y - FP / 2) / FP - o) { count += 1 }
         }
         den += 1
     }
@@ -734,39 +1487,57 @@ pub fn reach_count(seed: int, field: int, area: int) -> int {
     while edge < EDGES {
         if other(area, edge) >= 0 {
             let (x, y) = portal(seed, area, edge)
-            count += seen[(y / FP - o - top) * width + x / FP + w]
+            if reached(seen, field, area, x / FP, y / FP - o) { count += 1 }
         }
         edge += 1
     }
     var cache = 0
     while cache < cache_count(area) {
         let (x, y) = cache_position(seed, field, area, cache)
-        count += seen[((y - FP / 2) / FP - o - top) * width + (x - FP / 2) / FP + w]
+        if reached(seen, field, area, (x - FP / 2) / FP, (y - FP / 2) / FP - o) { count += 1 }
         cache += 1
     }
     if has_arena(area) {
         let (cx, cy, _) = arena(seed, field, area)
-        count += seen[(cy - top) * width + cx + w]
+        if reached(seen, field, area, cx, cy) { count += 1 }
+    }
+    var k = 0
+    while k < landmark_count(area) {
+        let (_, lx, ly) = landmark(seed, field, area, k)
+        if reached(seen, field, area, lx, ly) { count += 1 }
+        k += 1
     }
     count
 }
 
-/// Finite caches in an area: the coast's four alcoves, two inland; none
-/// in the last three areas (the bosses hold them).
+/// Finite caches in an area: the coast's four alcoves, three inland in the
+/// thicket and the meadow, four in the town's yards; none in the last
+/// three areas (the bosses hold them).
 pub fn cache_count(area: int) -> int {
-    if area == SHINGLE then 4 else if area == BRAMBLEHOLD || area == LARKMEADOW then 2 else 0
+    if area == SHINGLE || area == TOWN {
+        4
+    } else if area == BRAMBLEHOLD || area == LARKMEADOW {
+        3
+    } else {
+        0
+    }
 }
 
-/// The journey's bit for a cache: the Shingle's four first, then the
-/// thicket's two, then the meadow's (eight bits in all).
+/// The journey's bit for a cache: the Shingle's four first (0..3), then
+/// the thicket's first two (4, 5), the meadow's first two (6, 7), the
+/// town's four (8..11), the thicket's third (12), the meadow's third (13);
+/// sixteen bits in all (cb05 widened the eight).
 pub fn cache_bit(area: int, cache: int) -> int {
-    if area == SHINGLE then cache else if area == BRAMBLEHOLD then 4 + cache else 6 + cache
+    if area == SHINGLE { return cache }
+    if area == TOWN { return 8 + cache }
+    if cache == 2 { return if area == BRAMBLEHOLD then 12 else 13 }
+    if area == BRAMBLEHOLD then 4 + cache else 6 + cache
 }
 
-/// Destinations an area must reach: its dens, incident portals, caches
-/// and its arena's centre.
+/// Destinations an area must reach: its dens, incident portals, caches,
+/// its arena's centre and its landmarks.
 pub fn required(area: int) -> int {
-    var n = cache_count(area) + (if has_arena(area) then 1 else 0)
+    var n = cache_count(area) + (if has_arena(area) then 1 else 0) + landmark_count(area)
     var den = 0
     while den < DEN_LIMIT {
         if den_area(den) == area { n += 1 }
@@ -780,7 +1551,8 @@ pub fn required(area: int) -> int {
     n
 }
 
-/// Every den, incident edge, cache and arena is reachable in this area.
+/// Every den, incident edge, cache, arena and landmark is reachable in
+/// this area.
 pub fn reachable(seed: int, field: int, area: int) -> bool {
     reach_count(seed, field, area) == required(area)
 }
@@ -797,30 +1569,34 @@ pub fn clearing(seed: int, n: int) -> (int, int, int) {
 
 /// A room's existing attraction, not an empty widening.
 pub fn clearing_reason(n: int) -> str {
-    if n == 0 || n == 3 || n == 4 {
-        "den"
+    if n == 0 {
+        "entry"
     } else if n == 1 {
         "shortcut view"
     } else if n == 2 {
         "scent cache"
+    } else if n == 3 || n == 4 {
+        "den"
     } else {
         "foe cluster"
     }
 }
 
-fn clearing_row(n: int) -> int {
+/// The rooms' rows (cb05: the entry, the shortcut view, the first cache's
+/// mouth, the briar hollow, the split roots, the last cluster).
+pub fn clearing_row(n: int) -> int {
     if n == 0 {
         8
     } else if n == 1 {
         22
     } else if n == 2 {
-        52
+        60
     } else if n == 3 {
-        68
+        100
     } else if n == 4 {
-        92
+        196
     } else {
-        134
+        260
     }
 }
 
@@ -835,36 +1611,37 @@ fn in_clearing(seed: int, x: int, y: int) -> bool {
     false
 }
 
-/// Count bends whose incoming/outgoing route vectors turn at least 90 degrees.
+/// Count bends whose incoming/outgoing route vectors turn at least 90
+/// degrees (the switchbacks' apexes, rows 16 + 36 k).
 pub fn switchbacks(seed: int) -> int {
     var count = 0
     var at = 16
-    while at <= 136 {
+    while at <= 232 {
         let a = spine(seed, BRAMBLEHOLD, at) - spine(seed, BRAMBLEHOLD, at - 8)
         let b = spine(seed, BRAMBLEHOLD, at + 8) - spine(seed, BRAMBLEHOLD, at)
         if a * b + 64 <= 0 { count += 1 }
-        at += 24
+        at += 36
     }
     count
 }
 
 /// Cardinal route distance of the seeded centreline, including lateral travel.
 pub fn path_length(seed: int, area: int) -> int {
-    var length = LENGTH
+    var total = length(area)
     var y = 1
-    while y <= LENGTH {
-        length += abs(spine(seed, area, y) - spine(seed, area, y - 1))
+    while y <= length(area) {
+        total += abs(spine(seed, area, y) - spine(seed, area, y - 1))
         y += 1
     }
-    length
+    total
 }
 
-/// One thorn gate joins the Shingle to Bramblehold (edge zero).
+/// One thorn gate joins the Shingle to Cinderwick (edge zero).
 pub const THORN_GATES: int = 1
 
 /// The throat has five cells, not the spine's wider accidental bypass.
 pub fn thorn_collar(area: int, x: int, at: int) -> bool {
-    (area == SHINGLE && at >= LENGTH - 4 || area == BRAMBLEHOLD && at <= 1) && (x < -2 || x > 2)
+    (area == SHINGLE && at >= LENGTH - 4 || area == TOWN && at <= 1) && (x < -2 || x > 2)
 }
 
 /// The same boundary seen from either incident area, in world cell rows.
@@ -878,4 +1655,10 @@ pub fn shadow_cell(seed: int, area: int, edge: int, x: int, y: int) -> bool {
     let (px, py) = portal(seed, area, edge)
     // Portal coordinates are exact whole cells, including negative mouths.
     x >= px / FP - 3 && x <= px / FP + 3 && y >= py / FP - 1 && y <= py / FP + 1
+}
+
+/// Whether a local cell lies within the town's walls: the Ashen's bound
+/// (cb05; they do not chase past the town's edge).
+pub fn in_town(seed: int, x: int, at: int) -> bool {
+    town.bound(seed, x, at)
 }
