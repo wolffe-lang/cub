@@ -1,0 +1,9 @@
+build: target/native/cub
+test src/diagonals_test.lu::test_cb08_attack_and_movement_keep_all_eight_facings ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_body_is_not_a_rotated_cardinal_rectangle ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_pose_draws_inside_its_own_body_on_both_tiers ... ok
+test src/diagonals_test.lu::test_cb08_diagonals_are_one_drawing_turned_pixel_for_pixel ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_postures_are_visible_not_parameter_noops ... ok
+test src/ghost_test.lu::test_cb08_legacy_ghost_quarters_and_new_eighths_keep_their_direction ... ok
+wolf test: 6 passed; 0 failed; 0 rejected; 0 unsupported; 305 filtered out
+pty: cb08-diagonal-live ok (linux x86_64, exit 0, 39346 bytes captured)
