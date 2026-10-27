@@ -4,6 +4,10 @@
 use art
 use controls
 use grid
+use forest
+use terrain
+use sprites
+use silhouette
 use score
 use sim
 use tier
@@ -181,6 +185,81 @@ fn test_cb06_rendered_wolves_contrast_with_ice_and_water() {
             }
             assert(count >= 8, "witness must contain a visible wolf")
             if t == tier.PLAIN { assert(grid.plain_ok(g), "contrast keeps plain palette") }
+        }
+    }
+}
+
+fn test_cb06_both_banks_are_rendered_shingle_cells() {
+    for size in [24, 40, 60] {
+        let cols = if size == 24 then 80 else if size == 40 then 120 else 200
+        let s = sim.new(1, cols, size)
+        let (top, bottom) = art.opening_ice_rows(size)
+        let shore = art.opening_shore_rows(size)
+        assert(shore == (if size == 24 then 5 else 7), "coast scale follows the Shingle")
+        for t in [tier.PLAIN, tier.RICH] {
+            var scene = copy s
+            sim.opening(mut scene)
+            scene.tick = 120
+            var g = grid.new(size, cols)
+            art.opening_frame(scene, t, mut g)
+            var row = 3
+            while row < size {
+                if row >= top && row < bottom { row += 1; continue }
+                var col = 0
+                while col < cols {
+                    let (x, y) = art.opening_bank_source(s, row, col)
+                    let kind = forest.kind(s.seed, s.field, forest.SHINGLE, x, y)
+                    let gravel = row >= top - shore && row < top || row >= bottom && row < bottom + shore
+                    assert(if gravel then kind == terrain.GRAVEL else kind == terrain.TRUNK || kind == terrain.DARK,
+                        "both banks have real Shingle gravel then thick forest")
+                    let expected = art.ground_at(s.seed, s.field, forest.SHINGLE, t, x, y)
+                    assert(grid.same(art.opening_bank_cell(s, t, row, col), expected), "bank source pair is emitted by the world's renderer")
+                    assert(grid.same(grid.at(g, row, col), expected), "the actual crossing uses the shared cell")
+                    col += 7
+                }
+                row += 1
+            }
+        }
+    }
+}
+
+fn test_cb06_opening_wolves_are_the_game_silhouettes() {
+    for t in [tier.PLAIN, tier.RICH] {
+        for small in [true, false] {
+            for material in [1, 2] {
+                var actual = grid.new(24, 80)
+                var expected = grid.new(24, 80)
+                var i = 0
+                while i < actual.cells.len {
+                    actual.cells[i] = art.opening_material(t, material, 0)
+                    expected.cells[i] = art.opening_material(t, material, 0)
+                    i += 1
+                }
+                art.opening_wolf(mut actual, t, 12, 40, small, 2)
+                if small {
+                    art.draw_pose(mut expected, t, 12, 40, 1, 0, 1, 2, 0, true, 0, 0)
+                } else {
+                    art.draw_wolf(mut expected, t, 12, 40, 1, 0, 1, 2)
+                }
+                let (w, h) = if small then silhouette.cub_size() else silhouette.wolf_size()
+                let (dc, dr, width, height) = silhouette.footprint(w, h, 1)
+                var drawn = 0
+                i = 0
+                while i < expected.cells.len {
+                    var want = expected.cells[i]
+                    if want.fg == sprites.palette(t, sprites.C_FUR) {
+                        drawn += 1
+                        let row = i / 80
+                        let col = i % 80
+                        assert(row >= 12 + dr && row < 12 + dr + height && col >= 40 + dc && col < 40 + dc + width,
+                            "shared sprite stays in its physical footprint")
+                        if material == 1 { want.fg = if t == tier.RICH then 52 else 0 }
+                    }
+                    assert(grid.same(actual.cells[i], want), "opening reuses every in-game sprite cell, only ice shade changes")
+                    i += 1
+                }
+                assert(drawn > 0, "sprite witness is nonempty")
+            }
         }
     }
 }
