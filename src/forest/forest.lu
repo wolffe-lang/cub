@@ -744,7 +744,9 @@ fn point_on(g: Branch, t: int) -> (int, int) {
 /// `branch_len` at the cache), local cells (`docs/DESIGN.md`, "The wide
 /// forest").
 pub fn branch_point(seed: int, field: int, area: int, cache: int, t: int) -> (int, int) {
-    point_on(branch_geom(seed, field, area, cache), t)
+    // PLANT: a sawtooth on the shape, two cells either way every eight.
+    let (x, y) = point_on(branch_geom(seed, field, area, cache), t)
+    (x + (if (t / 8) % 2 == 0 then 2 else -2), y)
 }
 
 /// Whether local cell `(x, at)` lies within `half` of a point on a run
