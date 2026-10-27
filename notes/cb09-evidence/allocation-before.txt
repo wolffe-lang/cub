@@ -1,0 +1,19 @@
+Allocation census, native arm64, before fixes, 300 calls in named region.
+The default process ambient region is not charged by live_region_bytes;
+placing the diagnostic state/grid in region census makes its descendants
+visible. Strings materialized against the runtime root remain a known gap.
+Copied crash save resumes area 1 Bramblehold (the checkpoint), not area 2.
+mode sim: initial 523264 final 523264 charged 0 bytes/tick 0
+mode history: initial 523264 final 523264 charged 0 bytes/tick 0
+mode save: initial 523264 final 2096128 charged 1572864 bytes/tick 5242
+mode render: initial 523264 final 477101056 charged 476577792 bytes/tick 1588592
+mode terrain: initial 523264 final 450886656 charged 450363392 bytes/tick 1501211
+Fresh seed 7 area 0, renderer: initial 201728 final 16913408
+charged 16711680 bytes/tick 55705.
+No sound or diff output, no loaded ghosts, no scent trail, no foe stepping
+in the renderer-only rows. Therefore these leaks reproduce without sound,
+ghosts, diff, AI or scent. A fresh Shingle is the smallest available region.
+The terrain-only row explains most of the crash-fixture renderer cost.
+forest.branch_shape's orders and forest.sin12's lookup tables are rebuilt
+inside terrain queries. Next test: frame-lifetime scratch around drawing.
+The initial prediction of sim copies was falsified by the zero-charge row.

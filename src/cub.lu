@@ -21,6 +21,7 @@ use forest
 use journey
 use denmemory
 use measure
+use memprobe
 use motionproof
 use narrowaudit
 use look
@@ -1008,6 +1009,9 @@ fn run_live(o: Options, args: List[str]) -> int {
 
 fn main() -> int {
     let args = env.args()
+    if args.len == 4 && args[0] == "--allocation-probe" {
+        return memprobe.census(args[1].to_int() else 0, args[2], args[3])
+    }
     if args.len > 0 && args[0] == "--doorways-audit" { return doorproof.census() }
     if args.len > 0 && args[0] == "--den-spacing" { return wide.den_spacing() }
     if args.len > 0 && args[0] == "--foe-census" { return wide.foe_census() }
