@@ -3,6 +3,7 @@
 
 use art
 use grid
+use silhouette
 use sim
 use tier
 
@@ -65,5 +66,40 @@ fn test_cb08_diagonal_pose_draws_inside_its_own_body_on_both_tiers() {
             face += 2
         }
         mode += 1
+    }
+}
+
+fn test_cb08_diagonals_are_one_drawing_turned_pixel_for_pixel() {
+    var quarter = 0
+    while quarter < 4 {
+        for pose in [0, 1, 2, 3, 5] {
+            let base = silhouette.cub_diagonal(pose, 1, -1, 1, 1)
+            let actual = silhouette.cub_eighth(pose, 1, -1, 1, 1, quarter * 2 + 1)
+            assert(
+                silhouette.same(actual, silhouette.turned(base, quarter)),
+                "pose {pose} turn {quarter}",
+            )
+            assert(actual.w == 16 && actual.h == 16, "measured diagonal pixel extent")
+        }
+        quarter += 1
+    }
+}
+
+fn test_cb08_diagonal_postures_are_visible_not_parameter_noops() {
+    let stand = silhouette.cub_diagonal(0, 0, 0, 0, 0)
+    assert(!silhouette.same(stand, silhouette.cub_diagonal(1, 0, 0, 0, 0)), "first paw")
+    assert(!silhouette.same(stand, silhouette.cub_diagonal(1, 1, 0, 0, 0)), "second paw")
+    assert(!silhouette.same(stand, silhouette.cub_diagonal(2, 0, 0, 0, 0)), "sneak")
+    assert(!silhouette.same(stand, silhouette.cub_diagonal(3, 0, 0, 0, 1)), "pant")
+    assert(!silhouette.same(stand, silhouette.cub_diagonal(5, 0, 0, 0, 0)), "snap")
+    assert(!silhouette.same(stand, silhouette.cub_diagonal(0, 0, 0, 0, 1)), "breath")
+    for hurt in [1, 2, 3] {
+        assert(
+            !silhouette.same(stand, silhouette.cub_diagonal(0, 0, 0, hurt, 0)),
+            "hurt band {hurt}",
+        )
+    }
+    for tail in [-2, -1, 1, 2] {
+        assert(!silhouette.same(stand, silhouette.cub_diagonal(0, 0, tail, 0, 0)), "wag {tail}")
     }
 }

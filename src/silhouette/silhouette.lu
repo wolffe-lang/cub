@@ -416,6 +416,122 @@ pub fn cub_posed(pose: int, legs: int, tail: int, hurt: int, breath: int) -> Bit
     parse(r)
 }
 
+/// The second cub drawing, facing north-east: the same muzzle, paired
+/// ears, shoulders, haunches and trailing tail drawn on the diagonal.
+/// Its own canvas is 16 by 16 pixels, not a turned cardinal rectangle.
+/// Poses share the cardinal rules; their ears, paws, breath and tail are
+/// redrawn here. Pose 5 is the forward snap (cb07).
+pub fn cub_diagonal(pose: int, legs: int, tail: int, hurt: int, breath: int) -> Bitmap {
+    var r = List[str]()
+    let low = pose == 2 || pose == 3 || hurt >= 3
+    let open = pose == 3 && breath == 1 && hurt < 3
+    let snap = pose == 5
+    let step = pose == 1 && hurt < 3
+    let swing = legs % 2 == 0
+    let wag = if hurt >= 2 || snap then 0 else if hurt == 1 then tail / 2 else tail
+    row(
+        if low then "................" else if snap then "..............##" else ".............##.",
+        mut r,
+    )
+    row(
+        if open then "............#..#" else if low then ".............##." else "............####",
+        mut r,
+    )
+    row(if open then "...........#..#." else "...........####.", mut r)
+    row(if hurt >= 1 || low then "..........#####." else ".......#..#####.", mut r)
+    row(if hurt >= 2 then "........#####..." else ".......#######..", mut r)
+    row(if hurt == 2 then ".......#######.." else "........######..", mut r)
+    row(if hurt >= 1 || low then ".......#######.." else ".......#######.#", mut r)
+    row(
+        if breath == 1 && pose != 3 || step && swing && hurt < 2 {
+            ".....###########"
+        } else {
+            "......#########."
+        },
+        mut r,
+    )
+    row(".....########...", mut r)
+    row("....########....", mut r)
+    row(if step && !swing then "..##########...." else "...########.....", mut r)
+    row(if breath == 1 && pose != 3 then "..########......" else "...#######......", mut r)
+    row("....####........", mut r)
+    row(
+        if wag >= 2 {
+            "....####........"
+        } else if wag <= -2 {
+            "..####.........."
+        } else {
+            "...####........."
+        },
+        mut r,
+    )
+    row(
+        if wag >= 1 {
+            "...##..........."
+        } else if wag <= -1 {
+            ".###............"
+        } else {
+            "..##............"
+        },
+        mut r,
+    )
+    row(
+        if wag >= 2 {
+            "...##..........."
+        } else if wag == 1 {
+            "..##............"
+        } else if wag == -1 {
+            "##.............."
+        } else if wag <= -2 {
+            "#..............."
+        } else {
+            ".##............."
+        },
+        mut r,
+    )
+    parse(r)
+}
+
+/// The north-east drawing's own pixel extent, cub or grown wolf.
+pub fn diagonal_size(grown: bool) -> (int, int) {
+    if grown then (24, 24) else (16, 16)
+}
+
+/// The grown diagonal shares the cub drawing at three pixels per two,
+/// just as its cardinal body grows from 8x16 to 12x24. No new facing art.
+pub fn wolf_diagonal(pose: int, legs: int) -> Bitmap {
+    let b = cub_diagonal(pose, legs, 0, 0, 0)
+    var px = List[int]()
+    var r = 0
+    while r < 24 {
+        var c = 0
+        while c < 24 {
+            (mut px).push(at(b, r * 2 / 3, c * 2 / 3))
+            c += 1
+        }
+        r += 1
+    }
+    Bitmap { w: 24, h: 24, px: px }
+}
+
+/// The cub drawing for an eighth, already turned. The even eighths use
+/// the original north bitmap; the odd eighths quarter-turn north-east.
+pub fn cub_eighth(pose: int, legs: int, tail: int, hurt: int, breath: int, facing: int) -> Bitmap {
+    let f = (facing % 8 + 8) % 8
+    let b = if f % 2 == 0 {
+        cub_posed(pose, legs, tail, hurt, breath)
+    } else {
+        cub_diagonal(pose, legs, tail, hurt, breath)
+    }
+    turned(b, f / 2)
+}
+
+/// The grown wolf for an eighth, already turned by the same rule.
+pub fn wolf_eighth(pose: int, legs: int, facing: int) -> Bitmap {
+    let f = (facing % 8 + 8) % 8
+    turned(if f % 2 == 0 then wolf(pose, legs) else wolf_diagonal(pose, legs), f / 2)
+}
+
 /// Foe species the sheet and the frame draw: 0 weasel, 1 fox, 3 deer
 /// (the simulation's numbers); 2, the hawk, has `hawk`. Phases are the
 /// simulation's: 0 hunt, 1 crouch, 2 strike, 3 retreat, 4 stagger, 5
