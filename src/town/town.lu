@@ -216,8 +216,9 @@ pub fn square_ember(seed: int, side: int) -> (int, int) {
 }
 
 /// The ember nearest a local cell among the plots around it (and the
-/// square's), or the cell itself when none is within two plots: where an
-/// Ashen goes to stand when it hears nothing.
+/// square's), reached from the lane (the verges' and the square's, never
+/// a yard's behind its walls), or the cell itself when none is within two
+/// plots: where a lane's Ashen goes to stand when it hears nothing.
 pub fn nearest_ember(seed: int, x: int, at: int) -> (int, int) {
     let k = plot(at)
     var bx = x
@@ -229,7 +230,7 @@ pub fn nearest_ember(seed: int, x: int, at: int) -> (int, int) {
             if j >= 0 && j < PLOTS {
                 let (ex, ey) = ember(seed, side, j)
                 let d = (ex - x) * (ex - x) + (ey - at) * (ey - at)
-                if ex > -1000 && d < best { best = d; bx = ex; by = ey }
+                if ex > -1000 && j % 2 == 1 && d < best { best = d; bx = ex; by = ey }
                 if square(j) {
                     let (sx, sy) = square_ember(seed, side)
                     let e = (sx - x) * (sx - x) + (sy - at) * (sy - at)
