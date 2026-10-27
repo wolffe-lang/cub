@@ -537,20 +537,41 @@ pub fn draw_actor(s: sim.Sim, t: int, mut g: grid.Grid) {
         }
     } else if s.action == sim.BITE {
         draw_combo(s, t, mut g)
-    } else if shake != 0 && t == tier.RICH && facing % 2 == 0 {
+    } else if shake != 0 && t == tier.RICH {
         // The third bite's head shake: the body stays, the head cells move
         // one cell across the aim (a column north or south, a row east or
         // west), the same silhouette in two parts.
         let style = fur(t, band(s.stamina, sim.stamina_max(s.wind)))
-        let body = silhouette.cub_posed(
-            pose,
-            sim.legs(s),
-            silhouette.wag(sim.tail_phase(s), pose == 1),
-            sim.hurt_band(s),
-            sim.breath(s),
-        )
+        let body = if facing % 2 != 0 {
+            silhouette.cub_diagonal(
+                pose,
+                sim.legs(s),
+                silhouette.wag(sim.tail_phase(s), pose == 1),
+                sim.hurt_band(s),
+                sim.breath(s),
+            )
+        } else {
+            silhouette.cub_posed(
+                pose,
+                sim.legs(s),
+                silhouette.wag(sim.tail_phase(s), pose == 1),
+                sim.hurt_band(s),
+                sim.breath(s),
+            )
+        }
         let (dr, dc) = sim.shake_cells(s)
-        motionart.shifted_shaken(mut g, r, c, body, facing, 0, 0, dc * sim.FP, dr * sim.FP, style)
+        motionart.shifted_shaken(
+            mut g,
+            r,
+            c,
+            body,
+            facing / 2,
+            0,
+            0,
+            dc * sim.FP,
+            dr * sim.FP,
+            style,
+        )
     } else {
         draw_pose(
             mut g,
@@ -566,24 +587,9 @@ pub fn draw_actor(s: sim.Sim, t: int, mut g: grid.Grid) {
             sim.hurt_band(s),
             sim.breath(s),
         )
-        if shake != 0 && facing % 2 == 0 {
-            // Plain: the ears row shifts across the aim.
-            // The head a cell out of the body on each swing: north or
-            // south the ears row slides across; east or west the ear mark
-            // goes a row above or below the two-row body.
+        if shake != 0 {
             let (sr, sc) = sim.shake_cells(s)
-            let dr = (
-                if facing == 0 then -1 else if facing == 2 then 2 else if sr < 0 then -1 else 2
-            )
-            let dc = (if facing % 2 == 0 then -1 else if facing == 1 then 3 else -2) + sc
-            let dr2 = dr + (if facing % 2 == 0 then sr else 0)
-            draw.put_text(
-                mut g,
-                r + dr2,
-                c + dc,
-                if facing % 2 == 0 then ".^^." else "^",
-                ink(t, true),
-            )
+            draw_plain_head_swing(mut g, t, r, c, facing, sr, sc)
         }
     }
 }
@@ -3376,12 +3382,7 @@ pub fn draw_combo_shaken(s: sim.Sim, t: int, mut g: grid.Grid, shake: int) {
         )
         if shake != 0 {
             let (sr, sc) = sim.shake_cells_of(s, shake)
-            let row = ar +
-                dr +
-                (if q == 0 then -1 else if q == 2 then 2 else if sr < 0 then -1 else 2) +
-                (if q % 2 == 0 then sr else 0)
-            let col = ac + dc + (if q % 2 == 0 then -1 else if q == 1 then 3 else -2) + sc
-            draw.put_text(mut g, row, col, if q % 2 == 0 then ".^^." else "^", ink(t, true))
+            draw_plain_head_swing(mut g, t, ar + dr, ac + dc, facing, sr, sc)
         }
     }
 }
@@ -3458,4 +3459,34 @@ pub fn diagonal_sheet(t: int, field: int) -> grid.Grid {
         row += 1
     }
     g
+}
+
+// Plain follows cb07's marked-head swing. Diagonal head marks use their
+// own leading corner; cardinal marks retain the original placement.
+fn draw_plain_head_swing(
+    mut g: grid.Grid,
+    t: int,
+    row: int,
+    col: int,
+    facing: int,
+    sr: int,
+    sc: int,
+) {
+    if facing % 2 != 0 {
+        let r = if facing == 1 || facing == 7 then -1 else 2
+        let c = if facing == 1 || facing == 3 then 4 else -3
+        draw.put_text(
+            mut g,
+            row + r + sr,
+            col + c + sc,
+            if facing == 1 || facing == 5 then "/" else "\\",
+            ink(t, true),
+        )
+        return
+    }
+    let q = facing / 2
+    let r = (if q == 0 then -1 else if q == 2 then 2 else if sr < 0 then -1 else 2) +
+        (if q % 2 == 0 then sr else 0)
+    let c = (if q % 2 == 0 then -1 else if q == 1 then 3 else -2) + sc
+    draw.put_text(mut g, row + r, col + c, if q % 2 == 0 then ".^^." else "^", ink(t, true))
 }

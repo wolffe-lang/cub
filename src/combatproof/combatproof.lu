@@ -180,8 +180,8 @@ const WINDOW_LEFT: int = 28
 
 const WINDOW_RIGHT: int = 53
 
-/// The cells across the aim a drawing covers: columns for a body facing
-/// north or south, rows facing east or west.
+/// Whole-cell extent projected across the eighth-facing aim. Cardinals
+/// retain their column/row spans; diagonals use both axes.
 fn span_across(g: grid.Grid, facing: int) -> int {
     var lo = 1000000
     var hi = -1
@@ -190,7 +190,7 @@ fn span_across(g: grid.Grid, facing: int) -> int {
         var c = WINDOW_LEFT
         while c < WINDOW_RIGHT {
             if grid.at(g, r, c).cp != 32 {
-                let k = if facing % 2 == 0 then c else r
+                let k = (c * sim.cos(facing * 32) + r * sim.sin(facing * 32)) / sim.FP
                 if k < lo { lo = k }
                 if k > hi { hi = k }
             }

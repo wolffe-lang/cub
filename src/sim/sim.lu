@@ -1885,9 +1885,8 @@ fn clear_between_from(s: Sim, x: int, y: int, a: Body, b: Body, tx: int, ty: int
 pub fn strike_reaches(s: Sim, i: int, reach: int) -> bool {
     let fb = foe_body(s.foes[i])
     if jaws_reach_body(s, cub_body(s), fb, reach) { return true }
-    s.action == BITE && jaws_reach_body(
-        s, cub_body_at(s, s.action_x, s.action_y, s.body_facing), fb, reach,
-    )
+    s.action == BITE &&
+        jaws_reach_body(s, cub_body_at(s, s.action_x, s.action_y, s.body_facing), fb, reach)
 }
 
 /// The front edge of a drawn body, in fixed point: centre of the

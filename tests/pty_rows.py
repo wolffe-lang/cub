@@ -1453,9 +1453,18 @@ def cb08_whisper_flank(binary, ctx):
                 # before its AI step and the actual committed slanted cone.
                 angle = state['cone'] * math.tau / 256
                 sine, cosine = round(256 * math.sin(angle)), round(256 * math.cos(angle))
-                dx, dy = old['x'] - state['x'], old['y'] - state['y']
-                dot, cross = dx * sine - dy * cosine, dx * cosine + dy * sine
-                if (dot < 0 or abs(cross) > dot) and foe['last_hit'] == state['started']:
+                committed = states.get(state['started'])
+                if committed is None:
+                    continue
+                misses = []
+                for origin in (state, committed):
+                    dx, dy = old['x'] - origin['x'], old['y'] - origin['y']
+                    dot, cross = dx * sine - dy * cosine, dx * cosine + dy * sine
+                    misses.append(dot < 0 or abs(cross) > dot)
+                # cb07 already swept both endpoints with centre cones:
+                # the witness must need BODY intersection at both, not
+                # merely reproduce its commitment-point correction.
+                if all(misses) and foe['last_hit'] == state['started']:
                     return None
         return 'Whisper never took a bite outside the former centre cone'
 
