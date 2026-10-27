@@ -1,0 +1,2 @@
+test src/held_test.lu::test_cb04b_release_resumes_held_direction ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 310 filtered out

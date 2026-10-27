@@ -1,0 +1,2 @@
+test src/rollrally_test.lu::test_cb04b_rally_expires_at_window_end ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 310 filtered out

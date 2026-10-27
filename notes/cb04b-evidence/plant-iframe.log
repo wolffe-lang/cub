@@ -1,0 +1,2 @@
+test src/rollrally_test.lu::test_cb04b_roll_iframe_last_tick_misses_then_hit_lands ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 310 filtered out
