@@ -37,14 +37,13 @@ pub const SQUARE_PLOT: int = 7
 /// The lane's half width, cells.
 pub const LANE_HALF: int = 4
 
-/// Ash between the lane's edge and a house's near wall, cells: the lane
-/// wanders up to four cells within a plot, so the verge keeps the walls
-/// clear of it.
+/// Ash between the lane's nearest edge and a house's near wall, cells.
 pub const VERGE: int = 4
 
 /// The farthest a yard's back wall stands from the lane's centre: the
-/// lane, the verge, the widest house, the deepest yard and the wall.
-pub const EXTENT: int = LANE_HALF + VERGE + 1 + 11 + 9 + 1
+/// lane, the verge, the lane's reach across a plot (up to five cells),
+/// the widest house, the deepest yard and the wall.
+pub const EXTENT: int = LANE_HALF + VERGE + 5 + 1 + 11 + 9 + 1
 
 /// How far the Ashen roam past the last walls, rows (the town's edge).
 pub const EDGE_ROWS: int = 6
@@ -56,11 +55,48 @@ fn abs(v: int) -> int {
     if v < 0 then 0 - v else v
 }
 
-/// The lane's centre at local row `at`: the route's meander, standing at
-/// x = 0 at both portals (the thorn throat and the way on) by its end
-/// anchors, never by a taper.
+/// The lane's anchor at plot `k`'s middle row, fixed point: the street
+/// weaves two to five cells to alternate sides of the plots, two beside
+/// the road in and out, nothing beyond them (the thorn throat at row 0
+/// and the way on stand at x = 0).
+fn lane_anchor_fp(seed: int, k: int) -> int {
+    if k <= -2 || k > PLOTS { return 0 }
+    let sign = if (k % 2 + 2) % 2 == 0 then 1 else -1
+    if k == -1 || k == PLOTS { return sign * 2 * FP }
+    sign * (2 + world.hash(seed, 36, k + 2, 4)) * FP
+}
+
+/// The lane's centre at local row `at`, fixed point: a smoothstep between
+/// the anchors at the plots' middle rows (no noise: the lane is monotone
+/// between two anchors, so its reach toward a house over the plot's rows
+/// is read at three rows, `lane_edge`), and the houses keep clear of it.
+pub fn lane_fp(seed: int, at: int) -> int {
+    let rel = at - (FIRST + PITCH / 2)
+    var k = rel / PITCH
+    var r = rel % PITCH
+    if r < 0 { k -= 1; r += PITCH }
+    let a = lane_anchor_fp(seed, k)
+    let b = lane_anchor_fp(seed, k + 1)
+    a + (b - a) / FP * terrain.smoothstep(r * FP / PITCH)
+}
+
+/// The lane's centre at local row `at`, cells.
 pub fn lane(seed: int, at: int) -> int {
-    terrain.floor_cells(terrain.meander_ends_fp(seed, 36, at, LENGTH))
+    terrain.floor_cells(lane_fp(seed, at))
+}
+
+/// The lane's farthest centre toward `side` over plot `k`'s rows (its
+/// walls and the passage after it): at the plot's first row, its middle
+/// (an anchor) or its last, the lane being monotone between anchors.
+fn lane_edge(seed: int, side: int, k: int) -> int {
+    // The anchors alternate sides: the plot's own anchor is the reach on
+    // its side; on the other side the lane is farthest at one of the
+    // plot's end rows.
+    let sign = if k % 2 == 0 then 1 else -1
+    if side == sign { return lane(seed, top(k) + PITCH / 2) }
+    let a = lane(seed, top(k))
+    let b = lane(seed, bottom(k) + 1)
+    if side * (b - a) > 0 then b else a
 }
 
 /// The plot a local row lies in (its house's rows and the passage after
@@ -87,10 +123,11 @@ pub fn bottom(k: int) -> int {
 }
 
 /// The house on side `side` (-1 west, 1 east) of plot `k`: its near wall's
-/// column (toward the lane), its far wall's, measured from the lane at the
-/// plot's middle row so the whole house keeps the verge.
+/// column (toward the lane), its far wall's, measured from the lane's
+/// farthest reach toward it over the plot's rows so the whole house keeps
+/// the verge (the verge widens where the street bends away).
 pub fn house_x(seed: int, side: int, k: int) -> (int, int) {
-    let c = lane(seed, top(k) + PITCH / 2)
+    let c = lane_edge(seed, side, k)
     let near = c + side * (LANE_HALF + VERGE + 1)
     let width = 8 + world.hash(seed, 401 + side, k, 4)
     (near, near + side * (width - 1))
@@ -100,6 +137,12 @@ pub fn house_x(seed: int, side: int, k: int) -> (int, int) {
 /// yard's last open column, and the back wall's column after it.
 pub fn yard_x(seed: int, side: int, k: int) -> (int, int, int) {
     let (_, far) = house_x(seed, side, k)
+    yard_behind(seed, side, k, far)
+}
+
+/// `yard_x` with the house's far wall already known (`kind` evaluates each
+/// house once a cell).
+fn yard_behind(seed: int, side: int, k: int, far: int) -> (int, int, int) {
     let depth = 6 + world.hash(seed, 411 + side, k, 4)
     (far + side, far + side * depth, far + side * (depth + 1))
 }
@@ -292,7 +335,7 @@ pub fn kind(seed: int, x: int, at: int) -> int {
         return terrain.ASH
     }
     let (near, far) = house_x(seed, side, k)
-    let (yin, yout, back) = yard_x(seed, side, k)
+    let (yin, yout, back) = yard_behind(seed, side, k, far)
     let t = top(k)
     let b = bottom(k)
     if at == b + 1 {
