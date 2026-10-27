@@ -72,8 +72,34 @@ pub const RICH_ROWS: int = 3
 /// The plain tier's width in cells: three a digit and a cell between.
 pub fn plain_width(n: int) -> int { pixel_width(decimal(n)) }
 
-/// The plain tier's height in rows.
-pub const PLAIN_ROWS: int = 5
+/// R-cb07-4, recommendation A: the plain tier's digits are the same
+/// three-by-five font in `#` cells, five rows tall. The alternative (B)
+/// is a three-row font of `_` and `|` strokes (`plain_cells_of` with
+/// `false`); this one line switches it.
+pub const PLAIN_DIGITS_TALL: bool = true
+
+/// The plain tier's height in rows under the switch.
+pub fn plain_rows() -> int { if PLAIN_DIGITS_TALL then PLAIN_ROWS_TALL else 3 }
+
+/// The plain tier's height in rows with the 3x5 font.
+pub const PLAIN_ROWS_TALL: int = 5
+
+/// The three rows of a digit in strokes (R-cb07-4 B): `_` and `|` on a
+/// three-wide cell, the seven-segment shapes a terminal shows.
+pub fn stroke_glyph(d: int) -> List[str] {
+    match d {
+        0 => [" _ ", "| |", "|_|"],
+        1 => ["   ", "  |", "  |"],
+        2 => [" _ ", " _|", "|_ "],
+        3 => [" _ ", " _|", " _|"],
+        4 => ["   ", "|_|", "  |"],
+        5 => [" _ ", "|_ ", " _|"],
+        6 => [" _ ", "|_ ", "|_|"],
+        7 => [" _ ", "  |", "  |"],
+        8 => [" _ ", "|_|", "|_|"],
+        _ => [" _ ", "|_|", " _|"],
+    }
+}
 
 /// The quadrant block for a two-by-two pixel cell: `bits` 1 upper left,
 /// 2 upper right, 4 lower left, 8 lower right; 32 for none.
@@ -121,14 +147,38 @@ pub fn rich_cells(n: int) -> List[Dot] {
     out
 }
 
-/// The plain tier's cells for `n`: a `#` cell a lit pixel over a
-/// `PLAIN_ROWS` by `plain_width(n)` box.
+/// The plain tier's cells for `n` under the switch (`PLAIN_DIGITS_TALL`).
 pub fn plain_cells(n: int) -> List[Dot] {
+    plain_cells_of(n, PLAIN_DIGITS_TALL)
+}
+
+/// The plain tier's cells for `n`: tall, a `#` cell a lit pixel over a
+/// `PLAIN_ROWS_TALL` by `plain_width(n)` box; else the three-row stroke
+/// font, a cell a stroke, the same width.
+pub fn plain_cells_of(n: int, tall: bool) -> List[Dot] {
     let digits = decimal(n)
     var out = List[Dot]()
     let w = pixel_width(digits)
+    if !tall {
+        var d = 0
+        while d < digits.len {
+            let rows = stroke_glyph(digits[d])
+            var row = 0
+            while row < 3 {
+                var x = 0
+                while x < 3 {
+                    let b = rows[row].bytes()[x] as int
+                    if b != 32 { (mut out).push(Dot { row: row, col: d * 4 + x, cp: b }) }
+                    x += 1
+                }
+                row += 1
+            }
+            d += 1
+        }
+        return out
+    }
     var row = 0
-    while row < PLAIN_ROWS {
+    while row < PLAIN_ROWS_TALL {
         var col = 0
         while col < w {
             if lit(digits, row + 1, col) { (mut out).push(Dot { row: row, col: col, cp: 35 }) }

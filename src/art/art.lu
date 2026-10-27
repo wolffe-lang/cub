@@ -1438,7 +1438,9 @@ fn put_over(mut g: grid.Grid, row: int, col: int, text: str, style: grid.Cell) {
 
 /// Compact bars reserve eight cells each: the debug HUD's (`--hud`).
 /// Compact text description; the rendered bars retain labels as a non-colour channel.
-pub fn hud_text(s: sim.Sim) -> str { "health stamina scent {s.scent}" }
+pub fn hud_text(s: sim.Sim) -> str {
+    "health {s.health}/{sim.health_max(s.heart)} stamina {s.stamina}/{sim.stamina_max(s.wind)} scent {s.scent} rally {sim.rally_available(s)} water {s.flasks}/{s.flask_max}"
+}
 
 /// Ten stat points per cell, rounded up; a thirty-cell cap fits80 columns.
 pub fn bar_cells(maximum: int) -> int {
@@ -1476,6 +1478,18 @@ pub const HUD_BAR_COL: int = 9
 
 /// The water line's row: straight under the stamina bar.
 pub const HUD_WATER_ROW: int = 5
+
+/// R-cb07-3, recommendation A: the water charges stay on the play HUD as
+/// a line under the bars. The alternative (B) keeps them in the `--hud`
+/// debug line only (`hud_text` carries them either way); this one line
+/// switches it.
+pub const HUD_WATER_LINE: bool = true
+
+/// R-cb07-5, recommendation A: the `scent` label stays beside the number
+/// however many digits it has (the field grows leftward past twelve
+/// columns at four digits). The alternative (B) drops the label at four
+/// digits and more; this one line switches it.
+pub const SCENT_LABEL_ALWAYS: bool = true
 
 fn text_cells(mut cells: List[HudCell], row: int, col: int, text: str, fg: int, attrs: int) {
     var j = 0
@@ -1515,11 +1529,16 @@ pub fn scent_col(s: sim.Sim, t: int) -> int {
 /// The row the scent number's top cell sits in: the number ends on the
 /// frame's last row.
 pub fn scent_row(s: sim.Sim, t: int) -> int {
-    s.rows - (if t == tier.RICH then digits.RICH_ROWS else digits.PLAIN_ROWS)
+    s.rows - (if t == tier.RICH then digits.RICH_ROWS else digits.plain_rows())
 }
 
-/// The HUD's cells for this frame, in paint order.
+/// The HUD's cells for this frame, in paint order, under the switches.
 pub fn hud_plan(s: sim.Sim, t: int) -> List[HudCell] {
+    hud_plan_with(s, t, HUD_WATER_LINE, SCENT_LABEL_ALWAYS)
+}
+
+/// `hud_plan` with the water line and the label's rule given.
+pub fn hud_plan_with(s: sim.Sim, t: int, water: bool, label_always: bool) -> List[HudCell] {
     let rich = t == tier.RICH
     var cells = List[HudCell]()
     let label = if rich then 250 else 7
@@ -1564,7 +1583,7 @@ pub fn hud_plan(s: sim.Sim, t: int) -> List[HudCell] {
         }
         bar += 1
     }
-    text_cells(mut cells, HUD_WATER_ROW, 1, water_text(s), if rich then 117 else 14, 0)
+    if water { text_cells(mut cells, HUD_WATER_ROW, 1, water_text(s), if rich then 117 else 14, 0) }
     // Scent: the big number in the bottom right corner, its small label
     // on the number's middle row to its left.
     let top = scent_row(s, t)
@@ -1581,7 +1600,9 @@ pub fn hud_plan(s: sim.Sim, t: int) -> List[HudCell] {
             attrs: if rich then 0 else grid.ATTR_BOLD,
         })
     }
-    text_cells(mut cells, top + (if rich then 1 else 2), left - 6, "scent", label, 0)
+    if label_always || digits.decimal(s.scent).len < 4 {
+        text_cells(mut cells, top + (if rich then 1 else 2), left - 6, "scent", label, 0)
+    }
     cells
 }
 
@@ -3140,6 +3161,7 @@ fn den_menu(s: sim.Sim, t: int, mut g: grid.Grid) {
 /// over the map with the map's background, the last thing the HUD paints
 /// (cb04b's ordering, re-proven with the fills gone: nothing clears it).
 pub fn draw_water(s: sim.Sim, t: int, mut g: grid.Grid) {
+    if !HUD_WATER_LINE { return }
     put_over(
         mut g,
         HUD_WATER_ROW,

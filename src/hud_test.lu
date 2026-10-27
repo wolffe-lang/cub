@@ -128,7 +128,7 @@ fn test_cb07_bars_grow_with_the_stats_and_show_the_rally_in_grey() {
 fn test_cb07_scent_is_a_big_number_in_the_bottom_right_corner() {
     for t in [tier.PLAIN, tier.RICH] {
         let rich = t == tier.RICH
-        let tall = if rich then digits.RICH_ROWS else digits.PLAIN_ROWS
+        let tall = if rich then digits.RICH_ROWS else digits.plain_rows()
         assert(tall >= 3, "a digit font at least three rows tall")
         var last_left = 1000
         for scent in [0, 7, 42, 1234] {
@@ -288,4 +288,50 @@ fn test_cb07_the_water_line_sits_under_the_bars_flush_on_the_map() {
             i += 1
         }
     }
+}
+
+fn test_cb07_the_three_rulings_switch_on_one_line_each() {
+    // R-cb07-3 A: the water line is on the play HUD; B keeps it in the
+    // debug line alone.
+    assert(art.HUD_WATER_LINE && art.SCENT_LABEL_ALWAYS && digits.PLAIN_DIGITS_TALL, "A, A, A")
+    let s = combatproof.hud_fixture(80, 24, 1, 1234, false, false)
+    var water = 0
+    var label = 0
+    for c in art.hud_plan_with(s, tier.RICH, true, true) {
+        if c.kind == art.HUD_LABEL && c.row == art.HUD_WATER_ROW { water += 1 }
+        if c.kind == art.HUD_LABEL && c.row >= 21 { label += 1 }
+    }
+    assert(water == 14 && label == 5, "A: the water line ({water}) and the scent label ({label})")
+    water = 0
+    label = 0
+    for c in art.hud_plan_with(s, tier.RICH, false, false) {
+        if c.kind == art.HUD_LABEL && c.row == art.HUD_WATER_ROW { water += 1 }
+        if c.kind == art.HUD_LABEL && c.row >= 21 { label += 1 }
+    }
+    assert(water == 0 && label == 0, "B: no water line, no label at four digits")
+    assert(art.hud_text(s).contains("water 2/2"), "the debug line carries the charges either way")
+    // R-cb07-4 B: the three-row stroke font on the plain tier.
+    let short = digits.plain_cells_of(8, false)
+    var rows = 0
+    for d in short { if d.row + 1 > rows { rows = d.row + 1 } }
+    assert(rows == 3 && short.len == 7, "an eight in strokes is seven cells on three rows")
+    var d = 0
+    while d < 10 {
+        var e = d + 1
+        while e < 10 {
+            var same = true
+            var i = 0
+            while i < 3 {
+                if digits.stroke_glyph(d)[i] != digits.stroke_glyph(e)[i] { same = false }
+                i += 1
+            }
+            assert(!same, "stroke digits {d} and {e} differ")
+            e += 1
+        }
+        d += 1
+    }
+    assert(
+        digits.plain_cells_of(8, true).len == 13 && digits.plain_rows() == 5,
+        "A: the 3x5 font, five rows",
+    )
 }

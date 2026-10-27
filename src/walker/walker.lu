@@ -332,9 +332,11 @@ fn walk_once_as(
             // strike blocked on both axes by a foe ahead and a wall beside
             // leaves the cub exactly where it stood; cb04b's bites always
             // moved it a quarter cell, which hid this).
+            // A passive walk (never biting) against a foe is stuck, not
+            // fighting: it must replan round the body as before.
             var engaged = s.action != sim.IDLE
             var k = 0
-            while k < s.foes.len {
+            while k < s.foes.len && !passive {
                 if s.foes[k].health > 0 && s.foes[k].kind != sim.HAWK && sim.in_reach(s, k, 2) {
                     engaged = true
                 }
