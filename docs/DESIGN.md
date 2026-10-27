@@ -969,7 +969,7 @@ row), lighting it. Den 7 is the cold hearth, Cinderwick's.
 | 7 the cold hearth | Cinderwick | 132..135, in the square, nine cells off the lane | a ring of hearth stones, the fire in the middle |
 | 2 the briar hollow | Bramblehold | 100..103 | a bowl in the brambles |
 | 1 the split roots | Bramblehold | 196..199 | the roots under the lightning-split oak, the oak six cells east (`LM_SPLIT_OAK`) |
-| 3 the grass nest | Larkmeadow | 24..27 | a flattened ring of grass; Quill's first perch seven cells east at row 30 |
+| 3 the grass nest | Larkmeadow | 8..11 | a flattened ring of grass; Quill's first perch seven cells east at row 30 |
 | 11 the last warm hollow | Larkmeadow | 190..193 | a hollow still warm, where the fire stopped |
 | 4 the ledge cleft | the Teeth | 18..21 | a crack in the stone, the cleft six cells west (`LM_CLEFT`) |
 | 5 the willow root | the Shallows | 7..10 | the willow over the water, seven cells west (`LM_WILLOW`) |
