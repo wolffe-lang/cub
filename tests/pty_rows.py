@@ -811,3 +811,63 @@ def opening_live(binary, ctx, shot=None):
 ROWS['opening-complete'] = opening_live
 for _shot in range(len(OPENING_SHOTS)):
     ROWS['opening-skip-%02d' % _shot] = lambda binary, ctx, shot=_shot: opening_live(binary, ctx, shot)
+
+
+def opening_quit_due(binary, ctx):
+    """A quit on the commit tick must not cancel an already-due seen flag.
+
+    Keep opening-skip-01 unchanged. This drives its losing interleaving
+    deliberately, then relaunches from the actual file, not a fixture.
+    """
+    import re
+    import tempfile
+    import time
+    root = Path(ctx.ROOT) / 'target/pty/opening-quit-due'
+    root.mkdir(parents=True, exist_ok=True)
+    problems = []
+    adjacent = 0
+    for explicit in (False, True):
+        for attempt in range(2):
+            home = Path(tempfile.mkdtemp(prefix='fresh-', dir=root))
+            env = ctx.env_for()
+            env['HOME'] = str(home)
+            path = home / ('missing/explicit.save' if explicit else '.cub/save')
+            record = home / 'record.pk'
+            args = [binary, '--seed', '1', '--no-title', '--mute', '--trace', '--tier', 'plain']
+            if explicit:
+                args += ['--save', str(path)]
+            session = ctx.Session(args + ['--record', str(record)], 24, 80, env)
+            session.type(b'\x1b[C', settle=0)
+            deadline = time.monotonic() + 3
+            while time.monotonic() < deadline:
+                session.pump(.001)
+                if re.search(rb'trace tick \d+ .*? scene 0 ', session.err):
+                    break
+            else:
+                problems.append('opening never acknowledged the skip')
+            session.type(b'q', settle=0)
+            session.finish()
+            ctx.common_checks(session, 0, problems)
+            (home / 'first.trace').write_bytes(session.err)
+            text = record.read_text()
+            skipped = re.search(r'^t (\d+) right$', text, re.M)
+            quit_at = re.search(r'^t (\d+) quit$', text, re.M)
+            if skipped and quit_at and int(quit_at[1]) == int(skipped[1]) + 1:
+                adjacent += 1
+            if 'opening 1' not in path.read_text():
+                problems.append('due seen flag lost on quit (%s attempt%d)' % ('explicit' if explicit else 'default', attempt))
+            if Path(str(path) + '.pending').exists():
+                problems.append('owned stage survived quit')
+            resumed = ctx.Session(args + ['--ticks', '2'], 24, 80, env)
+            resumed.finish()
+            ctx.common_checks(resumed, 0, problems)
+            (home / 'resumed.trace').write_bytes(resumed.err)
+            if re.search(rb'trace tick \d+ .*? scene 1 ', resumed.err):
+                problems.append('relaunch replayed an opening already seen')
+    if adjacent == 0:
+        problems.append('no adjacent skip/quit interleaving witnessed')
+    resumed.evidence = '%d adjacent skip/quit pairs; fresh HOME and explicit path; relaunch checked' % adjacent
+    return resumed, problems
+
+
+ROWS['opening-quit-due'] = opening_quit_due
