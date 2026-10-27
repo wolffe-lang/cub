@@ -1,0 +1,13 @@
+elk15 action tick449 kind1 paw3 cub-3212,26689 heading95 aim160 bearing160 gap1 health88 boss_hp400 phase4
+elk15 action tick461 kind1 paw3 cub-3257,26734 heading160 aim160 bearing160 gap1 health88 boss_hp372 phase4
+elk15 action tick501 kind1 paw3 cub-2877,27204 heading127 aim160 bearing160 gap1 health88 boss_hp358 phase4
+elk15 action tick513 kind1 paw3 cub-2922,27249 heading160 aim160 bearing160 gap1 health88 boss_hp330 phase4
+elk15 action tick545 kind4 paw3 cub-1861,26126 heading32 aim32 bearing160 gap5 health88 boss_hp316 phase2
+elk15 field80 attempt1 n2500 tick2837 cub-2163,26601 health88 stamina100 action0 heading64 held64 blocked613 boss-4486,28382 hp316 phase1 since2828 gap4 goal-5248,28800 goal_blockedfalse
+elk15 field80 attempt2 n2500 tick5338 cub-2075,26581 health88 stamina100 action0 heading2 held224 blocked1309 boss-4486,28382 hp316 phase1 since5324 gap3 goal-5248,28800 goal_blockedfalse
+elk15 field80 attempt3 n2500 tick7839 cub-2088,26580 health88 stamina90 action3 heading224 held-1 blocked2008 boss-4486,28382 hp316 phase1 since7820 gap3 goal-5248,28800 goal_blockedfalse
+elk15 field80 attempt4 won tick8667 health73
+elk15 field200 attempt1 n2500 tick2837 cub-2163,26601 health88 stamina100 action0 heading64 held64 blocked613 boss-4486,28382 hp316 phase1 since2828 gap4 goal-5248,28800 goal_blockedfalse
+elk15 field200 attempt2 n2500 tick5338 cub-2075,26581 health88 stamina100 action0 heading2 held224 blocked1309 boss-4486,28382 hp316 phase1 since5324 gap3 goal-5248,28800 goal_blockedfalse
+elk15 field200 attempt3 n2500 tick7839 cub-2088,26580 health88 stamina90 action3 heading224 held-1 blocked2008 boss-4486,28382 hp316 phase1 since7820 gap3 goal-5248,28800 goal_blockedfalse
+elk15 field200 attempt4 won tick8667 health73
