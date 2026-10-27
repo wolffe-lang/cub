@@ -1,0 +1,64 @@
+//! member: false
+
+use controls
+use fight
+use sim
+
+fn has(keys: List[int], wanted: int) -> bool {
+    for key in keys { if key == wanted { return true } }
+    false
+}
+
+fn counter() -> sim.Sim {
+    var s = sim.new(1, 80, 24)
+    var f = copy s.foes[0]
+    sim.combat_witness(mut s)
+    f.kind = sim.ELK
+    f.health = 400
+    f.phase = sim.STAGGER
+    f.since = s.tick
+    f.heading = 0
+    f.x = s.x
+    f.y = s.y + 9 * sim.FP
+    (mut s.foes).push(f)
+    s.heading = 0
+    s.body_facing = 0
+    s
+}
+
+fn test_cb04b_elk_counter_turns_before_committing_forward_lunge() {
+    var s = counter()
+    var st = fight.fighter()
+    assert(sim.body_gap(s, 0) <= 3, "counter is within lunge reach")
+    let away = fight.fight_keys(s, 0, mut st)
+    assert(
+        !has(away, controls.KEY_LUNGE) && has(away, controls.KEY_DOWN),
+        "turn/approach first, not blind forward x",
+    )
+    s.foes[0].y -= 2 * sim.FP
+    assert(sim.in_reach(s, 0, 2), "close counter is in bite reach")
+    let close = fight.fight_keys(s, 0, mut st)
+    assert(
+        has(close, controls.KEY_BITE) && !has(close, controls.KEY_LUNGE),
+        "misaligned close counter uses held-direction bite",
+    )
+    s.heading = 128
+    let aimed = fight.fight_keys(s, 0, mut st)
+    assert(has(aimed, controls.KEY_LUNGE), "aligned counter still lunges")
+    s.heading = 96
+    assert(
+        has(fight.fight_keys(s, 0, mut st), controls.KEY_LUNGE),
+        "the lunge's45-degree edge is allowed",
+    )
+    s.heading = 95
+    assert(
+        !has(fight.fight_keys(s, 0, mut st), controls.KEY_LUNGE),
+        "outside the lunge cone must turn",
+    )
+    s.foes[0].kind = sim.BOAR
+    s.heading = 0
+    assert(
+        has(fight.fight_keys(s, 0, mut st), controls.KEY_LUNGE),
+        "other bosses' tactics are unchanged",
+    )
+}
