@@ -1447,8 +1447,8 @@ fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
         )
         i = 0
         while i < width {
-            let filled = value > 0 && value * width > i * maximum
-            let grey = bar == 0 && !filled && (value + sim.rally_available(s)) * width > i * maximum
+            let filled = value > i * 10
+            let grey = bar == 0 && !filled && value + sim.rally_available(s) > i * 10
             let cp = if filled {
                 (if rich then 9608 else 61)
             } else if grey {
@@ -3055,16 +3055,25 @@ pub fn draw_combo(s: sim.Sim, t: int, mut g: grid.Grid) {
                 sim.breath(s),
             )
         }
-        motionart.shifted(
-            mut g,
-            ar,
-            ac,
-            body,
-            facing,
-            dx,
-            dy,
-            fur(t, band(s.stamina, sim.stamina_max(s.wind))),
-        )
+        let shake = if s.end then 0 else sim.head_shake(s)
+        let style = fur(t, band(s.stamina, sim.stamina_max(s.wind)))
+        if shake == 0 {
+            motionart.shifted(mut g, ar, ac, body, facing, dx, dy, style)
+        } else {
+            let dr = if facing % 2 == 0 then 0 else shake
+            let dc = if facing % 2 == 0 then shake else 0
+            motionart.shifted(mut g, ar, ac, silhouette.strip(body, false), facing, dx, dy, style)
+            motionart.shifted(
+                mut g,
+                ar,
+                ac,
+                silhouette.strip(body, true),
+                facing,
+                dx + dc * sim.FP,
+                dy + dr * sim.FP,
+                style,
+            )
+        }
     } else {
         // Plain has no subcell pixels: show both signs with one cell,
         // instead of flooring -half to -1 but +half to zero.
@@ -3097,5 +3106,13 @@ pub fn draw_combo(s: sim.Sim, t: int, mut g: grid.Grid) {
             sim.hurt_band(s),
             sim.breath(s),
         )
+        let shake = sim.head_shake(s)
+        if shake != 0 {
+            let row = ar + dr + (if facing == 0 then -1 else if facing == 2 then 2 else shake)
+            let col = ac +
+                dc +
+                (if facing % 2 == 0 then shake - 1 else if facing == 1 then 3 else -2)
+            draw.put_text(mut g, row, col, if facing % 2 == 0 then ".^^." else "^", ink(t, true))
+        }
     }
 }

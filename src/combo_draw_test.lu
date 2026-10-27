@@ -145,3 +145,20 @@ fn test_cb04b_bars_grow_and_show_rally_on_both_tiers() {
         )
     }
 }
+
+fn test_cb04b_bar_cells_represent_ten_points_not_a_rescaled_fraction() {
+    for t in [tier.PLAIN, tier.RICH] {
+        var s = sim.new(1, 80, 24)
+        sim.hurt(mut s, 8)
+        var g = grid.new(24, 80)
+        art.render(s, t, mut g)
+        assert(
+            grid.at(g, 1, 13).cp == (if t == tier.RICH then 9608 else 61),
+            "44 health fills five ten-point cells",
+        )
+        assert(
+            grid.at(g, 1, 14).cp == (if t == tier.RICH then 9617 else 46),
+            "eight lost points must be visible as grey",
+        )
+    }
+}
