@@ -22,6 +22,7 @@ pub fn background(area: int, t: int) -> int {
     }
 }
 
+
 fn ellipse(x: int, y: int, cx: int, cy: int, rx: int, ry: int) -> bool {
     let dx = x - cx
     let dy = y - cy
@@ -117,6 +118,23 @@ fn surroundings(s: sim.Sim, t: int, mut g: grid.Grid, floor: int) {
                 if x > 68 && (x + y / 2) % 4 == 0 {
                     cp = 124
                     fg = if t == tier.PLAIN then 2 else 66
+                }
+            } else if s.area == 6 {
+                // Cinderwick's cold hearth: a roofless room, its broken
+                // walls either side, the hearth's stones behind the fire,
+                // ash on the floor, an ember's glow in the wall's cracks.
+                if x < 11 || x > 69 || y < 2 && (x / 3 + y) % 4 != 0 {
+                    cp = if t == tier.PLAIN then 35 else if (x + y) % 3 == 0 then 0x2593 else 0x2592
+                    fg = if t == tier.PLAIN then 8 else 243
+                }
+                if y >= 9 && y <= 11 && x > 26 && x < 52 && (x + y) % 2 == 0 {
+                    cp = if t == tier.PLAIN then 79 else 0x25CF
+                    fg = if t == tier.PLAIN then 7 else 245
+                }
+                if y > 11 && (x * 5 + y) % 11 == 0 { cp = 46; fg = if t == tier.PLAIN then 8 else 240 }
+                if (x == 4 || x == 75) && y == 6 {
+                    cp = 42
+                    fg = if t == tier.PLAIN then 9 else 208
                 }
             } else {
                 if x < 13 || x > 65 || y < 2 {
