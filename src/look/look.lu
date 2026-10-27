@@ -77,7 +77,7 @@ pub fn census() -> int {
             while area < forest.AREAS {
                 s.area = area
                 var y = 0
-                while y < forest.LENGTH {
+                while y < forest.length(area) {
                     let x = forest.spine(seed, area, y)
                     if !frame_at(
                         mut s,
@@ -107,7 +107,7 @@ pub fn census() -> int {
                     edge += 1
                 }
                 for spot in [-10, -4, 0, 8, 10, 12] {
-                    for py in [18, 24, 30, 36, forest.BOAR_ROW - 2, forest.LENGTH - 3] {
+                    for py in [18, 24, 30, 36, forest.BOAR_ROW - 2, forest.length(area) - 3] {
                         if !frame_at(mut s, spot * sim.FP, py * sim.FP, mut count) { return 1 }
                     }
                 }
@@ -138,7 +138,7 @@ pub fn foe_census() -> int {
                     s.area = area
                     s.foes = sim.area_foes(seed, field, area, 0)
                     var y = 0
-                    while y <= forest.LENGTH {
+                    while y <= forest.length(area) {
                         s.x = forest.spine(seed, area, y) * sim.FP
                         s.y = (forest.origin(seed, area) + y) * sim.FP
                         for t in [0, 1] {

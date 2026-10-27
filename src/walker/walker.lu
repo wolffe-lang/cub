@@ -163,7 +163,7 @@ pub fn plan(
     var parent = List[int]()
     var queue = List[int]()
     var i = 0
-    while i < width * (forest.LENGTH - top + 1) { (mut parent).push(-1); i += 1 }
+    while i < width * (forest.length(s.area) - top + 1) { (mut parent).push(-1); i += 1 }
     parent[start] = start
     (mut queue).push(start)
     var head = 0
@@ -175,7 +175,7 @@ pub fn plan(
         while d < 4 {
             let nx = x + (if d == 0 then -1 else if d == 1 then 1 else 0)
             let ny = y + (if d == 2 then -1 else if d == 3 then 1 else 0)
-            if nx >= 0 - w && nx <= w && ny >= top && ny <= forest.LENGTH {
+            if nx >= 0 - w && nx <= w && ny >= top && ny <= forest.length(s.area) {
                 let next = (ny - top) * width + nx + w
                 if parent[next] < 0 &&
                     !sim.blocked(s, nx, ny + origin) &&
@@ -213,7 +213,7 @@ pub fn walk_once(
     let sy = sim.cell_y(s) - origin
     let gx = sim.floor_div(tx, sim.FP)
     let gy = sim.floor_div(ty, sim.FP) - origin
-    if sx < 0 - w || sx > w || sy < top || sy > forest.LENGTH { return 0 }
+    if sx < 0 - w || sx > w || sy < top || sy > forest.length(area) { return 0 }
     let start = (sy - top) * width + sx + w
     let goal = (gy - top) * width + gx + w
     // Round the bodies where there is room; where a body closes the way
