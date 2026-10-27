@@ -4,7 +4,7 @@ use forest
 use sim
 
 /// Every drawn shadow cell with an outside neighbour, all eight approach vectors,
-/// four body quarters, cub and grown wolf, fifty seeds and both field sizes.
+/// eight body eighths, cub and grown wolf, fifty seeds and both field sizes.
 pub fn census() -> int {
     var checked = 0
     var missed = 0
@@ -36,7 +36,7 @@ pub fn census() -> int {
                                             if outside(nx, ny) {
                                                 for grown in [false, true] {
                                                     s.end = grown
-                                                    for facing in [0, 1, 2, 3] {
+                                                    for facing in [0, 1, 2, 3, 4, 5, 6, 7] {
                                                         s.body_facing = facing
                                                         let b = sim.cub_body_at(s, 0, 0, facing)
                                                         let bx = if dx > 0 {

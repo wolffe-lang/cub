@@ -51,7 +51,11 @@ pub fn cub_facing(s: sim.Sim) -> int {
 /// The drawing the frame uses for the cub: the cub's, or the wolf's after
 /// the end (cb04).
 fn cub_drawing(s: sim.Sim) -> silhouette.Bitmap {
-    if s.end then silhouette.wolf(0, 0) else silhouette.cub(0, 0, 0)
+    if s.end {
+        silhouette.wolf_eighth(0, 0, s.body_facing)
+    } else {
+        silhouette.cub_eighth(0, 0, 0, 0, 0, s.body_facing)
+    }
 }
 
 /// The cub's footprint where it stands, without the presentation's leap
@@ -62,7 +66,7 @@ pub fn ground_box(s: sim.Sim) -> Box {
         let dy = s.y - s.action_y
         var b = placed(
             cub_drawing(s),
-            cub_facing(s),
+            0,
             sim.floor_div(s.action_x, sim.FP) + sim.floor_div(dx, sim.FP),
             sim.floor_div(s.action_y, sim.FP) + sim.floor_div(dy, sim.FP),
         )
@@ -70,7 +74,7 @@ pub fn ground_box(s: sim.Sim) -> Box {
         if dy % sim.FP != 0 { b.y1 += 1 }
         return b
     }
-    placed(cub_drawing(s), cub_facing(s), sim.floor_div(s.x, sim.FP), sim.floor_div(s.y, sim.FP))
+    placed(cub_drawing(s), 0, sim.floor_div(s.x, sim.FP), sim.floor_div(s.y, sim.FP))
 }
 
 /// The cub's footprint where the frame draws it this tick.
@@ -82,7 +86,7 @@ pub fn cub_box(s: sim.Sim) -> Box {
     } else {
         placed(
             cub_drawing(s),
-            facing,
+            0,
             sim.floor_div(s.x + ox, sim.FP),
             sim.floor_div(s.y + oy, sim.FP),
         )

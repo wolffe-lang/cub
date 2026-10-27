@@ -554,10 +554,9 @@ pub fn floor_div(a: int, b: int) -> int {
     if a % b < 0 then q - 1 else q
 }
 
-/// The direction the cub faces, 0 north, 1 east, 2 south, 3 west (the
-/// nearest quarter).
+/// The cub's nearest eighth: N, NE, E, SE, S, SW, W, NW.
 pub fn facing(s: Sim) -> int {
-    ((s.heading + 32) % TURN + TURN) % TURN / 64
+    eighth(s.heading)
 }
 
 fn toward(v: int, target: int, step: int) -> int {
@@ -1750,16 +1749,21 @@ fn rect(w: int, h: int, facing: int, cx: int, cy: int) -> Body {
     Body { x0: cx + dc, y0: cy + dr, x1: cx + dc + cols - 1, y1: cy + dr + rows - 1 }
 }
 
+/// The nearest eighth of a heading, with wrapping at north.
+pub fn eighth(heading: int) -> int {
+    ((heading + 16) % TURN + TURN) % TURN / 32
+}
+
 /// The quarter a heading falls in: 0 north, 1 east, 2 south, 3 west.
 pub fn quarter(heading: int) -> int {
     ((heading + 32) % TURN + TURN) % TURN / 64
 }
 
 /// The facing the cub's body would take now: an attack's aim during a
-/// bite, a lunge or a heavy, else the heading's quarter.
+/// bite, a lunge or a heavy, else the heading's eighth.
 pub fn wanted_facing(s: Sim) -> int {
     if s.action == BITE || s.action == LUNGE || s.action == HEAVY || s.action == DASH {
-        return quarter(s.attack_heading)
+        return eighth(s.attack_heading)
     }
     facing(s)
 }
@@ -1772,14 +1776,14 @@ pub fn cub_size(s: Sim) -> (int, int) {
 
 /// The cub's body at fixed-point `(x, y)` facing `facing`.
 pub fn cub_body_at(s: Sim, x: int, y: int, facing: int) -> Body {
-    let (w, h) = cub_size(s)
+    let (w, h) = if facing % 2 == 0 then cub_size(s) else silhouette.diagonal_size(s.end)
     if s.action == BITE {
         let dx = x - s.action_x
         let dy = y - s.action_y
         var b = rect(
             w,
             h,
-            facing,
+            facing / 2,
             floor_div(s.action_x, FP) + floor_div(dx, FP),
             floor_div(s.action_y, FP) + floor_div(dy, FP),
         )
@@ -1789,7 +1793,7 @@ pub fn cub_body_at(s: Sim, x: int, y: int, facing: int) -> Body {
         if dy % FP != 0 { b.y1 += 1 }
         return b
     }
-    rect(w, h, facing, floor_div(x, FP), floor_div(y, FP))
+    rect(w, h, facing / 2, floor_div(x, FP), floor_div(y, FP))
 }
 
 /// The cub's body where it stands, the way the frame draws it.
