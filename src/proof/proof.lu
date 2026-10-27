@@ -9,6 +9,7 @@ use forest
 use journey
 use replay
 use sim
+use town
 use std.fs
 use walker
 
@@ -221,7 +222,191 @@ pub fn generate(dir: str) -> int {
     if bosses(dir) != 0 { return 1 }
     if ghosts(dir) != 0 { return 1 }
     if areas(dir) != 0 { return 1 }
+    if cinderwick(dir) != 0 { return 1 }
     demo(dir)
+}
+
+/// A journey at Cinderwick's cold hearth with a little growth (heart,
+/// wind and fang 3), the gate open, the first spring found: the town
+/// witnesses' start, validated by the save's own decoder.
+fn town_journey(seed: int) -> sim.Sim {
+    var s = sim.new(seed, 80, 24)
+    s.gate_open = true
+    s.opening_seen = true
+    s.heart = 3
+    s.wind = 3
+    s.fang = 3
+    s.flask_max = 2
+    s.flasks = 2
+    s.last_den = 7
+    s.lit_dens = sim.light_den(1, 7)
+    let text = journey.encode(s)
+    journey.decode(text, 80, 24) else |e| {
+        assert(false, "proof.town_journey: the fixture is not a valid save: {e}")
+        s
+    }
+}
+
+fn abs(v: int) -> int {
+    if v < 0 then 0 - v else v
+}
+
+/// Whether no foe stands within four cells of a cell.
+fn ember_unguarded(s: sim.Sim, x: int, y: int) -> bool {
+    for f in s.foes {
+        if f.health > 0 && sim.near(f.x, f.y, x * sim.FP + sim.FP / 2, y * sim.FP + sim.FP / 2, 4 * sim.FP) {
+            return false
+        }
+    }
+    true
+}
+
+/// Cinderwick's witnesses (cb05): a single-file passage walked into a
+/// yard, an Ashen's windup parried, an ember stood on, a yard's cache dug
+/// once its guard is down. Each from the cold hearth on seed 1.
+pub fn cinderwick(dir: str) -> int {
+    let seed = 1
+    let o = forest.origin(seed, forest.TOWN)
+    // 1. The passage: plot 9's east yard holds a scent mark and is reached
+    // only through the one-cell passage its gap opens on; the walk from
+    // the lane's verge at the passage's mouth to the mark.
+    var s = town_journey(seed)
+    var r = snapshot_replay(s)
+    walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
+    let (near, _) = town.house_x(seed, 1, 9)
+    let (which, _) = town.yard_gap(seed, 1, 9)
+    let row = if which == 0 then town.top(9) - 1 else town.bottom(9) + 1
+    let mouth_x = (near - 1) * sim.FP + sim.FP / 2
+    let mouth_y = (o + row) * sim.FP + sim.FP / 2
+    if !walker.walk(mut s, mut r, mouth_x, mouth_y) { eprint("proof: the passage's mouth"); return 1 }
+    let from = s.tick
+    let (mx, my) = town.scent_mark(seed, 0)
+    if !walker.walk(mut s, mut r, mx * sim.FP + sim.FP / 2, (o + my) * sim.FP + sim.FP / 2) {
+        eprint("proof: the passage to the yard's mark")
+        return 1
+    }
+    var n = 0
+    while n < 12 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
+    snapshot_range(dir, "town-passage", r, s.tick, 6, from) else |_| { return 2 }
+    // 2. The Ashen parried: the first yard's guard (plot 2, west; the
+    // lane's Ashen stand at yard embers behind walls, where no blow
+    // lands), met inside its yard, approached until its arms rise, the
+    // parry two ticks before the blow, the stagger watched.
+    var t = town_journey(seed)
+    var q = snapshot_replay(t)
+    walker.press(mut t, mut q, walker.key(controls.KEY_RELEASE))
+    let (yx, yy) = forest.cache_position(seed, t.field, forest.TOWN, 0)
+    // Walked in without biting (the walker fights what it meets).
+    if !walker.walk_stop(mut t, mut q, yx, yy - 4 * sim.FP, -1, true) { eprint("proof: the first yard"); return 1 }
+    var target = -1
+    var best = 1000000
+    var i = 0
+    while i < t.foes.len {
+        let f = copy t.foes[i]
+        if f.kind == sim.ASHEN && f.health > 0 {
+            let d = (f.x - yx) * (f.x - yx) / sim.FP + (f.y - yy) * (f.y - yy) / sim.FP
+            if d < best { best = d; target = i }
+        }
+        i += 1
+    }
+    if target < 0 || best > 8 * 8 * sim.FP { eprint("proof: no guard in the first yard"); return 1 }
+    let fx = t.foes[target].x
+    let fy = t.foes[target].y
+    if !walker.walk_stop(mut t, mut q, fx, fy, target, true) { eprint("proof: the guard's approach"); return 1 }
+    var m = 0
+    var parried = false
+    var windup_at = -1
+    while m < 400 && !parried {
+        let f = copy t.foes[target]
+        if f.phase == sim.CROUCH && windup_at < 0 { windup_at = t.tick }
+        var keys = List[int]()
+        if f.phase == sim.CROUCH && t.tick - f.since == sim.ASHEN_WINDUP - 2 {
+            (mut keys).push(controls.KEY_PARRY)
+        }
+        if f.phase == sim.HUNT {
+            // Stand in its way, still: it hears a touch, never a standing cub.
+            walker.aim(mut keys, f.x - t.x, f.y - t.y)
+        }
+        walker.press(mut t, mut q, keys)
+        if t.foes[target].phase == sim.STAGGER { parried = true }
+        m += 1
+    }
+    if !parried || windup_at < 0 {
+        let f = copy t.foes[target]
+        eprint("proof: the Ashen was not parried: windup at {windup_at}, phase {f.phase}, cub {t.x / sim.FP},{t.y / sim.FP}, Ashen {f.x / sim.FP},{f.y / sim.FP}")
+        return 1
+    }
+    n = 0
+    while n < 20 { walker.press(mut t, mut q, walker.key(0)); n += 1 }
+    snapshot_range(dir, "ashen-parry", q, t.tick, 5, windup_at) else |_| { return 2 }
+    // 3. A fire touched: an ember no Ashen stands by (they stand by the
+    // square's), walked onto and stood on for forty ticks.
+    var u = town_journey(seed)
+    var v = snapshot_replay(u)
+    walker.press(mut u, mut v, walker.key(controls.KEY_RELEASE))
+    var ex = -1000
+    var ey = -1000
+    var k = 0
+    while k < town.PLOTS && ex == -1000 {
+        for side in [-1, 1] {
+            let (cx, cy) = town.ember(seed, side, k)
+            if cx > -1000 && ex == -1000 && ember_unguarded(u, cx, o + cy) {
+                if walker.walk(mut u, mut v, cx * sim.FP + sim.FP / 2, (o + cy) * sim.FP + sim.FP / 2) {
+                    ex = cx
+                    ey = cy
+                }
+            }
+        }
+        k += 1
+    }
+    if ex == -1000 { eprint("proof: no ember to stand on"); return 1 }
+    // The walker stops within half a cell of the centre; settle until the
+    // body covers the ember.
+    var settle = 0
+    while !sim.on_ember(u) && settle < 60 {
+        walker.drive(mut u, mut v, ex * sim.FP + sim.FP / 2, (o + ey) * sim.FP + sim.FP / 2)
+        settle += 1
+    }
+    let touched = u.tick
+    let health = u.health
+    n = 0
+    while n < 40 { walker.press(mut u, mut v, walker.key(0)); n += 1 }
+    if u.health >= health {
+        eprint("proof: the ember did not burn: ember ({ex}, {ey}) cub cell ({sim.cell_x(u)}, {sim.cell_y(u)})")
+        return 1
+    }
+    snapshot_range(dir, "ember-touch", v, u.tick, 10, touched) else |_| { return 2 }
+    // 4. A cache dug behind a guard: the first yard (plot 2, west), its
+    // Ashen fought down, the heap dug.
+    var w = town_journey(seed)
+    var z = snapshot_replay(w)
+    walker.press(mut w, mut z, walker.key(controls.KEY_RELEASE))
+    let (cx, cy) = forest.cache_position(seed, w.field, forest.TOWN, 0)
+    if !walker.walk(mut w, mut z, cx, cy - 4 * sim.FP) { eprint("proof: the yard"); return 1 }
+    var guard = 0
+    while guard < w.foes.len {
+        var rounds = 0
+        while w.foes[guard].health > 0 &&
+            sim.near(w.foes[guard].x, w.foes[guard].y, cx, cy, 6 * sim.FP) &&
+            rounds < 6 {
+            var k = 0
+            while w.foes[guard].health > 0 && k < 400 && w.action != sim.FALL {
+                walker.drive(mut w, mut z, w.foes[guard].x, w.foes[guard].y)
+                k += 1
+            }
+            rounds += 1
+        }
+        guard += 1
+    }
+    if w.action == sim.FALL { eprint("proof: the guard won"); return 1 }
+    if !walker.walk(mut w, mut z, cx, cy) { eprint("proof: the heap"); return 1 }
+    let dug = w.tick
+    walker.press(mut w, mut z, walker.key(controls.KEY_REST))
+    if !sim.cache_open(w, 0) { eprint("proof: the yard's cache stayed shut"); return 1 }
+    n = 0
+    while n < 12 { walker.press(mut w, mut z, walker.key(0)); n += 1 }
+    snapshot_range(dir, "yard-cache", z, w.tick, 4, dug - 8) else |_| { return 2 }
+    0
 }
 
 /// A replay that begins from a journey snapshot (cb04): `journey 2` and
