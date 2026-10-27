@@ -344,6 +344,14 @@ pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
     render_with(s, extra_none(), t, mut g)
 }
 
+/// The frame without the HUD (cb07): the map, the marks, the cub, the
+/// boss bar and the lines, nothing of `draw_hud`. The HUD census draws
+/// this and the whole frame and reads the difference: every cell that
+/// differs is a cell the HUD painted.
+pub fn render_bare(s: sim.Sim, t: int, mut g: grid.Grid) {
+    frame(s, extra_none(), t, mut g, false)
+}
+
 /// The pose the frame draws the cub in: 0 standing, 1 walking, 2 sneaking
 /// (and an attack's windup), 3 panting, 4 fallen (the ghosts record it).
 pub fn pose_of(s: sim.Sim) -> int {
@@ -367,6 +375,10 @@ pub fn pose_of(s: sim.Sim) -> int {
 /// size (`assert`). A scene (the opening, the title, the end) draws its
 /// own frame instead.
 pub fn render_with(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid) {
+    frame(s, extra, t, mut g, true)
+}
+
+fn frame(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid, hud: bool) {
     assert(g.rows == s.rows && g.cols == s.cols, "art.render: the grid is the simulation's size")
     if s.scene == 1 { opening_frame(s, t, mut g); return }
     if s.scene == sim.SCENE_TITLE { title_frame(s, extra, t, mut g); return }
@@ -386,6 +398,21 @@ pub fn render_with(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid) {
     shade_exits(s, t, mut g)
     draw_ghosts(s, extra.ghosts, t, mut g)
     draw_world_marks(s, t, mut g)
+    draw_actor(s, t, mut g)
+    draw_posture(s, t, mut g)
+    if hud { draw_hud(s, t, mut g) }
+    draw_boss_bar(s, t, mut g)
+    world_lines(s, t, mut g)
+    if s.gate_hint_until > s.tick {
+        draw.put_text(mut g, s.rows - 2, 1, "the thorns need a lunge", ink(t, true))
+    }
+}
+
+/// The cub (or the wolf) as the frame draws it, nothing else: the roll's
+/// tuck, a bite's committed body (`draw_combo`), the third bite's head
+/// shake, or the posed silhouette at its cell. The strike census (cb07)
+/// draws this alone to measure what a person sees of a strike.
+pub fn draw_actor(s: sim.Sim, t: int, mut g: grid.Grid) {
     // The cub's own cell is the centre; the silhouette hangs about it.
     let (ox, oy) = sim.attack_offset(s)
     let r = sim.screen_row(s) + sim.floor_div(s.y + oy, sim.FP) - sim.camera_y(s)
@@ -408,10 +435,6 @@ pub fn render_with(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid) {
             pose,
             sim.legs(s),
         )
-        draw_posture(s, t, mut g)
-        draw_hud(s, t, mut g)
-        draw_boss_bar(s, t, mut g)
-        world_lines(s, t, mut g)
         return
     }
     let shake = sim.head_shake(s)
@@ -475,13 +498,6 @@ pub fn render_with(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid) {
                 ink(t, true),
             )
         }
-    }
-    draw_posture(s, t, mut g)
-    draw_hud(s, t, mut g)
-    draw_boss_bar(s, t, mut g)
-    world_lines(s, t, mut g)
-    if s.gate_hint_until > s.tick {
-        draw.put_text(mut g, s.rows - 2, 1, "the thorns need a lunge", ink(t, true))
     }
 }
 
@@ -1224,6 +1240,14 @@ pub fn hud_text(s: sim.Sim) -> str { "health stamina scent {s.scent}" }
 pub fn bar_cells(maximum: int) -> int {
     let cells = (maximum + 9) / 10
     if cells > 30 then 30 else cells
+}
+
+/// Whether the HUD claims screen cell `(row, col)`: a cell it may paint.
+/// The HUD census holds every painted cell to this (cb07). Today the
+/// claim is cb04b's filled box and its two full-width rows.
+pub fn hud_claims(s: sim.Sim, t: int, row: int, col: int) -> bool {
+    row >= 0 && row < 7 && col >= 0 && col < 40 ||
+        (row == 5 || row == 6) && col >= 0 && col < s.cols
 }
 
 fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
