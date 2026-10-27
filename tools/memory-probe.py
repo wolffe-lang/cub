@@ -28,6 +28,22 @@ def rss_bytes(pid):
     return int(result.stdout.strip()) * 1024
 
 
+def evaluate(samples, budget=None, estimated=False):
+    if len(samples) < 2:
+        raise ValueError('missing samples')
+    first, last = samples[0], samples[-1]
+    ticks = last['tick'] - first['tick']
+    if estimated:
+        ticks = (last['seconds'] - first['seconds']) * 30
+    growth = last['rss_bytes'] - first['rss_bytes']
+    slope = growth / ticks if ticks > 0 else float('inf')
+    red = ticks <= 0 or (budget is not None and slope > budget)
+    return {'status': 'RED' if red else 'GREEN', 'start': first, 'end': last,
+            'ticks': ticks, 'growth_bytes': growth, 'bytes_per_tick': slope,
+            'tick_source': 'estimated-30Hz' if estimated else 'trace',
+            'budget_bytes_per_tick': budget}
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--bin', required=True)
@@ -45,6 +61,10 @@ def main():
     a = p.parse_args()
     if a.ticks <= a.warmup or a.warmup < 1:
         p.error('ticks must exceed positive warmup')
+    if a.sample_seconds <= 0 or a.ceiling <= 0 or a.timeout <= 0:
+        p.error('sample interval, ceiling and timeout must be positive')
+    if a.budget is not None and (a.budget < 0 or a.no_trace):
+        p.error('a budget requires exact ticks and a nonnegative value')
     root = Path(a.work).resolve()
     root.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='memory-', dir=root) as td:
@@ -55,7 +75,8 @@ def main():
             shutil.copytree(a.ghost_dir, work / 'ghosts')
         cmd = [str(Path(a.bin).resolve()), '--mute', '--no-title',
                '--save', str(work / 'save'), '--ghost-dir', str(work / 'ghosts'),
-               '--sound-dir', str(work / 'sound'), '--ticks', str(a.ticks + 30)]
+               '--sound-dir', str(work / 'sound'),
+               '--ticks', str(a.ticks + int(a.sample_seconds * 30) + 60)]
         if not a.save:
             cmd += ['--seed', str(a.seed)]
         if not a.no_trace:
@@ -120,19 +141,9 @@ def main():
         if failure or len(samples) < 2:
             print(json.dumps({'status': 'RED', 'reason': failure or 'missing samples'}))
             return 1
-        first, last = samples[0], samples[-1]
-        dt = last['tick'] - first['tick']
-        if a.no_trace:
-            dt = (last['seconds'] - first['seconds']) * 30
-        growth = last['rss_bytes'] - first['rss_bytes']
-        slope = growth / dt if dt > 0 else float('inf')
-        red = dt <= 0 or (a.budget is not None and slope > a.budget)
-        print(json.dumps({'status': 'RED' if red else 'GREEN',
-                          'start': first, 'end': last, 'ticks': dt,
-                          'growth_bytes': growth, 'bytes_per_tick': slope,
-                          'tick_source': 'estimated-30Hz' if a.no_trace else 'trace',
-                          'budget_bytes_per_tick': a.budget}), flush=True)
-        return int(red)
+        result = evaluate(samples, a.budget, a.no_trace)
+        print(json.dumps(result), flush=True)
+        return int(result['status'] == 'RED')
 
 
 if __name__ == '__main__':

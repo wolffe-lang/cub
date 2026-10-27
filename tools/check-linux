@@ -21,4 +21,5 @@ stage native-goldens .lair/tools/goldens --bin target/native/cub
 stage score-check python3 -I tools/score-check
 stage native-gameplay python3 -u -I tools/gameplay.py --bin target/native/cub
 stage release-gameplay python3 -u -I tools/gameplay.py --bin target/release/cub
+stage memory-gate sh tools/check-memory target/release/cub
 echo 'cub check-linux: green'
