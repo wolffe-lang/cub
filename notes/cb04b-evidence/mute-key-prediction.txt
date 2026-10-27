@@ -1,0 +1,9 @@
+cb04b CI mute-key prediction, 2026-10-27T07:27:15Z
+
+Run40457618218: full stderr says prepared1235337us, starts1, stops2,40ticks, sound on backendmacos. The retained replay contains BOTH mute events, at ticks0 and20, then quit39. The output begins with alternate-screen entry and CSI?u, not an echoed m. No evidence of lost/deduplicated/released mute keys. The closing sound on is sound_on configuration, not the transient muted state.
+
+Prediction: the row's fixed constructor0.3s + pump0.9s puts its first m into open_input's150ms negotiation/startup buffer on this CI Mac. That m is correctly applied at tick0 before score.step has ever started the scene's part. The second m then starts the first actual part, yielding starts1/stops2. cb04b's negotiation widens the existing fixed-delay race; the held set and toggle/restart logic are not defective.
+
+Reproduce separately by writing the first m when the real game emits its negotiation query; require two recorded m events, first at0, and starts1. This is a controlled timing reproduction, not a claim to know the CI writer's exact wall-clock schedule.
+
+Fix the row, not the gameplay code: prepare a normal-key opening-complete save, start --no-title with --trace, and wait boundedly for the first real simulation tick before muting. This makes the test truly stay in the same playing scene. Retain starts2 and child-termination assertions; strengthen to exactly two ordered mute records after tick0, no scene transition, and a live initial player on Mac. Validate a delayed-start driver and a deliberately omitted-restart stand-in against the same assertions. No rebase or push before cb05's merge is announced.
