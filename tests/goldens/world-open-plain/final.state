@@ -1,9 +1,9 @@
-tick 740 resting 0 capacity 2 level 28 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 82 y 40215 heading 128 action 0 started 715 health 160 stamina 134 flasks 1 scent 7630 deaths 0 mark 0 mark_scent 0 gate 1 trail 66 lock -1 aim 128 combo 0 body 2 gait 1230 sprint 0 cone 128 bosses 0 end 0 arena 0 played 740 lost 0
-foe 0 kind 0 health -18 phase 3 since 239 x -1199 y 14334 heading 96 gap 99 last_hit 241 attack 0 poise 0
-foe 1 kind 0 health -18 phase 1 since 202 x -512 y 13933 heading 0 gap 100 last_hit 203 attack 0 poise 0
-foe 2 kind 1 health 24 phase 0 since 397 x -1826 y 21726 heading 160 gap 70 last_hit -1 attack 0 poise 0
-foe 3 kind 0 health -18 phase 1 since 597 x -256 y 35321 heading 0 gap 17 last_hit 597 attack 0 poise 0
-foe 4 kind 0 health -18 phase 1 since 579 x 256 y 35181 heading 0 gap 17 last_hit 580 attack 0 poise 0
+tick 645 resting 0 capacity 2 level 28 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 76 y 40328 heading 128 action 0 started 620 health 160 stamina 134 flasks 2 scent 7630 deaths 0 mark 0 mark_scent 0 gate 1 trail 76 lock -1 aim 128 combo 0 body 2 gait 792 sprint 0 cone 128 bosses 0 end 0 arena 0 played 645 lost 0
+foe 0 kind 0 health -18 phase 1 since 214 x -1227 y 14279 heading 32 gap 100 last_hit 215 attack 0 poise 0
+foe 1 kind 0 health -18 phase 1 since 192 x -512 y 13912 heading 0 gap 100 last_hit 193 attack 0 poise 0
+foe 2 kind 1 health -2 phase 5 since 310 x -944 y 20652 heading 32 gap 74 last_hit 311 attack 0 poise 0
+foe 3 kind 0 health -18 phase 0 since 0 x -256 y 35248 heading 0 gap 17 last_hit 507 attack 0 poise 0
+foe 4 kind 0 health -18 phase 1 since 506 x 256 y 35104 heading 0 gap 17 last_hit 507 attack 0 poise 0
 foe 5 kind 1 health 40 phase 0 since 0 x -9856 y 10368 heading 0 gap 114 last_hit -1 attack 0 poise 0
 foe 6 kind 1 health 40 phase 0 since 0 x 9088 y 11136 heading 0 gap 111 last_hit -1 attack 0 poise 0
 foe 7 kind 1 health 40 phase 0 since 0 x -20096 y 10368 heading 0 gap 114 last_hit -1 attack 0 poise 0

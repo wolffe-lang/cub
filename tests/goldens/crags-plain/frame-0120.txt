@@ -1,11 +1,11 @@
- health [============] O#O#O#O#O#O#O#O#   ..  #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
- stamina[============] #scent 0#O#O#O#O       O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-                       OThe Teeth - a den ahead; scent of home#O#O#O#O#O#O#O#O#O
-                        Water 3/3  w drink       #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-                       O#O#O#O#O#O#O#_.---._. #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O(     )O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O (_ * _)#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#........O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+        ----------                        ..  #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+ health [========]                            O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+        -----------                      ,:   #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+ stamina[=========]                     ~     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+        -----------                     --._. #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+ HP 76/76  stamina 90/90  scent 0  rally 0                                      
+ Water 3/3  w drink                                                             
+OThe Teeth - a den ahead; scent of home.....O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#     : #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     : O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     .:O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
