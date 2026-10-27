@@ -104,6 +104,7 @@ fn usage_text() -> str {
         "  cub --art-study --dump DIR        the sprite sheets, both tiers\n" +
         "  cub --strike-census              every strike at every aim, both tiers: the drawn body against standing\n" +
         "  cub --hud-census                  the HUD census: every painted cell a bar, a label or a digit\n" +
+        "  cub --encounter-census            one posted Ashen against a fresh cub, ten seeds at both fields\n" +
         "  cub --look-audit                  fifty-seed world sprite census\n" +
         "  cub --paths-audit / --doorways-audit / --foes-audit  route and clipping censuses\n" +
         "  cub --probe-glyphs                measure the rich glyphs' widths here\n" +
@@ -998,6 +999,10 @@ fn main() -> int {
     if args.len > 0 && args[0] == "--gen-bench" { return wide.gen_bench() }
     if args.len > 0 && args[0] == "--crossing-census" { return cross.crossing() }
     if args.len > 0 && args[0] == "--hitbox-audit" { return cross.hitbox() }
+    if args.len > 0 && args[0] == "--encounter-census" { return cross.encounter() }
+    if args.len == 3 && args[0] == "--crossing-trace" {
+        return cross.crossing_trace(args[1].to_int() else 0, args[2].to_int() else 80)
+    }
     if args.len == 3 && args[0] == "--town-map" {
         return cross.town_map(args[1].to_int() else 1, args[2].to_int() else 80)
     }

@@ -85,6 +85,19 @@ pub fn crossing() -> int {
     0
 }
 
+/// `--crossing-trace SEED FIELD`: one crossing, narrated by the walker
+/// while a foe is within two cells (cb07's instrument for a stall).
+pub fn crossing_trace(seed: int, field: int) -> int {
+    var s = fresh_cub(seed, field)
+    var r = replay.new(seed, 1, field, 24)
+    let (hx, hy) = forest.den_position(seed, 7)
+    let arrived = walker.walk_narrated(mut s, mut r, hx, hy)
+    print(
+        "crossing-trace: seed {seed} field {field} arrived {arrived} tick {s.tick} health {s.health} action {s.action}",
+    )
+    if arrived && s.action != sim.FALL then 0 else 1
+}
+
 /// The eight aims, headings: north, north-east, east, ... (TURN 256).
 fn aim_heading(k: int) -> int {
     k * 32
@@ -231,4 +244,115 @@ pub fn town_map(seed: int, field: int) -> int {
         at += 1
     }
     0
+}
+
+/// Seeds the encounter census fights at each field, and how many must
+/// come out under the bar (cb07, R-cb07-1: nine of ten).
+pub const ENCOUNTER_SEEDS: int = 10
+
+/// The bar: at most this share of `health_max` lost to one Ashen.
+pub const ENCOUNTER_LOST_PERCENT: int = 35
+
+/// Seeds that must stay under the bar at each field.
+pub const ENCOUNTER_BAR: int = 9
+
+/// The one-Ashen encounter census (cb07, item 3): a fresh cub (the
+/// Shingle's heart and wind, no flask) stands five cells from one posted
+/// Ashen, every other foe of the town removed (a disclosed fixture: one
+/// encounter, not the lane), and fights it with Book-II play — the
+/// walker's: walk at it, bite what is in reach (Space links the three
+/// strikes), parry its windup two ticks before the blow, never roll —
+/// until the Ashen falls, the cub falls, or 1200 ticks pass. A row a
+/// fight: the health lost and the ticks. Green when at least
+/// `ENCOUNTER_BAR` of `ENCOUNTER_SEEDS` seeds lose at most
+/// `ENCOUNTER_LOST_PERCENT` of `health_max` at each field.
+pub fn encounter() -> int {
+    print("play seed field outcome ticks lost health_max ashen_health blow")
+    var red = 0
+    for parry in [true, false] {
+        for field in [80, 200] {
+            if encounter_rows(parry, field) < ENCOUNTER_BAR && parry { red += 1 }
+        }
+    }
+    if red > 0 {
+        print("encounter: RED")
+        return 1
+    }
+    print(
+        "encounter: green, at least {ENCOUNTER_BAR} of {ENCOUNTER_SEEDS} seeds lose at most {ENCOUNTER_LOST_PERCENT} percent to one Ashen at each field with Book-II play (health {sim.foe_health(sim.ASHEN)}, blow {sim.ASHEN_DAMAGE}); the no-parry rows are the human-mistake proxy, reported, not barred",
+    )
+    0
+}
+
+/// One tick of the player who never parries: at the Ashen, the three
+/// strikes when a body is in reach, nothing else (the walker's keys
+/// without its parry: what a blow costs a cub that missed the window).
+fn drive_no_parry(mut s: sim.Sim, mut r: replay.Replay) {
+    var keys = List[int]()
+    let f = copy s.foes[0]
+    if f.health > 0 && sim.in_reach(s, 0, 2) {
+        if s.action == sim.IDLE {
+            if s.locked < 0 { (mut keys).push(controls.KEY_LOCK) }
+            walker.aim_at(mut keys, sim.heading_to(s.x, s.y, f.x, f.y))
+            (mut keys).push(controls.KEY_BITE)
+            (mut keys).push(controls.KEY_RELEASE)
+        }
+    } else {
+        walker.aim(mut keys, f.x - s.x, f.y - s.y)
+    }
+    walker.press(mut s, mut r, keys)
+}
+
+/// The census's rows for one play at one field: the seeds under the bar.
+pub fn encounter_rows(parry: bool, field: int) -> int {
+    let play = if parry then "parry" else "noparry"
+    var under = 0
+    var seed = 0
+    while seed < ENCOUNTER_SEEDS {
+        var s = fresh_cub(seed, field)
+        var r = replay.new(seed, 1, field, 24)
+        var k = -1
+        var i = 0
+        while i < s.foes.len {
+            if k < 0 && s.foes[i].kind == sim.ASHEN && s.foes[i].health > 0 { k = i }
+            i += 1
+        }
+        if k < 0 {
+            print("{play} {seed} {field} none 0 0 {sim.health_max(s.heart)} 0 {sim.ASHEN_DAMAGE}")
+            seed += 1
+            continue
+        }
+        let one = copy s.foes[k]
+        (mut s.foes).reset()
+        (mut s.foes).push(one)
+        // Five cells before it, on the side the cub comes from.
+        let h = sim.heading_to(s.x, s.y, one.x, one.y)
+        place_at_gap(mut s, ((h + 16) / 32 + 8) % 8, 5)
+        let start = s.tick
+        var n = 0
+        while n < 1200 && s.foes[0].health > 0 && s.action != sim.FALL {
+            if parry {
+                walker.drive(mut s, mut r, s.foes[0].x, s.foes[0].y)
+            } else {
+                drive_no_parry(mut s, mut r)
+            }
+            n += 1
+        }
+        let maximum = sim.health_max(s.heart)
+        let lost = if s.action == sim.FALL then maximum else maximum - s.health
+        let outcome = if s.foes[0].health <= 0 {
+            "beaten"
+        } else if s.action == sim.FALL {
+            "died"
+        } else {
+            "stalled"
+        }
+        print(
+            "{play} {seed} {field} {outcome} {s.tick - start} {lost} {maximum} {s.foes[0].health} {sim.ASHEN_DAMAGE}",
+        )
+        if lost * 100 <= ENCOUNTER_LOST_PERCENT * maximum { under += 1 }
+        seed += 1
+    }
+    print("encounter: {play} field {field} under the bar {under} of {ENCOUNTER_SEEDS}")
+    under
 }
