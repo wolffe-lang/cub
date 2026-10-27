@@ -63,7 +63,9 @@ third found later; the counter beside the bars shows the charges, and
 every rest refills them. Death leaves a recoverable mark, even across area edges; a
 second death replaces it. The thirty-second opening shows pale cracked ice at Moonford, the cub freezing
 as the pack walks on, a fall into deep water, and three waking blinks onto
-the actual Shingle spawn. One key skips the whole sequence.
+the actual Shingle spawn. The same in-game wolf silhouettes cross between
+two banks of Shingle-grey gravel and thick forest, drawn by the world
+renderer. One key skips the whole sequence.
 On macOS the music plays through `afplay`; on Linux through `paplay` where
 it is installed, else the game says so once and plays on in silence.
 `--mute`, `CUB_SOUND=0` or the `m` key turn it off.
