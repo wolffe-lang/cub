@@ -55,50 +55,56 @@ fn abs(v: int) -> int {
     if v < 0 then 0 - v else v
 }
 
-/// The lane's anchor at plot `k`'s middle row, fixed point: the street
-/// weaves three to six cells to alternate sides of the plots, three
-/// beside the road in and out, nothing beyond them (the thorn throat at
-/// row 0 and the way on stand at x = 0). An anchor sits mid-cell: the
-/// apex row then shares its cell with the rows about it, never poking a
-/// cell out of a flat (a step out and back, the jaggedness census's
-/// reversal).
-fn lane_anchor_fp(seed: int, k: int) -> int {
-    if k <= -2 || k > PLOTS { return 0 }
-    let sign = if (k % 2 + 2) % 2 == 0 then 1 else -1
-    if k == -1 || k == PLOTS { return sign * (3 * FP + FP / 2) }
-    sign * ((3 + world.hash(seed, 36, k + 2, 4)) * FP + FP / 2)
+/// The lane's anchors lie every two plots (twenty-eight rows), at the
+/// even plots' middle rows: the street weaves three to six cells to
+/// alternate sides of them, three beside the road in and out, nothing
+/// beyond (the thorn throat at row 0 and the way on stand at x = 0).
+pub const LANE_PITCH: int = 2 * PITCH
+
+/// The lane's anchor `j`, fixed point: at row `FIRST + PITCH / 2 +
+/// LANE_PITCH * j`. An anchor sits mid-cell: the apex row then shares its
+/// cell with the rows about it, never poking a cell out of a flat (a
+/// step out and back, the jaggedness census's reversal).
+fn lane_anchor_fp(seed: int, j: int) -> int {
+    let last = (PLOTS + 1) / 2
+    if j < 0 || j > last { return 0 }
+    let sign = if j % 2 == 0 then 1 else -1
+    if j == 0 || j == last { return sign * (3 * FP + FP / 2) }
+    sign * ((3 + world.hash(seed, 36, j + 2, 4)) * FP + FP / 2)
 }
 
 /// Rows of easing at each end of a segment between two anchors: the
-/// apex lies flat for five or six rows (the jaggedness census wants three
-/// clear samples between a step one way and a step back), never twelve
-/// (the straight-run bar).
+/// apex lies flat for five to seven rows (the jaggedness census wants
+/// three clear samples between a step one way and a step back), never
+/// twelve (the straight-run bar); the slants between are gentle enough
+/// (a cell every two or three rows) that no turn counts for the bends
+/// census, which wants no two opposite turns within eight cells.
 const EASE: int = 4
 
-/// The blend from one anchor to the next at row `r` of the pitch, in
-/// `[0, FP]`: an ease out of the anchor, a straight slant, an ease into
-/// the next.
+/// The blend from one anchor to the next at row `r` of the lane's pitch,
+/// in `[0, FP]`: an ease out of the anchor, a straight slant, an ease
+/// into the next.
 fn blend(r: int) -> int {
-    let run = PITCH - EASE
+    let run = LANE_PITCH - EASE
     if r <= EASE { return FP * r * r / (2 * EASE * run) }
-    if r >= PITCH - EASE {
-        let left = PITCH - r
+    if r >= LANE_PITCH - EASE {
+        let left = LANE_PITCH - r
         return FP - FP * left * left / (2 * EASE * run)
     }
     FP * (2 * r - EASE) / (2 * run)
 }
 
 /// The lane's centre at local row `at`, fixed point: the blend between
-/// the anchors at the plots' middle rows, monotone between two anchors,
-/// so its reach toward a house over a plot's rows is read at the plot's
-/// end rows or its middle (`lane_edge`).
+/// the anchors, monotone between two of them, so its reach toward a house
+/// over a plot's rows is read at the plot's end rows or its middle
+/// (`lane_edge`).
 pub fn lane_fp(seed: int, at: int) -> int {
     let rel = at - (FIRST + PITCH / 2)
-    var k = rel / PITCH
-    var r = rel % PITCH
-    if r < 0 { k -= 1; r += PITCH }
-    let a = lane_anchor_fp(seed, k)
-    let b = lane_anchor_fp(seed, k + 1)
+    var j = rel / LANE_PITCH
+    var r = rel % LANE_PITCH
+    if r < 0 { j -= 1; r += LANE_PITCH }
+    let a = lane_anchor_fp(seed, j)
+    let b = lane_anchor_fp(seed, j + 1)
     a + (b - a) / FP * blend(r)
 }
 
@@ -108,14 +114,15 @@ pub fn lane(seed: int, at: int) -> int {
 }
 
 /// The lane's farthest centre toward `side` over plot `k`'s rows (its
-/// walls and the passage after it): at the plot's first row, its middle
-/// (an anchor) or its last, the lane being monotone between anchors.
+/// walls and the passage after it): the lane is monotone between anchors,
+/// so the reach is at one of the plot's end rows, or at its middle when
+/// the plot holds an anchor swung to that side.
 fn lane_edge(seed: int, side: int, k: int) -> int {
-    // The anchors alternate sides: the plot's own anchor is the reach on
-    // its side; on the other side the lane is farthest at one of the
-    // plot's end rows.
-    let sign = if k % 2 == 0 then 1 else -1
-    if side == sign { return lane(seed, top(k) + PITCH / 2) }
+    if k % 2 == 0 {
+        let j = k / 2
+        let sign = if j % 2 == 0 then 1 else -1
+        if side == sign { return lane(seed, top(k) + PITCH / 2) }
+    }
     let a = lane(seed, top(k))
     let b = lane(seed, bottom(k) + 1)
     if side * (b - a) > 0 then b else a
