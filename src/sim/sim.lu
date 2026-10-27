@@ -17,8 +17,10 @@ use controls
 use forest
 use meadow
 use input
+use lore
 use silhouette
 use terrain
+use town
 use world
 
 /// Fixed-point units a cell (the engine's).
@@ -373,6 +375,8 @@ pub struct Sim {
     played: int,
     played_at: int,
     lost: int,
+    lore: int,
+    lore_until: int,
 }
 
 /// A new cub at the Shingle's start, facing north toward the water, still.
@@ -474,6 +478,8 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         played: 0,
         played_at: 0,
         lost: 0,
+        lore: -1,
+        lore_until: 0,
     }
 }
 
@@ -885,7 +891,7 @@ pub fn in_shallows(s: Sim, x: int, y: int) -> bool {
 
 /// Terrain and unopened thorns block a world cell.
 pub fn blocked(s: Sim, x: int, y: int) -> bool {
-    (s.area == forest.SHINGLE || s.area == forest.BRAMBLEHOLD) &&
+    (s.area == forest.SHINGLE || s.area == forest.TOWN) &&
         !s.gate_open &&
         y == forest.thorn_row(s.seed, s.area) &&
         x >= -2 &&
@@ -1142,6 +1148,9 @@ fn strike_foes(mut s: Sim) {
             in_reach(s, i, reach) &&
             in_front(s.x, s.y, attack_direction(s), f.x, f.y) {
             var damage = bite_damage(s.fang)
+            // The Ashen's weakness (cb05): a bite from behind, out of the
+            // cone it faces, lands twice.
+            if f.kind == ASHEN && !in_front(f.x, f.y, f.heading, s.x, s.y) { damage *= 2 }
             if s.action == LUNGE { damage *= 3 }
             if s.action == HEAVY { damage *= HEAVY_DAMAGE }
             if s.action == DASH { damage *= 2 }
@@ -1176,7 +1185,15 @@ fn strike_foes(mut s: Sim) {
                         mut s,
                         f.x,
                         f.y,
-                        if f.kind == FOX then 20 else if f.kind == DEER then 5 else 8,
+                        if f.kind == FOX {
+                            20
+                        } else if f.kind == DEER {
+                            5
+                        } else if f.kind == ASHEN {
+                            ASHEN_SCENT
+                        } else {
+                            8
+                        },
                     )
                 }
             } else if is_boss(f.kind) {
@@ -1199,6 +1216,7 @@ fn strike_foes(mut s: Sim) {
             } else if s.action == LUNGE || s.action == HEAVY {
                 s.foes[i].phase = STAGGER
                 s.foes[i].since = s.tick
+                if f.kind == ASHEN { s.foes[i].attack = 0 }
             }
         }
         i += 1
@@ -1270,6 +1288,11 @@ fn foes_step(mut s: Sim) {
         }
         if is_boss(f.kind) {
             boss_step(mut s, i)
+            i += 1
+            continue
+        }
+        if f.kind == ASHEN {
+            ashen_step(mut s, i)
             i += 1
             continue
         }
@@ -1521,6 +1544,7 @@ pub fn step(mut s: Sim, keys: List[int]) {
     foes_step(mut s)
     if s.action == FALL { return }
     if transitions(mut s, ox, oy) { return }
+    hazards_step(mut s)
     trail_step(mut s, ox, oy)
     drops_step(mut s)
     healing_pickups(mut s)
@@ -2174,9 +2198,12 @@ pub fn restore_foes(mut s: Sim) {
     }
 }
 
-/// Initial encounters for one seeded area: the ordinary foes by group,
-/// the cache guards, and the area's boss at its arena's centre unless the
-/// journey has beaten it (`bosses`, the save's bits).
+/// Initial encounters for one seeded area: the ordinary foes by group
+/// (`group_plan`), the cache guards, and the area's boss at its arena's
+/// centre unless the journey has beaten it (`bosses`, the save's bits).
+/// The list's order is the seed's alone (cb04f's slain-set rule indexes
+/// it): the boss first, then the groups in row order, then the guards
+/// cache by cache.
 pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
     var foes = List[Foe]()
     if forest.has_arena(area) {
@@ -2191,33 +2218,17 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
         }
     }
     var group = 0
-    while group < 3 {
-        let at = encounter_row(
-            seed,
-            area,
-            (if group == 0 then 52 else if group == 1 then 76 else 134) +
-                world.hash(seed, area, group + 131, 5),
-        )
-        // The second thicket den sits at 90..93: do not spawn near it.
-        // The second thicket den sits at 90..93; the arenas at 100..124 in
-        // the last three areas: the middle group stays out of both.
-        if group != 1 || area == forest.SHINGLE || area == forest.LARKMEADOW {
-            let open = area == forest.LARKMEADOW || area == forest.RIVER
-            let count = if open then 2 else if group == 1 then 1 else 2
-            var member = 0
-            while member < count {
-                let kind = if open {
-                    (if member == 0 then HAWK else DEER)
-                } else if group == 1 || area == forest.CRAGS || area == forest.OLDDEN {
-                    FOX
-                } else {
-                    WEASEL
-                }
-                let x = (forest.spine(seed, area, at) + member * 2 - 1) * FP
-                let y = (forest.origin(seed, area) + at) * FP
-                (mut foes).push(make_foe(kind, x, y))
-                member += 1
-            }
+    while group < group_count(area) {
+        let (row, count, first, rest) = group_plan(seed, area, group)
+        let at = encounter_row(seed, area, row)
+        var member = 0
+        while member < count {
+            let kind = if member == 0 then first else rest
+            let x = (forest.spine(seed, area, at) + member * 2 - 1) * FP
+            let y = (forest.origin(seed, area) + at) * FP
+            (mut foes).push(make_foe(kind, x, y))
+            if kind == ASHEN { home_at_ember(seed, mut foes) }
+            member += 1
         }
         group += 1
     }
@@ -2232,22 +2243,36 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
             cache += 1
             continue
         }
+        if area == forest.TOWN {
+            // A yard's guards: one Ashen, two at the far yards, a body's
+            // width apart along the yard.
+            var guard = 0
+            while guard < (if cache % 2 == 1 then 2 else 1) {
+                let gy = cy + (if guard == 0 then -3 else 3) * FP
+                (mut foes).push(make_foe(ASHEN, x, gy))
+                home_at_ember(seed, mut foes)
+                guard += 1
+            }
+            cache += 1
+            continue
+        }
         // Guards stand shoulder to shoulder, a body's width apart (cb02c:
-        // never one inside another's drawing).
+        // never one inside another's drawing), back along the branch's
+        // centreline from the cache toward the route, so every guard
+        // stands on the branch's ground: a weasel trio at the first cache,
+        // a fox pair at the second, one fox at the third.
         let kind = if cache == 0 then WEASEL else FOX
         let (w, _) = silhouette.foe_size(kind)
         let (_, _, wide, _) = silhouette.footprint(w, 12, 0)
+        let len = forest.branch_len(seed, field, area, cache)
         var guard = 0
-        while guard < (if cache == 0 then 3 else 2) {
-            // From the cache back along its branch toward the route, so
-            // every guard stands on the branch's ground.
-            let gx = x + (if cache == 0 then guard else 0 - guard) * wide * FP
-            let gy = (
-                forest.origin(seed, area) + forest.branch(seed, area, cache, floor_div(gx, FP)) + 1
-            ) *
-                FP +
-                FP / 2
-            (mut foes).push(make_foe(kind, gx, gy))
+        while guard < (if cache == 0 then 3 else if cache == 1 then 2 else 1) {
+            let (gx, gy) = forest.branch_point(seed, field, area, cache, len - 3 - guard * wide)
+            (mut foes).push(make_foe(
+                kind,
+                gx * FP + FP / 2,
+                (forest.origin(seed, area) + gy) * FP + FP / 2,
+            ))
             guard += 1
         }
         cache += 1
@@ -2255,16 +2280,80 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
     foes
 }
 
-// Rounding a switchback can move a path foe toward a den. Advance its
-// seeded group along the same carved route until both spawn slots retain
-// the existing quiet radius. Post-cluster refuges deliberately stay closer.
+/// The last foe pushed (an Ashen) takes the nearest ember as its home, the
+/// fire it gathers at when it hears nothing.
+fn home_at_ember(seed: int, mut foes: List[Foe]) {
+    let i = foes.len - 1
+    let (ex, ey) = town.nearest_ember(seed, floor_div(foes[i].x, FP), floor_div(foes[i].y, FP))
+    foes[i].home_x = ex * FP + FP / 2
+    foes[i].home_y = ey * FP + FP / 2
+}
+
+/// How many foe groups an area's route holds (cb05, R-cb05-4 A: twelve to
+/// eighteen foes in each big area with the guards; eight to twelve in the
+/// later three; the Shingle's three tutorial groups unchanged).
+pub fn group_count(area: int) -> int {
+    if area == forest.SHINGLE {
+        3
+    } else if area == forest.TOWN {
+        5
+    } else if area == forest.BRAMBLEHOLD || area == forest.LARKMEADOW {
+        6
+    } else if area == forest.CRAGS {
+        5
+    } else {
+        4
+    }
+}
+
+/// A group's nominal row, its count, its first member's kind and the
+/// rest's: weasel pairs and fox pairs down the thicket; hawks over every
+/// open stretch of the meadow with deer under them, weasels in the grass,
+/// a fox pair; the Ashen in pairs along the town's lane, never near the
+/// square; foxes, weasels and a hawk on the crags; hawks, deer and a fox
+/// pair by the river; foxes and a weasel trio in the old den's wood. The
+/// seed moves each row by up to four.
+pub fn group_plan(seed: int, area: int, g: int) -> (int, int, int, int) {
+    let jitter = world.hash(seed, area, g + 131, 5)
+    if area == forest.SHINGLE {
+        let row = (if g == 0 then 52 else if g == 1 then 76 else 134) + jitter
+        return if g == 1 then (row, 1, FOX, FOX) else (row, 2, WEASEL, WEASEL)
+    }
+    if area == forest.TOWN {
+        let row = (if g == 0 then 40 else if g == 1 then 68 else if g == 2 then 184 else if g == 3 then 212 else 244) + jitter
+        return (row, 2, ASHEN, ASHEN)
+    }
+    if area == forest.BRAMBLEHOLD {
+        let row = 40 + 44 * g + jitter
+        return if g % 2 == 0 then (row, 2, WEASEL, WEASEL) else (row, 2, FOX, FOX)
+    }
+    if area == forest.LARKMEADOW {
+        let row = 40 + 44 * g + jitter
+        if g % 3 == 1 { return (row, 2, WEASEL, WEASEL) }
+        if g == 5 { return (row, 2, FOX, FOX) }
+        return (row, 2, HAWK, DEER)
+    }
+    if area == forest.CRAGS {
+        let row = (if g == 0 then 40 else if g == 1 then 72 else if g == 2 then 104 else if g == 3 then 184 else 204) + jitter
+        if g == 1 || g == 4 { return (row, 1, HAWK, HAWK) }
+        return if g == 2 then (row, 2, WEASEL, WEASEL) else (row, 2, FOX, FOX)
+    }
+    let row = (if g == 0 then 40 else if g == 1 then 72 else if g == 2 then 104 else 190) + jitter
+    if area == forest.RIVER { return if g == 1 then (row, 2, FOX, FOX) else (row, 2, HAWK, DEER) }
+    if g == 1 then (row, 3, WEASEL, WEASEL) else (row, 2, FOX, FOX)
+}
+
+// A route foe never starts inside a den's quiet radius: advance its
+// seeded group along the same carved route until both spawn slots keep
+// `FIRST_FOE_CELLS` from every den of the area (cb04d's rule for the
+// rounded switchbacks, every area's since cb05).
 fn encounter_row(seed: int, area: int, at: int) -> int {
-    if area != forest.BRAMBLEHOLD || at < 130 { return at }
     var row = at
-    while row < forest.LENGTH - 8 {
+    let l = forest.length(area)
+    while row < l - 8 {
         var clear = true
         var den = 0
-        while den < forest.DENS {
+        while den < forest.DEN_LIMIT {
             if forest.den_area(den) == area {
                 let (dx, dy) = forest.den_position(seed, den)
                 for side in [-1, 1] {
@@ -2283,6 +2372,190 @@ fn encounter_row(seed: int, area: int, at: int) -> int {
         row += 1
     }
     row
+}
+
+/// What a cache holds when dug (cb05): a lore line or a consumable, by
+/// area and cache (`lore`): the Shingle's bundles are counted apart.
+pub fn cache_reward(area: int, cache: int) -> (int, int) {
+    if area == forest.TOWN {
+        return match cache {
+            0 => (lore.LORE, lore.TOWN_DOORWAY),
+            1 => (lore.MARROW, -1),
+            2 => (lore.LORE, lore.TOWN_FIRE),
+            _ => (lore.LORE, lore.TOWN_BONES),
+        }
+    }
+    if area == forest.BRAMBLEHOLD {
+        return match cache {
+            0 => (lore.LORE, lore.OLD_BONES),
+            1 => (lore.MARROW, -1),
+            _ => (lore.LORE, lore.FOX_CACHE),
+        }
+    }
+    if area == forest.LARKMEADOW {
+        return match cache {
+            0 => (lore.LORE, lore.OLD_BONES),
+            1 => (lore.YARROW, -1),
+            _ => (lore.LORE, lore.GREEN_BURN),
+        }
+    }
+    (lore.MARROW, -1)
+}
+
+/// The Ashen (cb05, R-cb05-1 A): the people of Cinderwick who did not
+/// leave. Grey, slow, smelling of smoke, they walk the lanes between the
+/// broken houses toward any sound, with a long slow windup (the arms rise)
+/// and a heavy blow; they do not chase past the town's edge; they gather
+/// at the fires. A parry staggers them long; a bite from behind lands
+/// twice.
+pub const ASHEN: int = 8
+
+/// The windup, ticks: the arms rise, slowly (three times a weasel's).
+pub const ASHEN_WINDUP: int = 30
+
+/// The recovery after the blow, ticks.
+pub const ASHEN_RECOVERY: int = 40
+
+/// The blow.
+pub const ASHEN_DAMAGE: int = 22
+
+/// A parry's stagger, ticks: twice an ordinary foe's.
+pub const ASHEN_STAGGER: int = 60
+
+/// How far an Ashen hears a trotting cub, cells; a sneaking one a quarter.
+pub const ASHEN_HEARING: int = 16
+
+/// The Ashen's walk, FP units a tick: half a weasel's stalk.
+pub const ASHEN_V: int = FOE_STALK_V / 2
+
+/// The scent an Ashen leaves (proposed: between a fox and a shade).
+pub const ASHEN_SCENT: int = 25
+
+/// An ember's heat: health lost every `EMBER_TICKS` standing on one.
+pub const EMBER_HURT: int = 2
+
+/// How often an ember burns.
+pub const EMBER_TICKS: int = 10
+
+/// Whether an Ashen hears the cub this tick: the cub moving at a trot
+/// within hearing (a sneak within a quarter of it), or its body touching.
+fn ashen_hears(s: Sim, f: Foe) -> bool {
+    if gap(cub_body(s), foe_body(f)) == 0 { return true }
+    if s.speed == 0 { return false }
+    near(f.x, f.y, s.x, s.y, (if s.sneaking then ASHEN_HEARING / 4 else ASHEN_HEARING) * FP)
+}
+
+/// One slow step of Ashen `i` toward `(tx, ty)`, refused at the town's
+/// edge (a step whose cell leaves the town is not taken), into terrain or
+/// into a body.
+fn ashen_move(mut s: Sim, i: int, tx: int, ty: int) {
+    let f = copy s.foes[i]
+    let h = heading_to(f.x, f.y, tx, ty)
+    if h < 0 { s.foes[i].speed = 0; return }
+    let d = turn_toward(f.heading, h)
+    let turn = if d > FOE_TURN_RATE {
+        FOE_TURN_RATE
+    } else if d < 0 - FOE_TURN_RATE {
+        0 - FOE_TURN_RATE
+    } else {
+        d
+    }
+    turn_foe(mut s, i, (f.heading + turn + TURN) % TURN)
+    let g = copy s.foes[i]
+    let speed = toward(g.speed, ASHEN_V, ACCEL)
+    let nx = g.x + speed * sin(g.heading) / FP
+    let ny = g.y - speed * cos(g.heading) / FP
+    let cx = floor_div(nx, FP)
+    let cy = floor_div(ny, FP)
+    let out = !forest.in_town(s.seed, cx, cy - forest.origin(s.seed, s.area))
+    let stops = out || blocked(s, cx, cy) || foe_blocked_by_body(s, i, nx, ny, g.heading)
+    s.foes[i].speed = if stops then 0 else speed
+    if !stops { s.foes[i].x = nx; s.foes[i].y = ny }
+}
+
+/// An Ashen's tick: toward any sound, the long windup, the blow, the
+/// recovery; the fire when it hears nothing; a parry's long stagger.
+fn ashen_step(mut s: Sim, i: int) {
+    let f = copy s.foes[i]
+    let age = s.tick - f.since
+    if f.phase == HUNT {
+        if ashen_hears(s, f) {
+            s.foes[i].target_x = s.x
+            s.foes[i].target_y = s.y
+            if in_reach(s, i, 2) {
+                s.foes[i].phase = CROUCH
+                s.foes[i].since = s.tick
+                s.foes[i].speed = 0
+            } else {
+                ashen_move(mut s, i, s.x, s.y)
+            }
+        } else if near(f.x, f.y, f.home_x, f.home_y, FP) {
+            s.foes[i].speed = 0
+        } else {
+            ashen_move(mut s, i, f.home_x, f.home_y)
+        }
+    } else if f.phase == CROUCH {
+        let h = heading_to(f.x, f.y, f.target_x, f.target_y)
+        if h >= 0 {
+            let d = turn_toward(f.heading, h)
+            let turn = if d > FOE_TURN_RATE {
+                FOE_TURN_RATE
+            } else if d < 0 - FOE_TURN_RATE {
+                0 - FOE_TURN_RATE
+            } else {
+                d
+            }
+            turn_foe(mut s, i, (f.heading + turn + TURN) % TURN)
+        }
+        if age >= ASHEN_WINDUP {
+            s.foes[i].phase = STRIKE
+            s.foes[i].since = s.tick
+            s.foes[i].hit = false
+        }
+    } else if f.phase == STRIKE {
+        if age >= 3 {
+            s.foes[i].phase = RETREAT
+            s.foes[i].since = s.tick
+        }
+    } else if f.phase == RETREAT {
+        // The recovery: the Ashen stands, the arms down.
+        s.foes[i].speed = 0
+        if age >= ASHEN_RECOVERY {
+            s.foes[i].phase = HUNT
+            s.foes[i].since = s.tick
+        }
+    } else if f.phase == STAGGER {
+        s.foes[i].speed = 0
+        if age >= (if f.attack == 1 then ASHEN_STAGGER else STAGGER_TICKS) {
+            s.foes[i].phase = HUNT
+            s.foes[i].since = s.tick
+        }
+    }
+    if s.foes[i].phase == STRIKE &&
+        !s.foes[i].hit &&
+        in_reach(s, i, 2) &&
+        in_front(f.x, f.y, f.heading, s.x, s.y) {
+        s.foes[i].hit = true
+        if parrying(s) {
+            s.foes[i].phase = STAGGER
+            s.foes[i].since = s.tick
+            s.foes[i].attack = 1
+            s.riposte = s.tick + ASHEN_STAGGER
+            s.riposte_foe = i
+        } else if !invulnerable(s) {
+            hurt(mut s, ASHEN_DAMAGE)
+        }
+    }
+}
+
+/// The world's hazards (cb05): an ember underfoot burns a little every
+/// `EMBER_TICKS`; a found lore line lapses.
+fn hazards_step(mut s: Sim) {
+    if s.lore >= 0 && s.tick >= s.lore_until { s.lore = -1 }
+    if s.tick % EMBER_TICKS == 0 &&
+        forest.kind(s.seed, s.field, s.area, cell_x(s), cell_y(s)) == terrain.EMBER {
+        hurt(mut s, EMBER_HURT)
+    }
 }
 
 fn make_foe(kind: int, x: int, y: int) -> Foe {
@@ -2499,6 +2772,12 @@ fn hawk_step(mut s: Sim, i: int) {
 
 /// Resume and death share the same den and reset rules.
 pub fn wake(mut s: Sim) {
+    // A journey whose last den was retired (cb05) wakes at the nearest
+    // kept den of that area, and lights it.
+    if forest.den_retired(s.last_den) {
+        s.last_den = forest.nearest_kept_den(s.seed, s.last_den)
+        s.lit_dens = light_den(s.lit_dens, s.last_den)
+    }
     s.area = forest.den_area(s.last_den)
     let (x, y) = forest.den_position(s.seed, s.last_den)
     s.x = x
@@ -2637,8 +2916,12 @@ fn cache_key(mut s: Sim) {
             }
             pickup_flash(mut s, x, y)
             s.caches += cache_mask(s.area, cache)
-            if cache == 1 {
-                if s.area == forest.LARKMEADOW { s.yarrow += 1 } else { s.marrow += 1 }
+            let (reward, line) = cache_reward(s.area, cache)
+            if reward == lore.MARROW { s.marrow += 1 }
+            if reward == lore.YARROW { s.yarrow += 1 }
+            if reward == lore.LORE {
+                s.lore = line
+                s.lore_until = s.tick + lore.LINE_TICKS
             }
             s.cue = 3
         }
@@ -2751,6 +3034,7 @@ pub fn boss_name(kind: int) -> str {
 pub fn foe_health(kind: int) -> int {
     match kind {
         1 => 24,
+        8 => 36,
         4 => 240,
         5 => 140,
         6 => 400,
@@ -3093,9 +3377,9 @@ fn boss_step(mut s: Sim, i: int) {
         }
         if f.kind == ELK && p2 && !in_shallows(s, f.x, f.y) && body_gap(s, i) > 3 {
             // Phase 2: the elk wades into the ford, where the cub is slow.
-            let b = forest.river_bank(s.seed, s.field, forest.ARENA_ROW)
+            let b = forest.river_bank(s.seed, s.field, forest.arena_row(forest.RIVER))
             tx = (b - 5) * FP + FP / 2
-            ty = (forest.origin(s.seed, s.area) + forest.ARENA_ROW) * FP + FP / 2
+            ty = (forest.origin(s.seed, s.area) + forest.arena_row(forest.RIVER)) * FP + FP / 2
         }
         if near(f.x, f.y, tx, ty, FP / 2) {
             s.foes[i].speed = 0
@@ -3317,7 +3601,7 @@ fn meadow_near(s: Sim, kind: int, radius: int) -> bool {
     let (x, y, _) = meadow.anchor(s.seed, cell_x(s), cell_y(s))
     let width = forest.half_width(s.field)
     y >= 6 &&
-        y < forest.LENGTH - 4 &&
+        y < forest.length(s.area) - 4 &&
         x > -width + 4 &&
         x < width - 4 &&
         !forest.on_path(s.seed, s.field, s.area, x, y) &&
