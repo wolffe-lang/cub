@@ -362,15 +362,15 @@ fn ember_unguarded(s: sim.Sim, x: int, y: int) -> bool {
 pub fn cinderwick(dir: str) -> int {
     let seed = 1
     let o = forest.origin(seed, forest.TOWN)
-    // 1. The passage: plot 9's east yard holds a scent mark and is reached
+    // 1. The passage: plot 3's east yard holds a scent mark and is reached
     // only through the one-cell passage its gap opens on; the walk from
     // the lane's verge at the passage's mouth to the mark.
     var s = town_journey(seed)
     var r = snapshot_replay(s)
     walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
-    let (near, _) = town.house_x(seed, 1, 9)
-    let (which, _) = town.yard_gap(seed, 1, 9)
-    let row = if which == 0 then town.top(9) - 1 else town.bottom(9) + 1
+    let (near, _) = town.house_x(seed, 1, 3)
+    let (which, _) = town.yard_gap(seed, 1, 3)
+    let row = if which == 0 then town.top(3) - 1 else town.bottom(3) + 1
     let mouth_x = (near - 1) * sim.FP + sim.FP / 2
     let mouth_y = (o + row) * sim.FP + sim.FP / 2
     if !walker.walk(mut s, mut r, mouth_x, mouth_y) {
