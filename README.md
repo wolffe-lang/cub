@@ -23,7 +23,7 @@ stay at top-left, with posture as a second channel: the
 ears go back, the tail drops and the trot shortens as it is hurt, and its
 breath shows its stamina; the numbers appear at a den and on the death
 card. An original score plays through the engine's mixer: a part for each
-area, a rest at the den, a sting at a fall, the title over the opening, and
+area, a rest at the den, a sting at a fall, the title over the crossing, a sharp crack cue, and
 a theme for each boss (`docs/SCORE.md`). Six areas: the Shingle, Bramblehold,
 Larkmeadow, the Teeth, the Shallows and Gravehollow, each with its den and
 its shortcut back. Four bosses hold their ground in them: Old Snag the boar in
@@ -56,7 +56,9 @@ than disappearing when their centres lose sight.
 Water must first be found at the Shingle spring (two mouthfuls), with a
 third found later; the counter beside the bars shows the charges, and
 every rest refills them. Death leaves a recoverable mark, even across area edges; a
-second death replaces it. An opening scene shows the broken crossing.
+second death replaces it. The thirty-second opening shows pale cracked ice at Moonford, the cub freezing
+as the pack walks on, a fall into deep water, and three waking blinks onto
+the actual Shingle spawn. One key skips the whole sequence.
 On macOS the music plays through `afplay`; on Linux through `paplay` where
 it is installed, else the game says so once and plays on in silence.
 `--mute`, `CUB_SOUND=0` or the `m` key turn it off.
@@ -119,7 +121,7 @@ target/cub                     play/resume; --seed N picks a new journey, --tier
 target/cub --save journey      use a separate save file
 target/cub --record run.pk     record the run, including resumed state; --replay run.pk plays it back
 target/cub --mute              play without music (CUB_SOUND=0 does the same)
-target/cub --no-title          start in the forest, no title
+target/cub --no-title          skip the title; unseen journeys still play the opening
 target/cub --ghost-dir DIR     read and write the death archives there (default ~/.cub/ghosts)
 target/cub --den-census        flood fifty seeds for den distance and every thorn-gate face
 target/cub --boss-census       fight every boss in fifty seeds at both sizes; a fairness line a boss
@@ -158,7 +160,9 @@ the sim frame for frame;
 `--paths-audit` measures carved widths and centreline steps; `--doorways-audit`
 checks all shadow neighbours; `--foes-audit` checks clipped sprites on every
 route row. Rest panels have empty, pending and refused goldens at both sizes
-and tiers, plus real arrow/confirm/discard pty witnesses.
+and tiers, plus real arrow/confirm/discard pty witnesses. The opening has
+every shot at 80×24, 120×40 and 200×60 on both tiers, disjoint sky/ice/water
+styles, a full-length terminal run and a recorded real-key skip per shot.
 `--feel-audit`, `--chase-audit` and `--mouth-audit` census the dens,
 switchbacks, clearings, pursuit and safe arena approaches. `--measure` reports the pace, the wag, the fox's chase, the path colours
 and the body census over the real-key scripts. The sound pty rows start the
