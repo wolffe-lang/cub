@@ -166,8 +166,10 @@ fn test_cb03a_outlined_bars_are_always_present_and_labelled() {
     art.render(s, tier.RICH, mut rich)
     assert(grid.at(rich, 0, 8).cp != 9472 && grid.at(rich, 4, 16).cp != 9472, "no rails (cb07)")
     assert(
-        grid.at(rich, 1, 9).cp == 9608 && grid.at(rich, 3, 9).cp == 32,
-        "full health empty stamina",
+        grid.at(rich, 1, 9).cp == 9608 &&
+            grid.at(rich, 3, 9).cp == 9472 &&
+            grid.at(rich, 3, 9).fg == 240,
+        "full health, empty stamina as the dim track (cb07)",
     )
 }
 

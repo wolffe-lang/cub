@@ -73,6 +73,10 @@ fn test_cb04b_held_arrow_overrides_lock_aim() {
 }
 
 fn test_cb04b_first_bite_moves_the_body_and_settles_its_lean() {
+    // cb07: the first bite lunges a whole cell forward and a cell to the
+    // aim's left, holds it through age 6, and eases back to the
+    // commitment point by its last age (cb04b leaned a quarter and a half
+    // cell for one tick, which no one saw).
     var s = empty()
     s.heading = 64
     sim.step(mut s, keys(controls.KEY_BITE, 0, 0))
@@ -80,9 +84,11 @@ fn test_cb04b_first_bite_moves_the_body_and_settles_its_lean() {
     let y = s.y
     var n = 0
     while n < 3 { sim.step(mut s, keys(0, 0, 0)); n += 1 }
-    assert(s.x == x + sim.FP / 4 && s.y == y - sim.FP / 2, "body lunges left within cell")
+    assert(s.x == x + sim.FP && s.y == y - sim.FP, "body lunges a cell forward and a cell left")
     while n < 6 { sim.step(mut s, keys(0, 0, 0)); n += 1 }
-    assert(s.x == x + sim.FP / 4 && s.y == y, "recovery settles lateral lean, not forward travel")
+    assert(s.x == x + sim.FP && s.y == y - sim.FP, "the lunge is held through age 6")
+    while n < 10 { sim.step(mut s, keys(0, 0, 0)); n += 1 }
+    assert(s.x == x && s.y == y, "recovery eases the body back to the commitment point")
 }
 
 fn test_cb01b_lunge_triangle_and_collision_clip() {

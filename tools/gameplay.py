@@ -352,7 +352,7 @@ def level_look(binary):
         for size in ('80x24', '120x40'):
             dest, states, _ = run(binary, 'hud-after-c-' + size, tier)
             assert any(v['action'] == 4 for v in states.values()), 'c never dodged'
-            assert all(line[22] == ' ' for line in (dest / 'final.txt').read_text().splitlines()[:5]), 'stamina edge leak'
+            assert not any(line[22].isalpha() for line in (dest / 'final.txt').read_text().splitlines()[:5]), 'lettering at the stamina edge'
             _, states, _ = run(binary, 'scent-recover-' + size, tier)
             assert any(v['mark'] and v['mark_scent'] == 28 for v in states.values()), 'no death mark'
             assert states[max(states)]['mark'] == 0 and states[max(states)]['scent'] == 28, 'recovery lost scent'

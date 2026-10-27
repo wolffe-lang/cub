@@ -42,9 +42,22 @@ fn test_cb04c_stamina_edge_is_reserved_after_c() {
         var g = grid.new(24, 80)
         art.render(s, t, mut g)
         print("HUD after c tier {t}: row3 column22 codepoint {grid.at(g, 3, 22).cp}")
+        // cb07: the bars sit flush on the map, so the cell beside the
+        // stamina bar is the map's own; what may never show there is
+        // lettering (the old bones label's c).
+        var bare = grid.new(24, 80)
+        art.render_bare(s, t, mut bare)
         var row = 0
         while row < 5 {
-            assert(grid.at(g, row, 22).cp == 32, "no world glyph at stamina edge after c")
+            let cp = grid.at(g, row, 22).cp
+            assert(
+                !(cp >= 65 && cp <= 90 || cp >= 97 && cp <= 122),
+                "no lettering at the stamina edge after c",
+            )
+            assert(
+                grid.same(grid.at(g, row, 22), grid.at(bare, row, 22)),
+                "the stamina edge is the map's own (cb07)",
+            )
             row += 1
         }
     }

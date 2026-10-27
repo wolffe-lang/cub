@@ -309,6 +309,18 @@ pub fn hud_row(s: sim.Sim, t: int) -> HudRow {
     art.render(s, t, mut full)
     var bare = grid.new(s.rows, s.cols)
     art.render_bare(s, t, mut bare)
+    // The plan's claims as a map of the frame, built once.
+    var claimed = List[bool]()
+    var i = 0
+    while i < s.rows * s.cols {
+        (mut claimed).push(false)
+        i += 1
+    }
+    for cell in art.hud_plan(s, t) {
+        if cell.row >= 0 && cell.row < s.rows && cell.col >= 0 && cell.col < s.cols {
+            claimed[cell.row * s.cols + cell.col] = true
+        }
+    }
     var painted = 0
     var stray = 0
     var r = 0
@@ -317,7 +329,7 @@ pub fn hud_row(s: sim.Sim, t: int) -> HudRow {
         while c < s.cols {
             if !grid.same(grid.at(full, r, c), grid.at(bare, r, c)) {
                 painted += 1
-                if !art.hud_claims(s, t, r, c) { stray += 1 }
+                if !claimed[r * s.cols + c] { stray += 1 }
             }
             c += 1
         }

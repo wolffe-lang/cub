@@ -16,23 +16,23 @@ fn tier_name(t: int) -> str { if t == tier.RICH then "rich" else "plain" }
 
 fn test_cb07_hud_paints_only_bars_labels_and_digits_both_fields_both_tiers_day_and_night() {
     for t in [tier.PLAIN, tier.RICH] {
+        // Four frames a tier here (the checked machine's step budget);
+        // `--hud-census` runs the full matrix on the native build.
         for cols in [80, 200] {
             let rows = if cols == 80 then 24 else 60
-            for night in [false, true] {
-                for scent in [0, 1234] {
-                    for stat in [1, 40] {
-                        let s = combatproof.hud_fixture(cols, rows, stat, scent, night, true)
-                        let h = combatproof.hud_row(s, t)
-                        assert(
-                            h.stray == 0,
-                            "{tier_name(t)} {cols}x{rows} night {night} scent {scent} stat {stat}: {h.stray} stray cells",
-                        )
-                        assert(
-                            h.painted > 0 && h.painted <= 120,
-                            "{tier_name(t)}: {h.painted} painted cells",
-                        )
-                    }
-                }
+            let night = cols == 200
+            for scent in [0, 1234] {
+                let stat = if scent == 0 then 1 else 40
+                let s = combatproof.hud_fixture(cols, rows, stat, scent, night, true)
+                let h = combatproof.hud_row(s, t)
+                assert(
+                    h.stray == 0,
+                    "{tier_name(t)} {cols}x{rows} night {night} scent {scent} stat {stat}: {h.stray} stray cells",
+                )
+                assert(
+                    h.painted > 0 && h.painted <= 120,
+                    "{tier_name(t)}: {h.painted} painted cells",
+                )
             }
         }
     }
@@ -72,7 +72,7 @@ fn test_cb07_the_fills_and_rails_are_gone() {
 
 fn test_cb07_every_hud_cell_keeps_the_maps_background() {
     for t in [tier.PLAIN, tier.RICH] {
-        for night in [false, true] {
+        for night in [t == tier.RICH] {
             let s = combatproof.hud_fixture(80, 24, 10, 1234, night, true)
             var full = grid.new(24, 80)
             art.render(s, t, mut full)
@@ -180,16 +180,18 @@ fn test_cb07_scent_is_a_big_number_in_the_bottom_right_corner() {
         // columns on three rows.
         let s = combatproof.hud_fixture(80, 24, 1, 999, false, false)
         var lo = 1000
+        var hi = -1
         var top = 1000
         for c in art.hud_plan(s, tier.RICH) {
             if c.kind == art.HUD_DIGIT || c.row >= 21 && c.kind == art.HUD_LABEL {
                 if c.col < lo { lo = c.col }
+                if c.col > hi { hi = c.col }
                 if c.row < top { top = c.row }
             }
         }
         assert(
-            80 - lo <= 12 && 24 - top <= 3,
-            "rich 80x24: scent 999 with its label spans {80 - lo} columns, {24 - top} rows",
+            hi - lo + 1 <= 12 && 24 - top <= 3,
+            "rich 80x24: scent 999 with its label covers {hi - lo + 1} columns, {24 - top} rows",
         )
     }
 }

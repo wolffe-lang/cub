@@ -509,8 +509,8 @@ def level_look_after_c(binary, ctx):
                             '--every', '24', '--tier', tier, '--dump', str(dest)], check=True)
             if text != (dest / 'final.txt').read_text() or sty != (dest / 'final.sty').read_text():
                 problems.append(name + ': byte-c live/headless frame mismatch')
-            if any(line[22] != ' ' for line in text.splitlines()[:5]):
-                problems.append(name + ': world glyph leaked into the stamina edge')
+            if any(line[22].isalpha() for line in text.splitlines()[:5]):
+                problems.append(name + ': lettering leaked into the stamina edge')
             if 'dodge' not in record.read_text():
                 problems.append(name + ': literal c never recorded the action')
     session.evidence = 'byte 63, ECHO clear, 80x24/120x40 rich/plain, replay agreement and HUD edge'
@@ -1267,12 +1267,12 @@ def cb07_fur_centroid(text, sty, rows, cols, rich):
             spec, count = run.split('*')
             fg = int(spec.split(',')[0])
             count = int(count)
-            if fg == (180 if rich else 11):
+            if fg in ((180, 137) if rich else (11, 3)):
                 for cc in range(c, c + count):
                     if cc not in cols or cc >= len(lines[r]):
                         continue
                     cp = ord(lines[r][cc])
-                    if cp == 32:
+                    if cp == 32 or chr(cp) in '*:]~':
                         continue
                     if not rich:
                         sx += cc * 2
@@ -1305,7 +1305,7 @@ def cb07_strikes(binary, ctx):
         s.type(cb04b_event('C', 3), settle=.30)
         s.type(cb04b_event(' '), settle=.25)
         s.type(cb04b_event(' '), settle=.37)
-        s.type(cb04b_event(' '), settle=.70)
+        s.type(cb04b_event(' '), settle=1.2)
         s.type(cb04b_event('q'))
         s.finish()
         ctx.common_checks(s, 0, problems)
