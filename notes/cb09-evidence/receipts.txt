@@ -1,0 +1,71 @@
+cb09 evidence receipts available before long-job completion
+
+Prediction committed 19e37aa9 before implementation.
+RSS instrument and baseline committed 6de733a9 before any source fix.
+Named-region attribution committed d6500224 before the repair.
+Repair 3be0590d; budget gate 3693439e; README-only 7c11c4bd.
+Mac full-tier placement per amended R-cb09-3 B: 9ea9287a.
+Container sampling 8cf7a047; real stage-fixture repair 8c117812.
+
+Native Mac allocation ledger, 300 calls:
+- full renderer: 1,588,592 bytes/call before -> 0 after scoped frame.
+- terrain queries inside renderer: 1,501,211 bytes/call before;
+  forest.shape_of orders and forest.qsin table literals allocate repeatedly.
+- remaining renderer layers: aggregate 87,381 bytes/call before;
+  sprite/HUD list and composed-frame scratch share the reclaimed frame.
+- raw journey encoder: 5,242 bytes/call charged before; it is unchanged.
+  The live idle loop now uses three reused exact numeric snapshot buffers,
+  so it no longer calls that encoder every tick. Encoding still happens
+  when a real save is staged. CUB 5 canonical text/checksum unchanged.
+- simulation and bounded ghost ring: 0 charged bytes/call idle.
+These are aggregate ledger charges, not isolated per-function payload sizes.
+
+Mac RSS one-variable experiment, exact trace ticks:
+- original crash checkpoint: 1,601,393.668 bytes/tick in the budget plant.
+- original fresh seed7: 41,118.147 bytes/tick in first measurement;
+  RSS working-set drops occurred; last interval 62,711.172 bytes/tick.
+- frame scope alone, crash: 3,022.291 bytes/tick residual.
+- frame scope alone without trace: 3,073.601 bytes/tick estimated30Hz,
+  showing the encoder floor is not explained by trace output.
+- both repairs, crash: -1,217.325 bytes/tick over821 ticks, i.e. working-set
+  reclamation, not a claimed negative allocator rate.
+
+Linux exact original1d0680a1 release in pinned cb08 image, cores4-7:
+- crash: 1,598,552.786 bytes/tick; fresh: 71,929.563 bytes/tick.
+Both are budget RED against4096; full raw records are retained in
+linux-stage-fixture-red.log before the later unrelated fixture-test failure.
+
+Budget: 4096 resident bytes/actual simulation tick, warmup60/end600;
+2-GiB emergency ceiling and120-second timeout, any early exit/timeout RED.
+After-fix calibration target is at most1KiB/tick; fourfold allocator/OS
+working-set slack gives4KiB/tick. This is a regression margin, not permission
+to call sustained4KiB/tick flat; two-hour samples must be inspected too.
+Mac ps KiB x1024; Linux /proc statm resident pages x actual page size.
+No added procps package or container-recipe change.
+
+Plants: cub#62 (7a6162e9), original game src byte-identical to1d0680a1;
+CI40592168131 in_progress at immediate once-only lookup.
+cub#63 (5458d74f), omit saved-word equality; local checked named assertion
+FAILED(trap(assert)), no rejected/unsupported rows; CI40592269254 in_progress
+at immediate once-only lookup. Both draft, never merge; coordinator closes.
+
+Stage-fixture failure: original full gates stopped in a real Python test,
+which copied tools/check-linux without new tools/check-memory. Fixed the
+fixture, retained order/status assertions, added a memory-failure propagation
+row. All39 Python tests pass. Those reds are not called successful gates.
+
+Long jobs, pending at this receipt:
+Mac soak: pid43896; /Users/mfwolffe/lanes/cb09/soak.log;
+marker /Users/mfwolffe/lanes/cb09/soak.exit. Samples once a minute,216000 ticks.
+Mac full: pid47952; /Users/mfwolffe/lanes/cb09/mac-final-2.log;
+marker /Users/mfwolffe/lanes/cb09/mac-final-2.exit.
+Linux full+perf+11 byte-equal census comparisons: pid1281065;
+/home/mfwolffe/lanes/cb09/linux-final-2.log;
+marker /home/mfwolffe/lanes/cb09/linux-final-2.exit.
+Source head for complete gates8c117812; soak runtime9ea9287a (later changes
+are Python harness/tests only). Soak release sha256:
+b8c2064b91a1309c31bfee4092c46dae5b471b629cf5717b26ff34ad47d94d78.
+
+No main PR or final audit yet: wait for coordinator resumption on the durable
+long-job markers, materialise after slopes/soak/comparison receipts, then open
+the cross-cutting PR and run the audit exactly once. No CI wait or labels.

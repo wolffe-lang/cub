@@ -14,6 +14,6 @@ No sound or diff output, no loaded ghosts, no scent trail, no foe stepping
 in the renderer-only rows. Therefore these leaks reproduce without sound,
 ghosts, diff, AI or scent. A fresh Shingle is the smallest available region.
 The terrain-only row explains most of the crash-fixture renderer cost.
-forest.branch_shape's orders and forest.sin12's lookup tables are rebuilt
+forest.shape_of's orders and forest.qsin's lookup tables are rebuilt
 inside terrain queries. Next test: frame-lifetime scratch around drawing.
 The initial prediction of sim copies was falsified by the zero-charge row.
