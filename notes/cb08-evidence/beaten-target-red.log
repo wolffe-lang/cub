@@ -1,0 +1,6 @@
+cb08 beaten-target-red start 2026-10-27T16:00:40Z
+cb08 beaten-target-red waiting for cores 8-11 2026-10-27T16:00:40Z
+cb08 beaten-target-red acquired cores 4-7 2026-10-27T16:00:40Z
+test src/diagonalwalk_test.lu::test_cb08_walker_hands_back_a_beaten_stop_target_without_more_keys ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 418 filtered out
+beaten-target-red EXIT 1 2026-10-27T16:00:48Z

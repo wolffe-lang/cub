@@ -1,0 +1,21 @@
+cb08 beaten-target-fixed start 2026-10-27T16:02:43Z
+cb08 beaten-target-fixed waiting for cores 8-11 2026-10-27T16:02:43Z
+cb08 beaten-target-fixed acquired cores 4-7 2026-10-27T16:02:43Z
+test src/diagonalwalk_test.lu::test_cb08_walker_hands_back_a_beaten_stop_target_without_more_keys ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 418 filtered out
+build: target/native/cub
+build: target/release/cub
+t 1363 n 786 boss phase 3 attack 1 health 8 gap 2 cub health 74 stamina 17 action 4 flasks 3 | boss h 64 v 0 at -21,156 front 1 hit 1 in 1 | cub at -8,157 v 0 face 2 blocked 358 ex 0
+trace: attempt 1 ended at tick 1388 after 811 fight ticks: boss beaten, cub standing health 74
+trace: elk seed 39 at 80x24: attempts 1 ticks 811 hits 1 0 0 unparryable 0 breaches 0
+walker failed seed 2 area 1 at 23,100 goal 20,101 tick 784 health 64 stamina 23 action 4 goal_blocked true
+walker foe 0 kind 4 health 40 phase 3 gap 2 bearing 128 aim 192 combo 0
+walker failed seed 2 area 1 at 23,100 goal 20,101 tick 784 health 64 stamina 23 action 4 goal_blocked true
+walker foe 0 kind 4 health 40 phase 3 gap 2 bearing 128 aim 192 combo 0
+walker failed seed 25 area 3 at -30,155 goal -21,152 tick 1088 health 76 stamina 3 action 4 goal_blocked true
+walker failed seed 25 area 3 at -30,155 goal -21,152 tick 1088 health 76 stamina 3 action 4 goal_blocked true
+fairness boar attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 78 46 30 unparryable_hits 76 tells 12 24 12 parry_window 9 arena_breaches 0
+fairness lynx attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 66 31 44 unparryable_hits 44 tells 10 12 15 parry_window 9 arena_breaches 0
+fairness elk attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 16 4 4 unparryable_hits 4 tells 16 24 18 parry_window 9 arena_breaches 0
+fairness alpha attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 212 0 0 unparryable_hits 0 tells 9 12 20 parry_window 9 arena_breaches 0
+beaten-target-fixed EXIT 0 2026-10-27T16:03:27Z

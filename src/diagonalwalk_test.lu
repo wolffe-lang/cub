@@ -72,3 +72,16 @@ fn test_cb08_walker_locks_the_foe_its_jaw_stance_was_planned_for() {
         "bite the planned west foe, not the nearer north-west foe",
     )
 }
+
+fn test_cb08_walker_hands_back_a_beaten_stop_target_without_more_keys() {
+    var s = hitcensus.fixture(sim.ELK)
+    s.action = sim.IDLE
+    s.foes[0].health = 0
+    let tick = s.tick
+    var r = replay.new(1, 1, 200, 60)
+    assert(
+        walker.walk_stop(mut s, mut r, s.x + sim.FP, s.y, 0, false),
+        "a beaten target completes the hand-off",
+    )
+    assert(s.tick == tick && r.events.len == 0, "do not keep walking at a corpse after winning")
+}

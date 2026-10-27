@@ -270,6 +270,12 @@ pub fn walk_stop(
     walk_stop_as(mut s, mut r, tx, ty, stop_foe, passive, false)
 }
 
+// A target beaten during a close-approach replan is a completed hand-off,
+// not another route goal. No movement or combat input follows its death.
+fn stop_beaten(s: sim.Sim, stop_foe: int) -> bool {
+    stop_foe >= 0 && stop_foe < s.foes.len && s.foes[stop_foe].health <= 0
+}
+
 fn walk_stop_as(
     mut s: sim.Sim,
     mut r: replay.Replay,
@@ -279,6 +285,7 @@ fn walk_stop_as(
     passive: bool,
     narrate: bool,
 ) -> bool {
+    if stop_beaten(s, stop_foe) { return true }
     if !clear_arrival(mut s, mut r, tx, ty) { return false }
     var replans = 0
     while replans < 20 {
@@ -390,6 +397,7 @@ fn walk_once_as(
     passive: bool,
     narrate: bool,
 ) -> int {
+    if stop_beaten(s, stop_foe) { return 1 }
     let area = s.area
     let w = forest.bound(s.field, area)
     let width = w * 2 + 1
@@ -444,6 +452,7 @@ fn walk_once_as(
                 drive_as(mut s, mut r, x, y, passive)
             }
             if narrate { narrate_tick(s) }
+            if stop_beaten(s, stop_foe) { return 1 }
             if stop_foe >= 0 &&
                 (s.foes[stop_foe].phase == sim.CROUCH || s.foes[stop_foe].phase == sim.FEINT) {
                 return 1
