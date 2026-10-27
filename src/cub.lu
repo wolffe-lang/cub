@@ -835,7 +835,7 @@ fn run_live(o: Options, args: List[str]) -> int {
                             ended = if k == controls.KEY_QUIT {
                                 "the quit key"
                             } else {
-                                "Ctrl-C as a byte"
+                                "Ctrl-C"
                             }
                             quit = true
                         }
@@ -847,7 +847,7 @@ fn run_live(o: Options, args: List[str]) -> int {
                         ended = if k == controls.KEY_QUIT {
                             "the quit key"
                         } else {
-                            "Ctrl-C as a byte"
+                            "Ctrl-C"
                         }
                         quit = true
                         replay.push_key(mut rec, s.tick, k)

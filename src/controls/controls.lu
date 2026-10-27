@@ -68,7 +68,7 @@ pub const KEY_REST: int = 15
 /// `q` or Esc: quit.
 pub const KEY_QUIT: int = 16
 
-/// Ctrl-C as a byte: interrupt (the signal path is the terminal's).
+/// Control-C: interrupt, from a legacy byte or an enhanced key/modifier.
 pub const KEY_INTERRUPT: int = 17
 
 /// The number of keys (every id below this).
@@ -319,6 +319,12 @@ pub fn events(raw: List[input.Event], mut keys: List[int]) {
             if e.key >= input.KEY_UP && e.key <= input.KEY_RIGHT {
                 (mut keys).push(KEY_ARROW_RELEASE + e.key - input.KEY_UP)
             }
+            continue
+        }
+        // Enhanced input carries physical c plus Control, not byte03.
+        // Interrupt wins over c's roll binding, but never on key release.
+        if e.key == input.char_key(99) && e.mods & input.MOD_CTRL != 0 {
+            (mut keys).push(KEY_INTERRUPT)
             continue
         }
         if e.key >= input.KEY_LEFT_SHIFT && e.key <= input.KEY_ALT { continue }
