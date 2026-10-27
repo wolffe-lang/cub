@@ -3295,13 +3295,26 @@ pub fn draw_combo(s: sim.Sim, t: int, mut g: grid.Grid) {
 pub fn draw_combo_shaken(s: sim.Sim, t: int, mut g: grid.Grid, shake: int) {
     let pose = if pose_of(s) == 4 then 0 else pose_of(s)
     let facing = s.body_facing
+    let q = facing / 2
     let dx = s.x - s.action_x
     let dy = s.y - s.action_y
     let ar = sim.screen_row(s)
     let ac = sim.screen_col(s)
     if t == tier.RICH {
         let body = if s.end {
-            silhouette.wolf(pose, sim.legs(s))
+            if facing % 2 == 0 {
+                silhouette.wolf(pose, sim.legs(s))
+            } else {
+                silhouette.wolf_diagonal(pose, sim.legs(s))
+            }
+        } else if facing % 2 != 0 {
+            silhouette.cub_diagonal(
+                pose,
+                sim.legs(s),
+                silhouette.wag(sim.tail_phase(s), pose == 1),
+                sim.hurt_band(s),
+                sim.breath(s),
+            )
         } else {
             silhouette.cub_posed(
                 pose,
@@ -3313,7 +3326,7 @@ pub fn draw_combo_shaken(s: sim.Sim, t: int, mut g: grid.Grid, shake: int) {
         }
         let style = fur(t, band(s.stamina, sim.stamina_max(s.wind)))
         if shake == 0 {
-            motionart.shifted(mut g, ar, ac, body, facing, dx, dy, style)
+            motionart.shifted(mut g, ar, ac, body, q, dx, dy, style)
         } else {
             let (dr, dc) = sim.shake_cells_of(s, shake)
             motionart.shifted_shaken(
@@ -3321,7 +3334,7 @@ pub fn draw_combo_shaken(s: sim.Sim, t: int, mut g: grid.Grid, shake: int) {
                 ar,
                 ac,
                 body,
-                facing,
+                q,
                 dx,
                 dy,
                 dc * sim.FP,
@@ -3365,10 +3378,10 @@ pub fn draw_combo_shaken(s: sim.Sim, t: int, mut g: grid.Grid, shake: int) {
             let (sr, sc) = sim.shake_cells_of(s, shake)
             let row = ar +
                 dr +
-                (if facing == 0 then -1 else if facing == 2 then 2 else if sr < 0 then -1 else 2) +
-                (if facing % 2 == 0 then sr else 0)
-            let col = ac + dc + (if facing % 2 == 0 then -1 else if facing == 1 then 3 else -2) + sc
-            draw.put_text(mut g, row, col, if facing % 2 == 0 then ".^^." else "^", ink(t, true))
+                (if q == 0 then -1 else if q == 2 then 2 else if sr < 0 then -1 else 2) +
+                (if q % 2 == 0 then sr else 0)
+            let col = ac + dc + (if q % 2 == 0 then -1 else if q == 1 then 3 else -2) + sc
+            draw.put_text(mut g, row, col, if q % 2 == 0 then ".^^." else "^", ink(t, true))
         }
     }
 }

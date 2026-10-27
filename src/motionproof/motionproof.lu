@@ -31,7 +31,7 @@ fn alone(seed: int, field: int, area: int, x: int, y: int, h: int) -> sim.Sim {
     s.y = y * sim.FP + sim.FP / 2
     s.heading = h
     s.heading_target = h
-    s.body_facing = sim.quarter(h)
+    s.body_facing = sim.eighth(h)
     // Isolate movement from portals/pickups; their independent gates remain.
     s.edge_ready = false
     s.gate_open = true

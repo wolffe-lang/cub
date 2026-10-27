@@ -47,6 +47,8 @@ pub fn fixture(kind: int) -> sim.Sim {
 pub fn bite(mut s: sim.Sim, x: int, y: int, aim: int) -> bool {
     s.x = x * sim.FP
     s.y = y * sim.FP
+    s.action_x = s.x
+    s.action_y = s.y
     s.heading = aim * 32
     s.attack_heading = aim * 32
     s.body_facing = sim.wanted_facing(s)
@@ -79,6 +81,8 @@ pub fn census() -> int {
                             let y = sim.floor_div(s.foes[0].y, sim.FP) + dy
                             s.x = x * sim.FP
                             s.y = y * sim.FP
+                            s.action_x = s.x
+                            s.action_y = s.y
                             s.attack_heading = aim * 32
                             s.body_facing = sim.wanted_facing(s)
                             let gap = sim.body_gap(s, 0)
