@@ -1,0 +1,53 @@
+cb09 Linux completion and byte-preservation receipt
+
+Complete correctness + performance +11 census comparisons:
+source8c11781228603fa5f3bf67211e18320ffb7517d4
+CB09_LINUX_FINAL_2_EXIT 0 at2026-10-27T22:34:46Z
+Raw receipt linux-final-2.log; pinned cb08 container, flock cores4-7.
+39 Python tests;422 checked tests,0 failed/rejected/unsupported,0 SKIP.
+Both builds/selftests, all goldens/pty rows, score-check and both gameplay
+stages green (0 gameplay skips).
+
+Resident bytes/actual tick, warmup60/end600, budget4096:
+Linux crash:1,598,552.786 before ->388.20889748549325 after.
+Linux fresh seed7:71,929.563 before ->316.2934362934363 after.
+After crash: tick87 RSS6340608 ->tick604 RSS6541312 (517 ticks).
+After fresh: tick88 RSS4714496 ->tick606 RSS4878336 (518 ticks).
+
+All11 original1d0680a1 vs fixed census stdout pairs match byte-for-byte.
+Downloaded pairs in census/ independently compared again on the Mac.
+foe-census 2cadfd4607438316dade157f7019a2babf6c6fea9fa54c373812f4beb9a2892a
+den-census 28aada757ccfbc30a79aa6c2596e0d7db1b5c90767dcdd19874702df37fd34ea
+boss-census 4f4604ddff0c78a4882fcaa28674fc977e96d5ef8db89cf44c6983c8b85f06ea
+crossing-census c46a453fec05e4bcae21ae4dd94e3ebd9f1bd54928d33d71cc66835ee82e895d
+hitbox-audit ce926bf50a51aaf1da8ae130a71d07a46c21c38863bec094213124327c60149d
+den-spacing bd9ade43e4d876fbae5a70ed2ad41cbac121c55f8cb9ac908a175738487ef98f
+bends-audit 59f36b893cf52d7369fae69df8d24626ffe5135d6424d515ba00834ef7712df7
+spurs-audit 3849b9db417484f1bc1847080a5626ec2dbd569d85b942371f0ba0541f62cad9
+encounter-census aa5098e87d64e684aa9fad422638c20a8b2f93606b46374fe54bcbcdedbf1907
+strike-census 9b1a6e7e22dadad3c3b482b9f6a5b58a464a09d59d090bd53d4cdf54a6199299
+hud-census 151d60ab57a3fb9b59c676fb0597764bdca0e426d1dd9bc43f3294607ec8b0ee
+Manual hand spot-check: hitbox before/after both18 lines,16 distinct aim/gap
+stands, all landed=true and all coordinates equal.
+
+The inherited check-perf wrapper defaults to slack3. A separate strict run,
+LAIR_PERF_SLACK=1 inside the same container/block, returned direct exit0 at
+2026-10-27T22:41:09Z. perf-strict-linux.log records285/275 microseconds at
+80x24 rich/plain and2022/2032 at200x60, below1000/4000; idle301/10seconds;
+latency median32.6..32.7ms,p90<=33.8ms, below40/70.
+
+Git fixture byte comparison also exited0:
+git diff --exit-code 6a1db765 -- tests/goldens tests/cases tests/ghosts score src/demo
+No regeneration, removal, replay, ghost or PCM fixture delta.
+
+Mac final2 returned3 at the proper8-GiB gate (7GB available), not a game red;
+its full receipt is mac-floor-refused.log. Mac final3 pid62148 waits with
+one printed line/minute indefinitely (no timeoutunder6h), retaining all
+attempt output: /Users/mfwolffe/lanes/cb09/mac-final-3.log and
+/Users/mfwolffe/lanes/cb09/mac-final-3.exit. Soak43896 untouched.
+
+PR body prepared at /Users/mfwolffe/lanes/cb09/pr-body.txt, five required
+sections, Footprint: cross-cutting, confirmed Linux table and explicit Mac/
+soak pending fields. Do not open until complete Mac gate and two-hour soak
+finish. README re-read against changed commands/tests/tiers and current.
+No main PR or final audit yet; neither CI nor Mac resources are bypassed.

@@ -1,0 +1,20 @@
+build: target/release/cub
+perf: host Linux x86_64, slack x1, bench args: (none)
+bench 80x24 rich frames 300 avg_us 285 p99_us 337 max_us 373
+perf: 80x24 rich avg 285 us < 1000 us ok
+bench 80x24 plain frames 300 avg_us 275 p99_us 317 max_us 348
+perf: 80x24 plain avg 275 us < 1000 us ok
+bench 200x60 rich frames 300 avg_us 2022 p99_us 2149 max_us 2329
+perf: 200x60 rich avg 2022 us < 4000 us ok
+bench 200x60 plain frames 300 avg_us 2032 p99_us 2150 max_us 2306
+perf: 200x60 plain avg 2032 us < 4000 us ok
+perf-idle: idle 301 voluntary context switches in 10 s at a standstill (bar 240..360) ok
+perf-idle: latency samples ms (key write to the carrying frame's trace line): 34 14 14 13 33 33 33 33 33 33 33 33 34 13 14 13 33 34 13 14
+perf-idle: latency inner ms (the key's read to the frame's write): 33.6 13.6 13.4 12.4 32.5 32.4 32.4 32.4 32.4 32.4 32.4 32.4 33.4 12.4 13.4 12.4 32.4 33.4 12.4 13.4
+perf-idle: latency run's closing line: cub: ended by the quit key; 221 ticks, 221 frames, 0 dropped, 242 waits, 20 cells, blocked 0; heading 192 at -21,2; render avg 274 us max 342 us; seed 7 tier rich 80x24; sound off backend linux answers 0 prepared 0 us starts 0 stops 0 cue 
+perf-idle: latency median 32.7 ms p90 33.8 ms max 33.9 ms over 20 keys (bars median 40, p90 70 ms) ok
+perf-idle: idle 301 voluntary context switches in 10 s at a standstill (bar 240..360) ok
+perf-idle: latency samples ms (key write to the carrying frame's trace line): 14 14 13 34 34 14 33 34 33 34 33 34 13 34 33 34 33 34 33 33
+perf-idle: latency inner ms (the key's read to the frame's write): 13.6 13.6 12.4 33.4 33.6 13.5 32.4 33.4 32.4 33.4 32.4 33.4 12.5 33.4 32.4 33.4 32.4 33.4 32.5 32.4
+perf-idle: latency run's closing line: cub: ended by the quit key; 221 ticks, 221 frames, 0 dropped, 242 waits, 20 cells, blocked 0; heading 192 at -21,2; render avg 273 us max 309 us; seed 7 tier rich 80x24; sound off backend linux answers 0 prepared 0 us starts 0 stops 0 cue 
+perf-idle: latency median 32.6 ms p90 33.6 ms max 33.7 ms over 20 keys (bars median 40, p90 70 ms) ok
