@@ -7,6 +7,7 @@
 //! the plain cub is a bold `C` with a facing mark beside it. The ground is
 //! the terrain's kind at each world cell with the seed's texture.
 
+use digits
 use draw
 use forest
 use ghost
@@ -283,6 +284,20 @@ fn plain_cub(facing: int, pose: int, tail: int, rising: bool, hurt: int) -> List
     let low = pose == 2 || pose == 3 || hurt >= 1
     // The tail's side seen from above, the cub's own right positive.
     let right = hurt < 2 && (tail > 0 || tail == 0 && rising)
+    // The snap (pose 5, cb07): the jaws open wide at the head, the tail
+    // straight out behind, in the same footprint.
+    if pose == 5 {
+        if facing == 0 {
+            for r in ["\\##/", "####", "####", ".||."] { (mut rows).push(r) }
+        } else if facing == 2 {
+            for r in [".||.", "####", "####", "/##\\"] { (mut rows).push(r) }
+        } else if facing == 1 {
+            for r in ["--####=/", "--####=\\"] { (mut rows).push(r) }
+        } else {
+            for r in ["/=####--", "\\=####--"] { (mut rows).push(r) }
+        }
+        return rows
+    }
     if facing == 0 {
         (mut rows).push(if low then ".__." else ".^^.")
         (mut rows).push("####")
@@ -353,7 +368,8 @@ pub fn render_bare(s: sim.Sim, t: int, mut g: grid.Grid) {
 }
 
 /// The pose the frame draws the cub in: 0 standing, 1 walking, 2 sneaking
-/// (and an attack's windup), 3 panting, 4 fallen (the ghosts record it).
+/// (and an attack's windup), 3 panting, 4 fallen (the ghosts record it),
+/// 5 the snap (a strike at its peak, cb07).
 pub fn pose_of(s: sim.Sim) -> int {
     if s.action == sim.FALL {
         4
@@ -363,6 +379,8 @@ pub fn pose_of(s: sim.Sim) -> int {
         s.action == sim.BITE && s.tick - s.started < 3 ||
         s.action == sim.LUNGE && s.tick - s.started < 9 {
         2
+    } else if sim.strike_peak(s) {
+        5
     } else if s.speed > 0 {
         1
     } else {
@@ -467,10 +485,8 @@ pub fn draw_actor(s: sim.Sim, t: int, mut g: grid.Grid) {
             sim.hurt_band(s),
             sim.breath(s),
         )
-        silhouette.draw_at(mut g, r, c, silhouette.strip(body, false), facing, style)
-        let dr = if facing % 2 == 0 then 0 else shake
-        let dc = if facing % 2 == 0 then shake else 0
-        silhouette.draw_at(mut g, r + dr, c + dc, silhouette.strip(body, true), facing, style)
+        let (dr, dc) = sim.shake_cells(s)
+        motionart.shifted_shaken(mut g, r, c, body, facing, 0, 0, dc * sim.FP, dr * sim.FP, style)
     } else {
         draw_pose(
             mut g,
@@ -488,11 +504,18 @@ pub fn draw_actor(s: sim.Sim, t: int, mut g: grid.Grid) {
         )
         if shake != 0 {
             // Plain: the ears row shifts across the aim.
-            let dr = if facing == 0 then -1 else if facing == 2 then 2 else shake
-            let dc = if facing % 2 == 0 then shake - 1 else (if facing == 1 then 3 else -2)
+            // The head a cell out of the body on each swing: north or
+            // south the ears row slides across; east or west the ear mark
+            // goes a row above or below the two-row body.
+            let (sr, sc) = sim.shake_cells(s)
+            let dr = (
+                if facing == 0 then -1 else if facing == 2 then 2 else if sr < 0 then -1 else 2
+            )
+            let dc = (if facing % 2 == 0 then -1 else if facing == 1 then 3 else -2) + sc
+            let dr2 = dr + (if facing % 2 == 0 then sr else 0)
             draw.put_text(
                 mut g,
-                r + dr,
+                r + dr2,
                 c + dc,
                 if facing % 2 == 0 then ".^^." else "^",
                 ink(t, true),
@@ -1242,21 +1265,83 @@ pub fn bar_cells(maximum: int) -> int {
     if cells > 30 then 30 else cells
 }
 
-/// Whether the HUD claims screen cell `(row, col)`: a cell it may paint.
-/// The HUD census holds every painted cell to this (cb07). Today the
-/// claim is cb04b's filled box and its two full-width rows.
-pub fn hud_claims(s: sim.Sim, t: int, row: int, col: int) -> bool {
-    row >= 0 && row < 7 && col >= 0 && col < 40 ||
-        (row == 5 || row == 6) && col >= 0 && col < s.cols
+/// A cell the HUD paints (cb07): where, what, and which of the three
+/// things it belongs to. The HUD is health, stamina and scent and nothing
+/// else: two bars with one-word labels flush on the map at the top left,
+/// the water charges in a line under them, and the scent as one big
+/// number in the bottom right corner. Every cell keeps the map cell's
+/// background beneath it; nothing is filled, nothing is railed.
+pub struct HudCell {
+    row: int,
+    col: int,
+    kind: int,
+    cp: int,
+    fg: int,
+    attrs: int,
 }
 
-fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
+/// A bar cell: filled, the grey rally stretch, or the bar's empty track.
+pub const HUD_BAR: int = 0
+
+/// A label cell: `health`, `stamina`, `scent`, and the water line.
+pub const HUD_LABEL: int = 1
+
+/// A digit cell of the scent number.
+pub const HUD_DIGIT: int = 2
+
+/// The row the bars' labels and cells start on, and the bar cells'
+/// first column (cb04b's columns, the bracket's column left empty).
+pub const HUD_BAR_COL: int = 9
+
+/// The water line's row: straight under the stamina bar.
+pub const HUD_WATER_ROW: int = 5
+
+fn text_cells(mut cells: List[HudCell], row: int, col: int, text: str, fg: int, attrs: int) {
+    var j = 0
+    for b in text.bytes() {
+        if b as int != 32 {
+            (mut cells).push(HudCell {
+                row: row,
+                col: col + j,
+                kind: HUD_LABEL,
+                cp: b as int,
+                fg: fg,
+                attrs: attrs,
+            })
+        }
+        j += 1
+    }
+}
+
+/// The water line's words (cb04a): the charges, or where to find them.
+pub fn water_text(s: sim.Sim) -> str {
+    if s.flask_max == 0 {
+        "Water 0/0 - find a spring"
+    } else {
+        "Water {s.flasks}/{s.flask_max}  w drink"
+    }
+}
+
+/// The column the scent number's leftmost cell sits in: right-aligned to
+/// one cell in from the frame's right edge, growing leftward with the
+/// digits.
+pub fn scent_col(s: sim.Sim, t: int) -> int {
+    s.cols -
+        1 -
+        (if t == tier.RICH then digits.rich_width(s.scent) else digits.plain_width(s.scent))
+}
+
+/// The row the scent number's top cell sits in: the number ends on the
+/// frame's last row.
+pub fn scent_row(s: sim.Sim, t: int) -> int {
+    s.rows - (if t == tier.RICH then digits.RICH_ROWS else digits.PLAIN_ROWS)
+}
+
+/// The HUD's cells for this frame, in paint order.
+pub fn hud_plan(s: sim.Sim, t: int) -> List[HudCell] {
     let rich = t == tier.RICH
-    let outline = if rich then 250 else 7
-    let background = if rich then 235 else 0
-    let neutral = grid.cell(32, outline, background, 0)
-    draw.fill(mut g, 0, 0, 7, 40, neutral)
-    draw.fill(mut g, 5, 0, 2, s.cols, neutral)
+    var cells = List[HudCell]()
+    let label = if rich then 250 else 7
     var bar = 0
     while bar < 2 {
         let row = 1 + 2 * bar
@@ -1264,58 +1349,84 @@ fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
         let maximum = if bar == 0 then sim.health_max(s.heart) else sim.stamina_max(s.wind)
         let width = bar_cells(maximum)
         let colour = if rich then (if bar == 0 then 203 else 84) else (if bar == 0 then 12 else 10)
-        draw.put_text(mut g, row, 1, if bar == 0 then "health" else "stamina", neutral)
-        var i = -1
-        while i <= width {
-            grid.put(
-                mut g,
-                row - 1,
-                9 + i,
-                grid.cell(if rich then 9472 else 45, outline, background, 0),
-            )
-            grid.put(
-                mut g,
-                row + 1,
-                9 + i,
-                grid.cell(if rich then 9472 else 45, outline, background, 0),
-            )
-            i += 1
-        }
-        grid.put(mut g, row, 8, grid.cell(if rich then 9474 else 91, outline, background, 0))
-        grid.put(
-            mut g,
-            row,
-            9 + width,
-            grid.cell(if rich then 9474 else 93, outline, background, 0),
-        )
-        i = 0
+        text_cells(mut cells, row, 1, if bar == 0 then "health" else "stamina", label, 0)
+        var i = 0
         while i < width {
             let filled = value > i * 10
             let grey = bar == 0 && !filled && value + sim.rally_available(s) > i * 10
+            // Filled cells solid in the bar's colour, the rally stretch a
+            // grey stipple, the rest of the bar a dim track (so the bar's
+            // length reads without a rail).
             let cp = if filled {
                 (if rich then 9608 else 61)
             } else if grey {
                 (if rich then 9617 else 46)
             } else {
-                32
+                (if rich then 9472 else 45)
             }
-            grid.put(
-                mut g,
-                row,
-                9 + i,
-                grid.cell(cp, if grey then (if rich then 249 else 7) else colour, background, 0),
-            )
+            let fg = if filled {
+                colour
+            } else if grey {
+                (if rich then 249 else 7)
+            } else {
+                (if rich then 240 else 8)
+            }
+            (mut cells).push(HudCell {
+                row: row,
+                col: HUD_BAR_COL + i,
+                kind: HUD_BAR,
+                cp: cp,
+                fg: fg,
+                attrs: 0,
+            })
             i += 1
         }
         bar += 1
     }
-    draw.put_text(
-        mut g,
-        5,
-        1,
-        "HP {s.health}/{sim.health_max(s.heart)}  stamina {s.stamina}/{sim.stamina_max(s.wind)}  scent {s.scent}  rally {sim.rally_available(s)}",
-        neutral,
-    )
+    text_cells(mut cells, HUD_WATER_ROW, 1, water_text(s), if rich then 117 else 14, 0)
+    // Scent: the big number in the bottom right corner, its small label
+    // on the number's middle row to its left.
+    let top = scent_row(s, t)
+    let left = scent_col(s, t)
+    let scent = if rich then 221 else 11
+    let dots = if rich then digits.rich_cells(s.scent) else digits.plain_cells(s.scent)
+    for d in dots {
+        (mut cells).push(HudCell {
+            row: top + d.row,
+            col: left + d.col,
+            kind: HUD_DIGIT,
+            cp: d.cp,
+            fg: scent,
+            attrs: if rich then 0 else grid.ATTR_BOLD,
+        })
+    }
+    text_cells(mut cells, top + (if rich then 1 else 2), left - 6, "scent", label, 0)
+    cells
+}
+
+/// Whether the HUD claims screen cell `(row, col)`: a cell of its plan.
+/// The HUD census holds every painted cell to this (cb07).
+pub fn hud_claims(s: sim.Sim, t: int, row: int, col: int) -> bool {
+    for c in hud_plan(s, t) {
+        if c.row == row && c.col == col { return true }
+    }
+    false
+}
+
+/// The HUD, flush on the map: each planned cell painted with the map
+/// cell's own background under it. `draw_water` keeps its place in the
+/// draw order (cb04b): the water line is painted last.
+fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
+    for c in hud_plan(s, t) {
+        if c.row >= 0 && c.row < g.rows && c.col >= 0 && c.col < g.cols {
+            grid.put(
+                mut g,
+                c.row,
+                c.col,
+                grid.cell(c.cp, c.fg, grid.at(g, c.row, c.col).bg, c.attrs),
+            )
+        }
+    }
     draw_water(s, t, mut g)
 }
 
@@ -2534,19 +2645,16 @@ fn den_menu(s: sim.Sim, t: int, mut g: grid.Grid) {
     restscene.menu(s, t, mut g)
 }
 
-/// Healing HUD seam: row3, column24; clear of the bars and boss row1.
+/// The water line (cb04a): under the bars at `HUD_WATER_ROW`, painted
+/// over the map with the map's background, the last thing the HUD paints
+/// (cb04b's ordering, re-proven with the fills gone: nothing clears it).
 pub fn draw_water(s: sim.Sim, t: int, mut g: grid.Grid) {
-    let text = if s.flask_max == 0 {
-        "Water 0/0 - find a spring"
-    } else {
-        "Water {s.flasks}/{s.flask_max}  w drink"
-    }
-    draw.put_text(
+    put_over(
         mut g,
-        6,
+        HUD_WATER_ROW,
         1,
-        text,
-        grid.cell(32, if t == tier.PLAIN then 14 else 117, if t == tier.PLAIN then 0 else 235, 0),
+        water_text(s),
+        grid.cell(32, if t == tier.PLAIN then 14 else 117, grid.COLOR_DEFAULT, 0),
     )
 }
 
@@ -2569,6 +2677,12 @@ pub fn draw_thorn_boundary(s: sim.Sim, t: int, mut g: grid.Grid) {
 /// Draw only the committed combo body; the frame and drawn-offset witnesses
 /// use this same rendering path, never a separate mock silhouette.
 pub fn draw_combo(s: sim.Sim, t: int, mut g: grid.Grid) {
+    draw_combo_shaken(s, t, mut g, if s.end then 0 else sim.head_shake(s))
+}
+
+/// `draw_combo` with the head's swing given (the strike census draws a
+/// frame with and without it to see the head leave the body).
+pub fn draw_combo_shaken(s: sim.Sim, t: int, mut g: grid.Grid, shake: int) {
     let pose = if pose_of(s) == 4 then 0 else pose_of(s)
     let facing = s.body_facing
     let dx = s.x - s.action_x
@@ -2587,22 +2701,21 @@ pub fn draw_combo(s: sim.Sim, t: int, mut g: grid.Grid) {
                 sim.breath(s),
             )
         }
-        let shake = if s.end then 0 else sim.head_shake(s)
         let style = fur(t, band(s.stamina, sim.stamina_max(s.wind)))
         if shake == 0 {
             motionart.shifted(mut g, ar, ac, body, facing, dx, dy, style)
         } else {
-            let dr = if facing % 2 == 0 then 0 else shake
-            let dc = if facing % 2 == 0 then shake else 0
-            motionart.shifted(mut g, ar, ac, silhouette.strip(body, false), facing, dx, dy, style)
-            motionart.shifted(
+            let (dr, dc) = sim.shake_cells_of(s, shake)
+            motionart.shifted_shaken(
                 mut g,
                 ar,
                 ac,
-                silhouette.strip(body, true),
+                body,
                 facing,
-                dx + dc * sim.FP,
-                dy + dr * sim.FP,
+                dx,
+                dy,
+                dc * sim.FP,
+                dr * sim.FP,
                 style,
             )
         }
@@ -2638,12 +2751,13 @@ pub fn draw_combo(s: sim.Sim, t: int, mut g: grid.Grid) {
             sim.hurt_band(s),
             sim.breath(s),
         )
-        let shake = sim.head_shake(s)
         if shake != 0 {
-            let row = ar + dr + (if facing == 0 then -1 else if facing == 2 then 2 else shake)
-            let col = ac +
-                dc +
-                (if facing % 2 == 0 then shake - 1 else if facing == 1 then 3 else -2)
+            let (sr, sc) = sim.shake_cells_of(s, shake)
+            let row = ar +
+                dr +
+                (if facing == 0 then -1 else if facing == 2 then 2 else if sr < 0 then -1 else 2) +
+                (if facing % 2 == 0 then sr else 0)
+            let col = ac + dc + (if facing % 2 == 0 then -1 else if facing == 1 then 3 else -2) + sc
             draw.put_text(mut g, row, col, if facing % 2 == 0 then ".^^." else "^", ink(t, true))
         }
     }
