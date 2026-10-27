@@ -1,0 +1,34 @@
+{
+  "source_head": "c7bd48776ac7b0a66755c0f263b85d87e63bddcd",
+  "hosts": {
+    "linux": {
+      "unit_summaries": [
+        "367 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out",
+        "37 passed; 0 failed; 0 rejected; 0 unsupported; 330 filtered out"
+      ],
+      "pty_rows": 98,
+      "full_gameplay_passes": 2,
+      "latency": [
+        "perf-idle: latency median 13.6 ms p90 33.8 ms max 33.8 ms over 20 keys (bars median 40, p90 70 ms) ok",
+        "perf-idle: latency median 13.6 ms p90 33.8 ms max 33.8 ms over 20 keys (bars median 40, p90 70 ms) ok"
+      ],
+      "final_line": "LINUX_CONTACT_FINAL_EXIT 0 2026-10-27T12:29:41Z"
+    },
+    "mac": {
+      "unit_summaries": [
+        "367 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out",
+        "37 passed; 0 failed; 0 rejected; 0 unsupported; 330 filtered out"
+      ],
+      "pty_rows": 98,
+      "full_gameplay_passes": 2,
+      "latency": [
+        "perf-idle: latency median 33.3 ms p90 34.0 ms max 34.4 ms over 20 keys (bars median 40, p90 70 ms) ok",
+        "perf-idle: latency median 32.3 ms p90 34.4 ms max 34.6 ms over 20 keys (bars median 40, p90 70 ms) ok"
+      ],
+      "final_line": "MAC_CONTACT_FINAL_EXIT 0 2026-10-27T12:22:32Z"
+    }
+  },
+  "motion_sha256": "4cc33353717b8915a0d6c50d35681df9c95059b4da48c71bc602ae2d83e0facb",
+  "boss_census_sha256": "321eacf0c9ba42e66c2bdfa246fecf03a509e7cf19ed79e021ef9044ee9fb171",
+  "mac_binary_sha256": "cddf36e40127026c123a25e1ca71a4ee66496ff5756604a483662f4a32612f55"
+}

@@ -1,0 +1,6 @@
+{
+  "files": 5463,
+  "directories": 394,
+  "sha256": "dca10a371a2eeb8b1e66ba22e237ecde999993af099dfd7c9db08f54a49e2921",
+  "coverage": "196 cases x2 tiers, art, and score; frame gate on both backends plus PCM score check"
+}
