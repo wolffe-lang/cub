@@ -169,6 +169,13 @@ found-water/drink/refill and last-den respawn, and performance. `tools/check-lin
 runs correctness inside `.lair/tools/in-container`; `tools/check-perf`
 measures rendering, idle wakes and key-to-frame latency.
 
+Fresh-journey terminal rows use separate save paths. The game gates archive
+the previous engine-row save without deleting captures; before invoking
+`.lair/tools/pty` directly in a reused checkout, run
+`python3 -I tools/prepare-pty`. Separate resume rows load committed saves
+written by the accepted cb05 and merged trunk binaries, so fixture isolation
+does not replace compatibility coverage.
+
 The two compiler backends and both hosts must reproduce identical glyphs,
 styles and integer snapshots. `--world-audit` floods the actual terrain for
 50 seeds at both fields, checking every den, exit and cache, the meander
