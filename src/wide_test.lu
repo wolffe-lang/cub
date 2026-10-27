@@ -277,23 +277,23 @@ fn town_cub(seed: int) -> sim.Sim {
 }
 
 fn test_cb05_an_ashen_never_chases_past_the_towns_edge() {
-    // The cub stands on the road past the last plot; an Ashen at the
-    // town's edge hears it (a trotting cub within hearing) and walks, yet
-    // never steps outside `forest.in_town`.
+    // The cub stands on the road before the town (six rows outside its
+    // edge, `FIRST - EDGE_ROWS`); an Ashen three rows inside hears it (a
+    // trotting cub within ten cells) and walks, yet never steps outside
+    // `forest.in_town`: it would have to, to reach the cub.
     var s = town_cub(5)
     (mut s.foes).reset()
-    let edge = town.top(town.PLOTS - 1) + town.PITCH + town.EDGE_ROWS
-    // Two rows past the edge (the road's last rows), the Ashen six rows
-    // inside: within its ten cells of hearing (R-cb05-5) as the cub paces.
-    s.x = town.lane(5, edge + 2) * sim.FP + sim.FP / 2
-    s.y = (edge + 2) * sim.FP + sim.FP / 2
+    let edge = town.FIRST - town.EDGE_ROWS
+    s.x = town.lane(5, edge - 6) * sim.FP + sim.FP / 2
+    s.y = (edge - 6) * sim.FP + sim.FP / 2
     var f = sim.make_ashen(
-        town.lane(5, edge - 6) * sim.FP + sim.FP / 2,
-        (edge - 6) * sim.FP + sim.FP / 2,
+        town.lane(5, edge + 3) * sim.FP + sim.FP / 2,
+        (edge + 3) * sim.FP + sim.FP / 2,
     )
+    f.heading = 0
     (mut s.foes).push(f)
     var keys = List[int]()
-    (mut keys).push(controls.KEY_DOWN)
+    (mut keys).push(controls.KEY_UP)
     var n = 0
     var walked = false
     while n < 160 {
@@ -309,11 +309,9 @@ fn test_cb05_an_ashen_never_chases_past_the_towns_edge() {
     }
     assert(walked, "the Ashen heard the cub and walked")
     let g = copy s.foes[0]
-    assert(sim.floor_div(g.y, sim.FP) <= edge, "it stopped at the edge, not past it")
+    assert(sim.floor_div(g.y, sim.FP) >= edge, "it stopped at the edge, not past it")
 }
 
-/// An Ashen five cells north facing the cub, the cub trotting into its
-/// reach (a standing cub is never heard): the tick the arms rise, or -1.
 fn ashen_in_reach(mut s: sim.Sim) -> int {
     (mut s.foes).reset()
     var f = sim.make_ashen(s.x, s.y - 5 * sim.FP)
