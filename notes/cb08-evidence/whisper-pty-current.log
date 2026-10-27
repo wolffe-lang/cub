@@ -1,0 +1,6 @@
+cb08 whisper-pty-current start 2026-10-27T10:43:30Z
+cb08 whisper-pty-current acquired cores 4-7 2026-10-27T10:43:30Z
+cb08 whisper-pty-current waiting for cores 8-11 2026-10-27T10:43:30Z
+build: target/release/cub
+pty: cb08-whisper-flank ok (linux x86_64, exit 0, 2406834 bytes captured)
+whisper-pty-current EXIT 0 2026-10-27T10:45:04Z
