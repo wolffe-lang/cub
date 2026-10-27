@@ -863,3 +863,36 @@ def cb04b_pace_replay(binary, ctx):
 
 
 ROWS['cb04b-pace-replay'] = cb04b_pace_replay
+
+
+def cb04b_enhanced_control_c(binary, ctx):
+    """CSI-u Ctrl+C exits; its release does not. No signals are sent by the harness."""
+    problems = []
+    for tier in ('rich', 'plain'):
+        session, dest = cb04b_session(binary, ctx, 'control-c', tier, ticks=90)
+        session.type(cb04b_event('c', kind=3, mods=5), settle=.15)
+        if session.eof:
+            problems.append(tier + ': Control-C release interrupted the game')
+        else:
+            session.type(cb04b_event('c', mods=5), settle=.15)
+        # The tick limit also bounds the deliberately broken implementation;
+        # no q fallback may disguise a failure to interpret Control-C.
+        session.finish(timeout=6)
+        ctx.common_checks(session, 0, problems)
+        if b'ended by Ctrl-C' not in session.err:
+            problems.append(tier + ': enhanced Control-C did not end the session')
+        record = (dest / 'record.pk').read_text().splitlines()
+        if sum(line.endswith(' interrupt') for line in record) != 1:
+            problems.append(tier + ': Control-C press was not recorded once as interrupt')
+        if any(line.endswith(' dodge') for line in record):
+            problems.append(tier + ': enhanced Control-C was recorded as a roll')
+        if session.out.count(b'\x1b[>11u') != 1 or session.out.count(b'\x1b[<u') != 1:
+            problems.append(tier + ': keyboard stack was not pushed and popped exactly once')
+        if session.out.rfind(b'\x1b[<u') > session.out.rfind(b'\x1b[?1049l'):
+            problems.append(tier + ': keyboard pop followed alternate-screen exit')
+        (dest / 'trace.txt').write_bytes(session.err)
+        (dest / 'capture.bin').write_bytes(session.out)
+    return session, problems
+
+
+ROWS['cb04b-enhanced-control-c'] = cb04b_enhanced_control_c
