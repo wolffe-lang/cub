@@ -172,6 +172,8 @@ checks all shadow neighbours; `--foes-audit` checks clipped sprites on every
 route row. Rest panels have empty, pending and refused goldens at both sizes
 and tiers, plus real arrow/confirm/discard pty witnesses.
 `--motion-census` separates area, terrain, heading and gait over50 seeds.
+`--motion-render` times full frames by area; `--fox-roll-census` checks early
+and correctly timed rolls against the fox at body contact.
 `--feel-audit`, `--chase-audit` and `--mouth-audit` census the dens,
 switchbacks, clearings, pursuit and safe arena approaches. `--measure` reports the pace, the wag, the fox's chase, the path colours
 and the body census over the real-key scripts. The sound pty rows start the
