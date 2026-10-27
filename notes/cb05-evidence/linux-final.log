@@ -1,4 +1,4 @@
-final gate at 00278a5a8491e2dc3e059f6cbf600a6209d50e1c 2026-10-27T03:22:45Z
+final gate at c79544f498b438693806f43092ebc8d158a349b6 2026-10-27T04:34:21Z
 check-fmt: canonical
 test src/areas_test.lu::test_cb04_the_graph_has_six_areas_and_nine_edges ... ok
 test src/areas_test.lu::test_cb04_every_area_reaches_its_dens_portals_and_arena ... ok
@@ -282,6 +282,9 @@ test src/wide_test.lu::test_cb05_the_ashen_winds_up_slowly_is_parried_long_and_b
 test src/wide_test.lu::test_cb05_an_ember_burns_a_little_and_a_dug_cache_says_its_line ... ok
 test src/wide_test.lu::test_cb05_the_towns_yards_and_hearth_are_reached_through_their_passages ... ok
 test src/wide_test.lu::test_cb05_the_landmarks_stand_on_open_ground_within_sight_of_their_dens ... ok
+test src/wide_test.lu::test_cb05_two_ashen_pursue_and_a_third_keeps_its_post ... ok
+test src/wide_test.lu::test_cb05_an_ashen_hears_ten_cells_and_two_sneaking ... ok
+test src/wide_test.lu::test_cb05_the_town_is_a_rectangle_across_the_field ... ok
 test src/world/world_test.lu::test_deterministic ... ok
 test src/world/world_test.lu::test_seeds_differ ... ok
 test src/world/world_test.lu::test_noise_bounds_and_continuity ... ok
@@ -294,7 +297,7 @@ test src/world_rules_test.lu::test_cb02_hawk_shadow_does_not_pin_a_dodge ... ok
 test src/world_rules_test.lu::test_cb02_cache_is_guarded_finite_and_persisted ... ok
 test src/world_rules_test.lu::test_cb02_opening_is_timed_skippable_and_pure_on_both_tiers ... ok
 test src/world_rules_test.lu::test_cb02_spawned_bodies_stand_on_passable_ground ... ok
-wolf test: 292 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+wolf test: 295 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
 test: 0 SKIP lines
 build: target/native/cub
 build: target/release/cub
@@ -581,20 +584,20 @@ pty: sound-oss ok (linux x86_64, exit 0, 4577 bytes captured)
 pty: sound-mute ok (linux x86_64, exit 0, 4956 bytes captured)
 pty: mute-key ok (linux x86_64, exit 0, 11936 bytes captured)
 pty: title ok (linux x86_64, exit 0, 5019 bytes captured)
-pty: title-demo ok (linux x86_64, exit 0, 42838 bytes captured)
+pty: title-demo ok (linux x86_64, exit 0, 44234 bytes captured)
 pty: sprint-live ok (linux x86_64, exit 0, 80741 bytes captured)
 pty: sprint-lands ok (linux x86_64, exit 0, 528129 bytes captured)
-pty: level-look-after-c ok (linux x86_64, exit 0, 23906 bytes captured; byte 63, ECHO clear, 80x24/120x40 rich/plain, replay agreement and HUD edge)
+pty: level-look-after-c ok (linux x86_64, exit 0, 21398 bytes captured; byte 63, ECHO clear, 80x24/120x40 rich/plain, replay agreement and HUD edge)
 pty: level-look-recovery ok (linux x86_64, exit 0, 156154 bytes captured)
-pty: den-contact ok (linux x86_64, exit 0, 29169 bytes captured)
+pty: den-contact ok (linux x86_64, exit 0, 25554 bytes captured)
 pty: den-checkpoint ok (linux x86_64, exit 0, 104690 bytes captured)
 pty: rest-allocate ok (linux x86_64, exit 0, 22638 bytes captured)
 pty: doorway-edge ok (linux x86_64, exit 0, 71897 bytes captured)
 pty: doorway-return ok (linux x86_64, exit 0, 104376 bytes captured)
-pty: town-passage ok (linux x86_64, exit 0, 340571 bytes captured)
-pty: ashen-parry ok (linux x86_64, exit 0, 1096843 bytes captured)
-pty: ember-touch ok (linux x86_64, exit 0, 872351 bytes captured)
-pty: yard-cache ok (linux x86_64, exit 0, 803101 bytes captured)
+pty: town-passage ok (linux x86_64, exit 0, 561304 bytes captured)
+pty: ashen-parry ok (linux x86_64, exit 0, 704613 bytes captured)
+pty: ember-touch ok (linux x86_64, exit 0, 810336 bytes captured)
+pty: yard-cache ok (linux x86_64, exit 0, 731178 bytes captured)
 check-linux: green
 goldens: aim-e-rich ok
 goldens: aim-e-plain ok
@@ -929,7 +932,7 @@ gameplay: native aim/combo/heavy plain ok
 gameplay: connected journey, hawk, opening and recovery rich ok
 gameplay: connected journey, hawk, opening and recovery plain ok
 gameplay: death archive replay-verified at tick 548
-gameplay: native body census over 132 scripts: census total ticks 79583 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 2572 contact_unreachable 0 contact_behind 743 foe_overlap 0
+gameplay: native body census over 132 scripts: census total ticks 79435 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 3352 contact_unreachable 0 contact_behind 726 foe_overlap 0
 gameplay: native body audit, 100 worlds: total ticks 245800 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 1416 contact_unreachable 0 contact_behind 342 foe_overlap 0
 gameplay: native boar rich windup/phase2/beaten ok, 19 telegraphs, shortest 12
 gameplay: native lynx rich windup/phase2/beaten ok, 9 telegraphs, shortest 10
@@ -977,7 +980,7 @@ gameplay: release aim/combo/heavy plain ok
 gameplay: connected journey, hawk, opening and recovery rich ok
 gameplay: connected journey, hawk, opening and recovery plain ok
 gameplay: death archive replay-verified at tick 548
-gameplay: release body census over 132 scripts: census total ticks 79583 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 2572 contact_unreachable 0 contact_behind 743 foe_overlap 0
+gameplay: release body census over 132 scripts: census total ticks 79435 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 3352 contact_unreachable 0 contact_behind 726 foe_overlap 0
 gameplay: release body audit, 100 worlds: total ticks 245800 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 1416 contact_unreachable 0 contact_behind 342 foe_overlap 0
 gameplay: release boar rich windup/phase2/beaten ok, 19 telegraphs, shortest 12
 gameplay: release lynx rich windup/phase2/beaten ok, 9 telegraphs, shortest 10
@@ -1003,4 +1006,4 @@ world: 50 seeds, all dens/exits/caches, meanders, density, save roundtrip/cut/bu
 gameplay: every path under /work/target/gameplay readable
 gameplay: green (0 skips)
 cub check-linux: green
-check-linux exit 0 2026-10-27T03:38:12Z
+check-linux exit 0 2026-10-27T04:50:30Z
