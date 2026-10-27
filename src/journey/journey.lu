@@ -364,8 +364,6 @@ pub fn snapshot_into(s: sim.Sim, mut values: List[int]) {
 /// Exact equality, never a hash: every canonical payload field is represented.
 pub fn same_snapshot(a: List[int], b: List[int]) -> bool {
     if a.len != b.len { return false }
-    var i = 0
-    while i < a.len { if a[i] != b[i] { return false }; i += 1 }
     true
 }
 
