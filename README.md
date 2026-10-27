@@ -26,12 +26,19 @@ trunk-and-canopy texture to every edge of the screen, the thicket and
 meadow filling the field they were made for. The cub, the foes and the
 bundle are solid pixel silhouettes, one drawing each, turned to face the
 way they go; the cub trots at 9.375 cells a second, its paws and tail
-keeping time with its stride. Outlined red health and green stamina bars
-grow with the stats at top-left, with posture as a second channel: the
-ears go back, the tail drops and the trot shortens as it is hurt, and its
-breath shows its stamina. Status numbers and water charges sit below the
-bars. A timely counterattack can regain recently lost health, shown in grey.
-An original score plays through the engine's mixer: a part for each
+keeping time with its stride. The HUD is health, stamina and scent and
+nothing else: a red health bar and a green stamina bar flush on the
+forest at top-left, growing with the stats, their one-word labels beside
+them and the water charges in a line under them; the scent the cub carries
+as one big number in the bottom right corner, drawn in an original
+block-glyph digit font (`#` cells on the plain tier). Posture is a second
+channel: the ears go back, the tail drops and the trot shortens as it is
+hurt, and its breath shows its stamina. A timely counterattack can regain
+recently lost health, shown in grey on the bar. The three-Space combo is
+three strikes a person sees: a lunge a cell forward and to the left, a
+lunge forward and to the right, then a leap two cells straight forward
+with the head shaking left and right twice, each strike held for ticks
+and eased back. An original score plays through the engine's mixer: a part for each
 area, a rest at the den, a sting at a fall, the title over the crossing, a sharp crack cue, and
 a theme for each boss (`docs/SCORE.md`). Seven areas: the Shingle, Cinderwick, Bramblehold,
 Larkmeadow, the Teeth, the Shallows and Gravehollow, each with its den and
@@ -152,6 +159,8 @@ target/cub --den-spacing       the route walk between dens over fifty seeds (cb0
                                --bends-audit, --spurs-audit and --gen-bench)
 target/cub --boss-census       fight every boss in fifty seeds at both sizes; a fairness line a boss
 target/cub --fight-trace 7 1   narrate one scripted fight (the alpha, seed 1)
+target/cub --strike-census     every strike at every aim on both tiers, the drawn body against standing
+target/cub --hud-census        every painted HUD cell held to the bars, the labels and the digits
 ```
 
 `cub --help` lists the rest: the headless mode that writes frames for the goldens, `--trace` (one line a
@@ -197,6 +206,9 @@ and tiers, plus real arrow/confirm/discard pty witnesses. The opening has
 every shot at 80×24, 120×40 and 200×60 on both tiers, disjoint sky/ice/water
 styles, a full-length terminal run and a recorded real-key skip per shot.
 `--motion-census` separates area, terrain, heading and gait over50 seeds.
+`--strike-census` measures each strike's drawn body against the standing
+one at every age, aim and tier; `--hud-census` renders every frame with and
+without the HUD and holds each painted cell to the bars, labels and digits.
 `--motion-render` times full frames by area; `--fox-roll-census` checks early
 and correctly timed rolls against the fox at body contact.
 `--feel-audit`, `--chase-audit` and `--mouth-audit` census the dens,
