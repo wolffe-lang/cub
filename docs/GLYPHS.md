@@ -55,7 +55,9 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+2597 | ▗ | QUADRANT LOWER RIGHT | Block Elements | E2 96 97 | den volume and fire |
 | U+2598 | ▘ | QUADRANT UPPER LEFT | Block Elements | E2 96 98 | den volume and fire |
 | U+2599 | ▙ | QUADRANT UPPER LEFT AND LOWER LEFT AND LOWER RIGHT | Block Elements | E2 96 99 | den volume and fire |
+| U+259A | ▚ | QUADRANT UPPER LEFT AND LOWER RIGHT | Block Elements | E2 96 9A | the scent digits (cb07) |
 | U+259B | ▛ | QUADRANT UPPER LEFT AND UPPER RIGHT AND LOWER LEFT | Block Elements | E2 96 9B | den volume and fire |
+| U+259C | ▜ | QUADRANT UPPER LEFT AND UPPER RIGHT AND LOWER RIGHT | Block Elements | E2 96 9C | the scent digits (cb07) |
 | U+259D | ▝ | QUADRANT UPPER RIGHT | Block Elements | E2 96 9D | den volume and fire |
 | U+259E | ▞ | QUADRANT UPPER RIGHT AND LOWER LEFT | Block Elements | E2 96 9E | den volume and fire |
 | U+259F | ▟ | QUADRANT UPPER RIGHT AND LOWER LEFT AND LOWER RIGHT | Block Elements | E2 96 9F | den volume and fire |
