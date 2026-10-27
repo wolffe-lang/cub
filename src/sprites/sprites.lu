@@ -53,9 +53,20 @@ pub const SP_ROCK: int = 7
 /// three ripples), lighter than the deep water (cb04).
 pub const SP_SHALLOWS: int = 8
 
+/// Ash (cb05): the burn's ground and Cinderwick's (variant 0-3: bare,
+/// three flecks).
+pub const SP_ASH: int = 9
+
+/// A ruined wall (cb05): broken stone in two faces (variant 0-1).
+pub const SP_WALL: int = 10
+
+/// An ember that never went out (cb05): a glowing coal (variant 0-1, the
+/// pulse).
+pub const SP_EMBER: int = 11
+
 /// The number of sprites (every id below this). The cub and the foes are
 /// not sprites here: they are `silhouette`'s bitmaps.
-pub const SPRITE_COUNT: int = 9
+pub const SPRITE_COUNT: int = 12
 
 /// The most variants any sprite has (the canopy's and the gravel's four).
 pub const VARIANT_COUNT: int = 4
@@ -223,6 +234,16 @@ fn rich(sprite: int, v: int) -> grid.Cell {
         6 => c(t, if v % 2 == 0 then 10247 else 10262, C_REED, C_WATER, 0),  // SP_REEDS
         7 => c(t, if v % 2 == 0 then 9617 else 9608, C_MARK, C_GRAVEL, 0),  // SP_ROCK
         8 => c(t, if v % 4 == 0 then 32 else 8776, C_SHALLOW, C_WATER, 0),  // SP_SHALLOWS
+        9 =>
+            c(
+                t,
+                if v % 4 == 0 then 32 else if v % 4 == 1 then 0x2802 else if v % 4 == 2 then 0x2810 else 0xB7,
+                C_MARK,
+                C_GRAVEL,
+                0,
+            ),  // SP_ASH
+        10 => c(t, if v % 2 == 0 then 0x2593 else 0x2592, C_MARK, C_GRAVEL, 0),  // SP_WALL
+        11 => c(t, if v % 2 == 0 then 0x2736 else 0x2735, C_MARK, C_GRAVEL, grid.ATTR_BOLD),  // SP_EMBER
         _ => grid.blank(),
     }
 }
@@ -260,6 +281,16 @@ fn plain(sprite: int, v: int) -> grid.Cell {
         6 => c(t, if v % 2 == 0 then 124 else 33, C_REED, C_WATER, 0),  // SP_REEDS
         7 => c(t, if v % 2 == 0 then 79 else 35, C_MARK, C_GRAVEL, 0),  // SP_ROCK
         8 => c(t, if v % 4 == 0 then 32 else 126, C_SHALLOW, C_WATER, 0),  // SP_SHALLOWS
+        9 =>
+            c(
+                t,
+                if v % 4 == 0 then 32 else if v % 4 == 1 then 46 else if v % 4 == 2 then 44 else 39,
+                C_MARK,
+                C_GRAVEL,
+                0,
+            ),  // SP_ASH
+        10 => c(t, if v % 2 == 0 then 35 else 37, C_MARK, C_GRAVEL, 0),  // SP_WALL
+        11 => c(t, if v % 2 == 0 then 42 else 43, C_MARK, C_GRAVEL, grid.ATTR_BOLD),  // SP_EMBER
         _ => grid.blank(),
     }
 }

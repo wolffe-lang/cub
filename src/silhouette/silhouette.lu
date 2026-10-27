@@ -189,6 +189,7 @@ pub fn cub_size() -> (int, int) {
 pub fn foe_size(kind: int) -> (int, int) {
     match kind {
         0 => (4, 12),
+        8 => (4, 12),
         1 => (8, 12),
         4 => (12, 24),
         5 => (10, 20),
@@ -405,6 +406,7 @@ pub fn cub_posed(pose: int, legs: int, tail: int, hurt: int, breath: int) -> Bit
 /// feint, 6 pause; a crouch tucks the head, a strike thrusts it, a flight
 /// streams the tail, a stagger splits the body, a feint curls the tail.
 pub fn foe(kind: int, phase: int, fade: int) -> Bitmap {
+    if kind == 8 { return ashen(phase, fade) }
     if kind >= 4 { return boss(kind, phase, fade) }
     var r = List[str]()
     let crouch = phase == 1 || phase == 5
@@ -458,6 +460,41 @@ pub fn foe(kind: int, phase: int, fade: int) -> Bitmap {
     }
     var b = parse(r)
     // A death erodes from the head: the head at five ticks, the body at ten.
+    if fade >= 5 {
+        var i = 0
+        while i < b.px.len {
+            let pr = i / b.w
+            if pr < 4 || fade >= 10 && pr < 9 { b.px[i] = 0 }
+            i += 1
+        }
+    }
+    b
+}
+
+/// An Ashen (cb05): one of Cinderwick's dead from above, four pixels
+/// across and twelve down (two cells by three north, six by one turned):
+/// the head, the shoulders, a long thin body, the legs. The windup is the
+/// tell a person reads: the arms rise, slowly, up beside the head; the
+/// blow thrusts one arm out; a stagger splits the body. A death erodes
+/// from the head as every foe's does.
+fn ashen(phase: int, fade: int) -> Bitmap {
+    var r = List[str]()
+    let windup = phase == 1
+    let strike = phase == 2
+    let stagger = phase == 4
+    row(if windup then "#..#" else ".##.", mut r)
+    row(if windup then "#..#" else if stagger then "#..#" else ".##.", mut r)
+    row(if windup then "####" else if stagger then "...." else "####", mut r)
+    row(if strike then "##.#" else ".##.", mut r)
+    row(if stagger then "#..#" else ".##.", mut r)
+    row(".##.", mut r)
+    row(".##.", mut r)
+    row(if stagger then "...." else ".##.", mut r)
+    row(if windup || strike then ".##." else "#..#", mut r)
+    row(if windup then ".##." else "#..#", mut r)
+    row(if stagger then "...." else "#..#", mut r)
+    row(if windup || stagger then "#..#" else "....", mut r)
+    var b = parse(r)
     if fade >= 5 {
         var i = 0
         while i < b.px.len {
