@@ -1,0 +1,7 @@
+Source/build head f7af28cd051061c28f95c4925637bbfed20f5d90
+Mac full gate exit0 2026-10-27T05:38:00Z
+Linux full gate exit0 2026-10-27T04:59:07Z
+Mac and Linux integrated motion census: byte-identical
+4699 unchanged golden files; path+NUL+bytes+NUL SHA256 91cfd564404d2017a16e3d164fb17fad22a6c6eba68d4a82fee0961dbe291d2e
+Mach-O arm64 play SHA256 ccad864728d57c62f854afc25bc437f430a61649b8850a3d69772bd5d9ef955b
+/Users/mfwolffe/lanes/cb04b/cub-play-f7af28cd
