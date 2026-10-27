@@ -44,7 +44,23 @@ x 3 hits x every age x 2 tiers); `--strike-census` exits 1 if any row breaks the
 the two labels (13), the bar cells (13 at stat 1, 47 at stat 40), the water line (14 after a spring, 23
 before), the `scent` label (5) and the digits (6 for a 0 on the rich tier, 13 plain).
 
-**The Ashen**: the census waits on the rebase (item 3); the prediction stands in `cb07-prediction.txt`.
+**The Ashen** (item 3, after the rebase onto trunk `f6a50a58`: cb05 and cb04b's rebase). The one-Ashen
+encounter census (`cub --encounter-census`, `src/cross`): a fresh cub (52 health, no flask) five cells from
+one posted Ashen, every other foe removed, ten seeds at both fields, two plays — Book-II (walk, the three
+strikes linked by Space, the parry two ticks before the blow, no roll) and the no-parry player (the human
+who missed the window).
+
+| play | predicted before | measured before (36/22) | predicted after | measured after (20/14) |
+|---|---|---|---|---|
+| Book-II | 6-8 of 10 under the bar; 5 bites | 10 of 10 at both fields: beaten in 94 ticks, 0 of 52 lost, every row | 9-10 of 10; 3 bites | 10 of 10: beaten in 70 ticks, 0 lost, every row |
+| no-parry | — | beaten in 62 ticks, 12 lost (one blow of 22 less the rally's regain) | — | beaten in 38 ticks, 0 lost (the third bite fells it before the blow) |
+
+The prediction was wrong about the scripted cub: it parries every windup and loses nothing at 36/22 too
+(cb05 found the same: the maintainer's deaths were a human's). What the numbers change is what a landed
+blow costs — 22 of 52 (42 %) before, 14 (27 %) after — and the bites to fell one, five to three; the
+no-parry rows show it. cb05's gate-to-hearth crossing stays 10 of 10 at both fields (on trunk's own binary
+10 of 10 too, `crossing-trunk.txt`), its hitbox audit green, the boss census 400 of 400
+(`notes/cb07-evidence/ashen/`).
 
 ## Forbidden
 
@@ -90,7 +106,8 @@ is bitten where the drawn jaws are.
 
 Rulings, recommended and implemented, never decided:
 
-- **R-cb07-1** (the Ashen's numbers): after the rebase; the recommendation stays 20 health / 14 blow.
+- **R-cb07-1** (the Ashen's numbers): **20 health / 14 blow**, implemented; the measurements above. The
+  scripted bar cannot discriminate (0 lost either way); the no-parry proxy and the per-blow cost can.
 - **R-cb07-2** (the bars' rails): **A, no rails** — implemented: two bare bars with their labels on the
   map; the empty part of each bar is a dim `─` track so the bar's length reads without a cap.
 - **R-cb07-3** (new; the water line): the maintainer said "health, stamina, scent only" and the contract
@@ -103,6 +120,9 @@ Rulings, recommended and implemented, never decided:
   font confuses 2, 3 and 5). Implemented: five rows on the plain tier (rows 19-23 at 80x24), three on the
   rich. (A) keep the 3x5 font at five rows on plain; (B) a three-row plain font from `_|` strokes.
   Recommend A: the plain tier is the VT's and PAX's, and legibility there matters more than two rows.
+  Each of R-cb07-3/4/5 is built as A with B behind one line (`art.HUD_WATER_LINE`,
+  `digits.PLAIN_DIGITS_TALL`, `art.SCENT_LABEL_ALWAYS`); the B paths are tested through
+  `art.hud_plan_with` and `digits.plain_cells_of` without flipping the switches.
 - **R-cb07-5** (new; the field's width at four digits): the label beside three digits covers twelve
   columns at 80x24 on the rich tier (the cap); four digits cover fourteen. (A) accept the growth past
   999 (the field grows leftward as the digits grow, as the contract says); (B) drop the label at four

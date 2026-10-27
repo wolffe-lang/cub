@@ -1287,3 +1287,37 @@ stats (the fills). After: 51 at stat 1 and scent 0 on the rich tier (57
 plain), 100 at stat 40 and scent 1234, the same at both fields, never a
 stray cell; 192 rows over both tiers, both fields, day and night, four
 scent values, three stat levels, with and without a rally.
+
+**The Ashen (item 3, after the rebase onto cb05; R-cb07-1).** `foe_health(ASHEN)` 36 → **20**, `ASHEN_DAMAGE`
+22 → **14**; the back-bite doubling, the two-pursuer cap, the hearing and the stagger untouched. The
+instrument is `cub --encounter-census` (`cross.encounter`): a fresh cub (the Shingle's heart and wind, no
+flask) five cells from one posted Ashen with every other foe of the town removed, ten seeds at both fields,
+two plays: Book-II (the walker's: walk at it, bite in reach so Space links the strikes, parry the windup two
+ticks before the blow, never roll) and the no-parry player (the same without the parry: what a blow costs a
+cub that missed the window). The bar is Book-II's: at most 35 % of `health_max` lost in at least nine of
+ten seeds at each field. Before (36/22): Book-II fells it in 94 ticks losing 0 of 52 in all twenty rows;
+no-parry fells it in 62 ticks losing 12 (one blow of 22 less the rally's regain). After (20/14): Book-II 70
+ticks, 0 lost; no-parry 38 ticks, 0 lost — the blow that landed at 36 now never lands before the third bite
+fells it, and a blow that does land costs 14 (27 %) where it cost 22 (42 %). The scripted cub was never in
+danger either way, as cb05 found; the maintainer's losses are a human's, and the numbers cut what a missed
+parry costs. cb05's crossing census stays ten of ten at both fields and its hitbox audit green; the boss
+census stays 400 of 400.
+
+**The walker, two rules (cb07).** A tick spent fighting in place is not a still tick: a strike blocked on
+both axes (a foe ahead, a wall beside) leaves the cub exactly where it stood, and cb04b's quarter-cell
+carry had hidden that the walker's thirty-still-ticks replan fired in the middle of a fight; a passive walk
+(never biting) against a foe is still stuck and replans round the body. A strike at a foe in reach aims at
+the eight-way direction nearest the foe's bearing (`walker.aim_at`), not at the per-axis quarter-cell
+arrows, which pressed a diagonal at a foe a little to one side and put hit 1's slanted cone past it — with
+the strikes easing back to the same point every time, that miss repeated for the whole budget (seed 1 of
+the crossing, `notes/cb07-evidence/ashen/crossing-trace-seed1-stall.txt`). `cub --crossing-trace SEED
+FIELD` narrates a crossing while a foe is within two cells (`walker.walk_narrated`). The cone test itself
+is cb08's (the hit test moving to the foe's body).
+
+**The three rulings, each a one-line switch, recommendation A built.** R-cb07-3 `art.HUD_WATER_LINE`
+(A true: the water line on the play HUD; B: the debug line alone — `hud_text` carries health, stamina,
+scent, rally and water either way). R-cb07-4 `digits.PLAIN_DIGITS_TALL` (A true: the 3x5 `#` font, five
+rows on the plain tier; B: `digits.stroke_glyph`, a three-row font of `_` and `|` strokes, the same
+width). R-cb07-5 `art.SCENT_LABEL_ALWAYS` (A true: the label stays beside four digits, fourteen columns;
+B: the label drops at four digits). `hud_plan_with` and `digits.plain_cells_of` take the switches as
+arguments so the B paths are tested without flipping them.
