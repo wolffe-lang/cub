@@ -143,7 +143,7 @@ target/cub --no-title          start in the forest, no title
 target/cub --ghost-dir DIR     read and write the death archives there (default ~/.cub/ghosts)
 target/cub --den-census        flood fifty seeds for den distance and every thorn-gate face
 target/cub --boss-census       fight every boss in fifty seeds at both sizes; a fairness line a boss
-target/cub --fight-trace 7 1   narrate one scripted fight (the alpha, seed 1)
+target/cub --fight-trace 7 1   narrate one scripted fight (the alpha, seed 1; a third number picks 80 or 200 columns)
 target/cub --strike-census     every strike at every aim on both tiers, the drawn body against standing
 target/cub --hud-census        every painted HUD cell held to the bars, the labels and the digits
 ```
