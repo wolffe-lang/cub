@@ -10,6 +10,7 @@ use controls
 use forest
 use replay
 use sim
+use terrain
 use town
 use walker
 
@@ -180,5 +181,40 @@ pub fn hitbox() -> int {
         return 1
     }
     print("hitbox: green, a bite in reach lands from every aim, touching and a cell off")
+    0
+}
+
+/// A map of Cinderwick at a field, a row a line, a character a cell
+/// (`=` the lane, `.` ash, `#` a wall, `*` an ember, `T` a trunk, a blank
+/// the dark wood), from x = -half to half: the block plan seen whole.
+pub fn town_map(seed: int, field: int) -> int {
+    let half = forest.bound(field, forest.TOWN)
+    var at = 0
+    while at <= town.LENGTH {
+        var line = ""
+        var x = 0 - half
+        while x <= half {
+            let k = forest.kind(seed, field, forest.TOWN, x, at)
+            line = line +
+                (
+                    if k == terrain.EMBER {
+                        "*"
+                    } else if k == terrain.WALL {
+                        "#"
+                    } else if k == terrain.ASH {
+                        "."
+                    } else if k == terrain.TRUNK {
+                        "T"
+                    } else if k == terrain.DARK || k == terrain.CANOPY {
+                        " "
+                    } else {
+                        "="
+                    }
+                )
+            x += 1
+        }
+        print(line)
+        at += 1
+    }
     0
 }

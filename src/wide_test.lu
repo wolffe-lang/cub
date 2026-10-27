@@ -162,7 +162,7 @@ fn test_cb05_sixteen_cache_bits_and_the_town_graph() {
         forest.exit_end(forest.TOWN, 9) && !forest.exit_end(forest.TOWN, 0),
         "the town's two ends",
     )
-    assert(forest.length(forest.TOWN) == 288 && forest.length(forest.CRAGS) == 224, "lengths")
+    assert(forest.length(forest.TOWN) == 240 && forest.length(forest.CRAGS) == 224, "lengths")
     assert(forest.length(forest.SHINGLE) == forest.LENGTH, "the tutorial's length stands")
 }
 
@@ -283,13 +283,13 @@ fn test_cb05_an_ashen_never_chases_past_the_towns_edge() {
     var s = town_cub(5)
     (mut s.foes).reset()
     let edge = town.top(town.PLOTS - 1) + town.PITCH + town.EDGE_ROWS
-    // Six rows past the edge: within the Ashen's ten cells of hearing
-    // (R-cb05-5) as it paces.
-    s.x = town.lane(5, edge + 6) * sim.FP + sim.FP / 2
-    s.y = (edge + 6) * sim.FP + sim.FP / 2
+    // Two rows past the edge (the road's last rows), the Ashen six rows
+    // inside: within its ten cells of hearing (R-cb05-5) as the cub paces.
+    s.x = town.lane(5, edge + 2) * sim.FP + sim.FP / 2
+    s.y = (edge + 2) * sim.FP + sim.FP / 2
     var f = sim.make_ashen(
-        town.lane(5, edge - 2) * sim.FP + sim.FP / 2,
-        (edge - 2) * sim.FP + sim.FP / 2,
+        town.lane(5, edge - 6) * sim.FP + sim.FP / 2,
+        (edge - 6) * sim.FP + sim.FP / 2,
     )
     (mut s.foes).push(f)
     var keys = List[int]()
@@ -302,7 +302,7 @@ fn test_cb05_an_ashen_never_chases_past_the_towns_edge() {
         let g = copy s.foes[0]
         if g.speed > 0 { walked = true }
         assert(
-            forest.in_town(5, sim.floor_div(g.x, sim.FP), sim.floor_div(g.y, sim.FP)),
+            forest.in_town(5, 80, sim.floor_div(g.x, sim.FP), sim.floor_div(g.y, sim.FP)),
             "the Ashen stays inside the town at tick {n}: {g.x / sim.FP},{g.y / sim.FP}",
         )
         n += 1

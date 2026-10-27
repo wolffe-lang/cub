@@ -967,6 +967,9 @@ fn main() -> int {
     if args.len > 0 && args[0] == "--gen-bench" { return wide.gen_bench() }
     if args.len > 0 && args[0] == "--crossing-census" { return cross.crossing() }
     if args.len > 0 && args[0] == "--hitbox-audit" { return cross.hitbox() }
+    if args.len == 3 && args[0] == "--town-map" {
+        return cross.town_map(args[1].to_int() else 1, args[2].to_int() else 80)
+    }
     if args.len == 6 && args[0] == "--route-view" {
         return pathaudit.view(
             args[1].to_int() else 0,
