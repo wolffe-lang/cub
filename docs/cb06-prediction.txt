@@ -38,3 +38,12 @@ The shot table and cue stay unchanged. Predict the busiest frame remains
 the waking view, below the original 12 ms rich / 10 ms plain limits.
 Add rendered source-pair and exact sprite-footprint tests before changing
 implementation, then refresh all opening goldens and measure again.
+
+CI follow-up (run40433776827): predict that skip at214 and quit at215
+cancels a due one-tick stage because the live loop suppresses commit on
+quit. The CI artifact names cancellation and retains opening0; file and
+directory sync already exist. Move only due commits outside the quit
+check; keep new staging forbidden on quit and preserve cancellation
+before --save-delay expires. Add a real skip/adjacent-quit/relaunch row,
+covering explicit --save and a fresh HOME with no .cub directory. Expect
+no frame/PCM changes, original pending-save and all opening rows green.
