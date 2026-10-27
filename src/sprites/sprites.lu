@@ -312,6 +312,13 @@ pub const CP_EYE: int = 9679
 /// and PAX's font row's specification for cub.
 pub fn rich_code_points() -> List[int] {
     var cps = silhouette.all_code_points()
+    // Shifted/shaken head composition can form cells absent from a whole
+    // unshifted pose. The rendered-art audit checks these against GLYPHS.
+    for cp in [0x2831, 0x2851, 0x2861, 0x287c, 0x288a, 0x288c] {
+        var present = false
+        for used in cps { if used == cp { present = true } }
+        if !present { (mut cps).push(cp) }
+    }
     (mut cps).push(CP_EYE)
     for cp in [9472, 9474, 9484, 9488, 9492, 9496, 9500, 9508] { (mut cps).push(cp) }
     // The den's quadrant-sampled side view and animated fire, and the

@@ -1,0 +1,15 @@
+cb08 glyph-all-frames start 2026-10-27T16:26:50Z
+cb08 glyph-all-frames waiting for cores 8-11 2026-10-27T16:26:50Z
+cb08 glyph-all-frames acquired cores 4-7 2026-10-27T16:26:50Z
+diagonal-study: 410 states, 75 unique drawings, four facings, both fields and tiers
+Traceback (most recent call last):
+  File "/work/tools/check-render-glyphs.py", line 44, in <module>
+    check(Path(args.bin).resolve(), args.out)
+  File "/work/tools/check-render-glyphs.py", line 31, in check
+    golden_frames, golden_used = check_directory(ROOT / 'tests/goldens', ROOT / 'docs/GLYPHS.md')
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/tools/check-render-glyphs.py", line 20, in check_directory
+    assert not missing, (frame.name, 'unlisted rendered glyphs', [f'U+{c:04X}' for c in sorted(missing)])
+           ^^^^^^^^^^^
+AssertionError: ('frame-0560.txt', 'unlisted rendered glyphs', ['U+287C'])
+glyph-all-frames EXIT 1 2026-10-27T16:26:51Z

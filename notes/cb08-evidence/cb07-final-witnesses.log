@@ -1,0 +1,80 @@
+cb08 cb07-final-witnesses start 2026-10-27T16:08:23Z
+cb08 cb07-final-witnesses waiting for cores 8-11 2026-10-27T16:08:23Z
+cb08 cb07-final-witnesses acquired cores 4-7 2026-10-27T16:08:23Z
+witness spring-found tick 116 area 0 scent 7606 mark 0 shortcuts 0
+witness world-gate tick 629 area 0 scent 7638 mark 0 shortcuts 0
+witness world-thorns tick 646 area 0 scent 7638 mark 0 shortcuts 0
+witness thorn-gate tick 657 area 0 scent 7638 mark 0 shortcuts 0
+witness world-open tick 672 area 0 scent 7638 mark 0 shortcuts 0
+witness town-den tick 1218 area 6 scent 7688 mark 0 shortcuts 0
+witness world-den tick 2781 area 1 scent 7758 mark 0 shortcuts 0
+witness world-meadow tick 3115 area 2 scent 7758 mark 0 shortcuts 0
+witness hawk-shadow tick 3238 from 3235 area 2
+witness hawk-stoop tick 3253 from 3251 area 2
+witness world-hawk tick 3253 area 2 scent 7758 mark 0 shortcuts 0
+witness world-recovered tick 3769 area 2 scent 7770 mark 0 shortcuts 0
+witness world-return tick 4184 area 0 scent 7770 mark 0 shortcuts 3
+witness coast-cache-0 tick 4298 area 0 scent 7790 mark 0 shortcuts 3
+witness coast-cache-1 tick 4823 area 0 scent 7810 mark 0 shortcuts 3
+witness coast-cache-2 tick 5492 area 0 scent 7830 mark 0 shortcuts 3
+witness coast-cache-3 tick 6330 area 0 scent 7850 mark 0 shortcuts 3
+witness bite tick 194 area 0 scent 16 mark 0 shortcuts 0
+witness parry tick 177 area 0 scent 0 mark 0 shortcuts 0
+witness dodge tick 177 area 0 scent 0 mark 0 shortcuts 0
+witness weasel-retreat tick 177 area 0 scent 0 mark 0 shortcuts 0
+witness fox-feint tick 315 area 0 scent 16 mark 0 shortcuts 0
+witness natural-death tick 481 area 0 scent 0 mark 16 shortcuts 0
+witness aim-lock tick 189 area 0 scent 0 mark 0 shortcuts 0
+witness sprint-hit tick 178 from 153 area 0
+boss boar attempts 1 ticks 994 windup 100 phase2 413 beaten 1088 hits 1 0 0 unparryable 0
+witness boss-boar-windup frames 107 every 1 from 105
+witness boss-boar-phase2 frames 415 every 1 from 414
+witness boss-boar-beaten frames 1134 every 15 from 1089
+boss lynx attempts 1 ticks 494 windup 581 phase2 889 beaten 1030 hits 1 1 0 unparryable 0
+witness boss-lynx-windup frames 588 every 1 from 586
+witness boss-lynx-phase2 frames 891 every 1 from 890
+witness boss-lynx-beaten frames 1076 every 15 from 1031
+boss elk attempts 1 ticks 1258 windup 623 phase2 1337 beaten 1794 hits 0 0 0 unparryable 0
+witness boss-elk-windup frames 630 every 1 from 628
+witness boss-elk-phase2 frames 1339 every 1 from 1338
+witness boss-elk-beaten frames 1840 every 15 from 1795
+boss alpha attempts 1 ticks 587 windup 526 phase2 766 beaten 1037 hits 2 0 0 unparryable 0
+witness boss-alpha-windup frames 533 every 1 from 531
+witness boss-alpha-phase2 frames 768 every 1 from 767
+witness end frames 1382 every 45 from 1082
+witness boss-alpha-beaten frames 1083 every 15 from 1038
+witness ghost-death tick 101 area 0 scent 0 mark 0 shortcuts 0
+witness ghost tick 250
+witness crags frames 121 every 40 from 1
+witness river frames 121 every 40 from 1
+witness old-den frames 121 every 40 from 1
+witness town-passage frames 529 every 6 from 381
+witness ashen-parry frames 681 every 5 from 557
+witness ember-touch frames 456 every 10 from 416
+witness yard-cache frames 401 every 4 from 380
+witness town-lane-80x24 frames 121 every 40 from 1
+witness town-lane-120x40 frames 121 every 40 from 1
+witness landmark-1-0 frames 261 every 1 from 261
+witness landmark-1-1 frames 38 every 1 from 38
+witness landmark-1-2 frames 314 every 1 from 314
+witness landmark-1-3 frames 71 every 1 from 71
+witness landmark-2-0 frames 80 every 1 from 80
+witness landmark-2-1 frames 372 every 1 from 372
+witness landmark-2-2 frames 221 every 1 from 221
+witness landmark-2-3 frames 71 every 1 from 71
+witness landmark-3-0 frames 26 every 1 from 26
+witness landmark-3-1 frames 239 every 1 from 239
+witness landmark-4-0 frames 26 every 1 from 26
+witness landmark-5-0 frames 389 every 1 from 389
+witness landmark-6-0 frames 520 every 1 from 520
+witness landmark-6-1 frames 281 every 1 from 281
+witness demo tick 461 area 0 scent 0 mark 0 shortcuts 0
+demo.lu: 174 lines
+build: target/native/cub
+build: target/release/cub
+goldens: yard-cache-plain ok
+diagonal-study: 410 states, 75 unique drawings, four facings, both fields and tiers
+goldens: art ok
+pty: cb08-diagonal-live ok (linux x86_64, exit 0, 60227 bytes captured)
+pty: cb08-whisper-flank ok (linux x86_64, exit 0, 2346779 bytes captured)
+cb07-final-witnesses EXIT 0 2026-10-27T16:10:05Z

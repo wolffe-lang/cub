@@ -477,6 +477,8 @@ def diagonal_censuses(binary):
     import runpy
     hit = runpy.run_path(str(ROOT / 'tools/hit-census.py'))
     hit['check'](binary, OUT)
+    rendered = runpy.run_path(str(ROOT / 'tools/check-render-glyphs.py'))
+    rendered['check'](binary, OUT)
     p = subprocess.run([str(binary), '--narrow-audit', '6', '240'],
                        capture_output=True, text=True, check=True)
     (OUT / (Path(binary).parent.name + '-narrow-diagonals.txt')).write_text(p.stdout)

@@ -1,0 +1,15 @@
+cb08 rendered-glyphs-red start 2026-10-27T16:13:55Z
+cb08 rendered-glyphs-red waiting for cores 8-11 2026-10-27T16:13:55Z
+cb08 rendered-glyphs-red acquired cores 4-7 2026-10-27T16:13:55Z
+diagonal-study: 410 states, 75 unique drawings, four facings, both fields and tiers
+Traceback (most recent call last):
+  File "/work/tools/check-render-glyphs.py", line 42, in <module>
+    check(Path(args.bin).resolve(), args.out)
+  File "/work/tools/check-render-glyphs.py", line 30, in check
+    frames, used = check_directory(directory, ROOT / 'docs/GLYPHS.md')
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/tools/check-render-glyphs.py", line 20, in check_directory
+    assert not missing, (frame.name, 'unlisted rendered glyphs', [f'U+{c:04X}' for c in sorted(missing)])
+           ^^^^^^^^^^^
+AssertionError: ('combo-0-1-7-rich.txt', 'unlisted rendered glyphs', ['U+2851', 'U+288A'])
+rendered-glyphs-red EXIT 1 2026-10-27T16:13:56Z

@@ -1,0 +1,18 @@
+cb08 glyph-final start 2026-10-27T16:27:55Z
+cb08 glyph-final waiting for cores 8-11 2026-10-27T16:27:55Z
+cb08 glyph-final acquired cores 4-7 2026-10-27T16:27:55Z
+build: target/native/cub
+build: target/release/cub
+added U+2831
+added U+287C
+259 rows
+diagonal-study: 410 states, 75 unique drawings, four facings, both fields and tiers
+rendered-glyphs art_frames 1092 golden_frames 2910 nonbyte_codepoints 227 unlisted 0
+.........prepare-pty: retained previous engine fixture in /work/target/pty-fixture-tests/tmpmrjne9td/engine-previous-sbg4fe6u
+prepare-pty: engine fixture already fresh
+.
+----------------------------------------------------------------------
+Ran 10 tests in 0.003s
+
+OK
+glyph-final EXIT 0 2026-10-27T16:28:19Z
