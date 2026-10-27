@@ -14,22 +14,24 @@ use tier
 
 fn tier_name(t: int) -> str { if t == tier.RICH then "rich" else "plain" }
 
-fn test_cb07_hud_paints_only_bars_labels_and_digits_both_fields_both_tiers_day_and_night() {
-    for t in [tier.PLAIN, tier.RICH] {
-        // One frame a tier at 80x24 here (the checked machine's step
-        // budget); `--hud-census` runs the whole matrix on the native build.
-        let night = t == tier.RICH
-        let scent = if night then 1234 else 0
-        let stat = if night then 40 else 1
-        let s = combatproof.hud_fixture(80, 24, stat, scent, night, true)
-        let h = combatproof.hud_row(s, t)
-        assert(
-            h.stray == 0,
-            "{tier_name(t)} 80x24 night {night} scent {scent} stat {stat}: {h.stray} stray cells",
-        )
-        assert(h.painted > 0 && h.painted <= 120, "{tier_name(t)}: {h.painted} painted cells")
-    }
+fn paints_only(t: int) {
+    // One frame a tier at 80x24 here (the checked machine's step
+    // budget); `--hud-census` runs the whole matrix on the native build.
+    let night = t == tier.RICH
+    let scent = if night then 1234 else 0
+    let stat = if night then 40 else 1
+    let s = combatproof.hud_fixture(80, 24, stat, scent, night, true)
+    let h = combatproof.hud_row(s, t)
+    assert(
+        h.stray == 0,
+        "{tier_name(t)} 80x24 night {night} scent {scent} stat {stat}: {h.stray} stray cells",
+    )
+    assert(h.painted > 0 && h.painted <= 120, "{tier_name(t)}: {h.painted} painted cells")
 }
+
+fn test_cb07_hud_paints_only_bars_labels_and_digits_plain() { paints_only(tier.PLAIN) }
+
+fn test_cb07_hud_paints_only_bars_labels_and_digits_rich_at_night() { paints_only(tier.RICH) }
 
 fn test_cb07_the_fills_and_rails_are_gone() {
     for t in [tier.PLAIN, tier.RICH] {
@@ -63,26 +65,29 @@ fn test_cb07_the_fills_and_rails_are_gone() {
     }
 }
 
-fn test_cb07_every_hud_cell_keeps_the_maps_background() {
-    for t in [tier.PLAIN, tier.RICH] {
-        for night in [t == tier.RICH] {
-            let s = combatproof.hud_fixture(80, 24, 10, 1234, night, true)
-            var full = grid.new(24, 80)
-            art.render(s, t, mut full)
-            var bare = grid.new(24, 80)
-            art.render_bare(s, t, mut bare)
-            var n = 0
-            for c in art.hud_plan(s, t) {
-                assert(
-                    grid.at(full, c.row, c.col).bg == grid.at(bare, c.row, c.col).bg,
-                    "{tier_name(t)} night {night}: ({c.row}, {c.col}) keeps the map's background",
-                )
-                assert(grid.at(full, c.row, c.col).cp == c.cp, "the plan's glyph is painted")
-                n += 1
-            }
-            assert(n > 40, "a plan of {n} cells")
-        }
+fn keeps_background(t: int) {
+    let night = t == tier.RICH
+    let s = combatproof.hud_fixture(80, 24, 10, 1234, night, true)
+    var full = grid.new(24, 80)
+    art.render(s, t, mut full)
+    var bare = grid.new(24, 80)
+    art.render_bare(s, t, mut bare)
+    var n = 0
+    for c in art.hud_plan(s, t) {
+        assert(
+            grid.at(full, c.row, c.col).bg == grid.at(bare, c.row, c.col).bg,
+            "{tier_name(t)} night {night}: ({c.row}, {c.col}) keeps the map's background",
+        )
+        assert(grid.at(full, c.row, c.col).cp == c.cp, "the plan's glyph is painted")
+        n += 1
     }
+    assert(n > 40, "a plan of {n} cells")
+}
+
+fn test_cb07_every_hud_cell_keeps_the_maps_background_plain() { keeps_background(tier.PLAIN) }
+
+fn test_cb07_every_hud_cell_keeps_the_maps_background_rich_at_night() {
+    keeps_background(tier.RICH)
 }
 
 fn test_cb07_bars_grow_with_the_stats_and_show_the_rally_in_grey() {
