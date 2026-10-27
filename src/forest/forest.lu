@@ -197,7 +197,8 @@ pub fn bound(field: int, area: int) -> int {
 /// for the Teeth, the Shallows and Gravehollow.
 pub fn length(area: int) -> int {
     if area == SHINGLE { return LENGTH }
-    if area == TOWN || area == BRAMBLEHOLD || area == LARKMEADOW { return LENGTH_MAX }
+    if area == TOWN { return town.LENGTH }
+    if area == BRAMBLEHOLD || area == LARKMEADOW { return LENGTH_MAX }
     224
 }
 
@@ -1333,7 +1334,7 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
     if area == TOWN {
         // The lane is the route; everything else is the town's.
         if carved_at(seed, field, area, x, at, c) { return path_kind(area) }
-        return town.kind(seed, x, at)
+        return town.kind(seed, field, x, at)
     }
     let forced = arena_cell(seed, field, area, x, at)
     if forced >= 0 { return forced }
@@ -1735,6 +1736,6 @@ pub fn shadow_cell(seed: int, area: int, edge: int, x: int, y: int) -> bool {
 
 /// Whether a local cell lies within the town's walls: the Ashen's bound
 /// (cb05; they do not chase past the town's edge).
-pub fn in_town(seed: int, x: int, at: int) -> bool {
-    town.bound(seed, x, at)
+pub fn in_town(seed: int, field: int, x: int, at: int) -> bool {
+    town.bound(seed, field, x, at)
 }

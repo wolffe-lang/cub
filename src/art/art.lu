@@ -87,7 +87,7 @@ pub fn ground_at(seed: int, field: int, area: int, t: int, x: int, y: int) -> gr
     // The embers' light at night (cb05): the ash and the walls near one
     // warm up; the lane's cobbles keep their one style (the path audit).
     if area == forest.TOWN && (k == terrain.ASH || k == terrain.WALL) {
-        let light = town.light(seed, x, y - forest.origin(seed, area))
+        let light = town.light(seed, field, x, y - forest.origin(seed, area))
         if light > 0 {
             cell.fg = if t == tier.RICH {
                 (
