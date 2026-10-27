@@ -44,6 +44,58 @@ pub fn aim_at(mut keys: List[int], heading: int) {
     if k == 1 || k == 2 || k == 3 { (mut keys).push(controls.KEY_RIGHT) }
 }
 
+// A planning probe only: never applied to the live simulation. Lock aims
+// at the centre, but after a diagonal turn the jaws may lie beside it.
+// Reject a prospective bite that would first push the target out of its
+// committed aim; step to a clear jaw-aligned stance instead of biting air.
+fn jaw_stance(s: sim.Sim, i: int, x: int, y: int) -> bool {
+    region probe {
+        if sim.blocked(s, sim.floor_div(x, sim.FP), sim.floor_div(y, sim.FP)) { return false }
+        var aimed = copy s
+        aimed.x = x
+        aimed.y = y
+        aimed.action = sim.BITE
+        aimed.combo = 1
+        aimed.attack_heading = sim.heading_to(x, y, s.foes[i].x, s.foes[i].y)
+        if aimed.attack_heading < 0 { return false }
+        aimed.body_facing = sim.eighth(aimed.attack_heading)
+        let cb = sim.cub_body(aimed)
+        for foe in s.foes {
+            if sim.solid(foe) && sim.overlap(cb, sim.foe_body(foe)) { return false }
+        }
+        return sim.jaws_reach_body(aimed, cb, sim.foe_body(s.foes[i]), 2)
+    }
+}
+
+// Ordinary arrows to the nearest clear stance within four cells. The
+// real step still enforces terrain and actors; no position is assigned.
+fn align_jaws(s: sim.Sim, i: int, mut keys: List[int]) {
+    var best = 1000000000
+    var tx = s.x
+    var ty = s.y
+    var dy = -4
+    while dy <= 4 {
+        var dx = -4
+        while dx <= 4 {
+            let x = (sim.cell_x(s) + dx) * sim.FP + sim.FP / 2
+            let y = (sim.cell_y(s) + dy) * sim.FP + sim.FP / 2
+            let distance = (x - s.x) * (x - s.x) + (y - s.y) * (y - s.y)
+            if distance > 0 &&
+                distance < best &&
+                sim.visible(s, s.x, s.y, x, y) &&
+                jaw_stance(s, i, x, y) {
+                best = distance
+                tx = x
+                ty = y
+            }
+            dx += 1
+        }
+        dy += 1
+    }
+    if s.locked >= 0 { (mut keys).push(controls.KEY_RELEASE) }
+    aim(mut keys, tx - s.x, ty - s.y)
+}
+
 /// One tick toward `(x, y)`, fighting any foe in reach on the way.
 pub fn drive(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int) {
     drive_as(mut s, mut r, x, y, false)
@@ -82,7 +134,9 @@ pub fn drive_as(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int, passive: b
             // its body).
             if foe.kind != sim.HAWK && sim.in_reach(s, i, 2) && !passive {
                 fighting = true
-                if s.action == sim.IDLE {
+                if s.action == sim.IDLE && !jaw_stance(s, i, s.x, s.y) {
+                    align_jaws(s, i, mut keys)
+                } else if s.action == sim.IDLE {
                     // Quarter-cell path arrows can retain a diagonal when
                     // the foe is almost cardinal. Commit the same intentional
                     // lock a player uses before a slanted bite; death releases it.
