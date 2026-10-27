@@ -60,6 +60,7 @@ pub fn area_part(area: int) -> str {
         3 => "crags",
         4 => "river",
         5 => "old-den",
+        6 => "cinderwick",
         _ => "",
     }
 }
