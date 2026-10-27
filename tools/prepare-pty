@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+"""Start the engine's fresh-journey rows without deleting prior test evidence.
+
+RUN_ARGS in tests/lair.conf names this fixture. Its earlier saves are not a
+migration oracle: version compatibility is covered by committed writer fixtures.
+"""
+from pathlib import Path
+import shutil
+import tempfile
+
+def prepare(root):
+    root.mkdir(parents=True, exist_ok=True)
+    previous = [root / name for name in ('engine.save', 'engine.save.pending')]
+    previous = [path for path in previous if path.exists()]
+    if previous:
+        archive = Path(tempfile.mkdtemp(prefix='engine-previous-', dir=root))
+        archive.chmod(0o755)  # Artifact uploads may run outside the container uid.
+        for path in previous:
+            shutil.move(str(path), str(archive / path.name))
+        print('prepare-pty: retained previous engine fixture in', archive)
+        return archive
+    print('prepare-pty: engine fixture already fresh')
+    return None
+
+
+if __name__ == '__main__':
+    prepare(Path(__file__).resolve().parent.parent / 'target/pty')

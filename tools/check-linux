@@ -5,6 +5,8 @@ ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 cd "$ROOT"
 mkdir -p target/test-home
 export HOME="$ROOT/target/test-home"
+python3 -I tests/pty_fixtures_test.py
+python3 -I tools/prepare-pty
 .lair/tools/check-linux
 .lair/tools/goldens --bin target/native/cub
 python3 -I tools/score-check

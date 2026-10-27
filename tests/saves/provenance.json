@@ -1,0 +1,14 @@
+{
+  "trunk-95a4889d": {
+    "writer_binary": "cub-trunk-95a4889d",
+    "writer_sha256": "6270db311c166c464b53fa27ca89b0a091c4ec26096451094e87df7c7f04c1ce",
+    "fixture_sha256": "b0ea10e07867f81c71ef6e8cb8b8a84819669f75553e7ae9966dc34ccb43d420",
+    "method": "Real pty: seed137, no-title, mute, skip opening, rest, Escape, quit; save copied byte-for-byte."
+  },
+  "cb05-4a7cd345": {
+    "writer_binary": "cub-play-4a7cd345",
+    "writer_sha256": "08b40f93095773024c7469f50ac5b2020882d33a40740548d39f0fdb7d6645b2",
+    "fixture_sha256": "56367f596f3a1b2a35ca2c18b4bf426d9142f11799c36e1293e60dbeadcb52cc",
+    "method": "Real pty: seed137, no-title, mute, skip opening, rest, Escape, quit; save copied byte-for-byte."
+  }
+}

@@ -7,6 +7,17 @@ start the game with music on deliberately."""
 import os
 from pathlib import Path
 import subprocess
+import tempfile
+
+
+def fresh_save(root):
+    """Give fresh-journey rows their own state, preserving all prior saves.
+
+    Compatibility rows deliberately use committed fixtures instead.
+    """
+    directory = Path(tempfile.mkdtemp(prefix='journey-', dir=root))
+    directory.chmod(0o755)  # CI uploads container-written evidence as another uid.
+    return directory / 'journey.save'
 
 
 def den_keys(binary, ctx):
@@ -14,7 +25,7 @@ def den_keys(binary, ctx):
     home.mkdir(parents=True, exist_ok=True)
     env = ctx.env_for()
     env['HOME'] = str(home)
-    s = ctx.Session([binary, '--seed', '7', '--save', str(home / 'den.save'), '--tier', 'plain', '--mute', '--no-title'], 24, 80, env)
+    s = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(home)), '--tier', 'plain', '--mute', '--no-title'], 24, 80, env)
     s.type(b'?', settle=.15)
     s.type(b'r', settle=.2)
     s.type(b'12345', settle=.2)
@@ -89,7 +100,7 @@ def feel_controls(binary, ctx):
               ('lock-empty', b'\x1b[D\t', 192)]
     for tier in ('rich', 'plain'):
         for name, chord, aim in arrows:
-            session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
+            session = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)), '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
             session.type(b'?', settle=.15)
             session.type(chord + b' ', settle=.45)
             session.type(b'q')
@@ -98,7 +109,7 @@ def feel_controls(binary, ctx):
             (root / (tier + '-' + name + '.trace')).write_bytes(session.err)
             if not re.search(rb'action 1 aim ' + str(aim).encode() + rb' combo 1', session.err):
                 problems.append(tier + ' ' + name + ' did not commit the injected aim')
-        session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
+        session = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)), '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
         session.type(b'?', settle=.15)
         session.type(b'\x1b[C ', settle=.25)
         session.type(b' ', settle=.37)
@@ -110,7 +121,7 @@ def feel_controls(binary, ctx):
         for combo in (1, 2, 3):
             if not re.search(rb'action 1 aim 64 combo ' + str(combo).encode(), session.err):
                 problems.append(tier + ' live combo missing ' + str(combo))
-        session = ctx.Session([binary, '--seed', '7', '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
+        session = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)), '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
         session.type(b'?', settle=.15)
         session.type(b'\x1b[Cs', settle=.75)
         session.type(b'q')
@@ -221,7 +232,7 @@ def _sound_session(binary, ctx, args, env_extra=None, keys=b'q', settle=1.2):
     if env_extra:
         env.update(env_extra)
     sound_dir = root / 'wavs'
-    s = ctx.Session([binary, '--seed', '7', '--save', str(root / 'sound.save'),
+    s = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)),
                      '--sound-dir', str(sound_dir), '--tier', 'plain'] + args, 24, 80, env)
     s.pump(settle)
     players = subprocess.run(['ps', '-axo', 'ppid=,comm='], capture_output=True, text=True).stdout
@@ -371,7 +382,7 @@ def title(binary, ctx):
     env = ctx.env_for()
     env['HOME'] = str(root)
     problems = []
-    session = ctx.Session([binary, '--seed', '7', '--tier', 'plain', '--trace', '--mute'], 24, 80, env)
+    session = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)), '--tier', 'plain', '--trace', '--mute'], 24, 80, env)
     session.pump(0.5)
     session.type(b'x', settle=.4)
     session.type(b'q')
@@ -385,7 +396,7 @@ def title(binary, ctx):
         problems.append('no title scene in the trace')
     if not re.search(rb'trace tick \d+ .* scene 1 ', session.err):
         problems.append('a key did not begin the opening')
-    session = ctx.Session([binary, '--seed', '7', '--tier', 'plain', '--trace', '--mute', '--no-title'], 24, 80, env)
+    session = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)), '--tier', 'plain', '--trace', '--mute', '--no-title'], 24, 80, env)
     session.pump(0.4)
     session.type(b'q')
     session.finish()
@@ -403,7 +414,7 @@ def title_demo(binary, ctx):
     env = ctx.env_for()
     env['HOME'] = str(root)
     problems = []
-    session = ctx.Session([binary, '--seed', '7', '--tier', 'plain', '--trace', '--mute'], 24, 80, env)
+    session = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)), '--tier', 'plain', '--trace', '--mute'], 24, 80, env)
     session.pump(11.5)
     session.type(b'q')
     session.finish()
@@ -427,7 +438,7 @@ def sprint_live(binary, ctx):
     root.mkdir(parents=True, exist_ok=True)
     env = ctx.env_for()
     env['HOME'] = str(root)
-    s = ctx.Session([binary, '--seed', '7', '--save', str(root / 'sprint.save'),
+    s = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)),
                      '--trace', '--mute', '--no-title', '--tier', 'plain'], 24, 80, env)
     s.type(b'?', settle=.15)
     for _ in range(12):
@@ -1197,3 +1208,47 @@ def cb04b_enhanced_control_c(binary, ctx):
 
 
 ROWS['cb04b-enhanced-control-c'] = cb04b_enhanced_control_c
+
+
+def predecessor_save_row(name):
+    """Resume actual predecessor output, unlike the isolated fresh-journey rows."""
+    def row(binary, ctx):
+        import re
+        import shutil
+        fixture = Path(ctx.ROOT) / 'tests/saves' / (name + '.save')
+        original = fixture.read_bytes()
+        words = original.decode().split()
+        expected_seed = int(words[words.index('seed') + 1])
+        expected_played = int(words[words.index('played') + 1])
+        masks = list(map(int, original.decode().split('slain ', 1)[1].splitlines()[0].split()))
+        root = Path(ctx.ROOT) / 'target/pty/predecessor-save'
+        root.mkdir(parents=True, exist_ok=True)
+        save = fresh_save(root)
+        shutil.copyfile(fixture, save)
+        record = save.parent / 'resumed.pk'
+        env = ctx.env_for()
+        env['HOME'] = str(save.parent)
+        session = ctx.Session([binary, '--save', str(save), '--record', str(record),
+                               '--ticks', '15', '--trace', '--mute', '--no-title', '--tier', 'plain'],
+                              24, 80, env)
+        session.finish()
+        problems = []
+        ctx.common_checks(session, 0, problems)
+        recorded = record.read_text() if record.exists() else ''
+        saved = {int(k): int(v) for k, v in re.findall(r'^t 0 saved-(\d+) (-?\d+)$', recorded, re.M)}
+        if (saved.get(0), saved.get(27), saved.get(23)) != (expected_seed, expected_played, 1):
+            problems.append(name + ': did not resume the writer seed, played ticks and seen opening')
+        if len(masks) != 7 or [saved.get(30 + i) for i in range(7)] != masks:
+            problems.append(name + ': did not preserve all seven area masks')
+        states = trace_states(session)
+        if not states or any(state['scene'] != 0 for state in states):
+            problems.append(name + ': resumed journey repeated the opening')
+        if fixture.read_bytes() != original:
+            problems.append(name + ': changed the committed writer fixture')
+        session.evidence = name + ', actual predecessor-written seven-area save'
+        return session, problems
+    return row
+
+
+ROWS['trunk-save-resume'] = predecessor_save_row('trunk-95a4889d')
+ROWS['cb05-save-resume'] = predecessor_save_row('cb05-4a7cd345')
