@@ -1288,7 +1288,7 @@ fn run_world_audit() -> int {
                         return 1
                     }
                     var den = 0
-                    while den < forest.DENS {
+                    while den < forest.DEN_LIMIT {
                         if forest.den_area(den) == area {
                             let (x, y) = forest.den_position(seed, den)
                             let dx = (foe.x - x) / sim.FP

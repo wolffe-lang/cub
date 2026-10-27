@@ -8,6 +8,9 @@ use sim
 use terrain
 
 /// Path zero is the spine, one the shortcut, then cache branches; coast last is shore.
+/// An inland cache branch is sampled along its shaped centreline (cb05,
+/// `forest.branch_point`); whether it runs along x there decides the
+/// transverse axis the width and the step are measured on.
 pub fn point(seed: int, field: int, area: int, path: int, at: int) -> (int, int, bool) {
     if path == 0 { return (forest.spine(seed, area, at), at, false) }
     if path == 1 { return (at, 22 + forest.curve(seed, area + 71, at) / 2, true) }
@@ -19,7 +22,12 @@ pub fn point(seed: int, field: int, area: int, path: int, at: int) -> (int, int,
         )
     }
     if area == 0 { return (forest.coast_branch_x(seed, field, path - 2, at), at, false) }
-    (at, forest.branch(seed, area, path - 2, at), true)
+    let (x, y) = forest.branch_point(seed, field, area, path - 2, at)
+    let (ax, ay) = forest.branch_point(seed, field, area, path - 2, at - 1)
+    let (bx, by) = forest.branch_point(seed, field, area, path - 2, at + 1)
+    let dx = if bx - ax < 0 then ax - bx else bx - ax
+    let dy = if by - ay < 0 then ay - by else by - ay
+    (x, y, dx >= dy)
 }
 
 /// CSV retains every sample; the independent summarizer computes distributions and ranks routes.
@@ -31,30 +39,29 @@ pub fn census() -> int {
             var area = 0
             while area < forest.AREAS {
                 var path = 0
-                while path < 2 + forest.cache_count(area) + (if area == 0 then 1 else 0) {
+                // The town's yards are not branches: its routes are the lane alone.
+                let branches = if area == forest.TOWN then 0 else forest.cache_count(area)
+                while path < 2 + branches + (if area == 0 then 1 else 0) {
+                    if path == 1 && !forest.has_shortcut(area) { path += 1; continue }
                     let start = if path == 0 || area == 0 && path >= 2 && path < 6 {
                         0
                     } else if area == 0 && path == 6 {
                         -forest.coast_extent(field) + 4
                     } else if path == 1 {
                         -32
-                    } else if path == 2 {
-                        -forest.half_width(field) + 13
                     } else {
-                        -10
+                        1
                     }
                     let end = if path == 0 {
-                        forest.LENGTH
+                        forest.length(area)
                     } else if area == 0 && path == 6 {
                         forest.coast_extent(field) - 4
                     } else if path == 1 {
                         32
                     } else if area == 0 {
                         forest.coast_end(seed, path - 2)
-                    } else if path == 2 {
-                        10
                     } else {
-                        forest.half_width(field) - 13
+                        forest.branch_len(seed, field, area, path - 2) - 1
                     }
                     var at = start
                     while at <= end {
@@ -76,7 +83,11 @@ pub fn census() -> int {
                                 d += 1
                             }
                         }
-                        let delta = if at == start then 0 else if horizontal then y - py else x - px
+                        // cb04d's transverse step on the spines, the shortcut
+                        // and the shore; a shaped branch (cb05) turns through
+                        // every axis and is measured by the bends audit instead.
+                        let shaped = area != 0 && path >= 2
+                        let delta = if at == start || shaped then 0 else if horizontal then y - py else x - px
                         print("{seed},{field},{area},{path},{at},{x},{y},{width},{delta}")
                         at += 1
                     }
