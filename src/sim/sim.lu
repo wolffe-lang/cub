@@ -2169,7 +2169,7 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
             let x = (forest.spine(seed, area, at) + member * 2 - 1) * FP
             let y = (forest.origin(seed, area) + at) * FP
             (mut foes).push(make_foe(kind, x, y))
-            if kind == ASHEN { home_at_ember(seed, mut foes, member) }
+            if kind == ASHEN { home_at_ember(seed, field, mut foes, member) }
             member += 1
         }
         group += 1
@@ -2222,9 +2222,14 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
 
 /// The last foe pushed (an Ashen) takes the nearest ember as its home, the
 /// fire it gathers at when it hears nothing.
-fn home_at_ember(seed: int, mut foes: List[Foe], member: int) {
+fn home_at_ember(seed: int, field: int, mut foes: List[Foe], member: int) {
     let i = foes.len - 1
-    let (ex, ey) = town.nearest_ember(seed, floor_div(foes[i].x, FP), floor_div(foes[i].y, FP))
+    let (ex, ey) = town.nearest_ember(
+        seed,
+        field,
+        floor_div(foes[i].x, FP),
+        floor_div(foes[i].y, FP),
+    )
     // A group shares an ember: the first stands on it, the rest a body's
     // length down the verge from it (cb02c: never one inside another's
     // drawing).
@@ -2239,7 +2244,7 @@ pub fn group_count(area: int) -> int {
     if area == forest.SHINGLE {
         3
     } else if area == forest.TOWN {
-        5
+        4
     } else if area == forest.BRAMBLEHOLD || area == forest.LARKMEADOW {
         6
     } else if area == forest.CRAGS {
@@ -2264,16 +2269,16 @@ pub fn group_plan(seed: int, area: int, g: int) -> (int, int, int, int) {
     }
     if area == forest.TOWN {
         let row = (
+            // R-cb05-5: one pair in the lane's first third (row 40 of
+            // 240); the rest beyond the first cross street.
             if g == 0 {
                 40
             } else if g == 1 {
-                68
+                88
             } else if g == 2 {
-                184
-            } else if g == 3 {
-                212
+                160
             } else {
-                244
+                204
             }
         ) +
             jitter
@@ -2453,7 +2458,7 @@ fn ashen_move(mut s: Sim, i: int, tx: int, ty: int) {
     let ny = g.y - speed * cos(g.heading) / FP
     let cx = floor_div(nx, FP)
     let cy = floor_div(ny, FP)
-    let out = !forest.in_town(s.seed, cx, cy - forest.origin(s.seed, s.area))
+    let out = !forest.in_town(s.seed, s.field, cx, cy - forest.origin(s.seed, s.area))
     let stops = out || blocked(s, cx, cy) || foe_blocked_by_body(s, i, nx, ny, g.heading)
     s.foes[i].speed = if stops then 0 else speed
     if !stops { s.foes[i].x = nx; s.foes[i].y = ny }
