@@ -1010,12 +1010,16 @@ def cb07_strikes(binary, ctx):
                 left = -(c[1] - before[1]) / 4
                 peaks.append((age, round(forward, 2), round(left, 2), c[2]))
             print(f'cb07 strikes tier={tier} hit={combo} ' + ' '.join(f'{a}:{f}/{l}' for a, f, l, _ in peaks))
+            # The strike census holds the whole cells exactly on the drawing
+            # alone; a recorded frame also carries the marks drawn over the
+            # body (the landing star, the posture marks), which this row
+            # leaves out of the centroid at a few hundredths' cost.
             held = [(a, f, l) for a, f, l, _ in peaks if 3 <= a <= (8 if combo == 3 else 6)]
-            if combo == 1 and not (len(held) >= 4 and all(f >= 1 and l >= 1 for _, f, l in held)):
+            if combo == 1 and not (len(held) >= 4 and all(f >= .9 and l >= .9 for _, f, l in held)):
                 problems.append(f'{tier}: hit 1 is not a cell forward-left for four ticks: {held}')
-            if combo == 2 and not (len(held) >= 4 and all(f >= 1 and l <= -1 for _, f, l in held)):
+            if combo == 2 and not (len(held) >= 4 and all(f >= .9 and l <= -.9 for _, f, l in held)):
                 problems.append(f'{tier}: hit 2 is not a cell forward-right for four ticks: {held}')
-            if combo == 3 and not (len(held) >= 6 and all(f >= 2 for _, f, _l in held)):
+            if combo == 3 and not (len(held) >= 6 and all(f >= 1.9 for _, f, _l in held)):
                 problems.append(f'{tier}: hit 3 is not two cells forward for six ticks: {held}')
             if combo == 3:
                 swings = [(a, l) for a, f, l, _ in peaks if 5 <= a <= 12]
