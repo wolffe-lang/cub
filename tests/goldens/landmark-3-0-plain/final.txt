@@ -1,10 +1,10 @@
-        ----------                      O#OThe TeethO#O#O#O#O#O#O#O#O#O#O#O#O#O#
- health [========]                      #O#O .   , O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-        -----------                     O#O#       #O#O#O#O#O#O#O#O#O#O#O#O#O#O#
- stamina[=========]                     #O#       #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-        -----------                     O#O     ..O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
- HP 76/76  stamina 90/90  scent 0  rally 0                                      
- Water 3/3  w drink                                                             
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#OThe TeethO#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#healthO#========O#O#O#O#O#O#O#O#O#O#O#O#O#O .   , O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#       #O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#stamina#=========#O#O#O#O#O#O#O#O#O#O#O#O#       #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     ..O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#Water#3/3#OwOdrinkO#O#O#O#O#O#O#O#O#O#O#O#       #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#       #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 #The Teeth - a den ahead; scent of homeO#O       O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
 O#O O   "#  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   :~  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 #O#  ':     #'#O#O#O#O#O#O#O#O# .  ## | ###\_/###O#O#O#O#O#O#O         :#O#O#O#O
@@ -17,8 +17,8 @@ O#O#O.  "','O|"#....___                .vv.        .      .   :       .
 O#O  # "O: . :,,_/.....    ,  .#O#O#O#O     .         ,       O#O#O#O#O# .      
 #O#   .O" .     "  .       O#O#O#O#O#O        .           #O#O#O#O#O#O#O#O#   . 
 O#O'   : '  "#"         O#O#O#O#O#O#O# .     #O#.      #O#O#O#O#O#O#O#O#O#O#O   
-#O# "   '|"' O   O#O#O#O#O#O#O#O#O#O#O       O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
-O#O" # #." #O  : #O#O#O#O#O#O#O#O#O#O   .   O#O#O#O#O#O#O:O#:#O#O#O#O#O#O#O#O#O#
-#O#   "'      ."#O#O#O#O#O#O#O#O#O#O#     : #O#O#O#O#O#O#O::#O:O#O#O#O#O#O#O#O#O
-O#O ' '  ,:"  | O#O#O#O#O#O#O#O#O#O#       #O#O#O#O#O#O#O:O#::O#O#O#O#O#O#O#O#O#
-#O#O  '  " O  #O#O#O#O#O#O#O#O#O#O#O:      O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+#O# "   '|"' O   O#O#O#O#O#O#O#O#O#O#O       O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O###O
+O#O" # #." #O  : #O#O#O#O#O#O#O#O#O#O   .   O#O#O#O#O#O#O:O#:#O#O#O#O#O#O#O#####
+#O#   "'      ."#O#O#O#O#O#O#O#O#O#O#     : #O#O#O#O#O#O#O::#O:O#O#O#OscentO#O#O
+O#O ' '  ,:"  | O#O#O#O#O#O#O#O#O#O#       #O#O#O#O#O#O#O:O#::O#O#O#O#O#O#O#####
+#O#O  '  " O  #O#O#O#O#O#O#O#O#O#O#O:      O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O###O

@@ -174,7 +174,6 @@ t 160 down
 t 160 left
 t 161 lock
 t 161 down
-t 161 left
 t 161 bite
 t 161 release
 t 165 down
@@ -182,9 +181,13 @@ t 165 left
 t 166 down
 t 166 left
 t 167 down
+t 167 left
 t 168 down
+t 168 left
 t 169 down
+t 169 left
 t 170 down
+t 170 left
 t 171 down
 t 172 down
 t 173 down
@@ -207,5 +210,6 @@ t 189 down
 t 190 down
 t 191 down
 t 192 down
+t 193 down
 
-# frames 193 every 193
+# frames 194 every 194
