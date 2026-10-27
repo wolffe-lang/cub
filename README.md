@@ -190,6 +190,8 @@ and tiers, plus real arrow/confirm/discard pty witnesses. The opening has
 every shot at 80×24, 120×40 and 200×60 on both tiers, disjoint sky/ice/water
 styles, a full-length terminal run and a recorded real-key skip per shot.
 `--motion-census` separates area, terrain, heading and gait over50 seeds.
+`--motion-render` times full frames by area; `--fox-roll-census` checks early
+and correctly timed rolls against the fox at body contact.
 `--feel-audit`, `--chase-audit` and `--mouth-audit` census the dens,
 switchbacks, clearings, pursuit and safe arena approaches. cb05's `--den-spacing`,
 `--foe-census`, `--bends-audit` (no bend reverses within eight cells on any inland route or
