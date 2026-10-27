@@ -13,12 +13,12 @@ def check(binary):
     audit = subprocess.run([str(binary), '--world-audit'], capture_output=True, text=True, check=True)
     (out / 'reachability.txt').write_text(audit.stdout)
     rows = [list(map(int, row.split())) for row in audit.stdout.splitlines()[1:]]
-    assert len(rows) == 600 and {(r[0], r[1], r[2]) for r in rows} == {(s, f, a) for s in range(50) for f in (80, 200) for a in range(6)}
+    assert len(rows) == 700 and {(r[0], r[1], r[2]) for r in rows} == {(s, f, a) for s in range(50) for f in (80, 200) for a in range(7)}
     # reached == required; straight <= 12; nearest foe >= 30; the caches per
-    # area (none in the last three, cb04); bank step <= 1; flat run <= 2; textured share >= 90 %; walk <= 200;
+    # area (three inland, four in the town, none in the last three; cb05); bank step <= 1; flat run <= 2; textured share >= 90 %; walk <= 200;
     # every path cell in its area's one path style (cb02c).
     assert all(len(r) == 13 for r in rows), 'world audit row has the wrong columns'
-    assert all(r[3] == r[4] and r[5] <= 12 and r[6] >= 30 and r[7] == {0: 4, 1: 2, 2: 2}.get(r[2], 0) and r[8] <= 1
+    assert all(r[3] == r[4] and r[5] <= 12 and r[6] >= 30 and r[7] == {0: 4, 1: 3, 2: 3, 6: 4}.get(r[2], 0) and r[8] <= 1
                and r[9] <= 2 and r[10] >= 90 and r[11] <= 200 and r[12] == 0 for r in rows), 'world audit row out of bounds'
 
     def run(name, path, frames=1, case=None, extra=(), want=0):

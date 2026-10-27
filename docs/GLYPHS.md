@@ -49,6 +49,8 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+258C | ▌ | LEFT HALF BLOCK | Block Elements | E2 96 8C | a silhouette cell lit on the left |
 | U+2590 | ▐ | RIGHT HALF BLOCK | Block Elements | E2 96 90 | a silhouette cell lit on the right |
 | U+2591 | ░ | LIGHT SHADE | Block Elements | E2 96 91 | a gravel mark, a jetty face, a log grain |
+| U+2592 | ▒ | MEDIUM SHADE | Block Elements | E2 96 92 | a ruined wall's face (Cinderwick) |
+| U+2593 | ▓ | DARK SHADE | Block Elements | E2 96 93 | a ruined wall's face (Cinderwick) |
 | U+2596 | ▖ | QUADRANT LOWER LEFT | Block Elements | E2 96 96 | den volume and fire |
 | U+2597 | ▗ | QUADRANT LOWER RIGHT | Block Elements | E2 96 97 | den volume and fire |
 | U+2598 | ▘ | QUADRANT UPPER LEFT | Block Elements | E2 96 98 | den volume and fire |
@@ -58,6 +60,8 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+259E | ▞ | QUADRANT UPPER RIGHT AND LOWER LEFT | Block Elements | E2 96 9E | den volume and fire |
 | U+259F | ▟ | QUADRANT UPPER RIGHT AND LOWER LEFT AND LOWER RIGHT | Block Elements | E2 96 9F | den volume and fire |
 | U+25CF | ● | BLACK CIRCLE | Geometric Shapes | E2 97 8F | the shadow alpha's eye; scent core, spring glint, bone and stepping stones |
+| U+2735 | ✵ | EIGHT POINTED PINWHEEL STAR | Dingbats | E2 9C B5 | an ember that never went out |
+| U+2736 | ✶ | SIX POINTED BLACK STAR | Dingbats | E2 9C B6 | an ember that never went out |
 | U+2801 | ⠁ | BRAILLE PATTERN DOTS-1 | Braille Patterns | E2 A0 81 | a silhouette cell (braille of its lit pixels) |
 | U+2802 | ⠂ | BRAILLE PATTERN DOTS-2 | Braille Patterns | E2 A0 82 | a silhouette cell (braille of its lit pixels) |
 | U+2803 | ⠃ | BRAILLE PATTERN DOTS-12 | Braille Patterns | E2 A0 83 | a silhouette cell (braille of its lit pixels) |

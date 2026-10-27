@@ -31,8 +31,14 @@ for cp in want:
         if 0x2800 <= cp <= 0x28FF:
             rows[cp] = f'| U+{cp:04X} | {ch} | {name} | Braille Patterns | {utf8} | a silhouette cell (braille of its lit pixels) |'
         else:
-            assert cp == 0x25CF, hex(cp)
-            rows[cp] = f'| U+{cp:04X} | {ch} | {name} | Geometric Shapes | {utf8} | the shadow alpha\'s eye |'
+            # cb05's ground: the town's walls and embers.
+            known = {0x25CF: ('Geometric Shapes', "the shadow alpha's eye"),
+                     0x2592: ('Block Elements', "a ruined wall's face (Cinderwick)"),
+                     0x2593: ('Block Elements', "a ruined wall's face (Cinderwick)"),
+                     0x2735: ('Dingbats', 'an ember that never went out'),
+                     0x2736: ('Dingbats', 'an ember that never went out')}
+            assert cp in known, hex(cp)
+            rows[cp] = f'| U+{cp:04X} | {ch} | {name} | {known[cp][0]} | {utf8} | {known[cp][1]} |'
         print('added', f'U+{cp:04X}')
 for cp in sorted(rows):
     if cp not in want:
