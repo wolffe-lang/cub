@@ -369,7 +369,10 @@ pub const SWEEP_ANCHORS: int = 6
 /// tapered approaches rather than a long straight corridor.
 fn switchback(seed: int, at: int) -> int {
     let amp = 24 + world.hash(seed, 91, 0, 5)
-    if at < 16 { return -amp * at / 16 }
+    // The way in eases out of the doorway (cb05): a smoothstep over the
+    // first sixteen rows keeps the arrival cell on the route (a linear
+    // taper at this swing left x = 0 off it four rows in).
+    if at < 16 { return 0 - amp * ss(at * FP / 16) / FP }
     if at >= 232 { return -amp * (LENGTH_MAX - at) / 56 }
     let leg = (at - 16) / 36
     let part = (at - 16) % 36
