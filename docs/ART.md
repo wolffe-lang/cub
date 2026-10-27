@@ -164,10 +164,11 @@ The meadow hawk has its own seven-column posture/fade sheet on both tiers.
 A scent pickup shares the death mark's star, fades to a dot, and disappears
 on collection or expiry.
 
-The opening is a side-view composition of Moonford: near-black sky and a
-moon, a far-bank treeline, a broad pale scored ice field, and a horizontal
-shingle/reed coast along the bottom. Original side silhouettes make the
-three adults larger than the last, smallest cub. A first seam radiates
+The opening uses the game's top-down wolves at Moonford: near-black sky
+and a moon, a broad pale scored ice field, and the Shingle's rocky grey
+coast and thick forest on both banks. `draw_pose` and `draw_wolf` draw the
+cub and adults at their gameplay scale and palette, with only fur over
+ice shaded dark. There is no second body drawing. A first seam radiates
 under its feet; the cub holds while the pack walks on, then six branching
 seams spread rapidly. The plate opens onto moving deep-blue water; the
 cub drops and is progressively occluded, then drifts beneath a shrinking
@@ -176,7 +177,14 @@ surface light. Ice seams never paint the bank.
 Sky, ice and deep water have disjoint foreground/background/attribute
 sets even for blank cells, tested independently on both tiers. The ice's
 sparse scored lines are static; water's ripples move. The separation does
-not depend on a caption or rich glyphs.
+not depend on a caption or rich glyphs. Both banks call `ground_at` in
+`forest.SHINGLE`: real gravel-band world coordinates, then real closed
+forest coordinates. No coastline or foliage glyph/palette table is
+copied. Gravel spans five rows at80×24 and the widened Shingle's seven
+at120×40/200×60; thick forest spans two/four/six rows on each side. The
+small viewport clips bank depth rather than shrinking the sprites.
+Tests check every displayed bank/forest pair against world-emitted pairs
+and every wolf cell against the in-game silhouette and footprint.
 
 Three rounded eyelid blinks open slowly/dimly, then faster and wider;
 only the last reveal reaches a clear view. That view is the actual seeded

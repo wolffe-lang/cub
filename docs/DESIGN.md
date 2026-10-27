@@ -916,3 +916,13 @@ Twenty sampled moments (all shots, first peak and each blink shut) have
 80×24, 120×40 and 200×60 goldens on both tiers. `opening-complete` waits
 through the real sequence; `opening-skip-00` through `opening-skip-15`
 press a real arrow in each shot and compare the resulting recording.
+
+
+The item5 play correction reuses `art.draw_pose` / `art.draw_wolf` and
+`silhouette.footprint`: no cutscene-only body or scale. `opening_bank_cell`
+asks `ground_at` for real Shingle coordinates on both banks, with a
+five-row gravel band at80×24 (viewport fit) and the widened coast's seven
+rows at120×40/200×60. Two/four/six rows of the world's thick forest lie
+beyond each bank. The far bank mirrors depth, not glyphs. Only fur over
+pale ice changes shade; other fur uses the normal gameplay palette.
+The timing, cue, skip, save and replay rules above do not change.
