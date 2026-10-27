@@ -77,10 +77,14 @@ t 66 down
 t 67 down
 t 68 down
 t 69 down
+t 69 right
 t 70 down
-t 71 down
+t 70 right
+t 71 right
 t 72 down
+t 72 right
 t 73 down
+t 73 right
 t 74 down
 t 75 down
 t 76 down
@@ -94,7 +98,8 @@ t 83 down
 t 84 down
 t 85 down
 t 86 down
-t 87 health -30
-t 87 water
+t 87 down
+t 88 health -30
+t 88 water
 
-# frames 123 every 123
+# frames 124 every 124

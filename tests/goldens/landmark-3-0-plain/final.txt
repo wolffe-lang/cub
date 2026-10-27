@@ -1,0 +1,24 @@
+ health [============] #The Teeth#O#O#O#O#O#  .    #O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+ stamina[============] Oscent 0O#O#O#O#O#O#O .   , O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+                       #The Teeth - a den ahead; scent of homeO#O#O#O#O#O#O#O#O#
+                        Water 3/3  w drink        #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+                       #O#O#O#O#O#O#O#O#O#O     ..O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#       #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#       #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#' ",  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O       O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O O   "#  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   :~  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#  ':     #'#O#O#O#O#O#O#O#O# .  ## | ###\_/###O#O#O#O#O#O#O         :#O#O#O#O
+O#O'","" .| '  #O#O#O#O#O#O.   . . ## | :#(...)#O#O#O#O#O#       ,         #O#O#
+#O#      O   |  #O#O#O#O           #_/,..,'/*\###O#O#O# :   .    :.          O#O
+O#O,  :  ,.#   .   . :                 ####.....      .:            ,      ..   
+#O#""   .'  :,|   .             .   .  ####  ,     . ,                          
+O#O#O.  "','O|"#....___                .vv.        .      .   :       .         
+#O#. O'   #" |  .._/...     . ,                 ,         :   ,         ,    .  
+O#O  # "O: . :,,_/.....    ,  .#O#O#O#O     .         ,       O#O#O#O#O# .      
+#O#   .O" .     "  .       O#O#O#O#O#O        .           #O#O#O#O#O#O#O#O#   . 
+O#O'   : '  "#"         O#O#O#O#O#O#O# .     #O#.      #O#O#O#O#O#O#O#O#O#O#O   
+#O# "   '|"' O   O#O#O#O#O#O#O#O#O#O#O       O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O" # #." #O  : #O#O#O#O#O#O#O#O#O#O   .   O#O#O#O#O#O#O:O#:#O#O#O#O#O#O#O#O#O#
+#O#   "'      ."#O#O#O#O#O#O#O#O#O#O#     : #O#O#O#O#O#O#O::#O:O#O#O#O#O#O#O#O#O
+O#O ' '  ,:"  | O#O#O#O#O#O#O#O#O#O#       #O#O#O#O#O#O#O:O#::O#O#O#O#O#O#O#O#O#
+#O#O  '  " O  #O#O#O#O#O#O#O#O#O#O#O:      O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
