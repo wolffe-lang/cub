@@ -175,6 +175,20 @@ Rulings, recommended and implemented, never decided:
   binaries; the score check; every pty row (`cb07-strikes` on release and native); both gameplay stages
   with the boss census 400/400; the Mac's perf and perf-idle under their bars (latency median 32.8 ms,
   p90 33.5 against 40/70).
+- **After the rebase onto trunk `f6a50a58` (cb05, then cb04b's rebase): gates both green at `5ad65d94`**
+  (`notes/cb07-evidence/gates/mac-final-5ad65d94.log`, `MAC_FINAL_EXIT 0` 14:18:57Z;
+  `linux-5ad65d94.log`, `LINUX_EXIT 0` 14:25:53Z): 397 checked tests, 0 failed/rejected/unsupported, 0
+  SKIP, on both hosts; both censuses `broken=0`/`stray=0` on both binaries; every golden on both binaries;
+  the score check; every pty row (the engine's three fresh-journey rows after `tools/prepare-pty`, as
+  trunk's gates run them); both gameplay stages with the boss census 400 of 400; perf and perf-idle under
+  their bars. The commits of the rebase pass: `a5689158` (the walker: a fight in place is not a stall, the
+  strike aimed at the foe's bearing, the narrated walk), `8bd3c643` (`cross.encounter`,
+  `--crossing-trace`), `33ae9b14` (the Ashen 20/14), `5336b1c1` (the HUD tests one frame each),
+  `5fbd1bad` (`notes/cb07-evidence/ashen/`), the switches commit, the witnesses regenerated on the merged
+  code (42 of 44 cases, every golden), `fdd5ecbf` (DESIGN and this note), `cfe24a12` (cb05's back-bite
+  row through `foe_health`), `5ad65d94` (the gate scripts with `prepare-pty`).
+- The play binary at the final head: `~/lanes/cb07/cub-play-5ad65d94` (the gated head; sha in the
+  hand-back); the earlier `cub-play-687f308b` and `cub-play-505caabf` are the pre-rebase builds.
 - **Plants** (RULES §7, a module lane: red in my own gauntlet, no CI dispatched; `notes/cb07-evidence/plants/`):
   cub#57 `cb07-plant-strike` (`af1ecd39`, hit 1 half a cell across the aim): `cub --strike-census` exit 1,
   `rows=656 broken=48`; `wolf test --filter cb07_hit_one`: `test_cb07_hit_one_lunges_a_cell_forward_left_held_four_ticks_plain`
@@ -192,8 +206,10 @@ Rulings, recommended and implemented, never decided:
   person sees at play speed, in words, above.
 - [x] Item 2: the HUD reduced to health, stamina, scent; the bars flush on the map; the big scent number;
   the frame census with no stray cell; the scent goldens at both fields, both tiers, day and night.
-- [ ] Item 3: the Ashen's health and blow, after the rebase the orchestrator announces (R-cb07-1).
+- [x] Item 3: the Ashen 20 health / 14 blow (R-cb07-1), measured before and after with the one-Ashen
+  encounter census at both fields; cb05's crossing 10 of 10, the hitbox audit and the boss census green.
 - [x] Item 4 so far: cb04b's strict tests and its replays green (one row rewritten, the regenerated
   journeys disclosed above); both hosts' gates green at `505caabf`; the two plants as draft PRs red by name;
   KEYS/ART/GLYPHS/DESIGN and the README refreshed; this note.
-- [ ] After the rebase: regate at the final head, the audit's last line, one CI read, the final hand-back.
+- [x] After the rebase: both gates green at `5ad65d94`; the audit's last line and one CI read in the
+  hand-back; the merge and the full-matrix label are the orchestrator's.
