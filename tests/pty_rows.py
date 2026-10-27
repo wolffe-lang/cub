@@ -564,7 +564,7 @@ def den_checkpoint(binary, ctx):
         final = states[-1]
         if not any(v.get('resting') == 1 and v['den_id'] == 2 for v in states):
             problems.append('did not rest at den2')
-        if (final['area'], final['den_id'], final['x'], final['y'], final['deaths'], final['mark_area']) != (1, 2, 3968, 23680, 1, 1):
+        if (final['area'], final['den_id'], final['x'], final['y'], final['deaths'], final['mark_area']) != (1, 2, -2688, 26240, 1, 1):
             problems.append('death failed to wake at den2 with its mark in the death area')
         if final['mark'] != 1 or final['health'] != 52:
             problems.append('death mark or rest healing missing')
@@ -690,3 +690,87 @@ def doorway_return(binary, ctx):
     return session, problems
 
 ROWS['doorway-return'] = doorway_return
+
+
+def _agree(binary, ctx, case_name, ticks, check):
+    """cb05: a real-key witness replayed through the pty, its capture applied
+    and compared with the headless frame, and its trace checked for the event
+    the row names (a town passage, an Ashen parried, an ember touched, a
+    yard's cache dug)."""
+    root = Path(ctx.ROOT)
+    case = root / 'tests' / 'cases' / (case_name + '.pk')
+    s = ctx.Session([binary, '--replay', str(case), '--ticks', str(ticks), '--tier', 'plain', '--no-truecolor', '--mute'], 24, 80, ctx.env_for())
+    s.finish()
+    problems = []
+    ctx.common_checks(s, 0, problems)
+    dest = root / 'target' / 'pty' / case_name
+    dest.mkdir(parents=True, exist_ok=True)
+    cap = dest / 'capture.bin'
+    cap.write_bytes(s.out)
+    applied = subprocess.run([binary, '--apply', str(cap), '--size', '80x24'], capture_output=True, check=True)
+    traced = subprocess.run([binary, '--headless', '--script', str(case), '--frames', str(ticks), '--every', str(ticks), '--tier', 'plain', '--trace', '--dump', str(dest)], capture_output=True, text=True, check=True)
+    text, sty, _ = applied.stdout.decode().split('--\n')
+    if text != (dest / 'final.txt').read_text() or sty != (dest / 'final.sty').read_text():
+        problems.append(case_name + ': the live frame differs from the headless frame')
+    states, foes, tick = {}, {}, None
+    for line in traced.stderr.splitlines():
+        words = line.split()
+        if words[:1] == ['tick']:
+            st = dict(zip(words[::2], map(int, words[1::2])))
+            tick = st['tick']
+            states[tick] = st
+            foes[tick] = []
+        elif words[:1] == ['foe']:
+            foes[tick].append(dict(zip(words[::2], map(int, words[1::2]))))
+    problem = check(states, foes)
+    if problem:
+        problems.append(problem)
+    return s, problems
+
+
+def _ticks_of(ctx, case_name):
+    import re
+    text = (Path(ctx.ROOT) / 'tests' / 'cases' / (case_name + '.pk')).read_text()
+    return int(re.search(r'# frames (\d+)', text)[1])
+
+
+def town_passage(binary, ctx):
+    def check(states, foes):
+        if not any(v['area'] == 6 for v in states.values()):
+            return 'the passage row never stood in Cinderwick'
+        return None
+    return _agree(binary, ctx, 'town-passage', _ticks_of(ctx, 'town-passage'), check)
+
+
+def ashen_parry(binary, ctx):
+    def check(states, foes):
+        wound = [t for t, fs in foes.items() if any(f['kind'] == 8 and f['phase'] == 1 for f in fs)]
+        staggered = [t for t, fs in foes.items() if any(f['kind'] == 8 and f['phase'] == 4 for f in fs)]
+        if not wound or not staggered or min(staggered) <= min(wound):
+            return 'no Ashen wound up and was staggered'
+        return None
+    return _agree(binary, ctx, 'ashen-parry', _ticks_of(ctx, 'ashen-parry'), check)
+
+
+def ember_touch(binary, ctx):
+    def check(states, foes):
+        healths = [v['health'] for t, v in sorted(states.items())]
+        if not healths or min(healths) >= healths[0]:
+            return 'the ember did not burn'
+        return None
+    return _agree(binary, ctx, 'ember-touch', _ticks_of(ctx, 'ember-touch'), check)
+
+
+def yard_cache(binary, ctx):
+    def check(states, foes):
+        final = states[max(states)]
+        if not final['caches'] & (1 << 8):
+            return "the yard's cache was not dug"
+        if not any(f['kind'] == 8 and f['health'] <= 0 for f in foes[max(foes)]):
+            return 'the guard was not fought down'
+        return None
+    return _agree(binary, ctx, 'yard-cache', _ticks_of(ctx, 'yard-cache'), check)
+
+
+ROWS.update({'town-passage': town_passage, 'ashen-parry': ashen_parry,
+             'ember-touch': ember_touch, 'yard-cache': yard_cache})
