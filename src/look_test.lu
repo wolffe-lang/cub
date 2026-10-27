@@ -45,8 +45,6 @@ fn test_cb04c_stamina_edge_is_reserved_after_c() {
         // cb07: the bars sit flush on the map, so the cell beside the
         // stamina bar is the map's own; what may never show there is
         // lettering (the old bones label's c).
-        var bare = grid.new(24, 80)
-        art.render_bare(s, t, mut bare)
         var row = 0
         while row < 5 {
             let cp = grid.at(g, row, 22).cp
@@ -54,9 +52,10 @@ fn test_cb04c_stamina_edge_is_reserved_after_c() {
                 !(cp >= 65 && cp <= 90 || cp >= 97 && cp <= 122),
                 "no lettering at the stamina edge after c",
             )
+            let (wx, wy) = sim.world_cell(s, row, 22)
             assert(
-                grid.same(grid.at(g, row, 22), grid.at(bare, row, 22)),
-                "the stamina edge is the map's own (cb07)",
+                grid.same(grid.at(g, row, 22), art.ground_at(s.seed, s.field, s.area, t, wx, wy)),
+                "the stamina edge is the ground's own cell (cb07)",
             )
             row += 1
         }
