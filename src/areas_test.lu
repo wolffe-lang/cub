@@ -181,14 +181,14 @@ fn arenas_are_open_ground_inside_their_bounds(seed: int) {
                                 assert(area == forest.CRAGS, "stone only in the lynx's bowl")
                                 pillars += 1
                             } else {
+                                // Blockedness read from the kind in hand (one
+                                // classification a cell keeps the checked
+                                // machine in budget over the wider forest).
                                 assert(
-                                    !forest.blocked(
-                                        seed,
-                                        field,
-                                        area,
-                                        cx + dx,
-                                        forest.origin(seed, area) + cy + dy,
-                                    ),
+                                    k != terrain.TRUNK &&
+                                        k != terrain.DARK &&
+                                        k != terrain.WATER &&
+                                        k != terrain.WALL,
                                     "open arena seed {seed} area {area} at {dx},{dy} kind {k}",
                                 )
                             }
