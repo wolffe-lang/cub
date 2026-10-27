@@ -1,4 +1,4 @@
-final gate at c79544f498b438693806f43092ebc8d158a349b6 2026-10-27T04:34:21Z
+final gate at 4a7cd345db8e9c060c0b51a25c7abf40c0edbcff 2026-10-27T06:43:11Z
 check-fmt: canonical
 test src/areas_test.lu::test_cb04_the_graph_has_six_areas_and_nine_edges ... ok
 test src/areas_test.lu::test_cb04_every_area_reaches_its_dens_portals_and_arena ... ok
@@ -81,6 +81,14 @@ test src/den_integration_test.lu::test_cb04a_healing_uses_the_shared_ring_and_vi
 test src/den_test.lu::test_cb04a_bramblehold_den_is_down_a_winding_leg ... ok
 test src/den_test.lu::test_cb04a_den_enters_at_three_cells_and_pauses_world ... ok
 test src/den_test.lu::test_cb04a_death_wakes_at_rested_den_two_not_the_start ... ok
+test src/denmemory_test.lu::test_cb04f_wounded_survivors_heal_and_home_on_reentry ... ok
+test src/denmemory_test.lu::test_cb04f_rest_and_death_reset_every_area_but_not_bosses ... ok
+test src/denmemory_test.lu::test_cb04f_loot_survives_travel_without_duplicate_collection_or_fresh_expiry ... ok
+test src/denmemory_test.lu::test_cb04f_save_and_snapshot_keep_slain_with_stable_boss_independent_ordinals ... ok
+test src/denmemory_test.lu::test_cb04f_schema4_migrates_canonically_with_empty_slain_masks ... ok
+test src/denworld_test.lu::test_cb04f_slain_survive_path_and_log ... ok
+test src/denworld_test.lu::test_cb04f_ledger_centre_at_three_sizes ... ok
+test src/denworld_test.lu::test_cb04f_narrow_ledger_does_not_slice_scene_labels ... ok
 test src/doorrest_test.lu::test_cb04d_foe_inside_view_is_not_culled_by_anchor_sight ... ok
 test src/doorrest_test.lu::test_cb04d_doorway_edge_crosses_and_arrival_does_not_bounce ... ok
 test src/doorrest_test.lu::test_cb04d_foe_is_clipped_at_each_view_edge_not_dropped_whole ... ok
@@ -182,6 +190,20 @@ test src/look_test.lu::test_cb04c_stamina_edge_is_reserved_after_c ... ok
 test src/meadow_test.lu::test_cb03a_landmark_rules_and_original_atlas ... ok
 test src/meadow_test.lu::test_cb03a_creek_never_closes_the_route_ford ... ok
 test src/meadow_test.lu::test_cb03a_deer_flee_is_bounded_and_the_turn_is_a_free_hit ... ok
+test src/opening_test.lu::test_cb06_shots_and_whole_scene_skip ... ok
+test src/opening_test.lu::test_cb06_sky_ice_water_are_disjoint_cell_styles ... ok
+test src/opening_test.lu::test_cb06_first_blink_never_opens_fully ... ok
+test src/opening_test.lu::test_cb06_crack_frame_has_the_cue ... ok
+test src/opening_test.lu::test_cb06_clear_view_is_the_actual_spawn ... ok
+test src/opening_test.lu::test_cb06_cub_freezes_while_the_pack_walks ... ok
+test src/opening_test.lu::test_cb06_rendered_wolves_contrast_with_ice_and_water ... ok
+test src/opening_test.lu::test_cb06_both_shingle_banks_24_plain ... ok
+test src/opening_test.lu::test_cb06_both_shingle_banks_24_rich ... ok
+test src/opening_test.lu::test_cb06_both_shingle_banks_40_plain ... ok
+test src/opening_test.lu::test_cb06_both_shingle_banks_40_rich ... ok
+test src/opening_test.lu::test_cb06_both_shingle_banks_60_plain ... ok
+test src/opening_test.lu::test_cb06_both_shingle_banks_60_rich ... ok
+test src/opening_test.lu::test_cb06_opening_wolves_are_the_game_silhouettes ... ok
 test src/pickup_test.lu::test_cb04c_pickup_ring_every_edge_and_outside ... ok
 test src/pickup_test.lu::test_cb04c_mark_recovers_once_at_contact_ring_with_burst ... ok
 test src/pickup_test.lu::test_cb04c_other_area_mark_and_second_death ... ok
@@ -297,7 +319,7 @@ test src/world_rules_test.lu::test_cb02_hawk_shadow_does_not_pin_a_dodge ... ok
 test src/world_rules_test.lu::test_cb02_cache_is_guarded_finite_and_persisted ... ok
 test src/world_rules_test.lu::test_cb02_opening_is_timed_skippable_and_pure_on_both_tiers ... ok
 test src/world_rules_test.lu::test_cb02_spawned_bodies_stand_on_passable_ground ... ok
-wolf test: 295 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+wolf test: 317 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
 test: 0 SKIP lines
 build: target/native/cub
 build: target/release/cub
@@ -372,6 +394,8 @@ goldens: den-bars-80x24-rich ok
 goldens: den-bars-80x24-plain ok
 goldens: den-checkpoint-rich ok
 goldens: den-checkpoint-plain ok
+goldens: den-memory-rich ok
+goldens: den-memory-plain ok
 goldens: diagonal-rich ok
 goldens: diagonal-plain ok
 goldens: dodge-rich ok
@@ -434,8 +458,128 @@ goldens: natural-death-rich ok
 goldens: natural-death-plain ok
 goldens: old-den-rich ok
 goldens: old-den-plain ok
+goldens: opening-black-120x40-rich ok
+goldens: opening-black-120x40-plain ok
+goldens: opening-black-200x60-rich ok
+goldens: opening-black-200x60-plain ok
+goldens: opening-black-80x24-rich ok
+goldens: opening-black-80x24-plain ok
+goldens: opening-blink1-close-120x40-rich ok
+goldens: opening-blink1-close-120x40-plain ok
+goldens: opening-blink1-close-200x60-rich ok
+goldens: opening-blink1-close-200x60-plain ok
+goldens: opening-blink1-close-80x24-rich ok
+goldens: opening-blink1-close-80x24-plain ok
+goldens: opening-blink1-open-120x40-rich ok
+goldens: opening-blink1-open-120x40-plain ok
+goldens: opening-blink1-open-200x60-rich ok
+goldens: opening-blink1-open-200x60-plain ok
+goldens: opening-blink1-open-80x24-rich ok
+goldens: opening-blink1-open-80x24-plain ok
+goldens: opening-blink1-peak-120x40-rich ok
+goldens: opening-blink1-peak-120x40-plain ok
+goldens: opening-blink1-peak-200x60-rich ok
+goldens: opening-blink1-peak-200x60-plain ok
+goldens: opening-blink1-peak-80x24-rich ok
+goldens: opening-blink1-peak-80x24-plain ok
+goldens: opening-blink1-shut-120x40-rich ok
+goldens: opening-blink1-shut-120x40-plain ok
+goldens: opening-blink1-shut-200x60-rich ok
+goldens: opening-blink1-shut-200x60-plain ok
+goldens: opening-blink1-shut-80x24-rich ok
+goldens: opening-blink1-shut-80x24-plain ok
+goldens: opening-blink2-close-120x40-rich ok
+goldens: opening-blink2-close-120x40-plain ok
+goldens: opening-blink2-close-200x60-rich ok
+goldens: opening-blink2-close-200x60-plain ok
+goldens: opening-blink2-close-80x24-rich ok
+goldens: opening-blink2-close-80x24-plain ok
+goldens: opening-blink2-open-120x40-rich ok
+goldens: opening-blink2-open-120x40-plain ok
+goldens: opening-blink2-open-200x60-rich ok
+goldens: opening-blink2-open-200x60-plain ok
+goldens: opening-blink2-open-80x24-rich ok
+goldens: opening-blink2-open-80x24-plain ok
+goldens: opening-blink2-shut-120x40-rich ok
+goldens: opening-blink2-shut-120x40-plain ok
+goldens: opening-blink2-shut-200x60-rich ok
+goldens: opening-blink2-shut-200x60-plain ok
+goldens: opening-blink2-shut-80x24-rich ok
+goldens: opening-blink2-shut-80x24-plain ok
+goldens: opening-blink3-close-120x40-rich ok
+goldens: opening-blink3-close-120x40-plain ok
+goldens: opening-blink3-close-200x60-rich ok
+goldens: opening-blink3-close-200x60-plain ok
+goldens: opening-blink3-close-80x24-rich ok
+goldens: opening-blink3-close-80x24-plain ok
+goldens: opening-blink3-open-120x40-rich ok
+goldens: opening-blink3-open-120x40-plain ok
+goldens: opening-blink3-open-200x60-rich ok
+goldens: opening-blink3-open-200x60-plain ok
+goldens: opening-blink3-open-80x24-rich ok
+goldens: opening-blink3-open-80x24-plain ok
+goldens: opening-blink3-shut-120x40-rich ok
+goldens: opening-blink3-shut-120x40-plain ok
+goldens: opening-blink3-shut-200x60-rich ok
+goldens: opening-blink3-shut-200x60-plain ok
+goldens: opening-blink3-shut-80x24-rich ok
+goldens: opening-blink3-shut-80x24-plain ok
+goldens: opening-clear-120x40-rich ok
+goldens: opening-clear-120x40-plain ok
+goldens: opening-clear-200x60-rich ok
+goldens: opening-clear-200x60-plain ok
+goldens: opening-clear-80x24-rich ok
+goldens: opening-clear-80x24-plain ok
+goldens: opening-clear-open-120x40-rich ok
+goldens: opening-clear-open-120x40-plain ok
+goldens: opening-clear-open-200x60-rich ok
+goldens: opening-clear-open-200x60-plain ok
+goldens: opening-clear-open-80x24-rich ok
+goldens: opening-clear-open-80x24-plain ok
+goldens: opening-crack-120x40-rich ok
+goldens: opening-crack-120x40-plain ok
+goldens: opening-crack-200x60-rich ok
+goldens: opening-crack-200x60-plain ok
+goldens: opening-crack-80x24-rich ok
+goldens: opening-crack-80x24-plain ok
+goldens: opening-crossing-120x40-rich ok
+goldens: opening-crossing-120x40-plain ok
+goldens: opening-crossing-200x60-rich ok
+goldens: opening-crossing-200x60-plain ok
+goldens: opening-crossing-80x24-rich ok
+goldens: opening-crossing-80x24-plain ok
+goldens: opening-fall-120x40-rich ok
+goldens: opening-fall-120x40-plain ok
+goldens: opening-fall-200x60-rich ok
+goldens: opening-fall-200x60-plain ok
+goldens: opening-fall-80x24-rich ok
+goldens: opening-fall-80x24-plain ok
+goldens: opening-freeze-120x40-rich ok
+goldens: opening-freeze-120x40-plain ok
+goldens: opening-freeze-200x60-rich ok
+goldens: opening-freeze-200x60-plain ok
+goldens: opening-freeze-80x24-rich ok
+goldens: opening-freeze-80x24-plain ok
+goldens: opening-plate-120x40-rich ok
+goldens: opening-plate-120x40-plain ok
+goldens: opening-plate-200x60-rich ok
+goldens: opening-plate-200x60-plain ok
+goldens: opening-plate-80x24-rich ok
+goldens: opening-plate-80x24-plain ok
 goldens: opening-skip-rich ok
 goldens: opening-skip-plain ok
+goldens: opening-spread-120x40-rich ok
+goldens: opening-spread-120x40-plain ok
+goldens: opening-spread-200x60-rich ok
+goldens: opening-spread-200x60-plain ok
+goldens: opening-spread-80x24-rich ok
+goldens: opening-spread-80x24-plain ok
+goldens: opening-underwater-120x40-rich ok
+goldens: opening-underwater-120x40-plain ok
+goldens: opening-underwater-200x60-rich ok
+goldens: opening-underwater-200x60-plain ok
+goldens: opening-underwater-80x24-rich ok
+goldens: opening-underwater-80x24-plain ok
 goldens: opening-rich ok
 goldens: opening-plain ok
 goldens: parry-rich ok
@@ -464,14 +608,20 @@ goldens: rest-larkmeadow-80x24-rich ok
 goldens: rest-larkmeadow-80x24-plain ok
 goldens: rest-menu-empty-120x40-rich ok
 goldens: rest-menu-empty-120x40-plain ok
+goldens: rest-menu-empty-200x60-rich ok
+goldens: rest-menu-empty-200x60-plain ok
 goldens: rest-menu-empty-80x24-rich ok
 goldens: rest-menu-empty-80x24-plain ok
 goldens: rest-menu-pending-120x40-rich ok
 goldens: rest-menu-pending-120x40-plain ok
+goldens: rest-menu-pending-200x60-rich ok
+goldens: rest-menu-pending-200x60-plain ok
 goldens: rest-menu-pending-80x24-rich ok
 goldens: rest-menu-pending-80x24-plain ok
 goldens: rest-menu-refused-120x40-rich ok
 goldens: rest-menu-refused-120x40-plain ok
+goldens: rest-menu-refused-200x60-rich ok
+goldens: rest-menu-refused-200x60-plain ok
 goldens: rest-menu-refused-80x24-rich ok
 goldens: rest-menu-refused-80x24-plain ok
 goldens: rest-old-den-120x40-rich ok
@@ -567,33 +717,52 @@ goldens: world-thorns-plain ok
 goldens: yard-cache-rich ok
 goldens: yard-cache-plain ok
 goldens: art ok
-pty: quit ok (linux x86_64, exit 0, 15019 bytes captured)
+pty: quit ok (linux x86_64, exit 0, 20964 bytes captured)
 pty: ctrl-c ok (linux x86_64, exit 0, 15019 bytes captured)
 pty: trap ok (linux x86_64, exit 134, 13892 bytes captured)
 pty: agree-rich ok (linux x86_64, exit 0, 58515 bytes captured)
 pty: agree-plain ok (linux x86_64, exit 0, 32454 bytes captured)
-pty: den-keys ok (linux x86_64, exit 0, 18535 bytes captured)
+pty: den-keys ok (linux x86_64, exit 0, 21782 bytes captured)
 pty: death-agree ok (linux x86_64, exit 0, 156154 bytes captured)
 pty: archive-failure ok (linux x86_64, exit 2, 122372 bytes captured)
 pty: feel-controls ok (linux x86_64, exit 0, 8705 bytes captured)
-pty: pending-save ok (linux x86_64, exit 0, 10202 bytes captured)
-pty: save-failure ok (linux x86_64, exit 2, 10171 bytes captured)
-pty: resumed-record ok (linux x86_64, exit 0, 11176 bytes captured)
-pty: sound-live ok (linux x86_64, exit 0, 5342 bytes captured; children during the run []; 11 WAVs)
+pty: pending-save ok (linux x86_64, exit 0, 10190 bytes captured)
+pty: save-failure ok (linux x86_64, exit 2, 10159 bytes captured)
+pty: resumed-record ok (linux x86_64, exit 0, 11270 bytes captured)
+pty: sound-live ok (linux x86_64, exit 0, 5342 bytes captured; children during the run []; 12 WAVs)
 pty: sound-oss ok (linux x86_64, exit 0, 4577 bytes captured)
 pty: sound-mute ok (linux x86_64, exit 0, 4956 bytes captured)
-pty: mute-key ok (linux x86_64, exit 0, 11936 bytes captured)
-pty: title ok (linux x86_64, exit 0, 5019 bytes captured)
-pty: title-demo ok (linux x86_64, exit 0, 44234 bytes captured)
-pty: sprint-live ok (linux x86_64, exit 0, 80741 bytes captured)
+pty: mute-key ok (linux x86_64, exit 0, 15321 bytes captured)
+pty: title ok (linux x86_64, exit 0, 3552 bytes captured)
+pty: title-demo ok (linux x86_64, exit 0, 42838 bytes captured)
+pty: sprint-live ok (linux x86_64, exit 0, 84198 bytes captured)
 pty: sprint-lands ok (linux x86_64, exit 0, 528129 bytes captured)
-pty: level-look-after-c ok (linux x86_64, exit 0, 21398 bytes captured; byte 63, ECHO clear, 80x24/120x40 rich/plain, replay agreement and HUD edge)
+pty: level-look-after-c ok (linux x86_64, exit 0, 24541 bytes captured; byte 63, ECHO clear, 80x24/120x40 rich/plain, replay agreement and HUD edge)
 pty: level-look-recovery ok (linux x86_64, exit 0, 156154 bytes captured)
-pty: den-contact ok (linux x86_64, exit 0, 25554 bytes captured)
-pty: den-checkpoint ok (linux x86_64, exit 0, 104690 bytes captured)
-pty: rest-allocate ok (linux x86_64, exit 0, 22638 bytes captured)
+pty: den-contact ok (linux x86_64, exit 0, 29299 bytes captured)
+pty: den-checkpoint ok (linux x86_64, exit 0, 104645 bytes captured)
+pty: rest-allocate ok (linux x86_64, exit 0, 22764 bytes captured)
 pty: doorway-edge ok (linux x86_64, exit 0, 71897 bytes captured)
 pty: doorway-return ok (linux x86_64, exit 0, 104376 bytes captured)
+pty: den-world-memory ok (linux x86_64, exit 0, 3187199 bytes captured)
+pty: opening-complete ok (linux x86_64, exit 0, 121954 bytes captured)
+pty: opening-skip-00 ok (linux x86_64, exit 0, 10190 bytes captured)
+pty: opening-skip-01 ok (linux x86_64, exit 0, 14470 bytes captured)
+pty: opening-skip-02 ok (linux x86_64, exit 0, 14849 bytes captured)
+pty: opening-skip-03 ok (linux x86_64, exit 0, 16309 bytes captured)
+pty: opening-skip-04 ok (linux x86_64, exit 0, 17249 bytes captured)
+pty: opening-skip-05 ok (linux x86_64, exit 0, 20667 bytes captured)
+pty: opening-skip-06 ok (linux x86_64, exit 0, 34214 bytes captured)
+pty: opening-skip-07 ok (linux x86_64, exit 0, 99718 bytes captured)
+pty: opening-skip-08 ok (linux x86_64, exit 0, 99718 bytes captured)
+pty: opening-skip-09 ok (linux x86_64, exit 0, 102999 bytes captured)
+pty: opening-skip-10 ok (linux x86_64, exit 0, 104237 bytes captured)
+pty: opening-skip-11 ok (linux x86_64, exit 0, 108684 bytes captured)
+pty: opening-skip-12 ok (linux x86_64, exit 0, 110537 bytes captured)
+pty: opening-skip-13 ok (linux x86_64, exit 0, 114045 bytes captured)
+pty: opening-skip-14 ok (linux x86_64, exit 0, 120196 bytes captured)
+pty: opening-skip-15 ok (linux x86_64, exit 0, 121851 bytes captured)
+pty: opening-quit-due ok (linux x86_64, exit 0, 7001 bytes captured; 4 adjacent skip/quit pairs; fresh HOME and explicit path; relaunch checked)
 pty: town-passage ok (linux x86_64, exit 0, 561304 bytes captured)
 pty: ashen-parry ok (linux x86_64, exit 0, 704613 bytes captured)
 pty: ember-touch ok (linux x86_64, exit 0, 810336 bytes captured)
@@ -669,6 +838,8 @@ goldens: den-bars-80x24-rich ok
 goldens: den-bars-80x24-plain ok
 goldens: den-checkpoint-rich ok
 goldens: den-checkpoint-plain ok
+goldens: den-memory-rich ok
+goldens: den-memory-plain ok
 goldens: diagonal-rich ok
 goldens: diagonal-plain ok
 goldens: dodge-rich ok
@@ -731,8 +902,128 @@ goldens: natural-death-rich ok
 goldens: natural-death-plain ok
 goldens: old-den-rich ok
 goldens: old-den-plain ok
+goldens: opening-black-120x40-rich ok
+goldens: opening-black-120x40-plain ok
+goldens: opening-black-200x60-rich ok
+goldens: opening-black-200x60-plain ok
+goldens: opening-black-80x24-rich ok
+goldens: opening-black-80x24-plain ok
+goldens: opening-blink1-close-120x40-rich ok
+goldens: opening-blink1-close-120x40-plain ok
+goldens: opening-blink1-close-200x60-rich ok
+goldens: opening-blink1-close-200x60-plain ok
+goldens: opening-blink1-close-80x24-rich ok
+goldens: opening-blink1-close-80x24-plain ok
+goldens: opening-blink1-open-120x40-rich ok
+goldens: opening-blink1-open-120x40-plain ok
+goldens: opening-blink1-open-200x60-rich ok
+goldens: opening-blink1-open-200x60-plain ok
+goldens: opening-blink1-open-80x24-rich ok
+goldens: opening-blink1-open-80x24-plain ok
+goldens: opening-blink1-peak-120x40-rich ok
+goldens: opening-blink1-peak-120x40-plain ok
+goldens: opening-blink1-peak-200x60-rich ok
+goldens: opening-blink1-peak-200x60-plain ok
+goldens: opening-blink1-peak-80x24-rich ok
+goldens: opening-blink1-peak-80x24-plain ok
+goldens: opening-blink1-shut-120x40-rich ok
+goldens: opening-blink1-shut-120x40-plain ok
+goldens: opening-blink1-shut-200x60-rich ok
+goldens: opening-blink1-shut-200x60-plain ok
+goldens: opening-blink1-shut-80x24-rich ok
+goldens: opening-blink1-shut-80x24-plain ok
+goldens: opening-blink2-close-120x40-rich ok
+goldens: opening-blink2-close-120x40-plain ok
+goldens: opening-blink2-close-200x60-rich ok
+goldens: opening-blink2-close-200x60-plain ok
+goldens: opening-blink2-close-80x24-rich ok
+goldens: opening-blink2-close-80x24-plain ok
+goldens: opening-blink2-open-120x40-rich ok
+goldens: opening-blink2-open-120x40-plain ok
+goldens: opening-blink2-open-200x60-rich ok
+goldens: opening-blink2-open-200x60-plain ok
+goldens: opening-blink2-open-80x24-rich ok
+goldens: opening-blink2-open-80x24-plain ok
+goldens: opening-blink2-shut-120x40-rich ok
+goldens: opening-blink2-shut-120x40-plain ok
+goldens: opening-blink2-shut-200x60-rich ok
+goldens: opening-blink2-shut-200x60-plain ok
+goldens: opening-blink2-shut-80x24-rich ok
+goldens: opening-blink2-shut-80x24-plain ok
+goldens: opening-blink3-close-120x40-rich ok
+goldens: opening-blink3-close-120x40-plain ok
+goldens: opening-blink3-close-200x60-rich ok
+goldens: opening-blink3-close-200x60-plain ok
+goldens: opening-blink3-close-80x24-rich ok
+goldens: opening-blink3-close-80x24-plain ok
+goldens: opening-blink3-open-120x40-rich ok
+goldens: opening-blink3-open-120x40-plain ok
+goldens: opening-blink3-open-200x60-rich ok
+goldens: opening-blink3-open-200x60-plain ok
+goldens: opening-blink3-open-80x24-rich ok
+goldens: opening-blink3-open-80x24-plain ok
+goldens: opening-blink3-shut-120x40-rich ok
+goldens: opening-blink3-shut-120x40-plain ok
+goldens: opening-blink3-shut-200x60-rich ok
+goldens: opening-blink3-shut-200x60-plain ok
+goldens: opening-blink3-shut-80x24-rich ok
+goldens: opening-blink3-shut-80x24-plain ok
+goldens: opening-clear-120x40-rich ok
+goldens: opening-clear-120x40-plain ok
+goldens: opening-clear-200x60-rich ok
+goldens: opening-clear-200x60-plain ok
+goldens: opening-clear-80x24-rich ok
+goldens: opening-clear-80x24-plain ok
+goldens: opening-clear-open-120x40-rich ok
+goldens: opening-clear-open-120x40-plain ok
+goldens: opening-clear-open-200x60-rich ok
+goldens: opening-clear-open-200x60-plain ok
+goldens: opening-clear-open-80x24-rich ok
+goldens: opening-clear-open-80x24-plain ok
+goldens: opening-crack-120x40-rich ok
+goldens: opening-crack-120x40-plain ok
+goldens: opening-crack-200x60-rich ok
+goldens: opening-crack-200x60-plain ok
+goldens: opening-crack-80x24-rich ok
+goldens: opening-crack-80x24-plain ok
+goldens: opening-crossing-120x40-rich ok
+goldens: opening-crossing-120x40-plain ok
+goldens: opening-crossing-200x60-rich ok
+goldens: opening-crossing-200x60-plain ok
+goldens: opening-crossing-80x24-rich ok
+goldens: opening-crossing-80x24-plain ok
+goldens: opening-fall-120x40-rich ok
+goldens: opening-fall-120x40-plain ok
+goldens: opening-fall-200x60-rich ok
+goldens: opening-fall-200x60-plain ok
+goldens: opening-fall-80x24-rich ok
+goldens: opening-fall-80x24-plain ok
+goldens: opening-freeze-120x40-rich ok
+goldens: opening-freeze-120x40-plain ok
+goldens: opening-freeze-200x60-rich ok
+goldens: opening-freeze-200x60-plain ok
+goldens: opening-freeze-80x24-rich ok
+goldens: opening-freeze-80x24-plain ok
+goldens: opening-plate-120x40-rich ok
+goldens: opening-plate-120x40-plain ok
+goldens: opening-plate-200x60-rich ok
+goldens: opening-plate-200x60-plain ok
+goldens: opening-plate-80x24-rich ok
+goldens: opening-plate-80x24-plain ok
 goldens: opening-skip-rich ok
 goldens: opening-skip-plain ok
+goldens: opening-spread-120x40-rich ok
+goldens: opening-spread-120x40-plain ok
+goldens: opening-spread-200x60-rich ok
+goldens: opening-spread-200x60-plain ok
+goldens: opening-spread-80x24-rich ok
+goldens: opening-spread-80x24-plain ok
+goldens: opening-underwater-120x40-rich ok
+goldens: opening-underwater-120x40-plain ok
+goldens: opening-underwater-200x60-rich ok
+goldens: opening-underwater-200x60-plain ok
+goldens: opening-underwater-80x24-rich ok
+goldens: opening-underwater-80x24-plain ok
 goldens: opening-rich ok
 goldens: opening-plain ok
 goldens: parry-rich ok
@@ -761,14 +1052,20 @@ goldens: rest-larkmeadow-80x24-rich ok
 goldens: rest-larkmeadow-80x24-plain ok
 goldens: rest-menu-empty-120x40-rich ok
 goldens: rest-menu-empty-120x40-plain ok
+goldens: rest-menu-empty-200x60-rich ok
+goldens: rest-menu-empty-200x60-plain ok
 goldens: rest-menu-empty-80x24-rich ok
 goldens: rest-menu-empty-80x24-plain ok
 goldens: rest-menu-pending-120x40-rich ok
 goldens: rest-menu-pending-120x40-plain ok
+goldens: rest-menu-pending-200x60-rich ok
+goldens: rest-menu-pending-200x60-plain ok
 goldens: rest-menu-pending-80x24-rich ok
 goldens: rest-menu-pending-80x24-plain ok
 goldens: rest-menu-refused-120x40-rich ok
 goldens: rest-menu-refused-120x40-plain ok
+goldens: rest-menu-refused-200x60-rich ok
+goldens: rest-menu-refused-200x60-plain ok
 goldens: rest-menu-refused-80x24-rich ok
 goldens: rest-menu-refused-80x24-plain ok
 goldens: rest-old-den-120x40-rich ok
@@ -883,6 +1180,7 @@ score-seam boss-alpha/release ok last-tick peak 46
 score-golden den/release ok 6352836cfde6c6f7aafbcb711e67f39b9851e4a563cbfdf90b651cd2591c7d7b
 score-seam den/release ok last-tick peak 100
 score-golden death/release ok 7dd20a74bf69c65d5d698e317886e60a964c8ee26d3fecc03741668e9d6e8846
+score-golden crack/release ok da3b1bd8ef026208c81adb8247057406467adbd19515efa3460db4356c9e7e5f
 score-golden replay/release ok ed2aa4ee79063d4a03c1b47bafff403601c560801d42d8b2cccc85e3a81da638
 score-wav release ok
 score-refusal release ok
@@ -905,10 +1203,18 @@ score-seam boss-alpha/native ok last-tick peak 46
 score-golden den/native ok 6352836cfde6c6f7aafbcb711e67f39b9851e4a563cbfdf90b651cd2591c7d7b
 score-seam den/native ok last-tick peak 100
 score-golden death/native ok 7dd20a74bf69c65d5d698e317886e60a964c8ee26d3fecc03741668e9d6e8846
+score-golden crack/native ok da3b1bd8ef026208c81adb8247057406467adbd19515efa3460db4356c9e7e5f
 score-golden replay/native ok ed2aa4ee79063d4a03c1b47bafff403601c560801d42d8b2cccc85e3a81da638
 score-wav native ok
 score-refusal native ok
 score-check: green
+den-memory: ledger rich 80x24 centre 27 12
+den-memory: ledger rich 120x40 centre 40 20
+den-memory: ledger rich 200x60 centre 67 30
+den-memory: ledger plain 80x24 centre 27 12
+den-memory: ledger plain 120x40 centre 40 20
+den-memory: ledger plain 200x60 centre 67 30
+gameplay: den-memory path/log, 100 journeys and centred ledgers green
 gameplay: native bite rich ok
 gameplay: native parry rich ok
 gameplay: native dodge rich ok
@@ -932,7 +1238,7 @@ gameplay: native aim/combo/heavy plain ok
 gameplay: connected journey, hawk, opening and recovery rich ok
 gameplay: connected journey, hawk, opening and recovery plain ok
 gameplay: death archive replay-verified at tick 548
-gameplay: native body census over 132 scripts: census total ticks 79435 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 3352 contact_unreachable 0 contact_behind 726 foe_overlap 0
+gameplay: native body census over 196 scripts: census total ticks 115193 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 3637 contact_unreachable 0 contact_behind 903 foe_overlap 0
 gameplay: native body audit, 100 worlds: total ticks 245800 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 1416 contact_unreachable 0 contact_behind 342 foe_overlap 0
 gameplay: native boar rich windup/phase2/beaten ok, 19 telegraphs, shortest 12
 gameplay: native lynx rich windup/phase2/beaten ok, 9 telegraphs, shortest 10
@@ -947,9 +1253,9 @@ gameplay: end, the three new areas, the title plain ok
 gameplay: ghost trailer, display and absence rich ok
 gameplay: ghost trailer, display and absence plain ok
 gameplay: fairness boar attempts 1:94 2:6 3:0 4:0 5:0 unwon:0 hits 108 28 126 unparryable_hits 154 tells 12 24 12 parry_window 9 arena_breaches 0
-gameplay: fairness lynx attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 75 8 18 unparryable_hits 18 tells 10 12 15 parry_window 9 arena_breaches 0
-gameplay: fairness elk attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 60 8 0 unparryable_hits 8 tells 16 24 18 parry_window 9 arena_breaches 0
-gameplay: fairness alpha attempts 1:98 2:2 3:0 4:0 5:0 unwon:0 hits 318 0 0 unparryable_hits 0 tells 9 12 20 parry_window 9 arena_breaches 0
+gameplay: fairness lynx attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 73 8 20 unparryable_hits 20 tells 10 12 15 parry_window 9 arena_breaches 0
+gameplay: fairness elk attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 60 6 0 unparryable_hits 6 tells 16 24 18 parry_window 9 arena_breaches 0
+gameplay: fairness alpha attempts 1:98 2:2 3:0 4:0 5:0 unwon:0 hits 324 0 0 unparryable_hits 0 tells 9 12 20 parry_window 9 arena_breaches 0
 gameplay: den entry, checkpoint, spring/drink/refill and 50-seed censuses green
 gameplay: door shadows, clipped foe walk, staged rest panels green
 gameplay: den/path/chase censuses, sprint costs, real-key hit and retired HUD flag: green
@@ -957,6 +1263,13 @@ gameplay: fifty-seed world labels, after-c padding, scent recovery: green
 world: 50 seeds, all dens/exits/caches, meanders, density, save roundtrip/cut/busy/corrupt/mark: green
 gameplay: every path under /work/target/gameplay readable
 gameplay: green (0 skips)
+den-memory: ledger rich 80x24 centre 27 12
+den-memory: ledger rich 120x40 centre 40 20
+den-memory: ledger rich 200x60 centre 67 30
+den-memory: ledger plain 80x24 centre 27 12
+den-memory: ledger plain 120x40 centre 40 20
+den-memory: ledger plain 200x60 centre 67 30
+gameplay: den-memory path/log, 100 journeys and centred ledgers green
 gameplay: release bite rich ok
 gameplay: release parry rich ok
 gameplay: release dodge rich ok
@@ -980,7 +1293,7 @@ gameplay: release aim/combo/heavy plain ok
 gameplay: connected journey, hawk, opening and recovery rich ok
 gameplay: connected journey, hawk, opening and recovery plain ok
 gameplay: death archive replay-verified at tick 548
-gameplay: release body census over 132 scripts: census total ticks 79435 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 3352 contact_unreachable 0 contact_behind 726 foe_overlap 0
+gameplay: release body census over 196 scripts: census total ticks 115193 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 3637 contact_unreachable 0 contact_behind 903 foe_overlap 0
 gameplay: release body audit, 100 worlds: total ticks 245800 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 1416 contact_unreachable 0 contact_behind 342 foe_overlap 0
 gameplay: release boar rich windup/phase2/beaten ok, 19 telegraphs, shortest 12
 gameplay: release lynx rich windup/phase2/beaten ok, 9 telegraphs, shortest 10
@@ -995,9 +1308,9 @@ gameplay: end, the three new areas, the title plain ok
 gameplay: ghost trailer, display and absence rich ok
 gameplay: ghost trailer, display and absence plain ok
 gameplay: fairness boar attempts 1:94 2:6 3:0 4:0 5:0 unwon:0 hits 108 28 126 unparryable_hits 154 tells 12 24 12 parry_window 9 arena_breaches 0
-gameplay: fairness lynx attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 75 8 18 unparryable_hits 18 tells 10 12 15 parry_window 9 arena_breaches 0
-gameplay: fairness elk attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 60 8 0 unparryable_hits 8 tells 16 24 18 parry_window 9 arena_breaches 0
-gameplay: fairness alpha attempts 1:98 2:2 3:0 4:0 5:0 unwon:0 hits 318 0 0 unparryable_hits 0 tells 9 12 20 parry_window 9 arena_breaches 0
+gameplay: fairness lynx attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 73 8 20 unparryable_hits 20 tells 10 12 15 parry_window 9 arena_breaches 0
+gameplay: fairness elk attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 60 6 0 unparryable_hits 6 tells 16 24 18 parry_window 9 arena_breaches 0
+gameplay: fairness alpha attempts 1:98 2:2 3:0 4:0 5:0 unwon:0 hits 324 0 0 unparryable_hits 0 tells 9 12 20 parry_window 9 arena_breaches 0
 gameplay: den entry, checkpoint, spring/drink/refill and 50-seed censuses green
 gameplay: door shadows, clipped foe walk, staged rest panels green
 gameplay: den/path/chase censuses, sprint costs, real-key hit and retired HUD flag: green
@@ -1006,4 +1319,4 @@ world: 50 seeds, all dens/exits/caches, meanders, density, save roundtrip/cut/bu
 gameplay: every path under /work/target/gameplay readable
 gameplay: green (0 skips)
 cub check-linux: green
-check-linux exit 0 2026-10-27T04:50:30Z
+check-linux exit 0 2026-10-27T07:05:03Z

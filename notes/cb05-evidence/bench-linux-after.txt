@@ -1,4 +1,4 @@
-bench 80x24 rich frames 300 avg_us 261 p99_us 464 max_us 485
-bench 80x24 plain frames 300 avg_us 236 p99_us 257 max_us 261
-bench 200x60 rich frames 300 avg_us 1787 p99_us 1934 max_us 1980
-bench 200x60 plain frames 300 avg_us 1758 p99_us 1848 max_us 1899
+bench 80x24 rich frames 300 avg_us 258 p99_us 369 max_us 471
+bench 80x24 plain frames 300 avg_us 243 p99_us 293 max_us 338
+bench 200x60 rich frames 300 avg_us 1802 p99_us 1946 max_us 1993
+bench 200x60 plain frames 300 avg_us 1798 p99_us 1909 max_us 1953
