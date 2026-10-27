@@ -153,3 +153,34 @@ fn test_cb06_cub_freezes_while_the_pack_walks() {
         assert(changed > 10, "pack keeps walking during cub's freeze")
     }
 }
+
+fn test_cb06_rendered_wolves_contrast_with_ice_and_water() {
+    for t in [tier.PLAIN, tier.RICH] {
+        for age in [120, 440] {
+            var s = sim.new(1, 80, 24)
+            sim.opening(mut s)
+            s.tick = age
+            var g = grid.new(24, 80)
+            art.opening_frame(s, t, mut g)
+            var count = 0
+            let bg = if age == 120 {
+                (if t == tier.RICH then 153 else 7)
+            } else {
+                (if t == tier.RICH then 17 else 4)
+            }
+            let fg = if age == 120 {
+                (if t == tier.RICH then 52 else 0)
+            } else {
+                (if t == tier.RICH then 230 else 15)
+            }
+            for cell in g.cells {
+                if cell.bg == bg && cell.attrs == grid.ATTR_BOLD && cell.cp != 32 {
+                    assert(cell.fg == fg, "rendered fur must contrast with its actual ground")
+                    count += 1
+                }
+            }
+            assert(count >= 8, "witness must contain a visible wolf")
+            if t == tier.PLAIN { assert(grid.plain_ok(g), "contrast keeps plain palette") }
+        }
+    }
+}

@@ -244,7 +244,7 @@ def sound_live(binary, ctx):
     problems = []
     ctx.common_checks(s, 0, problems)
     want = ['boss-alpha.wav', 'boss-boar.wav', 'boss-elk.wav', 'boss-lynx.wav', 'bramblehold.wav',
-            'death.wav', 'den.wav', 'larkmeadow.wav', 'shingle.wav', 'silence.wav', 'title.wav']
+            'crack.wav', 'death.wav', 'den.wav', 'larkmeadow.wav', 'shingle.wav', 'silence.wav', 'title.wav']
     if wavs != want:
         problems.append('the WAVs under --sound-dir during the run: %r' % wavs)
     if sound_dir.exists() and list(sound_dir.glob('*.wav')):
@@ -788,6 +788,23 @@ def opening_live(binary, ctx, shot=None):
             problems.append('recorded opening does not reproduce terminal styles')
     else:
         problems.append('no final tick count')
+    if shot is None:
+        samples = {'crossing': 120, 'crack': 210, 'freeze': 260, 'spread': 315,
+                   'plate': 345, 'fall': 390, 'underwater': 440, 'black': 495,
+                   'blink1-open': 555, 'blink1-close': 630, 'blink1-peak': 600,
+                   'blink1-shut': 660, 'blink2-open': 690, 'blink2-close': 744,
+                   'blink2-shut': 765, 'blink3-open': 777, 'blink3-close': 800,
+                   'blink3-shut': 810, 'clear-open': 825, 'clear': 870}
+        for tier in ('plain', 'rich'):
+            for name, age in samples.items():
+                dest = root / ('recorded-' + name + '-' + tier)
+                subprocess.run([binary, '--headless', '--script', str(record),
+                                '--frames', str(age), '--every', str(age),
+                                '--tier', tier, '--dump', str(dest)], check=True)
+                golden = Path(ctx.ROOT) / ('tests/goldens/opening-%s-80x24-%s' % (name, tier))
+                for extension in ('txt', 'sty'):
+                    if (dest / ('final.' + extension)).read_bytes() != (golden / ('final.' + extension)).read_bytes():
+                        problems.append('recorded shot %s/%s differs from %s golden' % (name, tier, extension))
     return session, problems
 
 

@@ -77,7 +77,7 @@ pub fn boss_part(boss: int) -> str {
     }
 }
 
-/// The one part that plays once: everything else loops.
+/// The death and crack stings play once; every other part loops.
 pub fn plays_once(name: str) -> bool {
     name == "death" || name == "crack"
 }
@@ -170,9 +170,7 @@ pub fn scene_of(s: sim.Sim) -> Scene {
     }
 }
 
-/// The part a scene asks for, in the order that decides: the death sting
-/// over everything, the title over the opening, the den's rest, a boss's
-/// theme, the area's loop.
+/// Opening music follows the same half-open shot clock as the drawing.
 pub fn opening_part(age: int) -> str {
     if age < 210 { return "title" }
     if age < 360 { return "crack" }

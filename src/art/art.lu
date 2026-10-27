@@ -1442,6 +1442,14 @@ fn opening_wake(s: sim.Sim, t: int, age: int, mut g: grid.Grid) {
     awake.scene = 0
     render(awake, t, mut g)
     if age >= 840 { return }
+    let line = if age < 660 then "Dawn. Mother's scent gone cold." else "Home is upstream, and up."
+    draw.put_text(
+        mut g,
+        s.rows / 2 - 3,
+        (s.cols - line.len) / 2,
+        line,
+        grid.cell(32, if t == tier.RICH then 230 else 15, if t == tier.RICH then 232 else 0, 0),
+    )
     let aperture = opening_aperture(age)
     let black = grid.cell(32, 0, 0, 0)
     var row = 0
@@ -1457,7 +1465,7 @@ fn opening_wake(s: sim.Sim, t: int, age: int, mut g: grid.Grid) {
             } else if age < 765 {
                 var cell = grid.at(g, row, col)
                 cell.attrs = grid.ATTR_DIM
-                if age < 660 && (row + col) % 3 == 0 { cell.cp = 32 }
+                if age < 660 && row != s.rows / 2 - 3 && (row + col) % 3 == 0 { cell.cp = 32 }
                 grid.put(mut g, row, col, cell)
             }
             col += 1
@@ -1466,19 +1474,37 @@ fn opening_wake(s: sim.Sim, t: int, age: int, mut g: grid.Grid) {
     }
 }
 
+// Fur is a dark silhouette over moonlit ice, light against sky or water.
+// Sample each glyph's actual ground so the bank crossing stays readable.
+fn opening_fur_text(mut g: grid.Grid, t: int, row: int, col: int, text: str) {
+    var j = 0
+    for b in text.bytes() {
+        if b as int != 32 {
+            let bg = grid.at(g, row, col + j).bg
+            let ice = bg == (if t == tier.RICH then 153 else 7)
+            let fg = if ice {
+                (if t == tier.RICH then 52 else 0)
+            } else {
+                (if t == tier.RICH then 230 else 15)
+            }
+            grid.put(mut g, row, col + j, grid.cell(b as int, fg, bg, grid.ATTR_BOLD))
+        }
+        j += 1
+    }
+}
+
 /// Original side silhouettes: the adults long and high, the cub small.
 /// Freeze changes neither the cub's anchor nor its feet while the pack walks.
 fn opening_wolf(mut g: grid.Grid, t: int, row: int, col: int, small: bool, stride: int) {
-    let style = grid.cell(32, if t == tier.RICH then 230 else 15, 0, grid.ATTR_BOLD)
     if small {
-        put_over(mut g, row, col, " /\\", style)
-        put_over(mut g, row + 1, col - 2, "~(oo>", style)
-        put_over(mut g, row + 2, col - 1, if stride % 2 == 0 then "//" else "||", style)
+        opening_fur_text(mut g, t, row, col, " /\\")
+        opening_fur_text(mut g, t, row + 1, col - 2, "~(oo>")
+        opening_fur_text(mut g, t, row + 2, col - 1, if stride % 2 == 0 then "//" else "||")
     } else {
-        put_over(mut g, row - 1, col + 3, "/\\", style)
-        put_over(mut g, row, col - 3, "~_____/  >", style)
-        put_over(mut g, row + 1, col - 2, "(_____/", style)
-        put_over(mut g, row + 2, col - 1, if stride % 2 == 0 then "/| /|" else "|/ |/", style)
+        opening_fur_text(mut g, t, row - 1, col + 3, "/\\")
+        opening_fur_text(mut g, t, row, col - 3, "~_____/  >")
+        opening_fur_text(mut g, t, row + 1, col - 2, "(_____/")
+        opening_fur_text(mut g, t, row + 2, col - 1, if stride % 2 == 0 then "/| /|" else "|/ |/")
     }
 }
 
@@ -1650,7 +1676,7 @@ pub fn opening_frame(s: sim.Sim, t: int, mut g: grid.Grid) {
             }
         }
         let line = if age < 210 {
-            "Moonford. The smallest follows."
+            "Late winter. Moonford. The smallest follows."
         } else if age < 360 {
             "The ice answers beneath its paws."
         } else {

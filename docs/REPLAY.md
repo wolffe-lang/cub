@@ -52,7 +52,7 @@ retain the order of same-tick movement and attack events.
 
 ## Connected-journey events (schema 1)
 
-`opening 1` starts the three timed opening frames. `skip` is any decoded
+`opening 1` starts the timed Moonford opening (900 ticks since cb06). `skip` is any decoded
 key with no gameplay binding; any ordinary key also skips while a scene
 is active, without also performing its gameplay action. A new live journey
 records the opening; old scripts without that event keep their start.

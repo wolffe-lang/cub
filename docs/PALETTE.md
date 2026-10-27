@@ -57,6 +57,7 @@ presentation, not its collision body. Both tiers cover identical sim ticks.
 | opening sky ink / ground | 245 / 232 | 8 / 0 |
 | opening ice seam / field | 24 / 153 | 8 / 7 |
 | opening deep-water ripple / field | 25 / 17 | 6 / 4 |
+| opening wolf over ice / over dark ground | 52 / 230 | 0 / 15 |
 
 The thicket keeps distant foliage visible while sight still limits creatures;
 the meadow keeps long views. Each dusk area keeps two foliage tones (cb02b),
@@ -127,3 +128,7 @@ The allocation panel (cb04d) uses near-black232, muted-gold179 borders,
 and bone-white230 labels; pending increases use84 and refused totals203.
 Plain equivalents are black0, gold3, white15, green10 and red12. Arrows,
 current/pending numbers and the refusal text duplicate the colour meaning.
+
+Opening fur is selected against each rendered background cell: dark on
+pale ice (rich contrast9.41:1), light against deep water (17.62:1).
+Rendered witnesses check both states, not just palette constants.

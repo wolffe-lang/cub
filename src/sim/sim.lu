@@ -1549,7 +1549,7 @@ pub fn step(mut s: Sim, keys: List[int]) {
     end_due(mut s)
 }
 
-/// One tick of a scene: the opening (1) ends on a key or after its three
+/// One tick of a scene: the opening (1) ends on a key or after its timed
 /// sequence; the title (2) on a key, then the opening for a new journey; the
 /// end (3) shows its three frames (a key skips to the card) and the card
 /// until a key (`r` keeps playing, R-cb04-4 A).
