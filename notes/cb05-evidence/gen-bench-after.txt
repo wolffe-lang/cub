@@ -1,0 +1,16 @@
+field area cells ms
+80 0 42657 6 solid 30550
+80 1 28033 3 solid 12502
+80 2 28033 3 solid 224
+80 3 21825 1 solid 232
+80 4 21825 1 solid 5067
+80 5 21825 1 solid 9188
+80 6 28033 2 solid 14708
+200 0 106377 17 solid 85434
+200 1 62713 8 solid 35410
+200 2 62713 8 solid 585
+200 3 48825 3 solid 582
+200 4 48825 3 solid 14869
+200 5 48825 3 solid 26601
+200 6 62713 4 solid 49388
+gen-bench: green, every area under 50 ms at field 200
