@@ -1,0 +1,37 @@
+[
+  {
+    "name": "release",
+    "pr": "https://github.com/wolffe-lang/cub/pull/41",
+    "head": "c06ba59552a3ec6c62f603ec4639733f5ee9de74",
+    "runs": [],
+    "test": "test_cb04b_release_resumes_held_direction"
+  },
+  {
+    "name": "leap",
+    "pr": "https://github.com/wolffe-lang/cub/pull/42",
+    "head": "d9339d859a481175acdd47a75bf8fae3c218a901",
+    "runs": [],
+    "test": "test_cb04b_drawn_combo_north"
+  },
+  {
+    "name": "rally",
+    "pr": "https://github.com/wolffe-lang/cub/pull/43",
+    "head": "471b0040383f7916c7941e821b16e4af031d5f5f",
+    "runs": [],
+    "test": "test_cb04b_rally_expires_at_window_end"
+  },
+  {
+    "name": "roll-aim",
+    "pr": "https://github.com/wolffe-lang/cub/pull/44",
+    "head": "d0fc495c14f7208edb6ebb0526e02c5e5ea7b973",
+    "runs": [],
+    "test": "test_cb04b_roll_latches_held_direction_all_eight"
+  },
+  {
+    "name": "iframe",
+    "pr": "https://github.com/wolffe-lang/cub/pull/45",
+    "head": "4c40603d4d04503d8cce851e144af0798d86bfbe",
+    "runs": [],
+    "test": "test_cb04b_roll_iframe_last_tick_misses_then_hit_lands"
+  }
+]

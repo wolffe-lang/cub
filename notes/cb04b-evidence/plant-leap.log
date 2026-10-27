@@ -1,0 +1,16 @@
+combo-offset aim=0 hit=1 tier=0 dx=-256 dy=-256
+combo-offset aim=0 hit=1 tier=1 dx=-128 dy=-64
+combo-offset aim=0 hit=2 tier=0 dx=256 dy=-256
+combo-offset aim=0 hit=2 tier=1 dx=128 dy=-64
+test src/combo_draw_test.lu::test_cb04b_drawn_combo_north ... FAILED (trap(assert))
+combo-offset aim=32 hit=1 tier=0 dx=-256 dy=-256
+combo-offset aim=32 hit=1 tier=1 dx=0 dy=-128
+combo-offset aim=32 hit=2 tier=0 dx=256 dy=256
+combo-offset aim=32 hit=2 tier=1 dx=128 dy=64
+test src/combo_draw_test.lu::test_cb04b_drawn_combo_northeast ... FAILED (trap(assert))
+combo-offset aim=224 hit=1 tier=0 dx=-256 dy=256
+combo-offset aim=224 hit=1 tier=1 dx=-128 dy=64
+combo-offset aim=224 hit=2 tier=0 dx=256 dy=-256
+combo-offset aim=224 hit=2 tier=1 dx=0 dy=-128
+test src/combo_draw_test.lu::test_cb04b_drawn_combo_northwest ... FAILED (trap(assert))
+wolf test: 0 passed; 3 failed; 0 rejected; 0 unsupported; 308 filtered out
