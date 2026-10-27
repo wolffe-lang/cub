@@ -930,3 +930,130 @@ rows at120×40/200×60. Two/four/six rows of the world's thick forest lie
 beyond each bank. The far bank mirrors depth, not glyphs. Only fur over
 pale ice changes shade; other fur uses the normal gameplay palette.
 The timing, cue, skip, save and replay rules above do not change.
+
+## The wide forest, 2026-10-26 (cb05, proposed)
+
+The maintainer's word on cb04d's build: "Dens are too frequent and too close. But areas are also too small.
+Not enough opportunities to get in fights. Let's have a real overhaul of the maps, extend them, give them
+more area, make them more varied, use the names of the dens as assigned as inspiration for some of the
+features to render nearby the dens. Make area 2 bigger with more paths. Add a new area between the beach and
+the wood, make it a dilapidated town. throw in a few fires on the ground. make the enemies slow moving slow
+attacking human zombies. ... Remove sawtooth paths. ... The meadow still feels empty." Every value below is
+proposed; every ruling is a recommendation the lane implemented, the maintainer's to change by a line.
+This section supersedes the 160-cell area bound, the two-cache branches at rows 52 and 132, the dens at
+rows 7..10 / 66 / 90 / 146 and the eight cache bits above.
+
+**R-cb05-1 (recommended A, the maintainer rules): Cinderwick and the Ashen.** Cinderwick (`forest.TOWN`,
+area 6) was the village on the Ashwater above the Shingle. The night the fire came it ran up along the
+thicket's edge (the coal roots), over the long grass (the low embers, the ash shelter) and stopped at the
+last warm hollow; the river has run grey with its ash since. The smoke never lifted: it is always the night
+of the fire there. The people who did not leave are the Ashen. The graph is re-threaded Shingle - Cinderwick
+- Bramblehold - Larkmeadow - the Teeth - the Shallows - Gravehollow (`EDGES` 10: edge 0 the thorn gate,
+now opening on the town; edge 9 the town's way on; the log, edge 2, still runs Bramblehold - the Shingle).
+
+**R-cb05-2 (recommended A): lengths.** `forest.length(area)`: the Shingle 160 (the tutorial, unchanged),
+Cinderwick, Bramblehold and Larkmeadow 288, the Teeth, the Shallows and Gravehollow 224. Every row position
+derives from the length: the arenas at seven tenths (156 of 224), the caches at 60 / 136 / 232, the foe
+groups every 44 rows from 40.
+
+**R-cb05-3 (recommended A): dens.** At most two dens an area (`DENS_PER_AREA`) and at least 110 route
+cells between dens along the way on (`DEN_SPACING`; a shortcut is short by design and the census reports
+it apart). Dens 8 (the coal roots), 9 (the low embers) and 10 (the ash shelter) are retired to landmarks:
+`den_exists` is false for them, `den_retired` true; the save keeps their ids (a lit bit stays valid) and a
+journey whose last den was one wakes at the nearest kept den of the area (`nearest_kept_den`, by the old
+row), lighting it. Den 7 is the cold hearth, Cinderwick's.
+
+| den | area | local row | the place its name promises |
+|---|---|---|---|
+| 0 the hollow log | the Shingle | the start | the cut timber the cub rests inside (`art.den_rows`) |
+| 7 the cold hearth | Cinderwick | 132..135, in the square, nine cells off the lane | a ring of hearth stones, the fire in the middle |
+| 2 the briar hollow | Bramblehold | 100..103 | a bowl in the brambles |
+| 1 the split roots | Bramblehold | 196..199 | the roots under the lightning-split oak, the oak six cells east (`LM_SPLIT_OAK`) |
+| 3 the grass nest | Larkmeadow | 24..27 | a flattened ring of grass; Quill's first perch seven cells east at row 30 |
+| 11 the last warm hollow | Larkmeadow | 190..193 | a hollow still warm, where the fire stopped |
+| 4 the ledge cleft | the Teeth | 18..21 | a crack in the stone, the cleft six cells west (`LM_CLEFT`) |
+| 5 the willow root | the Shallows | 7..10 | the willow over the water, seven cells west (`LM_WILLOW`) |
+| 6 the cold den | Gravehollow | 7..10 | the fallen oak's roots |
+
+**R-cb05-4 (recommended A): foes.** Twelve to eighteen in each big area, eight to twelve in the later
+three, the boss excluded; `sim.group_plan` places the route groups (`group_count` 5 / 6 / 6 / 5 / 4 / 4
+for the town, the thicket, the meadow, the Teeth, the Shallows, Gravehollow) and the guards stand along
+the branches' centrelines (a weasel trio, a fox pair, one fox) or in the yards (one Ashen, two at the far
+yards). `encounter_row` advances any group inside a den's 30-cell quiet radius in every area now.
+
+| area | length | dens | caches | foes (boss excluded) | landmarks |
+|---|---|---|---|---|---|
+| the Shingle | 160 | 1 | 4 bundles | 9 | — |
+| Cinderwick | 288 | 1 | 4 yards (bits 8..11) | 16: the Ashen only (five lane pairs, six yard guards) | 2 scent marks in yards |
+| Bramblehold | 288 | 2 | 3 (bits 4, 5, 12) | 18: weasel and fox pairs, a trio and two foxes at the caches | the coal roots, the split oak, 2 scent marks |
+| Larkmeadow | 288 | 2 | 3 (bits 6, 7, 13) | 18: hawks over every open stretch with deer under them, weasels in the grass, a fox pair | Quill's perch, the low embers, the ash shelter, a scent mark |
+| the Teeth | 224 | 1 | 0 | 8: fox pairs, a weasel pair, two hawks | the cleft, a scent mark |
+| the Shallows | 224 | 1 | 0 | 8: hawks and deer, a fox pair | the willow |
+| Gravehollow | 224 | 1 | 0 | 9: fox pairs, a weasel trio | a scent mark |
+
+**The routes.** A path through wood is one curve: anchors every 32 rows (`ROUTE_LATTICE`) alternating
+9..12 cells on a drift of 4..7 that turns every six anchors (`SWEEP_ANCHORS`), the noise detrended to zero
+at both portals, the end segments ramps (a smoothstep from a zero anchor runs straight). Two curves summed
+ran straight where their slopes cancelled; a sixteen-row alternation at these swings reversed within three
+cells at every apex (0.50 per ten samples against cb04d's 0.15; this shape 0.07). Bramblehold keeps its
+six switchbacks on legs of 36 rows swinging 24..28 (the longer legs still meet at ninety degrees), eased out
+of the doorway by a smoothstep. The town's lane is the Shingle's meander, zero-ended. `STRAIGHT_MAX` 12
+holds (measured 9 inland, 8 on the Shingle and the lane).
+
+**The branches** (`forest.Branch`, `branch_point`, `in_branch`): a cache branch leaves the route at its
+row on the side the switchback has swung away from (Bramblehold) or by parity, with half width 3 and an
+alcove of radius 4 at its end, in one of four shapes drawn from a seeded order of the four so no two in an
+area are alike where the field allows: a slow S (the amplitude 6..12), a hook (a run, a quarter turn of
+radius 7, a climb of 12..18), a loop (a ring of radius 10 round a copse, entered at its pole, the cache at
+the far pole), a 180-degree turn (radius 8, back three fifths of the way) where the reach allows (46 cells,
+the 200 field; the hook needs 20, the loop 30). Every shape bends toward the side whose nearest den is
+the farther off. Bramblehold also has a fork that rejoins (rows 92..188, 14..18 cells west, eased over 24
+rows inside one leg each end), a second way into the boar's clearing from the south (row 130) and two
+pockets; the meadow, the Teeth and Gravehollow one pocket each: a stub of 7..9 cells with an old scent
+mark at its end.
+
+**Cinderwick** (`src/town/town.lu`): the lane (half width 4) with a verge of 4 cells of ash; 18 plots a
+side from row 20 every 14 rows (a thirteen-row house with its walls on the first and last rows, then the
+one-cell passage); a house 8..11 cells wide with a two-row door in its near wall and a ruin's fallen cells
+(one in nine, never a corner, never the far wall); behind it a yard 6..9 deep with one two-cell gap in its
+top or bottom wall into the corridor the passage runs on to (to the farther of the two adjacent yards'
+back walls) and a back wall; beyond the back walls the closed wood. Plots 7 and 8 are the square: open
+ash with rubble (never about the hearth), the hearth nine cells off the lane, an ember each side. An ember
+(`terrain.EMBER`) stands in 42 % of the plots, in the verge for the odd plots and the yard for the even;
+light 2 within three columns of one, 1 within six (the ash and the walls warm up; the lane's cobbles keep
+their one style for the path audit); the cub standing on one loses `EMBER_HURT` 2 every `EMBER_TICKS` 10.
+Caches in the yards of plots 2, 5, 11 and 15 (lore, marrow, lore, lore: `lore.lu`); scent marks in the
+yards of plots 9 and 13. The town's bound (`town.bound`): from six rows before the first plot to six after
+the last, within the back walls' reach.
+
+**The Ashen** (`sim.ASHEN` 8, `src/silhouette/silhouette.lu`): health 36, walk `ASHEN_V` half a weasel's
+stalk (40 FP a tick), hearing `ASHEN_HEARING` 16 cells of a trotting cub (four of a sneaking one), a touch
+always; the windup `ASHEN_WINDUP` 30 ticks (the arms rise, slowly: the tell a person reads), the blow
+`ASHEN_DAMAGE` 22 at reach 2, the recovery `ASHEN_RECOVERY` 40 standing; a parry staggers it
+`ASHEN_STAGGER` 60 with the riposte open (a lunge or a heavy 30); a bite from behind (out of the cone it
+faces) lands twice; scent `ASHEN_SCENT` 25. It never steps outside the town's bound (`forest.in_town`), and
+when it hears nothing it walks to its home ember and stands. Two cells by three (four by twelve pixels),
+grey 247 (plain 7).
+
+**Lore** (`src/lore/lore.lu`): a cache that holds a line shows it on the bottom row for `LINE_TICKS` 240
+when dug (`sim.lore`, `sim.lore_until`, transient); a scent mark or Quill's perch shows its line while the
+cub stands within four cells. The town's lore says where the fire went (`TOWN_FIRE`).
+
+**The censuses** (`src/wide/wide.lu`, gated by `tools/gameplay.py`): `--den-spacing` (the route walk over
+the real tiles between an area's dens and onward through both portals to the next area's first den; the
+shortcut-linked distance reported), `--foe-census`, `--bends-audit` (along every route, fork and branch
+sampled a cell at a time, the turn is the cross product of the baselines four samples back and ahead,
+counted above 16; a reversal is two counted turns of opposite sign within eight samples; none on any
+inland route or branch, the coast's offshoots reported), `--spurs-audit` (every branch's and pocket's end
+within three cells of a cache, a landmark or a den, and reached), `--gen-bench` (the terrain layer over a
+whole area under 50 ms at field 200).
+
+**Measured** (fifty seeds, both fields, this lane's final head; before on trunk `7e2c6a77`): den spacing
+before, Manhattan, Bramblehold 45..62 and Larkmeadow 22..149 (three and four dens); after, route cells,
+least within an area 119 (Bramblehold), least onward 117 (Larkmeadow to the Teeth), the least by a
+shortcut 67 (the ledge). Foes before 9 / 9 / 11 / 4 / 6 / 4; after 9 / 16 / 18 / 18 / 8 / 8 / 9 (the town
+second). The bends census: 0 reversals within eight cells on every inland route and branch (the coast's
+offshoots 0 too). cb04d's per-ten measure on the spines, the shortcut and the shore: Shingle 0.078,
+Bramblehold 0.116, Larkmeadow 0.072, the Teeth 0.139, the Shallows 0.141, Gravehollow 0.157 (before
+0.090 / 0.186 / 0.133 / 0.168 / 0.190 / 0.170). Generation: at most 38 ms an area at field 200 (the
+Shingle; native tier, Mac arm64). The frame: see the note.
