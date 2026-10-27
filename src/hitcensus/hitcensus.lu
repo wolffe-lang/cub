@@ -60,7 +60,7 @@ pub fn bite(mut s: sim.Sim, x: int, y: int, aim: int) -> bool {
 pub fn census() -> int {
     print("kind,foe_quarter,x,y,aim,gap,hit")
     var kind = sim.BOAR
-    while kind <= sim.ALPHA {
+    while kind <= sim.ASHEN {
         var total = 0
         var hits = 0
         var quarter = 0

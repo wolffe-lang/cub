@@ -100,6 +100,7 @@ fn test_cb08_ordinary_ground_foes_share_the_same_jaw_rule() {
     circle(sim.WEASEL)
     circle(sim.FOX)
     circle(sim.DEER)
+    circle(sim.ASHEN)
 }
 
 fn test_cb08_alpha_guard_and_hawk_exclusion_survive_flank_reach() {

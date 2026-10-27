@@ -264,7 +264,7 @@ def ghosts(binary):
         assert len(files) == 1, 'the death wrote %d archives' % len(files)
         text = files[0].read_text()
         frames = {}
-        for m in re.finditer(r'^t (\d+) ghost-(x|y|area) (-?\d+)$', text, re.M):
+        for m in re.finditer(r'^t (\d+) ghost-(x|y|area|face) (-?\d+)$', text, re.M):
             frames.setdefault(int(m[1]), {})[m[2]] = int(m[3])
         death = re.search(r'^t (\d+) ghost-death (\d+)$', text, re.M)
         assert frames and death, 'no trailer in the archive'
@@ -272,6 +272,7 @@ def ghosts(binary):
         assert states[int(death[1])]['deaths'] == int(death[2]) == 1
         for t, f in frames.items():
             assert (f['x'], f['y'], f['area']) == (states[t]['x'], states[t]['y'], states[t]['area']), (t, f, states[t])
+            assert f['face'] == 8 + states[t]['body'], ('tagged ghost eighth differs', t, f, states[t])
         committed = ROOT / 'tests' / 'ghosts'
         assert [p.name for p in files] == [p.name for p in committed.glob('*.pk')]
         assert re.sub(r'^tier .*$', '', text, flags=re.M) == re.sub(r'^tier .*$', '', next(committed.glob('*.pk')).read_text(), flags=re.M), 'committed archive differs from a fresh death'
@@ -425,8 +426,8 @@ def paths_doors_rest(binary):
                     sign, last_at = direction, row['at']
         assert turns * 40 <= samples, ('jaggedness exceeds 0.25 reversals per ten samples', area)
     # Seven areas, ten edges and the longer routes (cb05; the town 240 rows
-    # since item 8): 896000 doorway rows and 331000 foe frames, every one checked.
-    for flag, marker in (('--doorways-audit', 'total 896000 misses 0'),
+    # since item 8): 1792000 doorway rows (eight facings) and 331000 foe frames, every one checked.
+    for flag, marker in (('--doorways-audit', 'total 1792000 misses 0'),
                          ('--foes-audit', 'frames 331000 omitted_frames 0')):
         p = subprocess.run([str(binary), flag], capture_output=True, text=True, check=True)
         (OUT / (Path(binary).parent.name + flag + '.txt')).write_text(p.stdout)
@@ -472,11 +473,27 @@ def den_memory(binary):
     print('gameplay: den-memory path/log, 100 journeys and centred ledgers green')
 
 
+def diagonal_censuses(binary):
+    import runpy
+    hit = runpy.run_path(str(ROOT / 'tools/hit-census.py'))
+    hit['check'](binary, OUT)
+    p = subprocess.run([str(binary), '--narrow-audit', '6', '240'],
+                       capture_output=True, text=True, check=True)
+    (OUT / (Path(binary).parent.name + '-narrow-diagonals.txt')).write_text(p.stdout)
+    rows = {(int(seed), int(field)) for seed, field in
+            re.findall(r'^narrow seed (\d+) field (\d+)', p.stdout, re.M)}
+    assert rows == {(seed, field) for seed in range(50) for field in (80, 200)}, 'incomplete narrow census'
+    total = re.search(r'narrow total attempts (\d+) misses (\d+)', p.stdout)
+    assert total and int(total[1]) > 0 and int(total[2]) == 0, 'diagonal stuck in narrow passage'
+    print('gameplay: every single-file edge crossed by both diagonal chords, fifty seeds and both fields')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--bin', required=True)
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
+    diagonal_censuses(Path(args.bin).resolve())
     den_memory(Path(args.bin).resolve())
     check(Path(args.bin).resolve())
     bodies(Path(args.bin).resolve())
