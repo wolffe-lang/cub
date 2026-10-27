@@ -1,0 +1,69 @@
+//! member: false
+//! cb08 — eight-way bodies must use the diagonal drawing's own extent.
+
+use art
+use grid
+use sim
+use tier
+
+fn test_cb08_attack_and_movement_keep_all_eight_facings() {
+    var s = sim.new(1, 80, 24)
+    var aim = 0
+    while aim < 8 {
+        s.heading = aim * 32
+        s.action = sim.IDLE
+        assert(sim.wanted_facing(s) == aim, "movement eighth {aim}")
+        s.action = sim.BITE
+        s.attack_heading = aim * 32
+        assert(sim.wanted_facing(s) == aim, "attack eighth {aim}")
+        aim += 1
+    }
+}
+
+fn test_cb08_diagonal_body_is_not_a_rotated_cardinal_rectangle() {
+    var s = sim.new(1, 80, 24)
+    var facing = 1
+    while facing < 8 {
+        let b = sim.cub_body_at(s, 0, 0, facing)
+        assert(b.x1 - b.x0 + 1 == 8, "diagonal cub is eight cells across")
+        assert(b.y1 - b.y0 + 1 == 4, "diagonal cub is four cells down")
+        s.end = true
+        let grown = sim.cub_body_at(s, 0, 0, facing)
+        assert(grown.x1 - grown.x0 + 1 == 12, "diagonal wolf is twelve cells across")
+        assert(grown.y1 - grown.y0 + 1 == 6, "diagonal wolf is six cells down")
+        s.end = false
+        facing += 2
+    }
+}
+
+fn test_cb08_diagonal_pose_draws_inside_its_own_body_on_both_tiers() {
+    var s = sim.new(1, 80, 24)
+    var mode = 0
+    while mode < 2 {
+        let t = if mode == 0 then tier.RICH else tier.PLAIN
+        var face = 1
+        while face < 8 {
+            let body = sim.cub_body_at(s, 20 * sim.FP, 10 * sim.FP, face)
+            var g = grid.new(24, 40)
+            art.draw_pose(mut g, t, 10, 20, face, 0, 1, 0, 0, true, 0, 0)
+            var lit = 0
+            var y = 0
+            while y < 24 {
+                var x = 0
+                while x < 40 {
+                    if grid.at(g, y, x).cp != 32 {
+                        assert(x >= body.x0 && x <= body.x1, "drawn column inside body")
+                        assert(y >= body.y0 && y <= body.y1, "drawn row inside body")
+                        if t == tier.PLAIN { assert(grid.at(g, y, x).cp <= 255, "plain glyph") }
+                        lit += 1
+                    }
+                    x += 1
+                }
+                y += 1
+            }
+            assert(lit > 0, "diagonal draws a body")
+            face += 2
+        }
+        mode += 1
+    }
+}
