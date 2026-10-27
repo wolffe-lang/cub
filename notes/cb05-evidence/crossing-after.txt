@@ -1,0 +1,3 @@
+crossing: field 80 survived 10 of 10
+crossing: field 200 survived 10 of 10
+crossing: green, at least 9 of 10 seeds cross at each field, no death on the lane
