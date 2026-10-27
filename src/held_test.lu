@@ -88,3 +88,45 @@ fn test_cb04b_ctrl_release_before_space_ends_the_sprint_snap() {
         "a standing chord is not a stale-facing sprint snap",
     )
 }
+
+fn test_cb04b_enhanced_control_c_interrupts_but_release_does_not() {
+    for kind in [input.PRESS, input.REPEAT, input.RELEASE] {
+        var keys = List[int]()
+        controls.events(
+            [
+                input.Event {
+                    key: input.char_key(99),
+                    mods: input.MOD_CTRL,
+                    kind: kind,
+                },
+            ],
+            mut keys,
+        )
+        var interrupts = 0
+        for k in keys {
+            if k == controls.KEY_INTERRUPT { interrupts += 1 }
+            assert(k != controls.KEY_DODGE, "Control-C never rolls")
+        }
+        assert(
+            interrupts == (if kind == input.RELEASE then 0 else 1),
+            "only press/repeat interrupts",
+        )
+    }
+    var plain = List[int]()
+    controls.events(
+        [
+            input.Event {
+                key: input.char_key(99),
+                mods: 0,
+                kind: input.PRESS,
+            },
+        ],
+        mut plain,
+    )
+    var dodges = 0
+    for k in plain {
+        if k == controls.KEY_DODGE { dodges += 1 }
+        assert(k != controls.KEY_INTERRUPT, "plain c stays a roll")
+    }
+    assert(dodges == 1, "plain c is still bound")
+}

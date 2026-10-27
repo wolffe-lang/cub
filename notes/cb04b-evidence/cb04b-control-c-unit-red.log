@@ -1,0 +1,2 @@
+test src/held_test.lu::test_cb04b_enhanced_control_c_interrupts_but_release_does_not ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 326 filtered out

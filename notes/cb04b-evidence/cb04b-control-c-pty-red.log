@@ -1,0 +1,7 @@
+pty: cb04b-enhanced-control-c FAILED (linux x86_64):
+  - rich: enhanced Control-C did not end the session
+  - rich: Control-C press was not recorded once as interrupt
+  - rich: enhanced Control-C was recorded as a roll
+  - plain: enhanced Control-C did not end the session
+  - plain: Control-C press was not recorded once as interrupt
+  - plain: enhanced Control-C was recorded as a roll
