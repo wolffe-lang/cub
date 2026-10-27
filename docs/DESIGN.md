@@ -1004,10 +1004,11 @@ the cells across the aim, the swing, and the cells the shaken drawing
 paints that the same drawing with its head still does not. Before: rich
 hit 1 peaked at 0.50 forward and 0.50 left (aim east) for one tick, 0.35
 and 0.35 on a diagonal; hit 3 reached 2 forward from age 4 and stayed. After:
-hit 1 at 1.02 forward and 1.00 left for ages 3-6 (aim east; 1.18 and 1.06
-on a diagonal), hit 2 the mirror, hit 3 at 2.02 forward for ages 3-8 with
+hit 1 at 1.04 forward and 1.00 left for ages 3-6 (aim east; 1.08 and 1.03
+on a diagonal), hit 2 the mirror, hit 3 at 2.04 forward for ages 3-8 with
 the head out on every swing age, and every hit's last age identical to
-standing. The `cb07-strikes` pty row drives three Space presses through
+standing; the plain tier exactly 1.00/1.00 and 2.00 on the cardinals, 1.41
+and 2.83 on a diagonal (whole cells on both axes). The `cb07-strikes` pty row drives three Space presses through
 the real input loop and reads the same numbers off the recorded journey's
 frames.
 
