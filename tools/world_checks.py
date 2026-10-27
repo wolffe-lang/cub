@@ -115,7 +115,10 @@ def wide(binary, out):
     generated under 50 ms at field 200."""
     for flag, green in (('--den-spacing', 'den-spacing: green'), ('--bends-audit', 'bends: green'),
                         ('--foe-census', 'foe-census: green'), ('--spurs-audit', 'spurs: green'),
-                        ('--gen-bench', 'gen-bench: green')):
+                        ('--gen-bench', 'gen-bench: green'),
+                        # Item 8: a scripted cub crosses Cinderwick in nine of ten seeds at both
+                        # fields (R-cb05-5), and a bite in reach lands on the Ashen from every aim.
+                        ('--crossing-census', 'crossing: green'), ('--hitbox-audit', 'hitbox: green')):
         p = subprocess.run([str(binary), flag], capture_output=True, text=True)
         (out / (flag[2:] + '.txt')).write_text(p.stdout + p.stderr)
         if flag == '--gen-bench' and binary.parent.name != 'release':
@@ -129,3 +132,7 @@ def wide(binary, out):
         if flag == '--bends-audit':
             rows = [list(map(int, r.split())) for r in p.stdout.splitlines() if r[:1].isdigit()]
             assert rows and all(r[-1] == 0 for r in rows), 'a reversal within eight cells'
+        if flag == '--crossing-census':
+            survived = [int(n) for n in re.findall(r'survived (\d+) of 10', p.stdout)]
+            assert len(survived) == 2 and min(survived) >= 9, ('the crossing', survived)
+            assert ' lane' not in p.stdout.replace('crossing: green, at least 9 of 10 seeds cross at each field, no death on the lane', ''), 'a death on the lane'
