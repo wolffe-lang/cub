@@ -1,0 +1,46 @@
+play seed field outcome ticks lost health_max ashen_health blow
+parry 0 80 beaten 94 0 52 -4 22
+parry 1 80 beaten 94 0 52 -4 22
+parry 2 80 beaten 94 0 52 -4 22
+parry 3 80 beaten 94 0 52 -4 22
+parry 4 80 beaten 94 0 52 -4 22
+parry 5 80 beaten 94 0 52 -4 22
+parry 6 80 beaten 94 0 52 -4 22
+parry 7 80 beaten 94 0 52 -4 22
+parry 8 80 beaten 94 0 52 -4 22
+parry 9 80 beaten 94 0 52 -4 22
+encounter: parry field 80 under the bar 10 of 10
+parry 0 200 beaten 94 0 52 -4 22
+parry 1 200 beaten 94 0 52 -4 22
+parry 2 200 beaten 94 0 52 -4 22
+parry 3 200 beaten 94 0 52 -4 22
+parry 4 200 beaten 94 0 52 -4 22
+parry 5 200 beaten 94 0 52 -4 22
+parry 6 200 beaten 94 0 52 -4 22
+parry 7 200 beaten 94 0 52 -4 22
+parry 8 200 beaten 94 0 52 -4 22
+parry 9 200 beaten 94 0 52 -4 22
+encounter: parry field 200 under the bar 10 of 10
+noparry 0 80 beaten 62 12 52 -4 22
+noparry 1 80 beaten 62 12 52 -4 22
+noparry 2 80 beaten 62 12 52 -4 22
+noparry 3 80 beaten 62 12 52 -4 22
+noparry 4 80 beaten 62 12 52 -4 22
+noparry 5 80 beaten 62 12 52 -4 22
+noparry 6 80 beaten 62 12 52 -4 22
+noparry 7 80 beaten 62 12 52 -4 22
+noparry 8 80 beaten 62 12 52 -4 22
+noparry 9 80 beaten 62 12 52 -4 22
+encounter: noparry field 80 under the bar 10 of 10
+noparry 0 200 beaten 62 12 52 -4 22
+noparry 1 200 beaten 62 12 52 -4 22
+noparry 2 200 beaten 62 12 52 -4 22
+noparry 3 200 beaten 62 12 52 -4 22
+noparry 4 200 beaten 62 12 52 -4 22
+noparry 5 200 beaten 62 12 52 -4 22
+noparry 6 200 beaten 62 12 52 -4 22
+noparry 7 200 beaten 62 12 52 -4 22
+noparry 8 200 beaten 62 12 52 -4 22
+noparry 9 200 beaten 62 12 52 -4 22
+encounter: noparry field 200 under the bar 10 of 10
+encounter: green, at least 9 of 10 seeds lose at most 35 percent to one Ashen at each field with Book-II play (health 36, blow 22); the no-parry rows are the human-mistake proxy, reported, not barred

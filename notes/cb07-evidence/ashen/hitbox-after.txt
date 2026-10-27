@@ -1,0 +1,18 @@
+aim cub_x cub_y gap anchor_in_cone body_in_cone landed
+0 0 43 0 true true true
+1 -1 42 0 true true true
+2 -5 40 0 true true true
+3 -3 37 0 true true true
+4 1 36 0 true true true
+5 3 37 0 true true true
+6 5 41 0 true true true
+7 3 42 0 true true true
+0 0 43 1 true true true
+1 -2 42 1 true true true
+2 -5 40 1 true true true
+3 -3 36 1 true true true
+4 1 36 1 true true true
+5 4 37 1 true true true
+6 5 41 1 true true true
+7 3 43 1 true true true
+hitbox: green, a bite in reach lands from every aim, touching and a cell off
