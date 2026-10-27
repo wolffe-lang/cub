@@ -98,7 +98,7 @@ for the beaten bits. The new words:
 |---|---|
 | `title 1` | the title scene from this tick |
 | `bosses N` | the beaten bits (1 boar, 2 lynx, 4 elk, 8 alpha), a fixture |
-| `ghost-x`, `ghost-y`, `ghost-face`, `ghost-pose`, `ghost-area` | one frame of a death's trailer, at its tick (fixed-point x and y, the body's facing 0..3, the pose, the area) |
+| `ghost-x`, `ghost-y`, `ghost-face`, `ghost-pose`, `ghost-area` | one frame of a death's trailer, at its tick (fixed-point x and y, the body's tagged facing (8 + eighth, 8..15; legacy 0..3 quarters remain readable), the pose, the area) |
 | `ghost-death N` | the death's serial, at the death tick |
 
 A death archive is the run through the fall as before, with the trailer merged in tick order (the last 90
@@ -106,6 +106,13 @@ ticks); the ghost reader (`src/ghost/ghost.lu`) is the engine's `replay.from_tex
 nothing the sim does. A headless case shows an archive directory with a `# ghost-dir DIR` comment line
 (read only; `--ghost-dir` on the command line wins, and alone enables writes). An archive from another
 seed, or without a trailer, is skipped by name.
+
+New `ghost-face` values are 8 plus the clockwise eighth (0 north, 1 north-east,
+2 east, through 7 north-west). Values 0..3 in older archives retain their
+cardinal directions: the reader converts them to eighths 0/2/4/6. No event
+ids or replay/save schema numbers change. The tagged range prevents an old
+east-facing ghost from silently becoming north-east.
+
 
 `--make-world-proof DIR` also writes the boss scripts (`boss-<name>-windup`, `-phase2`, `-beaten`: the
 scripted fighter's real keys from the boss's den, cut at its first windup, its second phase and the win),

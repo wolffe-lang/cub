@@ -22,7 +22,7 @@ Thornmere's woods to the south and the sides.
 holding a sword — and changing to left/right motion still distorts the sprite past recognizability from the north/south
 orientation; it should look the same, just rotated."
 
-The cub is one drawing: a pixel silhouette eight pixels across and sixteen down at the rich tier's finest
+The cardinal cub is one drawing: a pixel silhouette eight pixels across and sixteen down at the rich tier's finest
 grain (two pixels across and four down a cell, the braille grid, square pixels at a 1:2 cell), a wolf from
 above facing north: the nose, the muzzle, the head with an ear out each side, the neck, the shoulders, a
 long body, the haunches and a tail trailing south (`src/silhouette/silhouette.lu`, `cub`). Facing east,
@@ -66,6 +66,33 @@ walking north, its `breath` row the out-breath, the in-breath and the pant's two
 gained sixteen braille cells for them. The plain tier shows the hurt set (the ears' low row from hurt on,
 the tail `,` still on the left from badly hurt on) and the pant; it has no breath. cb01's health tail
 mark (`/ - _`) is gone with the bars; the numbers show at a den and on the death card (R-cb03-3 A).
+
+## Eight-way cub (cb08)
+
+The diagonal set is a second original drawing facing north-east, on a
+16×16-pixel canvas: muzzle and two ears above the shoulders, a long body,
+haunches and a tail trailing south-west. South-east, south-west and
+north-west turn this bitmap by one, two and three quarters. The cardinal
+set stays pixel-for-pixel unchanged. Its diagonal body is measured from
+that second drawing: eight cells across and four down, not the cardinal
+rectangle turned. The grown diagonal wolf scales the same drawing by 3/2
+to 24×24 pixels, twelve cells across and six down.
+
+Standing, both walking paw phases, sneak, pant, four hurt bands, in/out
+breath, five tail offsets and the forward snap have diagonal forms. The
+pose rules are shared with the cardinal set; the ears, paws, breathing
+shoulders and tail positions are drawn in the diagonal bitmap itself.
+The other three diagonal facings are never redrawn. The rest interior
+keeps its separate side-view drawing. Plain mode uses the same occupied
+cells in ASCII, with a slanted muzzle and comma tail. `diagonal-rich-80`,
+`diagonal-plain-80` and their field-200 companions in the art study show
+the pose vocabulary and the grown wolf.
+
+The cub's body facing is now the clockwise eighth, north 0 through
+north-west 7. Foes remain four-way. Terrain clearance retains its existing
+anchor-cell rule; actor collision and doorway shadows use the exact new
+rectangle. Enlarging terrain collision to the drawing would close even
+the existing cardinal cub's one-cell passages.
 
 ## Bodies (cb02c)
 
