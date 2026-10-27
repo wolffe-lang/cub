@@ -886,7 +886,8 @@ row), lighting it. Den 7 is the cold hearth, Cinderwick's.
 three, the boss excluded; `sim.group_plan` places the route groups (`group_count` 5 / 6 / 6 / 5 / 4 / 4
 for the town, the thicket, the meadow, the Teeth, the Shallows, Gravehollow) and the guards stand along
 the branches' centrelines (a weasel trio, a fox pair, one fox) or in the yards (one Ashen, two at the far
-yards). `encounter_row` advances any group inside a den's 30-cell quiet radius in every area now.
+yards, their post their home); a lane group's Ashen take the nearest verge or square ember as home (never a
+yard's, behind its walls), the first on the ember and the rest a body's length down the verge. `encounter_row` advances any group inside a den's 30-cell quiet radius in every area now.
 
 | area | length | dens | caches | foes (boss excluded) | landmarks |
 |---|---|---|---|---|---|
@@ -903,9 +904,24 @@ yards). `encounter_row` advances any group inside a den's 30-cell quiet radius i
 at both portals, the end segments ramps (a smoothstep from a zero anchor runs straight). Two curves summed
 ran straight where their slopes cancelled; a sixteen-row alternation at these swings reversed within three
 cells at every apex (0.50 per ten samples against cb04d's 0.15; this shape 0.07). Bramblehold keeps its
-six switchbacks on legs of 36 rows swinging 24..28 (the longer legs still meet at ninety degrees), eased out
-of the doorway by a smoothstep. The town's lane is the Shingle's meander, zero-ended. `STRAIGHT_MAX` 12
-holds (measured 9 inland, 8 on the Shingle and the lane).
+six switchbacks on legs of 36 rows swinging 24..28 (the longer legs still meet at ninety degrees), the
+apexes at rows 20 + 36 k: the way in runs straight for four rows (the arrival cell stays on the route) and
+slants straight to the first apex (a smoothstep there bent one way and then the other within eight rows, a
+reversal the bends census sees). `STRAIGHT_MAX` 12 holds (measured 9 inland, 8 on the Shingle, 10 on the
+town's lane).
+
+**The lane** (`town.lane`) is a street, not a path through wood, and three censuses pull three ways on a
+street: the straight-run bar (no run over twelve), cb04d's jaggedness (no step out and back within three
+samples) and the bends census (no opposite turns within eight cells). The route meander failed the first
+and cut house corners (it wanders five cells within a plot); a plot-pitched smoothstep failed the first;
+two-row eases failed the second; four-row eases on a plot pitch failed the third. The lane that satisfies
+all three weaves on anchors every two plots (`LANE_PITCH` 28 rows, at the even plots' middle rows), three
+to six cells to alternate sides, three beside the road in and out, zero beyond (the thorn throat and the
+way on stand at x = 0); each anchor sits mid-cell so the apex row never pokes a cell out of its flat; the
+blend eases four rows out of an anchor, slants straight (a cell every two or three rows: no counted turn)
+and eases four rows into the next. A house's near wall is placed by the lane's farthest reach toward it
+over its plot's rows (`lane_edge`: an end row, or the middle where the plot holds an anchor swung that
+way), so the verge widens where the street bends away and no wall is ever carved.
 
 **The branches** (`forest.Branch`, `branch_point`, `in_branch`): a cache branch leaves the route at its
 row on the side the switchback has swung away from (Bramblehold) or by parity, with half width 3 and an
@@ -928,7 +944,8 @@ back walls) and a back wall; beyond the back walls the closed wood. Plots 7 and 
 ash with rubble (never about the hearth), the hearth nine cells off the lane, an ember each side. An ember
 (`terrain.EMBER`) stands in 42 % of the plots, in the verge for the odd plots and the yard for the even;
 light 2 within three columns of one, 1 within six (the ash and the walls warm up; the lane's cobbles keep
-their one style for the path audit); the cub standing on one loses `EMBER_HURT` 2 every `EMBER_TICKS` 10.
+their one style for the path audit); a cub any part of whose body covers one (`sim.on_ember`, the body as
+the frame draws it) loses `EMBER_HURT` 2 every `EMBER_TICKS` 10.
 Caches in the yards of plots 2, 5, 11 and 15 (lore, marrow, lore, lore: `lore.lu`); scent marks in the
 yards of plots 9 and 13. The town's bound (`town.bound`): from six rows before the first plot to six after
 the last, within the back walls' reach.
