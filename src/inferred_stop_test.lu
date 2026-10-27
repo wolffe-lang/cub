@@ -1,0 +1,57 @@
+//! member: false
+
+use controls
+use input
+use sim
+
+fn test_cb04b_inferred_release_stops_after_last_repeat_within_eleven_ticks() {
+    // Default paw1 walk, already at full speed in the disclosed empty arena.
+    // Zero means a lone tap; twelve is the keyboard's initial repeat delay.
+    for interval in [0, 1, 2, 3, 4, 5, 12] {
+        var s = sim.new(1, 200, 40)
+        sim.combat_witness(mut s)
+        assert(!input.exact(s.key_state), "exercise inferred rather than exact input")
+        s.heading = 64
+        s.heading_target = 64
+        s.speed = sim.trot_at(1)
+        sim.step(mut s, [controls.KEY_RIGHT])
+        if interval > 0 {
+            var wait = 1
+            while wait < interval { sim.step(mut s, List[int]()); wait += 1 }
+            sim.step(mut s, [controls.KEY_RIGHT])
+        }
+        let release = if interval == 0 {
+            input.HOLD_TAP_TICKS
+        } else if interval <= input.HOLD_RATE_MAX {
+            interval + input.HOLD_MARGIN
+        } else {
+            input.HOLD_RATE_MAX + input.HOLD_MARGIN
+        }
+        let brake_ticks = (sim.trot_at(1) + sim.BRAKE - 1) / sim.BRAKE
+        let stop = release + brake_ticks - 1
+        assert(brake_ticks == 6, "full-speed default walk needs six braking updates")
+        assert(if interval == 0 then stop == 17 else stop <= 11, "explicit fallback stop bound")
+        var elapsed = 1
+        while elapsed <= stop {
+            sim.step(mut s, List[int]())
+            assert(
+                sim.held_direction(s) == (if elapsed < release then 64 else -1),
+                "hold expires at the designed inferred deadline",
+            )
+            assert(
+                if elapsed < stop then s.speed > 0 else s.speed == 0,
+                "speed reaches zero on the exact bounded braking tick",
+            )
+            elapsed += 1
+        }
+        assert(s.blocked == 0, "the stop must come from release, not an obstacle")
+        let x = s.x
+        let y = s.y
+        var idle = 0
+        while idle < 8 {
+            sim.step(mut s, List[int]())
+            assert(s.x == x && s.y == y && s.speed == 0, "no inferred key survives the deadline")
+            idle += 1
+        }
+    }
+}

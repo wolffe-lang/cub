@@ -51,6 +51,17 @@ press/repeat events; releasing c never interrupts. Release Ctrl before
 pressing c to roll out of a sprint. The fallback is not described as exact. Negotiation/restoration and every
 scripted chord are pty witnesses, not claims of a physical-terminal test.
 
+The inferred repeat window is the larger of the last two short intervals
+plus one tick, at most six ticks; a lone tap lasts twelve ticks. An older
+opposite arrow can therefore briefly resume after a newer arrow expires.
+At default paw1 walking speed, six braking updates bring the cub to rest:
+no later than eleven ticks after the last repeat, or seventeen after a
+lone tap. These are simulation-tick bounds, not physical keyboard timing.
+`test_cb04b_inferred_release_stops_after_last_repeat_within_eleven_ticks`
+checks the exact expiry and stopping tick, then eight stationary ticks,
+without a wall or foe stopping the cub. Exact-protocol releases do not wait
+for this inference window.
+
 ## Physical Shift+Space probe, 2026-10-25
 
 In the maintainer's play terminal, `TERM=xterm-256color`, the pinned engine
