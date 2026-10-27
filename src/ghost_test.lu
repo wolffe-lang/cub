@@ -10,7 +10,7 @@ use ghost
 use replay
 
 fn frame(k: int) -> ghost.Frame {
-    ghost.Frame { x: 64 * k, y: 1000 + k, facing: k % 4, pose: k % 3, area: 1 }
+    ghost.Frame { x: 64 * k, y: 1000 + k, facing: k % 8, pose: k % 3, area: 1 }
 }
 
 fn recorded(death_tick: int, serial: int) -> replay.Replay {
@@ -46,7 +46,7 @@ fn test_cb04_trailer_is_the_last_ticks_in_order() {
     )
     assert(replay.args_at(r, 200, controls.EV_GHOST_Y) == 1200, "last frame y")
     assert(replay.args_at(r, 200, controls.EV_GHOST_DEATH) == 2, "death serial")
-    assert(replay.args_at(r, 150, controls.EV_GHOST_FACE) == 150 % 4, "facing")
+    assert(replay.args_at(r, 150, controls.EV_GHOST_FACE) == 8 + 150 % 8, "tagged eighth")
     assert(replay.args_at(r, 150, controls.EV_GHOST_POSE) == 150 % 3, "pose")
     assert(replay.args_at(r, 150, controls.EV_GHOST_AREA) == 1, "area")
 }
@@ -94,4 +94,22 @@ fn test_cb04_the_set_keeps_the_newest_five() {
         set.ghosts[0].serial == 8 && set.ghosts[4].serial == 4,
         "newest first, the oldest three gone",
     )
+}
+
+fn test_cb08_legacy_ghost_quarters_and_new_eighths_keep_their_direction() {
+    var q = 0
+    while q < 4 {
+        assert(ghost.decode_facing(q) == q * 2, "legacy quarter {q}")
+        q += 1
+    }
+    let g = ghost.from_replay(recorded(120, 1), "eight-way") else {
+        assert(false, "missing ghost")
+        return
+    }
+    var k = 0
+    while k < g.frames.len {
+        let tick = 120 - ghost.TICKS + 1 + k
+        assert(g.frames[k].facing == tick % 8, "round-trip eighth at {tick}")
+        k += 1
+    }
 }
