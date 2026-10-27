@@ -1427,6 +1427,7 @@ fn draw_hud(s: sim.Sim, t: int, mut g: grid.Grid) {
             )
         }
     }
+    grid.put(mut g, 0, 0, grid.cell(32, 250, if t == tier.RICH then 235 else 0, 0))
     draw_water(s, t, mut g)
 }
 
