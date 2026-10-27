@@ -237,7 +237,7 @@ All values below are proposed 2026-10-25:
 | pickups | `DROP_TICKS=300`, one-cell collection radius; bright `*` for the first half, dim `.` after; expired scent is lost |
 | deer | flee within seven cells, ordinary 8 health; eating the drop heals 10 first and gives the bible's 5 scent |
 | caches | two inland per area (first a lore hollow, second an herb burrow; a weasel trio or fox pair guards it), four on the coast (the grove section); dig within two cells only with no live guard within six; one yarrow in the meadow, one marrow from the second cache elsewhere |
-| opening | three original frames, 90 ticks each; any decoded key skips without also performing a move |
+| opening | 900 ticks / 30 seconds; shot table below; one decoded key skips the entire opening without also performing a move |
 
 | area | path groups | side-branch guards |
 |---|---|---|
@@ -871,3 +871,48 @@ Measured centres at80×24,120×40,200×60 are respectively `(27,12)`, `(40,20)`,
 `(67,30)`, with left/top `(7,1)`, `(15,7)`, `(42,17)`. None of these sizes
 clamps. The original breathing cub and animated fire sit to its right;
 at80 columns the fire sits six rows lower, clear of the cub's muzzle.
+
+## Moonford opening (cb06)
+
+R-cb06-1 recommends 30 seconds: 900 simulation ticks at 30 Hz. R-cb06-2
+recommends A: one decoded key skips the entire sequence, never a shot at a
+time and never a gameplay move. The music toggle keeps its existing
+meaning; quit still quits. The seen flag and journey schema stay unchanged.
+
+| shot | interval, ticks from opening (end exclusive) | duration |
+|---|---|---:|
+| crossing | 0–210 | 210 |
+| first crack, cue strike | 210–225 | 15 |
+| held cub, pack walking on | 225–300 | 75 |
+| rapidly spreading seams | 300–330 | 30 |
+| plate breaks, deep water exposed | 330–360 | 30 |
+| cub drops, water hides its body | 360–420 | 60 |
+| underwater current, shrinking surface, fade | 420–480 | 60 |
+| black | 480–510 | 30 |
+| first slow opening, dim, at most 60% | 510–600 | 90 |
+| first slow closing | 600–660 | 60 |
+| second opening, at most 80% | 660–720 | 60 |
+| second closing | 720–765 | 45 |
+| third opening, at most 95% | 765–789 | 24 |
+| third closing | 789–810 | 21 |
+| final quick reveal | 810–840 | 30 |
+| clear spawn | 840–900 | 60 |
+
+The waking view is the actual seeded Shingle frame, not an illustration of
+a different bank. Eyelids are a rounded black mask; the first blink also
+dims and sparsely hides detail. The last clear shot equals `art.render`
+with the scene disabled, cell for cell. The sim remains suspended until
+900 or a skip. Resizing changes composition, not the clock.
+
+Replay syntax remains `opening 1`, plus ordinary recorded keys: no extra
+events or save fields. Recordings made with this build reproduce every
+shot, and the terminal tests compare their final glyphs and styles to
+headless playback. Old recordings are readable but use the new opening's
+art and duration; they are not promised visual compatibility with the
+old three-card animation. The replay format has not changed; no data
+migration is needed. The ending's three 90-tick cards are unaffected.
+
+Twenty sampled moments (all shots, first peak and each blink shut) have
+80×24, 120×40 and 200×60 goldens on both tiers. `opening-complete` waits
+through the real sequence; `opening-skip-00` through `opening-skip-15`
+press a real arrow in each shot and compare the resulting recording.
