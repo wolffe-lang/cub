@@ -181,7 +181,7 @@ and posture sheets, every combo/roll frame, scaled bars and rally, the score's P
 (`tools/score-check`), shipping-binary gameplay and persistence assertions,
 pty restoration and replay agreement, exact held-key and eight-direction chord rows, regional rest scenes at80×24 and120×40,
 found-water/drink/refill and last-den respawn, and performance. Both platform gates
-also bound resident growth to4096 bytes per actual tick over a resumed checkpoint
+also bound resident growth to 4096 bytes per actual tick over a resumed checkpoint
 and fresh seed (`sh tools/check-memory target/release/cub`). Frame scratch is
 reclaimed after drawing; idle save checks reuse fixed-size numeric snapshots.
 `tools/check-linux`
