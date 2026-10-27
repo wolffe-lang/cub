@@ -103,7 +103,7 @@ The terminal must be at least 80 columns by 24 rows; the field grows to fill a l
 | `m` | the music off, on again |
 | Up/Down, Left/Right at the den | select a stat or Confirm; stage/remove a level |
 | Enter/Space on Confirm | apply all staged levels; Esc discards |
-| `q` | quit; the terminal is restored on every exit |
+| `q` / Ctrl+C | quit / interrupt; the terminal and negotiated keyboard mode are restored |
 | any decoded key during the opening | skip the scene without also making a move |
 | any key on the title | begin; after ten idle seconds a demo plays behind the title |
 | `r` on the end card | keep playing as the wolf (`q` leaves) |
