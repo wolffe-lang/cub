@@ -182,10 +182,12 @@ pub fn generate(dir: str) -> int {
     walker.press(mut water, mut water_replay, walker.key(controls.KEY_REST))
     if !water.den || water.flasks != 2 { return 1 }
     write_case(dir, "water-refill", water, water_replay, water.tick) else { return 2 }
+    // The checkpoint witness starts at the briar hollow itself (cb05: the
+    // coal roots it started from are a landmark now).
     var s = sim.new(7, 80, 24)
     s.gate_open = true
-    s.last_den = 8
-    s.lit_dens = sim.light_den(1, 8)
+    s.last_den = 2
+    s.lit_dens = sim.light_den(1, 2)
     s.opening_seen = true
     s.flask_max = 2
     sim.wake(mut s)

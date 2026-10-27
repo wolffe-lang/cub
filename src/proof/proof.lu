@@ -90,7 +90,20 @@ pub fn generate(dir: str) -> int {
     if !s.gate_open { eprint("proof: gate did not open"); return 1 }
     snapshot(dir, "world-open", s, r) else |_| { return 2 }
     let (ex, ey) = forest.portal(s.seed, 0, 0)
-    if !walker.walk(mut s, mut r, ex, ey) || s.area != 1 { eprint("proof: thicket edge"); return 1 }
+    if !walker.walk(mut s, mut r, ex, ey) || s.area != forest.TOWN {
+        eprint("proof: the town's gate")
+        return 1
+    }
+    // Cinderwick (cb05): down the lane past the Ashen to the way on, the
+    // cold hearth rested at on the way.
+    let (hx, hy) = forest.den_position(s.seed, 7)
+    if !walker.walk(mut s, mut r, hx, hy) { eprint("proof: the cold hearth"); return 1 }
+    walker.press(mut s, mut r, walker.key(controls.KEY_REST))
+    if !s.den || s.last_den != 7 { eprint("proof: no rest at the hearth"); return 1 }
+    snapshot(dir, "town-den", s, r) else |_| { return 2 }
+    walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
+    let (tx, ty) = forest.portal(s.seed, forest.TOWN, 9)
+    if !walker.walk(mut s, mut r, tx, ty) || s.area != 1 { eprint("proof: thicket edge"); return 1 }
     let (dx, dy) = forest.den_position(s.seed, 1)
     if !walker.walk(mut s, mut r, dx, dy) { eprint("proof: thicket den"); return 1 }
     walker.press(mut s, mut r, walker.key(controls.KEY_REST))
