@@ -1,0 +1,120 @@
+//! narrowaudit — anchor-terrain clearance with the real eight-way cub.
+//! For every open neighbour edge in a single-file corridor, drive both
+//! diagonal chords that slide along that edge. Foes are absent and health
+//! is raised only to isolate geometry from Cinderwick's ember damage.
+
+use controls
+use forest
+use sim
+
+fn crosses(
+    base: sim.Sim,
+    x: int,
+    y: int,
+    dx: int,
+    dy: int,
+    diagonal_x: int,
+    diagonal_y: int,
+) -> bool {
+    var s = copy base
+    s.x = x * sim.FP + sim.FP / 2
+    s.y = y * sim.FP + sim.FP / 2
+    s.heading = sim.heading_of(diagonal_y < 0, diagonal_y > 0, diagonal_x < 0, diagonal_x > 0)
+    s.heading_target = s.heading
+    s.body_facing = sim.eighth(s.heading)
+    s.health = 100000
+    s.speed = 0
+    s.action = sim.IDLE
+    s.den = false
+    var keys = List[int]()
+    (mut keys).push(if diagonal_x < 0 then controls.KEY_LEFT else controls.KEY_RIGHT)
+    (mut keys).push(if diagonal_y < 0 then controls.KEY_UP else controls.KEY_DOWN)
+    var tick = 0
+    while tick < 120 {
+        sim.step(mut s, keys)
+        if s.area != base.area { return false }
+        if s.body_facing % 2 != 1 { return false }
+        // Crossing the axial cell boundary completes the edge. At an
+        // open corridor mouth the same tick may also cross the transverse
+        // boundary: that is a legal diagonal exit, not a stuck body.
+        if dx != 0 && sim.cell_x(s) == x + dx || dy != 0 && sim.cell_y(s) == y + dy {
+            return !sim.blocked(s, sim.cell_x(s), sim.cell_y(s))
+        }
+        // Sliding must not leave the corridor on its blocked axis.
+        if dx == 0 && sim.cell_x(s) != x || dy == 0 && sim.cell_y(s) != y { return false }
+        tick += 1
+    }
+    false
+}
+
+/// Census one area's first `length` rows in fifty seeds and both fields.
+/// A narrow cell has blocked opposite neighbours and an open axial
+/// neighbour. Every directed open edge is attempted with both diagonals;
+/// exit nonzero on any failed crossing, or if no narrow cells were tested.
+pub fn census(area: int, length: int) -> int {
+    if area < 0 || area >= forest.AREAS || length < 1 || length > 4096 { return 2 }
+    var attempts = 0
+    var misses = 0
+    var seed = 0
+    while seed < 50 {
+        for field in [80, 200] {
+            region world {
+                var base = sim.new(seed, field, if field == 80 then 24 else 60)
+                base.area = area
+                base.gate_open = true
+                base.shortcuts = 15
+                base.opening_seen = true
+                (mut base.foes).reset()
+                let origin = forest.origin(seed, area)
+                var y = origin + 1
+                while y < origin + length - 1 {
+                    var x = 0 - field
+                    while x <= field {
+                        if !sim.blocked(base, x, y) {
+                            let horizontal = sim.blocked(base, x, y - 1) &&
+                                sim.blocked(base, x, y + 1)
+                            let vertical = sim.blocked(base, x - 1, y) &&
+                                sim.blocked(base, x + 1, y)
+                            for sign in [-1, 1] {
+                                for lean in [-1, 1] {
+                                    if horizontal && !sim.blocked(base, x + sign, y) {
+                                        region walk {
+                                            attempts += 1
+                                            if !crosses(base, x, y, sign, 0, sign, lean) {
+                                                misses += 1
+                                                if misses <= 20 {
+                                                    print(
+                                                        "narrow MISS seed {seed} field {field} at {x},{y} chord {sign},{lean}",
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if vertical && !sim.blocked(base, x, y + sign) {
+                                        region walk {
+                                            attempts += 1
+                                            if !crosses(base, x, y, 0, sign, lean, sign) {
+                                                misses += 1
+                                                if misses <= 20 {
+                                                    print(
+                                                        "narrow MISS seed {seed} field {field} at {x},{y} chord {lean},{sign}",
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        x += 1
+                    }
+                    y += 1
+                }
+                print("narrow seed {seed} field {field} attempts {attempts} misses {misses}")
+            }
+        }
+        seed += 1
+    }
+    print("narrow total attempts {attempts} misses {misses}")
+    if attempts > 0 && misses == 0 then 0 else 1
+}

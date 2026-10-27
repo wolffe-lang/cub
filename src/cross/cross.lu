@@ -125,7 +125,7 @@ fn place_at_gap(mut s: sim.Sim, k: int, want: int) {
         s.y = y
         s.heading = h
         s.heading_target = h
-        s.body_facing = sim.quarter(h)
+        s.body_facing = sim.eighth(h)
         if sim.gap(sim.cub_body(s), fb) >= want { return }
         d += 8
     }
