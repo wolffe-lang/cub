@@ -124,9 +124,18 @@ fn place_at_gap(mut s: sim.Sim, k: int, want: int) {
 /// a cell off (the bite's reach is two); red when any such bite misses.
 pub fn hitbox() -> int {
     print("aim cub_x cub_y gap anchor_in_cone body_in_cone landed")
+    if hitbox_rows(0, 16) != 0 { return 1 }
+    print("hitbox: green, a bite in reach lands from every aim, touching and a cell off")
+    0
+}
+
+/// The same audit rows, split only for checked-machine test fuel. The
+/// shipping command always runs all sixteen; an empty range is refused.
+pub fn hitbox_rows(first: int, last: int) -> int {
+    if first < 0 || last > 16 || first >= last { return 1 }
     var misses = 0
-    var k = 0
-    while k < 16 {
+    var k = first
+    while k < last {
         let want = k / 8
         var s = sim.new(3, 80, 24)
         s.gate_open = true
@@ -166,9 +175,15 @@ pub fn hitbox() -> int {
         let before = s.foes[0].health
         var keys = List[int]()
         (mut keys).push(controls.KEY_LOCK)
-        walker.aim(mut keys, 0 - sim.sin(h), sim.cos(h))
+        // Held arrows, not the lock, commit bite aim. Point toward the
+        // declared target; the old reverse chord tested a bite away from it.
+        walker.aim(mut keys, sim.sin(h), 0 - sim.cos(h))
         (mut keys).push(controls.KEY_BITE)
         sim.step(mut s, keys)
+        if s.attack_heading != h {
+            eprint("hitbox: expected aim {h}, committed {s.attack_heading}")
+            return 1
+        }
         var n = 0
         while n < 8 { sim.step(mut s, List[int]()); n += 1 }
         let landed = s.foes[0].health < before
@@ -177,10 +192,9 @@ pub fn hitbox() -> int {
         k += 1
     }
     if misses > 0 {
-        print("hitbox: RED {misses} of 16 bites in reach miss")
+        print("hitbox: RED {misses} of {last - first} bites in reach miss")
         return 1
     }
-    print("hitbox: green, a bite in reach lands from every aim, touching and a cell off")
     0
 }
 

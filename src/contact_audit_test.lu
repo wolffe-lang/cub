@@ -1,0 +1,11 @@
+//! member: false
+
+use cross
+
+fn test_cb04b_contact_audit_touching_stands_commit_aim_and_land() {
+    assert(cross.hitbox_rows(0, 8) == 0, "all eight touching first bites land")
+}
+
+fn test_cb04b_contact_audit_gap_one_stands_commit_aim_and_land() {
+    assert(cross.hitbox_rows(8, 16) == 0, "all eight one-cell-gap first bites land")
+}
