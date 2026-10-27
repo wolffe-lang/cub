@@ -1,0 +1,7 @@
+fox-census: contact fixture; none/false/real; inward roll is body-blocked
+fox paw=1 mode=0 false=0 real=16 strike=28 roll_at=-1 health=36 flasks=1 dy=0 blocked=0
+fox paw=1 mode=1 false=0 real=16 strike=28 roll_at=1 health=36 flasks=1 dy=-126 blocked=80
+fox paw=1 mode=2 false=0 real=16 strike=28 roll_at=27 health=52 flasks=2 dy=-126 blocked=80
+fox paw=10 mode=0 false=0 real=16 strike=28 roll_at=-1 health=36 flasks=1 dy=0 blocked=0
+fox paw=10 mode=1 false=0 real=16 strike=28 roll_at=1 health=36 flasks=1 dy=-124 blocked=104
+fox paw=10 mode=2 false=0 real=16 strike=28 roll_at=27 health=52 flasks=2 dy=-124 blocked=104

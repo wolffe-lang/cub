@@ -28,6 +28,7 @@ run_gate() {
     bash "$lane/heavy.sh" target/release/cub --motion-render > "$lane/logs/render-after-mac.txt" &&
     bash "$lane/heavy.sh" target/release/cub --fox-roll-census > "$lane/logs/fox-after-mac.txt" &&
     bash "$lane/heavy.sh" env LAIR_PERF_SLACK=1 .lair/tools/perf --bin target/release/cub &&
+    ! grep -q FAILED target/perf/summary.txt &&
     bash "$lane/heavy.sh" env LAIR_PERF_SLACK=1 python3 -I .lair/tools/perf-idle --bin target/release/cub
 }
 run_gate
