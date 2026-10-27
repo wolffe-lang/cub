@@ -5,6 +5,7 @@ import stat
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
 spec = importlib.util.spec_from_file_location('cub_pty_rows', ROOT / 'tests/pty_rows.py')
@@ -44,6 +45,54 @@ class OpeningArtifactPermissions(unittest.TestCase):
 
     def test_partial_failure_releases_nested_directories_and_files(self):
         self.check_failed_attempt(True)
+
+
+class OpeningSkipSynchronization(unittest.TestCase):
+    def check_transition(self, events):
+        class Session:
+            def __init__(self):
+                self.clock = 0.0
+                self.err = self.trace(12, 0, 0, 1)
+                self.events = list(events)
+                self.typed = []
+
+            def trace(self, tick, keys, x, scene):
+                return (f'trace tick {tick} in {keys} keys {keys} queue 3 '
+                        f'x {x} y 640 held -1 body 0 scene {scene} demo 0\n').encode()
+
+            def type(self, data, settle):
+                self.typed.append(data)
+                self.pump(settle)
+
+            def pump(self, seconds):
+                self.clock += seconds
+                while self.events and self.events[0][0] <= self.clock:
+                    _, tick, keys, x, scene = self.events.pop(0)
+                    self.err += self.trace(tick, keys, x, scene)
+
+        session = Session()
+        with mock.patch('time.monotonic', side_effect=lambda: session.clock):
+            result = rows._opening_skip_without_moving(session, timeout=.2)
+        self.assertEqual(session.typed, [b'\x1b[C'])
+        return result
+
+    def test_delayed_post_input_tick_is_not_a_failed_skip(self):
+        self.assertTrue(self.check_transition([(0.081, 13, 3, 0, 0), (.1, 14, 0, 0, 0)]))
+
+    def test_moving_skip_still_fails(self):
+        self.assertFalse(self.check_transition([(.02, 13, 3, 16, 0), (.04, 14, 0, 16, 0)]))
+
+    def test_unskipped_input_still_fails(self):
+        self.assertFalse(self.check_transition([(.02, 13, 3, 0, 1), (.04, 14, 0, 0, 1)]))
+
+    def test_absent_transition_still_fails(self):
+        self.assertFalse(self.check_transition([]))
+
+    def test_held_movement_after_skip_still_fails(self):
+        self.assertFalse(self.check_transition([(.02, 13, 3, 0, 0), (.04, 14, 0, 16, 0)]))
+
+    def test_natural_completion_does_not_count_as_input(self):
+        self.assertFalse(self.check_transition([(.02, 13, 0, 0, 0), (.04, 14, 0, 0, 0)]))
 
 
 if __name__ == '__main__':

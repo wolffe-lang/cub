@@ -776,6 +776,33 @@ ROWS['den-world-memory'] = den_world_memory
 OPENING_SHOTS = [0, 210, 225, 300, 330, 360, 420, 480, 510, 600, 660, 720, 765, 789, 810, 840]
 
 
+def _opening_skip_without_moving(session, timeout=2.0):
+    """Observe the skip's input tick and one following tick, not a wall-clock guess."""
+    import re
+    import time
+    pattern = rb'trace tick (\d+) .*? keys (\d+) .*? x (-?\d+) y (-?\d+) .*? scene (\d+)'
+    before = re.findall(pattern, session.err)
+    if not before or before[-1][4] != b'1':
+        return False
+    last_tick = int(before[-1][0])
+    origin = before[-1][2:4]
+    session.type(b'\x1b[C', settle=0)
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        session.pump(.02)
+        after = [row for row in re.findall(pattern, session.err) if int(row[0]) > last_tick]
+        if any(row[2:4] != origin for row in after):
+            return False
+        keyed = [row for row in after if int(row[1]) > 0]
+        if keyed:
+            if keyed[0][4] != b'0':
+                return False
+            # A second tick also catches a skip direction leaking into held movement.
+            if int(after[-1][0]) > int(keyed[0][0]):
+                return after[-1][4] == b'0'
+    return False
+
+
 def opening_live(binary, ctx, shot=None):
     import re
     import time
@@ -808,9 +835,7 @@ def opening_live(binary, ctx, shot=None):
         before = re.findall(rb'trace tick \d+ .*? x (-?\d+) y (-?\d+) .*? scene (\d+)', session.err)
         if not before or before[-1][2] != b'1':
             problems.append('skip was not in opening shot %d' % shot)
-        session.type(b'\x1b[C', settle=.05)
-        after = re.findall(rb'trace tick \d+ .*? x (-?\d+) y (-?\d+) .*? scene (\d+)', session.err)
-        if not after or after[-1][2] != b'0' or before[-1][:2] != after[-1][:2]:
+        if not _opening_skip_without_moving(session):
             problems.append('skip did not end scene without moving')
     elif not re.search(rb'trace tick 900 .*? area 0 .*? scene 0 ', session.err):
         problems.append('unskipped opening did not reach the Shingle at tick 900')
