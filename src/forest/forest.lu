@@ -305,36 +305,54 @@ fn ss(t: int) -> int {
 
 /// A route through wood (cb05: "Make the path shapes more varied"):
 /// anchors every `ROUTE_LATTICE` rows carry a slow drift, so the path
-/// sweeps one way and then the other over `SWEEP_ANCHORS` anchors (a
-/// drift of 8..12 cells), while the alternation at each anchor (7..10
-/// cells, wider and slower than the Shingle's 3..5 every sixteen rows)
+/// leans one way and then the other over `SWEEP_ANCHORS` anchors (a
+/// drift of 4..7 cells), while the alternation at each anchor (9..12
+/// cells, wider and slower than the Shingle's 3..5 every sixteen rows,
+/// and wider than the drift so the two never cancel into a straight run)
 /// bends the route every screen. One smoothstep between combined anchors,
 /// plus the noise: two curves summed would run straight where their slopes
 /// cancel, and a sixteen-row alternation with these swings would reverse
 /// within three cells at every apex (measured over fifty seeds: 0.50
 /// reversals per ten samples); this shape measures 0.07 against cb04d's
 /// 0.15, with no straight run over eleven cells.
-fn route_anchor_fp(seed: int, ch: int, k: int) -> int {
+fn route_anchor_fp(seed: int, ch: int, k: int, l: int) -> int {
+    // Zero at and beyond the route's ends: the portals stand at x = 0; the
+    // anchors beside them carry no drift, so the ramp from a portal
+    // always has a slope (the drift can oppose the alternation).
+    if k <= 0 || k * ROUTE_LATTICE >= l { return 0 }
+    let fast = if (k % 2 + 2) % 2 == 0 then 1 else -1
+    if k == 1 || (k + 1) * ROUTE_LATTICE >= l {
+        return fast * (9 + world.hash(seed, ch, k, 4)) * FP
+    }
+    drift_fp(seed, ch, k) + fast * (9 + world.hash(seed, ch, k, 4)) * FP
+}
+
+/// The drift at anchor `k`: smoothstepped between its own anchors every
+/// `SWEEP_ANCHORS`.
+fn drift_fp(seed: int, ch: int, k: int) -> int {
     var j = k / SWEEP_ANCHORS
     var r = k % SWEEP_ANCHORS
     if r < 0 { j -= 1; r += SWEEP_ANCHORS }
     let sign = if (j % 2 + 2) % 2 == 0 then 1 else -1
-    let a = sign * (8 + world.hash(seed, ch + 1000, j, 5)) * FP
-    let b = 0 - sign * (8 + world.hash(seed, ch + 1000, j + 1, 5)) * FP
-    let slow = a + (b - a) / FP * ss(r * FP / SWEEP_ANCHORS)
-    let fast = if (k % 2 + 2) % 2 == 0 then 1 else -1
-    slow + fast * (7 + world.hash(seed, ch, k, 4)) * FP
+    let a = sign * (4 + world.hash(seed, ch + 1000, j, 4)) * FP
+    let b = 0 - sign * (4 + world.hash(seed, ch + 1000, j + 1, 4)) * FP
+    a + (b - a) / FP * ss(r * FP / SWEEP_ANCHORS)
 }
 
 /// The route's centre in fixed point (`route_anchor_fp` between anchors
 /// every `ROUTE_LATTICE` rows, the meander's noise on top, rounded once).
-fn route_fp(seed: int, ch: int, at: int) -> int {
+fn route_fp(seed: int, ch: int, at: int, l: int) -> int {
     var k = at / ROUTE_LATTICE
     var r = at % ROUTE_LATTICE
     if r < 0 { k -= 1; r += ROUTE_LATTICE }
-    let a = route_anchor_fp(seed, ch, k)
-    let b = route_anchor_fp(seed, ch, k + 1)
-    (world.noise(seed, ch, at) - FP / 2) * 8 + a + (b - a) / FP * ss(r * FP / ROUTE_LATTICE)
+    let a = route_anchor_fp(seed, ch, k, l)
+    let b = route_anchor_fp(seed, ch, k + 1, l)
+    // The first and last segments ramp straight from the portal (a
+    // smoothstep from zero starts flat: a long straight run); the noise is
+    // detrended to zero at both portals (`terrain.noise_detrended`).
+    let ends = k <= 0 || (k + 1) * ROUTE_LATTICE >= l
+    let blend = if ends then r * FP / ROUTE_LATTICE else ss(r * FP / ROUTE_LATTICE)
+    terrain.noise_detrended(seed, ch, at, l) + a + (b - a) / FP * blend
 }
 
 /// Rows between a route's anchors.
@@ -376,15 +394,12 @@ pub fn spine(seed: int, area: int, at: int) -> int {
             9
     }
     if area == TOWN { return town.lane(seed, at) }
-    let c = if area == SHINGLE {
-        curve(seed, 31 + area, at)
-    } else {
-        terrain.floor_cells(route_fp(seed, 31 + area, at))
-    }
+    // The route stands at x = 0 at both portals by its end anchors (cb05),
+    // never by a taper: a curve tapered by a factor bends one way and
+    // then the other wherever its slope opposes its sign.
     let l = length(area)
-    if at < 8 { return c * at / 8 }
-    if at > l - 8 { return c * (l - at) / 8 }
-    c
+    if area == SHINGLE { return terrain.floor_cells(terrain.meander_ends_fp(seed, 31 + area, at, l)) }
+    terrain.floor_cells(route_fp(seed, 31 + area, at, l))
 }
 
 /// The path half-width breathes from a separate noise ch, 4..6 cells
@@ -468,10 +483,12 @@ pub fn cache_position(seed: int, field: int, area: int, cache: int) -> (int, int
     (x * FP + FP / 2, (origin(seed, area) + at) * FP + FP / 2)
 }
 
-/// The row a cache branch leaves the route: a fifth, a half and four
-/// fifths of the way in, the seed moving each by up to four rows.
+/// The row a cache branch leaves the route: a fifth, just under a half
+/// and four fifths of the way in (the middle one placed so its shape,
+/// bending toward the farther den, keeps the quiet radius from both), the
+/// seed moving each by up to four rows.
 pub fn cache_row(seed: int, area: int, cache: int) -> int {
-    (if cache == 0 then 60 else if cache == 1 then 144 else 232) +
+    (if cache == 0 then 60 else if cache == 1 then 136 else 232) +
         world.hash(seed, area, cache + 62, 5)
 }
 
@@ -526,22 +543,26 @@ fn shape_of(seed: int, area: int, cache: int, r: int) -> int {
     digit % n
 }
 
-/// The hook's and the turn's bend direction, and the S's: away from the
-/// area's nearest den (by row), so no branch bends into a den's quiet
-/// radius; north (-1) or south (1).
+/// The hook's and the turn's bend direction, and the S's: toward the
+/// side (by row) whose nearest den is the farther off, so no branch
+/// bends into a den's quiet radius; north (-1) or south (1).
 fn branch_dir(seed: int, area: int, cache: int) -> int {
     let m = cache_row(seed, area, cache)
-    var nearest = -1000
+    var above = 100000
+    var below = 100000
     var id = 0
     while id < DEN_LIMIT {
         if den_area(id) == area && id != 0 {
             let row = den_row(seed, id)
-            if abs(row - m) < abs(nearest - m) { nearest = row }
+            if row < m && m - row < above { above = m - row }
+            if row > m && row - m < below { below = row - m }
         }
         id += 1
     }
-    if nearest == -1000 { return if world.hash(seed, area, cache + 74, 2) == 0 then -1 else 1 }
-    if nearest > m then -1 else 1
+    if above == 100000 && below == 100000 {
+        return if world.hash(seed, area, cache + 74, 2) == 0 then -1 else 1
+    }
+    if below > above then 1 else -1
 }
 
 /// sin of `i` twelfths of a quarter turn, in `[0, FP]`.
@@ -582,7 +603,7 @@ pub fn branch_geom_at(seed: int, field: int, area: int, cache: int, m: int, x0: 
     } else if shape == SHAPE_HOOK {
         r - HOOK_RADIUS - 1 + ARC_Q + climb
     } else if shape == SHAPE_LOOP {
-        r - 2 * LOOP_RADIUS + 2 * ARC_Q
+        r - LOOP_RADIUS + 2 * ARC_Q
     } else {
         let r1 = r - UTURN_RADIUS - BRANCH_HALF - 1
         r1 + 2 * ARC_Q + r1 * 3 / 5
@@ -638,25 +659,26 @@ fn point_on(g: Branch, t: int) -> (int, int) {
         return (cx + side * HOOK_RADIUS, cy + dir * (if c > g.climb then g.climb else c))
     }
     if g.shape == SHAPE_LOOP {
-        let r1 = r - 2 * LOOP_RADIUS
+        // The run meets the ring where the ring's tangent is the run's
+        // own (its near pole), so the way in bends one way only; the
+        // centreline follows half the ring to the far pole, where the
+        // cache is (the ring is carved all the way round).
+        let r1 = r - LOOP_RADIUS
         if t <= r1 { return (x0 + side * t, m) }
-        let cx = x0 + side * (r1 + LOOP_RADIUS)
-        // Round the copse from the near point: the first quarter turns
-        // `dir`; the centreline ends at the far point, two quarters round,
-        // where the cache is (the ring is carved all the way round).
+        let cx = x0 + side * r1
+        let cy = m + dir * LOOP_RADIUS
         let i = t - r1
-        let q = (i / ARC_Q) % 4
-        let j = i % ARC_Q
-        let (sx, sy) = if q == 0 {
-            (0 - qsin(12 - j), dir * qsin(j))
-        } else if q == 1 {
-            (qsin(j), dir * qsin(12 - j))
-        } else if q == 2 {
-            (qsin(12 - j), 0 - dir * qsin(j))
-        } else {
-            (0 - qsin(j), 0 - dir * qsin(12 - j))
+        if i <= ARC_Q {
+            return (
+                cx + side * LOOP_RADIUS * qsin(i) / FP,
+                cy - dir * LOOP_RADIUS * qsin(12 - i) / FP,
+            )
         }
-        return (cx + side * LOOP_RADIUS * sx / FP, m + LOOP_RADIUS * sy / FP)
+        let j = i - ARC_Q
+        return (
+            cx + side * LOOP_RADIUS * qsin(12 - j) / FP,
+            cy + dir * LOOP_RADIUS * qsin(j) / FP,
+        )
     }
     // The 180-degree turn: out along the row, a half turn, back along the
     // row two radii off for three fifths of the way.
@@ -736,9 +758,9 @@ fn on_branch(g: Branch, x: int, at: int) -> bool {
             dir * (at - cy) <= g.climb
     }
     if g.shape == SHAPE_LOOP {
-        let r1 = r - 2 * LOOP_RADIUS
+        let r1 = r - LOOP_RADIUS
         if on_run(x, at, m, x0, x0 + side * r1, hw) { return true }
-        return on_arc(x, at, x0 + side * (r1 + LOOP_RADIUS), m, LOOP_RADIUS, hw, 0, 0)
+        return on_arc(x, at, x0 + side * r1, m + dir * LOOP_RADIUS, LOOP_RADIUS, hw, 0, 0)
     }
     let r1 = r - UTURN_RADIUS - BRANCH_HALF - 1
     if on_run(x, at, m, x0, x0 + side * r1, hw) { return true }
@@ -755,6 +777,14 @@ fn on_branch(g: Branch, x: int, at: int) -> bool {
 pub fn in_branch(seed: int, field: int, area: int, cache: int, x: int, at: int) -> bool {
     let m = cache_row(seed, area, cache)
     if abs(at - m) > 32 { return false }
+    // A cell on the far side of the field from an inland branch is never
+    // on it: the route itself never leaves the middle third (the switchbacks'
+    // 28, the routes' 19 and the noise), so the side is known before the
+    // mouth's column is evaluated.
+    if area != BRAMBLEHOLD {
+        let side = branch_side(seed, area, cache)
+        if side * x < 0 - 24 - BRANCH_HALF { return false }
+    }
     let x0 = spine(seed, area, m)
     let side = if area == BRAMBLEHOLD then (if x0 > 0 then -1 else 1) else branch_side(seed, area, cache)
     if side * (x - x0) < 0 - BRANCH_HALF { return false }
@@ -794,12 +824,14 @@ fn in_pocket(seed: int, area: int, k: int, x: int, at: int) -> bool {
 }
 
 /// Bramblehold's fork (cb05, "forks that rejoin"): a second way between
-/// rows 120 and 176, fourteen to eighteen cells west of the switchbacks,
-/// tapering back to the route at both ends.
-pub const FORK_FROM: int = 120
+/// rows 92 and 188, fourteen to eighteen cells west of the switchbacks,
+/// easing out and back over twenty-four rows at each end, each ease
+/// inside one leg of the switchbacks (an ease over an apex, or a shorter
+/// one, is an S the bends census counts).
+pub const FORK_FROM: int = 92
 
 /// Where the fork rejoins.
-pub const FORK_TO: int = 176
+pub const FORK_TO: int = 188
 
 /// The fork's centre at a local row (the spine's when outside its rows);
 /// it never comes within six cells of the field's edge.
@@ -808,7 +840,7 @@ pub fn fork(seed: int, field: int, at: int) -> int {
     if at < FORK_FROM || at > FORK_TO { return c }
     let d = 14 + world.hash(seed, 93, 0, 5)
     let edge = if at - FORK_FROM < FORK_TO - at then at - FORK_FROM else FORK_TO - at
-    let t = if edge > 12 then FP else edge * FP / 12
+    let t = if edge > 24 then FP else edge * FP / 24
     let f = c - d * ss(t) / FP
     let limit = 6 - half_width(field)
     if f < limit then limit else f
