@@ -169,10 +169,22 @@ jobs:
           path: .wolf-bin
           key: lair-toolchain-linux-${{ hashFiles('.lair/wolf-toolchain.toml') }}
       - run: .lair/tools/fetch-toolchain
+      - name: restore the pinned Linux image
+        id: container-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: target/ci-container/image.tar
+          key: lair-container-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.lair/ci/Containerfile') }}
+      - name: provision the pinned Linux image
+        run: python3 -I tools/ci-container.py prepare
+      - name: save the pinned Linux image
+        if: steps.container-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: target/ci-container/image.tar
+          key: ${{ steps.container-cache.outputs.cache-primary-key }}
       - name: release bench and live latency, in the container
-        env:
-          LAIR_ENGINE: docker
-        run: .lair/tools/in-container tools/check-perf
+        run: python3 -I tools/ci-container.py run -- tools/check-perf
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

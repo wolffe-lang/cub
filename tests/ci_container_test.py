@@ -133,6 +133,17 @@ class ContainerCacheTests(unittest.TestCase):
         self.assertNotIn('restore-keys:', linux)
         self.assertIn('timeout-minutes: 40', linux)
 
+    def test_performance_leg_reuses_the_same_exact_image_cache(self):
+        workflow = (ROOT / '.github/workflows/ci.yml').read_text()
+        linux = workflow.split('\n  linux:', 1)[1].split('\n  macos:', 1)[0]
+        perf = workflow.split('\n  perf:', 1)[1].split('\n  tier:', 1)[0]
+        key = next(line.strip() for line in linux.splitlines() if 'key: lair-container-v1-' in line)
+        self.assertIn(key, perf)
+        self.assertIn('actions/cache/restore@v4', perf)
+        self.assertLess(perf.index('actions/cache/save@v4'),
+                        perf.index('tools/ci-container.py run -- tools/check-perf'))
+        self.assertIn('timeout-minutes: 20', perf)
+
     def run_staged_gate(self, fail_score=False):
         tools = self.root / 'tools'
         tools.mkdir()
