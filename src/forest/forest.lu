@@ -427,7 +427,7 @@ pub fn half(seed: int, area: int, at: int) -> int {
 /// hollow is a den's spacing). The seed moves each by up to three rows.
 pub fn den_row(seed: int, den: int) -> int {
     let base = match den {
-        1 => 196,
+        1 => 150, // PLANT: fifty rows from the briar hollow
         2 => 100,
         3 => 8,
         4 => 18,
