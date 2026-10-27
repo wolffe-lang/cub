@@ -1,0 +1,66 @@
+cb08 ghost-final start 2026-10-27T17:23:01Z
+cb08 ghost-final waiting for cores 8-11 2026-10-27T17:23:01Z
+cb08 ghost-final acquired cores 4-7 2026-10-27T17:23:01Z
+ghost verification backend native
+gameplay: ghost trailer, display and absence rich ok
+gameplay: ghost trailer, display and absence plain ok
+ghost verification backend release
+gameplay: ghost trailer, display and absence rich ok
+gameplay: ghost trailer, display and absence plain ok
+ghost verification: both backends, both tiers green
+remaining gate native ghosts
+gameplay: ghost trailer, display and absence rich ok
+gameplay: ghost trailer, display and absence plain ok
+remaining gate native fairness
+gameplay: fairness boar attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 78 46 30 unparryable_hits 76 tells 12 24 12 parry_window 9 arena_breaches 0
+gameplay: fairness lynx attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 66 31 44 unparryable_hits 44 tells 10 12 15 parry_window 9 arena_breaches 0
+gameplay: fairness elk attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 16 4 4 unparryable_hits 4 tells 16 24 18 parry_window 9 arena_breaches 0
+gameplay: fairness alpha attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 212 0 0 unparryable_hits 0 tells 9 12 20 parry_window 9 arena_breaches 0
+remaining gate native den_progression
+gameplay: den entry, checkpoint, spring/drink/refill and 50-seed censuses green
+remaining gate native paths_doors_rest
+gameplay: door shadows, clipped foe walk, staged rest panels green
+remaining gate native feel
+gameplay: den/path/chase censuses, sprint costs, real-key hit and retired HUD flag: green
+remaining gate native level_look
+gameplay: fifty-seed world labels, after-c padding, scent recovery: green
+world: 50 seeds, all dens/exits/caches, meanders, density, save roundtrip/cut/busy/corrupt/mark: green
+remaining gate release ghosts
+gameplay: ghost trailer, display and absence rich ok
+gameplay: ghost trailer, display and absence plain ok
+remaining gate release fairness
+gameplay: fairness boar attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 78 46 30 unparryable_hits 76 tells 12 24 12 parry_window 9 arena_breaches 0
+gameplay: fairness lynx attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 66 31 44 unparryable_hits 44 tells 10 12 15 parry_window 9 arena_breaches 0
+gameplay: fairness elk attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 16 4 4 unparryable_hits 4 tells 16 24 18 parry_window 9 arena_breaches 0
+gameplay: fairness alpha attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 212 0 0 unparryable_hits 0 tells 9 12 20 parry_window 9 arena_breaches 0
+remaining gate release den_progression
+gameplay: den entry, checkpoint, spring/drink/refill and 50-seed censuses green
+remaining gate release paths_doors_rest
+gameplay: door shadows, clipped foe walk, staged rest panels green
+remaining gate release feel
+gameplay: den/path/chase censuses, sprint costs, real-key hit and retired HUD flag: green
+remaining gate release level_look
+gameplay: fifty-seed world labels, after-c padding, scent recovery: green
+world: 50 seeds, all dens/exits/caches, meanders, density, save roundtrip/cut/busy/corrupt/mark: green
+gameplay: every path under /work/target/gameplay readable
+remaining gameplay: both backends green
+perf: host Linux x86_64, slack x1, bench args: (none)
+bench 80x24 rich frames 300 avg_us 306 p99_us 353 max_us 359
+perf: 80x24 rich avg 306 us < 1000 us ok
+bench 80x24 plain frames 300 avg_us 287 p99_us 326 max_us 332
+perf: 80x24 plain avg 287 us < 1000 us ok
+bench 200x60 rich frames 300 avg_us 2113 p99_us 2244 max_us 2395
+perf: 200x60 rich avg 2113 us < 4000 us ok
+bench 200x60 plain frames 300 avg_us 2088 p99_us 2210 max_us 2231
+perf: 200x60 plain avg 2088 us < 4000 us ok
+perf-idle: idle 301 voluntary context switches in 10 s at a standstill (bar 240..360) ok
+perf-idle: latency samples ms (key write to the carrying frame's trace line): 14 14 14 14 33 34 14 14 14 14 34 33 14 33 34 33 34 33 14 33
+perf-idle: latency inner ms (the key's read to the frame's write): 13.7 13.6 13.5 13.5 32.6 33.5 13.5 13.5 13.5 13.4 33.4 32.4 13.5 32.4 33.4 32.5 33.4 32.4 13.5 32.4
+perf-idle: latency run's closing line: cub: ended by the quit key; 220 ticks, 220 frames, 0 dropped, 241 waits, 20 cells, blocked 0; heading 192 at -21,2; render avg 295 us max 345 us; seed 7 tier rich 80x24; sound off backend linux answers 0 prepared 0 us starts 0 stops 0 cue 
+perf-idle: latency median 23.2 ms p90 33.6 ms max 33.7 ms over 20 keys (bars median 40, p90 70 ms) ok
+perf-idle: idle 301 voluntary context switches in 10 s at a standstill (bar 240..360) ok
+perf-idle: latency samples ms (key write to the carrying frame's trace line): 14 14 13 34 34 13 34 33 34 33 34 33 14 33 34 34 33 34 14 33
+perf-idle: latency inner ms (the key's read to the frame's write): 13.5 13.6 12.4 33.4 33.6 12.4 33.4 32.4 33.4 32.4 33.4 32.4 13.4 32.4 33.5 33.4 32.4 33.4 13.4 32.4
+perf-idle: latency run's closing line: cub: ended by the quit key; 221 ticks, 221 frames, 0 dropped, 242 waits, 20 cells, blocked 0; heading 192 at -21,2; render avg 292 us max 401 us; seed 7 tier rich 80x24; sound off backend linux answers 0 prepared 0 us starts 0 stops 0 cue 
+perf-idle: latency median 32.7 ms p90 33.6 ms max 33.7 ms over 20 keys (bars median 40, p90 70 ms) ok
+ghost-final EXIT 0 2026-10-27T17:34:27Z
