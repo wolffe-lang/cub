@@ -840,7 +840,10 @@ fn run_live(o: Options, args: List[str]) -> int {
             }
             ghost.record(mut history, s.tick, frame_of(s))
             demo_step(mut extra, s, demo_r, mut demo_tick)
-            if !replaying && !quit {
+            // A quit key still advances this simulation tick. Commit a
+            // previously staged save whose delay has elapsed before exiting;
+            // quit forbids NEW stages below, not an already-due commit.
+            if !replaying {
                 if pending != "" && s.tick - pending_at >= o.save_delay {
                     journey.commit(save_path) else |e| {
                         eprint("cub: {e}")
