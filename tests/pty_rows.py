@@ -298,15 +298,44 @@ def sound_mute(binary, ctx):
 def mute_key(binary, ctx):
     """m during play: the music stops (the child ends) and m again cues the
     scene's part afresh; the key is recorded like every key."""
+    import re
     import sys
+    import time
     root = Path(ctx.ROOT) / 'target/pty/sound'
     root.mkdir(parents=True, exist_ok=True)
     env = ctx.env_for()
     env['HOME'] = str(root)
     record = root / 'mute.pk'
-    s = ctx.Session([binary, '--seed', '7', '--save', str(root / 'mute.save'), '--sound-dir',
-                     str(root / 'wavs-m'), '--record', str(record), '--tier', 'plain'], 24, 80, env)
-    s.pump(.9)
+    save = root / 'mute.save'
+    save.unlink(missing_ok=True)
+    setup = root / 'mute-setup.pk'
+    setup.write_text('pk 1\nseed 7\ntier plain\nsize 80x24\nt 0 opening 1\nt 0 skip\n')
+    subprocess.run([binary, '--headless', '--script', str(setup), '--frames', '1',
+                    '--save', str(save), '--dump', str(root / 'mute-setup')],
+                   env=env, check=True, capture_output=True)
+    s = ctx.Session([binary, '--seed', '7', '--save', str(save), '--sound-dir',
+                     str(root / 'wavs-m'), '--record', str(record), '--tier', 'plain',
+                     '--no-title', '--trace', '--ticks', '300'], 24, 80, env)
+    # WAV preparation and keyboard negotiation precede the loop. A fixed
+    # sleep can put the first m at tick zero, suppressing the initial cue.
+    # Trace follows score.step: await an actual playing tick, not wall time.
+    deadline = time.monotonic() + 10
+    ready = False
+    while not s.eof and time.monotonic() < deadline:
+        states = trace_states(s)
+        if states and states[-1]['tick'] > 0 and states[-1]['scene'] == 0:
+            ready = True
+            break
+        s.pump(.02)
+    initial = []
+    if ready and sys.platform == 'darwin':
+        deadline = time.monotonic() + 1
+        while time.monotonic() < deadline:
+            players = subprocess.run(['ps', '-axo', 'ppid=,comm='], capture_output=True, text=True).stdout
+            initial = [l for l in players.splitlines() if l.split()[0] == str(s.job)]
+            if any('afplay' in l for l in initial):
+                break
+            s.pump(.02)
     s.type(b'm', settle=.6)
     players = subprocess.run(['ps', '-axo', 'ppid=,comm='], capture_output=True, text=True).stdout
     muted = [l for l in players.splitlines() if l.split()[0] == str(s.job)]
@@ -315,9 +344,17 @@ def mute_key(binary, ctx):
     s.finish()
     problems = []
     ctx.common_checks(s, 0, problems)
-    if 'mute' not in record.read_text():
-        problems.append('the mute key was not recorded')
+    if not ready:
+        problems.append('no playing tick before the mute readiness deadline')
+    ticks = [int(t) for t in re.findall(r'^t (\d+) mute$', record.read_text(), re.M)]
+    if len(ticks) != 2 or not (0 < ticks[0] < ticks[1]):
+        problems.append('expected two ordered mute keys after tick zero: %r' % ticks)
+    states = trace_states(s)
+    if not states or any(v['scene'] != 0 for v in states):
+        problems.append('mute witness did not remain in the playing scene')
     if sys.platform == 'darwin':
+        if not any('afplay' in l for l in initial):
+            problems.append('no initial afplay child before the first m: %r' % initial)
         if any('afplay' in l for l in muted):
             problems.append('afplay still ran while muted: %r' % muted)
         if b'starts 2 ' not in s.err:
