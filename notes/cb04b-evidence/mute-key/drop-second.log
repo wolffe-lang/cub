@@ -1,0 +1,7 @@
+2026-10-27T07:58:59Z cb04b: wait180s for8GiB free+inactive
+2026-10-27T08:01:59Z cb04b: wait180s for8GiB free+inactive
+2026-10-27T08:04:59Z cb04b:8GiB gate passed: python3
+negative driver: second key omitted, NOT a score.restart code mutation
+expected row failures ['expected two ordered mute keys after tick zero: [2]', "the second m did not cue the part afresh: b'me 40 tick 40 carries_key inner_us 9198 wall_us 1335470\\ncub: ended by the quit key; 40 ticks, 40 frames, 0 dropped, 42 waits, 0 cells, blocked 0; heading 0 at 0,2; render avg 166 us max 211 us; seed 7 tier plain 80x24; sound on backend macos answers 1 prepared 450281 us starts 1 stops 2 cue shingle\\n'"]
+cub: ended by the quit key; 40 ticks, 40 frames, 0 dropped, 42 waits, 0 cells, blocked 0; heading 0 at 0,2; render avg 166 us max 211 us; seed 7 tier plain 80x24; sound on backend macos answers 1 prepared 450281 us starts 1 stops 2 cue shingle
+problems []

@@ -1,0 +1,11 @@
+2026-10-27T07:54:28Z cb04b: wait180s for8GiB free+inactive
+2026-10-27T07:57:28Z cb04b:8GiB gate passed: python3
+Traceback (most recent call last):
+  File "/Users/mfwolffe/lanes/cb04b/cub/notes/cb04b-evidence/mute-key-probe.py", line 65, in <module>
+    session, problems = rows.mute_key(binary, ctx)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mfwolffe/lanes/cb04b/cub/tests/pty_rows.py", line 313, in mute_key
+    subprocess.run([binary, '--headless', '--script', str(setup), '--frames', '1',
+  File "/Users/mfwolffe/.local/share/mise/installs/python/3.11.15/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/Users/mfwolffe/lanes/cb04b/cub-play-f7af28cd', '--headless', '--script', '/Users/mfwolffe/lanes/cb04b/cub/target/pty/cb04b-mute-fixed/target/pty/sound/mute-setup.pk', '--frames', '1', '--save', '/Users/mfwolffe/lanes/cb04b/cub/target/pty/cb04b-mute-fixed/target/pty/sound/mute.save', '--dump', '/Users/mfwolffe/lanes/cb04b/cub/target/pty/cb04b-mute-fixed/target/pty/sound/mute-setup']' returned non-zero exit status 2.

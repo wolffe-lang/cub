@@ -1,0 +1,12 @@
+2026-10-27T08:05:10Z cb04b:8GiB gate passed: python3
+controlled query-time first m; mute ticks [0, 20]
+cub: ended by the quit key; 39 ticks, 39 frames, 0 dropped, 41 waits, 0 cells, blocked 0; heading 0 at 0,2; render avg 162 us max 207 us; seed 7 tier plain 80x24; sound on backend macos answers 1 prepared 456910 us starts 1 stops 2 cue shingle
+problems []
+cub: ended by the quit key; 40 ticks, 40 frames, 0 dropped, 43 waits, 0 cells, blocked 0; heading 0 at 0,2; render avg 157 us max 230 us; seed 7 tier plain 80x24; sound on backend macos answers 1 prepared 436907 us starts 2 stops 3 cue shingle
+problems []
+cub: ended by the quit key; 40 ticks, 40 frames, 0 dropped, 43 waits, 0 cells, blocked 0; heading 0 at 0,2; render avg 160 us max 351 us; seed 7 tier plain 80x24; sound on backend macos answers 1 prepared 446103 us starts 2 stops 3 cue shingle
+problems []
+negative driver: second key omitted, NOT a score.restart code mutation
+expected row failures ['expected two ordered mute keys after tick zero: [2]', "the second m did not cue the part afresh: b'me 40 tick 40 carries_key inner_us 9210 wall_us 1335449\\ncub: ended by the quit key; 40 ticks, 40 frames, 0 dropped, 42 waits, 0 cells, blocked 0; heading 0 at 0,2; render avg 148 us max 183 us; seed 7 tier plain 80x24; sound on backend macos answers 1 prepared 464716 us starts 1 stops 2 cue shingle\\n'"]
+cub: ended by the quit key; 40 ticks, 40 frames, 0 dropped, 42 waits, 0 cells, blocked 0; heading 0 at 0,2; render avg 148 us max 183 us; seed 7 tier plain 80x24; sound on backend macos answers 1 prepared 464716 us starts 1 stops 2 cue shingle
+problems []
