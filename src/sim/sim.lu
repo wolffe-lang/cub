@@ -2367,7 +2367,7 @@ pub const ASHEN_V: int = FOE_STALK_V / 2
 /// The scent an Ashen leaves (proposed: between a fox and a shade).
 pub const ASHEN_SCENT: int = 25
 
-/// An ember's heat: health lost every `EMBER_TICKS` standing on one.
+/// An ember's heat: health lost every `EMBER_TICKS` the body touches one.
 pub const EMBER_HURT: int = 2
 
 /// How often an ember burns.
@@ -2488,10 +2488,25 @@ fn ashen_step(mut s: Sim, i: int) {
 /// `EMBER_TICKS`; a found lore line lapses.
 fn hazards_step(mut s: Sim) {
     if s.lore >= 0 && s.tick >= s.lore_until { s.lore = -1 }
-    if s.tick % EMBER_TICKS == 0 &&
-        forest.kind(s.seed, s.field, s.area, cell_x(s), cell_y(s)) == terrain.EMBER {
-        hurt(mut s, EMBER_HURT)
+    if s.tick % EMBER_TICKS == 0 && on_ember(s) { hurt(mut s, EMBER_HURT) }
+}
+
+/// Whether the cub's body, as the frame draws it, covers an ember (cb05:
+/// a fire is touched by any part of the cub, not only the cell it stands
+/// on).
+pub fn on_ember(s: Sim) -> bool {
+    if s.area != forest.TOWN { return false }
+    let b = cub_body(s)
+    var y = b.y0
+    while y <= b.y1 {
+        var x = b.x0
+        while x <= b.x1 {
+            if forest.kind(s.seed, s.field, s.area, x, y) == terrain.EMBER { return true }
+            x += 1
+        }
+        y += 1
     }
+    false
 }
 
 /// An Ashen at a fixed-point position (the tests' fixture; its home is
