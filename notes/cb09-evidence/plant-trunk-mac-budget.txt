@@ -1,0 +1,27 @@
+cb09 waits for 8 GiB and one build 7463583744 bytes 2026-10-27T21:42:32Z
+cb09 waits for 8 GiB and one build 4243898368 bytes 2026-10-27T21:43:02Z
+cb09 waits for 8 GiB and one build 1479245824 bytes 2026-10-27T21:43:32Z
+cb09 memory gate clear 13622362112 bytes 2026-10-27T21:44:02Z
+memory gate: budget 4096 bytes/tick; warmup 60; end 600; ps RSS KiB x 1024
+{"seconds": 0.0, "tick": 0, "rss_bytes": 2883584}
+{"seconds": 1.029, "tick": 27, "rss_bytes": 46858240}
+{"seconds": 2.062, "tick": 58, "rss_bytes": 96550912}
+{"seconds": 3.062, "tick": 88, "rss_bytes": 144654336}
+{"seconds": 4.094, "tick": 119, "rss_bytes": 194314240}
+{"seconds": 5.094, "tick": 148, "rss_bytes": 240746496}
+{"seconds": 6.096, "tick": 178, "rss_bytes": 288784384}
+{"seconds": 7.129, "tick": 210, "rss_bytes": 340049920}
+{"seconds": 8.129, "tick": 240, "rss_bytes": 388071424}
+{"seconds": 9.161, "tick": 270, "rss_bytes": 436109312}
+{"seconds": 10.162, "tick": 300, "rss_bytes": 484163584}
+{"seconds": 11.162, "tick": 330, "rss_bytes": 532185088}
+{"seconds": 12.194, "tick": 362, "rss_bytes": 583434240}
+{"seconds": 13.195, "tick": 392, "rss_bytes": 631504896}
+{"seconds": 14.195, "tick": 422, "rss_bytes": 679542784}
+{"seconds": 15.228, "tick": 453, "rss_bytes": 729169920}
+{"seconds": 16.229, "tick": 483, "rss_bytes": 777207808}
+{"seconds": 17.262, "tick": 514, "rss_bytes": 826851328}
+{"seconds": 18.295, "tick": 545, "rss_bytes": 876494848}
+{"seconds": 19.329, "tick": 576, "rss_bytes": 926138368}
+{"seconds": 20.362, "tick": 606, "rss_bytes": 974176256}
+{"status": "RED", "start": {"seconds": 3.062, "tick": 88, "rss_bytes": 144654336}, "end": {"seconds": 20.362, "tick": 606, "rss_bytes": 974176256}, "ticks": 518, "growth_bytes": 829521920, "bytes_per_tick": 1601393.667953668, "tick_source": "trace", "budget_bytes_per_tick": 4096.0}

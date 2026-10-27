@@ -1,0 +1,21 @@
+cb09 memory gate clear 10222796800 bytes 2026-10-27T21:41:42Z
+memory gate: budget 4096 bytes/tick; warmup 60; end 600; ps RSS KiB x 1024
+{"seconds": 0.0, "tick": 0, "rss_bytes": 2883584}
+{"seconds": 1.028, "tick": 27, "rss_bytes": 46858240}
+{"seconds": 2.061, "tick": 58, "rss_bytes": 96550912}
+{"seconds": 3.094, "tick": 89, "rss_bytes": 146276352}
+{"seconds": 4.126, "tick": 119, "rss_bytes": 194314240}
+{"seconds": 5.126, "tick": 150, "rss_bytes": 243957760}
+{"seconds": 6.127, "tick": 180, "rss_bytes": 291995648}
+{"seconds": 7.161, "tick": 210, "rss_bytes": 340049920}
+{"seconds": 8.161, "tick": 240, "rss_bytes": 388071424}
+{"seconds": 9.161, "tick": 270, "rss_bytes": 436109312}
+{"seconds": 10.162, "tick": 300, "rss_bytes": 484163584}
+{"seconds": 11.195, "tick": 332, "rss_bytes": 535412736}
+{"seconds": 12.228, "tick": 363, "rss_bytes": 585039872}
+{"seconds": 13.261, "tick": 394, "rss_bytes": 634683392}
+{"seconds": 14.261, "tick": 424, "rss_bytes": 682737664}
+{"seconds": 15.261, "tick": 454, "rss_bytes": 730759168}
+{"seconds": 16.295, "tick": 485, "rss_bytes": 780419072}
+{"seconds": 17.328, "tick": 516, "rss_bytes": 830062592}
+{"status": "RED", "reason": "resident ceiling exceeded"}

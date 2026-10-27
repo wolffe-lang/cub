@@ -14,6 +14,7 @@ python3 -I tools/prepare-pty
 python3 -I tools/score-check
 python3 -I tools/gameplay.py --bin target/native/cub
 python3 -I tools/gameplay.py --bin target/release/cub
+sh tools/check-memory target/release/cub
 .lair/tools/perf
 # Read the idle runner's status directly as well: the engine's tee pipeline
 # does not propagate a Python failure on every /bin/sh.
