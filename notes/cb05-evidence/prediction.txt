@@ -1,0 +1,94 @@
+cb05 — the wide forest: prediction, written before the first change
+======================================================================
+
+Base: cub trunk 7e2c6a77 (+ cb04d's note, 5b10fec). Written 2026-10-26 before any
+implementation commit; the "before" rows are read from trunk's code and notes, and
+the instruments added by this lane re-measure them on trunk's own generators before
+the generators move (notes/cb05-evidence/*-before.txt).
+
+The world's shape
+-----------------
+- Areas 6 -> 7: Cinderwick (id 6, the town) between the Shingle and Bramblehold; the
+  graph re-threaded Shingle - Cinderwick - Bramblehold - Larkmeadow - the Teeth - the
+  Shallows - Gravehollow; EDGES 9 -> 10 (edge 9: Cinderwick's far end into
+  Bramblehold); the thorn gate (edge 0) stays at the Shingle's end and opens on the
+  town; the log (edge 2) still runs Bramblehold <-> the Shingle.
+- Length per area (R-cb05-2, recommended A): Shingle 160 (the tutorial, unchanged),
+  Cinderwick 288, Bramblehold 288, Larkmeadow 288, the Teeth 224, the Shallows 224,
+  Gravehollow 224. `forest.LENGTH` 160 stays the Shingle's; `forest.length(area)` is
+  the per-area value every row position derives from.
+
+Dens: count and spacing
+-----------------------
+Before (trunk): 11 dens in 6 areas: Shingle 1 (0); Bramblehold 3 (1, 2, 8);
+Larkmeadow 4 (3, 9, 10, 11); the Teeth 1 (4); the Shallows 1 (5); Gravehollow 1 (6).
+cb03a's feel audit measured pairwise Manhattan spacing 45-114 in Bramblehold and
+22-149 in Larkmeadow (160-cell areas); route (tile-walk) spacing not measured before:
+the new `--den-spacing` census measures it on trunk's generators first.
+
+Prediction after (R-cb05-3, recommended A: at most two dens an area, at least 110
+route cells between dens): 9 dens in 7 areas: Shingle 1 (0); Cinderwick 1 (7, the
+cold hearth); Bramblehold 2 (2 the briar hollow about a third in, 1 the split roots
+about two thirds); Larkmeadow 2 (3 the grass nest at the entry, 11 the last warm
+hollow past the middle); the Teeth, the Shallows, Gravehollow 1 each at their entries.
+Dens 8 (the coal roots), 9 (the low embers) and 10 (the ash shelter) retired to
+landmarks: `den_exists` false, their ids kept in the save format, a save whose last
+den is one of them wakes at the nearest kept den (a migration test). Predicted route
+spacing: no pair under 110 within an area or across an edge over 50 seeds and both
+fields; the minimum about 110-140 (Bramblehold's two), the maximum about 300
+(the Shingle's den to the cold hearth through the thorn gate).
+
+Foes per area (initial encounters, `sim.area_foes`, the boss excluded)
+---------------------------------------------------------------------
+Before (hand-counted from trunk's `area_foes`): Shingle 9 (two weasel pairs, a fox,
+four bundle foxes); Bramblehold 9 (two weasel pairs, a weasel trio, a fox pair) + Old
+Snag; Larkmeadow 11 (three hawks, three deer, a weasel trio, a fox pair); the Teeth 4
+(two fox pairs) + Whisper; the Shallows 6 (three hawks, three deer) + Alder;
+Gravehollow 4 (two fox pairs) + Ashgrim. The `--foe-census` instrument confirms these
+on trunk's code before the change.
+
+Prediction after (R-cb05-4, recommended A: 12-18 in each big area): Shingle 9
+(unchanged, the tutorial); Cinderwick 12-16 (the Ashen only: lane walkers and yard
+guards); Bramblehold 14-18 (weasel pairs along the longer route, a fox pair at the
+fork, three cache guards sets); Larkmeadow 14-18 (hawks over every open stretch,
+weasels in the grass, two deer groups, a fox pair at a cache); the Teeth 8-12; the
+Shallows 8-12; Gravehollow 8-12. Every initial foe still at least FIRST_FOE_CELLS
+(30) from every den (the world audit's bar, unchanged).
+
+The bend census
+---------------
+cb04d measured reversals of the centreline's transverse step within three samples
+per ten sampled route cells: Shingle 0.0895, Bramblehold 0.1857, Larkmeadow 0.1325,
+Teeth 0.1681, Shallows 0.1903, Gravehollow 0.1699 (route medians 7/9/9/7/9/9 wide).
+The new census (`--bends-audit`): along every route and branch, sampled a cell at a
+time, the turn sign between the heading four cells back and four ahead; a reversal is
+two counted turns of opposite sign within eight cells. Prediction before: the cache
+branches (`forest.branch`, `terrain.meander`'s alternating 16-cell anchors) show
+reversals within eight cells on most of the 400 inland branch rows (50 seeds x 2
+fields x 2 areas x 2 caches); after: 0 reversals on every route and branch, with the
+branches drawn from four shapes (a slow S, a hook, a loop, a 180-degree turn where
+the field has room), never two alike in sight, and cb04d's per-ten measure no worse.
+
+Generation and the frame
+------------------------
+Generation (the terrain layer classified once over an area's whole width and length
+at field 200: about 217 x 289 cells) is not measured before; predicted under 50 ms an
+area after, on hasu's container (x86-64, release), with the per-cell path test
+early-rejecting by bounding boxes. Render means (cb04d, Mac arm64: 182/174 us at
+80x24 rich/plain, 1306/1296 at 200x60; Linux 297/278 and 2142/2138) predicted within
++15 % after and inside the gate's bars (1000 / 4000 us at slack 1); latency medians
+unchanged (Mac about 23 ms, Linux about 14 ms).
+
+Everything else
+---------------
+- Goldens: every in-level case moves (the geometry of every area changes); about 30
+  new cases (Cinderwick's lanes at night at 80x24 and 120x40, a landmark case a
+  landmark, the Ashen's windup, parry and fire witnesses); the art sheet gains the
+  Ashen and the town's props; score goldens unchanged.
+- Save schema stays 4: area ids and den ids are widened, cache bits widened from 8 to
+  16, nothing renamed; a schema-4 save from cb04d with a mark now inside a wall is
+  refused by name (`save_corrupt`), as the policy has been since cb02.
+- Three plants as draft PRs (`cb05-plant-*`): a sawtooth branch admitted, two dens
+  within 110 cells, an Ashen that chases past the town's edge, each red by name on
+  the test that guards it.
+- No engine change; `Footprint: module`.

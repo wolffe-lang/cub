@@ -1,0 +1,1023 @@
+check-fmt: canonical
+test src/areas_test.lu::test_cb04_the_graph_has_six_areas_and_nine_edges ... ok
+test src/areas_test.lu::test_cb04_every_area_reaches_its_dens_portals_and_arena ... ok
+test src/areas_test.lu::test_cb04_arenas_are_open_ground_seed_0 ... ok
+test src/areas_test.lu::test_cb04_arenas_are_open_ground_seed_1 ... ok
+test src/areas_test.lu::test_cb04_the_shallows_are_waded_at_half_pace ... ok
+test src/areas_test.lu::test_cb04_the_new_areas_keep_the_texture_and_path_bars ... ok
+test src/areas_test.lu::test_cb04_the_boar_clearing_is_a_branch_off_the_thicket ... ok
+test src/areas_test.lu::test_cb04_schema_3_carries_the_bosses_and_refuses_schema_2 ... ok
+test src/areas_test.lu::test_cb04_played_and_lost_are_counted_at_rests_and_deaths ... ok
+test src/art_test.lu::test_render_is_pure ... ok
+test src/art_test.lu::test_the_cub_is_at_the_centre_on_both_tiers ... ok
+test src/art_test.lu::test_the_cub_turns_on_the_screen ... ok
+test src/art_test.lu::test_the_sheet ... ok
+test src/art_test.lu::test_combat_posture_0 ... ok
+test src/art_test.lu::test_combat_posture_1 ... ok
+test src/art_test.lu::test_combat_posture_2 ... ok
+test src/art_test.lu::test_combat_posture_3 ... ok
+test src/art_test.lu::test_combat_posture_4 ... ok
+test src/art_test.lu::test_combat_posture_5 ... ok
+test src/art_test.lu::test_combat_posture_6 ... ok
+test src/art_test.lu::test_cb01b_sideways_silhouette_keeps_body_cells ... ok
+test src/art_test.lu::test_cb01b_each_foe_has_head_body_tail_tell_and_fade_on_both_tiers ... ok
+test src/art_test.lu::test_cb01b_scent_hud_updates_on_kill_death_and_recovery ... ok
+test src/bosses_test.lu::test_cb04_every_telegraph_is_at_least_the_parry_window ... ok
+test src/bosses_test.lu::test_cb04_a_boss_never_leaves_its_arena ... ok
+test src/bosses_test.lu::test_cb04_the_boar_gore_is_parried_and_the_charge_dodged ... ok
+test src/bosses_test.lu::test_cb04_a_lunge_into_the_charge_staggers_the_boar_and_bites_never_do ... ok
+test src/bosses_test.lu::test_cb04_half_health_is_the_second_phase ... ok
+test src/bosses_test.lu::test_cb04_a_beaten_boss_stays_beaten_and_opens_its_shortcut ... ok
+test src/bosses_test.lu::test_cb04_the_alpha_turns_a_bite_and_hops_a_lunge ... ok
+test src/bosses_test.lu::test_cb04_the_health_bar_shows_while_the_boss_is_engaged ... ok
+test src/bosses_test.lu::test_cb04_the_health_bar_follows_the_cub_to_the_arena_mouth ... ok
+test src/bosses_test.lu::test_cb04_bosses_are_the_drawings_and_never_overlap_the_cub ... ok
+test src/clock/clock_test.lu::test_no_tick_before_its_time ... ok
+test src/clock/clock_test.lu::test_one_tick_on_time ... ok
+test src/clock/clock_test.lu::test_late_frames_drop_renders_not_ticks ... ok
+test src/clock/clock_test.lu::test_ms_until_rounds_up ... ok
+test src/clock/clock_test.lu::test_thirty_ticks_a_second ... ok
+test src/coast_test.lu::test_cb02a_forest_fill_is_visible_beyond_area_bounds ... ok
+test src/coast_test.lu::test_cb02a_bank_has_no_sawtooth_steps ... ok
+test src/coast_test.lu::test_cb02a_each_branch_ends_in_an_alcove ... ok
+test src/coast_test.lu::test_cb02a_jetties_never_cut_den_from_thorn_route ... ok
+test src/coast_test.lu::test_cb02a_coast_sheet_keeps_plain_tier_and_sprite_footprints ... ok
+test src/coast_test.lu::test_cb02a_rich_props_emit_scalar_glyphs_not_utf8_bytes ... ok
+test src/coast_test.lu::test_cb02a_branches_join_the_shore_without_an_origin_seam ... ok
+test src/coast_test.lu::test_cb02a_guard_does_not_hide_the_treasure_sprite ... ok
+test src/combat_test.lu::test_parry_window_edges ... ok
+test src/combat_test.lu::test_parry_riposte_doubles_next_bite_not_the_parry ... ok
+test src/combat_test.lu::test_bite_windup_active_recovery_and_one_hit ... ok
+test src/combat_test.lu::test_bite_chain_waits_for_recovery ... ok
+test src/combat_test.lu::test_dodge_edges_and_three_cell_hop ... ok
+test src/combat_test.lu::test_dodge_avoids_a_bite_not_a_body ... ok
+test src/combat_test.lu::test_exhaustion_blocks_heavy_moves_until_recovered ... ok
+test src/combat_test.lu::test_water_heals_forty_over_last_fifteen_ticks_and_interrupts ... ok
+test src/combat_test.lu::test_den_rest_and_growth ... ok
+test src/combat_test.lu::test_second_death_replaces_mark ... ok
+test src/combat_test.lu::test_trail_expires_and_sneak_lays_none ... ok
+test src/combat_test.lu::test_fox_feint_is_harmless_then_steals_water ... ok
+test src/combat_test.lu::test_weasel_readable_tell_and_retreat ... ok
+test src/combat_test.lu::test_sight_cone_and_scent_are_independent ... ok
+test src/combat_test.lu::test_lock_release_and_sixty_unseen_ticks ... ok
+test src/combat_test.lu::test_lunge_breaks_gate_and_rest_keeps_it_open ... ok
+test src/combat_test.lu::test_ordinary_motion_cannot_cross_a_foe_body ... ok
+test src/combat_test.lu::test_sight_is_occluded_by_closed_thorns ... ok
+test src/combat_test.lu::test_foe_windup_turns_without_pivoting ... ok
+test src/combat_test.lu::test_lunge_staggers_a_surviving_foe_and_hits_once ... ok
+test src/combat_test.lu::test_first_lock_uses_geometric_nearest_then_cycles ... ok
+test src/controls_test.lu::test_arrows_walk_and_shift_arrows_sneak ... ok
+test src/controls_test.lu::test_the_moves_and_the_quit ... ok
+test src/controls_test.lu::test_key_names_round_trip ... ok
+test src/den_integration_test.lu::test_cb04a_water_survives_the_hud_clear_on_both_tiers ... ok
+test src/den_integration_test.lu::test_cb04a_rich_nose_hides_beyond_reach ... ok
+test src/den_integration_test.lu::test_cb04a_plain_nose_hides_beyond_reach ... ok
+test src/den_integration_test.lu::test_cb04a_rich_nose_reveals_inside_reach ... ok
+test src/den_integration_test.lu::test_cb04a_plain_nose_reveals_inside_reach ... ok
+test src/den_integration_test.lu::test_cb04a_rich_nose_includes_exact_radius ... ok
+test src/den_integration_test.lu::test_cb04a_plain_nose_includes_exact_radius ... ok
+test src/den_integration_test.lu::test_cb04a_healing_uses_the_shared_ring_and_visual_burst ... ok
+test src/den_test.lu::test_cb04a_bramblehold_den_is_down_a_winding_leg ... ok
+test src/den_test.lu::test_cb04a_den_enters_at_three_cells_and_pauses_world ... ok
+test src/den_test.lu::test_cb04a_death_wakes_at_rested_den_two_not_the_start ... ok
+test src/doorrest_test.lu::test_cb04d_foe_inside_view_is_not_culled_by_anchor_sight ... ok
+test src/doorrest_test.lu::test_cb04d_doorway_edge_crosses_and_arrival_does_not_bounce ... ok
+test src/doorrest_test.lu::test_cb04d_foe_is_clipped_at_each_view_edge_not_dropped_whole ... ok
+test src/doorrest_test.lu::test_cb04d_shadow_to_shadow_motion_leaves_an_arrival_without_bouncing ... ok
+test src/feel_test.lu::test_cb01b_eight_aims_commit_before_turning ... ok
+test src/feel_test.lu::test_cb01b_aim_window_event_order_duplicates_and_fallback ... ok
+test src/feel_test.lu::test_cb01b_lock_overrides_arrow_aim ... ok
+test src/feel_test.lu::test_cb01b_bite_has_a_travelling_arc_and_returns ... ok
+test src/feel_test.lu::test_cb01b_lunge_triangle_and_collision_clip ... ok
+test src/feel_test.lu::test_cb01b_combo_cycles_and_lapsed_window_resets ... ok
+test src/feel_test.lu::test_cb01b_combo_arcs_lean_and_finish_without_extra_damage ... ok
+test src/feel_test.lu::test_cb01b_heavy_backsteps_leap_burst_and_recovery ... ok
+test src/feel_test.lu::test_cb01b_heavy_cost_damage_stagger_and_refusal ... ok
+test src/feel_test.lu::test_cb01b_lunge_breaks_nearest_thorn_at_the_gate_face ... ok
+test src/forest_test.lu::test_cb02_seeded_centres_are_walkable_and_meander ... ok
+test src/forest_test.lu::test_cb02_shortcut_round_trips ... ok
+test src/forest_test.lu::test_cb02_death_and_mark_cross_area ... ok
+test src/forest_test.lu::test_cb02_hawk_stopping_shadow_and_parry ... ok
+test src/forest_test.lu::test_cb02_hawk_airborne_and_committed_strike ... ok
+test src/gait_test.lu::test_cb02c_the_coast_path_is_the_shore_gravel ... ok
+test src/gait_test.lu::test_cb02c_branch_0_draws_the_path_colours ... ok
+test src/gait_test.lu::test_cb02c_branch_1_draws_the_path_colours ... ok
+test src/gait_test.lu::test_cb02c_branch_2_draws_the_path_colours ... ok
+test src/gait_test.lu::test_cb02c_branch_3_draws_the_path_colours ... ok
+test src/gait_test.lu::test_cb02c_wide_branches_draw_the_path_colours ... ok
+test src/gait_test.lu::test_cb02c_the_log_branch_and_the_shore_are_the_path ... ok
+test src/gait_test.lu::test_cb02c_the_forest_is_not_the_path ... ok
+test src/gait_test.lu::test_cb02c_the_pace_scales_through_walk_percent ... ok
+test src/gait_test.lu::test_cb02c_the_fox_keeps_up_on_the_straight_and_loses_in_the_turns ... ok
+test src/gait_test.lu::test_cb02c_the_tail_wags_on_the_gait_not_the_tick ... ok
+test src/gait_test.lu::test_cb02c_the_tail_holds_still_between_its_frames ... ok
+test src/gait_test.lu::test_cb02c_the_frame_draws_the_gait ... ok
+test src/gait_test.lu::test_cb02c_the_bodies_are_the_drawings ... ok
+test src/gait_test.lu::test_cb02c_a_swarm_from_behind_never_overlaps_and_is_fought ... ok
+test src/gait_test.lu::test_cb02c_the_census_sees_an_overlap ... ok
+test src/gait_test.lu::test_cb02c_a_foe_walking_in_stops_on_the_ring_in_reach ... ok
+test src/gait_test.lu::test_cb02c_a_turn_never_swings_the_cub_into_a_foe ... ok
+test src/gait_test.lu::test_cb02c_two_foes_never_share_a_cell ... ok
+test src/gate_art_test.lu::test_cb02_thorn_pair_is_not_a_wall_or_label ... ok
+test src/gate_test.lu::test_cb02_lunge_hits_whole_rightmost_thorn_cell ... ok
+test src/gate_test.lu::test_cb02_bite_names_the_lunge_at_thorns ... ok
+test src/gate_test.lu::test_cb04a_every_thorn_gate_exists_on_every_seed_and_both_sides ... ok
+test src/ghost_test.lu::test_cb04_trailer_is_the_last_ticks_in_order ... ok
+test src/ghost_test.lu::test_cb04_reader_rebuilds_the_frames ... ok
+test src/ghost_test.lu::test_cb04_a_short_life_trails_from_its_first_tick ... ok
+test src/ghost_test.lu::test_cb04_no_trailer_is_no_ghost ... ok
+test src/ghost_test.lu::test_cb04_the_set_keeps_the_newest_five ... ok
+test src/glyphs_test.lu::test_glyphs_doc_matches_the_tier ... ok
+test src/glyphs_test.lu::test_plain_tier_needs_no_row ... ok
+test src/grid/grid_test.lu::test_empty_diff_writes_nothing ... ok
+test src/grid/grid_test.lu::test_one_cell_diff ... ok
+test src/grid/grid_test.lu::test_full_repaint_is_contiguous ... ok
+test src/grid/grid_test.lu::test_style_run_sets_sgr_once ... ok
+test src/grid/grid_test.lu::test_rgb_dialect ... ok
+test src/grid/grid_test.lu::test_sixteen_dialect_bright ... ok
+test src/grid/grid_test.lu::test_utf8_lengths ... ok
+test src/grid/grid_test.lu::test_property_apply_diff_equals_next ... ok
+test src/grid/grid_test.lu::test_property_holds_in_the_rgb_dialect ... ok
+test src/grid/grid_test.lu::test_model_wraps_and_scrolls ... ok
+test src/grid/grid_test.lu::test_model_private_modes ... ok
+test src/grid/grid_test.lu::test_model_malformed_utf8 ... ok
+test src/grid/grid_test.lu::test_dump_text_and_styles ... ok
+test src/grid/grid_test.lu::test_plain_ok ... ok
+test src/grid/grid_test.lu::test_bounds_are_soft ... ok
+test src/grove_test.lu::test_cb02b_forest_texture_everywhere ... ok
+test src/grove_test.lu::test_cb02b_coast_reaches_a_screen_past_the_view ... ok
+test src/grove_test.lu::test_cb02b_four_branches_leave_the_coast ... ok
+test src/grove_test.lu::test_cb02b_the_field_is_saved_and_never_moves ... ok
+test src/grove_test.lu::test_cb02b_inland_paths_end_inside_the_field_seed_0 ... ok
+test src/grove_test.lu::test_cb02b_inland_paths_end_inside_the_field_seed_1 ... ok
+test src/grove_test.lu::test_cb02b_inland_paths_end_inside_the_field_seed_2 ... ok
+test src/grove_test.lu::test_cb02b_inland_paths_end_inside_the_field_seed_3 ... ok
+test src/grove_test.lu::test_cb02b_inland_paths_end_inside_the_field_seed_4 ... ok
+test src/grove_test.lu::test_cb02b_cub_east_is_the_north_cub_turned ... ok
+test src/healing_test.lu::test_cb04a_springs_are_found_once_and_rest_refills_found_capacity ... ok
+test src/healing_test.lu::test_cb04a_meat_heals_immediately_once_clamped_and_expires ... ok
+test src/healing_test.lu::test_cb04a_damage_interrupts_a_partly_drunk_mouthful ... ok
+test src/healing_test.lu::test_cb04a_only_discoverable_water_capacities_are_valid_saves ... ok
+test src/input/input_test.lu::test_csi_arrows ... ok
+test src/input/input_test.lu::test_ss3_arrows ... ok
+test src/input/input_test.lu::test_shift_arrows_are_their_own_keys ... ok
+test src/input/input_test.lu::test_other_modifiers_are_the_bare_arrow ... ok
+test src/input/input_test.lu::test_plain_keys ... ok
+test src/input/input_test.lu::test_lone_esc_waits_for_the_timeout ... ok
+test src/input/input_test.lu::test_esc_then_bracket_late_is_still_a_sequence ... ok
+test src/input/input_test.lu::test_esc_then_plain_byte_is_esc_and_the_byte ... ok
+test src/input/input_test.lu::test_ignored_forms ... ok
+test src/input/input_test.lu::test_unknown_bytes_are_dropped_and_counted ... ok
+test src/input/input_test.lu::test_two_sequences_in_one_read ... ok
+test src/input/input_test.lu::test_a_tap_holds_for_the_tap_ticks ... ok
+test src/input/input_test.lu::test_a_repeat_run_releases_one_interval_after_the_last_press ... ok
+test src/journey_test.lu::test_cb02_save_canonical_round_trip_at_last_den ... ok
+test src/journey_test.lu::test_cb02_save_rejects_unknown_corrupt_and_inconsistent_data ... ok
+test src/journey_test.lu::test_cb02_all_dens_restore_with_growth_and_water ... ok
+test src/look_test.lu::test_cb04c_world_words_are_not_sprites ... ok
+HUD after c tier 1: row3 column22 codepoint 32
+HUD after c tier 0: row3 column22 codepoint 32
+test src/look_test.lu::test_cb04c_stamina_edge_is_reserved_after_c ... ok
+test src/meadow_test.lu::test_cb03a_landmark_rules_and_original_atlas ... ok
+test src/meadow_test.lu::test_cb03a_creek_never_closes_the_route_ford ... ok
+test src/meadow_test.lu::test_cb03a_deer_flee_is_bounded_and_the_turn_is_a_free_hit ... ok
+test src/pickup_test.lu::test_cb04c_pickup_ring_every_edge_and_outside ... ok
+test src/pickup_test.lu::test_cb04c_mark_recovers_once_at_contact_ring_with_burst ... ok
+test src/pickup_test.lu::test_cb04c_other_area_mark_and_second_death ... ok
+test src/pickup_test.lu::test_cb04c_drop_collection_uses_body_ring ... ok
+test src/pickup_test.lu::test_cb04c_rich_orb_requires_a_death ... ok
+test src/pickup_test.lu::test_cb04c_rich_orb_shows_across_screen ... ok
+test src/pickup_test.lu::test_cb04c_rich_orb_refuses_other_area ... ok
+test src/pickup_test.lu::test_cb04c_plain_orb_requires_a_death ... ok
+test src/pickup_test.lu::test_cb04c_plain_orb_shows_across_screen ... ok
+test src/pickup_test.lu::test_cb04c_plain_orb_refuses_other_area ... ok
+test src/pickup_test.lu::test_cb04c_orb_particles_are_seeded_periodic_bounded ... ok
+test src/pickup_test.lu::test_cb04c_orb_and_burst_are_bounded_and_plain ... ok
+test src/pickup_test.lu::test_cb04c_healing_sprites_are_bright_animated_and_plain ... ok
+test src/posture_test.lu::test_cb03_the_health_bands ... ok
+test src/posture_test.lu::test_cb03_the_hurt_frames_are_the_one_drawing_changed ... ok
+test src/posture_test.lu::test_cb03_the_breath ... ok
+test src/posture_test.lu::test_cb03a_outlined_bars_are_always_present_and_labelled ... ok
+test src/posture_test.lu::test_cb03a_health_changes_the_cub_and_its_bar ... ok
+test src/posture_test.lu::test_cb03_the_death_card_and_the_den_name_the_numbers ... ok
+test src/posture_test.lu::test_cb03_the_sheet_holds_the_bands_and_the_breath ... ok
+test src/posture_test.lu::test_cb03_the_gait_scales_with_the_dial ... ok
+test src/progression_test.lu::test_cb04a_level_cost_matches_the_published_cubic_scaled_by_twenty ... ok
+test src/progression_test.lu::test_cb04a_level_is_shared_and_stats_have_soft_and_hard_caps ... ok
+test src/progression_test.lu::test_cb04a_save_names_older_schema_and_checks_the_level ... ok
+test src/progression_test.lu::test_cb04a_snapshot_checks_stat_bounds_before_summing_the_level ... ok
+test src/refuge_test.lu::test_cb03a_fifty_seed_den_census_rejects_an_empty_area ... ok
+test src/refuge_test.lu::test_cb03a_each_new_den_rests_and_roundtrips_schema_three ... ok
+test src/refuge_test.lu::test_cb03a_clearings_seeds_0_9 ... ok
+test src/refuge_test.lu::test_cb03a_clearings_seeds_10_19 ... ok
+test src/refuge_test.lu::test_cb03a_clearings_seeds_20_29 ... ok
+test src/refuge_test.lu::test_cb03a_clearings_seeds_30_39 ... ok
+test src/refuge_test.lu::test_cb03a_clearings_seeds_40_49 ... ok
+test src/refuge_test.lu::test_cb03a_reserved_den_bits_are_not_valid_found_locations ... ok
+test src/replay/replay_test.lu::test_vocabulary ... ok
+test src/replay/replay_test.lu::test_parse_sample ... ok
+test src/replay/replay_test.lu::test_round_trip ... ok
+test src/replay/replay_test.lu::test_refusals ... ok
+test src/replay/replay_test.lu::test_parse_size ... ok
+test src/replay/replay_test.lu::test_start_is_read_written_and_defaults_to_zero ... ok
+test src/replay/replay_test.lu::test_the_score_comment_is_written_read_and_optional ... ok
+test src/restmenu_test.lu::test_cb04d_confirm_spends_each_intervening_level_cost ... ok
+test src/restmenu_test.lu::test_cb04d_rest_lower_wrap_discard_and_numeric_keys ... ok
+test src/restmenu_test.lu::test_cb04d_panel_colours_and_complete_cub_fire_fit ... ok
+test src/restmenu_test.lu::test_cb04d_empty_pending_needs_zero_scent ... ok
+test src/restscene_test.lu::test_cb04a_rest_regions_are_distinct_and_both_tiers_fit ... ok
+test src/restscene_test.lu::test_cb04a_firelight_falls_off_and_breath_lifts_the_shoulder ... ok
+test src/score_test.lu::test_cb03_every_part_parses_at_its_written_length ... ok
+test src/score_test.lu::test_cb03_the_binary_carries_the_committed_parts ... ok
+test src/score_test.lu::test_cb03_each_part_names_its_cue_fade ... ok
+test src/score_test.lu::test_cb03_the_areas_and_bosses_have_their_parts_and_slots ... ok
+test src/score_test.lu::test_cb03_want_decides_in_order ... ok
+test src/score_test.lu::test_cb03_an_area_loop_restarts_at_its_length ... ok
+test src/score_test.lu::test_cb03_an_area_change_crossfades ... ok
+test src/score_test.lu::test_cb03_a_boss_theme_ducks_the_area_loop ... ok
+test src/score_test.lu::test_cb03_the_death_sting_stops_the_loop_and_is_never_cut ... ok
+test src/score_test.lu::test_cb03_the_den_rests_and_the_loop_resumes ... ok
+test src/score_test.lu::test_cb03_the_title_plays_over_the_opening ... ok
+test src/score_test.lu::test_cb03_a_slot_without_a_part_is_the_silence ... ok
+test src/score_test.lu::test_cb03_the_replay_scenes_cover_the_schedule ... ok
+test src/sim_test.lu::test_two_runs_are_one ... ok
+test src/sim_test.lu::test_trigonometry ... ok
+test src/sim_test.lu::test_heading_of_the_held_keys ... ok
+test src/sim_test.lu::test_turn_rate_bounds_the_heading_change ... ok
+test src/sim_test.lu::test_speed_never_jumps_and_the_sneak_is_half ... ok
+test src/sim_test.lu::test_a_tap_holds_for_the_tap_ticks ... ok
+test src/sim_test.lu::test_the_water_stops_the_cub ... ok
+test src/sim_test.lu::test_the_camera_keeps_the_cub_at_the_centre ... ok
+test src/sim_test.lu::test_the_stats_give_the_bars ... ok
+test src/sim_test.lu::test_cb01b_speed_scaling_keeps_the_weasel_bars ... ok
+test src/spawn_clearance_test.lu::test_cb04d_rounded_switchback_spawns_keep_thirty_cells_from_dens ... ok
+test src/sprint_test.lu::test_cb03a_combo_cones_slant_left_right_forward ... ok
+test src/sprint_test.lu::test_cb03a_x_uses_facing_and_two_backward_steps ... ok
+test src/sprint_test.lu::test_cb03a_sprint_charges_twelve_per_second_and_stops_empty ... ok
+test src/sprint_test.lu::test_cb03a_tap_dodges_and_sprint_bite_costs_more_than_lunge ... ok
+test src/sprint_test.lu::test_cb03a_every_combo_hits_dead_ahead_contact_cardinals ... ok
+test src/sprint_test.lu::test_cb03a_every_combo_hits_dead_ahead_contact_diagonals ... ok
+test src/sprint_test.lu::test_cb03a_snapping_head_checks_the_landing_body_not_the_start ... ok
+test src/sprites_test.lu::test_plain_tier_keeps_its_promise ... ok
+test src/sprites_test.lu::test_rich_tier_colours_are_indices ... ok
+test src/sprites_test.lu::test_the_cub_is_one_silhouette_turned_to_face_the_way ... ok
+test src/sprites_test.lu::test_water_and_floor_backgrounds_differ_from_the_gravel ... ok
+test src/terrain_test.lu::test_noise2_bounds_and_determinism ... ok
+test src/terrain_test.lu::test_noise2_is_smooth ... ok
+test src/terrain_test.lu::test_the_bank_wanders_within_its_swing ... ok
+test src/terrain_test.lu::test_the_bands_lie_in_order ... ok
+test src/terrain_test.lu::test_the_start_is_open_ground ... ok
+test src/terrain_test.lu::test_woods_cover_0 ... ok
+test src/terrain_test.lu::test_woods_cover_1 ... ok
+test src/terrain_test.lu::test_woods_cover_2 ... ok
+test src/terrain_test.lu::test_woods_cover_3 ... ok
+test src/wide_test.lu::test_cb05_two_dens_an_area_at_least_a_den_spacing_apart ... ok
+test src/wide_test.lu::test_cb05_the_retired_dens_are_landmarks_and_their_journeys_wake_at_a_kept_den ... ok
+test src/wide_test.lu::test_cb05_sixteen_cache_bits_and_the_town_graph ... ok
+test src/wide_test.lu::test_cb05_no_branch_or_route_reverses_within_eight_cells ... ok
+test src/wide_test.lu::test_cb05_every_branch_centreline_is_carved_and_open ... ok
+test src/wide_test.lu::test_cb05_an_ashen_never_chases_past_the_towns_edge ... ok
+test src/wide_test.lu::test_cb05_the_ashen_winds_up_slowly_is_parried_long_and_bitten_from_behind ... ok
+test src/wide_test.lu::test_cb05_an_ember_burns_a_little_and_a_dug_cache_says_its_line ... ok
+test src/wide_test.lu::test_cb05_the_towns_yards_and_hearth_are_reached_through_their_passages ... ok
+test src/wide_test.lu::test_cb05_the_landmarks_stand_on_open_ground_within_sight_of_their_dens ... ok
+test src/world/world_test.lu::test_deterministic ... ok
+test src/world/world_test.lu::test_seeds_differ ... ok
+test src/world/world_test.lu::test_noise_bounds_and_continuity ... ok
+test src/world/world_test.lu::test_forest_density_rises ... ok
+test src/world/world_test.lu::test_clearing_reads_and_a_stand_is_the_woods_with_more_trunks ... ok
+test src/world/world_test.lu::test_density_bands_are_ordered ... ok
+test src/world/world_test.lu::test_hash_range ... ok
+test src/world_rules_test.lu::test_cb02_scent_pickup_expires_and_never_double_collects ... ok
+test src/world_rules_test.lu::test_cb02_hawk_shadow_does_not_pin_a_dodge ... ok
+test src/world_rules_test.lu::test_cb02_cache_is_guarded_finite_and_persisted ... ok
+test src/world_rules_test.lu::test_cb02_opening_is_timed_skippable_and_pure_on_both_tiers ... ok
+test src/world_rules_test.lu::test_cb02_spawned_bodies_stand_on_passable_ground ... ok
+wolf test: 292 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+test: 0 SKIP lines
+build: target/native/cub
+build: target/release/cub
+selftest: ok (the controls table whole and split at every byte; the diff property over 12 frames)
+goldens: aim-e-rich ok
+goldens: aim-e-plain ok
+goldens: aim-lock-rich ok
+goldens: aim-lock-plain ok
+goldens: aim-n-rich ok
+goldens: aim-n-plain ok
+goldens: aim-ne-rich ok
+goldens: aim-ne-plain ok
+goldens: aim-nw-rich ok
+goldens: aim-nw-plain ok
+goldens: aim-s-rich ok
+goldens: aim-s-plain ok
+goldens: aim-se-rich ok
+goldens: aim-se-plain ok
+goldens: aim-sw-rich ok
+goldens: aim-sw-plain ok
+goldens: aim-w-rich ok
+goldens: aim-w-plain ok
+goldens: ashen-parry-rich ok
+goldens: ashen-parry-plain ok
+goldens: bite-arc-rich ok
+goldens: bite-arc-plain ok
+goldens: bite-rich ok
+goldens: bite-plain ok
+goldens: boss-alpha-beaten-rich ok
+goldens: boss-alpha-beaten-plain ok
+goldens: boss-alpha-phase2-rich ok
+goldens: boss-alpha-phase2-plain ok
+goldens: boss-alpha-windup-rich ok
+goldens: boss-alpha-windup-plain ok
+goldens: boss-boar-beaten-rich ok
+goldens: boss-boar-beaten-plain ok
+goldens: boss-boar-phase2-rich ok
+goldens: boss-boar-phase2-plain ok
+goldens: boss-boar-windup-rich ok
+goldens: boss-boar-windup-plain ok
+goldens: boss-elk-beaten-rich ok
+goldens: boss-elk-beaten-plain ok
+goldens: boss-elk-phase2-rich ok
+goldens: boss-elk-phase2-plain ok
+goldens: boss-elk-windup-rich ok
+goldens: boss-elk-windup-plain ok
+goldens: boss-lynx-beaten-rich ok
+goldens: boss-lynx-beaten-plain ok
+goldens: boss-lynx-phase2-rich ok
+goldens: boss-lynx-phase2-plain ok
+goldens: boss-lynx-windup-rich ok
+goldens: boss-lynx-windup-plain ok
+goldens: coast-cache-0-rich ok
+goldens: coast-cache-0-plain ok
+goldens: coast-cache-1-rich ok
+goldens: coast-cache-1-plain ok
+goldens: coast-cache-2-rich ok
+goldens: coast-cache-2-plain ok
+goldens: coast-cache-3-rich ok
+goldens: coast-cache-3-plain ok
+goldens: crags-rich ok
+goldens: crags-plain ok
+goldens: death-recovery-rich ok
+goldens: death-recovery-plain ok
+goldens: demo-rich ok
+goldens: demo-plain ok
+goldens: den-after-cluster-rich ok
+goldens: den-after-cluster-plain ok
+goldens: den-bars-120x40-rich ok
+goldens: den-bars-120x40-plain ok
+goldens: den-bars-80x24-rich ok
+goldens: den-bars-80x24-plain ok
+goldens: den-checkpoint-rich ok
+goldens: den-checkpoint-plain ok
+goldens: diagonal-rich ok
+goldens: diagonal-plain ok
+goldens: dodge-rich ok
+goldens: dodge-plain ok
+goldens: ember-touch-rich ok
+goldens: ember-touch-plain ok
+goldens: end-rich ok
+goldens: end-plain ok
+goldens: forward-windup-rich ok
+goldens: forward-windup-plain ok
+goldens: fox-feint-rich ok
+goldens: fox-feint-plain ok
+goldens: ghost-death-rich ok
+goldens: ghost-death-plain ok
+goldens: ghost-rich ok
+goldens: ghost-plain ok
+goldens: hawk-shadow-rich ok
+goldens: hawk-shadow-plain ok
+goldens: hawk-stoop-rich ok
+goldens: hawk-stoop-plain ok
+goldens: heavy-rich ok
+goldens: heavy-plain ok
+goldens: hud-after-c-120x40-rich ok
+goldens: hud-after-c-120x40-plain ok
+goldens: hud-after-c-80x24-rich ok
+goldens: hud-after-c-80x24-plain ok
+goldens: landmark-1-0-rich ok
+goldens: landmark-1-0-plain ok
+goldens: landmark-1-1-rich ok
+goldens: landmark-1-1-plain ok
+goldens: landmark-1-2-rich ok
+goldens: landmark-1-2-plain ok
+goldens: landmark-1-3-rich ok
+goldens: landmark-1-3-plain ok
+goldens: landmark-2-0-rich ok
+goldens: landmark-2-0-plain ok
+goldens: landmark-2-1-rich ok
+goldens: landmark-2-1-plain ok
+goldens: landmark-2-2-rich ok
+goldens: landmark-2-2-plain ok
+goldens: landmark-2-3-rich ok
+goldens: landmark-2-3-plain ok
+goldens: landmark-3-0-rich ok
+goldens: landmark-3-0-plain ok
+goldens: landmark-3-1-rich ok
+goldens: landmark-3-1-plain ok
+goldens: landmark-4-0-rich ok
+goldens: landmark-4-0-plain ok
+goldens: landmark-5-0-rich ok
+goldens: landmark-5-0-plain ok
+goldens: landmark-6-0-rich ok
+goldens: landmark-6-0-plain ok
+goldens: landmark-6-1-rich ok
+goldens: landmark-6-1-plain ok
+goldens: meadow-ford-rich ok
+goldens: meadow-ford-plain ok
+goldens: meadow-landmarks-rich ok
+goldens: meadow-landmarks-plain ok
+goldens: natural-death-rich ok
+goldens: natural-death-plain ok
+goldens: old-den-rich ok
+goldens: old-den-plain ok
+goldens: opening-skip-rich ok
+goldens: opening-skip-plain ok
+goldens: opening-rich ok
+goldens: opening-plain ok
+goldens: parry-rich ok
+goldens: parry-plain ok
+goldens: posture-badly-rich ok
+goldens: posture-badly-plain ok
+goldens: posture-dying-rich ok
+goldens: posture-dying-plain ok
+goldens: posture-full-rich ok
+goldens: posture-full-plain ok
+goldens: posture-hurt-rich ok
+goldens: posture-hurt-plain ok
+goldens: resize-rich ok
+goldens: resize-plain ok
+goldens: rest-bramblehold-120x40-rich ok
+goldens: rest-bramblehold-120x40-plain ok
+goldens: rest-bramblehold-80x24-rich ok
+goldens: rest-bramblehold-80x24-plain ok
+goldens: rest-cinderwick-120x40-rich ok
+goldens: rest-cinderwick-120x40-plain ok
+goldens: rest-cinderwick-80x24-rich ok
+goldens: rest-cinderwick-80x24-plain ok
+goldens: rest-larkmeadow-120x40-rich ok
+goldens: rest-larkmeadow-120x40-plain ok
+goldens: rest-larkmeadow-80x24-rich ok
+goldens: rest-larkmeadow-80x24-plain ok
+goldens: rest-menu-empty-120x40-rich ok
+goldens: rest-menu-empty-120x40-plain ok
+goldens: rest-menu-empty-80x24-rich ok
+goldens: rest-menu-empty-80x24-plain ok
+goldens: rest-menu-pending-120x40-rich ok
+goldens: rest-menu-pending-120x40-plain ok
+goldens: rest-menu-pending-80x24-rich ok
+goldens: rest-menu-pending-80x24-plain ok
+goldens: rest-menu-refused-120x40-rich ok
+goldens: rest-menu-refused-120x40-plain ok
+goldens: rest-menu-refused-80x24-rich ok
+goldens: rest-menu-refused-80x24-plain ok
+goldens: rest-old-den-120x40-rich ok
+goldens: rest-old-den-120x40-plain ok
+goldens: rest-old-den-80x24-rich ok
+goldens: rest-old-den-80x24-plain ok
+goldens: rest-shallows-120x40-rich ok
+goldens: rest-shallows-120x40-plain ok
+goldens: rest-shallows-80x24-rich ok
+goldens: rest-shallows-80x24-plain ok
+goldens: rest-shingle-120x40-rich ok
+goldens: rest-shingle-120x40-plain ok
+goldens: rest-shingle-80x24-rich ok
+goldens: rest-shingle-80x24-plain ok
+goldens: rest-teeth-120x40-rich ok
+goldens: rest-teeth-120x40-plain ok
+goldens: rest-teeth-80x24-rich ok
+goldens: rest-teeth-80x24-plain ok
+goldens: rest-rich ok
+goldens: rest-plain ok
+goldens: river-rich ok
+goldens: river-plain ok
+goldens: saved-den-rich ok
+goldens: saved-den-plain ok
+goldens: scent-orb-120x40-rich ok
+goldens: scent-orb-120x40-plain ok
+goldens: scent-orb-80x24-rich ok
+goldens: scent-orb-80x24-plain ok
+goldens: scent-recover-120x40-rich ok
+goldens: scent-recover-120x40-plain ok
+goldens: scent-recover-80x24-rich ok
+goldens: scent-recover-80x24-plain ok
+goldens: scroll-rich ok
+goldens: scroll-plain ok
+goldens: sneak-rich ok
+goldens: sneak-plain ok
+goldens: spring-drink-rich ok
+goldens: spring-drink-plain ok
+goldens: spring-found-rich ok
+goldens: spring-found-plain ok
+goldens: sprint-120x40-rich ok
+goldens: sprint-120x40-plain ok
+goldens: sprint-80x24-rich ok
+goldens: sprint-80x24-plain ok
+goldens: sprint-hit-rich ok
+goldens: sprint-hit-plain ok
+goldens: stand-rich ok
+goldens: stand-plain ok
+goldens: thorn-gate-rich ok
+goldens: thorn-gate-plain ok
+goldens: three-bites-rich ok
+goldens: three-bites-plain ok
+goldens: title-demo-rich ok
+goldens: title-demo-plain ok
+goldens: title-rich ok
+goldens: title-plain ok
+goldens: town-den-rich ok
+goldens: town-den-plain ok
+goldens: town-lane-120x40-rich ok
+goldens: town-lane-120x40-plain ok
+goldens: town-lane-80x24-rich ok
+goldens: town-lane-80x24-plain ok
+goldens: town-passage-rich ok
+goldens: town-passage-plain ok
+goldens: trail-fading-rich ok
+goldens: trail-fading-plain ok
+goldens: turn-east-rich ok
+goldens: turn-east-plain ok
+goldens: walk-north-rich ok
+goldens: walk-north-plain ok
+goldens: water-refill-rich ok
+goldens: water-refill-plain ok
+goldens: weasel-retreat-rich ok
+goldens: weasel-retreat-plain ok
+goldens: wide-rich ok
+goldens: wide-plain ok
+goldens: world-den-rich ok
+goldens: world-den-plain ok
+goldens: world-gate-rich ok
+goldens: world-gate-plain ok
+goldens: world-hawk-rich ok
+goldens: world-hawk-plain ok
+goldens: world-meadow-rich ok
+goldens: world-meadow-plain ok
+goldens: world-open-rich ok
+goldens: world-open-plain ok
+goldens: world-recovered-rich ok
+goldens: world-recovered-plain ok
+goldens: world-return-rich ok
+goldens: world-return-plain ok
+goldens: world-thorns-rich ok
+goldens: world-thorns-plain ok
+goldens: yard-cache-rich ok
+goldens: yard-cache-plain ok
+goldens: art ok
+pty: quit ok (darwin arm64, exit 0, 15054 bytes captured)
+pty: ctrl-c ok (darwin arm64, exit 0, 14998 bytes captured)
+pty: trap ok (darwin arm64, exit 134, 13892 bytes captured)
+pty: agree-rich ok (darwin arm64, exit 0, 58515 bytes captured)
+pty: agree-plain ok (darwin arm64, exit 0, 32454 bytes captured)
+pty: den-keys ok (darwin arm64, exit 0, 18561 bytes captured)
+pty: death-agree ok (darwin arm64, exit 0, 156154 bytes captured)
+pty: archive-failure ok (darwin arm64, exit 2, 122372 bytes captured)
+pty: feel-controls ok (darwin arm64, exit 0, 8705 bytes captured)
+pty: pending-save ok (darwin arm64, exit 0, 10202 bytes captured)
+pty: save-failure ok (darwin arm64, exit 2, 10171 bytes captured)
+pty: resumed-record ok (darwin arm64, exit 0, 11176 bytes captured)
+pty: sound-live ok (darwin arm64, exit 0, 5342 bytes captured; children during the run ['/usr/bin/afplay']; 11 WAVs)
+pty: sound-oss ok (darwin arm64, exit 0, 4577 bytes captured)
+pty: sound-mute ok (darwin arm64, exit 0, 4956 bytes captured)
+pty: mute-key ok (darwin arm64, exit 0, 11967 bytes captured)
+pty: title ok (darwin arm64, exit 0, 5019 bytes captured)
+pty: title-demo ok (darwin arm64, exit 0, 42838 bytes captured)
+pty: sprint-live ok (darwin arm64, exit 0, 80741 bytes captured)
+pty: sprint-lands ok (darwin arm64, exit 0, 528129 bytes captured)
+pty: level-look-after-c ok (darwin arm64, exit 0, 23906 bytes captured; byte 63, ECHO clear, 80x24/120x40 rich/plain, replay agreement and HUD edge)
+pty: level-look-recovery ok (darwin arm64, exit 0, 156154 bytes captured)
+pty: den-contact ok (darwin arm64, exit 0, 29169 bytes captured)
+pty: den-checkpoint ok (darwin arm64, exit 0, 104690 bytes captured)
+pty: rest-allocate ok (darwin arm64, exit 0, 22638 bytes captured)
+pty: doorway-edge ok (darwin arm64, exit 0, 71897 bytes captured)
+pty: doorway-return ok (darwin arm64, exit 0, 104376 bytes captured)
+pty: town-passage ok (darwin arm64, exit 0, 340571 bytes captured)
+pty: ashen-parry ok (darwin arm64, exit 0, 1096843 bytes captured)
+pty: ember-touch ok (darwin arm64, exit 0, 872351 bytes captured)
+pty: yard-cache ok (darwin arm64, exit 0, 803101 bytes captured)
+check: green
+goldens: aim-e-rich ok
+goldens: aim-e-plain ok
+goldens: aim-lock-rich ok
+goldens: aim-lock-plain ok
+goldens: aim-n-rich ok
+goldens: aim-n-plain ok
+goldens: aim-ne-rich ok
+goldens: aim-ne-plain ok
+goldens: aim-nw-rich ok
+goldens: aim-nw-plain ok
+goldens: aim-s-rich ok
+goldens: aim-s-plain ok
+goldens: aim-se-rich ok
+goldens: aim-se-plain ok
+goldens: aim-sw-rich ok
+goldens: aim-sw-plain ok
+goldens: aim-w-rich ok
+goldens: aim-w-plain ok
+goldens: ashen-parry-rich ok
+goldens: ashen-parry-plain ok
+goldens: bite-arc-rich ok
+goldens: bite-arc-plain ok
+goldens: bite-rich ok
+goldens: bite-plain ok
+goldens: boss-alpha-beaten-rich ok
+goldens: boss-alpha-beaten-plain ok
+goldens: boss-alpha-phase2-rich ok
+goldens: boss-alpha-phase2-plain ok
+goldens: boss-alpha-windup-rich ok
+goldens: boss-alpha-windup-plain ok
+goldens: boss-boar-beaten-rich ok
+goldens: boss-boar-beaten-plain ok
+goldens: boss-boar-phase2-rich ok
+goldens: boss-boar-phase2-plain ok
+goldens: boss-boar-windup-rich ok
+goldens: boss-boar-windup-plain ok
+goldens: boss-elk-beaten-rich ok
+goldens: boss-elk-beaten-plain ok
+goldens: boss-elk-phase2-rich ok
+goldens: boss-elk-phase2-plain ok
+goldens: boss-elk-windup-rich ok
+goldens: boss-elk-windup-plain ok
+goldens: boss-lynx-beaten-rich ok
+goldens: boss-lynx-beaten-plain ok
+goldens: boss-lynx-phase2-rich ok
+goldens: boss-lynx-phase2-plain ok
+goldens: boss-lynx-windup-rich ok
+goldens: boss-lynx-windup-plain ok
+goldens: coast-cache-0-rich ok
+goldens: coast-cache-0-plain ok
+goldens: coast-cache-1-rich ok
+goldens: coast-cache-1-plain ok
+goldens: coast-cache-2-rich ok
+goldens: coast-cache-2-plain ok
+goldens: coast-cache-3-rich ok
+goldens: coast-cache-3-plain ok
+goldens: crags-rich ok
+goldens: crags-plain ok
+goldens: death-recovery-rich ok
+goldens: death-recovery-plain ok
+goldens: demo-rich ok
+goldens: demo-plain ok
+goldens: den-after-cluster-rich ok
+goldens: den-after-cluster-plain ok
+goldens: den-bars-120x40-rich ok
+goldens: den-bars-120x40-plain ok
+goldens: den-bars-80x24-rich ok
+goldens: den-bars-80x24-plain ok
+goldens: den-checkpoint-rich ok
+goldens: den-checkpoint-plain ok
+goldens: diagonal-rich ok
+goldens: diagonal-plain ok
+goldens: dodge-rich ok
+goldens: dodge-plain ok
+goldens: ember-touch-rich ok
+goldens: ember-touch-plain ok
+goldens: end-rich ok
+goldens: end-plain ok
+goldens: forward-windup-rich ok
+goldens: forward-windup-plain ok
+goldens: fox-feint-rich ok
+goldens: fox-feint-plain ok
+goldens: ghost-death-rich ok
+goldens: ghost-death-plain ok
+goldens: ghost-rich ok
+goldens: ghost-plain ok
+goldens: hawk-shadow-rich ok
+goldens: hawk-shadow-plain ok
+goldens: hawk-stoop-rich ok
+goldens: hawk-stoop-plain ok
+goldens: heavy-rich ok
+goldens: heavy-plain ok
+goldens: hud-after-c-120x40-rich ok
+goldens: hud-after-c-120x40-plain ok
+goldens: hud-after-c-80x24-rich ok
+goldens: hud-after-c-80x24-plain ok
+goldens: landmark-1-0-rich ok
+goldens: landmark-1-0-plain ok
+goldens: landmark-1-1-rich ok
+goldens: landmark-1-1-plain ok
+goldens: landmark-1-2-rich ok
+goldens: landmark-1-2-plain ok
+goldens: landmark-1-3-rich ok
+goldens: landmark-1-3-plain ok
+goldens: landmark-2-0-rich ok
+goldens: landmark-2-0-plain ok
+goldens: landmark-2-1-rich ok
+goldens: landmark-2-1-plain ok
+goldens: landmark-2-2-rich ok
+goldens: landmark-2-2-plain ok
+goldens: landmark-2-3-rich ok
+goldens: landmark-2-3-plain ok
+goldens: landmark-3-0-rich ok
+goldens: landmark-3-0-plain ok
+goldens: landmark-3-1-rich ok
+goldens: landmark-3-1-plain ok
+goldens: landmark-4-0-rich ok
+goldens: landmark-4-0-plain ok
+goldens: landmark-5-0-rich ok
+goldens: landmark-5-0-plain ok
+goldens: landmark-6-0-rich ok
+goldens: landmark-6-0-plain ok
+goldens: landmark-6-1-rich ok
+goldens: landmark-6-1-plain ok
+goldens: meadow-ford-rich ok
+goldens: meadow-ford-plain ok
+goldens: meadow-landmarks-rich ok
+goldens: meadow-landmarks-plain ok
+goldens: natural-death-rich ok
+goldens: natural-death-plain ok
+goldens: old-den-rich ok
+goldens: old-den-plain ok
+goldens: opening-skip-rich ok
+goldens: opening-skip-plain ok
+goldens: opening-rich ok
+goldens: opening-plain ok
+goldens: parry-rich ok
+goldens: parry-plain ok
+goldens: posture-badly-rich ok
+goldens: posture-badly-plain ok
+goldens: posture-dying-rich ok
+goldens: posture-dying-plain ok
+goldens: posture-full-rich ok
+goldens: posture-full-plain ok
+goldens: posture-hurt-rich ok
+goldens: posture-hurt-plain ok
+goldens: resize-rich ok
+goldens: resize-plain ok
+goldens: rest-bramblehold-120x40-rich ok
+goldens: rest-bramblehold-120x40-plain ok
+goldens: rest-bramblehold-80x24-rich ok
+goldens: rest-bramblehold-80x24-plain ok
+goldens: rest-cinderwick-120x40-rich ok
+goldens: rest-cinderwick-120x40-plain ok
+goldens: rest-cinderwick-80x24-rich ok
+goldens: rest-cinderwick-80x24-plain ok
+goldens: rest-larkmeadow-120x40-rich ok
+goldens: rest-larkmeadow-120x40-plain ok
+goldens: rest-larkmeadow-80x24-rich ok
+goldens: rest-larkmeadow-80x24-plain ok
+goldens: rest-menu-empty-120x40-rich ok
+goldens: rest-menu-empty-120x40-plain ok
+goldens: rest-menu-empty-80x24-rich ok
+goldens: rest-menu-empty-80x24-plain ok
+goldens: rest-menu-pending-120x40-rich ok
+goldens: rest-menu-pending-120x40-plain ok
+goldens: rest-menu-pending-80x24-rich ok
+goldens: rest-menu-pending-80x24-plain ok
+goldens: rest-menu-refused-120x40-rich ok
+goldens: rest-menu-refused-120x40-plain ok
+goldens: rest-menu-refused-80x24-rich ok
+goldens: rest-menu-refused-80x24-plain ok
+goldens: rest-old-den-120x40-rich ok
+goldens: rest-old-den-120x40-plain ok
+goldens: rest-old-den-80x24-rich ok
+goldens: rest-old-den-80x24-plain ok
+goldens: rest-shallows-120x40-rich ok
+goldens: rest-shallows-120x40-plain ok
+goldens: rest-shallows-80x24-rich ok
+goldens: rest-shallows-80x24-plain ok
+goldens: rest-shingle-120x40-rich ok
+goldens: rest-shingle-120x40-plain ok
+goldens: rest-shingle-80x24-rich ok
+goldens: rest-shingle-80x24-plain ok
+goldens: rest-teeth-120x40-rich ok
+goldens: rest-teeth-120x40-plain ok
+goldens: rest-teeth-80x24-rich ok
+goldens: rest-teeth-80x24-plain ok
+goldens: rest-rich ok
+goldens: rest-plain ok
+goldens: river-rich ok
+goldens: river-plain ok
+goldens: saved-den-rich ok
+goldens: saved-den-plain ok
+goldens: scent-orb-120x40-rich ok
+goldens: scent-orb-120x40-plain ok
+goldens: scent-orb-80x24-rich ok
+goldens: scent-orb-80x24-plain ok
+goldens: scent-recover-120x40-rich ok
+goldens: scent-recover-120x40-plain ok
+goldens: scent-recover-80x24-rich ok
+goldens: scent-recover-80x24-plain ok
+goldens: scroll-rich ok
+goldens: scroll-plain ok
+goldens: sneak-rich ok
+goldens: sneak-plain ok
+goldens: spring-drink-rich ok
+goldens: spring-drink-plain ok
+goldens: spring-found-rich ok
+goldens: spring-found-plain ok
+goldens: sprint-120x40-rich ok
+goldens: sprint-120x40-plain ok
+goldens: sprint-80x24-rich ok
+goldens: sprint-80x24-plain ok
+goldens: sprint-hit-rich ok
+goldens: sprint-hit-plain ok
+goldens: stand-rich ok
+goldens: stand-plain ok
+goldens: thorn-gate-rich ok
+goldens: thorn-gate-plain ok
+goldens: three-bites-rich ok
+goldens: three-bites-plain ok
+goldens: title-demo-rich ok
+goldens: title-demo-plain ok
+goldens: title-rich ok
+goldens: title-plain ok
+goldens: town-den-rich ok
+goldens: town-den-plain ok
+goldens: town-lane-120x40-rich ok
+goldens: town-lane-120x40-plain ok
+goldens: town-lane-80x24-rich ok
+goldens: town-lane-80x24-plain ok
+goldens: town-passage-rich ok
+goldens: town-passage-plain ok
+goldens: trail-fading-rich ok
+goldens: trail-fading-plain ok
+goldens: turn-east-rich ok
+goldens: turn-east-plain ok
+goldens: walk-north-rich ok
+goldens: walk-north-plain ok
+goldens: water-refill-rich ok
+goldens: water-refill-plain ok
+goldens: weasel-retreat-rich ok
+goldens: weasel-retreat-plain ok
+goldens: wide-rich ok
+goldens: wide-plain ok
+goldens: world-den-rich ok
+goldens: world-den-plain ok
+goldens: world-gate-rich ok
+goldens: world-gate-plain ok
+goldens: world-hawk-rich ok
+goldens: world-hawk-plain ok
+goldens: world-meadow-rich ok
+goldens: world-meadow-plain ok
+goldens: world-open-rich ok
+goldens: world-open-plain ok
+goldens: world-recovered-rich ok
+goldens: world-recovered-plain ok
+goldens: world-return-rich ok
+goldens: world-return-plain ok
+goldens: world-thorns-rich ok
+goldens: world-thorns-plain ok
+goldens: yard-cache-rich ok
+goldens: yard-cache-plain ok
+goldens: art ok
+score-golden title/release ok e5160e772a86490395cc0a358ea0385ed95a518c37ca0a4643790086c42238ec
+score-seam title/release ok last-tick peak 163
+score-golden shingle/release ok 1ff982172c4765e1f8b95a0bfd649f0be7c4ca14940370c3da74797b26b7e677
+score-seam shingle/release ok last-tick peak 86
+score-golden bramblehold/release ok ad2f9d3290b785cdb2c9d70b5973ed3cca2a82b438ee943a5c5f9ccc50053aee
+score-seam bramblehold/release ok last-tick peak 36
+score-golden larkmeadow/release ok 51265355be1a35dae20477038aa478a61c643e0ccfc991e9913fd3a1f3293d3c
+score-seam larkmeadow/release ok last-tick peak 179
+score-golden boss-boar/release ok ee0bda89cd3f0ed5bc096be8476337ab9c76f008521f46a8456f05c823a6b3de
+score-seam boss-boar/release ok last-tick peak 172
+score-golden boss-lynx/release ok d1228efc697f53cb262f5aee3869a112b71fe93ff018c4757e4cdbefc4c15a49
+score-seam boss-lynx/release ok last-tick peak 53
+score-golden boss-elk/release ok 4e078f56aca0c34302a90503747715caa59e4e880da1d004c8f131d8fca1efaf
+score-seam boss-elk/release ok last-tick peak 65
+score-golden boss-alpha/release ok eee00ef583405f37751711630d5ab5ab1460105b7e9c9c57dfadeb9585a204d7
+score-seam boss-alpha/release ok last-tick peak 46
+score-golden den/release ok 6352836cfde6c6f7aafbcb711e67f39b9851e4a563cbfdf90b651cd2591c7d7b
+score-seam den/release ok last-tick peak 100
+score-golden death/release ok 7dd20a74bf69c65d5d698e317886e60a964c8ee26d3fecc03741668e9d6e8846
+score-golden replay/release ok ed2aa4ee79063d4a03c1b47bafff403601c560801d42d8b2cccc85e3a81da638
+score-wav release ok
+score-refusal release ok
+score-golden title/native ok e5160e772a86490395cc0a358ea0385ed95a518c37ca0a4643790086c42238ec
+score-seam title/native ok last-tick peak 163
+score-golden shingle/native ok 1ff982172c4765e1f8b95a0bfd649f0be7c4ca14940370c3da74797b26b7e677
+score-seam shingle/native ok last-tick peak 86
+score-golden bramblehold/native ok ad2f9d3290b785cdb2c9d70b5973ed3cca2a82b438ee943a5c5f9ccc50053aee
+score-seam bramblehold/native ok last-tick peak 36
+score-golden larkmeadow/native ok 51265355be1a35dae20477038aa478a61c643e0ccfc991e9913fd3a1f3293d3c
+score-seam larkmeadow/native ok last-tick peak 179
+score-golden boss-boar/native ok ee0bda89cd3f0ed5bc096be8476337ab9c76f008521f46a8456f05c823a6b3de
+score-seam boss-boar/native ok last-tick peak 172
+score-golden boss-lynx/native ok d1228efc697f53cb262f5aee3869a112b71fe93ff018c4757e4cdbefc4c15a49
+score-seam boss-lynx/native ok last-tick peak 53
+score-golden boss-elk/native ok 4e078f56aca0c34302a90503747715caa59e4e880da1d004c8f131d8fca1efaf
+score-seam boss-elk/native ok last-tick peak 65
+score-golden boss-alpha/native ok eee00ef583405f37751711630d5ab5ab1460105b7e9c9c57dfadeb9585a204d7
+score-seam boss-alpha/native ok last-tick peak 46
+score-golden den/native ok 6352836cfde6c6f7aafbcb711e67f39b9851e4a563cbfdf90b651cd2591c7d7b
+score-seam den/native ok last-tick peak 100
+score-golden death/native ok 7dd20a74bf69c65d5d698e317886e60a964c8ee26d3fecc03741668e9d6e8846
+score-golden replay/native ok ed2aa4ee79063d4a03c1b47bafff403601c560801d42d8b2cccc85e3a81da638
+score-wav native ok
+score-refusal native ok
+score-check: green
+gameplay: native bite rich ok
+gameplay: native parry rich ok
+gameplay: native dodge rich ok
+gameplay: native weasel-retreat rich ok
+gameplay: native fox-feint rich ok
+gameplay: native trail-fading rich ok
+gameplay: native rest rich ok
+gameplay: native death-recovery rich ok
+gameplay: native thorn-gate rich ok
+gameplay: native bite plain ok
+gameplay: native parry plain ok
+gameplay: native dodge plain ok
+gameplay: native weasel-retreat plain ok
+gameplay: native fox-feint plain ok
+gameplay: native trail-fading plain ok
+gameplay: native rest plain ok
+gameplay: native death-recovery plain ok
+gameplay: native thorn-gate plain ok
+gameplay: native aim/combo/heavy rich ok
+gameplay: native aim/combo/heavy plain ok
+gameplay: connected journey, hawk, opening and recovery rich ok
+gameplay: connected journey, hawk, opening and recovery plain ok
+gameplay: death archive replay-verified at tick 548
+gameplay: native body census over 132 scripts: census total ticks 79583 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 2572 contact_unreachable 0 contact_behind 743 foe_overlap 0
+gameplay: native body audit, 100 worlds: total ticks 245800 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 1416 contact_unreachable 0 contact_behind 342 foe_overlap 0
+gameplay: native boar rich windup/phase2/beaten ok, 19 telegraphs, shortest 12
+gameplay: native lynx rich windup/phase2/beaten ok, 9 telegraphs, shortest 10
+gameplay: native elk rich windup/phase2/beaten ok, 19 telegraphs, shortest 16
+gameplay: native alpha rich windup/phase2/beaten ok, 18 telegraphs, shortest 9
+gameplay: end, the three new areas, the title rich ok
+gameplay: native boar plain windup/phase2/beaten ok, 19 telegraphs, shortest 12
+gameplay: native lynx plain windup/phase2/beaten ok, 9 telegraphs, shortest 10
+gameplay: native elk plain windup/phase2/beaten ok, 19 telegraphs, shortest 16
+gameplay: native alpha plain windup/phase2/beaten ok, 18 telegraphs, shortest 9
+gameplay: end, the three new areas, the title plain ok
+gameplay: ghost trailer, display and absence rich ok
+gameplay: ghost trailer, display and absence plain ok
+gameplay: fairness boar attempts 1:94 2:6 3:0 4:0 5:0 unwon:0 hits 108 28 126 unparryable_hits 154 tells 12 24 12 parry_window 9 arena_breaches 0
+gameplay: fairness lynx attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 75 8 18 unparryable_hits 18 tells 10 12 15 parry_window 9 arena_breaches 0
+gameplay: fairness elk attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 60 8 0 unparryable_hits 8 tells 16 24 18 parry_window 9 arena_breaches 0
+gameplay: fairness alpha attempts 1:98 2:2 3:0 4:0 5:0 unwon:0 hits 318 0 0 unparryable_hits 0 tells 9 12 20 parry_window 9 arena_breaches 0
+gameplay: den entry, checkpoint, spring/drink/refill and 50-seed censuses green
+gameplay: door shadows, clipped foe walk, staged rest panels green
+gameplay: den/path/chase censuses, sprint costs, real-key hit and retired HUD flag: green
+gameplay: fifty-seed world labels, after-c padding, scent recovery: green
+world: 50 seeds, all dens/exits/caches, meanders, density, save roundtrip/cut/busy/corrupt/mark: green
+gameplay: every path under /Users/mfwolffe/lanes/cb05/cub/target/gameplay readable
+gameplay: green (0 skips)
+gameplay: release bite rich ok
+gameplay: release parry rich ok
+gameplay: release dodge rich ok
+gameplay: release weasel-retreat rich ok
+gameplay: release fox-feint rich ok
+gameplay: release trail-fading rich ok
+gameplay: release rest rich ok
+gameplay: release death-recovery rich ok
+gameplay: release thorn-gate rich ok
+gameplay: release bite plain ok
+gameplay: release parry plain ok
+gameplay: release dodge plain ok
+gameplay: release weasel-retreat plain ok
+gameplay: release fox-feint plain ok
+gameplay: release trail-fading plain ok
+gameplay: release rest plain ok
+gameplay: release death-recovery plain ok
+gameplay: release thorn-gate plain ok
+gameplay: release aim/combo/heavy rich ok
+gameplay: release aim/combo/heavy plain ok
+gameplay: connected journey, hawk, opening and recovery rich ok
+gameplay: connected journey, hawk, opening and recovery plain ok
+gameplay: death archive replay-verified at tick 548
+gameplay: release body census over 132 scripts: census total ticks 79583 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 2572 contact_unreachable 0 contact_behind 743 foe_overlap 0
+gameplay: release body audit, 100 worlds: total ticks 245800 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 1416 contact_unreachable 0 contact_behind 342 foe_overlap 0
+gameplay: release boar rich windup/phase2/beaten ok, 19 telegraphs, shortest 12
+gameplay: release lynx rich windup/phase2/beaten ok, 9 telegraphs, shortest 10
+gameplay: release elk rich windup/phase2/beaten ok, 19 telegraphs, shortest 16
+gameplay: release alpha rich windup/phase2/beaten ok, 18 telegraphs, shortest 9
+gameplay: end, the three new areas, the title rich ok
+gameplay: release boar plain windup/phase2/beaten ok, 19 telegraphs, shortest 12
+gameplay: release lynx plain windup/phase2/beaten ok, 9 telegraphs, shortest 10
+gameplay: release elk plain windup/phase2/beaten ok, 19 telegraphs, shortest 16
+gameplay: release alpha plain windup/phase2/beaten ok, 18 telegraphs, shortest 9
+gameplay: end, the three new areas, the title plain ok
+gameplay: ghost trailer, display and absence rich ok
+gameplay: ghost trailer, display and absence plain ok
+gameplay: fairness boar attempts 1:94 2:6 3:0 4:0 5:0 unwon:0 hits 108 28 126 unparryable_hits 154 tells 12 24 12 parry_window 9 arena_breaches 0
+gameplay: fairness lynx attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 75 8 18 unparryable_hits 18 tells 10 12 15 parry_window 9 arena_breaches 0
+gameplay: fairness elk attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 60 8 0 unparryable_hits 8 tells 16 24 18 parry_window 9 arena_breaches 0
+gameplay: fairness alpha attempts 1:98 2:2 3:0 4:0 5:0 unwon:0 hits 318 0 0 unparryable_hits 0 tells 9 12 20 parry_window 9 arena_breaches 0
+gameplay: den entry, checkpoint, spring/drink/refill and 50-seed censuses green
+gameplay: door shadows, clipped foe walk, staged rest panels green
+gameplay: den/path/chase censuses, sprint costs, real-key hit and retired HUD flag: green
+gameplay: fifty-seed world labels, after-c padding, scent recovery: green
+world: 50 seeds, all dens/exits/caches, meanders, density, save roundtrip/cut/busy/corrupt/mark: green
+gameplay: every path under /Users/mfwolffe/lanes/cb05/cub/target/gameplay readable
+gameplay: green (0 skips)
+perf: host Darwin arm64, slack x1, bench args: (none)
+bench 80x24 rich frames 300 avg_us 254 p99_us 297 max_us 365
+perf: 80x24 rich avg 254 us < 1000 us ok
+bench 80x24 plain frames 300 avg_us 242 p99_us 281 max_us 326
+perf: 80x24 plain avg 242 us < 1000 us ok
+bench 200x60 rich frames 300 avg_us 1847 p99_us 2056 max_us 2085
+perf: 200x60 rich avg 1847 us < 4000 us ok
+bench 200x60 plain frames 300 avg_us 1733 p99_us 1965 max_us 1974
+perf: 200x60 plain avg 1733 us < 4000 us ok
+perf-idle: idle SKIP (no /proc on this host; measure on Linux)
+perf-idle: latency samples ms (key write to the carrying frame's trace line): 12 8 8 12 33 9 9 8 33 33 33 13 9 9 13 13 8 33 33 10
+perf-idle: latency inner ms (the key's read to the frame's write): 12.5 8.1 8.1 11.9 33.3 9.2 9.0 7.8 33.2 32.7 33.2 12.7 9.3 9.2 12.7 12.8 8.1 33.1 33.3 10.3
+perf-idle: latency run's closing line: cub: ended by the quit key; 225 ticks, 225 frames, 0 dropped, 246 waits, 17 cells, blocked 0; heading 192 at -18,2; render avg 199 us max 312 us; seed 7 tier rich 80x24; sound off backend macos answers 0 prepared 0 us starts 0 stops 0 cue 
+perf-idle: latency median 12.2 ms p90 33.4 ms max 33.5 ms over 20 keys (bars median 40, p90 70 ms) ok
+perf-idle: idle SKIP (no /proc on this host; measure on Linux)
+perf-idle: latency samples ms (key write to the carrying frame's trace line): 13 8 33 8 33 33 13 8 8 8 9 10 34 33 9 33 9 33 8 33
+perf-idle: latency inner ms (the key's read to the frame's write): 13.4 8.2 33.3 8.2 33.3 33.1 13.3 8.2 7.8 8.1 9.3 10.2 33.3 32.8 9.2 33.3 9.3 33.3 8.2 33.3
+perf-idle: latency run's closing line: cub: ended by the quit key; 225 ticks, 225 frames, 0 dropped, 246 waits, 17 cells, blocked 0; heading 192 at -18,2; render avg 193 us max 246 us; seed 7 tier rich 80x24; sound off backend macos answers 0 prepared 0 us starts 0 stops 0 cue 
+perf-idle: latency median 11.9 ms p90 33.5 ms max 33.5 ms over 20 keys (bars median 40, p90 70 ms) ok
+cub check: green
