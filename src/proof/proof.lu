@@ -295,12 +295,19 @@ pub fn landmarks(dir: str) -> int {
             var r = snapshot_replay(s0)
             walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
             let o = forest.origin(seed, area)
-            // Fighting what it meets on the way (a pocket's guard).
+            // The clearing's corner beside the landmark, or the cell below
+            // it, or its own cell: the first open one (a yard's mark sits
+            // by its back wall). Fighting what it meets on the way (a
+            // pocket's guard).
+            var tx = lx + 2
+            var ty = ly + 1
+            if forest.blocked(seed, 80, area, tx, o + ty) { tx = lx }
+            if forest.blocked(seed, 80, area, tx, o + ty) { ty = ly }
             if !walker.walk(
                 mut s,
                 mut r,
-                (lx + 2) * sim.FP + sim.FP / 2,
-                (o + ly + 1) * sim.FP + sim.FP / 2,
+                tx * sim.FP + sim.FP / 2,
+                (o + ty) * sim.FP + sim.FP / 2,
             ) {
                 eprint("proof: the walk to landmark {area}-{k}")
                 return 1
@@ -394,7 +401,15 @@ pub fn cinderwick(dir: str) -> int {
     var q = snapshot_replay(t)
     walker.press(mut t, mut q, walker.key(controls.KEY_RELEASE))
     let (yx, yy) = forest.cache_position(seed, t.field, forest.TOWN, 0)
-    // Walked in without biting (the walker fights what it meets).
+    // To the passage's mouth fighting what the lane sends (the walker
+    // bites), then into the yard without biting, so the guard is met whole.
+    let (gnear, _) = town.house_x(seed, -1, 2)
+    let (gwhich, _) = town.yard_gap(seed, -1, 2)
+    let grow = if gwhich == 0 then town.top(2) - 1 else town.bottom(2) + 1
+    if !walker.walk(mut t, mut q, (gnear + 1) * sim.FP + sim.FP / 2, grow * sim.FP + sim.FP / 2) {
+        eprint("proof: the first yard's mouth")
+        return 1
+    }
     if !walker.walk_stop(mut t, mut q, yx, yy - 4 * sim.FP, -1, true) {
         eprint("proof: the first yard")
         return 1
