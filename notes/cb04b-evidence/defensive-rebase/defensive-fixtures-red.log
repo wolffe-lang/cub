@@ -1,0 +1,3 @@
+test src/defensive_fixture_test.lu::test_cb04b_defensive_parry_fixture_actually_staggers ... FAILED (trap(assert))
+test src/defensive_fixture_test.lu::test_cb04b_defensive_unanswered_strike_fixture_actually_hits ... FAILED (trap(assert))
+wolf test: 0 passed; 2 failed; 0 rejected; 0 unsupported; 362 filtered out

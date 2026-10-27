@@ -1,0 +1,2 @@
+test src/inferred_stop_test.lu::test_cb04b_inferred_release_stops_after_last_repeat_within_eleven_ticks ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 364 filtered out

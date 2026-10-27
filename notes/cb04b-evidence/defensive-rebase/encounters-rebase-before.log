@@ -1,0 +1,4 @@
+parry last 177 health 52 actions [0, 3] foe0_phases [0, 1, 2, 3]
+dodge last 177 health 52 actions [0, 4] foe0_phases [0, 1, 2, 3]
+weasel-retreat last 177 health 52 actions [0] foe0_phases [0, 1, 2, 3]
+fox-feint last 314 health 36 actions [0, 1] foe0_phases [0]
