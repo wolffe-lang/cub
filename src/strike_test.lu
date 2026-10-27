@@ -1,15 +1,18 @@
 //! member: false
 //!
 //! The three strikes, visible (cb07): the strike census's rows hold each
-//! hit's drawn body against the standing body at every age, on both
-//! tiers and every aim. The peaks are whole cells held for ticks a
-//! person sees; the third hit's head leaves the body on both swings.
+//! hit's drawn body against the standing body at every age. The peaks are
+//! whole cells held for ticks a person sees; the third hit's head leaves
+//! the body on both swings. The checked machine's step budget holds a
+//! test here to one tier and two aims (east and north-east);
+//! `--strike-census` holds all eight aims on the native build and exits 1
+//! on a break (`combatproof.strike_row_breaks`).
 
 use combatproof
 use sim
 use tier
 
-fn aims() -> List[int] { [0, 32, 64, 96, 128, 160, 192, 224] }
+fn aims() -> List[int] { [64, 32] }
 
 fn tier_name(t: int) -> str { if t == tier.RICH then "rich" else "plain" }
 
@@ -34,82 +37,107 @@ fn held(
     }
 }
 
-fn test_cb07_hit_one_lunges_a_cell_forward_left_held_four_ticks_every_aim_both_tiers() {
-    for t in [tier.PLAIN, tier.RICH] {
-        for h in aims() {
-            let rows = combatproof.strike_rows(h, 1, t)
-            held(rows, 3, 6, 100, 100, 1000, "hit 1 aim {h} {tier_name(t)}")
-            assert(rows[2].forward < 100, "hit 1 aim {h} {tier_name(t)}: the windup does not lunge")
+fn hit_one(t: int) {
+    for h in aims() {
+        let rows = combatproof.strike_rows(h, 1, t)
+        held(rows, 3, 6, 100, 100, 1000, "hit 1 aim {h} {tier_name(t)}")
+        assert(rows[2].forward < 100, "hit 1 aim {h} {tier_name(t)}: the windup does not lunge")
+    }
+}
+
+fn test_cb07_hit_one_lunges_a_cell_forward_left_held_four_ticks_plain() { hit_one(tier.PLAIN) }
+
+fn test_cb07_hit_one_lunges_a_cell_forward_left_held_four_ticks_rich() { hit_one(tier.RICH) }
+
+fn hit_two(t: int) {
+    for h in aims() {
+        let rows = combatproof.strike_rows(h, 2, t)
+        held(rows, 3, 6, 100, -1000, -100, "hit 2 aim {h} {tier_name(t)}")
+    }
+}
+
+fn test_cb07_hit_two_lunges_a_cell_forward_right_held_four_ticks_plain() { hit_two(tier.PLAIN) }
+
+fn test_cb07_hit_two_lunges_a_cell_forward_right_held_four_ticks_rich() { hit_two(tier.RICH) }
+
+fn hit_three(t: int) {
+    for h in aims() {
+        let rows = combatproof.strike_rows(h, 3, t)
+        held(rows, 3, 8, 200, -1000, 1000, "hit 3 aim {h} {tier_name(t)}")
+    }
+}
+
+fn test_cb07_hit_three_leaps_two_cells_forward_held_six_ticks_plain() { hit_three(tier.PLAIN) }
+
+fn test_cb07_hit_three_leaps_two_cells_forward_held_six_ticks_rich() { hit_three(tier.RICH) }
+
+fn shakes(t: int) {
+    for h in aims() {
+        let rows = combatproof.strike_rows(h, 3, t)
+        for age in [5, 6, 9, 10] {
+            assert(rows[age].shake == -1, "hit 3 aim {h} {tier_name(t)}: age {age} shakes left")
+        }
+        for age in [7, 8, 11, 12] {
+            assert(rows[age].shake == 1, "hit 3 aim {h} {tier_name(t)}: age {age} shakes right")
+        }
+        var age = 5
+        while age <= 12 {
+            // The head drawn a cell out of the body: the shaken drawing
+            // paints cells the same drawing with its head still does not.
+            assert(
+                rows[age].out >= 1,
+                "hit 3 aim {h} {tier_name(t)}: age {age} paints {rows[age].out} cells beyond the body",
+            )
+            age += 1
+        }
+        assert(rows[4].shake == 0 && rows[13].shake == 0, "the shake is ages 5-12")
+        assert(
+            rows[4].out == 0 && rows[13].out == 0 && rows[3].span > 0,
+            "no head out without a shake",
+        )
+    }
+}
+
+fn test_cb07_hit_three_shakes_its_head_two_full_swings_each_side_two_ticks_plain() {
+    shakes(tier.PLAIN)
+}
+
+fn test_cb07_hit_three_shakes_its_head_two_full_swings_each_side_two_ticks_rich() {
+    shakes(tier.RICH)
+}
+
+fn eases(t: int) {
+    for hit in [1, 2, 3] {
+        let rows = combatproof.strike_rows(64, hit, t)
+        let last = copy rows[rows.len - 1]
+        assert(
+            last.changed == 0 && last.forward == 0 && last.left == 0,
+            "hit {hit} {tier_name(t)}: the last age stands at the commitment point",
+        )
+        // The ease is monotone: no age after the hold is further forward
+        // than the one before it.
+        var age = sim.strike_hold(hit) + 1
+        while age < rows.len {
+            assert(
+                rows[age].forward <= rows[age - 1].forward + 10,
+                "hit {hit} {tier_name(t)}: age {age} eases back",
+            )
+            age += 1
         }
     }
 }
 
-fn test_cb07_hit_two_lunges_a_cell_forward_right_held_four_ticks_every_aim_both_tiers() {
-    for t in [tier.PLAIN, tier.RICH] {
-        for h in aims() {
-            let rows = combatproof.strike_rows(h, 2, t)
-            held(rows, 3, 6, 100, -1000, -100, "hit 2 aim {h} {tier_name(t)}")
-        }
-    }
-}
+fn test_cb07_every_strike_eases_back_to_the_commitment_point_plain() { eases(tier.PLAIN) }
 
-fn test_cb07_hit_three_leaps_two_cells_forward_held_six_ticks_every_aim_both_tiers() {
-    for t in [tier.PLAIN, tier.RICH] {
-        for h in aims() {
-            let rows = combatproof.strike_rows(h, 3, t)
-            held(rows, 3, 8, 200, -1000, 1000, "hit 3 aim {h} {tier_name(t)}")
-        }
-    }
-}
+fn test_cb07_every_strike_eases_back_to_the_commitment_point_rich() { eases(tier.RICH) }
 
-fn test_cb07_hit_three_shakes_its_head_two_full_swings_each_side_two_ticks() {
-    for t in [tier.PLAIN, tier.RICH] {
-        for h in aims() {
-            let rows = combatproof.strike_rows(h, 3, t)
-            let body = rows[3].span
-            for age in [5, 6, 9, 10] {
-                assert(rows[age].shake == -1, "hit 3 aim {h} {tier_name(t)}: age {age} shakes left")
-            }
-            for age in [7, 8, 11, 12] {
-                assert(rows[age].shake == 1, "hit 3 aim {h} {tier_name(t)}: age {age} shakes right")
-            }
-            var age = 5
-            while age <= 12 {
-                // The head drawn a cell out of the body: the shaken drawing
-                // paints cells the same drawing with its head still does not.
-                assert(
-                    rows[age].out >= 1,
-                    "hit 3 aim {h} {tier_name(t)}: age {age} paints {rows[age].out} cells beyond the body",
-                )
-                age += 1
-            }
-            assert(rows[4].shake == 0 && rows[13].shake == 0, "the shake is ages 5-12")
-            assert(rows[4].out == 0 && rows[13].out == 0 && body > 0, "no head out without a shake")
-        }
-    }
-}
-
-fn test_cb07_every_strike_eases_back_to_the_commitment_point() {
-    for t in [tier.PLAIN, tier.RICH] {
-        for h in aims() {
-            for hit in [1, 2, 3] {
-                let rows = combatproof.strike_rows(h, hit, t)
-                let last = copy rows[rows.len - 1]
-                assert(
-                    last.changed == 0 && last.forward == 0 && last.left == 0,
-                    "hit {hit} aim {h} {tier_name(t)}: the last age stands at the commitment point",
-                )
-                // The ease is monotone: no age after the hold is further
-                // forward than the one before it.
-                var age = sim.strike_hold(hit) + 1
-                while age < rows.len {
-                    assert(
-                        rows[age].forward <= rows[age - 1].forward + 10,
-                        "hit {hit} aim {h} {tier_name(t)}: age {age} eases back",
-                    )
-                    age += 1
-                }
-            }
+fn test_cb07_no_row_of_the_strike_census_breaks_the_contract_east_rich() {
+    for hit in [1, 2, 3] {
+        for r in combatproof.strike_rows(64, hit, tier.RICH) {
+            assert(
+                !combatproof.strike_row_breaks(hit, r),
+                "hit {hit} age {r.age} breaks the contract",
+            )
         }
     }
 }

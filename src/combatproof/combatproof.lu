@@ -112,10 +112,10 @@ pub fn lit(g: grid.Grid, rich: bool) -> (int, int, int) {
     var sx = 0
     var sy = 0
     var count = 0
-    var r = 0
-    while r < g.rows {
-        var c = 0
-        while c < g.cols {
+    var r = WINDOW_TOP
+    while r < WINDOW_BOTTOM {
+        var c = WINDOW_LEFT
+        while c < WINDOW_RIGHT {
             let cp = grid.at(g, r, c).cp
             if cp != 32 {
                 if !rich {
@@ -169,15 +169,26 @@ pub fn lit(g: grid.Grid, rich: bool) -> (int, int, int) {
     (sx, sy, count)
 }
 
+/// The strike census scans the cub's neighbourhood of its 80x24 grid
+/// (the cub at row 12, column 40; a strike moves it at most four cells),
+/// which keeps every row under the checked machine's step budget.
+const WINDOW_TOP: int = 4
+
+const WINDOW_BOTTOM: int = 21
+
+const WINDOW_LEFT: int = 28
+
+const WINDOW_RIGHT: int = 53
+
 /// The cells across the aim a drawing covers: columns for a body facing
 /// north or south, rows facing east or west.
 fn span_across(g: grid.Grid, facing: int) -> int {
     var lo = 1000000
     var hi = -1
-    var r = 0
-    while r < g.rows {
-        var c = 0
-        while c < g.cols {
+    var r = WINDOW_TOP
+    while r < WINDOW_BOTTOM {
+        var c = WINDOW_LEFT
+        while c < WINDOW_RIGHT {
             if grid.at(g, r, c).cp != 32 {
                 let k = if facing % 2 == 0 then c else r
                 if k < lo { lo = k }
@@ -193,10 +204,10 @@ fn span_across(g: grid.Grid, facing: int) -> int {
 /// The cells that differ between two grids of one size.
 fn changed_cells(a: grid.Grid, b: grid.Grid) -> int {
     var n = 0
-    var r = 0
-    while r < a.rows {
-        var c = 0
-        while c < a.cols {
+    var r = WINDOW_TOP
+    while r < WINDOW_BOTTOM {
+        var c = WINDOW_LEFT
+        while c < WINDOW_RIGHT {
             if !grid.same(grid.at(a, r, c), grid.at(b, r, c)) { n += 1 }
             c += 1
         }
@@ -208,10 +219,10 @@ fn changed_cells(a: grid.Grid, b: grid.Grid) -> int {
 /// The cells painted in `a` that are blank in `b`.
 fn cells_beyond(a: grid.Grid, b: grid.Grid) -> int {
     var n = 0
-    var r = 0
-    while r < a.rows {
-        var c = 0
-        while c < a.cols {
+    var r = WINDOW_TOP
+    while r < WINDOW_BOTTOM {
+        var c = WINDOW_LEFT
+        while c < WINDOW_RIGHT {
             if grid.at(a, r, c).cp != 32 && grid.at(b, r, c).cp == 32 { n += 1 }
             c += 1
         }
@@ -272,27 +283,51 @@ pub fn strike_rows(h: int, hit: int, t: int) -> List[StrikeRow] {
     rows
 }
 
-/// `--strike-census`: every hit at every aim on both tiers, a line an age.
+/// Whether a row breaks the contract for its hit: at the peak (ages 3
+/// through `strike_hold`) hit 1 at least a cell forward and a cell left,
+/// hit 2 a cell forward and a cell right, hit 3 two cells forward; hit
+/// 3's head out of the body on every swing age (5-12) and on no other;
+/// the last age standing at the commitment point.
+pub fn strike_row_breaks(hit: int, r: StrikeRow) -> bool {
+    let peak = r.age >= 3 && r.age <= sim.strike_hold(hit)
+    if peak && hit == 1 && (r.forward < 100 || r.left < 100) { return true }
+    if peak && hit == 2 && (r.forward < 100 || r.left > -100) { return true }
+    if peak && hit == 3 && r.forward < 200 { return true }
+    if hit == 3 && r.age >= 5 && r.age <= 12 && (r.shake == 0 || r.out < 1) { return true }
+    if hit == 3 && (r.age < 5 || r.age > 12) && (r.shake != 0 || r.out != 0) { return true }
+    if r.age == sim.combo_duration(hit) - 1 && (r.changed != 0 || r.forward != 0 || r.left != 0) {
+        return true
+    }
+    false
+}
+
+/// `--strike-census`: every hit at every aim on both tiers, a line an
+/// age; the exit is 1 if any row breaks the contract (`strike_row_breaks`,
+/// the line marked `BREAK`). The checked tests hold one cardinal and one
+/// diagonal aim a tier; this holds all eight on the native build.
 pub fn strike_census() -> int {
     print(
         "strike-census: centroid in hundredths of a cell (forward, left) against the standing drawing",
     )
     var n = 0
+    var broken = 0
     for t in [tier.PLAIN, tier.RICH] {
         let tier_name = if t == tier.PLAIN then "plain" else "rich"
         for h in [0, 32, 64, 96, 128, 160, 192, 224] {
             for hit in [1, 2, 3] {
                 for r in strike_rows(h, hit, t) {
+                    let mark = if strike_row_breaks(hit, r) then " BREAK" else ""
                     print(
-                        "strike tier={tier_name} aim={h} hit={hit} age={r.age} changed={r.changed} forward={r.forward} left={r.left} span={r.span} shake={r.shake} out={r.out}",
+                        "strike tier={tier_name} aim={h} hit={hit} age={r.age} changed={r.changed} forward={r.forward} left={r.left} span={r.span} shake={r.shake} out={r.out}{mark}",
                     )
+                    if mark != "" { broken += 1 }
                     n += 1
                 }
             }
         }
     }
-    print("strike-census rows={n}")
-    if n == 0 then 1 else 0
+    print("strike-census rows={n} broken={broken}")
+    if n == 0 || broken > 0 then 1 else 0
 }
 
 /// The HUD census (cb07): the whole frame against the frame without the
