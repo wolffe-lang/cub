@@ -1,0 +1,21 @@
+...F..F.
+======================================================================
+FAIL: test_delayed_post_input_tick_is_not_a_failed_skip (pty_rows_test.OpeningSkipSynchronization.test_delayed_post_input_tick_is_not_a_failed_skip)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mfwolffe/lanes/cb08/cub/tests/pty_rows_test.py", line 80, in test_delayed_post_input_tick_is_not_a_failed_skip
+    self.assertTrue(self.check_transition([(0.081, 13, 3, 0, 0), (.1, 14, 0, 0, 0)]))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_natural_completion_does_not_count_as_input (pty_rows_test.OpeningSkipSynchronization.test_natural_completion_does_not_count_as_input)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mfwolffe/lanes/cb08/cub/tests/pty_rows_test.py", line 95, in test_natural_completion_does_not_count_as_input
+    self.assertFalse(self.check_transition([(.02, 13, 0, 0, 0), (.04, 14, 0, 0, 0)]))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.003s
+
+FAILED (failures=2)
