@@ -33,7 +33,10 @@ fn test_cb04b_census_samples_actual_steady_motion() {
     let y = terrain.bank(1, 0) + terrain.REED_ROWS + 2
     let (east, ey, eb) = motionproof.sample(1, 200, forest.SHINGLE, 0, y, 64, 0)
     let (west, wy, wb) = motionproof.sample(1, 200, forest.SHINGLE, 0, y, 192, 0)
-    assert(east == sim.trot_at(1) && west == 0 - east, "opposed steady displacement")
+    assert(
+        east == sim.trot_at(1) * motionproof.SAMPLE_TICKS && west == 0 - east,
+        "opposed steady displacement",
+    )
     assert(ey == 0 && wy == 0 && eb == 0 && wb == 0, "clear coast, not a wall measurement")
     let (sneak, _, _) = motionproof.sample(1, 200, forest.SHINGLE, 0, y, 64, 1)
     let (sprint, _, _) = motionproof.sample(1, 200, forest.SHINGLE, 0, y, 64, 2)

@@ -16,7 +16,7 @@ def summarise(path):
             row = {key: int(value) for key, value in fields.items()}
             assert row["blocked"] == 0, line
             key = tuple(row[k] for k in ("area", "tier", "terrain", "heading", "gait"))
-            strata[key].append(math.hypot(row["dx"], row["dy"]) * 30 / 256)
+            strata[key].append(math.hypot(row["dx"], row["dy"]) * 30 / (256 * row.get("ticks", 1)))
             rows += 1
         elif line.startswith("travel "):
             travel.append(line)

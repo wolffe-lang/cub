@@ -5,6 +5,8 @@
 
 use art
 use controls
+use clock
+use grid
 use forest
 use input
 use sim
@@ -45,7 +47,11 @@ fn sprint_keys(mut s: sim.Sim, mut keys: List[int]) {
     (mut keys).push(controls.KEY_CTRL_DOWN)
 }
 
-/// One unobstructed steady-state tick, with a genuine terrain sample.
+/// Sixty unobstructed steady ticks on a genuine terrain sample. Position
+/// is reset to isolate terrain, but fractional integration is retained.
+pub const SAMPLE_TICKS: int = 60
+
+/// Integrated displacement over SAMPLE_TICKS (not a one-tick rounding proxy).
 pub fn sample(seed: int, field: int, area: int, x: int, y: int, h: int, gait: int) -> (
     int,
     int,
@@ -66,8 +72,18 @@ pub fn sample(seed: int, field: int, area: int, x: int, y: int, h: int, gait: in
     if sim.cos(h) < 0 { s.y -= 1 }
     let ox = s.x
     let oy = s.y
-    sim.step(mut s, keys)
-    (s.x - ox, s.y - oy, s.blocked)
+    var dx = 0
+    var dy = 0
+    var n = 0
+    while n < SAMPLE_TICKS {
+        s.x = ox
+        s.y = oy
+        sim.step(mut s, keys)
+        dx += s.x - ox
+        dy += s.y - oy
+        n += 1
+    }
+    (dx, dy, s.blocked)
 }
 
 fn terrain_rows(seed: int, field: int, area: int, t: int) -> int {
@@ -96,7 +112,7 @@ fn terrain_rows(seed: int, field: int, area: int, t: int) -> int {
                         while gait < 3 {
                             let (dx, dy, blocked) = sample(seed, field, area, x, y, h, gait)
                             print(
-                                "pace seed={seed} field={field} area={area} tier={t} terrain={kind} heading={h} gait={gait} dx={dx} dy={dy} blocked={blocked} glyph={cell.cp}",
+                                "pace seed={seed} field={field} area={area} tier={t} terrain={kind} heading={h} gait={gait} ticks={SAMPLE_TICKS} dx={dx} dy={dy} blocked={blocked} glyph={cell.cp}",
                             )
                             if blocked != 0 { return -1 }
                             count += 1
@@ -140,7 +156,7 @@ fn travel(paw: int, gait: int) {
 /// terrain class and eight headings. Gaits 0 walk /1 sneak /2 sprint /3 roll.
 pub fn census() -> int {
     print(
-        "motion-census dial={sim.WALK_PERCENT} FP={sim.FP} hz=30; steady one-tick probes, continuous fourteen-tick travel",
+        "motion-census dial={sim.WALK_PERCENT} FP={sim.FP} hz=30; steady sixty-tick probes, continuous fourteen-tick travel",
     )
     var total = 0
     var seed = 0
@@ -163,4 +179,116 @@ pub fn census() -> int {
     for paw in [1, 10] { for gait in [0, 2, 3] { travel(paw, gait) } }
     print("motion-census rows={total}")
     if total == 0 then 1 else 0
+}
+
+/// Area/seed render timing is separate from deterministic motion output.
+/// One warmup then four actual full frames per seed, both sizes and tiers.
+pub fn render_census() -> int {
+    for field in [80, 200] {
+        let rows = if field == 80 then 24 else 60
+        var area = 0
+        while area < forest.AREAS {
+            for t in [0, 1] {
+                var seed = 0
+                while seed < 50 {
+                    region trial {
+                        var s = sim.new(seed, field, rows)
+                        let x = forest.spine(seed, area, 80) * sim.FP
+                        let y = (forest.origin(seed, area) + 80) * sim.FP
+                        sim.enter_area(mut s, area, x, y)
+                        var g = grid.new(rows, field)
+                        art.render(s, t, mut g)
+                        var total = 0
+                        var maximum = 0
+                        var n = 0
+                        while n < 4 {
+                            let before = clock.now_ns()
+                            art.render(s, t, mut g)
+                            let elapsed = clock.now_ns() - before
+                            total += elapsed
+                            if elapsed > maximum { maximum = elapsed }
+                            n += 1
+                        }
+                        print(
+                            "render seed={seed} field={field} area={area} tier={t} avg_us={total / 4000} max_us={maximum / 1000}",
+                        )
+                    }
+                    seed += 1
+                }
+            }
+            area += 1
+        }
+    }
+    0
+}
+
+/// Controlled contact fixture: roll towards the fox's body, so distance
+/// cannot mask whether its false tell or real strike defeated the iframes.
+pub fn fox_census() -> int {
+    print("fox-census: contact fixture; none/false/real; inward roll is body-blocked")
+    for paw in [1, 10] {
+        for mode in [0, 1, 2] {
+            var s = sim.new(1, 80, 24)
+            var f = copy s.foes[2]
+            (mut s.foes).reset()
+            s.area = forest.BRAMBLEHOLD
+            let (x, y, _) = forest.arena(s.seed, s.field, s.area)
+            s.x = x * sim.FP + sim.FP / 2
+            s.y = (forest.origin(s.seed, s.area) + y) * sim.FP + sim.FP / 2
+            s.paw = paw
+            s.flask_max = 2
+            s.flasks = 2
+            f.kind = sim.FOX
+            f.heading = 128
+            f.x = s.x
+            f.health = 24
+            f.phase = sim.FEINT
+            f.since = 0
+            f.target_x = s.x
+            f.target_y = s.y
+            var d = 2 * sim.FP
+            var contact = false
+            while d < 10 * sim.FP {
+                f.y = s.y - d
+                if !sim.overlap(sim.cub_body(s), sim.foe_body(f)) &&
+                    sim.gap(sim.cub_body(s), sim.foe_body(f)) == 0 {
+                    contact = true
+                    break
+                }
+                d += sim.FP / 4
+            }
+            if !contact { return 1 }
+            (mut s.foes).push(f)
+            var rolled = -1
+            var real = -1
+            var strike = -1
+            let oy = s.y
+            var n = 0
+            while n < 40 {
+                var keys = List[int]()
+                if rolled < 0 &&
+                    (
+                        mode == 1 && n == 0 ||
+                            mode == 2 &&
+                                s.foes[0].phase == sim.CROUCH &&
+                                s.tick - s.foes[0].since == 10
+                    ) {
+                    (mut keys).push(controls.KEY_UP)
+                    (mut keys).push(controls.KEY_DODGE)
+                    rolled = s.tick + 1
+                }
+                sim.step(mut s, keys)
+                if real < 0 && s.foes[0].phase == sim.CROUCH { real = s.tick }
+                if strike < 0 && s.foes[0].phase == sim.STRIKE { strike = s.tick }
+                n += 1
+            }
+            print(
+                "fox paw={paw} mode={mode} false=0 real={real} strike={strike} roll_at={rolled} health={s.health} flasks={s.flasks} dy={s.y - oy} blocked={s.blocked}",
+            )
+            if real != 16 || strike - real != 12 { return 1 }
+            if mode == 2 && s.health != sim.health_max(1) { return 1 }
+            if mode != 2 && s.health >= sim.health_max(1) { return 1 }
+        }
+    }
+    0
 }
