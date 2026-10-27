@@ -1,0 +1,5 @@
+cb08 integrated-flank-search start 2026-10-27T14:59:57Z
+cb08 integrated-flank-search waiting for cores 8-11 2026-10-27T14:59:57Z
+cb08 integrated-flank-search acquired cores 4-7 2026-10-27T14:59:57Z
+FLANK FOUND prefix 782 move () ticks 0 aim 128 result (786, 128, 117, 116, 92, 61756) trials 7
+integrated-flank-search EXIT 0 2026-10-27T14:59:57Z
