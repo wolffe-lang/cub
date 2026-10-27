@@ -136,16 +136,24 @@ t 91 up
 t 92 up
 t 93 up
 t 94 up
-t 95 lock
-t 95 right
-t 95 bite
-t 95 release
+t 95 left
+t 101 up
+t 101 right
+t 102 up
+t 102 right
+t 103 right
+t 104 down
+t 104 right
+t 105 down
+t 105 right
+t 108 right
 t 124 parry
 t 140 lock
 t 140 right
 t 140 bite
 t 140 release
 t 144 up
+t 144 left
 t 145 up
 t 145 left
 t 146 up
@@ -159,10 +167,15 @@ t 149 left
 t 150 up
 t 150 left
 t 151 up
+t 151 left
 t 152 up
+t 152 left
 t 153 up
+t 153 left
 t 154 up
+t 154 left
 t 155 up
+t 155 left
 t 156 up
 t 157 up
 t 158 up
@@ -263,8 +276,9 @@ t 252 up
 t 253 up
 t 254 up
 t 255 up
+t 255 left
 t 256 up
-t 257 up
+t 256 left
 t 257 left
 t 258 left
 t 259 left
@@ -273,9 +287,8 @@ t 261 left
 t 262 left
 t 263 left
 t 264 left
-t 265 left
+t 265 up
 t 266 up
-t 266 left
 t 267 up
 t 268 up
 t 269 up
@@ -385,8 +398,7 @@ t 372 up
 t 373 up
 t 374 up
 t 375 up
-t 376 up
-t 377 up
+t 376 left
 t 377 left
 t 378 left
 t 379 left
@@ -404,8 +416,9 @@ t 390 left
 t 391 left
 t 392 left
 t 393 left
+t 394 up
 t 394 left
-t 395 left
+t 395 up
 t 396 up
 t 397 up
 t 398 up
@@ -426,7 +439,5 @@ t 412 up
 t 413 up
 t 414 up
 t 415 up
-t 416 up
-t 417 up
 
-# frames 458 every 10 from 418
+# frames 456 every 10 from 416

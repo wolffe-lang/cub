@@ -201,16 +201,10 @@ t 178 down
 t 178 left
 t 178 bite
 t 178 release
-t 179 down
-t 179 left
-t 180 down
-t 180 left
-t 181 down
-t 181 left
-t 182 up
-t 183 up
-t 184 up
-t 185 up
+t 182 down
+t 183 down
+t 184 down
+t 185 down
 t 186 down
 t 187 down
 t 188 down
@@ -308,6 +302,7 @@ t 275 left
 t 276 down
 t 276 left
 t 277 down
+t 277 left
 t 278 down
 t 278 left
 t 279 down
@@ -361,12 +356,12 @@ t 316 down
 t 317 down
 t 318 down
 t 319 down
+t 319 right
 t 320 down
 t 320 right
 t 321 down
 t 321 right
 t 322 down
-t 322 right
 t 323 down
 t 324 down
 t 325 down
@@ -421,6 +416,7 @@ t 373 down
 t 374 down
 t 375 down
 t 376 down
+t 376 right
 t 377 down
 t 377 right
 t 378 down
@@ -430,7 +426,6 @@ t 379 right
 t 380 down
 t 380 right
 t 381 down
-t 381 right
 t 382 down
 t 383 down
 t 384 down
@@ -530,6 +525,5 @@ t 477 down
 t 478 down
 t 479 down
 t 480 down
-t 481 down
 
-# frames 482 every 482
+# frames 481 every 481

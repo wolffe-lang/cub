@@ -201,16 +201,10 @@ t 180 down
 t 180 left
 t 180 bite
 t 180 release
-t 181 down
-t 181 left
-t 182 down
-t 182 left
-t 183 down
-t 183 left
-t 184 up
-t 185 up
-t 186 up
-t 187 up
+t 184 down
+t 185 down
+t 186 down
+t 187 down
 t 188 down
 t 189 down
 t 190 down
@@ -310,6 +304,7 @@ t 277 left
 t 278 down
 t 278 left
 t 279 down
+t 279 left
 t 280 down
 t 280 left
 t 281 down
@@ -320,7 +315,5 @@ t 283 down
 t 283 left
 t 284 down
 t 284 left
-t 285 down
-t 285 left
 
-# frames 316 every 316
+# frames 315 every 315

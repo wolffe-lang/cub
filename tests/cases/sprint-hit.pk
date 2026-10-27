@@ -164,29 +164,20 @@ t 154 left
 t 155 down
 t 155 left
 t 156 down
-t 156 right
 t 157 down
 t 158 down
-t 158 left
 t 159 down
-t 159 left
 t 160 down
-t 160 left
 t 161 down
-t 161 left
 t 161 ctrl-down
 t 162 down
-t 162 left
 t 162 ctrl-down
 t 162 bite
 t 163 down
-t 163 left
 t 163 ctrl-down
 t 164 down
-t 164 left
 t 164 ctrl-down
 t 165 down
-t 165 left
 t 165 ctrl-down
 
 # frames 178 every 1 from 153
