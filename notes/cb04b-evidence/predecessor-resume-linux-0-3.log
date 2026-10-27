@@ -1,0 +1,11 @@
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK
+prepare-pty: retained previous engine fixture in /work/target/pty-fixture-tests/tmp3y94guva/engine-previous-6owlxy3t
+prepare-pty: engine fixture already fresh
+pty: trunk-save-resume ok (linux x86_64, exit 0, 6722 bytes captured; trunk-95a4889d, actual predecessor-written seven-area save)
+pty: cb05-save-resume ok (linux x86_64, exit 0, 6722 bytes captured; cb05-4a7cd345, actual predecessor-written seven-area save)
+pty: trunk-save-resume ok (linux x86_64, exit 0, 6722 bytes captured; trunk-95a4889d, actual predecessor-written seven-area save)
+pty: cb05-save-resume ok (linux x86_64, exit 0, 6722 bytes captured; cb05-4a7cd345, actual predecessor-written seven-area save)

@@ -1,0 +1,16 @@
+2026-10-27T09:57:23Z cb04b:8GiB gate passed: python3
+trunk /Users/mfwolffe/lanes/cb04b/tmp/trunk.save cub: ended by the quit key; 18 ticks, 18 frames, 0 dropped, 23 waits, 0 cells, blocked 0; heading 0 at 0,-5; render avg 121 us max 211 us; seed 137 tier rich 80x24; sound off backend macos answers 0 prepared 0 us starts 0 stops 0 cue 
+CUB 5
+seed 137 difficulty 0
+growth 1 1 1 1 1
+water 0 scent 0
+den 0 lit 1 shortcuts 0
+gate 0 story 0 deaths 0
+mark 0 0 0 0 0
+cache 0 pouch 0 0 opening 1
+field 80
+bosses 0 end 0 played 8 lost 0
+level 1
+slain 0 0 0 0 0 0 0
+check 226117470
+

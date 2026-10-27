@@ -1,0 +1,14 @@
+2026-10-27T10:06:15Z cb04b:8GiB gate passed: sh
+prepare-pty: retained previous engine fixture in /Users/mfwolffe/lanes/cb04b/cub/target/pty/engine-previous-i0e7y4ka
+pty: quit ok (darwin arm64, exit 0, 20640 bytes captured)
+pty: ctrl-c ok (darwin arm64, exit 0, 14578 bytes captured)
+pty: trap ok (darwin arm64, exit 134, 13770 bytes captured)
+pty: den-keys ok (darwin arm64, exit 0, 21821 bytes captured)
+pty: feel-controls ok (darwin arm64, exit 0, 12146 bytes captured)
+pty: sound-live ok (darwin arm64, exit 0, 4960 bytes captured; children during the run ['/usr/bin/afplay']; 12 WAVs)
+pty: sound-oss ok (darwin arm64, exit 0, 4196 bytes captured)
+pty: sound-mute ok (darwin arm64, exit 0, 4581 bytes captured)
+pty: title ok (darwin arm64, exit 0, 3556 bytes captured)
+pty: title-demo ok (darwin arm64, exit 0, 41377 bytes captured)
+pty: sprint-live ok (darwin arm64, exit 0, 108486 bytes captured)
+pty: trunk-save-resume ok (darwin arm64, exit 0, 6722 bytes captured; trunk-95a4889d, actual predecessor-written seven-area save)

@@ -1,0 +1,10 @@
+pty: trunk-save-resume FAILED (linux x86_64):
+  evidence: trunk-95a4889d, actual predecessor-written seven-area save
+  - exit status 2, wanted 0
+  - the alternate screen was never entered
+  - the alternate screen was never left
+  - the cursor was not hidden and shown
+  - the leave bytes are not the last output (tail b'')
+  - trunk-95a4889d: did not resume the writer seed, played ticks and seen opening
+  - trunk-95a4889d: did not preserve all seven area masks
+  - trunk-95a4889d: resumed journey repeated the opening

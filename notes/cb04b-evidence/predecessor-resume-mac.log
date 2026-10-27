@@ -1,0 +1,5 @@
+2026-10-27T10:15:11Z cb04b:8GiB gate passed: sh
+pty: trunk-save-resume ok (darwin arm64, exit 0, 6722 bytes captured; trunk-95a4889d, actual predecessor-written seven-area save)
+pty: cb05-save-resume ok (darwin arm64, exit 0, 6722 bytes captured; cb05-4a7cd345, actual predecessor-written seven-area save)
+pty: trunk-save-resume ok (darwin arm64, exit 0, 6722 bytes captured; trunk-95a4889d, actual predecessor-written seven-area save)
+pty: cb05-save-resume ok (darwin arm64, exit 0, 6722 bytes captured; cb05-4a7cd345, actual predecessor-written seven-area save)

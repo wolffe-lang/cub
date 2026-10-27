@@ -1,0 +1,19 @@
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK
+prepare-pty: retained previous engine fixture in /work/target/pty-fixture-tests/tmpvwb9k99j/engine-previous-7_insb0z
+prepare-pty: engine fixture already fresh
+prepare-pty: retained previous engine fixture in /work/target/pty/engine-previous-1hjwwuta
+pty: quit ok (linux x86_64, exit 0, 20640 bytes captured)
+pty: ctrl-c ok (linux x86_64, exit 0, 14578 bytes captured)
+pty: trap ok (linux x86_64, exit 134, 13770 bytes captured)
+pty: den-keys ok (linux x86_64, exit 0, 21821 bytes captured)
+pty: feel-controls ok (linux x86_64, exit 0, 12165 bytes captured)
+pty: sound-live ok (linux x86_64, exit 0, 4960 bytes captured; children during the run []; 12 WAVs)
+pty: sound-oss ok (linux x86_64, exit 0, 4196 bytes captured)
+pty: sound-mute ok (linux x86_64, exit 0, 4581 bytes captured)
+pty: title ok (linux x86_64, exit 0, 3556 bytes captured)
+pty: title-demo ok (linux x86_64, exit 0, 41377 bytes captured)
+pty: sprint-live ok (linux x86_64, exit 0, 108492 bytes captured)

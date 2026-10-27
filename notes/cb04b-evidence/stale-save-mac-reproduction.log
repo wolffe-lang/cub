@@ -1,0 +1,9 @@
+2026-10-27T09:48:16Z cb04b: wait180s for8GiB free+inactive
+2026-10-27T09:51:16Z cb04b: wait180s for8GiB free+inactive
+2026-10-27T09:54:16Z cb04b: wait180s for8GiB free+inactive
+2026-10-27T09:57:16Z cb04b: wait180s for8GiB free+inactive
+2026-10-27T10:00:16Z cb04b: wait180s for8GiB free+inactive
+2026-10-27T10:03:16Z cb04b:8GiB gate passed: python3
+quit status 2 write errno 5 cub: save_corrupt: target/pty/engine.save
+ctrl-c status 2 write errno 5 cub: save_corrupt: target/pty/engine.save
+trap status 2 write errno None cub: save_corrupt: target/pty/engine.save
