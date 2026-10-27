@@ -68,7 +68,7 @@ fn test_cb04b_exact_arrow_remains_held_across_a_doorway() {
     s.gate_open = true
     s.edge_ready = true
     sim.step(mut s, List[int]())
-    assert(s.area == 1, "body crossed the doorway")
+    assert(s.area == forest.TOWN, "body crossed the Shingle doorway into Cinderwick")
     assert(sim.held_direction(s) == 128, "physical Down survives area entry")
 }
 
