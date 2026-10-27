@@ -27,6 +27,7 @@ flock /home/mfwolffe/lanes/kasumi-cores-4-7.lock taskset -c 4-7 nice -n 10 .lair
     .lair/tools/goldens
     .lair/tools/goldens --bin target/native/cub
     python3 -I tools/score-check
+    python3 -I tools/prepare-pty
     python3 -I .lair/tools/pty --bin target/release/cub
     python3 -I .lair/tools/pty --bin target/native/cub --rows cb07-strikes
     python3 -I tools/gameplay.py --bin target/native/cub
