@@ -48,4 +48,4 @@ look: seed 46 both tiers no placeholders
 look: seed 47 both tiers no placeholders
 look: seed 48 both tiers no placeholders
 look: seed 49 both tiers no placeholders
-look: green seeds 50 frames 199600
+look: green seeds 50 frames 194800

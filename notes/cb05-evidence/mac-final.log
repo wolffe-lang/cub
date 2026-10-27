@@ -281,6 +281,9 @@ test src/wide_test.lu::test_cb05_the_ashen_winds_up_slowly_is_parried_long_and_b
 test src/wide_test.lu::test_cb05_an_ember_burns_a_little_and_a_dug_cache_says_its_line ... ok
 test src/wide_test.lu::test_cb05_the_towns_yards_and_hearth_are_reached_through_their_passages ... ok
 test src/wide_test.lu::test_cb05_the_landmarks_stand_on_open_ground_within_sight_of_their_dens ... ok
+test src/wide_test.lu::test_cb05_two_ashen_pursue_and_a_third_keeps_its_post ... ok
+test src/wide_test.lu::test_cb05_an_ashen_hears_ten_cells_and_two_sneaking ... ok
+test src/wide_test.lu::test_cb05_the_town_is_a_rectangle_across_the_field ... ok
 test src/world/world_test.lu::test_deterministic ... ok
 test src/world/world_test.lu::test_seeds_differ ... ok
 test src/world/world_test.lu::test_noise_bounds_and_continuity ... ok
@@ -293,7 +296,7 @@ test src/world_rules_test.lu::test_cb02_hawk_shadow_does_not_pin_a_dodge ... ok
 test src/world_rules_test.lu::test_cb02_cache_is_guarded_finite_and_persisted ... ok
 test src/world_rules_test.lu::test_cb02_opening_is_timed_skippable_and_pure_on_both_tiers ... ok
 test src/world_rules_test.lu::test_cb02_spawned_bodies_stand_on_passable_ground ... ok
-wolf test: 292 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+wolf test: 295 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
 test: 0 SKIP lines
 build: target/native/cub
 build: target/release/cub
@@ -563,12 +566,12 @@ goldens: world-thorns-plain ok
 goldens: yard-cache-rich ok
 goldens: yard-cache-plain ok
 goldens: art ok
-pty: quit ok (darwin arm64, exit 0, 15054 bytes captured)
-pty: ctrl-c ok (darwin arm64, exit 0, 14998 bytes captured)
+pty: quit ok (darwin arm64, exit 0, 15038 bytes captured)
+pty: ctrl-c ok (darwin arm64, exit 0, 14888 bytes captured)
 pty: trap ok (darwin arm64, exit 134, 13892 bytes captured)
 pty: agree-rich ok (darwin arm64, exit 0, 58515 bytes captured)
 pty: agree-plain ok (darwin arm64, exit 0, 32454 bytes captured)
-pty: den-keys ok (darwin arm64, exit 0, 18561 bytes captured)
+pty: den-keys ok (darwin arm64, exit 0, 18535 bytes captured)
 pty: death-agree ok (darwin arm64, exit 0, 156154 bytes captured)
 pty: archive-failure ok (darwin arm64, exit 2, 122372 bytes captured)
 pty: feel-controls ok (darwin arm64, exit 0, 8705 bytes captured)
@@ -580,7 +583,7 @@ pty: sound-oss ok (darwin arm64, exit 0, 4577 bytes captured)
 pty: sound-mute ok (darwin arm64, exit 0, 4956 bytes captured)
 pty: mute-key ok (darwin arm64, exit 0, 11967 bytes captured)
 pty: title ok (darwin arm64, exit 0, 5019 bytes captured)
-pty: title-demo ok (darwin arm64, exit 0, 42838 bytes captured)
+pty: title-demo ok (darwin arm64, exit 0, 44234 bytes captured)
 pty: sprint-live ok (darwin arm64, exit 0, 80741 bytes captured)
 pty: sprint-lands ok (darwin arm64, exit 0, 528129 bytes captured)
 pty: level-look-after-c ok (darwin arm64, exit 0, 23906 bytes captured; byte 63, ECHO clear, 80x24/120x40 rich/plain, replay agreement and HUD edge)
@@ -590,10 +593,10 @@ pty: den-checkpoint ok (darwin arm64, exit 0, 104690 bytes captured)
 pty: rest-allocate ok (darwin arm64, exit 0, 22638 bytes captured)
 pty: doorway-edge ok (darwin arm64, exit 0, 71897 bytes captured)
 pty: doorway-return ok (darwin arm64, exit 0, 104376 bytes captured)
-pty: town-passage ok (darwin arm64, exit 0, 340571 bytes captured)
-pty: ashen-parry ok (darwin arm64, exit 0, 1096843 bytes captured)
-pty: ember-touch ok (darwin arm64, exit 0, 872351 bytes captured)
-pty: yard-cache ok (darwin arm64, exit 0, 803101 bytes captured)
+pty: town-passage ok (darwin arm64, exit 0, 561304 bytes captured)
+pty: ashen-parry ok (darwin arm64, exit 0, 704613 bytes captured)
+pty: ember-touch ok (darwin arm64, exit 0, 810336 bytes captured)
+pty: yard-cache ok (darwin arm64, exit 0, 731178 bytes captured)
 check: green
 goldens: aim-e-rich ok
 goldens: aim-e-plain ok
@@ -928,7 +931,7 @@ gameplay: native aim/combo/heavy plain ok
 gameplay: connected journey, hawk, opening and recovery rich ok
 gameplay: connected journey, hawk, opening and recovery plain ok
 gameplay: death archive replay-verified at tick 548
-gameplay: native body census over 132 scripts: census total ticks 79583 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 2572 contact_unreachable 0 contact_behind 743 foe_overlap 0
+gameplay: native body census over 132 scripts: census total ticks 79435 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 3352 contact_unreachable 0 contact_behind 726 foe_overlap 0
 gameplay: native body audit, 100 worlds: total ticks 245800 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 1416 contact_unreachable 0 contact_behind 342 foe_overlap 0
 gameplay: native boar rich windup/phase2/beaten ok, 19 telegraphs, shortest 12
 gameplay: native lynx rich windup/phase2/beaten ok, 9 telegraphs, shortest 10
@@ -976,7 +979,7 @@ gameplay: release aim/combo/heavy plain ok
 gameplay: connected journey, hawk, opening and recovery rich ok
 gameplay: connected journey, hawk, opening and recovery plain ok
 gameplay: death archive replay-verified at tick 548
-gameplay: release body census over 132 scripts: census total ticks 79583 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 2572 contact_unreachable 0 contact_behind 743 foe_overlap 0
+gameplay: release body census over 132 scripts: census total ticks 79435 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 3352 contact_unreachable 0 contact_behind 726 foe_overlap 0
 gameplay: release body audit, 100 worlds: total ticks 245800 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 1416 contact_unreachable 0 contact_behind 342 foe_overlap 0
 gameplay: release boar rich windup/phase2/beaten ok, 19 telegraphs, shortest 12
 gameplay: release lynx rich windup/phase2/beaten ok, 9 telegraphs, shortest 10
@@ -1002,22 +1005,22 @@ world: 50 seeds, all dens/exits/caches, meanders, density, save roundtrip/cut/bu
 gameplay: every path under /Users/mfwolffe/lanes/cb05/cub/target/gameplay readable
 gameplay: green (0 skips)
 perf: host Darwin arm64, slack x1, bench args: (none)
-bench 80x24 rich frames 300 avg_us 254 p99_us 297 max_us 365
-perf: 80x24 rich avg 254 us < 1000 us ok
-bench 80x24 plain frames 300 avg_us 242 p99_us 281 max_us 326
-perf: 80x24 plain avg 242 us < 1000 us ok
-bench 200x60 rich frames 300 avg_us 1847 p99_us 2056 max_us 2085
-perf: 200x60 rich avg 1847 us < 4000 us ok
-bench 200x60 plain frames 300 avg_us 1733 p99_us 1965 max_us 1974
-perf: 200x60 plain avg 1733 us < 4000 us ok
+bench 80x24 rich frames 300 avg_us 196 p99_us 237 max_us 248
+perf: 80x24 rich avg 196 us < 1000 us ok
+bench 80x24 plain frames 300 avg_us 183 p99_us 226 max_us 233
+perf: 80x24 plain avg 183 us < 1000 us ok
+bench 200x60 rich frames 300 avg_us 1351 p99_us 1528 max_us 1633
+perf: 200x60 rich avg 1351 us < 4000 us ok
+bench 200x60 plain frames 300 avg_us 1301 p99_us 1406 max_us 1480
+perf: 200x60 plain avg 1301 us < 4000 us ok
 perf-idle: idle SKIP (no /proc on this host; measure on Linux)
-perf-idle: latency samples ms (key write to the carrying frame's trace line): 12 8 8 12 33 9 9 8 33 33 33 13 9 9 13 13 8 33 33 10
-perf-idle: latency inner ms (the key's read to the frame's write): 12.5 8.1 8.1 11.9 33.3 9.2 9.0 7.8 33.2 32.7 33.2 12.7 9.3 9.2 12.7 12.8 8.1 33.1 33.3 10.3
-perf-idle: latency run's closing line: cub: ended by the quit key; 225 ticks, 225 frames, 0 dropped, 246 waits, 17 cells, blocked 0; heading 192 at -18,2; render avg 199 us max 312 us; seed 7 tier rich 80x24; sound off backend macos answers 0 prepared 0 us starts 0 stops 0 cue 
-perf-idle: latency median 12.2 ms p90 33.4 ms max 33.5 ms over 20 keys (bars median 40, p90 70 ms) ok
+perf-idle: latency samples ms (key write to the carrying frame's trace line): 12 8 9 11 33 9 33 33 8 8 8 33 33 12 9 8 33 33 10 12
+perf-idle: latency inner ms (the key's read to the frame's write): 11.4 7.7 9.2 11.2 33.2 8.6 33.3 33.3 8.2 8.1 8.1 33.3 33.2 12.3 9.1 8.1 33.2 33.2 10.2 12.3
+perf-idle: latency run's closing line: cub: ended by the quit key; 225 ticks, 225 frames, 0 dropped, 246 waits, 17 cells, blocked 0; heading 192 at -18,2; render avg 179 us max 220 us; seed 7 tier rich 80x24; sound off backend macos answers 0 prepared 0 us starts 0 stops 0 cue 
+perf-idle: latency median 11.5 ms p90 33.5 ms max 33.5 ms over 20 keys (bars median 40, p90 70 ms) ok
 perf-idle: idle SKIP (no /proc on this host; measure on Linux)
-perf-idle: latency samples ms (key write to the carrying frame's trace line): 13 8 33 8 33 33 13 8 8 8 9 10 34 33 9 33 9 33 8 33
-perf-idle: latency inner ms (the key's read to the frame's write): 13.4 8.2 33.3 8.2 33.3 33.1 13.3 8.2 7.8 8.1 9.3 10.2 33.3 32.8 9.2 33.3 9.3 33.3 8.2 33.3
-perf-idle: latency run's closing line: cub: ended by the quit key; 225 ticks, 225 frames, 0 dropped, 246 waits, 17 cells, blocked 0; heading 192 at -18,2; render avg 193 us max 246 us; seed 7 tier rich 80x24; sound off backend macos answers 0 prepared 0 us starts 0 stops 0 cue 
-perf-idle: latency median 11.9 ms p90 33.5 ms max 33.5 ms over 20 keys (bars median 40, p90 70 ms) ok
+perf-idle: latency samples ms (key write to the carrying frame's trace line): 34 9 10 33 33 10 8 33 8 33 8 33 10 33 12 8 9 11 33 33
+perf-idle: latency inner ms (the key's read to the frame's write): 34.3 9.2 10.2 32.5 32.8 10.2 7.6 32.8 8.0 33.2 8.1 32.7 10.1 33.3 12.3 8.1 9.1 11.3 32.6 33.3
+perf-idle: latency run's closing line: cub: ended by the quit key; 226 ticks, 226 frames, 0 dropped, 247 waits, 17 cells, blocked 0; heading 192 at -18,2; render avg 187 us max 246 us; seed 7 tier rich 80x24; sound off backend macos answers 0 prepared 0 us starts 0 stops 0 cue 
+perf-idle: latency median 11.8 ms p90 33.4 ms max 34.5 ms over 20 keys (bars median 40, p90 70 ms) ok
 cub check: green
