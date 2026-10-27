@@ -20,6 +20,7 @@ def check(binary):
     assert all(len(r) == 13 for r in rows), 'world audit row has the wrong columns'
     assert all(r[3] == r[4] and r[5] <= 12 and r[6] >= 30 and r[7] == {0: 4, 1: 3, 2: 3, 6: 4}.get(r[2], 0) and r[8] <= 1
                and r[9] <= 2 and r[10] >= 90 and r[11] <= 200 and r[12] == 0 for r in rows), 'world audit row out of bounds'
+    wide(binary, out)
 
     def run(name, path, frames=1, case=None, extra=(), want=0):
         args = [str(binary), '--headless', '--save', str(path), '--frames', str(frames),
@@ -104,3 +105,23 @@ def check(binary):
     st = dict(zip(w[::2], map(int, w[1::2])))
     assert st['area'] == 1 and st['mark_area'] == 2 and st['mark'] == 1 and st['mark_scent'] > 0
     print('world: 50 seeds, all dens/exits/caches, meanders, density, save roundtrip/cut/busy/corrupt/mark: green')
+
+
+def wide(binary, out):
+    """The wide forest's censuses (cb05), fifty seeds at both fields: at most
+    two dens an area and no two within 110 route cells (R-cb05-3), no
+    reversal within eight cells on any route or branch, the foes per area in
+    their bands (R-cb05-4), every dead-end spur rewarded, every area
+    generated under 50 ms at field 200."""
+    for flag, green in (('--den-spacing', 'den-spacing: green'), ('--bends-audit', 'bends: green'),
+                        ('--foe-census', 'foe-census: green'), ('--spurs-audit', 'spurs: green'),
+                        ('--gen-bench', 'gen-bench: green')):
+        p = subprocess.run([str(binary), flag], capture_output=True, text=True)
+        (out / (flag[2:] + '.txt')).write_text(p.stdout + p.stderr)
+        assert p.returncode == 0 and green in p.stdout, (flag, p.returncode, p.stdout[-400:], p.stderr[-400:])
+        if flag == '--den-spacing':
+            least = [int(n) for n in re.findall(r'least \w+(?: an area)? (\d+)', p.stdout)]
+            assert least and min(least) >= 110, ('den spacing under the bar', p.stdout[-200:])
+        if flag == '--bends-audit':
+            rows = [list(map(int, r.split())) for r in p.stdout.splitlines() if r[:1].isdigit()]
+            assert rows and all(r[-1] == 0 for r in rows), 'a reversal within eight cells'
