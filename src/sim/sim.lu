@@ -2590,7 +2590,7 @@ pub const ASHEN_WINDUP: int = 30
 pub const ASHEN_RECOVERY: int = 40
 
 /// The blow.
-pub const ASHEN_DAMAGE: int = 22
+pub const ASHEN_DAMAGE: int = 14
 
 /// A parry's stagger, ticks: twice an ordinary foe's.
 pub const ASHEN_STAGGER: int = 60
@@ -3255,7 +3255,7 @@ pub fn boss_name(kind: int) -> str {
 pub fn foe_health(kind: int) -> int {
     match kind {
         1 => 24,
-        8 => 36,
+        8 => 20,
         4 => 240,
         5 => 140,
         6 => 400,
