@@ -5,8 +5,8 @@ cd "$lane/cub" || exit 2
 rm -f "$lane/linux-final.exit"
 echo $$ > "$lane/linux-final.pid"
 echo "cb04b LINUX head=$(git rev-parse HEAD) start=$(date -u +%FT%TZ)"
-export LAIR_CPUS=4-7 CARGO_INCREMENTAL=0
-flock /home/mfwolffe/lanes/kasumi-cores-4-7.lock taskset -c 4-7 .lair/tools/in-container sh -ec '
+export LAIR_CPUS=12-15 CARGO_INCREMENTAL=0
+flock /home/mfwolffe/lanes/kasumi-cores-12-15.lock taskset -c 12-15 .lair/tools/in-container sh -ec '
     tools/check-linux
     .wolf-bin/wolf test --deny-warnings --nocapture --no-native-fallback --filter cb04b_ src
     rows=$(python3 -I -c '\''import runpy; print(",".join(k for k in runpy.run_path("tests/pty_rows.py")["ROWS"] if k.startswith("cb04b-")))'\'')
