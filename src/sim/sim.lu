@@ -2234,7 +2234,7 @@ pub fn shake_cells(s: Sim) -> (int, int) {
 pub fn shake_cells_of(s: Sim, shake: int) -> (int, int) {
     if shake == 0 { return (0, 0) }
     if s.action == DASH {
-        return if s.body_facing % 2 == 0 then (0, shake) else (shake, 0)
+        return if s.body_facing % 4 == 0 then (0, shake) else (shake, 0)
     }
     // The aim's right-hand unit is (cos h, sin h) with y down; a diagonal
     // has both parts at |181| of 256, a cardinal one at 256 and one at 0.

@@ -312,6 +312,14 @@ fn test_foe_windup_turns_without_pivoting() {
 
 fn test_lunge_staggers_a_surviving_foe_and_hits_once() {
     var s = arena()
+    s.body_facing = 2
+    // Hold the foe's windup on the front ring, outside the cub's body.
+    // The lunge itself must change CROUCH to STAGGER, exactly once.
+    s.foes[0].x = (sim.cub_body(s).x1 + 3) * sim.FP
+    s.foes[0].phase = sim.CROUCH
+    s.foes[0].since = 100000
+    s.foes[0].target_x = s.x
+    s.foes[0].target_y = s.y
     s.foes[0].health = 80
     sim.step(mut s, keys(controls.KEY_LUNGE))
     ticks(mut s, 11)

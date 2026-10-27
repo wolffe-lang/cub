@@ -1,0 +1,16 @@
+cb08 inherited-five-fix start 2026-10-27T08:42:47Z
+cb08 inherited-five-fix waiting for cores 8-11 2026-10-27T08:42:47Z
+cb08 inherited-five-fix acquired cores 4-7 2026-10-27T08:42:47Z
+test src/art_test.lu::test_cb01b_scent_hud_updates_on_kill_death_and_recovery ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 331 filtered out
+test src/combat_test.lu::test_lunge_staggers_a_surviving_foe_and_hits_once ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 331 filtered out
+test src/feel_test.lu::test_cb01b_combo_arcs_lean_and_finish_without_extra_damage ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 331 filtered out
+test src/sprint_test.lu::test_cb03a_every_combo_hits_dead_ahead_contact_cardinals ... ok
+test src/sprint_test.lu::test_cb03a_every_combo_hits_dead_ahead_contact_diagonals ... ok
+wolf test: 2 passed; 0 failed; 0 rejected; 0 unsupported; 330 filtered out
+test src/sprint_test.lu::test_cb03a_snapping_head_checks_the_landing_body_not_the_start ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 331 filtered out
+build: target/native/cub
+inherited-five-fix EXIT 0 2026-10-27T08:43:21Z

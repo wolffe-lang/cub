@@ -115,11 +115,14 @@ fn check_forward_contact(direction: int) {
         f.health = 100
         f.since = 0
         f.last_hit = -1
-        var distance = 2 * sim.FP
+        // Dead ahead means ahead of the jaws, not the anchor: a diagonal
+        // rectangle's front corner is not on its anchor-to-foe ray.
+        let (jx, jy) = sim.jaws(sim.cub_body(s), s.body_facing)
+        var distance = 0
         var contact = false
         while distance <= 12 * sim.FP {
-            f.x = s.x + distance * sim.sin(direction) / sim.FP
-            f.y = s.y - distance * sim.cos(direction) / sim.FP
+            f.x = jx + distance * sim.sin(direction) / sim.FP
+            f.y = jy - distance * sim.cos(direction) / sim.FP
             if !sim.overlap(sim.cub_body(s), sim.foe_body(f)) &&
                 sim.gap(sim.cub_body(s), sim.foe_body(f)) == 0 {
                 contact = true

@@ -261,7 +261,11 @@ fn test_cb01b_each_foe_has_head_body_tail_tell_and_fade_on_both_tiers() {
 fn test_cb01b_scent_hud_updates_on_kill_death_and_recovery() {
     var s = sim.new(7, 80, 24)
     s.heading = 64
-    s.foes[0].x = s.x + sim.FP * 3 / 2
+    s.heading_target = 64
+    s.body_facing = 2
+    // A kill fixture at the jaws, never inside the body to be pushed aside.
+    s.foes[0].heading = 0
+    s.foes[0].x = (sim.cub_body(s).x1 + 1) * sim.FP
     s.foes[0].y = s.y
     sim.step(mut s, one(controls.KEY_BITE))
     var n = 0

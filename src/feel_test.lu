@@ -150,7 +150,11 @@ fn test_cb01b_combo_arcs_lean_and_finish_without_extra_damage() {
     while combo <= 3 {
         var f = sim.new(7, 80, 24)
         f.x = 5 * sim.FP
-        f.foes[0].x = f.x + sim.FP * 6
+        f.body_facing = 2
+        f.heading_target = 64
+        f.foes[0].heading = 0
+        // Measure damage on a front-ring target, not a settling overlap.
+        f.foes[0].x = f.x + 6 * sim.FP
         f.foes[0].y = f.y
         f.foes[0].health = 100
         f.foes[0].phase = sim.STAGGER
