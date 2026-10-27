@@ -705,12 +705,15 @@ def den_world_memory(binary, ctx):
     problems = []
     ctx.common_checks(session, 0, problems)
     states = trace_states(session)
+    # The gate opens on Cinderwick since cb05: a departure leaves the Shingle
+    # for any area, a return comes back into it (the path from the town, the
+    # log from Bramblehold).
     departure = next((a for a, b in zip(states, states[1:])
-                      if a['area'] == 0 and b['area'] == 1), None)
-    returns = [b for a, b in zip(states, states[1:]) if a['area'] == 1 and b['area'] == 0]
+                      if a['area'] == 0 and b['area'] != 0), None)
+    returns = [b for a, b in zip(states, states[1:]) if a['area'] != 0 and b['area'] == 0]
     if departure is None or departure['live_foes'] >= 9:
         problems.append('den-world-memory: witness never killed a Shingle foe')
-    elif len(returns) != 2 or any(b['live_foes'] > departure['live_foes'] for b in returns):
+    elif len(returns) != 3 or any(b['live_foes'] > departure['live_foes'] for b in returns):
         problems.append('den-world-memory: path/log return revived slain Shingle foes')
     if not states or any(v['deaths'] or v['resting'] for v in states):
         problems.append('den-world-memory: a death/rest invalidated the witness')

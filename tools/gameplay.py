@@ -449,9 +449,11 @@ def den_memory(binary):
     assert census.returncode == 0 and '100 journeys failures 0 skips 0' in census.stdout, 'den-memory census revived foes'
     for tier in ('rich', 'plain'):
         _, states, foes = run(binary, 'den-memory', tier)
-        departures = [(t, v) for t, v in states.items() if t + 1 in states and v['area'] == 0 and states[t + 1]['area'] == 1]
-        returns = [t for t, v in states.items() if t > 1 and v['area'] == 0 and states[t - 1]['area'] == 1]
-        assert departures and len(returns) == 2, 'missing path/log crossings'
+        # The gate opens on Cinderwick since cb05: two path returns from the
+        # town and the log's return from Bramblehold.
+        departures = [(t, v) for t, v in states.items() if t + 1 in states and v['area'] == 0 and states[t + 1]['area'] != 0]
+        returns = [t for t, v in states.items() if t > 1 and v['area'] == 0 and states[t - 1]['area'] != 0]
+        assert departures and len(returns) == 3, 'missing path/log crossings'
         killed = {f['foe'] for f in foes[departures[0][0]] if f['health'] <= 0}
         assert killed, 'witness never killed a Shingle foe'
         assert all(any(f['foe'] == i and f['health'] <= 0 for f in foes[t]) for t in returns for i in killed), 'den-memory path/log revived slain foe'

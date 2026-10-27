@@ -81,7 +81,7 @@ def check(binary):
         h = (h * 31 + byte) % 1000000007
     legacy.write_text(payload + 'check ' + str(h) + '\n')
     run('migrate-schema-4', legacy)
-    assert legacy.read_bytes().startswith(b'CUB 5\n') and b'slain 0 0 0 0 0 0\n' in legacy.read_bytes(), 'schema4 migration lost validation/state'
+    assert legacy.read_bytes().startswith(b'CUB 5\n') and b'slain 0 0 0 0 0 0 0\n' in legacy.read_bytes(), 'schema4 migration lost validation/state'
 
     memory = out / 'slain.save'
     memory.unlink(missing_ok=True)
