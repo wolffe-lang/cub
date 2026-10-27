@@ -164,7 +164,12 @@ pub fn den_spacing() -> int {
                         let (bx, by) = den_cell(seed, area, dens[k + 1])
                         let dist = distances(seed, field, area, ax, ay)
                         let d = at_cell(dist, field, area, bx, by)
-                        if d < 0 { print("den-spacing: den {dens[k + 1]} unreached from den {dens[k]} seed {seed} field {field}"); return 1 }
+                        if d < 0 {
+                            print(
+                                "den-spacing: den {dens[k + 1]} unreached from den {dens[k]} seed {seed} field {field}",
+                            )
+                            return 1
+                        }
                         if within_min == 0 || d < within_min { within_min = d }
                         if d > within_max { within_max = d }
                         k += 1
@@ -183,7 +188,9 @@ pub fn den_spacing() -> int {
                         let entry = distances(seed, field, next, 0, 1)
                         let from_entry = at_cell(entry, field, next, fx, fy)
                         if to_exit < 0 || from_entry < 0 {
-                            print("den-spacing: onward walk unreached seed {seed} field {field} area {area}")
+                            print(
+                                "den-spacing: onward walk unreached seed {seed} field {field} area {area}",
+                            )
                             return 1
                         }
                         onward = to_exit + from_entry
@@ -223,7 +230,9 @@ pub fn den_spacing() -> int {
                                     let d = at_cell(there, field, other, x, y)
                                     if d >= 0 && d < b { b = d }
                                 }
-                                if shortcut_min == 0 || a + b < shortcut_min { shortcut_min = a + b }
+                                if shortcut_min == 0 || a + b < shortcut_min {
+                                    shortcut_min = a + b
+                                }
                             }
                         }
                         edge += 1
@@ -270,8 +279,12 @@ pub fn foe_census() -> int {
                         kinds[k] += 1
                     }
                 }
-                print("{seed} {field} {area} {n} {kinds[0]} {kinds[1]} {kinds[2]} {kinds[3]} {kinds[4]}")
-                let big = area == forest.TOWN || area == forest.BRAMBLEHOLD || area == forest.LARKMEADOW
+                print(
+                    "{seed} {field} {area} {n} {kinds[0]} {kinds[1]} {kinds[2]} {kinds[3]} {kinds[4]}",
+                )
+                let big = area == forest.TOWN ||
+                    area == forest.BRAMBLEHOLD ||
+                    area == forest.LARKMEADOW
                 let lo = if big then FOES_BIG_MIN else FOES_LATE_MIN
                 let hi = if big then FOES_BIG_MAX else FOES_LATE_MAX
                 if area != forest.SHINGLE && (n < lo || n > hi) {
@@ -393,7 +406,11 @@ pub fn spurs() -> int {
                     let seen = forest.flood(seed, field, area)
                     var spurs = 0
                     var k = 0
-                    let branches = if area == forest.TOWN || area == forest.SHINGLE then 0 else forest.cache_count(area)
+                    let branches = if area == forest.TOWN || area == forest.SHINGLE {
+                        0
+                    } else {
+                        forest.cache_count(area)
+                    }
                     while k < branches + forest.pocket_count(area) {
                         let (ex, ey) = if k < branches {
                             forest.branch_point(
@@ -407,11 +424,15 @@ pub fn spurs() -> int {
                             forest.pocket_end(seed, area, k - branches)
                         }
                         if !forest.reached(seen, field, area, ex, ey) {
-                            print("spurs: end unreached seed {seed} field {field} area {area} spur {k}")
+                            print(
+                                "spurs: end unreached seed {seed} field {field} area {area} spur {k}",
+                            )
                             return 1
                         }
                         if !named_near(seed, field, area, ex, ey) {
-                            print("spurs: end unnamed seed {seed} field {field} area {area} spur {k} at {ex},{ey}")
+                            print(
+                                "spurs: end unnamed seed {seed} field {field} area {area} spur {k} at {ex},{ey}",
+                            )
                             return 1
                         }
                         spurs += 1

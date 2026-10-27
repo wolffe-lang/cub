@@ -403,7 +403,9 @@ pub fn spine(seed: int, area: int, at: int) -> int {
     // never by a taper: a curve tapered by a factor bends one way and
     // then the other wherever its slope opposes its sign.
     let l = length(area)
-    if area == SHINGLE { return terrain.floor_cells(terrain.meander_ends_fp(seed, 31 + area, at, l)) }
+    if area == SHINGLE {
+        return terrain.floor_cells(terrain.meander_ends_fp(seed, 31 + area, at, l))
+    }
     terrain.floor_cells(route_fp(seed, 31 + area, at, l))
 }
 
@@ -534,8 +536,30 @@ fn shape_of(seed: int, area: int, cache: int, r: int) -> int {
     let n = if r >= 46 then 4 else if r >= 30 then 3 else if r >= 20 then 2 else 1
     // The twenty-four orders of 0..3 as four digits.
     let orders = [
-        123, 132, 213, 231, 312, 321, 1023, 1032, 1203, 1230, 1302, 1320, 2013, 2031, 2103, 2130,
-        2301, 2310, 3012, 3021, 3102, 3120, 3201, 3210,
+        123,
+        132,
+        213,
+        231,
+        312,
+        321,
+        1023,
+        1032,
+        1203,
+        1230,
+        1302,
+        1320,
+        2013,
+        2031,
+        2103,
+        2130,
+        2301,
+        2310,
+        3012,
+        3021,
+        3102,
+        3120,
+        3201,
+        3210,
     ]
     let order = orders[world.hash(seed, area, 90, 24)]
     let digit = if cache == 0 {
@@ -583,7 +607,11 @@ const ARC_Q: int = 12
 /// The branch's geometry, from its mouth's row and the route's column
 /// there (`x0`, one spine evaluation: callers that know it pass it).
 pub fn branch_geom_at(seed: int, field: int, area: int, cache: int, m: int, x0: int) -> Branch {
-    let side = if area == BRAMBLEHOLD then (if x0 > 0 then -1 else 1) else branch_side(seed, area, cache)
+    let side = if area == BRAMBLEHOLD {
+        (if x0 > 0 then -1 else 1)
+    } else {
+        branch_side(seed, area, cache)
+    }
     let edge = half_width(field) - 13 + world.hash(seed, area, cache + 66, 4)
     let r = edge - side * x0
     let shape = shape_of(seed, area, cache, r)
@@ -680,10 +708,7 @@ fn point_on(g: Branch, t: int) -> (int, int) {
             )
         }
         let j = i - ARC_Q
-        return (
-            cx + side * LOOP_RADIUS * qsin(12 - j) / FP,
-            cy + dir * LOOP_RADIUS * qsin(j) / FP,
-        )
+        return (cx + side * LOOP_RADIUS * qsin(12 - j) / FP, cy + dir * LOOP_RADIUS * qsin(j) / FP)
     }
     // The 180-degree turn: out along the row, a half turn, back along the
     // row two radii off for three fifths of the way.
@@ -791,7 +816,11 @@ pub fn in_branch(seed: int, field: int, area: int, cache: int, x: int, at: int) 
         if side * x < 0 - 24 - BRANCH_HALF { return false }
     }
     let x0 = spine(seed, area, m)
-    let side = if area == BRAMBLEHOLD then (if x0 > 0 then -1 else 1) else branch_side(seed, area, cache)
+    let side = if area == BRAMBLEHOLD {
+        (if x0 > 0 then -1 else 1)
+    } else {
+        branch_side(seed, area, cache)
+    }
     if side * (x - x0) < 0 - BRANCH_HALF { return false }
     on_branch(branch_geom_at(seed, field, area, cache, m, x0), x, at)
 }
@@ -801,7 +830,13 @@ pub fn in_branch(seed: int, field: int, area: int, cache: int, x: int, at: int) 
 /// with an old scent mark in it. Two in Bramblehold, one each in the
 /// meadow, the Teeth and Gravehollow.
 pub fn pocket_count(area: int) -> int {
-    if area == BRAMBLEHOLD then 2 else if area == LARKMEADOW || area == CRAGS || area == OLDDEN then 1 else 0
+    if area == BRAMBLEHOLD {
+        2
+    } else if area == LARKMEADOW || area == CRAGS || area == OLDDEN {
+        1
+    } else {
+        0
+    }
 }
 
 /// A pocket's row and side.

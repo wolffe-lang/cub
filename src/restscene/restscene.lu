@@ -22,7 +22,6 @@ pub fn background(area: int, t: int) -> int {
     }
 }
 
-
 fn ellipse(x: int, y: int, cx: int, cy: int, rx: int, ry: int) -> bool {
     let dx = x - cx
     let dy = y - cy
@@ -131,7 +130,10 @@ fn surroundings(s: sim.Sim, t: int, mut g: grid.Grid, floor: int) {
                     cp = if t == tier.PLAIN then 79 else 0x25CF
                     fg = if t == tier.PLAIN then 7 else 245
                 }
-                if y > 11 && (x * 5 + y) % 11 == 0 { cp = 46; fg = if t == tier.PLAIN then 8 else 240 }
+                if y > 11 && (x * 5 + y) % 11 == 0 {
+                    cp = 46
+                    fg = if t == tier.PLAIN then 8 else 240
+                }
                 if (x == 4 || x == 75) && y == 6 {
                     cp = 42
                     fg = if t == tier.PLAIN then 9 else 208

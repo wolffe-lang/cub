@@ -2268,11 +2268,9 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
         var guard = 0
         while guard < (if cache == 0 then 3 else if cache == 1 then 2 else 1) {
             let (gx, gy) = forest.branch_point(seed, field, area, cache, len - 3 - guard * wide)
-            (mut foes).push(make_foe(
-                kind,
-                gx * FP + FP / 2,
-                (forest.origin(seed, area) + gy) * FP + FP / 2,
-            ))
+            (mut foes).push(
+                make_foe(kind, gx * FP + FP / 2, (forest.origin(seed, area) + gy) * FP + FP / 2),
+            )
             guard += 1
         }
         cache += 1
@@ -2323,7 +2321,20 @@ pub fn group_plan(seed: int, area: int, g: int) -> (int, int, int, int) {
         return if g == 1 then (row, 1, FOX, FOX) else (row, 2, WEASEL, WEASEL)
     }
     if area == forest.TOWN {
-        let row = (if g == 0 then 40 else if g == 1 then 68 else if g == 2 then 184 else if g == 3 then 212 else 244) + jitter
+        let row = (
+            if g == 0 {
+                40
+            } else if g == 1 {
+                68
+            } else if g == 2 {
+                184
+            } else if g == 3 {
+                212
+            } else {
+                244
+            }
+        ) +
+            jitter
         return (row, 2, ASHEN, ASHEN)
     }
     if area == forest.BRAMBLEHOLD {
@@ -2337,7 +2348,20 @@ pub fn group_plan(seed: int, area: int, g: int) -> (int, int, int, int) {
         return (row, 2, HAWK, DEER)
     }
     if area == forest.CRAGS {
-        let row = (if g == 0 then 40 else if g == 1 then 72 else if g == 2 then 104 else if g == 3 then 184 else 204) + jitter
+        let row = (
+            if g == 0 {
+                40
+            } else if g == 1 {
+                72
+            } else if g == 2 {
+                104
+            } else if g == 3 {
+                184
+            } else {
+                204
+            }
+        ) +
+            jitter
         if g == 1 || g == 4 { return (row, 1, HAWK, HAWK) }
         return if g == 2 then (row, 2, WEASEL, WEASEL) else (row, 2, FOX, FOX)
     }

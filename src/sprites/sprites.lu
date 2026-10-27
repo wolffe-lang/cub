@@ -237,7 +237,15 @@ fn rich(sprite: int, v: int) -> grid.Cell {
         9 =>
             c(
                 t,
-                if v % 4 == 0 then 32 else if v % 4 == 1 then 0x2802 else if v % 4 == 2 then 0x2810 else 0xB7,
+                if v % 4 == 0 {
+                    32
+                } else if v % 4 == 1 {
+                    0x2802
+                } else if v % 4 == 2 {
+                    0x2810
+                } else {
+                    0xB7
+                },
                 C_MARK,
                 C_GRAVEL,
                 0,

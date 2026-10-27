@@ -77,7 +77,10 @@ fn test_cb05_two_dens_an_area_at_least_a_den_spacing_apart() {
         assert(forest.den_count(area) >= 1, "a den in area {area}")
         area += 1
     }
-    assert(forest.den_count(forest.BRAMBLEHOLD) == 2 && forest.den_count(forest.LARKMEADOW) == 2, "two")
+    assert(
+        forest.den_count(forest.BRAMBLEHOLD) == 2 && forest.den_count(forest.LARKMEADOW) == 2,
+        "two",
+    )
     assert(forest.DEN_SPACING == 110, "the bar")
     var seed = 0
     while seed < 50 {
@@ -85,9 +88,18 @@ fn test_cb05_two_dens_an_area_at_least_a_den_spacing_apart() {
             let (a, b) = pair
             let (_, ay) = den_cell(seed, a)
             let (_, by) = den_cell(seed, b)
-            assert(abs(ay - by) >= 90, "dens {a} and {b} are {abs(ay - by)} rows apart, seed {seed}")
             assert(
-                !forest.blocked(seed, 80, forest.den_area(a), forest.spine(seed, forest.den_area(a), ay), ay),
+                abs(ay - by) >= 90,
+                "dens {a} and {b} are {abs(ay - by)} rows apart, seed {seed}",
+            )
+            assert(
+                !forest.blocked(
+                    seed,
+                    80,
+                    forest.den_area(a),
+                    forest.spine(seed, forest.den_area(a), ay),
+                    ay,
+                ),
                 "den {a} on open ground seed {seed}",
             )
         }
@@ -97,7 +109,10 @@ fn test_cb05_two_dens_an_area_at_least_a_den_spacing_apart() {
 
 fn test_cb05_the_retired_dens_are_landmarks_and_their_journeys_wake_at_a_kept_den() {
     assert(!forest.den_exists(8) && !forest.den_exists(9) && !forest.den_exists(10), "retired")
-    assert(forest.den_retired(8) && forest.den_retired(9) && forest.den_retired(10), "named retired")
+    assert(
+        forest.den_retired(8) && forest.den_retired(9) && forest.den_retired(10),
+        "named retired",
+    )
     assert(!forest.den_retired(7) && forest.den_exists(7) && forest.den_exists(11), "kept")
     assert(forest.den_area(8) < 0 && forest.den_area(7) == forest.TOWN, "areas")
     // A schema-4 save whose last den is the coal roots wakes at the briar
@@ -118,13 +133,22 @@ fn test_cb05_the_retired_dens_are_landmarks_and_their_journeys_wake_at_a_kept_de
     assert(sim.near(back.x, back.y, x, y, 2 * sim.FP), "standing at the kept den")
     // The meadow's two retired dens stood at 66 and 90 of 160 rows: at 288
     // rows both lie nearer the high den (row 190) than the low (row 24).
-    assert(forest.nearest_kept_den(3, 9) == 11 && forest.nearest_kept_den(3, 10) == 11, "the meadow's")
+    assert(
+        forest.nearest_kept_den(3, 9) == 11 && forest.nearest_kept_den(3, 10) == 11,
+        "the meadow's",
+    )
     assert(forest.nearest_kept_den(3, 8) == 2, "the thicket's")
 }
 
 fn test_cb05_sixteen_cache_bits_and_the_town_graph() {
-    assert(forest.cache_bit(forest.TOWN, 3) == 11 && forest.cache_bit(forest.BRAMBLEHOLD, 2) == 12, "bits")
-    assert(forest.cache_bit(forest.LARKMEADOW, 2) == 13 && forest.cache_bit(forest.LARKMEADOW, 1) == 7, "old bits kept")
+    assert(
+        forest.cache_bit(forest.TOWN, 3) == 11 && forest.cache_bit(forest.BRAMBLEHOLD, 2) == 12,
+        "bits",
+    )
+    assert(
+        forest.cache_bit(forest.LARKMEADOW, 2) == 13 && forest.cache_bit(forest.LARKMEADOW, 1) == 7,
+        "old bits kept",
+    )
     var s = sim.new(1, 80, 24)
     s.gate_open = true
     s.caches = 65535
@@ -134,7 +158,10 @@ fn test_cb05_sixteen_cache_bits_and_the_town_graph() {
     }
     assert(back.caches == 65535, "every cache bit survives")
     assert(forest.other(forest.SHINGLE, 0) == forest.TOWN, "the gate opens on the town")
-    assert(forest.exit_end(forest.TOWN, 9) && !forest.exit_end(forest.TOWN, 0), "the town's two ends")
+    assert(
+        forest.exit_end(forest.TOWN, 9) && !forest.exit_end(forest.TOWN, 0),
+        "the town's two ends",
+    )
     assert(forest.length(forest.TOWN) == 288 && forest.length(forest.CRAGS) == 224, "lengths")
     assert(forest.length(forest.SHINGLE) == forest.LENGTH, "the tutorial's length stands")
 }
@@ -167,7 +194,9 @@ fn test_cb05_no_branch_or_route_reverses_within_eight_cells() {
                         if abs(cross) >= wide.BEND_TURN {
                             let sign = if cross > 0 then 1 else -1
                             assert(
-                                last_sign == 0 || sign == last_sign || t - last_at > wide.BEND_WINDOW,
+                                last_sign == 0 ||
+                                    sign == last_sign ||
+                                    t - last_at > wide.BEND_WINDOW,
                                 "a reversal within eight cells: seed {seed} field {field} area {area} path {path} at {t}",
                             )
                             last_sign = sign
@@ -233,7 +262,10 @@ fn test_cb05_every_branch_centreline_is_carved_and_open() {
         }
         s2 += 1
     }
-    assert(seen[0] && seen[1] && seen[2] && seen[3], "a slow S, a hook, a loop and a 180-degree turn")
+    assert(
+        seen[0] && seen[1] && seen[2] && seen[3],
+        "a slow S, a hook, a loop and a 180-degree turn",
+    )
 }
 
 fn town_cub(seed: int) -> sim.Sim {
@@ -253,7 +285,10 @@ fn test_cb05_an_ashen_never_chases_past_the_towns_edge() {
     let edge = town.top(town.PLOTS - 1) + town.PITCH + town.EDGE_ROWS
     s.x = town.lane(5, edge + 8) * sim.FP + sim.FP / 2
     s.y = (edge + 8) * sim.FP + sim.FP / 2
-    var f = sim.make_ashen(town.lane(5, edge - 2) * sim.FP + sim.FP / 2, (edge - 2) * sim.FP + sim.FP / 2)
+    var f = sim.make_ashen(
+        town.lane(5, edge - 2) * sim.FP + sim.FP / 2,
+        (edge - 2) * sim.FP + sim.FP / 2,
+    )
     (mut s.foes).push(f)
     var keys = List[int]()
     (mut keys).push(controls.KEY_DOWN)
@@ -299,7 +334,10 @@ fn test_cb05_the_ashen_winds_up_slowly_is_parried_long_and_bitten_from_behind() 
     var n = 0
     while n < 60 && s.foes[0].phase != sim.STRIKE { sim.step(mut s, List[int]()); n += 1 }
     assert(s.foes[0].phase == sim.STRIKE, "the arms rose, then the blow")
-    assert(s.tick - wound_at == sim.ASHEN_WINDUP, "the windup is {sim.ASHEN_WINDUP} ticks: {s.tick - wound_at}")
+    assert(
+        s.tick - wound_at == sim.ASHEN_WINDUP,
+        "the windup is {sim.ASHEN_WINDUP} ticks: {s.tick - wound_at}",
+    )
     // Parried in the window: a long stagger, the riposte open.
     var t = town_cub(2)
     assert(ashen_in_reach(mut t) > 0, "again")
@@ -314,7 +352,10 @@ fn test_cb05_the_ashen_winds_up_slowly_is_parried_long_and_bitten_from_behind() 
     while n < 70 && t.foes[0].phase == sim.STRIKE { sim.step(mut t, List[int]()); n += 1 }
     assert(t.foes[0].phase == sim.STAGGER, "parried: the Ashen staggers, phase {t.foes[0].phase}")
     assert(t.health == sim.health_max(1), "no blow landed: {t.health}")
-    assert(t.riposte - t.tick == sim.ASHEN_STAGGER, "the riposte stays open {sim.ASHEN_STAGGER} ticks")
+    assert(
+        t.riposte - t.tick == sim.ASHEN_STAGGER,
+        "the riposte stays open {sim.ASHEN_STAGGER} ticks",
+    )
     var held = 0
     while t.foes[0].phase == sim.STAGGER && held < 100 { sim.step(mut t, List[int]()); held += 1 }
     assert(held == sim.ASHEN_STAGGER, "the stagger lasts {sim.ASHEN_STAGGER} ticks: {held}")
@@ -330,7 +371,10 @@ fn test_cb05_the_ashen_winds_up_slowly_is_parried_long_and_bitten_from_behind() 
     var up = List[int]()
     (mut up).push(controls.KEY_UP)
     var m = 0
-    while m < 30 && sim.gap(sim.cub_body(u), sim.foe_body(u.foes[0])) > 0 { sim.step(mut u, copy up); m += 1 }
+    while m < 30 && sim.gap(sim.cub_body(u), sim.foe_body(u.foes[0])) > 0 {
+        sim.step(mut u, copy up)
+        m += 1
+    }
     assert(sim.gap(sim.cub_body(u), sim.foe_body(u.foes[0])) == 0, "behind it, touching")
     assert(u.foes[0].heading == 0, "it faces away still")
     u.heading = 0
@@ -357,7 +401,10 @@ fn test_cb05_an_ember_burns_a_little_and_a_dug_cache_says_its_line() {
     let before = s.health
     var n = 0
     while n < sim.EMBER_TICKS * 3 { sim.step(mut s, List[int]()); n += 1 }
-    assert(s.health == before - 3 * sim.EMBER_HURT, "the ember's heat: {before - s.health} over thirty ticks")
+    assert(
+        s.health == before - 3 * sim.EMBER_HURT,
+        "the ember's heat: {before - s.health} over thirty ticks",
+    )
     // Dig the town's third cache: a lore line, shown for LINE_TICKS.
     let (cx, cy) = forest.cache_position(4, 80, forest.TOWN, 2)
     s.x = cx
@@ -367,12 +414,19 @@ fn test_cb05_an_ember_burns_a_little_and_a_dug_cache_says_its_line() {
     sim.step(mut s, dig)
     let (reward, line) = sim.cache_reward(forest.TOWN, 2)
     assert(reward == lore.LORE && line == lore.TOWN_FIRE, "the fire's line")
-    assert(s.lore == lore.TOWN_FIRE && s.lore_until == s.tick + lore.LINE_TICKS, "the line is shown")
+    assert(
+        s.lore == lore.TOWN_FIRE && s.lore_until == s.tick + lore.LINE_TICKS,
+        "the line is shown",
+    )
     assert(sim.cache_open(s, 2) && s.marrow == 0, "a lore cache gives no pouch")
     var k = 0
     while k < lore.LINE_TICKS { sim.step(mut s, List[int]()); k += 1 }
     assert(s.lore < 0, "the line lapses")
-    assert(lore.line(lore.TOWN_FIRE).contains("last warm hollow") || lore.line(lore.TOWN_FIRE).contains("still warm"), "it says where the fire went")
+    assert(
+        lore.line(lore.TOWN_FIRE).contains("last warm hollow") ||
+            lore.line(lore.TOWN_FIRE).contains("still warm"),
+        "it says where the fire went",
+    )
     // The marrow yard.
     let (r1, _) = sim.cache_reward(forest.TOWN, 1)
     assert(r1 == lore.MARROW, "the second yard's marrow")
@@ -389,8 +443,14 @@ fn test_cb05_the_towns_yards_and_hearth_are_reached_through_their_passages() {
         // The lane past the thorn collar at the town's start.
         var at = forest.thorn_row(seed, forest.TOWN) + 1
         while at <= forest.length(forest.TOWN) {
-            assert(forest.kind(seed, 80, forest.TOWN, town.lane(seed, at), at) != terrain.WALL, "the lane row {at}")
-            assert(!forest.blocked(seed, 80, forest.TOWN, town.lane(seed, at), at), "the lane open row {at}")
+            assert(
+                forest.kind(seed, 80, forest.TOWN, town.lane(seed, at), at) != terrain.WALL,
+                "the lane row {at}",
+            )
+            assert(
+                !forest.blocked(seed, 80, forest.TOWN, town.lane(seed, at), at),
+                "the lane open row {at}",
+            )
             at += 1
         }
         var c = 0
@@ -401,7 +461,10 @@ fn test_cb05_the_towns_yards_and_hearth_are_reached_through_their_passages() {
             let (side, plot) = town.cache_plot(c)
             let (near, far) = town.house_x(seed, side, plot)
             assert(forest.kind(seed, 80, forest.TOWN, lx, ly) == terrain.ASH, "a yard is ash")
-            assert(forest.kind(seed, 80, forest.TOWN, far, ly) == terrain.WALL, "the far wall stands")
+            assert(
+                forest.kind(seed, 80, forest.TOWN, far, ly) == terrain.WALL,
+                "the far wall stands",
+            )
             let (which, past) = town.yard_gap(seed, side, plot)
             let gap_row = if which == 0 then town.top(plot) else town.bottom(plot)
             let passage = if which == 0 then town.top(plot) - 1 else town.bottom(plot) + 1
@@ -425,12 +488,21 @@ fn test_cb05_the_towns_yards_and_hearth_are_reached_through_their_passages() {
             // One cell wide: the house's corners on the passage's side stand
             // (a ruin's fallen cells lie between them, never at a corner).
             let house_row = if which == 0 then town.top(plot) else town.bottom(plot)
-            assert(forest.kind(seed, 80, forest.TOWN, far, house_row) == terrain.WALL, "the far corner stands")
-            assert(forest.kind(seed, 80, forest.TOWN, near, house_row) == terrain.WALL, "the near corner stands")
+            assert(
+                forest.kind(seed, 80, forest.TOWN, far, house_row) == terrain.WALL,
+                "the far corner stands",
+            )
+            assert(
+                forest.kind(seed, 80, forest.TOWN, near, house_row) == terrain.WALL,
+                "the near corner stands",
+            )
             c += 1
         }
         let (hx, hy) = den_cell(seed, 7)
-        assert(forest.kind(seed, 80, forest.TOWN, hx, hy) == terrain.ASH, "the hearth on ash seed {seed}")
+        assert(
+            forest.kind(seed, 80, forest.TOWN, hx, hy) == terrain.ASH,
+            "the hearth on ash seed {seed}",
+        )
         seed += 1
     }
     assert(town.PASSAGE == 1, "single file")
@@ -449,8 +521,16 @@ fn test_cb05_the_landmarks_stand_on_open_ground_within_sight_of_their_dens() {
                     "landmark {k} of area {area} open, seed {seed}",
                 )
                 assert(ly == forest.landmark_row(seed, area, k), "the row guard agrees")
-                if kind == forest.LM_SPLIT_OAK || kind == forest.LM_CLEFT || kind == forest.LM_WILLOW {
-                    let den = if kind == forest.LM_SPLIT_OAK then 1 else if kind == forest.LM_CLEFT then 4 else 5
+                if kind == forest.LM_SPLIT_OAK ||
+                    kind == forest.LM_CLEFT ||
+                    kind == forest.LM_WILLOW {
+                    let den = if kind == forest.LM_SPLIT_OAK {
+                        1
+                    } else if kind == forest.LM_CLEFT {
+                        4
+                    } else {
+                        5
+                    }
                     let (dx, dy) = den_cell(seed, den)
                     assert(abs(dx - lx) <= 8 && abs(dy - ly) <= 3, "within sight of den {den}")
                 }
@@ -460,5 +540,8 @@ fn test_cb05_the_landmarks_stand_on_open_ground_within_sight_of_their_dens() {
         }
         seed += 1
     }
-    assert(forest.landmark_count(forest.LARKMEADOW) == 4 && forest.landmark_count(forest.TOWN) == 2, "counts")
+    assert(
+        forest.landmark_count(forest.LARKMEADOW) == 4 && forest.landmark_count(forest.TOWN) == 2,
+        "counts",
+    )
 }
