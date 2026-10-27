@@ -180,7 +180,11 @@ tests, native and release builds, decoder selftest, both-tier replay goldens
 and posture sheets, every combo/roll frame, scaled bars and rally, the score's PCM goldens and loop seams on both backends
 (`tools/score-check`), shipping-binary gameplay and persistence assertions,
 pty restoration and replay agreement, exact held-key and eight-direction chord rows, regional rest scenes at80×24 and120×40,
-found-water/drink/refill and last-den respawn, and performance. `tools/check-linux`
+found-water/drink/refill and last-den respawn, and performance. Both platform gates
+also bound resident growth to4096 bytes per actual tick over a resumed checkpoint
+and fresh seed (`sh tools/check-memory target/release/cub`). Frame scratch is
+reclaimed after drawing; idle save checks reuse fixed-size numeric snapshots.
+`tools/check-linux`
 runs correctness inside `.lair/tools/in-container`; `tools/check-perf`
 measures rendering, idle wakes and key-to-frame latency.
 
@@ -242,7 +246,8 @@ save, named save failures, and self-contained resumed recordings. Physical
 font-width and named-terminal keyboard measurements remain open.
 
 macOS loudly skips the Linux-only idle counter; Linux measures it. CI runs
-Linux correctness on every PR, adding macOS and performance in the full tier.
+Linux correctness, including the resident-memory gate, on every PR; macOS,
+its resident-memory row and performance join it in the full tier.
 
 ## Documents
 
