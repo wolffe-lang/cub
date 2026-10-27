@@ -34,17 +34,17 @@ t 0 saved-27 0
 t 0 saved-28 0
 t 0 saved-29 4
 t 0 release
-t 1 right
-t 2 right
-t 3 right
-t 4 right
-t 5 right
-t 6 right
-t 7 right
-t 8 right
-t 9 right
-t 10 right
-t 11 right
+t 1 down
+t 2 down
+t 3 down
+t 4 down
+t 5 down
+t 6 down
+t 7 down
+t 8 down
+t 9 down
+t 10 down
+t 11 down
 t 12 down
 t 13 down
 t 14 down
@@ -271,12 +271,12 @@ t 234 down
 t 235 down
 t 236 down
 t 237 down
-t 238 down
-t 239 down
-t 240 down
-t 241 down
-t 242 down
-t 243 down
+t 237 left
+t 238 left
+t 239 left
+t 240 left
+t 241 left
+t 242 left
 t 243 left
 t 244 left
 t 245 left
@@ -329,16 +329,19 @@ t 291 left
 t 292 left
 t 293 left
 t 294 left
+t 295 down
 t 295 left
-t 296 left
-t 297 left
-t 298 left
-t 299 left
-t 300 left
+t 296 down
+t 297 down
+t 298 down
+t 299 down
+t 300 down
 t 301 down
-t 302 down
-t 303 down
+t 301 right
+t 302 right
+t 303 right
 t 304 down
+t 304 right
 t 305 down
 t 306 down
 t 307 down
@@ -354,9 +357,5 @@ t 316 down
 t 317 down
 t 318 down
 t 319 down
-t 320 down
-t 321 down
-t 322 down
-t 323 down
 
-# frames 330 every 1 from 330
+# frames 326 every 1 from 326

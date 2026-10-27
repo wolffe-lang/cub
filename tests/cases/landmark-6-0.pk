@@ -144,13 +144,14 @@ t 107 right
 t 108 right
 t 109 right
 t 110 right
-t 111 down
-t 112 down
-t 113 down
-t 114 down
-t 115 down
-t 116 down
+t 111 right
+t 112 right
+t 113 right
+t 114 right
+t 115 right
+t 116 right
 t 117 down
+t 117 right
 t 118 down
 t 119 down
 t 120 down
@@ -192,14 +193,12 @@ t 155 down
 t 156 down
 t 157 down
 t 158 down
-t 158 right
-t 159 right
-t 160 right
-t 161 right
-t 162 right
-t 163 right
+t 159 down
+t 160 down
+t 161 down
+t 162 down
+t 163 down
 t 164 down
-t 164 right
 t 165 down
 t 166 down
 t 167 down
@@ -226,5 +225,6 @@ t 187 down
 t 188 down
 t 189 down
 t 190 down
+t 191 down
 
-# frames 197 every 1 from 197
+# frames 198 every 1 from 198
