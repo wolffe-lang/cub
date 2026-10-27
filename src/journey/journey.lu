@@ -156,7 +156,7 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
         return save_corrupt
     }
     if s.caches < 0 ||
-        s.caches > 255 ||
+        s.caches > 65535 ||
         s.yarrow < 0 ||
         s.yarrow > 6 ||
         s.marrow < 0 ||
@@ -174,7 +174,7 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
         s.scent < 0 ||
         s.scent > 1000000000 ||
         s.last_den < 0 ||
-        !forest.den_exists(s.last_den) ||
+        !(forest.den_exists(s.last_den) || forest.den_retired(s.last_den)) ||
         s.lit_dens < 1 ||
         s.lit_dens > 65535 ||
         s.shortcuts < 0 ||
@@ -197,10 +197,13 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
         s.mark_scent > 1000000000 {
         return save_corrupt
     }
-    // Reserved ids may not appear as found until their locations exist.
+    // Reserved ids may not appear as found until their locations exist; a
+    // retired den (cb05) may, from before its retirement.
     var den = 0
     while den < forest.DEN_LIMIT {
-        if !forest.den_exists(den) && sim.light_den(s.lit_dens, den) == s.lit_dens {
+        if !forest.den_exists(den) &&
+            !forest.den_retired(den) &&
+            sim.light_den(s.lit_dens, den) == s.lit_dens {
             return save_corrupt
         }
         den += 1
