@@ -26,3 +26,15 @@ crack: 150 ticks / 5 seconds, one original part at 144 BPM in 4/4, three bars. S
 Prediction: busiest 200x60 frame, actual Shingle under a blink mask, below 12 ms rich and 10 ms plain in the release build on kasumi CPUs 0-3. Measure rendered frame cost, not build time. Opening terrain is bounded to one grid plus linear overlays; no engine changes.
 
 Tests: shot-boundary and skip tests, disjoint sky/ice/deep-water style sets, first blink never fully open, cue at first crack, all shot goldens on 80x24 / 120x40 / 200x60 and both tiers, unskipped and per-shot skip pty rows, PCM golden on Linux/macOS. Plants on cb06-plant-blink and cb06-plant-cue, draft PRs. Preserve replay syntax and save schema; old opening recordings intentionally adopt the new animation/timing, with compatibility documented.
+
+Item 5 amendment, after play of a7a9603f (2026-10-26 local): reuse
+art.draw_pose / art.draw_wolf and their exact silhouette footprints,
+normal in-game fur except the existing dark-on-ice shade. Sample both
+banks through art.ground_at in forest.SHINGLE: shared gravel-band
+coordinates, then real closed-forest coordinates, never a second glyph
+or palette table. Reserve 5 gravel rows at 80x24 and the widened Shingle's
+7 at 120x40 / 200x60; 2 / 4 / 6 rows of thick forest on both banks.
+The shot table and cue stay unchanged. Predict the busiest frame remains
+the waking view, below the original 12 ms rich / 10 ms plain limits.
+Add rendered source-pair and exact sprite-footprint tests before changing
+implementation, then refresh all opening goldens and measure again.
