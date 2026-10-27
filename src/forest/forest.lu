@@ -362,20 +362,22 @@ pub const ROUTE_LATTICE: int = 32
 pub const SWEEP_ANCHORS: int = 6
 
 /// Bramblehold's switchbacks (cb03a, lengthened by cb05): six legs of
-/// thirty-six rows between rows 16 and 232 swinging `amp` (24..28) cells
+/// thirty-six rows between rows 20 and 236 swinging `amp` (24..28) cells
 /// either side (a wider swing than cb03a's 18..22, so the longer legs
 /// still meet at ninety degrees), a taper in over the first sixteen rows
 /// and out over the last fifty-six. The first den and final exit remain fixed, with short
 /// tapered approaches rather than a long straight corridor.
 fn switchback(seed: int, at: int) -> int {
     let amp = 24 + world.hash(seed, 91, 0, 5)
-    // The way in eases out of the doorway (cb05): a smoothstep over the
-    // first sixteen rows keeps the arrival cell on the route (a linear
-    // taper at this swing left x = 0 off it four rows in).
-    if at < 16 { return 0 - amp * ss(at * FP / 16) / FP }
-    if at >= 232 { return -amp * (LENGTH_MAX - at) / 56 }
-    let leg = (at - 16) / 36
-    let part = (at - 16) % 36
+    // The way in (cb05): four rows straight from the doorway, so the
+    // arrival cell stays on the route, then one straight slant to the
+    // first apex (a smoothstep here bent one way and then the other
+    // within eight rows: a reversal the bends census sees).
+    if at < 4 { return 0 }
+    if at < 20 { return 0 - amp * (at - 4) / 16 }
+    if at >= 236 { return -amp * (LENGTH_MAX - at) / 52 }
+    let leg = (at - 20) / 36
+    let part = (at - 20) % 36
     let sign = if leg % 2 == 0 then -1 else 1
     sign * (amp - 2 * amp * part / 36)
 }
@@ -385,8 +387,8 @@ fn switchback(seed: int, at: int) -> int {
 /// ride the short meander on the long sweep, tapered to the portals.
 pub fn spine(seed: int, area: int, at: int) -> int {
     if area == BRAMBLEHOLD {
-        let part = (at - 16 + 2 + 36) % 36
-        if at < 14 || at > 234 || part > 4 { return switchback(seed, at) }
+        let part = (at - 20 + 2 + 36) % 36
+        if at < 18 || at > 238 || part > 4 { return switchback(seed, at) }
         return (
             switchback(seed, at - 2) +
                 2 * switchback(seed, at - 1) +
@@ -1647,11 +1649,11 @@ fn in_clearing(seed: int, x: int, y: int) -> bool {
 }
 
 /// Count bends whose incoming/outgoing route vectors turn at least 90
-/// degrees (the switchbacks' apexes, rows 16 + 36 k).
+/// degrees (the switchbacks' apexes, rows 20 + 36 k).
 pub fn switchbacks(seed: int) -> int {
     var count = 0
-    var at = 16
-    while at <= 232 {
+    var at = 20
+    while at <= 236 {
         let a = spine(seed, BRAMBLEHOLD, at) - spine(seed, BRAMBLEHOLD, at - 8)
         let b = spine(seed, BRAMBLEHOLD, at + 8) - spine(seed, BRAMBLEHOLD, at)
         if a * b + 64 <= 0 { count += 1 }
