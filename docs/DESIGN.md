@@ -1321,3 +1321,43 @@ rows on the plain tier; B: `digits.stroke_glyph`, a three-row font of `_` and `|
 width). R-cb07-5 `art.SCENT_LABEL_ALWAYS` (A true: the label stays beside four digits, fourteen columns;
 B: the label drops at four digits). `hud_plan_with` and `digits.plain_cells_of` take the switches as
 arguments so the B paths are tested without flipping them.
+## Eight-way bodies and jaw reach (cb08)
+
+The cub's body facing is the clockwise eighth, north0 through north-west7.
+Even eighths use the original cardinal drawing; odd eighths use the second,
+north-east drawing turned by quarters. Its16×16-pixel extent gives an8×4-cell
+body; the grown diagonal wolf is24×24 pixels,12×6 cells. Foes keep their
+four-way drawings. Actor separation, presentation clipping and doorway
+shadows use these exact rectangles. Terrain clearance remains anchor-based:
+this change does not widen paths or close their single-file passages.
+
+A strike starts at the front edge of that body, at its leading cell centre
+on a directed axis and the transverse midpoint on a cardinal facing. The
+cone uses the committed attack direction, including the first two strikes'
+slants. It tests every foe body-cell centre, not the foe's anchor. Reach
+keeps the existing cell metric: at most2 cells on either axis for a bite,
+4 for lunge, heavy and dash. A qualifying jaw-to-cell ray must be clear
+outside both bodies. Alpha guard, hawk exclusion, damage and once-per-action
+hit accounting are unchanged. The boar's travelling charge already tests
+body overlap; an edge-contact/one-cell-outside witness covers all four
+diagonal cub facings without changing its rule.
+
+`--hit-census` freezes each boss and an Ashen and strikes every body-ring
+position at gaps0–2, with eight aims and four foe quarters. It uses the
+unslanted third bite to isolate the aim geometry; separate tests cover the
+first two slants and every attack type. `tools/hit-census.py` independently
+checks complete ring membership, reports into/along/away aims by gap, and
+requires every inward gap0/1 bite to land, every away bite to miss, and every
+gap2 bite to remain beyond reach. Lateral targets admitted by the old
+body-gap/centre-cone combination can now lie beyond the jaws' reach; losing
+those hits is intentional, not a wider cone.
+
+`--narrow-audit AREA LENGTH` drives both diagonal chords across every open
+axial edge of each single-file corridor, fifty seeds at fields80/200. It
+uses real movement keys, without foes and with disclosed extra health to
+isolate clearance from ember damage. A legal diagonal exit at a corridor
+mouth counts when the axial boundary is crossed into passable ground.
+The independent crossing census retains ordinary combat, starting health
+and its existing9-of-10 survival bar. Its scripted walker aligns to a
+non-overlapping jaw stance before biting; that is a witness tactic, not a
+new player rule or a mutation of the running simulation.

@@ -110,6 +110,8 @@ fn usage_text() -> str {
         "  cub --encounter-census            one posted Ashen against a fresh cub, ten seeds at both fields\n" +
         "  cub --look-audit                  fifty-seed world sprite census\n" +
         "  cub --paths-audit / --doorways-audit / --foes-audit  route and clipping censuses\n" +
+        "  cub --hit-census                  every boss/Ashen body-ring bite, as CSV\n" +
+        "  cub --narrow-audit AREA LENGTH    diagonal single-file clearance, fifty seeds\n" +
         "  cub --probe-glyphs                measure the rich glyphs' widths here\n" +
         "  cub --selftest                    the decoder table and the diff property, on THIS binary\n\n" +
         "  keys: arrows walk (the cub turns at its turn rate), Shift+arrow sneaks,\n" +

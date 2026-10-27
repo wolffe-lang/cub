@@ -394,8 +394,8 @@ fn plain_cub(facing: int, pose: int, tail: int, rising: bool, hurt: int) -> List
     rows
 }
 
-/// Draw the cub at its own cell `(row, col)` facing `facing` (0 north, 1
-/// east, 2 south, 3 west) with stamina `band`, standing (or panting when
+/// Draw the cub at its own cell `(row, col)` facing the clockwise eighth
+/// `facing` (0 north through 7 north-west), standing (or panting when
 /// spent), the paws and tail at rest. Rich:
 /// one silhouette turned to the facing (`silhouette.cub`); plain: the
 /// same footprint in ASCII. The ground shows through unlit cells.
@@ -500,7 +500,7 @@ pub fn draw_actor(s: sim.Sim, t: int, mut g: grid.Grid) {
     let r = sim.screen_row(s) + sim.floor_div(s.y + oy, sim.FP) - sim.camera_y(s)
     let c = sim.screen_col(s) + sim.floor_div(s.x + ox, sim.FP) - sim.camera_x(s)
     // The body's facing (cb02c): the aim's during an attack, the heading's
-    // quarter otherwise, held while a swing has no room for it.
+    // eighth otherwise, held while a swing has no room for it.
     let facing = s.body_facing
     let pose = if pose_of(s) == 4 then 0 else pose_of(s)
     if s.end &&

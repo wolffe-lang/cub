@@ -87,6 +87,13 @@ keeps its separate side-view drawing. Plain mode uses the same occupied
 cells in ASCII, with a slanted muzzle and comma tail. `diagonal-rich-80`,
 `diagonal-plain-80` and their field-200 companions in the art study show
 the pose vocabulary and the grown wolf.
+The exhaustive art goldens additionally index all410 parameter states
+(400 cub and10 grown), sharing75 identical drawings across their four
+rotations, both tiers and80×24/200×60 fields. `diagonal-manifest.txt`
+maps every state to its sheet. The87-code-point diagonal repertoire is
+cached for the checked machine's budget and independently verified against
+every rich cell of those exhaustive sheets whenever the art study runs.
+
 
 The cub's body facing is now the clockwise eighth, north 0 through
 north-west 7. Foes remain four-way. Terrain clearance retains its existing

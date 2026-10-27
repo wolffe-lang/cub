@@ -42,7 +42,7 @@ pub fn quarter(heading: int) -> int {
 }
 
 /// The facing the frame draws the cub in: its body's (cb02c, the aim's
-/// during an attack and the heading's quarter otherwise, held while a
+/// during an attack and the heading's eighth otherwise, held while a
 /// swing has no room).
 pub fn cub_facing(s: sim.Sim) -> int {
     s.body_facing
