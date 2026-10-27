@@ -271,6 +271,14 @@ fn test_cb01b_scent_hud_updates_on_kill_death_and_recovery() {
     var n = 0
     while n < 3 { sim.step(mut s, none_keys()); n += 1 }
     assert(s.scent == 0 && s.drops.len == 1, "kill leaves a visible pickup")
+    // Finish the committed return before the pickup fixture moves the
+    // cub; a recovery step must not overwrite that intentional position.
+    var recover = 0
+    while s.action != sim.IDLE && recover < 20 {
+        sim.step(mut s, none_keys())
+        recover += 1
+    }
+    assert(s.action == sim.IDLE, "the strike recovery finishes")
     s.x = s.foes[0].x
     s.y = s.foes[0].y
     sim.step(mut s, none_keys())
