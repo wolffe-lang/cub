@@ -46,7 +46,9 @@ Ctrl+arrow repeat sequences refresh sprint, which expires when they stop
 (after their inferred repeat lifetime). Such byte streams cannot report
 actual release, promise physical simultaneous keys, or reliably resume a
 previous key. Arrow aim and rolls use this inferred state, not true key-up.
-The fallback is not described as exact. Negotiation/restoration and every
+Ctrl+C is reserved for interrupt on both paths, including enhanced
+press/repeat events; releasing c never interrupts. Release Ctrl before
+pressing c to roll out of a sprint. The fallback is not described as exact. Negotiation/restoration and every
 scripted chord are pty witnesses, not claims of a physical-terminal test.
 
 ## Physical Shift+Space probe, 2026-10-25
