@@ -1195,3 +1195,94 @@ player must. No roll, damage, timing, seed or limit changes. All300 non-elk
 census rows stay byte-identical; other elk win-attempt counts stay the same.
 Seed15 wins its fourth budget at both fields. The74 changed elk rows'
 durations/hits and the before/after frames are retained as evidence.
+
+## The three strikes and the HUD (cb07, 2026-10-27)
+
+The maintainer's word after playing cb04b and cb05: "Attack combos STILL
+aren't rendering. It should attack forwards-left, forwards-right, then
+straight forwards with a head shake." cb04b's lean was a quarter cell
+forward and half a cell across for one tick, rounded to one braille pixel:
+invisible at thirty ticks a second. This section supersedes "Three
+committed bites" above.
+
+**The strikes.** `sim.strike_offset(hit, age)` is the body's displacement
+from the commitment point: the windup (ages 0-2) stands still; hit 1 lunges
+a whole cell forward and a whole cell to the aim's left from age 3 through
+6, hit 2 the mirror, hit 3 two cells straight forward from age 3 through
+8 (`sim.strike_hold`); then each eases back a step a tick to the commitment
+point by its last age, so the next link starts in place and a cub that
+bites does not drift. `combo_motion` moves toward the offset's point from
+wherever the body is (a lunge a wall or a foe shortened still eases home).
+The hit cone and reach follow the body (`in_reach` measures the drawn
+bodies' gap, cb02c), so a bite lands where the drawn jaws are. The third
+hit's head shakes two full swings across the committed aim, a cell to the
+left at ages 5-6, right at 7-8, left at 9-10, right at 11-12
+(`sim.head_shake`, `sim.shake_cells`): a diagonal aim swings the head a
+cell on both axes and never back along the aim; the sprint snap keeps
+cb04b's three-tick swing across the body's facing. Costs 12/14/18,
+durations 11/13/17, three windup and two active ticks, the link window
+from age 5: all cb04b's. `COMBO_LEAN` is a whole cell now.
+
+**The snapping pose** (`silhouette.cub_posed`, pose 5; `art.plain_cub`):
+the jaws thrown open at the nose (`##....##` over `.##..##.`), the head
+narrow with the ears back, the tail streaming straight behind; its
+centroid sits two hundredths of a cell ahead of the standing drawing's,
+so the measured displacement is the lunge and no more. The rich tier
+composes the shaken head and the body into one drawing
+(`motionart.shifted_shaken`), so a head swung diagonally never erases the
+body's front; the plain tier puts the ear mark a cell outside the body on
+both swings.
+
+**The instrument.** `cub --strike-census` (`combatproof.strike_rows`)
+draws the cub alone at every age of every hit at every aim on both tiers
+and holds it against the standing drawing at the commitment point: the
+cells changed, the centroid's move in hundredths of a cell along the aim
+and to its left (pixels, two across and four down a cell, on both tiers),
+the cells across the aim, the swing, and the cells the shaken drawing
+paints that the same drawing with its head still does not. Before: rich
+hit 1 peaked at 0.50 forward and 0.50 left (aim east) for one tick, 0.35
+and 0.35 on a diagonal; hit 3 reached 2 forward from age 4 and stayed. After:
+hit 1 at 1.02 forward and 1.00 left for ages 3-6 (aim east; 1.18 and 1.06
+on a diagonal), hit 2 the mirror, hit 3 at 2.02 forward for ages 3-8 with
+the head out on every swing age, and every hit's last age identical to
+standing. The `cb07-strikes` pty row drives three Space presses through
+the real input loop and reads the same numbers off the recorded journey's
+frames.
+
+**The HUD** is health, stamina and scent and nothing else. The status row
+(`HP a/b … rally f`), the 7x40 filled box and the two full-width filled
+rows are gone; the numbers stay in the `--hud` debug line (`hud_text`).
+`art.hud_plan` lists every cell the HUD paints with its kind (a bar cell,
+a label cell, a digit cell); `draw_hud` paints those cells with the map
+cell's own background under each, so the bars sit flush on the forest:
+the one-word labels at column 1 of rows 1 and 3, the bar cells from
+column 9 (`HUD_BAR_COL`; the bracket column stays the map's), filled cells
+solid in the bar's colour, the rally stretch the grey stipple, the rest of
+the bar's width a dim `─` track (plain `-`) so the length reads without a
+rail. cb04b's growing width (`bar_cells`, ten points a cell) and the
+fixed-point fill stay. The water line (`Water n/cap  w drink`, cb04a) sits
+on row 5 (`HUD_WATER_ROW`) straight under the stamina bar, painted last
+(cb04b's ordering, re-proven with the fills gone) and counted as a label.
+R-cb07-2: recommended A, no rails or caps at all.
+
+**Scent** is one big number in the bottom right corner (`src/digits`): an
+original three-by-five pixel digit font. On the rich tier the pixels are
+quadrant blocks, two across and two down a cell, so a digit is two cells
+wide and the number three rows tall with a blank pixel row on top (every
+quadrant block is drawn, U+2596-259F with the half and full blocks;
+`docs/GLYPHS.md` gained U+259A and U+259C). On the plain tier each pixel is
+a bold `#` cell, so a digit is three cells wide and a cell apart and the
+number five rows tall. The number ends on the frame's last row, one cell
+in from the right edge, and grows leftward with the digits; a small
+`scent` label sits on its middle row to its left. At 80x24 on the rich
+tier the label and three digits cover twelve columns on three rows; four
+digits cover fourteen. Rich digits are gold (221), plain bright yellow.
+
+**The census.** `cub --hud-census` (`combatproof.hud_row`) renders the
+frame with and without the HUD (`art.render_bare`) and counts the cells
+that differ: `painted`, and `stray` for any outside the plan, which must
+be zero. Before: 360 painted cells at 80x24 and 600 at 200x60 whatever the
+stats (the fills). After: 51 at stat 1 and scent 0 on the rich tier (57
+plain), 100 at stat 40 and scent 1234, the same at both fields, never a
+stray cell; 192 rows over both tiers, both fields, day and night, four
+scent values, three stat levels, with and without a rally.
