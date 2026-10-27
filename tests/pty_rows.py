@@ -1406,7 +1406,12 @@ def cb08_diagonal_live(binary, ctx):
             for mode in ('walk', 'bite'):
                 name = f'{tier}-{cols}-{mode}'
                 record = root / (name + '.pk')
-                session = ctx.Session([binary, '--seed', '7', '--tier', tier,
+                # Every row owns a fresh journey, not an earlier build's
+                # default save under the shared test HOME.
+                save = root / (name + '.save')
+                save.unlink(missing_ok=True)
+                Path(str(save) + '.pending').unlink(missing_ok=True)
+                session = ctx.Session([binary, '--seed', '7', '--save', str(save), '--tier', tier,
                                        '--trace', '--mute', '--no-title',
                                        '--record', str(record)], rows, cols, env)
                 session.type(b'?', settle=.15)
