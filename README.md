@@ -10,8 +10,16 @@ The second game of the lair, the wolf games collection, on the collection's shar
 (`wolffe-lang/lair`, pinned in `lair.pin`); the first is `pack`.
 
 **What is in this build:** a seeded route from the Shingle through
-Bramblehold to Larkmeadow, with eight visible dens in those areas, switchbacks and clearings, guarded side
-caches and two shortcuts home. The shore runs a screen past the view each
+Cinderwick and Bramblehold to Larkmeadow and on, the wide forest of cb05: areas of 288 and 224 cells
+(the Shingle's 160 stays the tutorial), at most two dens an area and never under 110 route cells apart,
+each den drawn as the place its name promises and the retired dens standing as landmarks (the coal roots'
+stump-field, the low embers' ring of coals, the ash shelter's charred frame), cache branches in four smooth
+shapes (a slow S, a hook, a loop, a 180-degree turn where the field has room) with no sawtooth left, a
+fork that rejoins and a second way into the boar's clearing in Bramblehold, pockets that end at an old
+scent mark, and Cinderwick: the burnt town between the beach and the wood, its lane between ruined houses,
+one-cell passages to walled yards with caches, embers that never went out, and the Ashen, its slow dead,
+who walk toward any sound, raise their arms before a heavy blow and never leave the town. Twelve to
+eighteen foes in each big area. The shore runs a screen past the view each
 way to its rock jetties, and four winding offshoots leave it for guarded
 bundle alcoves, every path in the shore's own gravel; the forest is one
 trunk-and-canopy texture to every edge of the screen, the thicket and
@@ -24,9 +32,9 @@ ears go back, the tail drops and the trot shortens as it is hurt, and its
 breath shows its stamina; the numbers appear at a den and on the death
 card. An original score plays through the engine's mixer: a part for each
 area, a rest at the den, a sting at a fall, the title over the opening, and
-a theme for each boss (`docs/SCORE.md`). Six areas: the Shingle, Bramblehold,
+a theme for each boss (`docs/SCORE.md`). Seven areas: the Shingle, Cinderwick, Bramblehold,
 Larkmeadow, the Teeth, the Shallows and Gravehollow, each with its den and
-its shortcut back. Four bosses hold their ground in them: Old Snag the boar in
+(the town and the old den apart) its shortcut back. Four bosses hold their ground in them: Old Snag the boar in
 his clearing, Whisper the lynx among the crags' pillars, Alder the elk at
 the ford, Ashgrim the shadow alpha at the old den; every attack is
 telegraphed long enough to parry, the one unparryable attack of each is
@@ -46,7 +54,7 @@ the cub's body plus a one-cell ring, with a short recovery burst. Landmarks
 and caches have original sprites instead of floating world names; their
 meanings are in `docs/ART.md`. Kills also leave small healing meat pickups.
 Enter a den with `r` within three cells: a resting cub breathes beside an
-animated fire, with different surroundings in all six regions. A larger
+animated fire, with different surroundings in all seven regions. A larger
 right-hand panel leaves the cub and fire visible. Up/Down select a stat,
 Right/Left stage or remove levels, and Enter/Space on Confirm spends the
 combined cost. Esc or `r` discards pending choices and leaves. Paths have
@@ -122,6 +130,8 @@ target/cub --mute              play without music (CUB_SOUND=0 does the same)
 target/cub --no-title          start in the forest, no title
 target/cub --ghost-dir DIR     read and write the death archives there (default ~/.cub/ghosts)
 target/cub --den-census        flood fifty seeds for den distance and every thorn-gate face
+target/cub --den-spacing       the route walk between dens over fifty seeds (cb05, with --foe-census,
+                               --bends-audit, --spurs-audit and --gen-bench)
 target/cub --boss-census       fight every boss in fifty seeds at both sizes; a fairness line a boss
 target/cub --fight-trace 7 1   narrate one scripted fight (the alpha, seed 1)
 ```
@@ -160,7 +170,10 @@ checks all shadow neighbours; `--foes-audit` checks clipped sprites on every
 route row. Rest panels have empty, pending and refused goldens at both sizes
 and tiers, plus real arrow/confirm/discard pty witnesses.
 `--feel-audit`, `--chase-audit` and `--mouth-audit` census the dens,
-switchbacks, clearings, pursuit and safe arena approaches. `--measure` reports the pace, the wag, the fox's chase, the path colours
+switchbacks, clearings, pursuit and safe arena approaches. cb05's `--den-spacing`,
+`--foe-census`, `--bends-audit` (no bend reverses within eight cells on any inland route or
+branch), `--spurs-audit` (every spur ends at something named) and `--gen-bench` (an area's
+terrain layer under 50 ms) run in the gameplay gate too. `--measure` reports the pace, the wag, the fox's chase, the path colours
 and the body census over the real-key scripts. The sound pty rows start the
 game with music on and hold the player to a child of the game, gone with
 it; name the OSS stub's refusal; and prove `--mute`, `CUB_SOUND=0` and the
