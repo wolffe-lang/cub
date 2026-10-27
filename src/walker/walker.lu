@@ -56,11 +56,9 @@ pub fn drive_as(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int, passive: b
                 break
             }
             // An Ashen's windup in reach is parried two ticks before the
-            // blow (cb05: Book-II play, one parry, no roll).
-            if foe.kind == sim.ASHEN &&
-                foe.phase == sim.CROUCH &&
-                sim.in_reach(s, i, 2) &&
-                !passive {
+            // blow (cb05: Book-II play, one parry, no roll), on a passive
+            // walk too: a parry is no bite.
+            if foe.kind == sim.ASHEN && foe.phase == sim.CROUCH && sim.in_reach(s, i, 2) {
                 fighting = true
                 if s.action == sim.IDLE && s.tick - foe.since >= sim.ASHEN_WINDUP - 2 {
                     (mut keys).push(controls.KEY_PARRY)
