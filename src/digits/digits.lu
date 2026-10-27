@@ -1,0 +1,140 @@
+//! digits — the HUD's big number (cb07): the scent the cub carries, drawn
+//! in a digit font taller than text so it reads from the corner of the
+//! eye. Each digit is an original three-by-five pixel drawing. On the
+//! rich tier the pixels are quadrants, two across and two down a cell,
+//! so a digit is two cells wide and the number three rows tall (a blank
+//! pixel row above the digits); on the plain tier each pixel is a `#`
+//! cell, so a digit is three cells wide and the number five rows tall.
+//! Digits are a pixel apart. Pure: a number in, cells out.
+
+/// A cell of the number: `row` and `col` from the number's top left, and
+/// the code point (a quadrant block on the rich tier, `#` on the plain).
+pub struct Dot {
+    row: int,
+    col: int,
+    cp: int,
+}
+
+/// The five rows of a digit's three pixels, `#` lit.
+pub fn glyph(d: int) -> List[str] {
+    match d {
+        0 => ["###", "#.#", "#.#", "#.#", "###"],
+        1 => [".#.", "##.", ".#.", ".#.", "###"],
+        2 => ["###", "..#", "###", "#..", "###"],
+        3 => ["###", "..#", ".##", "..#", "###"],
+        4 => ["#.#", "#.#", "###", "..#", "..#"],
+        5 => ["###", "#..", "###", "..#", "###"],
+        6 => ["#..", "#..", "###", "#.#", "###"],
+        7 => ["###", "..#", ".#.", ".#.", ".#."],
+        8 => ["###", "#.#", "###", "#.#", "###"],
+        _ => ["###", "#.#", "###", "..#", "..#"],
+    }
+}
+
+/// The decimal digits of `n` (0 for a negative), most significant first.
+pub fn decimal(n: int) -> List[int] {
+    var out = List[int]()
+    var v = if n < 0 then 0 else n
+    if v == 0 { (mut out).push(0); return out }
+    var rev = List[int]()
+    while v > 0 {
+        (mut rev).push(v % 10)
+        v /= 10
+    }
+    var i = rev.len - 1
+    while i >= 0 {
+        (mut out).push(rev[i])
+        i -= 1
+    }
+    out
+}
+
+/// Whether pixel `(r, c)` of the number is lit: digits of three pixels
+/// at a stride of four, five rows under one blank row (`r` 0 is blank).
+fn lit(digits: List[int], r: int, c: int) -> bool {
+    if r < 1 || r > 5 || c < 0 { return false }
+    let d = c / 4
+    let x = c % 4
+    if d >= digits.len || x == 3 { return false }
+    let rows = glyph(digits[d])
+    rows[r - 1].bytes()[x] as int == 35
+}
+
+/// The number's width in pixels: four a digit, less the last gap.
+fn pixel_width(digits: List[int]) -> int { 4 * digits.len - 1 }
+
+/// The rich tier's width in cells: two a digit.
+pub fn rich_width(n: int) -> int { 2 * decimal(n).len }
+
+/// The rich tier's height in rows.
+pub const RICH_ROWS: int = 3
+
+/// The plain tier's width in cells: three a digit and a cell between.
+pub fn plain_width(n: int) -> int { pixel_width(decimal(n)) }
+
+/// The plain tier's height in rows.
+pub const PLAIN_ROWS: int = 5
+
+/// The quadrant block for a two-by-two pixel cell: `bits` 1 upper left,
+/// 2 upper right, 4 lower left, 8 lower right; 32 for none.
+pub fn quadrant(bits: int) -> int {
+    match bits {
+        0 => 32,
+        1 => 0x2598,
+        2 => 0x259d,
+        3 => 0x2580,
+        4 => 0x2596,
+        5 => 0x258c,
+        6 => 0x259e,
+        7 => 0x259b,
+        8 => 0x2597,
+        9 => 0x259a,
+        10 => 0x2590,
+        11 => 0x259c,
+        12 => 0x2584,
+        13 => 0x2599,
+        14 => 0x259f,
+        _ => 0x2588,
+    }
+}
+
+/// The rich tier's cells for `n`: quadrant blocks over a `RICH_ROWS` by
+/// `rich_width(n)` box, only the cells with a lit pixel.
+pub fn rich_cells(n: int) -> List[Dot] {
+    let digits = decimal(n)
+    var out = List[Dot]()
+    let w = rich_width(n)
+    var row = 0
+    while row < RICH_ROWS {
+        var col = 0
+        while col < w {
+            var bits = 0
+            if lit(digits, 2 * row, 2 * col) { bits += 1 }
+            if lit(digits, 2 * row, 2 * col + 1) { bits += 2 }
+            if lit(digits, 2 * row + 1, 2 * col) { bits += 4 }
+            if lit(digits, 2 * row + 1, 2 * col + 1) { bits += 8 }
+            if bits != 0 { (mut out).push(Dot { row: row, col: col, cp: quadrant(bits) }) }
+            col += 1
+        }
+        row += 1
+    }
+    out
+}
+
+/// The plain tier's cells for `n`: a `#` cell a lit pixel over a
+/// `PLAIN_ROWS` by `plain_width(n)` box.
+pub fn plain_cells(n: int) -> List[Dot] {
+    let digits = decimal(n)
+    var out = List[Dot]()
+    let w = pixel_width(digits)
+    var row = 0
+    while row < PLAIN_ROWS {
+        var col = 0
+        while col < w {
+            if lit(digits, row + 1, col) { (mut out).push(Dot { row: row, col: col, cp: 35 }) }
+            col += 1
+        }
+        row += 1
+    }
+    out
+}
