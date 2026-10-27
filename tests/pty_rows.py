@@ -701,7 +701,9 @@ def den_world_memory(binary, ctx):
     session = ctx.Session([binary, '--replay', str(case), '--ticks', ticks,
                            '--trace', '--mute', '--no-title', '--tier', 'plain'],
                           24, 80, ctx.env_for())
-    session.finish()
+    # The case is longer since cb05 (the gate opens on Cinderwick and the log
+    # mouth lies at the Shingle's other end: about 1,230 ticks, 21 s live).
+    session.finish(timeout=60)
     problems = []
     ctx.common_checks(session, 0, problems)
     states = trace_states(session)
@@ -713,7 +715,7 @@ def den_world_memory(binary, ctx):
     returns = [b for a, b in zip(states, states[1:]) if a['area'] != 0 and b['area'] == 0]
     if departure is None or departure['live_foes'] >= 9:
         problems.append('den-world-memory: witness never killed a Shingle foe')
-    elif len(returns) != 3 or any(b['live_foes'] > departure['live_foes'] for b in returns):
+    elif len(returns) != 2 or any(b['live_foes'] > departure['live_foes'] for b in returns):
         problems.append('den-world-memory: path/log return revived slain Shingle foes')
     if not states or any(v['deaths'] or v['resting'] for v in states):
         problems.append('den-world-memory: a death/rest invalidated the witness')
