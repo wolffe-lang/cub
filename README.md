@@ -158,7 +158,7 @@ target/cub --den-census        flood fifty seeds for den distance and every thor
 target/cub --den-spacing       the route walk between dens over fifty seeds (cb05, with --foe-census,
                                --bends-audit, --spurs-audit and --gen-bench)
 target/cub --boss-census       fight every boss in fifty seeds at both sizes; a fairness line a boss
-target/cub --fight-trace 7 1   narrate one scripted fight (the alpha, seed 1)
+target/cub --fight-trace 7 1   narrate one scripted fight (the alpha, seed 1; a third number picks 80 or 200 columns)
 target/cub --strike-census     every strike at every aim on both tiers, the drawn body against standing
 target/cub --hud-census        every painted HUD cell held to the bars, the labels and the digits
 ```
