@@ -1,0 +1,3 @@
+Compared 526 lines. Exactly90 changes: ghost-face1 ->10 at ticks12..101.
+All keys, positions, poses, areas, death tick/count and remaining bytes unchanged.
+Tag10 =8 + east eighth2; old east quarter1 decodes to eighth2.
