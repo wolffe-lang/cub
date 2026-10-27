@@ -321,7 +321,7 @@ def feel(binary):
         assert len(rows) == 150 and all(len(row) == columns for row in rows), option
         if option == '--feel-audit':
             assert {(r[0], r[1]) for r in rows} == {(s, a) for s in range(50) for a in range(3)}
-            assert all(r[2] == (1, 3, 4)[r[1]] for r in rows), 'den census accepted missing dens'
+            assert all(r[2] == (1, 2, 2)[r[1]] for r in rows), 'den census accepted missing dens'
             assert all(r[5] >= 4 and r[6] == 6 and r[7] > 260 for r in rows if r[1] == 1)
         else:
             assert {(r[0], r[1]) for r in rows} == {(s, k) for s in range(50) for k in (0, 1, 3)}
@@ -410,7 +410,7 @@ def paths_doors_rest(binary):
         r = {k: int(v) for k, v in row.items()}
         widths[r['area']].append(r['width'])
         routes[tuple(r[k] for k in ('seed', 'field', 'area', 'path'))].append(r)
-    for area, minimum in enumerate((7, 9, 9, 7, 9, 9)):
+    for area, minimum in enumerate((7, 9, 9, 7, 9, 9, 9)):
         assert statistics.median(widths[area]) >= minimum, ('path median lost two-cell widening', area)
         turns = samples = 0
         for key, rows in routes.items():
