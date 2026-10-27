@@ -83,12 +83,13 @@ still begins. On the end card `r` keeps playing and `q` leaves; both are the ord
 such. The title row and the title-demo row in `tests/pty_rows.py` are the live witnesses; the death
 witnesses still type bytes into the pty, never a signal from a script.
 
-The health/stamina panel owns a solid five-row rectangle and a one-cell
-right margin. World lettering used to remain visible through its unpainted
-padding: the `c` in the former bones label could sit beside stamina. This
-is independent of the key's meaning. The `level-look-after-c` pty row types
-byte `63`, checks that terminal echo is disabled, and compares the live
-frame to its recorded replay at both sizes and tiers.
+The bars sit flush on the map since cb07: no panel, no fill, no margin; the
+cell beside the stamina bar is the map's own, and what may never show there
+is lettering (the `c` of the former bones label once sat beside stamina).
+This is independent of the key's meaning. The `level-look-after-c` pty row
+types byte `63`, checks that terminal echo is disabled, compares the live
+frame to its recorded replay at both sizes and tiers, and holds the edge
+free of lettering.
 
 ## Den and water interaction (cb04a)
 
@@ -101,9 +102,9 @@ Esc or `r` discards pending choices and leaves. Keys1–5 no longer purchase.
 The world stays paused, and no arrow remains held on exit. Growth remains
 den-only; the displayed Scent after subtracts only accepted pending levels.
 
-Water must first be found at the Shingle spring. The counter on row6 below
+Water must first be found at the Shingle spring. The line on row 5 under
 the bars says `Water n/cap  w drink`, or `Water 0/0 - find a spring` before
-learning. `w` spends one immediately and heals during the second half of
+learning (cb07: the status row above it is gone). `w` spends one immediately and heals during the second half of
 its one-second animation; a hit interrupts it. Rests refill found capacity.
 Meat from ordinary kills is collected and heals immediately, without a key.
 `den-contact` injects real arrow/r/Esc bytes at the visible den edge;
@@ -119,3 +120,8 @@ It never changes a saved stat. Normal play defaults to100.
 input rows. Its setup is recorded too; it is not a normal journey or an
 undisclosed gameplay teleport. `cb04b-*` pty rows report eight aims,
 no-arrow roll, long-held chords, releases, displacement and facing.
+`cb07-strikes` types Right, its release and three Space presses as
+negotiated events, replays the recording headless a frame a tick, and
+measures the cub's drawn pixels on every frame: a cell forward-left for
+four ticks, a cell forward-right, two cells forward with the head swung
+left and right twice, each hit back in place by its last tick.

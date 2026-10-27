@@ -369,3 +369,30 @@ bite commits two cells forward, clipped by real obstacles. Roll travel
 uses eight compact original tuck/turn drawings instead of the standing
 body plus an o mark; recovery returns to the ordinary body without blink.
 Water is now row6,column1, below the status numbers and both scalable bars.
+
+## The strikes and the big number (cb07)
+
+2026-10-27 — the maintainer's word: "Attack combos STILL aren't rendering. It should attack forwards-left,
+forwards-right, then straight forwards with a head shake. … Scent reporting should just be a number and it should
+be bigger, and it should be in the bottom right hand corner. … Have the health and stamina be flush against the map
+background."
+
+The three strikes are whole cells now, held: the first hit's body a cell forward and a cell to the aim's left
+for four ticks, the second's a cell forward and right, the third's two cells straight forward for six ticks with
+the head a cell out of the body on each of four swings (left, right, left, right, two ticks each), every hit
+easing back to where it was committed. At the peak the cub is in the **snap** (pose 5 of the one silhouette): the
+jaws thrown open at the nose (`##....##` over `.##..##.`), the head narrow with the ears laid back, the tail
+streaming straight behind. The sheet's poses are unchanged; the art study's `combo-<aim>-<hit>-<age>` frames
+show every age of every hit at both tiers. The plain tier's snap is `\##/` over `####`, `####`, `.||.` facing
+north (`/##\` at the foot facing south; `--####=/` over `--####=\` facing east), the ear mark a cell outside the
+body on each swing. `docs/DESIGN.md` has the numbers and the instrument.
+
+The HUD paints only what it is: `health` and `stamina` in the outline grey at column 1 of rows 1 and 3, the bar
+cells from column 9 (solid in red 203 or green 84; the rally stretch the grey stipple `░`; the rest of the bar's
+width a dim `─` track, 240), the water line on row 5, and the scent as a big number in the bottom right corner.
+Every painted cell keeps the map cell's background: no fill, no rail, no bracket. The number's digits are an
+original three-by-five pixel font (`src/digits/digits.lu`) drawn from quadrant blocks on the rich tier (two cells
+wide and three rows tall a number, gold 221) and from bold `#` cells on the plain (three wide and a cell apart,
+five rows tall), the small `scent` label on the number's middle row to its left. The art study's
+`scent-<n>-<field>-<day|night>` frames show 0, 7, 42 and 1234 at 80x24 and 200x60 by day over the Shingle's
+water and by night in Gravehollow.
