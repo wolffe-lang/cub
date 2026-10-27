@@ -335,7 +335,22 @@ fn zeros() -> List[int] {
 /// Fight boss `kind` in the world of `seed` at `cols` by `rows`, from its
 /// den, recording every key into `r`; up to `MAX_ATTEMPTS` lives.
 pub fn fight_world(seed: int, cols: int, rows: int, kind: int, mut r: replay.Replay) -> Outcome {
+    fight_world_narrated(seed, cols, rows, kind, mut r, false)
+}
+
+/// `fight_world`, narrated when `narrate` (cb07: `--fight-trace` runs this
+/// very loop, so what it shows is what the census fought): a line whenever
+/// the boss's phase or either health changes, the attempts and the end.
+pub fn fight_world_narrated(
+    seed: int,
+    cols: int,
+    rows: int,
+    kind: int,
+    mut r: replay.Replay,
+    narrate: bool,
+) -> Outcome {
     var s = journey_at(seed, cols, rows, kind)
+    var last = ""
     var out = Outcome {
         attempts: 0,
         hits: zeros(),
@@ -354,7 +369,11 @@ pub fn fight_world(seed: int, cols: int, rows: int, kind: int, mut r: replay.Rep
         let (mx, my) = mouth(s, kind)
         // Hand off on the first tell, even if it starts before the mouth.
         // The generic walker must not fight a boss instead of this fighter.
-        if !walker.walk_stop(mut s, mut r, mx, my, sim.boss_index(s), false) { return out }
+        if !walker.walk_stop(mut s, mut r, mx, my, sim.boss_index(s), false) {
+            if narrate { print("trace: attempt {attempt}: no way to the mouth at tick {s.tick}") }
+            return out
+        }
+        if narrate { print("trace: attempt {attempt} at the mouth tick {s.tick}") }
         var st = fighter()
         var n = 0
         var crouch_since = -1
@@ -366,8 +385,25 @@ pub fn fight_world(seed: int, cols: int, rows: int, kind: int, mut r: replay.Rep
             if i < 0 { break }
             let before = s.health
             let f = copy s.foes[i]
+            if narrate {
+                let line = "boss phase {f.phase} attack {f.attack} health {f.health} gap {sim.body_gap(s, i)} cub health {s.health} stamina {s.stamina} action {s.action} flasks {s.flasks}"
+                let busy = f.phase == sim.CROUCH || f.phase == sim.STRIKE
+                if line != last || busy {
+                    print(
+                        "t {s.tick} n {n} {line} | boss h {f.heading} v {f.speed} at {f.x / sim.FP},{f.y / sim.FP} front {if sim.foe_faces_cub(s, i) then 1 else 0} hit {if f.hit then 1 else 0} in {if sim.in_arena_at(s, f.x, f.y) then 1 else 0} | cub at {s.x / sim.FP},{s.y / sim.FP} v {s.speed} face {s.body_facing} blocked {s.blocked} ex {if s.exhausted then 1 else 0}",
+                    )
+                    last = line
+                }
+            }
             let obstructed = s.blocked >= blocked_at_plan + 3 && sim.body_gap(s, i) > 1
-            if (f.phase == sim.HUNT || f.phase == sim.RETREAT && obstructed) &&
+            // cb07: a stagger too, not only a retreat: with the strikes
+            // easing back, a cub stuck against the ground between it and a
+            // staggered boss walked straight at it for the whole budget
+            // (elk seed 35); the walker's plan goes round what blocks it.
+            if (
+                f.phase == sim.HUNT ||
+                    (f.phase == sim.RETREAT || f.phase == sim.STAGGER) && obstructed
+            ) &&
                 (sim.body_gap(s, i) > 6 || !sim.cub_in_arena(s) || obstructed) &&
                 s.tick - planned_at >= 40 {
                 // Far off: the walker's plan round the stone and the bodies,
@@ -404,6 +440,11 @@ pub fn fight_world(seed: int, cols: int, rows: int, kind: int, mut r: replay.Rep
             if s.action == sim.FALL { break }
             n += 1
         }
+        if narrate {
+            print(
+                "trace: attempt {attempt} ended at tick {s.tick} after {n} fight ticks: boss {if sim.boss_index(s) < 0 then "beaten" else "standing"}, cub {if s.action == sim.FALL then "fallen" else "standing"} health {s.health}",
+            )
+        }
         if sim.boss_index(s) < 0 && s.action != sim.FALL {
             out.attempts = attempt
             out.ticks = s.tick - start
@@ -425,44 +466,14 @@ pub fn fight_world(seed: int, cols: int, rows: int, kind: int, mut r: replay.Rep
 /// One world's fight, narrated: a line whenever the boss's phase or either
 /// health changes (`cub --fight-trace KIND SEED`, the lane's instrument
 /// for the fighter; KIND 4 to 7).
-pub fn trace(kind: int, seed: int) -> int {
-    var s = journey_at(seed, 80, 24, kind)
-    var r = replay.new(seed, 1, 80, 24)
-    walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
-    let (mx, my) = mouth(s, kind)
-    if !walker.walk_stop(mut s, mut r, mx, my, sim.boss_index(s), false) {
-        print("trace: no way to the mouth")
-        return 1
-    }
-    print("trace: at the mouth tick {s.tick}")
-    var st = fighter()
-    var n = 0
-    var last = ""
-    while n < FIGHT_TICKS {
-        let i = sim.boss_index(s)
-        if i < 0 { print("trace: beaten at tick {s.tick}"); return 0 }
-        let f = copy s.foes[i]
-        let line = "boss phase {f.phase} attack {f.attack} health {f.health} gap {sim.body_gap(s, i)} cub health {s.health} stamina {s.stamina} action {s.action} flasks {s.flasks}"
-        let busy = f.phase == sim.CROUCH || f.phase == sim.STRIKE
-        if line != last || busy {
-            print(
-                "t {s.tick} {line} | boss h {f.heading} v {f.speed} at {f.x / sim.FP},{f.y / sim.FP} front {if sim.foe_faces_cub(s, i) then 1 else 0} hit {if f.hit then 1 else 0} in {if sim.in_arena_at(s, f.x, f.y) then 1 else 0} | cub at {s.x / sim.FP},{s.y / sim.FP} v {s.speed} face {s.body_facing} blocked {s.blocked} ex {if s.exhausted then 1 else 0}",
-            )
-            last = line
-        }
-        if f.phase == sim.HUNT && (sim.body_gap(s, i) > 6 || !sim.cub_in_arena(s)) {
-            let (tx, ty) = approach_point(s, i)
-            let _ = walker.walk_stop(mut s, mut r, tx, ty, i, false)
-            n += 1
-            continue
-        }
-        let keys = fight_keys(s, i, mut st)
-        walker.press(mut s, mut r, keys)
-        if s.action == sim.FALL { print("trace: the cub fell at tick {s.tick}"); return 1 }
-        n += 1
-    }
-    print("trace: unfinished after {FIGHT_TICKS} ticks")
-    1
+pub fn trace(kind: int, seed: int, cols: int) -> int {
+    let rows = if cols >= 200 then 60 else if cols >= 120 then 40 else 24
+    var r = replay.new(seed, 1, cols, rows)
+    let o = fight_world_narrated(seed, cols, rows, kind, mut r, true)
+    print(
+        "trace: {name_of(kind)} seed {seed} at {cols}x{rows}: attempts {o.attempts} ticks {o.ticks} hits {o.hits[0]} {o.hits[1]} {o.hits[2]} unparryable {o.unparryable} breaches {o.breaches}",
+    )
+    if o.attempts == 0 then 1 else 0
 }
 
 /// Where the fighter walks when the boss is far or the cub is outside the
