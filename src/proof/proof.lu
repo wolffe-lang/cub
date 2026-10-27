@@ -223,14 +223,108 @@ pub fn generate(dir: str) -> int {
     if ghosts(dir) != 0 { return 1 }
     if areas(dir) != 0 { return 1 }
     if cinderwick(dir) != 0 { return 1 }
+    if lanes(dir) != 0 { return 1 }
+    if landmarks(dir) != 0 { return 1 }
     demo(dir)
+}
+
+/// Cinderwick's lane at night at the two sizes (cb05): from the cold
+/// hearth, a hundred and twenty ticks down the lane, a frame every forty.
+pub fn lanes(dir: str) -> int {
+    for size in [(80, 24), (120, 40)] {
+        let (cols, rows) = size
+        let s0 = town_journey_sized(1, cols, rows)
+        var s = copy s0
+        var r = snapshot_replay(s0)
+        walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
+        var n = 0
+        while n < 120 { walker.press(mut s, mut r, walker.key(controls.KEY_DOWN)); n += 1 }
+        snapshot_range(dir, "town-lane-{cols}x{rows}", r, s.tick, 40, 1) else |_| { return 2 }
+    }
+    0
+}
+
+/// A journey at a kept den with the growth of its area's boss fight (the
+/// bosses before it beaten), validated by the save's own decoder.
+fn den_journey(seed: int, den: int) -> sim.Sim {
+    let area = forest.den_area(den)
+    let kind = if area == forest.CRAGS {
+        sim.LYNX
+    } else if area == forest.RIVER {
+        sim.ELK
+    } else if area == forest.OLDDEN {
+        sim.ALPHA
+    } else if area == forest.LARKMEADOW {
+        sim.LYNX
+    } else {
+        sim.BOAR
+    }
+    var s = fight.journey_at(seed, 80, 24, kind)
+    s.last_den = den
+    s.lit_dens = sim.light_den(s.lit_dens, den)
+    let text = journey.encode(s)
+    journey.decode(text, 80, 24) else |e| {
+        assert(false, "proof.den_journey: den {den} is not a valid save: {e}")
+        s
+    }
+}
+
+/// Every landmark (cb05): from the nearest kept den of its area, the walk
+/// to the clearing's corner beside it, and one frame there.
+pub fn landmarks(dir: str) -> int {
+    let seed = 1
+    var area = 1
+    while area < forest.AREAS {
+        var k = 0
+        while k < forest.landmark_count(area) {
+            let (_, lx, ly) = forest.landmark(seed, 80, area, k)
+            // The kept den of the area nearest the landmark's row.
+            var den = -1
+            var gap = 100000
+            var id = 0
+            while id < forest.DEN_LIMIT {
+                if forest.den_area(id) == area {
+                    let g = abs(forest.den_row(seed, id) - ly)
+                    if g < gap { gap = g; den = id }
+                }
+                id += 1
+            }
+            if den < 0 { eprint("proof: no den for landmark {area}-{k}"); return 1 }
+            let s0 = den_journey(seed, den)
+            var s = copy s0
+            var r = snapshot_replay(s0)
+            walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
+            let o = forest.origin(seed, area)
+            // Fighting what it meets on the way (a pocket's guard).
+            if !walker.walk(
+                mut s,
+                mut r,
+                (lx + 2) * sim.FP + sim.FP / 2,
+                (o + ly + 1) * sim.FP + sim.FP / 2,
+            ) {
+                eprint("proof: the walk to landmark {area}-{k}")
+                return 1
+            }
+            var n = 0
+            while n < 6 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
+            snapshot_range(dir, "landmark-{area}-{k}", r, s.tick, 1, s.tick) else |_| { return 2 }
+            k += 1
+        }
+        area += 1
+    }
+    0
 }
 
 /// A journey at Cinderwick's cold hearth with a little growth (heart,
 /// wind and fang 3), the gate open, the first spring found: the town
 /// witnesses' start, validated by the save's own decoder.
 fn town_journey(seed: int) -> sim.Sim {
-    var s = sim.new(seed, 80, 24)
+    town_journey_sized(seed, 80, 24)
+}
+
+/// `town_journey` at a terminal size.
+fn town_journey_sized(seed: int, cols: int, rows: int) -> sim.Sim {
+    var s = sim.new(seed, cols, rows)
     s.gate_open = true
     s.opening_seen = true
     s.heart = 3
@@ -254,7 +348,8 @@ fn abs(v: int) -> int {
 /// Whether no foe stands within four cells of a cell.
 fn ember_unguarded(s: sim.Sim, x: int, y: int) -> bool {
     for f in s.foes {
-        if f.health > 0 && sim.near(f.x, f.y, x * sim.FP + sim.FP / 2, y * sim.FP + sim.FP / 2, 4 * sim.FP) {
+        if f.health > 0 &&
+            sim.near(f.x, f.y, x * sim.FP + sim.FP / 2, y * sim.FP + sim.FP / 2, 4 * sim.FP) {
             return false
         }
     }
@@ -278,7 +373,10 @@ pub fn cinderwick(dir: str) -> int {
     let row = if which == 0 then town.top(9) - 1 else town.bottom(9) + 1
     let mouth_x = (near - 1) * sim.FP + sim.FP / 2
     let mouth_y = (o + row) * sim.FP + sim.FP / 2
-    if !walker.walk(mut s, mut r, mouth_x, mouth_y) { eprint("proof: the passage's mouth"); return 1 }
+    if !walker.walk(mut s, mut r, mouth_x, mouth_y) {
+        eprint("proof: the passage's mouth")
+        return 1
+    }
     let from = s.tick
     let (mx, my) = town.scent_mark(seed, 0)
     if !walker.walk(mut s, mut r, mx * sim.FP + sim.FP / 2, (o + my) * sim.FP + sim.FP / 2) {
@@ -297,7 +395,10 @@ pub fn cinderwick(dir: str) -> int {
     walker.press(mut t, mut q, walker.key(controls.KEY_RELEASE))
     let (yx, yy) = forest.cache_position(seed, t.field, forest.TOWN, 0)
     // Walked in without biting (the walker fights what it meets).
-    if !walker.walk_stop(mut t, mut q, yx, yy - 4 * sim.FP, -1, true) { eprint("proof: the first yard"); return 1 }
+    if !walker.walk_stop(mut t, mut q, yx, yy - 4 * sim.FP, -1, true) {
+        eprint("proof: the first yard")
+        return 1
+    }
     var target = -1
     var best = 1000000
     var i = 0
@@ -312,7 +413,10 @@ pub fn cinderwick(dir: str) -> int {
     if target < 0 || best > 8 * 8 * sim.FP { eprint("proof: no guard in the first yard"); return 1 }
     let fx = t.foes[target].x
     let fy = t.foes[target].y
-    if !walker.walk_stop(mut t, mut q, fx, fy, target, true) { eprint("proof: the guard's approach"); return 1 }
+    if !walker.walk_stop(mut t, mut q, fx, fy, target, true) {
+        eprint("proof: the guard's approach")
+        return 1
+    }
     var m = 0
     var parried = false
     var windup_at = -1
@@ -333,7 +437,9 @@ pub fn cinderwick(dir: str) -> int {
     }
     if !parried || windup_at < 0 {
         let f = copy t.foes[target]
-        eprint("proof: the Ashen was not parried: windup at {windup_at}, phase {f.phase}, cub {t.x / sim.FP},{t.y / sim.FP}, Ashen {f.x / sim.FP},{f.y / sim.FP}")
+        eprint(
+            "proof: the Ashen was not parried: windup at {windup_at}, phase {f.phase}, cub {t.x / sim.FP},{t.y / sim.FP}, Ashen {f.x / sim.FP},{f.y / sim.FP}",
+        )
         return 1
     }
     n = 0
@@ -351,7 +457,12 @@ pub fn cinderwick(dir: str) -> int {
         for side in [-1, 1] {
             let (cx, cy) = town.ember(seed, side, k)
             if cx > -1000 && ex == -1000 && ember_unguarded(u, cx, o + cy) {
-                if walker.walk(mut u, mut v, cx * sim.FP + sim.FP / 2, (o + cy) * sim.FP + sim.FP / 2) {
+                if walker.walk(
+                    mut u,
+                    mut v,
+                    cx * sim.FP + sim.FP / 2,
+                    (o + cy) * sim.FP + sim.FP / 2,
+                ) {
                     ex = cx
                     ey = cy
                 }
@@ -372,7 +483,9 @@ pub fn cinderwick(dir: str) -> int {
     n = 0
     while n < 40 { walker.press(mut u, mut v, walker.key(0)); n += 1 }
     if u.health >= health {
-        eprint("proof: the ember did not burn: ember ({ex}, {ey}) cub cell ({sim.cell_x(u)}, {sim.cell_y(u)})")
+        eprint(
+            "proof: the ember did not burn: ember ({ex}, {ey}) cub cell ({sim.cell_x(u)}, {sim.cell_y(u)})",
+        )
         return 1
     }
     snapshot_range(dir, "ember-touch", v, u.tick, 10, touched) else |_| { return 2 }
