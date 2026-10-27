@@ -2558,6 +2558,12 @@ fn hazards_step(mut s: Sim) {
     }
 }
 
+/// An Ashen at a fixed-point position (the tests' fixture; its home is
+/// where it stands).
+pub fn make_ashen(x: int, y: int) -> Foe {
+    make_foe(ASHEN, x, y)
+}
+
 fn make_foe(kind: int, x: int, y: int) -> Foe {
     Foe {
         kind: kind,
