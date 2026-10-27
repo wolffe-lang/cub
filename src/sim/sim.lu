@@ -1224,6 +1224,7 @@ pub fn strike_foes(mut s: Sim) {
         if f.health > 0 &&
             f.kind != HAWK &&
             f.last_hit != s.started &&
+            (f.kind != LYNX || in_front(s.x, s.y, attack_direction(s), f.x, f.y)) &&
             strike_reaches(s, i, reach) {
             var damage = bite_damage(s.fang)
             // The Ashen's weakness (cb05): a bite from behind, out of the
