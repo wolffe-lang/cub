@@ -267,11 +267,11 @@ t 225 left
 t 226 left
 t 227 left
 t 228 left
-t 229 up
 t 229 left
-t 230 up
-t 231 up
+t 230 left
+t 231 left
 t 232 up
+t 232 left
 t 233 up
 t 234 up
 t 235 up
@@ -316,9 +316,9 @@ t 273 up
 t 274 up
 t 275 up
 t 276 up
-t 276 left
-t 277 left
-t 278 left
+t 277 up
+t 278 up
+t 279 up
 t 279 left
 t 280 left
 t 281 left
@@ -461,6 +461,6 @@ t 406 up
 t 407 up
 t 408 down
 t 408 right
-t 417 parry
+t 416 parry
 
-# frames 439 every 5 from 409
+# frames 438 every 5 from 409
