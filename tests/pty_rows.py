@@ -719,3 +719,78 @@ def den_world_memory(binary, ctx):
     return session, problems
 
 ROWS['den-world-memory'] = den_world_memory
+# cb06: the real opening, no injected scene age or shortened timer. Each
+# skip is a real decoded arrow, recorded and compared with headless replay.
+OPENING_SHOTS = [0, 210, 225, 300, 330, 360, 420, 480, 510, 600, 660, 720, 765, 789, 810, 840]
+
+
+def opening_live(binary, ctx, shot=None):
+    import re
+    import time
+    label = 'complete' if shot is None else 'skip-%02d' % shot
+    root = Path(ctx.ROOT) / 'target/pty' / ('opening-' + label)
+    root.mkdir(parents=True, exist_ok=True)
+    save = root / 'fresh.save'
+    for suffix in ('', '.pending'):
+        path = Path(str(save) + suffix)
+        if path.exists():
+            path.unlink()
+    record = root / 'record.pk'
+    env = ctx.env_for()
+    env['HOME'] = str(root)
+    session = ctx.Session([binary, '--seed', '1', '--save', str(save), '--record', str(record),
+                           '--no-title', '--mute', '--trace', '--tier', 'plain',
+                           '--no-truecolor', '--ticks', '920'], 24, 80, env)
+    problems = []
+    target = 902 if shot is None else max(12, OPENING_SHOTS[shot] + 3)
+    deadline = time.monotonic() + 40
+    tick = 0
+    while tick < target and time.monotonic() < deadline:
+        session.pump(.02)
+        seen = re.findall(rb'trace tick (\d+)', session.err)
+        if seen:
+            tick = int(seen[-1])
+    if tick < target:
+        problems.append('opening did not reach tick %s' % target)
+    if shot is not None:
+        before = re.findall(rb'trace tick \d+ .*? x (-?\d+) y (-?\d+) .*? scene (\d+)', session.err)
+        if not before or before[-1][2] != b'1':
+            problems.append('skip was not in opening shot %d' % shot)
+        session.type(b'\x1b[C', settle=.05)
+        after = re.findall(rb'trace tick \d+ .*? x (-?\d+) y (-?\d+) .*? scene (\d+)', session.err)
+        if not after or after[-1][2] != b'0' or before[-1][:2] != after[-1][:2]:
+            problems.append('skip did not end scene without moving')
+    elif not re.search(rb'trace tick 900 .*? area 0 .*? scene 0 ', session.err):
+        problems.append('unskipped opening did not reach the Shingle at tick 900')
+    session.type(b'q')
+    session.finish()
+    ctx.common_checks(session, 0, problems)
+    (root / 'opening.trace').write_bytes(session.err)
+    text = record.read_text()
+    if text.count('opening 1') != 1:
+        problems.append('record must hold exactly one opening event')
+    if 'opening 1' not in save.read_text():
+        problems.append('seen flag did not persist')
+    # Read the actual completed tick from the closing line, then reproduce
+    # the terminal's last frame from the recording, not a parallel script.
+    ended = re.search(rb'; (\d+) ticks,', session.err)
+    if ended:
+        dest = root / 'replay'
+        subprocess.run([binary, '--headless', '--script', str(record), '--frames', ended[1].decode(),
+                        '--every', ended[1].decode(), '--tier', 'plain', '--dump', str(dest)], check=True)
+        capture = root / 'capture.bin'
+        capture.write_bytes(session.out)
+        applied = subprocess.run([binary, '--apply', str(capture), '--size', '80x24'], capture_output=True, check=True)
+        text, sty, _ = applied.stdout.decode().split('--\n')
+        if (dest / 'final.txt').read_text() != text:
+            problems.append('recorded opening does not reproduce the final terminal frame')
+        if (dest / 'final.sty').read_text() != sty:
+            problems.append('recorded opening does not reproduce terminal styles')
+    else:
+        problems.append('no final tick count')
+    return session, problems
+
+
+ROWS['opening-complete'] = opening_live
+for _shot in range(len(OPENING_SHOTS)):
+    ROWS['opening-skip-%02d' % _shot] = lambda binary, ctx, shot=_shot: opening_live(binary, ctx, shot)
