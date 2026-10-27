@@ -1,10 +1,10 @@
-tick 6876 resting 0 capacity 2 level 28 meat 0 area 0 den_id 1 shortcuts 3 caches 15 scene 0 drops 0 mark_area 2 x 20329 y 11864 heading 128 action 0 started 6822 health 160 stamina 160 flasks 2 scent 7785 deaths 1 mark 0 mark_scent 0 gate 1 trail 78 lock -1 aim 160 combo 0 body 2 gait 382 sprint 0 cone 160 bosses 0 end 0 arena 0 played 6876 lost 0
+tick 6835 resting 0 capacity 2 level 28 meat 0 area 0 den_id 1 shortcuts 3 caches 15 scene 0 drops 0 mark_area 2 x 20329 y 11864 heading 128 action 0 started 6781 health 160 stamina 160 flasks 2 scent 7710 deaths 1 mark 0 mark_scent 0 gate 1 trail 78 lock -1 aim 160 combo 0 body 2 gait 614 sprint 0 cone 160 bosses 0 end 0 arena 0 played 6835 lost 0
 foe 0 kind 0 health 8 phase 0 since 0 x -256 y 14080 heading 0 gap 77 last_hit -1 attack 0 poise 0
 foe 1 kind 0 health 8 phase 0 since 0 x 256 y 14080 heading 0 gap 75 last_hit -1 attack 0 poise 0
 foe 2 kind 1 health 24 phase 0 since 0 x -768 y 20736 heading 0 gap 78 last_hit -1 attack 0 poise 0
 foe 3 kind 0 health 8 phase 0 since 0 x -256 y 35328 heading 0 gap 88 last_hit -1 attack 0 poise 0
 foe 4 kind 0 health 8 phase 0 since 0 x 256 y 35328 heading 0 gap 88 last_hit -1 attack 0 poise 0
-foe 5 kind 1 health -12 phase 6 since 4663 x -9856 y 10221 heading 0 gap 114 last_hit 4666 attack 0 poise 0
-foe 6 kind 1 health -12 phase 6 since 5208 x 8821 y 11121 heading 224 gap 41 last_hit 5211 attack 0 poise 0
-foe 7 kind 1 health -12 phase 6 since 5925 x -20352 y 10221 heading 0 gap 155 last_hit 5928 attack 0 poise 0
-foe 8 kind 1 health -12 phase 1 since 6820 x 20779 y 10705 heading 32 gap 2 last_hit 6822 attack 0 poise 0
+foe 5 kind 1 health -12 phase 6 since 4622 x -9856 y 10221 heading 0 gap 114 last_hit 4625 attack 0 poise 0
+foe 6 kind 1 health -12 phase 6 since 5167 x 8821 y 11121 heading 224 gap 41 last_hit 5170 attack 0 poise 0
+foe 7 kind 1 health -12 phase 6 since 5884 x -20352 y 10221 heading 0 gap 155 last_hit 5887 attack 0 poise 0
+foe 8 kind 1 health -12 phase 1 since 6779 x 20779 y 10705 heading 32 gap 2 last_hit 6781 attack 0 poise 0
