@@ -154,9 +154,8 @@ fn test_cb03a_outlined_bars_are_always_present_and_labelled() {
         "labels are not colour alone",
     )
     assert(
-        has_text(plain, 1, 8, "[======]") &&
-            has_text(plain, 5, 1, "HP 52/52  stamina 70/70  scent 8"),
-        "outlined bars and scent",
+        has_text(plain, 1, 9, "======") && art.hud_text(s).contains("scent 8"),
+        "the bars flush on the map, the scent in the debug line (cb07)",
     )
     assert(
         grid.at(plain, 1, 9).fg == 12 && grid.at(plain, 3, 9).fg == 10,
@@ -165,7 +164,7 @@ fn test_cb03a_outlined_bars_are_always_present_and_labelled() {
     s.stamina = 0
     var rich = grid.new(24, 80)
     art.render(s, tier.RICH, mut rich)
-    assert(grid.at(rich, 0, 8).cp == 9472 && grid.at(rich, 4, 16).cp == 9472, "box outline")
+    assert(grid.at(rich, 0, 8).cp != 9472 && grid.at(rich, 4, 16).cp != 9472, "no rails (cb07)")
     assert(
         grid.at(rich, 1, 9).cp == 9608 && grid.at(rich, 3, 9).cp == 32,
         "full health empty stamina",
