@@ -736,6 +736,19 @@ fn approach_as(mut s: sim.Sim, mut r: replay.Replay, foe: int, passive: bool) ->
         s.action != sim.FALL
 }
 
+/// Keep the ordinary directional keys aimed at the incoming foe. Empty
+/// input is not a stop in the inferred model: an older approach arrow can
+/// outlive its opposite and carry the witness out of the strike's reach.
+fn defensive_wait(mut s: sim.Sim, mut r: replay.Replay, foe: int, ticks: int) {
+    var n = 0
+    while n < ticks {
+        var keys = List[int]()
+        walker.aim(mut keys, s.foes[foe].x - s.x, s.foes[foe].y - s.y)
+        walker.press(mut s, mut r, keys)
+        n += 1
+    }
+}
+
 /// Refresh the original combat scripts at the new down-path encounters.
 /// These scripts use default growth and no numeric health or scent inputs.
 pub fn encounters(dir: str) -> int {
@@ -757,7 +770,7 @@ pub fn encounters(dir: str) -> int {
             }
             if !walker.walk(mut s, mut r, s.foes[0].x, s.foes[0].y) { return 1 }
         } else if kind == 1 || kind == 2 {
-            while n < 10 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
+            defensive_wait(mut s, mut r, foe, 10)
             var keys = List[int]()
             if kind == 2 { (mut keys).push(controls.KEY_LEFT) }
             (mut keys).push(if kind == 1 then controls.KEY_PARRY else controls.KEY_DODGE)
@@ -765,7 +778,7 @@ pub fn encounters(dir: str) -> int {
             n = 0
             while n < 5 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
         } else if kind == 3 {
-            while n < 16 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
+            defensive_wait(mut s, mut r, foe, 16)
         } else if kind == 4 {
             while n < 30 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
         } else if kind == 5 {
@@ -799,6 +812,18 @@ pub fn encounters(dir: str) -> int {
             4 => "fox-feint",
             5 => "natural-death",
             _ => "aim-lock",
+        }
+        if kind == 1 && (s.foes[foe].phase != sim.STAGGER || s.health != sim.health_max(1)) {
+            eprint("proof: parry did not meet the incoming strike")
+            return 1
+        }
+        if kind == 2 && (s.action != sim.DODGE || s.health != sim.health_max(1)) {
+            eprint("proof: dodge did not preserve health")
+            return 1
+        }
+        if kind == 3 && (s.foes[foe].phase != sim.RETREAT || s.health >= sim.health_max(1)) {
+            eprint("proof: unanswered strike did not hit before retreat")
+            return 1
         }
         snapshot(dir, name, s, r) else |_| { return 2 }
         kind += 1

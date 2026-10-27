@@ -1,0 +1,47 @@
+//! member: false
+
+use controls
+use replay
+use sim
+use std.fs
+
+fn defensive_fixture(name: str) -> sim.Sim {
+    let text = fs.read_text("tests/cases/{name}.pk") else |_| {
+        assert(false, "defensive fixture readable")
+        ""
+    }
+    let r = replay.from_text(text, controls.vocab()) else |_| {
+        assert(false, "defensive fixture parses")
+        replay.new(1, 1, 80, 24)
+    }
+    var frames = 0
+    for line in text.lines() {
+        let words = line.words()
+        if words.len >= 3 && words[0] == "#" && words[1] == "frames" {
+            frames = words[2].to_int() else 0
+        }
+    }
+    assert(r.seed == 1 && frames > 0 && frames < 2400, "bounded ordinary encounter")
+    var s = sim.new(1, 80, 24)
+    var t = 0
+    while t < frames {
+        var keys = List[int]()
+        let (_, _, health) = replay.at(r, t, mut keys)
+        assert(health == 0 && replay.args_at(r, t, controls.EV_JOURNEY) == 0, "ordinary keys only")
+        sim.step(mut s, keys)
+        t += 1
+    }
+    s
+}
+
+fn test_cb04b_defensive_parry_fixture_actually_staggers() {
+    let s = defensive_fixture("parry")
+    assert(s.foes[0].phase == sim.STAGGER, "the timed parry must meet the strike")
+    assert(s.health == sim.health_max(1), "successful parry preserves health")
+}
+
+fn test_cb04b_defensive_unanswered_strike_fixture_actually_hits() {
+    let s = defensive_fixture("weasel-retreat")
+    assert(s.health < sim.health_max(1), "the unanswered strike must hit")
+    assert(s.foes[0].phase == sim.RETREAT, "the weasel retreats after its strike")
+}
