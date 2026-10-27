@@ -32,6 +32,18 @@ pub fn aim(mut keys: List[int], x: int, y: int) {
     if x > sim.FP / 4 { (mut keys).push(controls.KEY_RIGHT) }
 }
 
+/// The arrows of the eight-way direction nearest `heading` (cb07): a
+/// strike at a foe in reach aims at its bearing, not at the per-axis
+/// quarter-cell arrows of `aim`, which press a diagonal at a foe a
+/// little to one side and put hit 1's slanted cone past it.
+pub fn aim_at(mut keys: List[int], heading: int) {
+    let k = ((heading + 16) % sim.TURN + sim.TURN) % sim.TURN / 32
+    if k == 7 || k == 0 || k == 1 { (mut keys).push(controls.KEY_UP) }
+    if k == 3 || k == 4 || k == 5 { (mut keys).push(controls.KEY_DOWN) }
+    if k == 5 || k == 6 || k == 7 { (mut keys).push(controls.KEY_LEFT) }
+    if k == 1 || k == 2 || k == 3 { (mut keys).push(controls.KEY_RIGHT) }
+}
+
 /// One tick toward `(x, y)`, fighting any foe in reach on the way.
 pub fn drive(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int) {
     drive_as(mut s, mut r, x, y, false)
@@ -75,7 +87,7 @@ pub fn drive_as(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int, passive: b
                     // the foe is almost cardinal. Commit the same intentional
                     // lock a player uses before a slanted bite; death releases it.
                     if s.locked < 0 { (mut keys).push(controls.KEY_LOCK) }
-                    aim(mut keys, foe.x - s.x, foe.y - s.y)
+                    aim_at(mut keys, sim.heading_to(s.x, s.y, foe.x, foe.y))
                     (mut keys).push(controls.KEY_BITE)
                     // The aim is latched at Space. Release before following
                     // the next path segment; lock otherwise steers movement.
@@ -106,6 +118,13 @@ pub fn walk(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int) -> bool {
     walk_stop(mut s, mut r, tx, ty, -1, false)
 }
 
+/// `walk`, narrated (cb07: `cub --crossing-trace`): a line a tick while
+/// a live ground foe is within two cells of the body, with the cub's
+/// action, its aim and whether each strike reaches the foe.
+pub fn walk_narrated(mut s: sim.Sim, mut r: replay.Replay, tx: int, ty: int) -> bool {
+    walk_stop_as(mut s, mut r, tx, ty, -1, false, true)
+}
+
 /// Whether the cub standing on a cell, facing as it faces, would share a
 /// cell with a live ground foe's body: the walker routes round bodies as
 /// it routes round trunks (cb02c: bodies are the drawings' footprints).
@@ -127,10 +146,23 @@ pub fn walk_stop(
     stop_foe: int,
     passive: bool,
 ) -> bool {
+    walk_stop_as(mut s, mut r, tx, ty, stop_foe, passive, false)
+}
+
+fn walk_stop_as(
+    mut s: sim.Sim,
+    mut r: replay.Replay,
+    tx: int,
+    ty: int,
+    stop_foe: int,
+    passive: bool,
+    narrate: bool,
+) -> bool {
     if !clear_arrival(mut s, mut r, tx, ty) { return false }
     var replans = 0
     while replans < 20 {
-        let outcome = walk_once(mut s, mut r, tx, ty, stop_foe, passive)
+        let outcome = walk_once_as(mut s, mut r, tx, ty, stop_foe, passive, narrate)
+        if narrate { print("walk: plan {replans} outcome {outcome} tick {s.tick}") }
         if outcome != 2 {
             if outcome == 0 { walk_failure(s, tx, ty, "failed") }
             return outcome == 1
@@ -212,6 +244,31 @@ pub fn walk_once(
     stop_foe: int,
     passive: bool,
 ) -> int {
+    walk_once_as(mut s, mut r, tx, ty, stop_foe, passive, false)
+}
+
+fn narrate_tick(s: sim.Sim) {
+    var k = 0
+    while k < s.foes.len {
+        let f = copy s.foes[k]
+        if f.health > 0 && f.kind != sim.HAWK && sim.body_gap(s, k) <= 2 {
+            print(
+                "walk: t {s.tick} cub {s.x},{s.y} cell {sim.cell_x(s)},{sim.cell_y(s)} action {s.action} combo {s.combo} age {s.tick - s.started} aim {s.attack_heading} dir {sim.attack_direction(s)} held {sim.held_direction(s)} locked {s.locked} health {s.health} stamina {s.stamina} | foe {k} kind {f.kind} phase {f.phase} health {f.health} at {f.x},{f.y} gap {sim.body_gap(s, k)} bearing {sim.heading_to(s.x, s.y, f.x, f.y)} reach {if sim.in_reach(s, k, 2) then 1 else 0} strike {if sim.strike_reaches(s, k, 2) then 1 else 0} hit {if f.last_hit == s.started then 1 else 0}",
+            )
+        }
+        k += 1
+    }
+}
+
+fn walk_once_as(
+    mut s: sim.Sim,
+    mut r: replay.Replay,
+    tx: int,
+    ty: int,
+    stop_foe: int,
+    passive: bool,
+    narrate: bool,
+) -> int {
     let area = s.area
     let w = forest.bound(s.field, area)
     let width = w * 2 + 1
@@ -265,12 +322,25 @@ pub fn walk_once(
                 if detour > 0 { detour -= 1 }
                 drive_as(mut s, mut r, x, y, passive)
             }
+            if narrate { narrate_tick(s) }
             if stop_foe >= 0 &&
                 (s.foes[stop_foe].phase == sim.CROUCH || s.foes[stop_foe].phase == sim.FEINT) {
                 return 1
             }
             if s.area != area { return 1 }
-            if s.x == last_x && s.y == last_y { still += 1 } else { still = 0 }
+            // A tick spent fighting in place is not a still tick (cb07: a
+            // strike blocked on both axes by a foe ahead and a wall beside
+            // leaves the cub exactly where it stood; cb04b's bites always
+            // moved it a quarter cell, which hid this).
+            var engaged = s.action != sim.IDLE
+            var k = 0
+            while k < s.foes.len {
+                if s.foes[k].health > 0 && s.foes[k].kind != sim.HAWK && sim.in_reach(s, k, 2) {
+                    engaged = true
+                }
+                k += 1
+            }
+            if engaged || s.x != last_x || s.y != last_y { still = 0 } else { still += 1 }
             last_x = s.x
             last_y = s.y
             if still >= 30 { return 2 }
