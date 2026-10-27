@@ -1,0 +1,184 @@
+//! cross — Cinderwick's second-pass instruments (cb05, item 8): the
+//! crossing census (a scripted cub with the Shingle's health and no flask
+//! walks the lane from the gate to the cold hearth, biting what it meets
+//! and parrying an Ashen's blow, never rolling: Book-II play) and the
+//! hitbox audit (a bite from each of the eight aims at an Ashen standing
+//! still: which body cell the cub touches, whether the anchor and the
+//! nearest body cell lie in the bite's cone, whether the bite lands).
+
+use controls
+use forest
+use replay
+use sim
+use town
+use walker
+
+/// Seeds the crossing census walks at each field.
+pub const CROSSING_SEEDS: int = 10
+
+/// The seeds that must survive at each field (R-cb05-5's bar: nine of ten).
+pub const CROSSING_BAR: int = 9
+
+/// A fresh cub at Cinderwick's thorn throat: the Shingle's heart, no
+/// flask, the gate open.
+fn fresh_cub(seed: int, field: int) -> sim.Sim {
+    var s = sim.new(seed, field, 24)
+    s.gate_open = true
+    s.opening_seen = true
+    s.flask_max = 0
+    s.flasks = 0
+    sim.enter_area(mut s, forest.TOWN, sim.FP / 2, 2 * sim.FP + sim.FP / 2)
+    s
+}
+
+/// Whether the cub's cell lies off the lane and off the square: in a yard,
+/// a passage or a verge (the census says where a death came).
+fn off_lane(s: sim.Sim) -> bool {
+    !town.on_lane(s.seed, sim.cell_x(s), sim.cell_y(s)) && !town.square(town.plot(sim.cell_y(s)))
+}
+
+/// The crossing census: `CROSSING_SEEDS` seeds at both fields, each a walk
+/// from the throat to the hearth; a row a walk (seed, field, outcome,
+/// tick, health, ashen fought, where); green when at least `CROSSING_BAR`
+/// survive at each field and no death comes on the lane.
+pub fn crossing() -> int {
+    print("seed field outcome tick health beaten where")
+    var red = 0
+    for field in [80, 200] {
+        var survived = 0
+        var seed = 0
+        while seed < CROSSING_SEEDS {
+            var s = fresh_cub(seed, field)
+            var r = replay.new(seed, 1, field, 24)
+            let (hx, hy) = forest.den_position(seed, 7)
+            let arrived = walker.walk(mut s, mut r, hx, hy)
+            var beaten = 0
+            var i = 0
+            while i < s.foes.len {
+                if s.foes[i].kind == sim.ASHEN && s.foes[i].health <= 0 { beaten += 1 }
+                i += 1
+            }
+            let outcome = if arrived && s.action != sim.FALL {
+                "arrived"
+            } else if s.action == sim.FALL {
+                "died"
+            } else {
+                "stalled"
+            }
+            let where = if s.action != sim.FALL then "-" else if off_lane(s) then "yard" else "lane"
+            print("{seed} {field} {outcome} {s.tick} {s.health} {beaten} {where}")
+            if arrived && s.action != sim.FALL { survived += 1 }
+            if s.action == sim.FALL && !off_lane(s) { red += 1 }
+            seed += 1
+        }
+        print("crossing: field {field} survived {survived} of {CROSSING_SEEDS}")
+        if survived < CROSSING_BAR { red += 1 }
+    }
+    if red > 0 {
+        print("crossing: RED")
+        return 1
+    }
+    print(
+        "crossing: green, at least {CROSSING_BAR} of {CROSSING_SEEDS} seeds cross at each field, no death on the lane",
+    )
+    0
+}
+
+/// The eight aims, headings: north, north-east, east, ... (TURN 256).
+fn aim_heading(k: int) -> int {
+    k * 32
+}
+
+/// The cub placed touching the Ashen's body on the side the aim comes
+/// from: from the body's centre, back along the aim until the bodies'
+/// gap is zero (never overlapping).
+fn place_touching(mut s: sim.Sim, k: int) {
+    place_at_gap(mut s, k, 0)
+}
+
+/// The cub placed with the bodies' gap at least `want` on the aim's side.
+fn place_at_gap(mut s: sim.Sim, k: int, want: int) {
+    let f = copy s.foes[0]
+    let fb = sim.foe_body(f)
+    let cx = (fb.x0 + fb.x1 + 1) * sim.FP / 2
+    let cy = (fb.y0 + fb.y1 + 1) * sim.FP / 2
+    let h = aim_heading(k)
+    var d = 1
+    while d < 12 * sim.FP {
+        let x = cx - sim.sin(h) * d / sim.FP
+        let y = cy + sim.cos(h) * d / sim.FP
+        s.x = x
+        s.y = y
+        s.heading = h
+        s.heading_target = h
+        s.body_facing = sim.quarter(h)
+        if sim.gap(sim.cub_body(s), fb) >= want { return }
+        d += 8
+    }
+}
+
+/// The hitbox audit: sixteen rows (aim, the cub's cell, the gap, the
+/// anchor in the cone, the nearest body cell in the cone, landed), the
+/// Ashen at rest facing north in open ground, the cub touching it and then
+/// a cell off (the bite's reach is two); red when any such bite misses.
+pub fn hitbox() -> int {
+    print("aim cub_x cub_y gap anchor_in_cone body_in_cone landed")
+    var misses = 0
+    var k = 0
+    while k < 16 {
+        let want = k / 8
+        var s = sim.new(3, 80, 24)
+        s.gate_open = true
+        sim.enter_area(mut s, forest.LARKMEADOW, 0, 40 * sim.FP)
+        (mut s.foes).reset()
+        var f = sim.make_ashen(sim.FP / 2, 40 * sim.FP + sim.FP / 2)
+        f.heading = 0
+        f.phase = sim.RETREAT
+        f.since = s.tick
+        (mut s.foes).push(f)
+        place_at_gap(mut s, k % 8, want)
+        let fb = sim.foe_body(s.foes[0])
+        let gap = sim.gap(sim.cub_body(s), fb)
+        let h = aim_heading(k % 8)
+        let anchor = sim.in_front(s.x, s.y, h, s.foes[0].x, s.foes[0].y)
+        // The body cell nearest the cub, its centre.
+        var best = 1000000
+        var bx = 0
+        var by = 0
+        var y = fb.y0
+        while y <= fb.y1 {
+            var x = fb.x0
+            while x <= fb.x1 {
+                let px = x * sim.FP + sim.FP / 2
+                let py = y * sim.FP + sim.FP / 2
+                let d = (px - s.x) * (px - s.x) / sim.FP + (py - s.y) * (py - s.y) / sim.FP
+                if d < best {
+                    best = d
+                    bx = px
+                    by = py
+                }
+                x += 1
+            }
+            y += 1
+        }
+        let body = sim.in_front(s.x, s.y, h, bx, by)
+        let before = s.foes[0].health
+        var keys = List[int]()
+        (mut keys).push(controls.KEY_LOCK)
+        walker.aim(mut keys, 0 - sim.sin(h), sim.cos(h))
+        (mut keys).push(controls.KEY_BITE)
+        sim.step(mut s, keys)
+        var n = 0
+        while n < 8 { sim.step(mut s, List[int]()); n += 1 }
+        let landed = s.foes[0].health < before
+        if !landed { misses += 1 }
+        print("{k % 8} {sim.cell_x(s)} {sim.cell_y(s)} {gap} {anchor} {body} {landed}")
+        k += 1
+    }
+    if misses > 0 {
+        print("hitbox: RED {misses} of 16 bites in reach miss")
+        return 1
+    }
+    print("hitbox: green, a bite in reach lands from every aim, touching and a cell off")
+    0
+}
