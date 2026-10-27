@@ -1,0 +1,73 @@
+//! member: false
+//! cb08 R6 A preserves cb04b R4: travel is latched, locked facing tracks.
+
+use controls
+use forest
+use input
+use motionproof
+use sim
+
+fn roll_clearing() -> sim.Sim {
+    var s = sim.new(1, 200, 40)
+    (mut s.foes).reset()
+    s.area = forest.BRAMBLEHOLD
+    let (x, y, _) = forest.arena(1, 200, s.area)
+    s.x = x * sim.FP + sim.FP / 2
+    s.y = (forest.origin(1, s.area) + y) * sim.FP + sim.FP / 2
+    s.key_state = input.state_new(true)
+    s
+}
+
+fn test_cb08_unlocked_roll_body_uses_all_eight_latched_facings() {
+    for h in [0, 32, 64, 96, 128, 160, 192, 224] {
+        var s = roll_clearing()
+        var keys = motionproof.arrows(h, false)
+        (mut keys).push(controls.KEY_DODGE)
+        sim.step(mut s, keys)
+        var age = 1
+        while age < 14 {
+            assert(
+                s.attack_heading == h && s.body_facing == h / 32,
+                "unlocked roll eighth {h} age {age}",
+            )
+            sim.step(mut s, List[int]())
+            age += 1
+        }
+    }
+}
+
+fn test_cb08_locked_roll_body_tracks_all_eight_target_facings() {
+    for travel in [0, 32, 64, 96, 128, 160, 192, 224] {
+        var s = roll_clearing()
+        let target = (travel + 64) % sim.TURN
+        var foe = sim.spawn_foes(1)[0]
+        foe.x = s.x + 8 * sim.sin(target)
+        foe.y = s.y - 8 * sim.cos(target)
+        foe.health = 100
+        foe.phase = sim.STAGGER
+        foe.since = 100000
+        (mut s.foes).push(foe)
+        s.locked = 0
+        var keys = motionproof.arrows(travel, false)
+        (mut keys).push(controls.KEY_DODGE)
+        sim.step(mut s, keys)
+        assert(
+            s.body_facing == target / 32 && s.body_facing != travel / 32,
+            "lock-facing eighth differs from travel",
+        )
+        var age = 1
+        while age < 14 {
+            assert(s.attack_heading == travel, "the lock cannot redirect the roll")
+            assert(
+                s.body_facing == sim.eighth(s.heading),
+                "body follows tracked heading, not the travel",
+            )
+            sim.step(mut s, List[int]())
+            age += 1
+        }
+        assert(
+            s.body_facing == sim.eighth(sim.heading_to(s.x, s.y, s.foes[0].x, s.foes[0].y)),
+            "recovery faces the current target bearing",
+        )
+    }
+}

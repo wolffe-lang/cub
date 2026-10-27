@@ -1760,13 +1760,17 @@ pub fn quarter(heading: int) -> int {
     ((heading + 32) % TURN + TURN) % TURN / 64
 }
 
+// R-cb08-6 A keeps cb04b's locked-roll target-facing rule. A one-line
+// switch to false selects reading B: the body faces travel while locked.
+const LOCKED_ROLL_FACES_TARGET: bool = true
+
 /// The facing the cub's body would take now: an attack's aim during a
 /// bite, a lunge or a heavy, else the heading's eighth.
 pub fn wanted_facing(s: Sim) -> int {
     if s.action == BITE || s.action == LUNGE || s.action == HEAVY || s.action == DASH {
         return eighth(s.attack_heading)
     }
-    facing(s)
+    if s.action == DODGE && !LOCKED_ROLL_FACES_TARGET then eighth(s.attack_heading) else facing(s)
 }
 
 /// The cub's drawing's size in pixels: the cub's, or the wolf's after the
