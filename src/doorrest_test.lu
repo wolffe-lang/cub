@@ -1,6 +1,7 @@
 //! member: false
 
 use art
+use forest
 use grid
 use sim
 
@@ -54,7 +55,7 @@ fn test_cb04d_doorway_edge_crosses_and_arrival_does_not_bounce() {
     s.gate_open = true
     s.area = 1
     s.x = 4 * sim.FP
-    s.y = 159 * sim.FP
+    s.y = (forest.length(1) - 1) * sim.FP
     s.body_facing = 0
     assert(sim.transitions(mut s, 5 * sim.FP, s.y), "right edge of drawn shadow enters meadow")
     assert(s.area == 2 && s.y == 3 * sim.FP, "unchanged arrival placement")

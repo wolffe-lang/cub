@@ -14,7 +14,12 @@ use terrain
 use tier
 
 fn test_cb04_the_graph_has_six_areas_and_nine_edges() {
-    assert(forest.AREAS == 6 && forest.DENS == 7 && forest.EDGES == 9, "the counts")
+    // cb05: seven areas (Cinderwick threaded between the Shingle and
+    // Bramblehold), eight dens in the first bank, ten edges.
+    assert(forest.AREAS == 7 && forest.DENS == 8 && forest.EDGES == 10, "the counts")
+    assert(forest.other(forest.SHINGLE, 0) == forest.TOWN, "the thorn gate opens on the town")
+    assert(forest.other(forest.TOWN, 9) == forest.BRAMBLEHOLD, "the town leads to the thicket")
+    assert(forest.other(forest.BRAMBLEHOLD, 2) == forest.SHINGLE, "the log still runs to the bank")
     // The way on: Shingle, Bramblehold, Larkmeadow, the Teeth, the
     // Shallows, Gravehollow, one path edge between each pair.
     assert(forest.other(forest.LARKMEADOW, 4) == forest.CRAGS, "the meadow leads to the crags")
@@ -46,17 +51,20 @@ fn test_cb04_the_graph_has_six_areas_and_nine_edges() {
         assert(ends == 2, "edge {e} has two ends")
         e += 1
     }
-    // Each new area has one den near its entry.
+    // Each new area has one den near its entry (the ledge cleft a little
+    // further in since cb05, a den's spacing from the last warm hollow).
     assert(
         forest.den_area(4) == forest.CRAGS &&
             forest.den_area(5) == forest.RIVER &&
-            forest.den_area(6) == forest.OLDDEN,
+            forest.den_area(6) == forest.OLDDEN &&
+            forest.den_area(7) == forest.TOWN,
         "the dens",
     )
     var den = 4
-    while den < forest.DENS {
+    while den < 7 {
         let (_, y) = forest.den_position(1, den)
-        assert(y / sim.FP >= 7 && y / sim.FP <= 10, "den {den} near the entry")
+        let low = if den == 4 then 16 else 7
+        assert(y / sim.FP >= low && y / sim.FP <= low + 3, "den {den} near the entry")
         den += 1
     }
 }
@@ -73,7 +81,7 @@ fn test_cb04_every_area_reaches_its_dens_portals_and_arena() {
         while area < forest.AREAS {
             let o = forest.origin(seed, area)
             var y = 0
-            while y <= forest.LENGTH {
+            while y <= forest.length(area) {
                 assert(
                     !forest.blocked(seed, field, area, forest.spine(seed, area, y), o + y),
                     "clear path seed {seed} area {area} row {y}",
@@ -91,11 +99,13 @@ fn test_cb04_every_area_reaches_its_dens_portals_and_arena() {
                 }
                 edge += 1
             }
-            let (cx, cy, _) = forest.arena(seed, field, area)
-            assert(
-                !forest.blocked(seed, field, area, cx, o + cy),
-                "arena centre open seed {seed} area {area}",
-            )
+            if forest.has_arena(area) {
+                let (cx, cy, _) = forest.arena(seed, field, area)
+                assert(
+                    !forest.blocked(seed, field, area, cx, o + cy),
+                    "arena centre open seed {seed} area {area}",
+                )
+            }
             area += 1
         }
         var den = 4
@@ -116,12 +126,25 @@ fn test_cb04_every_area_reaches_its_dens_portals_and_arena() {
         }
         seed += 1
     }
-    assert(forest.required(forest.CRAGS) == 6, "the crags: a den, four portals, the arena")
-    assert(forest.required(forest.RIVER) == 5, "the river: a den, three portals, the arena")
-    assert(forest.required(forest.OLDDEN) == 3, "the old den: a den, a portal, the arena")
     assert(
-        forest.required(forest.LARKMEADOW) == 10,
-        "the meadow has four dens, four portals and two caches",
+        forest.required(forest.CRAGS) == 8,
+        "the crags: a den, four portals, the arena, the cleft and a scent mark",
+    )
+    assert(
+        forest.required(forest.RIVER) == 6,
+        "the river: a den, three portals, the arena, the willow",
+    )
+    assert(
+        forest.required(forest.OLDDEN) == 4,
+        "the old den: a den, a portal, the arena, a scent mark",
+    )
+    assert(
+        forest.required(forest.LARKMEADOW) == 13,
+        "the meadow has two dens, four portals, three caches and four landmarks",
+    )
+    assert(
+        forest.required(forest.TOWN) == 9,
+        "the town has a den, two portals, four caches and two scent marks",
     )
 }
 
@@ -256,7 +279,7 @@ fn test_cb04_the_new_areas_keep_the_texture_and_path_bars() {
             }
             if t == tier.PLAIN { assert(grid.plain_ok(g), "plain row area {area}") }
             var y = 0
-            while y <= forest.LENGTH {
+            while y <= forest.length(area) {
                 let x = forest.spine(0, area, y)
                 assert(
                     art.is_path_style(

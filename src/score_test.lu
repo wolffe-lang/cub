@@ -81,7 +81,7 @@ fn test_cb03_the_areas_and_bosses_have_their_parts_and_slots() {
             score.area_part(5) == "old-den",
         "cb04's slots are named",
     )
-    assert(score.area_part(6) == "", "no seventh area")
+    assert(score.area_part(6) == "cinderwick" && score.area_part(7) == "", "cb05's slot, no eighth")
     assert(score.boss_part(0) == "boss-boar" && score.boss_part(3) == "boss-alpha", "bosses")
     assert(score.boss_part(-1) == "" && score.boss_part(4) == "", "no fifth boss")
     assert(score.plays_once("death") && !score.plays_once("shingle"), "the sting alone plays once")
