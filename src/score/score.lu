@@ -175,7 +175,7 @@ pub fn scene_of(s: sim.Sim) -> Scene {
 /// theme, the area's loop.
 pub fn opening_part(age: int) -> str {
     if age < 210 { return "title" }
-    if age < 360 { return "crack" }
+    if age < 360 { return "title" }
     if age < 510 { return "silence" }
     "shingle"
 }
