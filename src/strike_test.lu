@@ -26,7 +26,7 @@ fn held(
 ) {
     var age = from
     while age <= to {
-        let r = rows[age]
+        let r = copy rows[age]
         assert(r.age == age, "{what}: row {age} is age {r.age}")
         assert(r.forward >= forward, "{what}: age {age} forward {r.forward} under {forward}")
         assert(r.left >= lo && r.left <= hi, "{what}: age {age} left {r.left} outside {lo}..{hi}")
@@ -94,7 +94,7 @@ fn test_cb07_every_strike_eases_back_to_the_commitment_point() {
         for h in aims() {
             for hit in [1, 2, 3] {
                 let rows = combatproof.strike_rows(h, hit, t)
-                let last = rows[rows.len - 1]
+                let last = copy rows[rows.len - 1]
                 assert(
                     last.changed == 0 && last.forward == 0 && last.left == 0,
                     "hit {hit} aim {h} {tier_name(t)}: the last age stands at the commitment point",
