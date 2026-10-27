@@ -110,25 +110,34 @@ fn place_touching(mut s: sim.Sim, k: int) {
     place_at_gap(mut s, k, 0)
 }
 
-/// The cub placed with the bodies' gap at least `want` on the aim's side.
+/// A jaw-aligned stance with exactly `want` clear cells. The diagonal
+/// body's leading corner, not its anchor-to-centre ray, faces the target.
 fn place_at_gap(mut s: sim.Sim, k: int, want: int) {
-    let f = copy s.foes[0]
-    let fb = sim.foe_body(f)
-    let cx = (fb.x0 + fb.x1 + 1) * sim.FP / 2
-    let cy = (fb.y0 + fb.y1 + 1) * sim.FP / 2
+    let fb = sim.foe_body(s.foes[0])
     let h = aim_heading(k)
-    var d = 1
-    while d < 12 * sim.FP {
-        let x = cx - sim.sin(h) * d / sim.FP
-        let y = cy + sim.cos(h) * d / sim.FP
-        s.x = x
-        s.y = y
-        s.heading = h
-        s.heading_target = h
-        s.body_facing = sim.eighth(h)
-        if sim.gap(sim.cub_body(s), fb) >= want { return }
-        d += 8
+    s.heading = h
+    s.heading_target = h
+    s.body_facing = sim.eighth(h)
+    let cb = sim.cub_body_at(s, 0, 0, s.body_facing)
+    let dx = sim.sin(h)
+    let dy = 0 - sim.cos(h)
+    let distance = want + 1
+    let x = if dx > 0 {
+        fb.x0 - distance - cb.x1
+    } else if dx < 0 {
+        fb.x1 + distance - cb.x0
+    } else {
+        (fb.x0 + fb.x1 - cb.x0 - cb.x1) / 2
     }
+    let y = if dy > 0 {
+        fb.y0 - distance - cb.y1
+    } else if dy < 0 {
+        fb.y1 + distance - cb.y0
+    } else {
+        (fb.y0 + fb.y1 - cb.y0 - cb.y1) / 2
+    }
+    s.x = x * sim.FP
+    s.y = y * sim.FP
 }
 
 /// The hitbox audit: sixteen rows (aim, the cub's cell, the gap, the
@@ -164,7 +173,9 @@ pub fn hitbox_rows(first: int, last: int) -> int {
         let gap = sim.gap(sim.cub_body(s), fb)
         let h = aim_heading(k % 8)
         let anchor = sim.in_front(s.x, s.y, h, s.foes[0].x, s.foes[0].y)
-        // The body cell nearest the cub, its centre.
+        // The body cell nearest the jaws; retain the anchor column above
+        // as the old rule's reference, not as the hit condition.
+        let (jx, jy) = sim.jaws(sim.cub_body(s), s.body_facing)
         var best = 1000000
         var bx = 0
         var by = 0
@@ -174,7 +185,7 @@ pub fn hitbox_rows(first: int, last: int) -> int {
             while x <= fb.x1 {
                 let px = x * sim.FP + sim.FP / 2
                 let py = y * sim.FP + sim.FP / 2
-                let d = (px - s.x) * (px - s.x) / sim.FP + (py - s.y) * (py - s.y) / sim.FP
+                let d = (px - jx) * (px - jx) / sim.FP + (py - jy) * (py - jy) / sim.FP
                 if d < best {
                     best = d
                     bx = px
@@ -184,7 +195,7 @@ pub fn hitbox_rows(first: int, last: int) -> int {
             }
             y += 1
         }
-        let body = sim.in_front(s.x, s.y, h, bx, by)
+        let body = sim.in_front(jx, jy, h, bx, by)
         let before = s.foes[0].health
         var keys = List[int]()
         (mut keys).push(controls.KEY_LOCK)
@@ -197,6 +208,7 @@ pub fn hitbox_rows(first: int, last: int) -> int {
             eprint("hitbox: expected aim {h}, committed {s.attack_heading}")
             return 1
         }
+        assert(gap == want, "hitbox audit keeps the exact requested body gap")
         var n = 0
         while n < 8 { sim.step(mut s, List[int]()); n += 1 }
         let landed = s.foes[0].health < before

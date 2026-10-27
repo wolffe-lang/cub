@@ -1,0 +1,22 @@
+cb08 ashen-hitbox-exit start 2026-10-27T10:01:01Z
+cb08 ashen-hitbox-exit waiting for cores 8-11 2026-10-27T10:01:01Z
+cb08 ashen-hitbox-exit acquired cores 4-7 2026-10-27T10:01:01Z
+aim cub_x cub_y gap anchor_in_cone body_in_cone landed
+0 1 43 0 true true true
+1 -2 43 0 true true false
+2 -5 40 0 true true true
+3 -3 36 0 true true false
+4 1 36 0 true true true
+5 4 36 0 true true true
+6 5 40 0 true true true
+7 3 43 0 true true false
+0 1 44 1 true true true
+1 -3 44 1 true true true
+2 -6 40 1 true true true
+3 -4 35 1 true true true
+4 1 35 1 true true true
+5 5 35 1 true true true
+6 6 40 1 true true true
+7 4 44 1 true true true
+hitbox: RED 3 of 16 bites in reach miss
+ashen-hitbox-exit EXIT 1 2026-10-27T10:01:02Z
