@@ -60,13 +60,14 @@ t 16 right
 t 17 right
 t 18 right
 t 19 right
+t 20 up
 t 20 right
+t 21 up
 t 21 right
 t 22 up
-t 22 right
 t 23 up
-t 24 up
-t 25 up
+t 23 right
+t 24 right
 t 25 right
 t 26 right
 t 27 right
@@ -74,7 +75,5 @@ t 28 right
 t 29 right
 t 30 right
 t 31 right
-t 32 right
-t 33 right
 
-# frames 40 every 1 from 40
+# frames 38 every 1 from 38

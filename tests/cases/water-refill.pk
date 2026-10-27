@@ -73,18 +73,16 @@ t 62 down
 t 63 down
 t 64 down
 t 65 down
-t 66 down
-t 67 down
+t 65 right
+t 66 right
+t 67 right
 t 68 down
+t 68 right
 t 69 down
-t 69 right
 t 70 down
-t 70 right
-t 71 right
+t 71 down
 t 72 down
-t 72 right
 t 73 down
-t 73 right
 t 74 down
 t 75 down
 t 76 down
@@ -94,27 +92,28 @@ t 79 down
 t 80 down
 t 81 down
 t 82 down
-t 83 down
-t 84 down
-t 85 down
-t 86 down
-t 87 down
-t 88 health -30
-t 88 water
-t 124 down
+t 83 health -30
+t 83 water
+t 119 down
+t 119 left
+t 120 down
+t 120 left
+t 121 down
+t 121 left
+t 122 down
+t 122 left
+t 123 left
 t 124 left
-t 125 down
 t 125 left
-t 126 down
+t 126 up
 t 126 left
-t 127 down
+t 127 up
 t 127 left
-t 128 left
-t 129 left
-t 130 left
-t 131 left
+t 128 up
+t 129 up
+t 130 up
+t 131 up
 t 132 up
-t 132 left
 t 133 up
 t 134 up
 t 135 up
@@ -185,16 +184,6 @@ t 199 up
 t 200 up
 t 201 up
 t 202 up
-t 203 up
-t 204 up
-t 205 up
-t 206 up
-t 207 up
-t 208 up
-t 209 up
-t 210 up
-t 211 up
-t 212 up
-t 213 rest
+t 203 rest
 
-# frames 214 every 214
+# frames 204 every 204

@@ -100,11 +100,10 @@ t 56 left
 t 57 left
 t 58 left
 t 59 left
-t 60 left
-t 61 left
-t 62 left
+t 60 up
+t 61 up
+t 62 up
 t 63 up
-t 63 left
 t 64 up
 t 65 up
 t 66 up
@@ -256,18 +255,5 @@ t 211 up
 t 212 up
 t 213 up
 t 214 up
-t 215 up
-t 216 up
-t 217 up
-t 218 up
-t 219 up
-t 220 up
-t 221 up
-t 222 up
-t 223 up
-t 224 up
-t 225 up
-t 226 up
-t 227 up
 
-# frames 234 every 1 from 234
+# frames 221 every 1 from 221

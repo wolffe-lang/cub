@@ -50,9 +50,9 @@ t 6 right
 t 7 right
 t 8 right
 t 9 right
-t 10 right
-t 11 rest
-t 32 release
+t 10 rest
+t 31 release
+t 32 right
 t 33 right
 t 34 right
 t 35 right
@@ -63,33 +63,31 @@ t 39 right
 t 40 right
 t 41 right
 t 42 right
+t 43 down
 t 43 right
 t 44 down
-t 44 right
 t 45 down
 t 46 down
-t 47 down
+t 46 right
 t 47 right
+t 48 down
 t 48 right
-t 49 right
+t 49 down
 t 50 down
 t 50 right
-t 51 down
+t 51 right
 t 52 down
+t 52 right
+t 53 down
 t 53 right
-t 54 right
+t 54 down
 t 55 down
-t 55 right
 t 56 down
 t 57 down
 t 58 down
 t 59 down
 t 60 down
-t 61 down
-t 62 down
-t 63 down
-t 64 down
-t 65 scent 37
-t 65 health -10000
+t 61 scent 37
+t 61 health -10000
 
-# frames 95 every 95
+# frames 91 every 91

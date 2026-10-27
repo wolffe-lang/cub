@@ -50,7 +50,6 @@ t 6 left
 t 7 down
 t 7 left
 t 8 down
-t 8 left
 t 9 down
 t 10 down
 t 11 down
@@ -116,10 +115,5 @@ t 70 down
 t 71 down
 t 72 down
 t 73 down
-t 74 down
-t 75 down
-t 76 down
-t 77 down
-t 78 down
 
-# frames 85 every 1 from 85
+# frames 80 every 1 from 80
