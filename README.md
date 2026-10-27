@@ -77,7 +77,8 @@ made for (the terminal's width when the journey began). `--save PATH`
 selects a separate journey. Unknown or corrupt files fail by name, never
 silently reset. This build writes schema5, migrates schema4 with an empty
 slain set, and refuses earlier schemas as `save_version`; use a new
-`--save PATH` to try it without replacing an older journey. A quit during a staged write preserves the previous save.
+`--save PATH` to try it without replacing an older journey. A quit before a staged write's commit tick preserves the previous save;
+a stage already due on the quit tick is committed.
 Live deaths leave self-contained replay files under `~/.cub/ghosts/`
 (`--ghost-dir DIR` elsewhere), each the ghost the next game shows;
 difficulty selection comes later. Every tuning proposal is in
