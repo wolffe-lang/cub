@@ -1,0 +1,35 @@
+build: target/release/cub
+aim cub_x cub_y gap anchor_in_cone body_in_cone landed
+hitbox-input: expected 0 committed 128 start_gap 0
+0 1 43 0 true true false
+hitbox-input: expected 32 committed 160 start_gap 0
+1 -1 42 0 true true false
+hitbox-input: expected 64 committed 192 start_gap 0
+2 -5 40 0 true true false
+hitbox-input: expected 96 committed 224 start_gap 0
+3 -3 37 0 true true false
+hitbox-input: expected 128 committed 0 start_gap 0
+4 1 36 0 true true false
+hitbox-input: expected 160 committed 32 start_gap 0
+5 3 37 0 true true false
+hitbox-input: expected 192 committed 64 start_gap 0
+6 5 40 0 true true false
+hitbox-input: expected 224 committed 96 start_gap 0
+7 3 42 0 true true false
+hitbox-input: expected 0 committed 128 start_gap 1
+0 1 44 1 true true false
+hitbox-input: expected 32 committed 160 start_gap 1
+1 -2 43 1 true true false
+hitbox-input: expected 64 committed 192 start_gap 1
+2 -6 40 1 true true false
+hitbox-input: expected 96 committed 224 start_gap 1
+3 -4 36 1 true true false
+hitbox-input: expected 128 committed 0 start_gap 1
+4 1 35 1 true true false
+hitbox-input: expected 160 committed 32 start_gap 1
+5 4 36 1 true true false
+hitbox-input: expected 192 committed 64 start_gap 1
+6 6 40 1 true true false
+hitbox-input: expected 224 committed 96 start_gap 1
+7 4 43 1 true true false
+hitbox: RED 16 of 16 bites in reach miss

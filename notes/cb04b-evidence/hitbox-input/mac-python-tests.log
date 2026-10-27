@@ -1,0 +1,7 @@
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.003s
+
+OK
+prepare-pty: retained previous engine fixture in /Users/mfwolffe/lanes/cb04b/cub/target/pty-fixture-tests/tmpfgm2jea1/engine-previous-ou7f7x1v
+prepare-pty: engine fixture already fresh

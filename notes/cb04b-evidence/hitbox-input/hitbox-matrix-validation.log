@@ -1,0 +1,9 @@
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.002s
+
+OK
+prepare-pty: retained previous engine fixture in /work/target/pty-fixture-tests/tmpto9_epjq/engine-previous-dohiq81h
+prepare-pty: engine fixture already fresh
+native complete sixteen-row matrix: green
+release complete sixteen-row matrix: green

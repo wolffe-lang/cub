@@ -1,0 +1,59 @@
+0 1 43 0 true true true
+1 -1 42 0 true true true
+2 -5 40 0 true true true
+3 -3 37 0 true true true
+4 1 36 0 true true true
+5 3 37 0 true true true
+6 5 40 0 true true true
+7 3 42 0 true true true
+test src/contact_audit_test.lu::test_cb04b_contact_audit_touching_stands_commit_aim_and_land ... ok
+0 1 43 1 true true true
+1 -2 42 1 true true true
+2 -5 40 1 true true true
+3 -3 36 1 true true true
+4 1 36 1 true true true
+5 4 37 1 true true true
+6 5 40 1 true true true
+7 3 43 1 true true true
+test src/contact_audit_test.lu::test_cb04b_contact_audit_gap_one_stands_commit_aim_and_land ... ok
+wolf test: 2 passed; 0 failed; 0 rejected; 0 unsupported; 365 filtered out
+build: target/native/cub
+build: target/release/cub
+aim cub_x cub_y gap anchor_in_cone body_in_cone landed
+0 1 43 0 true true true
+1 -1 42 0 true true true
+2 -5 40 0 true true true
+3 -3 37 0 true true true
+4 1 36 0 true true true
+5 3 37 0 true true true
+6 5 40 0 true true true
+7 3 42 0 true true true
+0 1 43 1 true true true
+1 -2 42 1 true true true
+2 -5 40 1 true true true
+3 -3 36 1 true true true
+4 1 36 1 true true true
+5 4 37 1 true true true
+6 5 40 1 true true true
+7 3 43 1 true true true
+hitbox: green, a bite in reach lands from every aim, touching and a cell off
+aim cub_x cub_y gap anchor_in_cone body_in_cone landed
+0 1 43 0 true true true
+1 -1 42 0 true true true
+2 -5 40 0 true true true
+3 -3 37 0 true true true
+4 1 36 0 true true true
+5 3 37 0 true true true
+6 5 40 0 true true true
+7 3 42 0 true true true
+0 1 43 1 true true true
+1 -2 42 1 true true true
+2 -5 40 1 true true true
+3 -3 36 1 true true true
+4 1 36 1 true true true
+5 4 37 1 true true true
+6 5 40 1 true true true
+7 3 43 1 true true true
+hitbox: green, a bite in reach lands from every aim, touching and a cell off
+world: 50 seeds, all dens/exits/caches, meanders, density, save roundtrip/cut/busy/corrupt/mark: green
+world: 50 seeds, all dens/exits/caches, meanders, density, save roundtrip/cut/busy/corrupt/mark: green
