@@ -949,23 +949,23 @@ ROWS['opening-quit-due'] = opening_quit_due
 
 
 
-def _agree(binary, ctx, case_name, ticks, check):
+def _agree(binary, ctx, case_name, ticks, check, tier="plain", timeout=30):
     """cb05: a real-key witness replayed through the pty, its capture applied
     and compared with the headless frame, and its trace checked for the event
     the row names (a town passage, an Ashen parried, an ember touched, a
     yard's cache dug)."""
     root = Path(ctx.ROOT)
     case = root / 'tests' / 'cases' / (case_name + '.pk')
-    s = ctx.Session([binary, '--replay', str(case), '--ticks', str(ticks), '--tier', 'plain', '--no-truecolor', '--mute'], 24, 80, ctx.env_for())
-    s.finish()
+    s = ctx.Session([binary, '--replay', str(case), '--ticks', str(ticks), '--tier', tier, '--no-truecolor', '--mute'], 24, 80, ctx.env_for())
+    s.finish(timeout=timeout)
     problems = []
     ctx.common_checks(s, 0, problems)
-    dest = root / 'target' / 'pty' / case_name
+    dest = root / 'target' / 'pty' / (case_name if tier == 'plain' else case_name + '-' + tier)
     dest.mkdir(parents=True, exist_ok=True)
     cap = dest / 'capture.bin'
     cap.write_bytes(s.out)
     applied = subprocess.run([binary, '--apply', str(cap), '--size', '80x24'], capture_output=True, check=True)
-    traced = subprocess.run([binary, '--headless', '--script', str(case), '--frames', str(ticks), '--every', str(ticks), '--tier', 'plain', '--trace', '--dump', str(dest)], capture_output=True, text=True, check=True)
+    traced = subprocess.run([binary, '--headless', '--script', str(case), '--frames', str(ticks), '--every', str(ticks), '--tier', tier, '--trace', '--dump', str(dest)], capture_output=True, text=True, check=True)
     text, sty, _ = applied.stdout.decode().split('--\n')
     if text != (dest / 'final.txt').read_text() or sty != (dest / 'final.sty').read_text():
         problems.append(case_name + ': the live frame differs from the headless frame')
@@ -1434,3 +1434,38 @@ def cb08_diagonal_live(binary, ctx):
 
 
 ROWS['cb08-diagonal-live'] = cb08_diagonal_live
+
+
+def cb08_whisper_flank(binary, ctx):
+    """A real-key flank bite lands while the old centre cone misses."""
+    import math
+
+    def check(states, foes):
+        for tick, state in states.items():
+            if tick - 1 not in foes or state['action'] != 1:
+                continue
+            before = {f['foe']: f for f in foes[tick - 1]}
+            for foe in foes[tick]:
+                old = before.get(foe['foe'])
+                if foe['kind'] != 5 or old is None or foe['health'] >= old['health']:
+                    continue
+                # The former centre-to-centre predicate, using the target
+                # before its AI step and the actual committed slanted cone.
+                angle = state['cone'] * math.tau / 256
+                sine, cosine = round(256 * math.sin(angle)), round(256 * math.cos(angle))
+                dx, dy = old['x'] - state['x'], old['y'] - state['y']
+                dot, cross = dx * sine - dy * cosine, dx * cosine + dy * sine
+                if (dot < 0 or abs(cross) > dot) and foe['last_hit'] == state['started']:
+                    return None
+        return 'Whisper never took a bite outside the former centre cone'
+
+    problems = []
+    for tier in ('rich', 'plain'):
+        session, found = _agree(binary, ctx, 'whisper-flank',
+                                _ticks_of(ctx, 'whisper-flank'), check,
+                                tier=tier, timeout=50)
+        problems.extend(found)
+    return session, problems
+
+
+ROWS['cb08-whisper-flank'] = cb08_whisper_flank

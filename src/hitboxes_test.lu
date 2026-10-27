@@ -1,6 +1,7 @@
 //! member: false
 //! cb08 — real active strikes, with AI held still to isolate the geometry.
 
+use controls
 use hitcensus
 use sim
 
@@ -12,8 +13,40 @@ fn test_cb08_whisper_flank_bite_is_not_refused_for_its_centre() {
     assert(hitcensus.bite(mut s, x, y, 0), "Whisper's east flank touches the north-facing jaws")
 }
 
+// A frozen-target input trial: the cub is placed for the row, then its
+// ordinary arrow/Space keys run the full step path through windup and hit.
+fn keyed_bite(mut s: sim.Sim, x: int, y: int, aim: int) -> bool {
+    s.x = x * sim.FP
+    s.y = y * sim.FP
+    s.heading = aim * 32
+    s.heading_target = s.heading
+    s.body_facing = aim
+    s.action = sim.IDLE
+    s.speed = 0
+    s.stamina = sim.stamina_max(s.wind)
+    s.locked = -1
+    s.foes[0].health = 1000
+    s.foes[0].last_hit = -1
+    s.foes[0].phase = sim.STAGGER
+    s.foes[0].since = s.tick + 1000
+    var keys = List[int]()
+    let dx = sim.sin(s.heading)
+    let dy = 0 - sim.cos(s.heading)
+    if dx < 0 { (mut keys).push(controls.KEY_LEFT) }
+    if dx > 0 { (mut keys).push(controls.KEY_RIGHT) }
+    if dy < 0 { (mut keys).push(controls.KEY_UP) }
+    if dy > 0 { (mut keys).push(controls.KEY_DOWN) }
+    (mut keys).push(controls.KEY_BITE)
+    sim.step(mut s, keys)
+    assert(s.attack_heading == aim * 32, "the circle row commits its named aim")
+    var n = 0
+    while n < 3 { sim.step(mut s, List[int]()); n += 1 }
+    s.foes[0].health < 1000
+}
+
 /// Gap one, jaw aimed into each of eight sides; then aim away from the
-/// same spot. Each trial calls the actual damage pass, not a copied cone.
+/// same spot. Boss trials press action keys through the full step; ordinary-foe rows
+/// isolate the damage pass (a deer does not freeze its AI in STAGGER).
 fn circle(kind: int) {
     var aim = 0
     while aim < 8 {
@@ -38,11 +71,13 @@ fn circle(kind: int) {
         } else {
             (fb.y0 + fb.y1 - cb.y0 - cb.y1) / 2
         }
-        assert(hitcensus.bite(mut s, x, y, aim), "boss {kind}, gap one, aim {aim}")
-        assert(
-            !hitcensus.bite(mut s, x, y, (aim + 4) % 8),
-            "boss {kind} behind the jaws, aim {aim}",
-        )
+        let landed = if sim.is_boss(kind) {
+            keyed_bite(mut s, x, y, aim)
+        } else {
+            hitcensus.bite(mut s, x, y, aim)
+        }
+        assert(landed, "foe {kind}, gap one, aim {aim}")
+        assert(!keyed_bite(mut s, x, y, (aim + 4) % 8), "boss {kind} behind the jaws, aim {aim}")
         aim += 1
     }
 }

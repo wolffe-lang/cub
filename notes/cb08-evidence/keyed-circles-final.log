@@ -1,0 +1,11 @@
+cb08 keyed-circles-final start 2026-10-27T10:36:39Z
+cb08 keyed-circles-final waiting for cores 4-7 2026-10-27T10:36:39Z
+cb08 keyed-circles-final acquired cores 8-11 2026-10-27T10:36:39Z
+test src/hitboxes_test.lu::test_cb08_bite_circles_whisper_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_boar_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_elk_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_staggered_alpha_on_all_eight_sides ... ok
+wolf test: 4 passed; 0 failed; 0 rejected; 0 unsupported; 331 filtered out
+test src/hitboxes_test.lu::test_cb08_ordinary_ground_foes_share_the_same_jaw_rule ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 334 filtered out
+keyed-circles-final EXIT 0 2026-10-27T10:36:54Z
