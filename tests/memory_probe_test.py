@@ -32,16 +32,22 @@ class MemoryProbeTests(unittest.TestCase):
             self.assertEqual(probe.evaluate(self.samples(growth), 4096)['status'], 'GREEN')
 
     def test_ps_kib_is_converted_to_bytes(self):
-        with patch.object(probe.subprocess, 'run') as run:
+        with patch.object(probe, 'LINUX', False), patch.object(probe.subprocess, 'run') as run:
             run.return_value.stdout = ' 12345\n'
             self.assertEqual(probe.rss_bytes(123), 12345 * 1024)
             self.assertTrue(run.call_args.kwargs['check'])
 
     def test_bad_ps_output_fails_closed(self):
-        with patch.object(probe.subprocess, 'run') as run:
+        with patch.object(probe, 'LINUX', False), patch.object(probe.subprocess, 'run') as run:
             run.return_value.stdout = ''
             with self.assertRaises(ValueError):
                 probe.rss_bytes(123)
+
+    def test_linux_proc_pages_use_the_actual_page_size(self):
+        with patch.object(probe, 'LINUX', True), \
+                patch.object(probe.Path, 'read_text', return_value='1000 123 90 0 0 0 0'), \
+                patch.object(probe.os, 'sysconf', return_value=4096):
+            self.assertEqual(probe.rss_bytes(123), 123 * 4096)
 
     def test_trunk_fresh_slope_is_red(self):
         self.assertEqual(probe.evaluate(self.samples(41118 * 900), 4096)['status'], 'RED')

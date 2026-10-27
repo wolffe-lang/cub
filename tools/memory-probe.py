@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Bounded real-loop resident-growth probe; terminal output is drained, not retained.
 
-ps reports KiB on both supported hosts. Trace supplies actual simulation ticks;
+macOS ps reports KiB; Linux /proc reports pages (the pinned image needs no
+procps package). Trace supplies actual simulation ticks;
 its cost is deliberately included. All saves/ghosts are private disposable copies.
 """
 import argparse
@@ -17,12 +18,20 @@ import shutil
 import signal
 import struct
 import subprocess
+import sys
 import tempfile
 import termios
 import time
 
 
+LINUX = sys.platform.startswith('linux')
+
+
 def rss_bytes(pid):
+    if LINUX:
+        # The pinned image has no procps dependency; statm is pages, not KiB.
+        fields = Path(f'/proc/{pid}/statm').read_text().split()
+        return int(fields[1]) * os.sysconf('SC_PAGE_SIZE')
     result = subprocess.run(['ps', '-o', 'rss=', '-p', str(pid)],
                             capture_output=True, text=True, check=True)
     return int(result.stdout.strip()) * 1024
