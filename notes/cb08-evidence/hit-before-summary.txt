@@ -1,0 +1,4 @@
+hit-census kind 4: 896/5088 pairs land
+hit-census kind 5: 788/4704 pairs land
+hit-census kind 6: 976/5568 pairs land
+hit-census kind 7: 896/5088 pairs land

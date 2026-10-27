@@ -1,0 +1,104 @@
+//! hitcensus — frozen-body strike measurements, cb08. Each row strikes
+//! once through the shipping damage path; AI and movement do not run.
+//! Positions are every cell whose cub rectangle has gap 0..2 to the foe,
+//! at every aim and every foe quarter. The alpha is staggered here; its
+//! guard has separate tests. Region per pair keeps the instrument bounded.
+
+use forest
+use sim
+
+/// One frozen, healthy target in its arena, at the first active bite tick.
+pub fn fixture(kind: int) -> sim.Sim {
+    var s = sim.new(1, 200, 60)
+    let area = if kind == sim.BOAR {
+        forest.BRAMBLEHOLD
+    } else if kind == sim.LYNX {
+        forest.CRAGS
+    } else if kind == sim.ELK {
+        forest.RIVER
+    } else {
+        forest.OLDDEN
+    }
+    let (x, y, _) = forest.arena(1, s.field, area)
+    let cy = y + forest.origin(1, area)
+    sim.enter_area(mut s, area, x * sim.FP, cy * sim.FP)
+    var f = copy s.foes[0]
+    f.kind = kind
+    f.x = x * sim.FP
+    f.y = cy * sim.FP
+    f.heading = 0
+    f.health = 1000
+    f.phase = sim.STAGGER
+    f.since = 100
+    f.last_hit = -1
+    var foes = List[sim.Foe]()
+    (mut foes).push(f)
+    s.foes = foes
+    s.tick = 103
+    s.started = 100
+    s.action = sim.BITE
+    s.combo = 3
+    s.locked = -1
+    s.speed = 0
+    s
+}
+
+/// Run the actual active bite with a fixed pose, not a second hit formula.
+pub fn bite(mut s: sim.Sim, x: int, y: int, aim: int) -> bool {
+    s.x = x * sim.FP
+    s.y = y * sim.FP
+    s.heading = aim * 32
+    s.attack_heading = aim * 32
+    s.body_facing = sim.wanted_facing(s)
+    s.foes[0].health = 1000
+    s.foes[0].last_hit = -1
+    sim.strike_foes(mut s)
+    s.foes[0].health < 1000
+}
+
+/// Print every ring pair as CSV and per-kind totals on stderr; exit zero.
+pub fn census() -> int {
+    print("kind,foe_quarter,x,y,aim,gap,hit")
+    var kind = sim.BOAR
+    while kind <= sim.ALPHA {
+        var total = 0
+        var hits = 0
+        var quarter = 0
+        while quarter < 4 {
+            let base = fixture(kind)
+            var aim = 0
+            while aim < 8 {
+                var dy = -18
+                while dy <= 18 {
+                    var dx = -22
+                    while dx <= 22 {
+                        region pair {
+                            var s = copy base
+                            s.foes[0].heading = quarter * 64
+                            let x = sim.floor_div(s.foes[0].x, sim.FP) + dx
+                            let y = sim.floor_div(s.foes[0].y, sim.FP) + dy
+                            s.x = x * sim.FP
+                            s.y = y * sim.FP
+                            s.attack_heading = aim * 32
+                            s.body_facing = sim.wanted_facing(s)
+                            let gap = sim.body_gap(s, 0)
+                            if gap >= 0 && gap <= 2 {
+                                let hit = bite(mut s, x, y, aim)
+                                print("{kind},{quarter},{x},{y},{aim},{gap},{if hit then 1 else 0}")
+                                total += 1
+                                if hit { hits += 1 }
+                            }
+                        }
+                        dx += 1
+                    }
+                    dy += 1
+                }
+                aim += 1
+            }
+            quarter += 1
+        }
+        eprint("hit-census kind {kind}: {hits}/{total} pairs land")
+        kind += 1
+    }
+    0
+}

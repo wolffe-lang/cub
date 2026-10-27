@@ -1194,7 +1194,8 @@ fn action_keys(mut s: Sim, keys: List[int]) {
     }
 }
 
-fn strike_foes(mut s: Sim) {
+/// Active damage pass, also used by the frozen hit-census instrument.
+pub fn strike_foes(mut s: Sim) {
     let age = s.tick - s.started
     let active = s.action == BITE && age >= 3 && age < 5 ||
         s.action == LUNGE && age >= 9 && age < 12 ||
