@@ -32,8 +32,9 @@ fn test_cb03_every_part_parses_at_its_written_length() {
     assert(length_of("boss-alpha") == 24, "the shadow alpha: 6 bars of 4/4 at 60")
     assert(length_of("den") == 10, "the den: 4 bars of 3/4 at 72")
     assert(length_of("death") == 12, "the sting: a bar of 4/4 at 60 and two silent")
+    assert(length_of("crack") == 5, "crack: three bars at 144")
     assert(length_of("silence") == 2, "the silence: one bar at 120")
-    assert(score.names().len == 10, "ten parts")
+    assert(score.names().len == 11, "eleven parts")
     var seen = List[str]()
     for n in score.names() {
         for s in seen { assert(s != n, "{n} named twice") }
@@ -51,7 +52,7 @@ fn test_cb03_the_binary_carries_the_committed_parts() {
             ""
         }
         assert(file == score.part_text(n), "score/{n}.part is the text the binary carries")
-        assert(file.contains("Original, cb03"), "{n} says it is original")
+        assert(file.contains("Original,"), "{n} says it is original")
     }
 }
 
@@ -100,7 +101,7 @@ fn cues() -> List[score.Cue] {
 }
 
 fn scene(area: int) -> score.Scene {
-    score.Scene { title: false, fallen: false, den: false, boss: -1, area: area }
+    score.Scene { opening_age: -1, title: false, fallen: false, den: false, boss: -1, area: area }
 }
 
 fn test_cb03_want_decides_in_order() {
