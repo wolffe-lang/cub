@@ -1,10 +1,10 @@
 tick 18 resting 0 capacity 0 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 0 y -128 heading 0 action 0 started 1 health 52 stamina 68 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 3 lock -1 aim 0 combo 0 body 0 gait 612 sprint 0 cone 0 bosses 0 end 0 arena 0 played 18 lost 0
-foe 0 kind 0 health 8 phase 0 since 0 x -512 y 13824 heading 0 gap 51 last_hit -1 attack 0 poise 0
-foe 1 kind 0 health 8 phase 0 since 0 x 0 y 13824 heading 0 gap 51 last_hit -1 attack 0 poise 0
-foe 2 kind 1 health 24 phase 0 since 0 x -1024 y 20992 heading 0 gap 79 last_hit -1 attack 0 poise 0
-foe 3 kind 0 health 8 phase 0 since 0 x -512 y 35072 heading 0 gap 134 last_hit -1 attack 0 poise 0
-foe 4 kind 0 health 8 phase 0 since 0 x 0 y 35072 heading 0 gap 134 last_hit -1 attack 0 poise 0
-foe 5 kind 1 health 40 phase 0 since 0 x -15232 y 10112 heading 0 gap 56 last_hit -1 attack 0 poise 0
-foe 6 kind 1 health 40 phase 0 since 0 x 13184 y 11392 heading 0 gap 47 last_hit -1 attack 0 poise 0
-foe 7 kind 1 health 40 phase 0 since 0 x -32384 y 11392 heading 0 gap 123 last_hit -1 attack 0 poise 0
-foe 8 kind 1 health 40 phase 0 since 0 x 30336 y 11136 heading 0 gap 114 last_hit -1 attack 0 poise 0
+foe 0 kind 0 health 8 phase 0 since 0 x 512 y 13824 heading 0 gap 51 last_hit -1 attack 0 poise 0
+foe 1 kind 0 health 8 phase 0 since 0 x 1024 y 13824 heading 0 gap 51 last_hit -1 attack 0 poise 0
+foe 2 kind 1 health 24 phase 0 since 0 x -512 y 20992 heading 0 gap 79 last_hit -1 attack 0 poise 0
+foe 3 kind 0 health 8 phase 0 since 0 x -1024 y 35072 heading 0 gap 134 last_hit -1 attack 0 poise 0
+foe 4 kind 0 health 8 phase 0 since 0 x -512 y 35072 heading 0 gap 134 last_hit -1 attack 0 poise 0
+foe 5 kind 1 health 40 phase 0 since 0 x -15488 y 10112 heading 0 gap 57 last_hit -1 attack 0 poise 0
+foe 6 kind 1 health 40 phase 0 since 0 x 12928 y 11392 heading 0 gap 46 last_hit -1 attack 0 poise 0
+foe 7 kind 1 health 40 phase 0 since 0 x -32640 y 11392 heading 0 gap 124 last_hit -1 attack 0 poise 0
+foe 8 kind 1 health 40 phase 0 since 0 x 30080 y 11136 heading 0 gap 113 last_hit -1 attack 0 poise 0

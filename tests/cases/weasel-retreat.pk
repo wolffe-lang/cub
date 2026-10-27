@@ -11,15 +11,15 @@ t 5 left
 t 6 left
 t 7 left
 t 8 left
+t 9 down
 t 9 left
-t 10 left
-t 11 left
-t 12 left
-t 13 left
-t 14 left
-t 15 left
+t 10 down
+t 11 down
+t 12 down
+t 13 down
+t 14 down
+t 15 down
 t 16 down
-t 16 left
 t 17 down
 t 18 down
 t 19 down
@@ -125,10 +125,13 @@ t 118 down
 t 119 down
 t 120 down
 t 121 down
-t 122 down
-t 123 down
+t 121 right
+t 122 right
+t 123 right
 t 124 down
+t 124 right
 t 125 down
+t 125 right
 t 126 down
 t 127 down
 t 128 down
@@ -169,18 +172,17 @@ t 162 down
 t 163 down
 t 164 down
 t 165 down
+t 165 left
 t 166 down
+t 166 left
 t 167 down
 t 168 down
+t 168 right
 t 169 down
-t 169 left
 t 170 down
 t 171 down
-t 171 right
+t 171 left
 t 172 down
-t 173 down
-t 174 down
-t 175 down
-t 176 down
+t 172 left
 
-# frames 193 every 193
+# frames 189 every 189

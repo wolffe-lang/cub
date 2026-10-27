@@ -1,0 +1,73 @@
+pk 1
+seed 1
+tier rich
+size 80x24
+t 0 journey 3
+t 0 saved-0 1
+t 0 saved-1 0
+t 0 saved-2 2
+t 0 saved-3 2
+t 0 saved-4 2
+t 0 saved-5 1
+t 0 saved-6 1
+t 0 saved-7 2
+t 0 saved-8 0
+t 0 saved-9 1
+t 0 saved-10 7
+t 0 saved-11 2
+t 0 saved-12 1
+t 0 saved-13 0
+t 0 saved-14 0
+t 0 saved-15 0
+t 0 saved-16 0
+t 0 saved-17 0
+t 0 saved-18 0
+t 0 saved-19 0
+t 0 saved-20 0
+t 0 saved-21 0
+t 0 saved-22 0
+t 0 saved-23 1
+t 0 saved-24 80
+t 0 saved-25 0
+t 0 saved-26 0
+t 0 saved-27 0
+t 0 saved-28 0
+t 0 saved-29 4
+t 0 release
+t 1 right
+t 2 right
+t 3 right
+t 4 right
+t 5 right
+t 6 right
+t 7 right
+t 8 right
+t 9 right
+t 10 right
+t 11 right
+t 12 right
+t 13 right
+t 14 right
+t 15 right
+t 16 right
+t 17 right
+t 18 right
+t 19 right
+t 20 right
+t 21 right
+t 22 up
+t 22 right
+t 23 up
+t 24 up
+t 25 up
+t 25 right
+t 26 right
+t 27 right
+t 28 right
+t 29 right
+t 30 right
+t 31 right
+t 32 right
+t 33 right
+
+# frames 40 every 1 from 40

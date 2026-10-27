@@ -1,6 +1,10 @@
-tick 36 resting 1 capacity 2 level 1 meat 0 area 4 den_id 5 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x -640 y 2688 heading 0 action 0 started 0 health 52 stamina 70 flasks 2 scent 100 deaths 0 mark 0 mark_scent 0 gate 1 trail 0 lock -1 aim 0 combo 0 body 0 gait 0 sprint 0 cone 0 bosses 0 end 0 arena 0 played 36 lost 0
-foe 0 kind 6 health 400 phase 0 since 0 x -5248 y 28800 heading 0 gap 96 last_hit -1 attack 0 poise 0
-foe 1 kind 2 health 8 phase 0 since 0 x 0 y 14336 heading 0 gap 42 last_hit -1 attack 0 poise 0
-foe 2 kind 3 health 8 phase 0 since 0 x 512 y 14336 heading 0 gap 42 last_hit -1 attack 0 poise 0
-foe 3 kind 2 health 8 phase 0 since 0 x -512 y 34304 heading 0 gap 120 last_hit -1 attack 0 poise 0
-foe 4 kind 3 health 8 phase 0 since 0 x 0 y 34304 heading 0 gap 120 last_hit -1 attack 0 poise 0
+tick 36 resting 1 capacity 2 level 1 meat 0 area 4 den_id 5 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x -896 y 2688 heading 0 action 0 started 0 health 52 stamina 70 flasks 2 scent 100 deaths 0 mark 0 mark_scent 0 gate 1 trail 0 lock -1 aim 0 combo 0 body 0 gait 0 sprint 0 cone 0 bosses 0 end 0 arena 0 played 36 lost 0
+foe 0 kind 6 health 400 phase 0 since 0 x -6272 y 40064 heading 0 gap 140 last_hit -1 attack 0 poise 0
+foe 1 kind 2 health 8 phase 0 since 0 x -1280 y 11264 heading 0 gap 30 last_hit -1 attack 0 poise 0
+foe 2 kind 3 health 8 phase 0 since 0 x -768 y 11264 heading 0 gap 30 last_hit -1 attack 0 poise 0
+foe 3 kind 1 health 24 phase 0 since 0 x 1024 y 19200 heading 0 gap 61 last_hit -1 attack 0 poise 0
+foe 4 kind 1 health 24 phase 0 since 0 x 2048 y 19200 heading 0 gap 61 last_hit -1 attack 0 poise 0
+foe 5 kind 2 health 8 phase 0 since 0 x -3328 y 26624 heading 0 gap 90 last_hit -1 attack 0 poise 0
+foe 6 kind 3 health 8 phase 0 since 0 x -2816 y 26624 heading 0 gap 90 last_hit -1 attack 0 poise 0
+foe 7 kind 2 health 8 phase 0 since 0 x 2560 y 48896 heading 0 gap 177 last_hit -1 attack 0 poise 0
+foe 8 kind 3 health 8 phase 0 since 0 x 3072 y 48896 heading 0 gap 177 last_hit -1 attack 0 poise 0
