@@ -377,3 +377,43 @@ accepted pending choices, never an unaccepted debt.
 
 `rest-menu-{empty,pending,refused}-{80x24,120x40,200x60}` pin all three states on
 both tiers. The frame uses existing horizontal/vertical rule glyphs only.
+
+## The wide forest (cb05, 2026-10-26)
+
+**The Ashen.** Cinderwick's dead from above, four pixels across and twelve down (two cells by three
+north, six by one turned), the same grain as the weasel: a round head, the shoulders, a long thin body,
+the legs apart walking. The windup is the tell a person reads: the arms rise slowly up beside the head
+(`#..#` over `#..#` over `####`) for thirty ticks; the blow thrusts one arm out (`##.#`); a stagger
+splits the body; a death erodes from the head as every foe's does. Grey 247 (plain 7), the smoke's
+colour, never bold. The plain tier: `oo` over `||` over `/\` north, `^^` for the raised arms, `|=` for
+the blow, `!!` staggered; turned, a strip of six (`/||oo `). The art sheet's foe study gains its row.
+
+**The town.** The night of the fire: ash in two greys (`⠂` `⠐` `·` and bare, 240 and 242 on the floor
+233; plain `.` `,` `'` in 8), the broken walls in two pale faces (`▓` `▒`, 245 and 250, alternated by
+the cell's parity like the crags' stone; plain `#` `%`), the lane's cobbles in the gravel's glyphs at 250,
+the embers `✶` `✵` in 208 and 202 bold on dark red 52 (plain `*` `+` in 9), the wood beyond the back walls
+in Gravehollow's night greens. An ember lights the ash and the walls round it: within three columns the
+ash warms to 215 and the walls to 223, within six to 137 and 180 (plain 11 and 3); the lane keeps its
+one style. A yard's cache is a heap of ash with something under it (`.~~~.` over `(##o##)`, a glint
+alternating as the inland caches' do); dug, the hollow in the heap. The way on into Bramblehold shows the
+thorn stems. The rest scene at the cold hearth is a roofless room: broken walls either side, the
+hearth's stones behind the fire, ash on the floor, an ember's glow in the wall's cracks.
+
+**The landmarks** (`props.lu`, the `props-rich`/`props-plain` atlas's new row): the low embers, a ring of
+coals with a bright middle; the ash shelter, the charred frame of a hut (`/\___/\` over `|  _  |` over
+`|_| |_|`); a burnt stump (seven of them round the coal roots' point); the lightning-split oak (two
+limbs over a V and a stump); the cleft, two blocks of stone round a crack; the willow, a crown over
+three trunks with the fronds hanging; Quill's first perch, a dead tree with the raven on its one limb
+(`v`); an old scent mark, a stump with the scent's dots beside it. Each is a three-row cluster in the
+landmark ink (180 on 235; the coals bright), drawn where `forest.landmark` puts it, and the coal roots'
+stumps, the low embers, the ash shelter, the perch and every scent mark say a line on the bottom row
+while the cub stands within four cells.
+
+**The dens.** Each den draws the place its name promises (`art.den_rows`, three rows of seven over the
+warm patch, `#` a block and `|` a rule on the rich tier): the hollow log's cut timber (`_.===._` over
+`( O====` over `'==='`), the split roots (`\ | | /` over `\|_|/` over `/   \`), the briar hollow's bowl in
+the brambles (`%%\_/%%`), the grass nest's flattened ring (`,,\_/,,`), the ledge cleft's crack in the stone
+(`##\_/##`), the willow root over the water (`\\|_|//` over `(   )` over `~~\_/~~`), the cold den under the
+fallen oak's roots (`/\___/\` over `(     )` over `(_/ \_)`), the cold hearth's ring of stones (`o o o o`
+round the fire), the last warm hollow where the fire stopped (`_.-~-._` over `( ~ ~ )`). The ember and the
+smoke are as before.

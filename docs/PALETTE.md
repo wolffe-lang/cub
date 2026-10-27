@@ -132,3 +132,22 @@ current/pending numbers and the refusal text duplicate the colour meaning.
 Opening fur is selected against each rendered background cell: dark on
 pale ice (rich contrast9.41:1), gameplay fur against deep water.
 Rendered witnesses check both states, not just palette constants.
+
+## Cinderwick, the burn and the Ashen (cb05, 2026-10-26, proposed)
+
+| role | rich | plain |
+|---|---:|---:|
+| the town's floor | 233 | 0 |
+| ash, two tones (the town's, the burn's in the thicket and the meadow) | 240 / 242 | 8 |
+| a ruined wall, two faces | 245 / 250 | 7 / 15 |
+| the lane's cobbles (the town's path kind, gravel) | 250 on 233 | 7 on 0 |
+| an ember / its ground | 208, 202 bold / 52 | 9 bold / 0 |
+| ash and walls in an ember's light, near / far | 215, 223 / 137, 180 | 11 / 3 |
+| the wood beyond the walls | Gravehollow's night greens 23 / 17, trunks 59 | 2, 3 |
+| the Ashen | 247 | 7 |
+| the landmarks' ink; the low embers | 180 on 235; 229 / 220 bold | 8; 15 bold |
+| the cold hearth's rest scene: floor / walls / stones / ember | 232 / 243 / 245 / 208 | 0 / 8 / 7 / 9 |
+
+The lane's cobbles are the one style a path cell of the town draws in (`forest.path_kind(TOWN)` is
+gravel under the night keyframe); the embers' light never touches them, so `--world-audit`'s `path_off`
+holds the town as it holds every area. The burn's ash inland stands on the area's own floor.
