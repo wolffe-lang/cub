@@ -1,5 +1,5 @@
 //! Movement census: the same instrument before and after cb04b's tuning.
-//! Each terrain row samples actual generated cells. A steady-state one-tick
+//! Each terrain row samples actual generated cells. A steady-state sixty-tick
 //! probe resets position, not its integrator, to separate gait from walls,
 //! turning and acceleration. The 14-tick trials below are continuous travel.
 
@@ -86,45 +86,64 @@ pub fn sample(seed: int, field: int, area: int, x: int, y: int, h: int, gait: in
     (dx, dy, s.blocked)
 }
 
-fn terrain_rows(seed: int, field: int, area: int, t: int) -> int {
-    var seen = List[bool]()
-    var n = 0
-    while n <= terrain.SHALLOWS { (mut seen).push(false); n += 1 }
-    var count = 0
+/// One genuine cell per present walkable kind, over the area's full extent.
+/// Kind ids are data, not indices into a list sized by an older terrain enum.
+pub fn terrain_samples(seed: int, field: int, area: int) -> List[(int, int, int)] {
     let origin = forest.origin(seed, area)
+    let first = if area == forest.SHINGLE then forest.COAST_TOP else origin
+    terrain_window(seed, field, area, first, origin + forest.length(area))
+}
+
+/// Bounded sampling window; the full census calls this over every route row.
+pub fn terrain_window(seed: int, field: int, area: int, first: int, last: int) -> List[(
+    int,
+    int,
+    int,
+)] {
+    var samples = List[(int, int, int)]()
     let bound = forest.bound(field, area)
-    var y = if area == forest.SHINGLE then forest.COAST_TOP else origin
-    while y <= origin + forest.LENGTH {
+    var y = first
+    while y <= last {
         var x = 0 - bound
         while x <= bound {
             let kind = forest.kind(seed, field, area, x, y)
-            if !seen[kind] && !forest.blocked(seed, field, area, x, y) {
-                // At paw1 even sprint moves less than half a cell: from
-                // the centre this probe stays inside this actual terrain cell.
-                // Do not exclude one-cell reed bands beside blocked water.
-                let clear = true
-                if clear {
-                    seen[kind] = true
-                    let cell = art.ground_at(seed, field, area, t, x, y)
-                    var h = 0
-                    while h < sim.TURN {
-                        var gait = 0
-                        while gait < 3 {
-                            let (dx, dy, blocked) = sample(seed, field, area, x, y, h, gait)
-                            print(
-                                "pace seed={seed} field={field} area={area} tier={t} terrain={kind} heading={h} gait={gait} ticks={SAMPLE_TICKS} dx={dx} dy={dy} blocked={blocked} glyph={cell.cp}",
-                            )
-                            if blocked != 0 { return -1 }
-                            count += 1
-                            gait += 1
-                        }
-                        h += 32
-                    }
-                }
+            var seen = false
+            for prior in samples {
+                let (previous, _, _) = prior
+                if previous == kind { seen = true }
+            }
+            if !seen && !forest.blocked(seed, field, area, x, y) {
+                (mut samples).push((kind, x, y))
             }
             x += 1
         }
         y += 1
+    }
+    samples
+}
+
+fn terrain_rows(seed: int, field: int, area: int, t: int) -> int {
+    var count = 0
+    for cell_sample in terrain_samples(seed, field, area) {
+        let (kind, x, y) = cell_sample
+        // At paw1 even sprint moves less than half a cell: from the
+        // centre this probe stays inside this actual terrain cell.
+        // Do not exclude one-cell reed bands beside blocked water.
+        let cell = art.ground_at(seed, field, area, t, x, y)
+        var h = 0
+        while h < sim.TURN {
+            var gait = 0
+            while gait < 3 {
+                let (dx, dy, blocked) = sample(seed, field, area, x, y, h, gait)
+                print(
+                    "pace seed={seed} field={field} area={area} tier={t} terrain={kind} heading={h} gait={gait} ticks={SAMPLE_TICKS} dx={dx} dy={dy} blocked={blocked} glyph={cell.cp}",
+                )
+                if blocked != 0 { return -1 }
+                count += 1
+                gait += 1
+            }
+            h += 32
+        }
     }
     count
 }

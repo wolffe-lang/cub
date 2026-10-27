@@ -1,0 +1,37 @@
+//! member: false
+
+use forest
+use motionproof
+use terrain
+use town
+
+fn test_cb04b_motion_census_includes_town_ash_and_embers_without_enum_indexing() {
+    for field in [80, 200] {
+        let (ember_x, ember_row) = town.square_ember(1, -1)
+        let y = forest.origin(1, forest.TOWN) + ember_row
+        assert(
+            forest.kind(1, field, forest.TOWN, ember_x, y) == terrain.EMBER,
+            "square ember fixture",
+        )
+        // The full fifty-seed scan is an integration command. This genuine
+        // three-row slice exercises the same collector within checked fuel.
+        let samples = motionproof.terrain_window(1, field, forest.TOWN, y - 1, y + 1)
+        var ash = false
+        var ember = false
+        for cell_sample in samples {
+            let (kind, x, y) = cell_sample
+            assert(forest.kind(1, field, forest.TOWN, x, y) == kind, "genuine terrain sample")
+            assert(!forest.blocked(1, field, forest.TOWN, x, y), "walkable sample")
+            assert(kind != terrain.WALL, "walls are not locomotion samples")
+            if kind == terrain.ASH { ash = true }
+            if kind == terrain.EMBER { ember = true }
+            var matches = 0
+            for other in samples {
+                let (other_kind, _, _) = other
+                if other_kind == kind { matches += 1 }
+            }
+            assert(matches == 1, "one sample per present kind")
+        }
+        assert(ash && ember, "the new town terrains must not be skipped")
+    }
+}
