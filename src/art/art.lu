@@ -537,7 +537,7 @@ pub fn draw_actor(s: sim.Sim, t: int, mut g: grid.Grid) {
         }
     } else if s.action == sim.BITE {
         draw_combo(s, t, mut g)
-    } else if shake != 0 && t == tier.RICH {
+    } else if shake != 0 && t == tier.RICH && facing % 2 == 0 {
         // The third bite's head shake: the body stays, the head cells move
         // one cell across the aim (a column north or south, a row east or
         // west), the same silhouette in two parts.
@@ -566,7 +566,7 @@ pub fn draw_actor(s: sim.Sim, t: int, mut g: grid.Grid) {
             sim.hurt_band(s),
             sim.breath(s),
         )
-        if shake != 0 {
+        if shake != 0 && facing % 2 == 0 {
             // Plain: the ears row shifts across the aim.
             // The head a cell out of the body on each swing: north or
             // south the ears row slides across; east or west the ear mark
@@ -644,7 +644,7 @@ pub fn sheet(t: int) -> grid.Grid {
                 t,
                 8 + pose * 5,
                 10 + f * 11,
-                f,
+                f * 2,
                 if pose == 3 then 2 else 0,
                 pose,
                 0,
@@ -1175,25 +1175,91 @@ pub fn draw_pose_in(
             mut g,
             row,
             col,
-            silhouette.cub_posed(pose, legs, tail, hurt, breath),
+            silhouette.cub_eighth(pose, legs, tail, hurt, breath, facing),
+            0,
+            style,
+        )
+        return
+    }
+    if facing % 2 != 0 {
+        draw_diagonal_plain(
+            mut g,
+            row,
+            col,
+            silhouette.cub_eighth(pose, legs, tail, hurt, breath, facing),
             facing,
             style,
         )
         return
     }
-    let rows = plain_cub(facing, pose, tail, rising, hurt)
-    let top = if facing % 2 == 0 then row - 1 else row
-    let left = if facing % 2 == 0 then col - 1 else col - 3
+    let q = facing / 2
+    let rows = plain_cub(q, pose, tail, rising, hurt)
+    let top = if q % 2 == 0 then row - 1 else row
+    let left = if q % 2 == 0 then col - 1 else col - 3
     var i = 0
     while i < rows.len {
         put_over(mut g, top + i, left, rows[i], style)
         i += 1
     }
-    if pose == 1 && facing % 2 == 0 {
+    if pose == 1 && q % 2 == 0 {
         // The walk sets a hind paw out, one each half stride, at the
         // haunches' corner (inside the footprint, beside the tail).
-        let paw_row = if facing == 0 then row + 2 else row - 1
+        let paw_row = if q == 0 then row + 2 else row - 1
         put_over(mut g, paw_row, if legs == 0 then col - 1 else col + 2, "'", style)
+    }
+}
+
+/// Plain diagonal cells preserve the exact bitmap occupancy. A slash
+/// follows the muzzle-to-tail axis, with the sparse tail a comma.
+fn draw_diagonal_plain(
+    mut g: grid.Grid,
+    row: int,
+    col: int,
+    b: silhouette.Bitmap,
+    facing: int,
+    style: grid.Cell,
+) {
+    let (dr, dc) = silhouette.anchor(b, 0)
+    var r = 0
+    while r < silhouette.rows(b) {
+        var c = 0
+        while c < silhouette.cols(b) {
+            let cp = silhouette.cell_cp(b, r, c)
+            if cp != 32 {
+                var cell = copy style
+                let head = if facing == 1 {
+                    r == 0
+                } else if facing == 3 {
+                    c == silhouette.cols(b) - 1
+                } else if facing == 5 {
+                    r == silhouette.rows(b) - 1
+                } else {
+                    c == 0
+                }
+                let tail = if facing == 1 {
+                    r == silhouette.rows(b) - 1 && c < silhouette.cols(b) / 2
+                } else if facing == 3 {
+                    c == 0 && r < silhouette.rows(b) / 2
+                } else if facing == 5 {
+                    r == 0 && c >= silhouette.cols(b) / 2
+                } else {
+                    c == silhouette.cols(b) - 1 && r >= silhouette.rows(b) / 2
+                }
+                cell.cp = if head {
+                    (if facing == 1 || facing == 5 then 47 else 92)
+                } else if tail {
+                    44
+                } else {
+                    35
+                }
+                if cell.bg == grid.COLOR_DEFAULT {
+                    cell.bg = grid.at(g, row + dr + r, col + dc + c).bg
+                }
+                grid.put(mut g, row + dr + r, col + dc + c, cell)
+            }
+            c += 1
+        }
+        r += 1
     }
 }
 
@@ -1895,9 +1961,9 @@ pub fn opening_bank_cell(s: sim.Sim, t: int, row: int, col: int) -> grid.Cell {
 pub fn opening_wolf(mut g: grid.Grid, t: int, row: int, col: int, small: bool, stride: int) {
     let legs = stride % 4
     if small {
-        draw_pose(mut g, t, row, col, 1, 0, 1, legs, 0, true, 0, 0)
+        draw_pose(mut g, t, row, col, 2, 0, 1, legs, 0, true, 0, 0)
     } else {
-        draw_wolf(mut g, t, row, col, 1, 0, 1, legs)
+        draw_wolf(mut g, t, row, col, 2, 0, 1, legs)
     }
     let (w, h) = if small then silhouette.cub_size() else silhouette.wolf_size()
     let (dc, dr, width, height) = silhouette.footprint(w, h, 1)
@@ -2511,6 +2577,29 @@ pub fn draw_wolf(
     pose: int,
     legs: int,
 ) {
+    if facing % 2 == 0 {
+        draw_wolf_quarter(mut g, t, row, col, facing / 2, band, pose, legs)
+        return
+    }
+    let b = silhouette.wolf_eighth(pose, legs, facing)
+    let style = fur(t, band)
+    if t == tier.RICH {
+        silhouette.draw_at(mut g, row, col, b, 0, style)
+    } else {
+        draw_diagonal_plain(mut g, row, col, b, facing, style)
+    }
+}
+
+fn draw_wolf_quarter(
+    mut g: grid.Grid,
+    t: int,
+    row: int,
+    col: int,
+    facing: int,
+    band: int,
+    pose: int,
+    legs: int,
+) {
     let style = fur(t, band)
     if t == tier.RICH {
         silhouette.draw_at(mut g, row, col, silhouette.wolf(pose, legs), facing, style)
@@ -2626,7 +2715,14 @@ fn draw_ghosts(s: sim.Sim, set: ghost.Set, t: int, mut g: grid.Grid) {
             let r = sim.floor_div(gh.y, sim.FP) - sim.camera_y(s) + sim.screen_row(s)
             let c = sim.floor_div(gh.x, sim.FP) - sim.camera_x(s) + sim.screen_col(s)
             if t == tier.RICH {
-                silhouette.draw_at(mut g, r, c, silhouette.cub(0, 0, 0), gh.facing, style)
+                silhouette.draw_at(
+                    mut g,
+                    r,
+                    c,
+                    silhouette.cub_eighth(0, 0, 0, 0, 0, gh.facing),
+                    0,
+                    style,
+                )
             } else {
                 put_over(mut g, r, c, "x", style)
             }
@@ -2806,7 +2902,7 @@ fn end_frame(s: sim.Sim, t: int, mut g: grid.Grid) {
         // The pack on the far bank, four wolves facing the river.
         var k = 0
         while k < 4 {
-            draw_wolf(mut g, t, s.rows / 6, mid - 24 + k * 14, 2, 0, 0, 0)
+            draw_wolf(mut g, t, s.rows / 6, mid - 24 + k * 14, 4, 0, 0, 0)
             k += 1
         }
         // The wolf: at the near bank, then crossing, then among the pack.
@@ -2942,9 +3038,9 @@ pub fn wolf_sheet(t: int) -> grid.Grid {
         ink(t, true),
     )
     draw_wolf(mut g, t, 7, 9, 0, 0, 0, 0)
-    draw_wolf(mut g, t, 7, 24, 1, 0, 1, 0)
-    draw_wolf(mut g, t, 7, 42, 2, 0, 0, 0)
-    draw_wolf(mut g, t, 7, 57, 3, 0, 1, 1)
+    draw_wolf(mut g, t, 7, 24, 2, 0, 1, 0)
+    draw_wolf(mut g, t, 7, 42, 4, 0, 0, 0)
+    draw_wolf(mut g, t, 7, 57, 6, 0, 1, 1)
     draw_cub(mut g, t, 7, 72, 0, 0)
     g
 }
@@ -3275,4 +3371,78 @@ pub fn draw_combo_shaken(s: sim.Sim, t: int, mut g: grid.Grid, shake: int) {
             draw.put_text(mut g, row, col, if facing % 2 == 0 then ".^^." else "^", ink(t, true))
         }
     }
+}
+
+/// The diagonal poses at either journey field: four facings of one
+/// drawing, including the gait, hurt, breath, tail, snap and grown wolf.
+pub fn diagonal_sheet(t: int, field: int) -> grid.Grid {
+    var g = grid.new(126, field)
+    draw.put_text(mut g, 0, 1, "DIAGONALS   NE / SE / SW / NW", ink(t, true))
+    var row = 0
+    while row < 17 {
+        let pose = if row == 1 || row == 2 {
+            1
+        } else if row == 3 {
+            2
+        } else if row == 4 || row == 5 {
+            3
+        } else if row == 15 {
+            5
+        } else {
+            0
+        }
+        let legs = if row == 2 then 1 else 0
+        let hurt = if row >= 6 && row <= 8 then row - 5 else 0
+        let breath = if row == 5 || row == 9 then 1 else 0
+        let tail = if row >= 10 && row <= 14 then row - 12 else 0
+        let label = if row == 0 {
+            "stand"
+        } else if row == 1 {
+            "walk0"
+        } else if row == 2 {
+            "walk1"
+        } else if row == 3 {
+            "sneak"
+        } else if row == 4 {
+            "pant0"
+        } else if row == 5 {
+            "pant1"
+        } else if row <= 8 {
+            "hurt{hurt}"
+        } else if row == 9 {
+            "breath"
+        } else if row <= 14 {
+            "wag{tail}"
+        } else if row == 15 {
+            "snap"
+        } else {
+            "wolf"
+        }
+        draw.put_text(mut g, 5 + row * 7, 1, label, ink(t, false))
+        var q = 0
+        while q < 4 {
+            let col = 17 + q * (field - 24) / 4
+            if row == 16 {
+                draw_wolf(mut g, t, 5 + row * 7, col, q * 2 + 1, 0, 1, 0)
+            } else {
+                draw_pose(
+                    mut g,
+                    t,
+                    5 + row * 7,
+                    col,
+                    q * 2 + 1,
+                    0,
+                    pose,
+                    legs,
+                    tail,
+                    true,
+                    hurt,
+                    breath,
+                )
+            }
+            q += 1
+        }
+        row += 1
+    }
+    g
 }

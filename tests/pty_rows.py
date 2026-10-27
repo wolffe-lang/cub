@@ -1389,3 +1389,43 @@ def cb07_strikes(binary, ctx):
 
 
 ROWS['cb07-strikes'] = cb07_strikes
+
+
+
+
+def cb08_diagonal_live(binary, ctx):
+    """Actual decoded up+left, movement and bite, at both fields and tiers."""
+    import re
+    root = Path(ctx.ROOT) / 'target/pty/cb08-diagonals'
+    root.mkdir(parents=True, exist_ok=True)
+    env = ctx.env_for()
+    env['HOME'] = str(root)
+    problems = []
+    for tier in ('rich', 'plain'):
+        for cols, rows in ((80, 24), (200, 60)):
+            for mode in ('walk', 'bite'):
+                name = f'{tier}-{cols}-{mode}'
+                record = root / (name + '.pk')
+                session = ctx.Session([binary, '--seed', '7', '--tier', tier,
+                                       '--trace', '--mute', '--no-title',
+                                       '--record', str(record)], rows, cols, env)
+                session.type(b'?', settle=.15)
+                session.type(b'\x1b[A\x1b[D' + (b' ' if mode == 'bite' else b''), settle=.4)
+                session.type(b'q')
+                session.finish()
+                ctx.common_checks(session, 0, problems)
+                (root / (name + '.trace')).write_bytes(session.err)
+                cap = root / (name + '.capture')
+                cap.write_bytes(session.out)
+                applied = subprocess.run([binary, '--apply', str(cap), '--size', f'{cols}x{rows}'],
+                                         capture_output=True, check=True)
+                (root / (name + '.frame')).write_bytes(applied.stdout)
+                action = b'action 1 aim 224' if mode == 'bite' else b'action 0'
+                if not any(action in line and b'body 7 ' in line for line in session.err.splitlines()):
+                    problems.append(name + ': real input did not draw the north-west body')
+                if mode == 'walk' and not re.search(rb'heading 224 target 224 speed [1-9]', session.err):
+                    problems.append(name + ': diagonal body never moved')
+    return session, problems
+
+
+ROWS['cb08-diagonal-live'] = cb08_diagonal_live

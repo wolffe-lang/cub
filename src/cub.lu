@@ -505,6 +505,18 @@ fn run_art_study(o: Options) -> int {
     headless.write_frame(o.dump, "boss-plain", art.boss_sheet(tier.PLAIN)) else |_| { return 2 }
     headless.write_frame(o.dump, "wolf-rich", art.wolf_sheet(tier.RICH)) else |_| { return 2 }
     headless.write_frame(o.dump, "wolf-plain", art.wolf_sheet(tier.PLAIN)) else |_| { return 2 }
+    for field in [80, 200] {
+        headless.write_frame(
+            o.dump,
+            "diagonal-rich-{field}",
+            art.diagonal_sheet(tier.RICH, field),
+        ) else |_| { return 2 }
+        headless.write_frame(
+            o.dump,
+            "diagonal-plain-{field}",
+            art.diagonal_sheet(tier.PLAIN, field),
+        ) else |_| { return 2 }
+    }
     0
 }
 
@@ -921,7 +933,7 @@ fn run_live(o: Options, args: List[str]) -> int {
             }
             if o.trace {
                 eprint(
-                    "trace tick {s.tick} live_foes {denmemory.live(s)} rest_row {s.rest_row} pending {sim.rest_levels(s)} needed {s.rest_refused} level {sim.level(s)} scent {s.scent} resting {if s.den then 1 else 0} area {s.area} den_id {s.last_den} health {s.health} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_area {s.mark_area} capacity {s.flask_max} flasks {s.flasks} action {s.action} aim {s.attack_heading} combo {s.combo} stamina {s.stamina} sprint {if s.sprinting then 1 else 0} dash_hits {sim.dash_hits(s)} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} held {sim.held_direction(s)} exact {if input.exact(s.key_state) then 1 else 0} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} scene {s.scene} demo {if extra.demo_on then 1 else 0} wall_us {(clock.now_ns() - t0_ns) / 1000}",
+                    "trace tick {s.tick} live_foes {denmemory.live(s)} rest_row {s.rest_row} pending {sim.rest_levels(s)} needed {s.rest_refused} level {sim.level(s)} scent {s.scent} resting {if s.den then 1 else 0} area {s.area} den_id {s.last_den} health {s.health} deaths {s.deaths} mark {if s.mark then 1 else 0} mark_area {s.mark_area} capacity {s.flask_max} flasks {s.flasks} action {s.action} aim {s.attack_heading} combo {s.combo} stamina {s.stamina} sprint {if s.sprinting then 1 else 0} dash_hits {sim.dash_hits(s)} in {trace_bytes} keys {tick_keys.len} queue {keys.len} heading {s.heading} target {s.heading_target} speed {s.speed} x {s.x} y {s.y} held {sim.held_direction(s)} exact {if input.exact(s.key_state) then 1 else 0} sneak {if s.sneaking then 1 else 0} blocked {s.blocked} body {s.body_facing} scene {s.scene} demo {if extra.demo_on then 1 else 0} wall_us {(clock.now_ns() - t0_ns) / 1000}",
                 )
                 trace_bytes = 0
             }
