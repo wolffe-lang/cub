@@ -104,7 +104,7 @@ def check(binary):
         _, skipped, _ = run(binary, 'opening-skip', tier)
         assert skipped[100]['scene'] == 1 and skipped[101]['scene'] == 0
         _, journey, enemies = run(binary, 'world-return', tier)
-        assert {s['area'] for s in journey.values()} == {0, 1, 2}
+        assert {s['area'] for s in journey.values()} == {0, 6, 1, 2}  # through Cinderwick (cb05)
         final = journey[max(journey)]
         assert final['area'] == 0 and final['shortcuts'] == 3 and final['deaths'] == 1 and not final['mark']
         assert any(s['area'] == 1 and s['mark_area'] == 2 and s['mark'] for s in journey.values()), 'no cross-area death'
@@ -381,7 +381,7 @@ def den_progression(binary):
         _, states, _ = run(binary, 'den-checkpoint', tier)
         final = states[max(states)]
         assert any(v['resting'] == 1 and v['den_id'] == 2 for v in states.values()), 'den2 not entered'
-        assert (final['area'], final['den_id'], final['x'], final['y'], final['deaths']) == (1, 2, 3968, 23680, 1), 'wrong death checkpoint'
+        assert (final['area'], final['den_id'], final['x'], final['y'], final['deaths']) == (1, 2, -2688, 26240, 1), 'wrong death checkpoint'
         assert final['mark'] == 1 and final['mark_area'] == 1 and final['health'] == 52
         _, spring, _ = run(binary, 'spring-found', tier)
         assert spring[max(spring)]['capacity'] == 2, 'first spring not found through real keys'
@@ -424,8 +424,10 @@ def paths_doors_rest(binary):
                     turns += bool(sign and direction != sign and row['at'] - last_at <= 3)
                     sign, last_at = direction, row['at']
         assert turns * 40 <= samples, ('jaggedness exceeds 0.25 reversals per ten samples', area)
-    for flag, marker in (('--doorways-audit', 'total 806400 misses 0'),
-                         ('--foes-audit', 'frames 193200 omitted_frames 0')):
+    # Seven areas, ten edges and the longer routes (cb05): 896000 doorway
+    # rows and 340600 foe frames, every one checked.
+    for flag, marker in (('--doorways-audit', 'total 896000 misses 0'),
+                         ('--foes-audit', 'frames 340600 omitted_frames 0')):
         p = subprocess.run([str(binary), flag], capture_output=True, text=True, check=True)
         (OUT / (Path(binary).parent.name + flag + '.txt')).write_text(p.stdout)
         assert marker in p.stdout, (flag, 'incomplete census')
