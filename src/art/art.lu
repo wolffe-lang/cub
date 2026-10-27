@@ -1427,7 +1427,7 @@ pub fn opening_material(t: int, material: int, mark: int) -> grid.Cell {
 /// only the last reveal reaches the full, unfiltered gameplay frame.
 pub fn opening_aperture(age: int) -> int {
     if age < 510 { return 0 }
-    if age < 600 { return (age - 510) * 60 / 90 }
+    if age < 600 { return 100 }
     if age < 660 { return (660 - age) * 60 / 60 }
     if age < 720 { return (age - 660) * 80 / 60 }
     if age < 765 { return (765 - age) * 80 / 45 }
