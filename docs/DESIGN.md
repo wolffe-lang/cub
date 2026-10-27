@@ -942,3 +942,18 @@ cell per10 maximum points rounded up, capped30; labels and outlines stay
 at rows1/3 on both tiers. Status numbers are row5 and water row6, after the
 HUD clear. Stat levels1/10/40 are golden at80x24 and120x40. The boss bar
 retains its own size and row1 area to the right of these bars.
+
+
+### Elk census counter correction (cb04b)
+
+R4's latched eight-way facing exposed the scripted player's blind forward
+lunge: an arrow alongside x does not turn its already-committed aim.
+At seed15 the player remained at88 health while five2500-tick budgets
+expired; several lunges aimed64/96/224 against bearing160. This was not
+an iframe or charge-balance failure. The elk's stagger counter now chooses
+x only inside its existing45-degree facing cone; otherwise it falls
+through to the existing held-direction bite or approach/turn, as a real
+player must. No roll, damage, timing, seed or limit changes. All300 non-elk
+census rows stay byte-identical; other elk win-attempt counts stay the same.
+Seed15 wins its fourth budget at both fields. The74 changed elk rows'
+durations/hits and the before/after frames are retained as evidence.

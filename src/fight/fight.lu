@@ -135,6 +135,18 @@ fn arrows(mut keys: List[int], h: int) {
     walker.aim(mut keys, sim.sin(h), 0 - sim.cos(h))
 }
 
+// The elk counter must respect x's committed facing, not assume the
+// arrows beside x turn it first. Use the forward lunge's inclusive45-degree
+// cone; every other boss keeps its existing tactic.
+fn elk_counter_aligned(s: sim.Sim, f: sim.Foe) -> bool {
+    if f.kind != sim.ELK { return true }
+    let dx = f.x - s.x
+    let dy = f.y - s.y
+    let dot = dx * sim.sin(s.heading) - dy * sim.cos(s.heading)
+    let cross = dx * sim.cos(s.heading) + dy * sim.sin(s.heading)
+    dot >= 0 && sim.abs(cross) <= dot
+}
+
 /// The side the fighter steps to during boss `i`'s telegraph: across the
 /// boss's line to the cub, the way with open ground four cells off,
 /// chosen once per windup.
@@ -264,7 +276,8 @@ pub fn fight_keys(s: sim.Sim, i: int, mut st: Fighter) -> List[int] {
             gap <= 3 &&
             left >= 13 &&
             s.stamina >= 30 &&
-            !s.exhausted {
+            !s.exhausted &&
+            elk_counter_aligned(s, f) {
             arrows(mut keys, sim.heading_to(s.x, s.y, f.x, f.y))
             (mut keys).push(controls.KEY_LUNGE)
             return keys
