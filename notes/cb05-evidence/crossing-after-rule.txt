@@ -1,0 +1,24 @@
+seed field outcome tick health beaten where
+0 80 arrived 503 52 0 -
+1 80 arrived 654 48 2 -
+2 80 arrived 712 50 2 -
+3 80 arrived 770 52 3 -
+4 80 arrived 868 52 3 -
+5 80 arrived 877 52 4 -
+6 80 arrived 675 52 3 -
+7 80 arrived 823 30 4 -
+8 80 arrived 702 52 2 -
+9 80 arrived 632 50 2 -
+crossing: field 80 survived 10 of 10
+0 200 arrived 503 52 0 -
+1 200 arrived 654 48 2 -
+2 200 arrived 712 50 2 -
+3 200 arrived 770 52 3 -
+4 200 arrived 868 52 3 -
+5 200 arrived 877 52 4 -
+6 200 arrived 675 52 3 -
+7 200 arrived 823 30 4 -
+8 200 arrived 702 52 2 -
+9 200 arrived 632 50 2 -
+crossing: field 200 survived 10 of 10
+crossing: green, at least 9 of 10 seeds cross at each field, no death on the lane

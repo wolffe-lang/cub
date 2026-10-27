@@ -283,8 +283,10 @@ fn test_cb05_an_ashen_never_chases_past_the_towns_edge() {
     var s = town_cub(5)
     (mut s.foes).reset()
     let edge = town.top(town.PLOTS - 1) + town.PITCH + town.EDGE_ROWS
-    s.x = town.lane(5, edge + 8) * sim.FP + sim.FP / 2
-    s.y = (edge + 8) * sim.FP + sim.FP / 2
+    // Six rows past the edge: within the Ashen's ten cells of hearing
+    // (R-cb05-5) as it paces.
+    s.x = town.lane(5, edge + 6) * sim.FP + sim.FP / 2
+    s.y = (edge + 6) * sim.FP + sim.FP / 2
     var f = sim.make_ashen(
         town.lane(5, edge - 2) * sim.FP + sim.FP / 2,
         (edge - 2) * sim.FP + sim.FP / 2,
@@ -543,5 +545,68 @@ fn test_cb05_the_landmarks_stand_on_open_ground_within_sight_of_their_dens() {
     assert(
         forest.landmark_count(forest.LARKMEADOW) == 4 && forest.landmark_count(forest.TOWN) == 2,
         "counts",
+    )
+}
+
+fn test_cb05_two_ashen_pursue_and_a_third_keeps_its_post() {
+    // R-cb05-5: three Ashen within hearing of a trotting cub; two take its
+    // trail, the third stands turned toward it; when one of the two is
+    // beaten the third comes.
+    var s = town_cub(2)
+    (mut s.foes).reset()
+    var k = 0
+    while k < 3 {
+        var f = sim.make_ashen(s.x + (k - 1) * 4 * sim.FP, s.y - 5 * sim.FP)
+        f.heading = 128
+        (mut s.foes).push(f)
+        k += 1
+    }
+    // The cub trots south, away from them, a few ticks: still within
+    // hearing, and heard (a standing cub is not).
+    var down = List[int]()
+    (mut down).push(controls.KEY_DOWN)
+    var n = 0
+    while n < 8 { sim.step(mut s, copy down); n += 1 }
+    assert(sim.ashen_pursuers(s) == 2, "two pursue: {sim.ashen_pursuers(s)}")
+    var posted = 0
+    var i = 0
+    while i < 3 {
+        if !s.foes[i].chasing {
+            posted += 1
+            assert(s.foes[i].speed == 0, "the third keeps its post")
+        }
+        i += 1
+    }
+    assert(posted == 1, "one keeps its post")
+    // One of the two falls: the third takes the trail.
+    i = 0
+    while i < 3 { if s.foes[i].chasing { s.foes[i].health = 0; break }; i += 1 }
+    n = 0
+    while n < 4 { sim.step(mut s, copy down); n += 1 }
+    assert(sim.ashen_pursuers(s) == 2, "the third comes: {sim.ashen_pursuers(s)}")
+}
+
+fn test_cb05_an_ashen_hears_ten_cells_and_two_sneaking() {
+    var s = town_cub(2)
+    (mut s.foes).reset()
+    var far = sim.make_ashen(s.x, s.y - 12 * sim.FP)
+    far.heading = 128
+    (mut s.foes).push(far)
+    var down = List[int]()
+    (mut down).push(controls.KEY_DOWN)
+    var n = 0
+    while n < 6 { sim.step(mut s, copy down); n += 1 }
+    assert(!s.foes[0].chasing, "twelve cells off, unheard")
+    var t = town_cub(2)
+    (mut t.foes).reset()
+    var near = sim.make_ashen(t.x, t.y - 9 * sim.FP)
+    near.heading = 128
+    (mut t.foes).push(near)
+    n = 0
+    while n < 6 { sim.step(mut t, copy down); n += 1 }
+    assert(t.foes[0].chasing, "nine cells off, heard")
+    assert(
+        sim.ASHEN_HEARING == 10 && sim.ASHEN_HEARING_SNEAK == 2 && sim.ASHEN_PURSUERS == 2,
+        "R-cb05-5's numbers",
     )
 }
