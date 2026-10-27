@@ -50,8 +50,36 @@ pub const HOLLOW: int = 13
 /// burrow sprite identifier.
 pub const BURROW: int = 14
 
+/// The low embers (cb05): a ring of coals still warm in the grass.
+pub const COALS: int = 15
+
+/// The ash shelter (cb05): the charred frame of a hut.
+pub const FRAME: int = 16
+
+/// A burnt stump (cb05): the coal roots' stump-field.
+pub const STUMP: int = 17
+
+/// The lightning-split oak (cb05): by the split roots.
+pub const OAK: int = 18
+
+/// The crack in the stone (cb05): by the ledge cleft.
+pub const CLEFT: int = 19
+
+/// The willow over the water (cb05): by the willow root.
+pub const WILLOW: int = 20
+
+/// Quill's first perch (cb05): a dead tree, the raven on it.
+pub const PERCH: int = 21
+
+/// An old scent mark on a stump (cb05): the dead ends' reward.
+pub const SCENT_MARK: int = 22
+
+/// A heap of ash in a yard with something under it (cb05): Cinderwick's
+/// caches; dug, the hollow in the heap.
+pub const ASHHEAP: int = 23
+
 /// count sprite identifier.
-pub const COUNT: int = 15
+pub const COUNT: int = 24
 
 /// The original plain glyph clusters; spaces leave terrain visible.
 pub fn rows(kind: int, opened: bool) -> List[str] {
@@ -78,10 +106,23 @@ pub fn rows(kind: int, opened: bool) -> List[str] {
         } else {
             [" _====_", "( (##) )", " ~----~"]
         },
-        _ => if opened {
+        14 => if opened {
             ["  ____ ", "_/    \\_", " :    :"]
         } else {
             ["  /\\/\\ ", "_/(##)\\_", " :====:"]
+        },
+        15 => [" o o o ", "o  *  o", " o o o "],
+        16 => ["/\\___/\\", "|  _  |", "|_| |_|"],
+        17 => ["  _|_  ", " [###] ", "  ' '  "],
+        18 => ["\\ \\ / /", " \\ V / ", "  |_|  "],
+        19 => ["## | ##", "## | ##", "#_/ \\_#"],
+        20 => ["  _^_  ", " /|||\\ ", "//|||\\\\"],
+        21 => ["  \\ v  ", "   |   ", "  _|_  "],
+        22 => ["  . :  ", " [##]. ", "  ::   "],
+        _ => if opened {
+            [" .~~~. ", "(     )", " '~~~' "]
+        } else {
+            [" .~~~. ", "(##o##)", " '~~~' "]
         },
     }
 }
@@ -89,8 +130,8 @@ pub fn rows(kind: int, opened: bool) -> List[str] {
 /// Draw a centred landmark with scalar rich strokes or its plain cluster.
 pub fn draw_at(mut g: grid.Grid, t: int, row: int, col: int, kind: int, opened: bool, tick: int) {
     let lines = rows(kind, opened)
-    let alive = !opened && (kind == HOLLOW || kind == BURROW)
-    let bright = kind == EMBER || alive
+    let alive = !opened && (kind == HOLLOW || kind == BURROW || kind == ASHHEAP)
+    let bright = kind == EMBER || alive || kind == COALS
     let colour = if t == tier.RICH {
         if bright then (if tick / 24 % 2 == 0 then 229 else 220) else 180
     } else if bright then 15 else 11
@@ -140,14 +181,15 @@ pub fn draw_at(mut g: grid.Grid, t: int, row: int, col: int, kind: int, opened: 
 
 /// All landmarks and empty cache forms for the committed art atlas.
 pub fn sheet(t: int) -> grid.Grid {
-    var g = grid.new(20, 80)
+    var g = grid.new(30, 80)
     var k = 0
     while k < COUNT {
         draw_at(mut g, t, 2 + k / 5 * 5, 7 + k % 5 * 15, k, false, 0)
         k += 1
     }
-    draw_at(mut g, t, 17, 7, HOLLOW, true, 0)
-    draw_at(mut g, t, 17, 22, BURROW, true, 0)
-    draw_at(mut g, t, 17, 37, HEDGE, true, 0)
+    draw_at(mut g, t, 27, 7, HOLLOW, true, 0)
+    draw_at(mut g, t, 27, 22, BURROW, true, 0)
+    draw_at(mut g, t, 27, 37, HEDGE, true, 0)
+    draw_at(mut g, t, 27, 52, ASHHEAP, true, 0)
     g
 }

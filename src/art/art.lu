@@ -12,6 +12,7 @@ use forest
 use ghost
 use grid
 use glow
+use lore
 use meadow
 use props
 use restscene
@@ -20,6 +21,7 @@ use sim
 use sprites
 use terrain
 use tier
+use town
 use world
 
 /// What a frame shows beyond the simulation (cb04): the ghosts of the
@@ -69,14 +71,32 @@ pub fn ground_at(seed: int, field: int, area: int, t: int, x: int, y: int) -> gr
         0
     } else if k == terrain.CANOPY || k == terrain.DARK {
         foliage
-    } else if k == terrain.ROCK {
+    } else if k == terrain.ROCK || k == terrain.WALL {
         // Stone alternates its two faces by parity too (cb04: the crags
-        // are stone, and stone is held to the no-flat-fill rule).
+        // are stone, and stone is held to the no-flat-fill rule); a ruined
+        // wall likewise (cb05).
+        ((x + y) % 2 + 2) % 2
+    } else if k == terrain.ASH {
+        if terrain.variant(seed, x, y, 5) == 0 then 1 + v % 3 else 0
+    } else if k == terrain.EMBER {
         ((x + y) % 2 + 2) % 2
     } else {
         v
     }
-    kind_cell(area, t, k, variant, foliage)
+    var cell = kind_cell(area, t, k, variant, foliage)
+    // The embers' light at night (cb05): the ash and the walls near one
+    // warm up; the lane's cobbles keep their one style (the path audit).
+    if area == forest.TOWN && (k == terrain.ASH || k == terrain.WALL) {
+        let light = town.light(seed, x, y - forest.origin(seed, area))
+        if light > 0 {
+            cell.fg = if t == tier.RICH {
+                (if k == terrain.WALL then (if light == 2 then 223 else 180) else if light == 2 then 215 else 137)
+            } else {
+                (if light == 2 then 11 else 3)
+            }
+        }
+    }
+    cell
 }
 
 /// The sprite a terrain kind draws.
@@ -97,6 +117,12 @@ fn sprite_of(k: int) -> int {
         sprites.SP_REEDS
     } else if k == terrain.SHALLOWS {
         sprites.SP_SHALLOWS
+    } else if k == terrain.ASH {
+        sprites.SP_ASH
+    } else if k == terrain.WALL {
+        sprites.SP_WALL
+    } else if k == terrain.EMBER {
+        sprites.SP_EMBER
     } else {
         sprites.SP_DARK
     }
@@ -114,6 +140,11 @@ pub fn kind_cell(area: int, t: int, k: int, variant: int, foliage: int) -> grid.
     if area != forest.SHINGLE && !water {
         cell.bg = if t == tier.RICH then floor_of(area) else 0
         cell.fg = dusk_ink(area, t, k, foliage)
+        // An ember glows on its own dark red (cb05).
+        if k == terrain.EMBER {
+            cell.bg = if t == tier.RICH then 52 else 0
+            cell.fg = if t == tier.RICH then (if variant == 0 then 208 else 202) else 9
+        }
         // The old den's open floor carries the pack's scent: a dim mark on
         // every other grass cell (cb04).
         if area == forest.OLDDEN && k == terrain.GRASS && variant % 2 == 0 {
@@ -130,6 +161,7 @@ fn floor_of(area: int) -> int {
         2 => 235,
         3 => 236,
         4 => 233,
+        6 => 233,
         _ => 232,
     }
 }
@@ -163,7 +195,7 @@ pub fn path_audit(seed: int, field: int, area: int) -> int {
     let plain = path_styles(area, tier.PLAIN)
     var off = 0
     var y = o + top
-    while y <= o + forest.LENGTH {
+    while y <= o + forest.length(area) {
         var x = 0 - w
         while x <= w {
             if forest.on_path(seed, field, area, x, y) && !forest.blocked(seed, field, area, x, y) {
@@ -195,6 +227,10 @@ fn dusk_ink(area: int, t: int, k: int, foliage: int) -> int {
     if area == forest.CRAGS { return crag_ink(t, k, foliage) }
     if area == forest.OLDDEN { return night_ink(t, k, foliage) }
     if area == forest.RIVER { return river_ink(t, k, foliage) }
+    if area == forest.TOWN { return town_ink(t, k, foliage) }
+    // The burn's ash (cb05): grey in two tones over the area's floor.
+    if k == terrain.ASH { return if t != tier.RICH then 8 else if foliage % 2 == 0 then 240 else 242 }
+    if k == terrain.WALL { return if t != tier.RICH then 7 else 245 }
     if t != tier.RICH {
         if k == terrain.TRUNK { return 3 }
         if k == terrain.GRASS || k == terrain.REEDS { return if thicket then 2 else 3 }
@@ -211,6 +247,24 @@ fn dusk_ink(area: int, t: int, k: int, foliage: int) -> int {
         }
     }
     if thicket then 23 else 58
+}
+
+/// Cinderwick's keyframe (cb05): the night of the fire. Ash in two greys,
+/// the broken walls in two pale faces, the lane's cobbles pale on the dark
+/// floor, the wood beyond in Gravehollow's cold night greens; the embers
+/// have their own glow (`kind_cell`).
+fn town_ink(t: int, k: int, foliage: int) -> int {
+    if t != tier.RICH {
+        if k == terrain.ASH { return 8 }
+        if k == terrain.WALL { return if foliage % 2 == 0 then 7 else 15 }
+        if k == terrain.GRAVEL { return 7 }
+        return night_ink(t, k, foliage)
+    }
+    if k == terrain.ASH { return if foliage % 2 == 0 then 240 else 242 }
+    if k == terrain.WALL { return if foliage % 2 == 0 then 245 else 250 }
+    if k == terrain.GRAVEL { return 250 }
+    if k == terrain.GRASS { return 240 }
+    night_ink(t, k, foliage)
 }
 
 /// The Teeth's keyframe (cb04): grey stone in two faces, pale gravel marks
@@ -740,28 +794,36 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
                 at_world(s, t, mut g, cx + spread, cy + 1, "*", true)
             }
         } else {
+            let (reward, _) = sim.cache_reward(s.area, cache)
             world_prop(
                 s,
                 t,
                 mut g,
                 sim.floor_div(x, sim.FP),
                 sim.floor_div(y, sim.FP),
-                if cache == 0 then props.HOLLOW else props.BURROW,
+                if s.area == forest.TOWN {
+                    props.ASHHEAP
+                } else if reward == lore.LORE {
+                    props.HOLLOW
+                } else {
+                    props.BURROW
+                },
                 sim.cache_open(s, cache),
             )
         }
-        if sim.pickup_near(s, x, y) && !s.den {
+        if sim.pickup_near(s, x, y) && !s.den && s.lore < 0 {
+            let (reward, line) = sim.cache_reward(s.area, cache)
             draw.put_text(
                 mut g,
                 s.rows - 2,
                 1,
                 if sim.cache_open(s, cache) {
                     if s.area == forest.SHINGLE {
-                        "The wrapping is empty; a bundle is in your pouch."
-                    } else if cache == 0 {
-                        "Old bones. Nothing here carries a scent."
+                        lore.pouch_line(lore.MARROW, true)
+                    } else if reward == lore.LORE {
+                        lore.line(line)
                     } else {
-                        "The burrow is empty; its herb is in your pouch."
+                        lore.pouch_line(reward, false)
                     }
                 } else {
                     "r dig; the guards must be gone"
@@ -770,6 +832,49 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
             )
         }
         cache += 1
+    }
+    // A found lore line (cb05) holds the bottom row while it lasts.
+    if s.lore >= 0 && s.tick < s.lore_until && !s.den {
+        draw.put_text(mut g, s.rows - 2, 1, lore.line(s.lore), ink(t, true))
+    }
+    // The landmarks (cb05): each a drawing where it stands, and a line
+    // when the cub stands near one that has something to say.
+    var lm = 0
+    while lm < forest.landmark_count(s.area) {
+        let (kind, lx, ly) = forest.landmark(s.seed, s.field, s.area, lm)
+        let wy = forest.origin(s.seed, s.area) + ly
+        if kind == forest.LM_STUMPS {
+            // The coal roots: a field of burnt stumps round the point.
+            for d in [(-6, -2), (0, -3), (5, -1), (-3, 2), (3, 3), (8, 1), (-8, 0)] {
+                let (ddx, ddy) = d
+                world_prop(s, t, mut g, lx + ddx, wy + ddy, props.STUMP, false)
+            }
+        } else {
+            world_prop(
+                s,
+                t,
+                mut g,
+                lx,
+                wy,
+                match kind {
+                    0 => props.COALS,
+                    1 => props.FRAME,
+                    3 => props.OAK,
+                    4 => props.CLEFT,
+                    5 => props.WILLOW,
+                    6 => props.PERCH,
+                    _ => props.SCENT_MARK,
+                },
+                false,
+            )
+        }
+        if !s.den &&
+            s.lore < 0 &&
+            sim.near(s.x, s.y, lx * sim.FP + sim.FP / 2, wy * sim.FP + sim.FP / 2, 4 * sim.FP) {
+            let text = landmark_line(s.area, kind, lm)
+            if text != "" { draw.put_text(mut g, s.rows - 2, 1, text, ink(t, true)) }
+        }
+        lm += 1
     }
     for tr in s.trail {
         at_world(
@@ -786,7 +891,7 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
     while den < forest.DEN_LIMIT {
         if forest.den_area(den) == s.area {
             let (dx, dy) = forest.den_position(s.seed, den)
-            draw_den(s, t, mut g, dx, dy)
+            draw_den(s, t, mut g, dx, dy, den)
             if sim.near(s.x, s.y, dx, dy, 10 * sim.FP) && !s.den {
                 draw.put_text(
                     mut g,
@@ -799,21 +904,24 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
         }
         den += 1
     }
+    let way_on = forest.length(s.area) - 3
     if s.area == forest.SHINGLE {
         world_prop(s, t, mut g, 0, sim.gate_y(s) - 3, props.THICKET, false)
+    } else if s.area == forest.TOWN {
+        world_prop(s, t, mut g, 0, way_on, props.THICKET, false)
     } else if s.area == forest.BRAMBLEHOLD {
-        world_prop(s, t, mut g, 0, forest.LENGTH - 3, props.MEADOW, false)
+        world_prop(s, t, mut g, 0, way_on, props.MEADOW, false)
         world_prop(s, t, mut g, 12, forest.BOAR_ROW - 2, props.BOAR, false)
         world_prop(s, t, mut g, -10, 24, props.EMBER, false)
         world_prop(s, t, mut g, -4, 18, props.BONES, false)
     } else if s.area == forest.LARKMEADOW {
         world_prop(s, t, mut g, 10, 24, props.TREE, false)
-        world_prop(s, t, mut g, 0, forest.LENGTH - 3, props.CRAGS, false)
+        world_prop(s, t, mut g, 0, way_on, props.CRAGS, false)
     } else if s.area == forest.CRAGS {
-        world_prop(s, t, mut g, 0, forest.LENGTH - 3, props.RIVER, false)
+        world_prop(s, t, mut g, 0, way_on, props.RIVER, false)
         world_prop(s, t, mut g, 8, 30, props.TRACKS, false)
     } else if s.area == forest.RIVER {
-        world_prop(s, t, mut g, 0, forest.LENGTH - 3, props.OLD_DEN, false)
+        world_prop(s, t, mut g, 0, way_on, props.OLD_DEN, false)
     } else {
         world_prop(s, t, mut g, 0, 36, props.TRACKS, false)
     }
@@ -1053,6 +1161,9 @@ pub fn draw_foe(
     if kind == sim.HAWK { draw_hawk(mut g, t, row, col, phase, fade); return }
     let colour = if kind == sim.DEER {
         (if t == tier.RICH then 180 else 11)
+    } else if kind == sim.ASHEN {
+        // Grey, the smoke's colour (cb05).
+        (if t == tier.RICH then 247 else 7)
     } else {
         sprites.palette(t, if kind == sim.FOX then sprites.C_FOX else sprites.C_WEASEL)
     }
@@ -1088,6 +1199,7 @@ pub fn draw_foe(
 /// ticks and the body at ten.
 fn plain_foe(kind: int, phase: int, fade: int, facing: int) -> List[str] {
     var rows = List[str]()
+    if kind == sim.ASHEN { return plain_ashen(phase, fade, facing) }
     let crouch = phase == sim.CROUCH || phase == sim.FEINT
     let deer = kind == sim.DEER
     let fox = kind == sim.FOX
@@ -1167,6 +1279,63 @@ fn plain_foe(kind: int, phase: int, fade: int, facing: int) -> List[str] {
     (mut rows).push(if facing == 1 then top else reversed(top))
     (mut rows).push(if facing == 1 then low else reversed(low))
     rows
+}
+
+/// The plain tier's Ashen (cb05): two cells by three, a head, a body and
+/// the legs; the windup raises the arms (`^^`), the blow puts one out
+/// (`|=`), a stagger lifts `!!`; turned, a strip of six.
+fn plain_ashen(phase: int, fade: int, facing: int) -> List[str] {
+    var rows = List[str]()
+    let head = if fade >= 5 {
+        ".."
+    } else if phase == sim.CROUCH {
+        "^^"
+    } else if phase == sim.STAGGER {
+        "!!"
+    } else {
+        "oo"
+    }
+    let body = if fade >= 10 then ". " else if phase == sim.STRIKE then "|=" else "||"
+    let legs = if fade >= 10 then "  " else "/\\"
+    if facing % 2 == 0 {
+        let north = facing == 0
+        (mut rows).push(if north then head else legs)
+        (mut rows).push(body)
+        (mut rows).push(if north then legs else head)
+        return rows
+    }
+    let strip = "/" + body + head + (if phase == sim.STRIKE then "'" else " ")
+    (mut rows).push(if facing == 1 then strip else reversed(strip))
+    rows
+}
+
+/// What the forest says at a landmark (cb05): the scent marks' lines, the
+/// raven's first words, the burn's three places.
+fn landmark_line(area: int, kind: int, k: int) -> str {
+    if kind == forest.LM_SCENT {
+        return lore.line(
+            if area == forest.TOWN {
+                lore.MARK_TOWN
+            } else if k % 2 == 0 {
+                lore.MARK_UP
+            } else {
+                lore.MARK_OLDER
+            },
+        )
+    }
+    if kind == forest.LM_PERCH {
+        return "Quill: A cub, walking the burn alone. Bring me scent when you have some; I know what the ash remembers."
+    }
+    if kind == forest.LM_COALS {
+        return "A ring of coals, still warm in the grass. The low embers: the fire slept here a night."
+    }
+    if kind == forest.LM_FRAME {
+        return "The charred frame of a hut on the meadow's edge. The ash shelter: someone waited here, and the fire found them."
+    }
+    if kind == forest.LM_STUMPS {
+        return "A field of black stumps at the thicket's edge. The coal roots: this is where the fire came in."
+    }
+    ""
 }
 
 /// A string reversed, `<`, `>`, `/` and `\\` mirrored.
@@ -2312,7 +2481,30 @@ pub fn wolf_sheet(t: int) -> grid.Grid {
 }
 
 /// A warm hollow, its ember and a breathing smoke wisp; never a label alone.
-pub fn draw_den(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int) {
+/// A den's own drawing (cb05: each den the place its name promises): the
+/// hollow log's cut timber, the split roots under the struck oak, the
+/// briar hollow's bowl in the brambles, the grass nest's flattened ring,
+/// the ledge cleft's crack, the willow root over the water, the cold den
+/// under the fallen oak's roots, the cold hearth's ring of stones, the last
+/// warm hollow where the fire stopped. Three rows of seven, over the warm
+/// patch; `#` draws as a block on the rich tier, `|` as a rule.
+pub fn den_rows(den: int) -> List[str] {
+    match den {
+        0 => ["_.===._", "( O====", " '===' "],
+        1 => ["\\ | | /", " \\|_|/ ", " /   \\ "],
+        2 => ["%%\\_/%%", "%(   )%", "%%/-\\%%"],
+        3 => [",,\\_/,,", ",(   ),", ",,/_\\,,"],
+        4 => ["##\\_/##", "#(   )#", "##/ \\##"],
+        5 => ["\\\\|_|//", " (   ) ", "~~\\_/~~"],
+        6 => ["/\\___/\\", "(     )", "(_/ \\_)"],
+        7 => ["o o o o", "o(   )o", "o o o o"],
+        _ => ["_.-~-._", "( ~ ~ )", " '-.-' "],
+    }
+}
+
+/// Draw den `den` at world fixed-point `(x, y)`: the warm patch, the den's
+/// own rows (`den_rows`), the ember and the smoke.
+pub fn draw_den(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, den: int) {
     let row = sim.floor_div(y, sim.FP) - sim.cell_y(s) + sim.screen_row(s)
     let col = sim.floor_div(x, sim.FP) - sim.cell_x(s) + sim.screen_col(s)
     let warm = if t == tier.RICH then 94 else 3
@@ -2332,9 +2524,32 @@ pub fn draw_den(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int) {
         dy += 1
     }
     let style = grid.cell(32, warm, if t == tier.RICH then 52 else 0, grid.ATTR_BOLD)
-    draw.put_text(mut g, row - 1, col - 3, "_.---._", style)
-    draw.put_text(mut g, row, col - 3, "(     )", style)
-    draw.put_text(mut g, row + 1, col - 3, "(_   _)", style)
+    let rows = den_rows(den)
+    var r = 0
+    while r < 3 {
+        var c = 0
+        for b in rows[r].bytes() {
+            var cp = b as int
+            if cp != 32 {
+                if t == tier.RICH {
+                    cp = match cp {
+                        35 => 9608,
+                        124 => 9474,
+                        126 => 8776,
+                        _ => cp,
+                    }
+                }
+                grid.put(
+                    mut g,
+                    row - 1 + r,
+                    col - 3 + c,
+                    grid.cell(cp, style.fg, style.bg, style.attrs),
+                )
+            }
+            c += 1
+        }
+        r += 1
+    }
     grid.put(
         mut g,
         row + 1,
@@ -2364,10 +2579,12 @@ pub fn meadow_finds(s: sim.Sim, t: int, mut g: grid.Grid) {
             let (x, y) = sim.world_cell(s, row, col)
             let (ax, ay, kind) = meadow.anchor(s.seed, x, y)
             if ay >= 6 &&
-                ay < forest.LENGTH - 4 &&
+                ay < forest.length(s.area) - 4 &&
                 ax > -forest.half_width(s.field) + 4 &&
                 ax < forest.half_width(s.field) - 4 &&
-                !forest.on_path(s.seed, s.field, s.area, ax, ay) {
+                !forest.on_path(s.seed, s.field, s.area, ax, ay) &&
+                !forest.landmark_clear(s.seed, s.field, s.area, ax, ay) &&
+                !forest.burnt(s.seed, s.area, ax, ay) {
                 var dx = x - ax + 1
                 if kind == 1 {
                     if x < ax - 1 { dx += 3 }
@@ -2490,7 +2707,8 @@ pub fn draw_water(s: sim.Sim, t: int, mut g: grid.Grid) {
 /// Persistent edge-zero thorns: intact across the throat, broken flanks
 /// after the lunge, visible from both areas without closing the opened gap.
 pub fn draw_thorn_boundary(s: sim.Sim, t: int, mut g: grid.Grid) {
-    if s.area != forest.SHINGLE && s.area != forest.BRAMBLEHOLD { return }
+    // The gate's two faces: the Shingle's end and Cinderwick's entry (cb05).
+    if s.area != forest.SHINGLE && s.area != forest.TOWN { return }
     let row = forest.thorn_row(s.seed, s.area) - sim.cell_y(s) + sim.screen_row(s)
     var x = -4
     while x <= 4 {
