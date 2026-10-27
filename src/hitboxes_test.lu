@@ -1,0 +1,63 @@
+//! member: false
+//! cb08 — real active strikes, with AI held still to isolate the geometry.
+
+use hitcensus
+use sim
+
+fn test_cb08_whisper_flank_bite_is_not_refused_for_its_centre() {
+    var s = hitcensus.fixture(sim.LYNX)
+    s.foes[0].heading = 64
+    let x = s.foes[0].x / sim.FP + 4
+    let y = s.foes[0].y / sim.FP + 3
+    assert(hitcensus.bite(mut s, x, y, 0), "Whisper's east flank touches the north-facing jaws")
+}
+
+/// Gap one, jaw aimed into each of eight sides; then aim away from the
+/// same spot. Each trial calls the actual damage pass, not a copied cone.
+fn circle(kind: int) {
+    var aim = 0
+    while aim < 8 {
+        var s = hitcensus.fixture(kind)
+        s.attack_heading = aim * 32
+        s.body_facing = sim.wanted_facing(s)
+        let cb = sim.cub_body_at(s, 0, 0, s.body_facing)
+        let fb = sim.foe_body(s.foes[0])
+        let dx = sim.sin(aim * 32)
+        let dy = 0 - sim.cos(aim * 32)
+        let x = if dx > 0 { fb.x0 - 2 - cb.x1 } else if dx < 0 {
+            fb.x1 + 2 - cb.x0
+        } else { (fb.x0 + fb.x1 - cb.x0 - cb.x1) / 2 }
+        let y = if dy > 0 { fb.y0 - 2 - cb.y1 } else if dy < 0 {
+            fb.y1 + 2 - cb.y0
+        } else { (fb.y0 + fb.y1 - cb.y0 - cb.y1) / 2 }
+        assert(hitcensus.bite(mut s, x, y, aim), "boss {kind}, gap one, aim {aim}")
+        assert(!hitcensus.bite(mut s, x, y, (aim + 4) % 8), "boss {kind} behind the jaws, aim {aim}")
+        aim += 1
+    }
+}
+
+fn test_cb08_bite_circles_whisper_on_all_eight_sides() { circle(sim.LYNX) }
+fn test_cb08_bite_circles_the_boar_on_all_eight_sides() { circle(sim.BOAR) }
+fn test_cb08_bite_circles_the_elk_on_all_eight_sides() { circle(sim.ELK) }
+fn test_cb08_bite_circles_the_staggered_alpha_on_all_eight_sides() { circle(sim.ALPHA) }
+
+fn test_cb08_whisper_flank_all_attacks_and_combos_land_once() {
+    for action in [sim.BITE, sim.LUNGE, sim.HEAVY, sim.DASH] {
+        for combo in [1, 2, 3] {
+            var s = hitcensus.fixture(sim.LYNX)
+            s.foes[0].heading = 64
+            s.x = s.foes[0].x + 4 * sim.FP
+            s.y = s.foes[0].y + 3 * sim.FP
+            s.action = action
+            s.combo = combo
+            s.attack_heading = 0
+            s.body_facing = 0
+            s.tick = s.started + (if action == sim.LUNGE then 9 else if action == sim.HEAVY then sim.HEAVY_WINDUP else 3)
+            sim.strike_foes(mut s)
+            let damage = sim.bite_damage(s.fang) * (if action == sim.LUNGE then 3 else if action == sim.HEAVY then sim.HEAVY_DAMAGE else if action == sim.DASH then 2 else 1)
+            assert(s.foes[0].health == 1000 - damage, "flank action {action} combo {combo}")
+            sim.strike_foes(mut s)
+            assert(s.foes[0].health == 1000 - damage, "the same strike never hits twice")
+        }
+    }
+}

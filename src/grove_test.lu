@@ -256,7 +256,7 @@ fn test_cb02b_cub_east_is_the_north_cub_turned() {
     }
     // And the frame draws the east cub from exactly that turn.
     var g = grid.new(10, 16)
-    art.draw_pose(mut g, tier.RICH, 4, 7, 1, 0, 0, 0, 0, true, 0, 0)
+    art.draw_pose(mut g, tier.RICH, 4, 7, 2, 0, 0, 0, 0, true, 0, 0)
     let east = silhouette.turned(silhouette.cub(0, 0, 0), 1)
     var cc = 0
     while cc < 8 {

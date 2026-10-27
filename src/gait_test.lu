@@ -422,7 +422,7 @@ fn test_cb02c_a_turn_never_swings_the_cub_into_a_foe() {
         assert(!sim.overlap(sim.cub_body(s), sim.foe_body(s.foes[0])), "no overlap at {n}")
         n += 1
     }
-    assert(s.body_facing == 1, "the cub turned east")
+    assert(s.body_facing == 2, "the cub turned east")
 }
 
 fn test_cb02c_two_foes_never_share_a_cell() {

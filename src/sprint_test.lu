@@ -105,7 +105,7 @@ fn check_forward_contact(direction: int) {
         s.heading = direction
         s.heading_target = direction
         s.attack_heading = direction
-        s.body_facing = sim.quarter(direction)
+        s.body_facing = sim.eighth(direction)
         s.action = sim.BITE
         s.combo = combo
         s.started = 0
@@ -132,7 +132,7 @@ fn check_forward_contact(direction: int) {
         var keys = List[int]()
         sim.step(mut s, keys)
         assert(
-            s.body_facing == sim.quarter(direction),
+            s.body_facing == sim.eighth(direction),
             "slant moves the head, not a ninety-degree body flip",
         )
         assert(
@@ -164,7 +164,7 @@ fn test_cb03a_snapping_head_checks_the_landing_body_not_the_start() {
     s.heading = 64
     s.heading_target = 64
     s.attack_heading = 64
-    s.body_facing = 1
+    s.body_facing = 2
     s.action = sim.DASH
     s.started = 0
     s.tick = 4

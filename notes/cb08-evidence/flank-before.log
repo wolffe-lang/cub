@@ -1,0 +1,53 @@
+cb08 flank-before start 2026-10-27T08:07:09Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:07:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:07:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:07:39Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:07:39Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:08:09Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:08:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:08:39Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:08:39Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:09:09Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:09:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:09:39Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:09:39Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:10:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:10:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:10:39Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:10:39Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:11:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:11:09Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:11:39Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:11:39Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:12:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:12:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:12:39Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:12:39Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:13:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:13:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:13:39Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:13:39Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:14:09Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:14:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:14:39Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:14:39Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:15:09Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:15:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:15:39Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:15:39Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:16:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:16:09Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:16:39Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:16:39Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:17:09Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:17:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:17:39Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:17:39Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:18:09Z
+cb08 flank-before waiting for cores 4-7 2026-10-27T08:18:09Z
+cb08 flank-before waiting for cores 8-11 2026-10-27T08:18:39Z
+cb08 flank-before acquired cores 4-7 2026-10-27T08:18:39Z
+test src/hitboxes_test.lu::test_cb08_whisper_flank_bite_is_not_refused_for_its_centre ... FAILED (trap(assert))
+test src/hitboxes_test.lu::test_cb08_whisper_flank_all_attacks_and_combos_land_once ... FAILED (trap(assert))
+wolf test: 0 passed; 2 failed; 0 rejected; 0 unsupported; 315 filtered out
+flank-before EXIT 1 2026-10-27T08:18:43Z

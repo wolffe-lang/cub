@@ -60,7 +60,7 @@ fn arena_with(kind: int, seed: int) -> sim.Sim {
     s.x = s.foes[0].x
     s.heading = 128
     s.heading_target = 128
-    s.body_facing = 2
+    s.body_facing = 4
     s.foes[0].heading = 0
     sim.settle_bodies(mut s)
     s

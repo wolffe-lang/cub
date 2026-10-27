@@ -1,0 +1,17 @@
+cb08 eighth-migration start 2026-10-27T08:04:53Z
+cb08 eighth-migration waiting for cores 8-11 2026-10-27T08:04:53Z
+cb08 eighth-migration acquired cores 4-7 2026-10-27T08:04:53Z
+test src/sprint_test.lu::test_cb03a_every_combo_hits_dead_ahead_contact_cardinals ... ok
+test src/sprint_test.lu::test_cb03a_every_combo_hits_dead_ahead_contact_diagonals ... ok
+wolf test: 2 passed; 0 failed; 0 rejected; 0 unsupported; 309 filtered out
+test src/art_test.lu::test_cb01b_sideways_silhouette_keeps_body_cells ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 310 filtered out
+test src/gait_test.lu::test_cb02c_a_turn_never_swings_the_cub_into_a_foe ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 310 filtered out
+test src/grove_test.lu::test_cb02b_cub_east_is_the_north_cub_turned ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 310 filtered out
+test src/opening_test.lu::test_cb06_opening_wolves_are_the_game_silhouettes ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 310 filtered out
+test src/sim_test.lu::test_turn_rate_bounds_the_heading_change ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 310 filtered out
+eighth-migration EXIT 0 2026-10-27T08:05:16Z

@@ -293,9 +293,9 @@ fn test_cb06_opening_wolves_are_the_game_silhouettes() {
                 }
                 art.opening_wolf(mut actual, t, 12, 40, small, 2)
                 if small {
-                    art.draw_pose(mut expected, t, 12, 40, 1, 0, 1, 2, 0, true, 0, 0)
+                    art.draw_pose(mut expected, t, 12, 40, 2, 0, 1, 2, 0, true, 0, 0)
                 } else {
-                    art.draw_wolf(mut expected, t, 12, 40, 1, 0, 1, 2)
+                    art.draw_wolf(mut expected, t, 12, 40, 2, 0, 1, 2)
                 }
                 let (w, h) = if small then silhouette.cub_size() else silhouette.wolf_size()
                 let (dc, dr, width, height) = silhouette.footprint(w, h, 1)

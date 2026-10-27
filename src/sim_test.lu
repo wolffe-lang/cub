@@ -81,7 +81,7 @@ fn test_turn_rate_bounds_the_heading_change() {
         i += 1
     }
     assert(s.heading == 128, "facing south after a half turn: {s.heading}")
-    assert(sim.facing(s) == 2, "the facing is south")
+    assert(sim.facing(s) == 4, "the eighth is south")
 }
 
 fn test_speed_never_jumps_and_the_sneak_is_half() {
