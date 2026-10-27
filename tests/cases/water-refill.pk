@@ -88,14 +88,14 @@ t 77 down
 t 78 down
 t 79 down
 t 80 down
-t 81 down
-t 82 down
-t 83 down
-t 84 down
-t 85 down
-t 86 down
-t 87 health -30
-t 87 water
+t 81 health -30
+t 81 water
+t 117 up
+t 118 up
+t 119 up
+t 120 up
+t 121 up
+t 122 up
 t 123 up
 t 124 up
 t 125 up
@@ -170,18 +170,6 @@ t 193 up
 t 194 up
 t 195 up
 t 196 up
-t 197 up
-t 198 up
-t 199 up
-t 200 up
-t 201 up
-t 202 up
-t 203 up
-t 204 up
-t 205 up
-t 206 up
-t 207 up
-t 208 up
-t 209 rest
+t 197 rest
 
-# frames 210 every 210
+# frames 198 every 198

@@ -2,7 +2,7 @@ pk 1
 seed 7
 tier rich
 size 80x24
-t 0 journey 3
+t 0 journey 4
 t 0 saved-0 7
 t 0 saved-1 0
 t 0 saved-2 1
@@ -33,6 +33,12 @@ t 0 saved-26 0
 t 0 saved-27 0
 t 0 saved-28 0
 t 0 saved-29 1
+t 0 saved-30 0
+t 0 saved-31 0
+t 0 saved-32 0
+t 0 saved-33 0
+t 0 saved-34 0
+t 0 saved-35 0
 t 0 rest
 
 # frames 36 every 7

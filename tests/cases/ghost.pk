@@ -52,9 +52,6 @@ t 46 right
 t 47 right
 t 48 right
 t 49 right
-t 50 right
-t 51 right
-t 52 right
 
 # ghost-dir tests/ghosts
-# frames 253 every 20 from 60
+# frames 250 every 20 from 60

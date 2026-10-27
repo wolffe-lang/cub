@@ -88,13 +88,7 @@ t 77 down
 t 78 down
 t 79 down
 t 80 down
-t 81 down
-t 82 down
-t 83 down
-t 84 down
-t 85 down
-t 86 down
-t 87 health -30
-t 87 water
+t 81 health -30
+t 81 water
 
-# frames 123 every 123
+# frames 117 every 117

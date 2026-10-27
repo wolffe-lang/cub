@@ -17,9 +17,8 @@ t 11 left
 t 12 left
 t 13 left
 t 14 left
-t 15 left
+t 15 down
 t 16 down
-t 16 left
 t 17 down
 t 18 down
 t 19 down
@@ -162,28 +161,21 @@ t 155 down
 t 156 down
 t 157 down
 t 158 down
+t 158 left
 t 159 down
+t 159 left
 t 160 down
+t 160 right
 t 161 down
 t 162 down
 t 163 down
+t 163 left
 t 164 down
+t 164 left
 t 165 down
-t 166 down
-t 167 down
-t 168 down
-t 169 down
-t 169 left
-t 170 down
-t 171 down
-t 171 right
-t 172 down
-t 173 down
-t 174 down
-t 175 down
-t 176 down
-t 177 right
-t 177 lock
-t 177 bite
+t 165 left
+t 181 right
+t 181 lock
+t 181 bite
 
-# frames 190 every 190
+# frames 194 every 194
