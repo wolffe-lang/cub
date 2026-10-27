@@ -2458,7 +2458,7 @@ fn ashen_move(mut s: Sim, i: int, tx: int, ty: int) {
     let ny = g.y - speed * cos(g.heading) / FP
     let cx = floor_div(nx, FP)
     let cy = floor_div(ny, FP)
-    let out = !forest.in_town(s.seed, s.field, cx, cy - forest.origin(s.seed, s.area))
+    let out = false // PLANT: the town's edge no longer stops it
     let stops = out || blocked(s, cx, cy) || foe_blocked_by_body(s, i, nx, ny, g.heading)
     s.foes[i].speed = if stops then 0 else speed
     if !stops { s.foes[i].x = nx; s.foes[i].y = ny }
