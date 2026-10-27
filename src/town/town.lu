@@ -174,7 +174,13 @@ pub fn door_row(seed: int, side: int, k: int) -> int {
 pub fn yard_gap(seed: int, side: int, k: int) -> (int, int) {
     // The first plot's yard opens on the passage after it, the last's on
     // the passage before it: beyond them lies the road's closed wood.
-    let which = if k == 0 then 1 else if k == PLOTS - 1 then 0 else world.hash(seed, 431 + side, k, 2)
+    let which = if k == 0 {
+        1
+    } else if k == PLOTS - 1 {
+        0
+    } else {
+        world.hash(seed, 431 + side, k, 2)
+    }
     (which, 2 + world.hash(seed, 441 + side, k, 3))
 }
 
@@ -230,11 +236,19 @@ pub fn nearest_ember(seed: int, x: int, at: int) -> (int, int) {
             if j >= 0 && j < PLOTS {
                 let (ex, ey) = ember(seed, side, j)
                 let d = (ex - x) * (ex - x) + (ey - at) * (ey - at)
-                if ex > -1000 && j % 2 == 1 && d < best { best = d; bx = ex; by = ey }
+                if ex > -1000 && j % 2 == 1 && d < best {
+                    best = d
+                    bx = ex
+                    by = ey
+                }
                 if square(j) {
                     let (sx, sy) = square_ember(seed, side)
                     let e = (sx - x) * (sx - x) + (sy - at) * (sy - at)
-                    if e < best { best = e; bx = sx; by = sy }
+                    if e < best {
+                        best = e
+                        bx = sx
+                        by = sy
+                    }
                 }
             }
         }
@@ -323,7 +337,8 @@ pub fn on_lane(seed: int, x: int, at: int) -> bool {
 /// bound (they do not chase past the town's edge): between the road's
 /// ends and inside the back walls' reach.
 pub fn bound(seed: int, x: int, at: int) -> bool {
-    at >= FIRST - EDGE_ROWS && at <= top(PLOTS - 1) + PITCH + EDGE_ROWS &&
+    at >= FIRST - EDGE_ROWS &&
+        at <= top(PLOTS - 1) + PITCH + EDGE_ROWS &&
         abs(x - lane(seed, at)) <= EXTENT
 }
 
@@ -402,7 +417,13 @@ pub fn kind(seed: int, x: int, at: int) -> int {
         return terrain.ASH
     }
     if x == back {
-        return if at == t || at == b then terrain.WALL else if fallen(seed, x, at) then terrain.ASH else terrain.WALL
+        return if at == t || at == b {
+            terrain.WALL
+        } else if fallen(seed, x, at) {
+            terrain.ASH
+        } else {
+            terrain.WALL
+        }
     }
     terrain.ASH
 }

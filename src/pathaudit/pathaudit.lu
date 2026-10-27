@@ -87,7 +87,13 @@ pub fn census() -> int {
                         // and the shore; a shaped branch (cb05) turns through
                         // every axis and is measured by the bends audit instead.
                         let shaped = area != 0 && path >= 2
-                        let delta = if at == start || shaped then 0 else if horizontal then y - py else x - px
+                        let delta = if at == start || shaped {
+                            0
+                        } else if horizontal {
+                            y - py
+                        } else {
+                            x - px
+                        }
                         print("{seed},{field},{area},{path},{at},{x},{y},{width},{delta}")
                         at += 1
                     }

@@ -90,7 +90,15 @@ pub fn ground_at(seed: int, field: int, area: int, t: int, x: int, y: int) -> gr
         let light = town.light(seed, x, y - forest.origin(seed, area))
         if light > 0 {
             cell.fg = if t == tier.RICH {
-                (if k == terrain.WALL then (if light == 2 then 223 else 180) else if light == 2 then 215 else 137)
+                (
+                    if k == terrain.WALL {
+                        (if light == 2 then 223 else 180)
+                    } else if light == 2 {
+                        215
+                    } else {
+                        137
+                    }
+                )
             } else {
                 (if light == 2 then 11 else 3)
             }
@@ -229,7 +237,9 @@ fn dusk_ink(area: int, t: int, k: int, foliage: int) -> int {
     if area == forest.RIVER { return river_ink(t, k, foliage) }
     if area == forest.TOWN { return town_ink(t, k, foliage) }
     // The burn's ash (cb05): grey in two tones over the area's floor.
-    if k == terrain.ASH { return if t != tier.RICH then 8 else if foliage % 2 == 0 then 240 else 242 }
+    if k == terrain.ASH {
+        return if t != tier.RICH then 8 else if foliage % 2 == 0 then 240 else 242
+    }
     if k == terrain.WALL { return if t != tier.RICH then 7 else 245 }
     if t != tier.RICH {
         if k == terrain.TRUNK { return 3 }
@@ -1163,7 +1173,9 @@ pub fn draw_foe(
         (if t == tier.RICH then 180 else 11)
     } else if kind == sim.ASHEN {
         // Grey, the smoke's colour (cb05).
-        (if t == tier.RICH then 247 else 7)
+        (
+            if t == tier.RICH then 247 else 7
+        )
     } else {
         sprites.palette(t, if kind == sim.FOX then sprites.C_FOX else sprites.C_WEASEL)
     }
