@@ -47,3 +47,13 @@ check; keep new staging forbidden on quit and preserve cancellation
 before --save-delay expires. Add a real skip/adjacent-quit/relaunch row,
 covering explicit --save and a fresh HOME with no .cub directory. Expect
 no frame/PCM changes, original pending-save and all opening rows green.
+
+Artifact-upload follow-up (run40445788890): tempfile.mkdtemp creates
+mode0700 directories. Docker's root owns these on CI, unlike rootless
+podman locally; the host runner's artifact uploader cannot traverse them.
+No fixture used mode000. Predict that an attempt-local finally block
+normalising only this synthetic evidence tree to directories0755 and
+files0644 fixes upload, including when session setup or execution raises.
+Keep the missing-save-directory and adjacent-quit expectations unchanged.
+Verify raised-setup/partial-output cases, actual row permissions, and an
+independent unprivileged container user recursively reading the evidence.
