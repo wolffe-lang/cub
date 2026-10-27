@@ -49,6 +49,16 @@ pub const ROCK: int = 7
 /// open ground, but the current halves the cub's pace in it.
 pub const SHALLOWS: int = 8
 
+/// Ash: the burn's ground and Cinderwick's (cb05): open, grey underfoot.
+pub const ASH: int = 9
+
+/// A ruined wall in Cinderwick (cb05): solid on both tiers.
+pub const WALL: int = 10
+
+/// An ember that never went out (cb05): open ground, a little heat
+/// (contact costs health), light at night, the Ashen's gathering place.
+pub const EMBER: int = 11
+
 /// The water's edge: the river occupies world rows below `bank(x)`; the
 /// bank wanders about this row by `BANK_SWING`.
 pub const BANK_ROW: int = -8
@@ -143,10 +153,10 @@ pub fn kind(seed: int, x: int, y: int) -> int {
     if h < 12 then TRUNK else if h < 55 then CANOPY else DARK
 }
 
-/// Whether a cell stops the cub: trunks, deep forest and water.
+/// Whether a cell stops the cub: trunks, deep forest, water and walls.
 pub fn blocked(seed: int, x: int, y: int) -> bool {
     let k = kind(seed, x, y)
-    k == TRUNK || k == DARK || k == WATER
+    k == TRUNK || k == DARK || k == WATER || k == WALL
 }
 
 /// A variant for a cell's texture, in `[0, n)`.
@@ -161,15 +171,27 @@ pub fn start(seed: int) -> (int, int) {
 }
 
 /// Seeded long-wave noise and broad sixteen-cell anchors keep curves
-/// natural while avoiding long equal-cell runs after quantisation.
-pub fn meander(seed: int, ch: int, at: int) -> int {
+/// natural while avoiding long equal-cell runs after quantisation: the
+/// meander in fixed-point units (cb05: a route that sums two curves rounds
+/// once, so the sum never steps against itself).
+pub fn meander_fp(seed: int, ch: int, at: int) -> int {
     var k = at / 16
     var r = at % 16
     if r < 0 { k -= 1; r += 16 }
     let sign = if (k % 2 + 2) % 2 == 0 then 1 else -1
-    let a = sign * (3 + world.hash(seed, ch, k, 3))
-    let b = 0 - sign * (3 + world.hash(seed, ch, k + 1, 3))
+    let a = sign * (3 + world.hash(seed, ch, k, 3)) * FP
+    let b = 0 - sign * (3 + world.hash(seed, ch, k + 1, 3)) * FP
     let t = r * FP / 16
     let smooth = t * t / FP * (3 * FP - 2 * t) / FP
-    (world.noise(seed, ch, at) - FP / 2) * 8 / FP + a + (b - a) * smooth / FP
+    (world.noise(seed, ch, at) - FP / 2) * 8 + a + (b - a) / FP * smooth
+}
+
+/// The floor of a fixed-point value in cells (negative values too).
+pub fn floor_cells(v: int) -> int {
+    (v + 4096 * FP) / FP - 4096
+}
+
+/// The meander in cells.
+pub fn meander(seed: int, ch: int, at: int) -> int {
+    floor_cells(meander_fp(seed, ch, at))
 }
