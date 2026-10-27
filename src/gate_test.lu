@@ -35,8 +35,8 @@ fn test_cb02_bite_names_the_lunge_at_thorns() {
 fn test_cb04a_every_thorn_gate_exists_on_every_seed_and_both_sides() {
     var seed = 0
     while seed < 50 {
-        var area = 0
-        while area < 2 {
+        // Both faces: the Shingle's end and Cinderwick's entry (cb05).
+        for area in [0, 6] {
             var s = sim.new(seed, 80, 24)
             s.area = area
             let row = if area == 0 then sim.gate_y(s) else 0
@@ -48,7 +48,6 @@ fn test_cb04a_every_thorn_gate_exists_on_every_seed_and_both_sides() {
             s.gate_open = true
             x = -2
             while x <= 2 { assert(!sim.blocked(s, x, row), "opened five-cell gap"); x += 1 }
-            area += 1
         }
         seed += 1
     }

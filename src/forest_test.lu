@@ -11,7 +11,7 @@ fn test_cb02_seeded_centres_are_walkable_and_meander() {
         while area < 3 {
             assert(forest.straight_run(seed, area) <= forest.STRAIGHT_MAX, "meander bound")
             var y = 0
-            while y <= forest.LENGTH {
+            while y <= forest.length(area) {
                 assert(
                     !forest.blocked(
                         seed,
@@ -34,7 +34,10 @@ fn test_cb02_shortcut_round_trips() {
     var s = sim.new(7, 80, 24)
     assert(!sim.cross_edge(mut s, 0), "thorn gate is the way in")
     s.gate_open = true
-    assert(sim.cross_edge(mut s, 0) && s.area == 1, "bank to brush")
+    // cb05: the gate opens on Cinderwick; the town's far end leads on to
+    // the thicket; the log still runs from the thicket to the bank.
+    assert(sim.cross_edge(mut s, 0) && s.area == 6, "bank to town")
+    assert(sim.cross_edge(mut s, 9) && s.area == 1, "town to brush")
     assert(!sim.cross_edge(mut s, 2), "closed log")
     let (x, y) = forest.portal(s.seed, 1, 2)
     s.x = x
@@ -59,7 +62,7 @@ fn test_cb02_death_and_mark_cross_area() {
     let _ = sim.cross_edge(mut s, 0)
     s.scent = 31
     sim.hurt(mut s, 100)
-    assert(s.mark_area == 1 && s.mark_scent == 31, "mark in thicket")
+    assert(s.mark_area == 6 && s.mark_scent == 31, "mark in the town")
     var keys = List[int]()
     var n = 0
     while n < 30 { sim.step(mut s, keys); n += 1 }
@@ -69,6 +72,7 @@ fn test_cb02_death_and_mark_cross_area() {
     s.y = s.mark_y
     sim.step(mut s, keys)
     assert(!s.mark && s.scent == 31, "recover across edge")
+    let _ = sim.cross_edge(mut s, 9)
     let (x, y) = forest.den_position(s.seed, 2)
     s.x = x
     s.y = y
