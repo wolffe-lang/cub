@@ -199,8 +199,12 @@ pub fn generate(dir: str) -> int {
     var n = 0
     while n < 20 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
     walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
-    // The only non-key fixture is a disclosed fatal hit, away from the checkpoint.
-    if !walker.walk(mut s, mut r, x, y + 5 * sim.FP) { return 1 }
+    // The only non-key fixture is a disclosed fatal hit, away from the
+    // checkpoint: five rows down the route, on its centre (the route slants
+    // past the den, cb05).
+    let down = (y - sim.FP / 2) / sim.FP + 5
+    let down_x = forest.spine(s.seed, forest.BRAMBLEHOLD, down) * sim.FP + sim.FP / 2
+    if !walker.walk(mut s, mut r, down_x, y + 5 * sim.FP) { return 1 }
     s.scent += 37
     replay.push_arg(mut r, s.tick, controls.EV_SCENT, 37)
     replay.push_arg(mut r, s.tick, controls.EV_HEALTH, -10000)
