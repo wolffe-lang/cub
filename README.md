@@ -161,6 +161,8 @@ target/cub --boss-census       fight every boss in fifty seeds at both sizes; a 
 target/cub --fight-trace 7 1   narrate one scripted fight (the alpha, seed 1; a third number picks 80 or 200 columns)
 target/cub --strike-census     every strike at every aim on both tiers, the drawn body against standing
 target/cub --hud-census        every painted HUD cell held to the bars, the labels and the digits
+target/cub --encounter-census  one posted Ashen against a fresh cub, Book-II and no-parry play, ten seeds at both fields
+target/cub --crossing-trace 1 80  one crossing of Cinderwick narrated while a foe is within two cells
 ```
 
 `cub --help` lists the rest: the headless mode that writes frames for the goldens, `--trace` (one line a
