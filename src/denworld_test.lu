@@ -3,6 +3,8 @@
 use controls
 use grid
 use restscene
+use replay
+use std.fs
 use sim
 
 fn key(k: int) -> List[int] {
@@ -19,20 +21,22 @@ fn live(s: sim.Sim) -> int {
 
 fn test_cb04f_slain_survive_path_and_log() {
     var s = sim.new(1, 80, 24)
-    // Recorded bite fixture: ordinary keys, no health or foe mutation.
+    // Read the regenerated ordinary-key bite, rather than pinning its
+    // approach to the old pace's tick177. Numeric damage is forbidden here.
+    let text = fs.read_text("tests/cases/bite.pk") else |_| {
+        assert(false, "bite fixture readable")
+        ""
+    }
+    let r = replay.from_text(text, controls.vocab()) else |_| {
+        assert(false, "bite fixture parses")
+        replay.new(1, 1, 80, 24)
+    }
+    assert(r.seed == 1 && replay.last_tick(r) < 600, "bounded original encounter")
     var t = 0
-    while t < 181 {
+    while t <= replay.last_tick(r) + 5 {
         var keys = List[int]()
-        if t <= 16 { (mut keys).push(controls.KEY_LEFT) }
-        if t >= 16 && t <= 176 { (mut keys).push(controls.KEY_DOWN) }
-        if t == 169 { (mut keys).push(controls.KEY_LEFT) }
-        if t == 171 { (mut keys).push(controls.KEY_RIGHT) }
-        if t == 177 {
-            (mut keys).push(controls.KEY_LOCK)
-            (mut keys).push(controls.KEY_DOWN)
-            (mut keys).push(controls.KEY_BITE)
-            (mut keys).push(controls.KEY_RELEASE)
-        }
+        let (_, _, health) = replay.at(r, t, mut keys)
+        assert(health == 0 && replay.args_at(r, t, controls.EV_JOURNEY) == 0, "ordinary keys only")
         sim.step(mut s, keys)
         t += 1
     }

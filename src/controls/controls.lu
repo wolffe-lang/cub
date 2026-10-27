@@ -265,8 +265,7 @@ pub fn vocab() -> replay.Vocab {
     (mut args).push("journey")
     var part = 0
     while part < SAVED { (mut args).push("saved-{part}"); part += 1 }
-    for w in "title bosses ghost-x ghost-y ghost-face ghost-pose ghost-area ghost-death".
-        words() {
+    for w in "title bosses ghost-x ghost-y ghost-face ghost-pose ghost-area ghost-death".words() {
         (mut args).push(w)
     }
     part = 30
@@ -288,6 +287,7 @@ pub const KEY_CONFIRM: int = 27
 
 /// Snapshot event slots30..35 are appended, never renumbering older events.
 pub fn saved_event(part: int) -> int { if part < 30 then EV_SAVED + part else 42 + part - 30 }
+
 /// Negotiated input mode, recorded before the first live tick.
 pub const KEY_EXACT: int = 28
 
