@@ -6,6 +6,14 @@ import re
 ROOT = Path(__file__).resolve().parent.parent
 
 
+def check_hitbox_rows(text):
+    rows = [line.split() for line in text.splitlines() if line[:1].isdigit()]
+    assert len(rows) == 16 and all(len(row) == 7 for row in rows), 'hitbox audit must report sixteen complete rows'
+    expected = {(aim, gap) for aim in range(8) for gap in (0, 1)}
+    assert {(int(row[0]), int(row[3])) for row in rows} == expected, 'hitbox audit omitted or duplicated an aim/gap'
+    assert all(row[6] == 'true' for row in rows), 'a declared first bite did not land'
+
+
 def check(binary):
     binary = Path(binary).resolve()
     out = ROOT / 'target' / 'world' / binary.parent.name
@@ -126,6 +134,8 @@ def wide(binary, out):
             # native build records its figures without a verdict.
             continue
         assert p.returncode == 0 and green in p.stdout, (flag, p.returncode, p.stdout[-400:], p.stderr[-400:])
+        if flag == '--hitbox-audit':
+            check_hitbox_rows(p.stdout)
         if flag == '--den-spacing':
             least = [int(n) for n in re.findall(r'least \w+(?: an area)? (\d+)', p.stdout)]
             assert least and min(least) >= 110, ('den spacing under the bar', p.stdout[-200:])
