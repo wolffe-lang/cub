@@ -1,0 +1,22 @@
+Mac opening fixed head de1f566dc31e0861f53813da5eab7c728bc2c36a 2026-10-27T16:53:09Z
+Mac memory gate clear: 19527483392 bytes
+pty: opening-skip-00 ok (darwin arm64, exit 0, 10335 bytes captured)
+pty: opening-complete ok (darwin arm64, exit 0, 122432 bytes captured)
+pty: opening-skip-00 ok (darwin arm64, exit 0, 10335 bytes captured)
+pty: opening-skip-01 ok (darwin arm64, exit 0, 14615 bytes captured)
+pty: opening-skip-02 ok (darwin arm64, exit 0, 14994 bytes captured)
+pty: opening-skip-03 ok (darwin arm64, exit 0, 16454 bytes captured)
+pty: opening-skip-04 ok (darwin arm64, exit 0, 17394 bytes captured)
+pty: opening-skip-05 ok (darwin arm64, exit 0, 20802 bytes captured)
+pty: opening-skip-06 ok (darwin arm64, exit 0, 34382 bytes captured)
+pty: opening-skip-07 ok (darwin arm64, exit 0, 99887 bytes captured)
+pty: opening-skip-08 ok (darwin arm64, exit 0, 99887 bytes captured)
+pty: opening-skip-09 ok (darwin arm64, exit 0, 103182 bytes captured)
+pty: opening-skip-10 ok (darwin arm64, exit 0, 104420 bytes captured)
+pty: opening-skip-11 ok (darwin arm64, exit 0, 108966 bytes captured)
+pty: opening-skip-12 ok (darwin arm64, exit 0, 110819 bytes captured)
+pty: opening-skip-13 ok (darwin arm64, exit 0, 114453 bytes captured)
+pty: opening-skip-14 ok (darwin arm64, exit 0, 120623 bytes captured)
+pty: opening-skip-15 ok (darwin arm64, exit 0, 122329 bytes captured)
+pty: opening-quit-due ok (darwin arm64, exit 0, 7170 bytes captured; 4 adjacent skip/quit pairs; fresh HOME and explicit path; relaunch checked)
+MAC_OPENING_FIXED_EXIT 0 2026-10-27T16:58:20Z
