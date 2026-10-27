@@ -69,11 +69,11 @@ The whole Mac gate (`tools/check`) is **green, exit 0** at the final source head
 
 Plants, each a draft PR on a `cb05-plant-*` branch, the fix and its test committed first:
 
-- `cb05-plant-sawtooth`: a branch admitted with a sawtooth (a sixteen-row alternation summed onto the shape): `test_cb05_no_branch_or_route_reverses_within_eight_cells` and the bends census go red.
-- `cb05-plant-dens`: the split roots moved to row 150, 47 rows from the briar hollow: `test_cb05_two_dens_an_area_at_least_a_den_spacing_apart` and `--den-spacing` go red.
-- `cb05-plant-ashen`: `ashen_move` no longer refuses the step past the town's edge: `test_cb05_an_ashen_never_chases_past_the_towns_edge` goes red.
+- cub#51 `cb05-plant-sawtooth` (ac5c54c2): a two-cell sawtooth every eight cells summed onto every branch shape: `test_cb05_no_branch_or_route_reverses_within_eight_cells` FAILED (trap(assert)); `--bends-audit` RED 350 reversals within 8 cells.
+- cub#52 `cb05-plant-dens` (22e8a543): the split roots moved to row 150, fifty rows from the briar hollow: `test_cb05_two_dens_an_area_at_least_a_den_spacing_apart` FAILED (trap(assert)); `--den-spacing` RED seed 0 field 80 area 1.
+- cub#53 `cb05-plant-ashen` (2c98cf3f): `ashen_move` no longer refuses the step outside `forest.in_town`: `test_cb05_an_ashen_never_chases_past_the_towns_edge` FAILED (trap(assert)).
 
-(Opened after the checkpoint; their PR numbers, heads and CI run ids are in the final hand-back.)
+All three are `FAILED (trap(assert))` locally by their named test (RULES §7, a module lane: the local red is the evidence; no CI dispatch); the orchestrator closes the drafts.
 
 ## Done-when
 
