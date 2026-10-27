@@ -286,8 +286,12 @@ post-rename directory-sync failure is named `save_committed_unsynced`,
 not misreported as an untouched old save. A stale or concurrent stage is
 `save_busy`; the game never deletes another writer's stage. The normal
 live delay before replacement is one tick. `--save-delay 1..300` and
-`--save-cut` are explicit test witnesses. Quit/interrupt while a stage is
-pending cancels only that owned stage, preserving the previous journey.
+`--save-cut` are explicit test witnesses. Quit/interrupt before the stage's
+commit tick cancels only that owned stage, preserving the previous journey.
+A quit key advances the simulation tick: if an existing stage is due on
+that tick, commit it before exit. Quit never prepares a new stage. This
+keeps an acknowledged opening skip durable even when quit arrives on the
+very next tick; it does not shorten the explicit delayed-write witness.
 
 A resumed recording carries all 25 initial journey fields as versioned
 numeric replay events. Playback and death archives therefore need no
