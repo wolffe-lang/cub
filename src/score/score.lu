@@ -40,6 +40,7 @@ pub fn names() -> List[str] {
         "boss-alpha",
         "den",
         "death",
+        "crack",
     ]
 }
 
@@ -78,7 +79,7 @@ pub fn boss_part(boss: int) -> str {
 
 /// The one part that plays once: everything else loops.
 pub fn plays_once(name: str) -> bool {
-    name == "death"
+    name == "death" || name == "crack"
 }
 
 /// A part's text without lair's `cue` line: the musical reader's input.
@@ -150,6 +151,7 @@ pub fn cues() -> List[Cue] ! {invalid} {
 /// What the score reads of the game, once a tick.
 pub struct Scene {
     title: bool,
+    opening_age: int,
     fallen: bool,
     den: bool,
     boss: int,
@@ -160,6 +162,7 @@ pub struct Scene {
 pub fn scene_of(s: sim.Sim) -> Scene {
     Scene {
         title: s.scene != 0,
+        opening_age: if s.scene == 1 then s.tick - s.scene_started else -1,
         fallen: s.action == sim.FALL,
         den: s.den,
         boss: sim.boss_theme(s),
@@ -170,8 +173,17 @@ pub fn scene_of(s: sim.Sim) -> Scene {
 /// The part a scene asks for, in the order that decides: the death sting
 /// over everything, the title over the opening, the den's rest, a boss's
 /// theme, the area's loop.
+pub fn opening_part(age: int) -> str {
+    if age < 210 { return "title" }
+    if age < 360 { return "crack" }
+    if age < 510 { return "silence" }
+    "shingle"
+}
+
+/// Choose the scene cue, with the opening driven by its simulation age.
 pub fn want(sc: Scene) -> str {
     if sc.fallen { return "death" }
+    if sc.opening_age >= 0 { return opening_part(sc.opening_age) }
     if sc.title { return "title" }
     if sc.den { return "den" }
     if sc.boss >= 0 { return boss_part(sc.boss) }
@@ -232,7 +244,7 @@ pub fn step(mut sch: Schedule, sc: Scene, tick: int) -> str {
         }
         return ""
     }
-    if sch.current != "" && once_of(sch, sch.current) && sounding(sch, tick) { return "" }
+    if sch.current == "death" && once_of(sch, sch.current) && sounding(sch, tick) { return "" }
     sch.current = w
     sch.since = tick
     w
@@ -242,13 +254,25 @@ pub fn step(mut sch: Schedule, sc: Scene, tick: int) -> str {
 /// the title, the Shingle, a den, the Shingle again, the boar's theme, a
 /// fall, and the wake at the den, over 180 ticks (six seconds).
 pub fn replay_scene(t: int) -> Scene {
-    if t < 15 { return Scene { title: true, fallen: false, den: false, boss: -1, area: 0 } }
-    if t < 45 { return Scene { title: false, fallen: false, den: false, boss: -1, area: 0 } }
-    if t < 60 { return Scene { title: false, fallen: false, den: true, boss: -1, area: 0 } }
-    if t < 75 { return Scene { title: false, fallen: false, den: false, boss: -1, area: 0 } }
-    if t < 105 { return Scene { title: false, fallen: false, den: false, boss: 0, area: 0 } }
-    if t < 135 { return Scene { title: false, fallen: true, den: false, boss: -1, area: 0 } }
-    Scene { title: false, fallen: false, den: false, boss: -1, area: 0 }
+    if t < 15 {
+        return Scene { opening_age: -1, title: true, fallen: false, den: false, boss: -1, area: 0 }
+    }
+    if t < 45 {
+        return Scene { opening_age: -1, title: false, fallen: false, den: false, boss: -1, area: 0 }
+    }
+    if t < 60 {
+        return Scene { opening_age: -1, title: false, fallen: false, den: true, boss: -1, area: 0 }
+    }
+    if t < 75 {
+        return Scene { opening_age: -1, title: false, fallen: false, den: false, boss: -1, area: 0 }
+    }
+    if t < 105 {
+        return Scene { opening_age: -1, title: false, fallen: false, den: false, boss: 0, area: 0 }
+    }
+    if t < 135 {
+        return Scene { opening_age: -1, title: false, fallen: true, den: false, boss: -1, area: 0 }
+    }
+    Scene { opening_age: -1, title: false, fallen: false, den: false, boss: -1, area: 0 }
 }
 
 /// The replay's ticks.

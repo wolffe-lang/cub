@@ -17,7 +17,7 @@ SCORE = os.path.join(ROOT, "score")
 OUT = os.path.join(ROOT, "src", "score", "parts.lu")
 # The bank's order: the mixer's cue names (score.lu's `names`).
 ORDER = ["title", "shingle", "bramblehold", "larkmeadow", "boss-boar", "boss-lynx",
-         "boss-elk", "boss-alpha", "den", "death"]
+         "boss-elk", "boss-alpha", "den", "death", "crack"]
 
 
 def literal(text):

@@ -23,6 +23,8 @@ pub fn text(name: str) -> str {
         return "# Embers — a den's rest: harp and flute settle on D, a short loop.\n# Original, cb03 (2026-10-26). 4 bars of 3/4 at 72: 10 s, a loop.\ntitle Embers\ncue replace fade 6\ntempo 72\nmeter 3/4\npart glow harp mp pan -20 gain 6\npart warm flute p pan 25 gain 6\npart hush strings p pan 10 gain 6\nbar 1\nglow D3/4 A3/4 F4/4\nhush D3,A3/2.~\nbar 2\nglow A3/4 D4/4 F4/4\nwarm A4/2 F4/4\nhush D3,A3/2.\nbar 3\nglow G3/4 D4/4 Bb3/4\nwarm G4/2.-\nhush G3,D4/2.~\nbar 4\nwarm F4/2 r/4\nhush G3,D4/2 r/4\n"
     } else if name == "death" {
         return "# Fallen — the death sting: a struck chord falling to nothing, a tam-tam, a last breath.\n# Original, cb03 (2026-10-26). 1 bar of 4/4 at 60 and two silent bars: 12 s, once.\ntitle Fallen\ncue replace fade 3\ntempo 60\nmeter 4/4\npart fall strings ff pan 0\npart gong tamtam mf pan 0\npart last flute mp pan 20\nbar 1\nfall sfz D3,Ab3/4 > D3,G3/2. pp\ngong C3/4 r/2.\nlast r/4 F4/4 E4/8 Eb4/8 D4/4-\nbar 2\nfall r/1\nbar 3\nfall r/1\n"
+    } else if name == "crack" {
+        return "# A Footstep Too Light — the ice answers before the cub can move.\n# Original, cb06 (2026-10-26). Three bars of 4/4 at 144: 5 s, once.\n# Low struck open chord; thinning strings; eighths become sixteenths.\ntitle A Footstep Too Light\ncue replace fade 1\ntempo 144\nmeter 4/4\npart shock timpani ff pan 0\npart edge strings mf pan -12\npart splinter harp mp pan 18\nbar 1\nshock sfz C2,Gb2/8 r/2..\nedge C3,Gb3,B3/2 > C3,Gb3/2 pp\nsplinter r/1\nbar 2\nshock r/1\nedge C3/1 ppp\nsplinter r/2 r/4 Db5/8 G5/8\nbar 3\nshock r/1\nedge r/1\nsplinter C5/8 Gb5/8 D5/16 Ab5/16 E5/16 Bb5/16 F5/16 B5/16 Gb5/16 C6/16 r/4\n"
     }
     ""
 }

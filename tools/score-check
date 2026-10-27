@@ -27,7 +27,7 @@ HEAD_BYTES = 48000 * 4
 SEAM_BAR = 256
 LOOPS = ["title", "shingle", "bramblehold", "larkmeadow", "boss-boar", "boss-lynx",
          "boss-elk", "boss-alpha", "den"]
-ONCE = ["death"]
+ONCE = ["death", "crack"]
 
 
 def run(binary, *args, ok=0):
