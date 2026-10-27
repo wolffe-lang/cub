@@ -3706,7 +3706,7 @@ pub fn strike_hold(hit: int) -> int { if hit == 3 then 8 else 6 }
 /// The windup (ages 0-2) does not move.
 pub fn strike_offset(hit: int, age: int) -> (int, int) {
     let forward = if hit == 3 then 2 * FP else FP
-    let side = if hit == 3 then 0 else if hit == 1 then 0 - FP else FP
+    let side = if hit == 3 then 0 else if hit == 1 then 0 - FP / 2 else FP
     let hold = strike_hold(hit)
     if age < 3 { return (0, 0) }
     if age <= hold { return (forward, side) }
