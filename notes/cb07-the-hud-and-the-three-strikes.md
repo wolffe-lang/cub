@@ -123,24 +123,57 @@ Rulings, recommended and implemented, never decided:
   `scent_row`/`scent_col`, the plain snap rows, `pose_of` 5.
 - `ccec6b04`: the head-out measure (`out`), the scent goldens in the art study, the help lines.
 - `7dea1b03`: `sim.strike_reaches` (a bite reaches from the commitment point as well as the drawn jaws).
-- `f1d63d7b`, `75713282`, `0dc3a1f4`: `src/strike_test.lu`, `src/hud_test.lu`; cb04b's rows moved to the
-  new HUD (`combo_draw_test`, `posture_test`, `art_test`, `den_integration_test`); cb04b's first-bite row
-  rewritten to the whole-cell lunge (`feel_test`); cb04c's stamina-edge rows (`look_test`,
+- `f1d63d7b`, `75713282`, `0dc3a1f4`, `ece458a8`: `src/strike_test.lu`, `src/hud_test.lu`; cb04b's rows
+  moved to the new HUD (`combo_draw_test`, `posture_test`, `art_test`, `den_integration_test`); cb04b's
+  first-bite row rewritten to the whole-cell lunge (`feel_test`); cb04c's stamina-edge rows (`look_test`,
   `tools/gameplay.py`, the `level-look-after-c` pty row) hold the edge free of lettering instead of empty;
-  the checked rows held to the step budget, the native census strict.
+  the checked rows held to the step budget, the native censuses strict (exit 1 on a break or a stray cell).
 - `82365e21`, `49c5a9d9`: the `cb07-strikes` pty row.
-- `2f8bd7fa`, `d38acd50`, `3113609e`: DESIGN.md, ART.md, KEYS.md; the README in its own commit.
+- `2f8bd7fa`, `d38acd50`, `3113609e`, `505caabf`: DESIGN.md, ART.md, KEYS.md; the README in its own commits.
 - `8508e1ed`: the censuses after (`notes/cb07-evidence/strike-after.txt`, `hud-after.txt`).
-- Goldens: TODO.
-- Gates: TODO (Mac, Linux, logs).
-- Plants: TODO.
+- Goldens: `687f308b` and the commit before it regenerated every frame (the HUD is on all of them; 4100
+  files changed, 64 added for the scent corner, none removed; `notes/cb07-evidence/golden-paths-added.txt`).
+- **Three regenerations and the fighter rule, after the first gates went red.** `f0bb2190`: the
+  `den-memory` journey regenerated with its walker (`cub --make-den-memory`; 737 ticks for 747) — the
+  `den-world-memory` row replays it, and with the strikes easing back the recorded keys reached Bramblehold
+  eight ticks late and never made the two returns. The world-witness commit before `505caabf`: the 43
+  world witnesses regenerated with `cub --make-world-proof` after checking that cb04b's binary regenerates
+  the committed ones byte-for-byte (42 of 43; the 43rd was a hand edit of mine, discarded) — `fox-feint`'s
+  strike had moved from tick 306 to 309 past a 308-frame window (`gameplay.py:64`), `world-return` and the
+  rest likewise; 31 cases changed, their goldens with them. The fighter commit before `505caabf`:
+  `--fight-trace KIND SEED [COLS]` now runs the census's own loop, narrated (`fight.fight_world_narrated`),
+  and the census's obstructed-replan rule fires during a STAGGER as well as a RETREAT — elk seed 35 was
+  unwon in five budgets at both fields, a scripted-player stall against the ground between the cub and the
+  staggered elk that cb04b's forward-carrying third hit used to push past (`elk35-stall-before.txt`); it
+  now wins first try in 1364 ticks, and the whole boss census is 400 of 400 first try, no breach
+  (`boss-census-after.txt`; cb04b's after had elk 1:96 2:2 4:2).
+- **Gates, both green at `505caabf`**: `notes/cb07-evidence/gates/mac-final-505caabf.log`
+  (`MAC_FINAL_EXIT 0`, 08:21:01Z; the script `mac-final.sh` behind `heavy.sh`'s 8 GiB gate) and
+  `linux-505caabf.log` (`LINUX_EXIT 0`, 08:18:37Z; kasumi cores 4-7 in the engine's container, `linux.sh`).
+  Both: 362 checked tests, 0 failed/rejected/unsupported, 0 SKIP; `strike-census rows=656 broken=0` and
+  `hud-census rows=192 stray=0` on both binaries, native and release identical; every golden on both
+  binaries; the score check; every pty row (`cb07-strikes` on release and native); both gameplay stages
+  with the boss census 400/400; the Mac's perf and perf-idle under their bars (latency median 32.8 ms,
+  p90 33.5 against 40/70).
+- **Plants** (RULES §7, a module lane: red in my own gauntlet, no CI dispatched; `notes/cb07-evidence/plants/`):
+  cub#57 `cb07-plant-strike` (`af1ecd39`, hit 1 half a cell across the aim): `cub --strike-census` exit 1,
+  `rows=656 broken=48`; `wolf test --filter cb07_hit_one`: `test_cb07_hit_one_lunges_a_cell_forward_left_held_four_ticks_plain`
+  and `_rich` `FAILED (trap(assert))`. cub#58 `cb07-plant-hud` (`3e487d9e`, one fill cell at (0, 0)):
+  `cub --hud-census` exit 1, every row `stray=1`, `rows=192 stray=192`;
+  `test_cb07_hud_paints_only_bars_labels_and_digits_both_fields_both_tiers_day_and_night FAILED (trap(assert))`.
+  Both on the Mac, nomad arm64; never to merge.
+- The play binaries for the maintainer's eye: `~/lanes/cb07/cub-play-687f308b` (sha `a4d87d26…d598`) and
+  `~/lanes/cb07/cub-play-505caabf` (sha `7951383b…fa29`, the gated head; the same play code).
 
 ## Done-when
 
 - [x] Item 1: the three strikes whole cells, held, eased back; the snap pose on both tiers; the strike
-  census with its witness rows and the pty row; goldens for every age of every hit at both tiers.
+  census with its witness rows and the pty row; goldens for every age of every hit at both tiers; what a
+  person sees at play speed, in words, above.
 - [x] Item 2: the HUD reduced to health, stamina, scent; the bars flush on the map; the big scent number;
   the frame census with no stray cell; the scent goldens at both fields, both tiers, day and night.
-- [ ] Item 3: the Ashen's health and blow, after the rebase the orchestrator announces.
-- [ ] Item 4: gates on both hosts, the plants, the audit, the PR — TODO.
-- [ ] The checkpoint: the play build `~/lanes/cb07/cub-play-<sha>` for the maintainer's eye.
+- [ ] Item 3: the Ashen's health and blow, after the rebase the orchestrator announces (R-cb07-1).
+- [x] Item 4 so far: cb04b's strict tests and its replays green (one row rewritten, the regenerated
+  journeys disclosed above); both hosts' gates green at `505caabf`; the two plants as draft PRs red by name;
+  KEYS/ART/GLYPHS/DESIGN and the README refreshed; this note.
+- [ ] After the rebase: regate at the final head, the audit's last line, one CI read, the final hand-back.
