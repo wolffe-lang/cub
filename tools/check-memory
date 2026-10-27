@@ -4,7 +4,7 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 cd "$ROOT"
 bin=${1:-target/release/cub}
-echo 'memory gate: budget 4096 bytes/tick; warmup 60; end 600; ps RSS KiB x 1024'
+echo 'memory gate: budget 4096 bytes/tick; warmup 60; end 600; Mac ps KiB x 1024, Linux proc pages x page size'
 python3 -I tools/memory-probe.py --bin "$bin" --work target/memory-probes \
     --save tests/saves/cb09-memory.save --warmup 60 --ticks 600 \
     --timeout 120 --ceiling 2147483648 --budget 4096
