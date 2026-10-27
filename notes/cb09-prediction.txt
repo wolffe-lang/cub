@@ -1,0 +1,10 @@
+cb09 prediction, before implementation
+Base 6a1db765; play binary 1d0680a1.
+Predict two allocation classes: transient renderer scratch at about 60 KB/tick
+(1.8 MB/s at 30 Hz) at the Shingle, plus copied world/foe collections
+raising the crash-save floor toward 650 KB/tick (19 MB/s at 30 Hz).
+Predict the start floor is renderer-led, with additional sim copies; two or
+more concrete sites. These are hypotheses, not measured attribution.
+R-cb09-1 recommend A: resident bytes per actual simulation tick.
+R-cb09-2 recommend B: a tools/ ps-side probe; keep OS sampling out of the game.
+Preserve every golden, census and replay, schema CUB 5, sound and feel.
