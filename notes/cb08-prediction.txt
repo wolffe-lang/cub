@@ -1,0 +1,20 @@
+cb08 prediction, written before implementation on base 58969722
+
+The centre-to-centre cone should miss flank contacts on all four bosses,
+most visibly Whisper. A ring census at body gap 0..2 with eight aims will
+record every pair before and after; exact totals are measurements, not
+predictions disguised as facts. The corrected jaw-origin cone should land
+when aimed into touching body cells, and never land behind its origin.
+The alpha's guard and the hawk exclusion must remain unchanged.
+
+Predict a 16x16-pixel north-east cub drawing (8x4 cells) and a 24x24-pixel
+grown diagonal wolf (12x6). The diagonal extent is measured from its own
+bitmap, never the north rectangle rotated. Quarter-turn that second
+bitmap for the other three diagonal facings; keep foes four-way.
+
+Predict changed frames for diagonal walks/aims, and changed boss replay
+outcomes (earlier wins from flank hits); boar/lynx/elk/alpha fight scripts
+must be regenerated only when measured outcomes require it. Cardinal art
+stays unchanged. Gait and doorway/path censuses remain green.
+
+Recommendations, not decisions: R-cb08-1 A, R-cb08-2 A, R-cb08-3 A.
