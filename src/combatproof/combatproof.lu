@@ -3,10 +3,12 @@
 
 use art
 use controls
+use forest
 use grid
 use headless
 use motionproof
 use sim
+use terrain
 use tier
 
 fn write(s: sim.Sim, t: int, dir: str, name: str) -> () ! {io} {
@@ -69,4 +71,299 @@ pub fn generate(dir: str) -> () ! {io} {
             }
         }
     }
+}
+
+/// One row of the strike census (cb07): the cub's drawing at `age` of a
+/// bite against the standing drawing at the commitment point. `changed`
+/// is the count of cells that differ; `forward` and `left` the centroid's
+/// move in hundredths of a cell along the aim and to its left (the cub's
+/// lit cells on the plain tier, its lit pixels on the rich); `span` the
+/// cells the drawing covers across the aim; `shake` is `sim.head_shake`.
+pub struct StrikeRow {
+    age: int,
+    changed: int,
+    forward: int,
+    left: int,
+    span: int,
+    shake: int,
+}
+
+/// The sum of lit pixel coordinates and their count over a grid of the
+/// cub alone: the plain tier's cells as one pixel each at twice the
+/// column and four times the row, the rich tier's braille and block
+/// cells decoded to their lit pixels, so both tiers measure in the same
+/// pixel units (two across and four down a cell).
+pub fn lit(g: grid.Grid, rich: bool) -> (int, int, int) {
+    var sx = 0
+    var sy = 0
+    var count = 0
+    var r = 0
+    while r < g.rows {
+        var c = 0
+        while c < g.cols {
+            let cp = grid.at(g, r, c).cp
+            if cp != 32 {
+                if !rich {
+                    sx += c * 2
+                    sy += r * 4
+                    count += 1
+                } else {
+                    let bits = if cp == 9608 {
+                        255
+                    } else if cp == 9600 {
+                        27
+                    } else if cp == 9604 {
+                        228
+                    } else if cp == 9612 {
+                        71
+                    } else if cp == 9616 {
+                        184
+                    } else if cp >= 10240 && cp < 10496 {
+                        cp - 10240
+                    } else {
+                        // A mark (the plain-style head shake row): its cell.
+                        255
+                    }
+                    for bit in [1, 2, 4, 8, 16, 32, 64, 128] {
+                        if bits & bit != 0 {
+                            let x = if bit == 8 || bit == 16 || bit == 32 || bit == 128 {
+                                1
+                            } else {
+                                0
+                            }
+                            let y = if bit == 1 || bit == 8 {
+                                0
+                            } else if bit == 2 || bit == 16 {
+                                1
+                            } else if bit == 4 || bit == 32 {
+                                2
+                            } else {
+                                3
+                            }
+                            sx += c * 2 + x
+                            sy += r * 4 + y
+                            count += 1
+                        }
+                    }
+                }
+            }
+            c += 1
+        }
+        r += 1
+    }
+    (sx, sy, count)
+}
+
+/// The cells across the aim a drawing covers: columns for a body facing
+/// north or south, rows facing east or west.
+fn span_across(g: grid.Grid, facing: int) -> int {
+    var lo = 1000000
+    var hi = -1
+    var r = 0
+    while r < g.rows {
+        var c = 0
+        while c < g.cols {
+            if grid.at(g, r, c).cp != 32 {
+                let k = if facing % 2 == 0 then c else r
+                if k < lo { lo = k }
+                if k > hi { hi = k }
+            }
+            c += 1
+        }
+        r += 1
+    }
+    if hi < 0 then 0 else hi - lo + 1
+}
+
+/// The cells that differ between two grids of one size.
+fn changed_cells(a: grid.Grid, b: grid.Grid) -> int {
+    var n = 0
+    var r = 0
+    while r < a.rows {
+        var c = 0
+        while c < a.cols {
+            if !grid.same(grid.at(a, r, c), grid.at(b, r, c)) { n += 1 }
+            c += 1
+        }
+        r += 1
+    }
+    n
+}
+
+/// The strike census's rows for hit `hit` aimed `h` on tier `t`: the
+/// disclosed empty arena of `generate`, the real input loop's bite, then
+/// every age of the hit through production steps.
+pub fn strike_rows(h: int, hit: int, t: int) -> List[StrikeRow] {
+    var rows = List[StrikeRow]()
+    var s = sim.new(1, 80, 24)
+    sim.combat_witness(mut s)
+    s.heading = h
+    s.heading_target = h
+    var keys = motionproof.arrows(h, false)
+    (mut keys).push(controls.KEY_BITE)
+    sim.step(mut s, keys)
+    s.combo = hit
+    s.stamina -= sim.combo_cost(hit) - sim.combo_cost(1)
+    var age = 0
+    while age < sim.combo_duration(hit) {
+        region frame {
+            var moved = grid.new(24, 80)
+            art.draw_actor(s, t, mut moved)
+            var standing = copy s
+            standing.action = sim.IDLE
+            standing.combo = 0
+            standing.x = s.action_x
+            standing.y = s.action_y
+            var still = grid.new(24, 80)
+            art.draw_actor(standing, t, mut still)
+            let (mx, my, mass) = lit(moved, t == tier.RICH)
+            let (ox, oy, other) = lit(still, t == tier.RICH)
+            assert(mass > 0 && other > 0, "strike census: both drawings have lit pixels")
+            // Hundredths of a cell: pixels are two across and four down.
+            let dx = (mx * 100 / mass - ox * 100 / other) / 2
+            let dy = (my * 100 / mass - oy * 100 / other) / 4
+            let forward = (dx * sim.sin(h) - dy * sim.cos(h)) / sim.FP
+            let left = 0 - (dx * sim.cos(h) + dy * sim.sin(h)) / sim.FP
+            (mut rows).push(StrikeRow {
+                age: age,
+                changed: changed_cells(moved, still),
+                forward: forward,
+                left: left,
+                span: span_across(moved, s.body_facing),
+                shake: sim.head_shake(s),
+            })
+        }
+        sim.step(mut s, List[int]())
+        age += 1
+    }
+    rows
+}
+
+/// `--strike-census`: every hit at every aim on both tiers, a line an age.
+pub fn strike_census() -> int {
+    print(
+        "strike-census: centroid in hundredths of a cell (forward, left) against the standing drawing",
+    )
+    var n = 0
+    for t in [tier.PLAIN, tier.RICH] {
+        let tier_name = if t == tier.PLAIN then "plain" else "rich"
+        for h in [0, 32, 64, 96, 128, 160, 192, 224] {
+            for hit in [1, 2, 3] {
+                for r in strike_rows(h, hit, t) {
+                    print(
+                        "strike tier={tier_name} aim={h} hit={hit} age={r.age} changed={r.changed} forward={r.forward} left={r.left} span={r.span} shake={r.shake}",
+                    )
+                    n += 1
+                }
+            }
+        }
+    }
+    print("strike-census rows={n}")
+    if n == 0 then 1 else 0
+}
+
+/// The HUD census (cb07): the whole frame against the frame without the
+/// HUD. `painted` is the count of cells that differ; `stray` those the
+/// HUD's own plan does not claim (`art.hud_claims`), which must be zero.
+pub struct HudRow {
+    painted: int,
+    stray: int,
+}
+
+/// The census of one simulation on one tier.
+pub fn hud_row(s: sim.Sim, t: int) -> HudRow {
+    var full = grid.new(s.rows, s.cols)
+    art.render(s, t, mut full)
+    var bare = grid.new(s.rows, s.cols)
+    art.render_bare(s, t, mut bare)
+    var painted = 0
+    var stray = 0
+    var r = 0
+    while r < s.rows {
+        var c = 0
+        while c < s.cols {
+            if !grid.same(grid.at(full, r, c), grid.at(bare, r, c)) {
+                painted += 1
+                if !art.hud_claims(s, t, r, c) { stray += 1 }
+            }
+            c += 1
+        }
+        r += 1
+    }
+    HudRow { painted: painted, stray: stray }
+}
+
+/// A fixture for the HUD census and the scent goldens: a fresh cub of
+/// the stats given, carrying `scent`, by day over the Shingle's water
+/// (the cub twelve rows above the bank, so the frame's bottom rows are
+/// water) or by night in Gravehollow; `hurt` opens a rally stretch.
+pub fn hud_fixture(
+    cols: int,
+    rows: int,
+    stat: int,
+    scent: int,
+    night: bool,
+    hurt: bool,
+) -> sim.Sim {
+    var s = sim.new(1, cols, rows)
+    sim.combat_witness(mut s)
+    if night {
+        s.area = forest.OLDDEN
+        let (x, y, _) = forest.arena(s.seed, s.field, s.area)
+        s.x = x * sim.FP + sim.FP / 2
+        s.y = (forest.origin(s.seed, s.area) + y) * sim.FP + sim.FP / 2
+    } else {
+        s.area = forest.SHINGLE
+        s.x = sim.FP / 2
+        s.y = (terrain.bank(s.seed, 0) - 12) * sim.FP + sim.FP / 2
+    }
+    s.heart = stat
+    s.wind = stat
+    s.health = sim.health_max(stat)
+    s.stamina = sim.stamina_max(stat)
+    s.flask_max = 2
+    s.flasks = 2
+    s.scent = scent
+    s.entered = s.tick - sim.ENTRY_TICKS
+    if hurt {
+        sim.hurt(mut s, s.health / 2)
+        s.tick += 22
+    }
+    s
+}
+
+/// `--hud-census`: both tiers, both fields, day and night, four scent
+/// values, three stat levels, with and without a rally stretch; a line
+/// each, and the exit is 1 if any frame paints a cell outside the HUD.
+pub fn hud_census() -> int {
+    print(
+        "hud-census: painted = cells the HUD changes; stray = painted cells outside the bars, labels and digits",
+    )
+    var stray = 0
+    var n = 0
+    for t in [tier.PLAIN, tier.RICH] {
+        let tier_name = if t == tier.PLAIN then "plain" else "rich"
+        for cols in [80, 200] {
+            let rows = if cols == 80 then 24 else 60
+            for night in [false, true] {
+                for scent in [0, 7, 42, 1234] {
+                    for stat in [1, 10, 40] {
+                        for hurt in [false, true] {
+                            region row {
+                                let s = hud_fixture(cols, rows, stat, scent, night, hurt)
+                                let h = hud_row(s, t)
+                                print(
+                                    "hud tier={tier_name} field={cols}x{rows} night={night} scent={scent} stat={stat} rally={hurt} painted={h.painted} stray={h.stray}",
+                                )
+                                stray += h.stray
+                                n += 1
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    print("hud-census rows={n} stray={stray}")
+    if n == 0 || stray > 0 then 1 else 0
 }
