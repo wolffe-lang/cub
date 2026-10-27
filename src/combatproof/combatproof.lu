@@ -70,6 +70,18 @@ pub fn generate(dir: str) -> () ! {io} {
                 write(s, t, dir, "rally-{stat}-{cols}x{rows}-{tier_name}")?
             }
         }
+        // The scent number in the corner (cb07): four values, both fields,
+        // by day over the Shingle's water and by night in Gravehollow.
+        for scent in [0, 7, 42, 1234] {
+            for cols in [80, 200] {
+                let rows = if cols == 80 then 24 else 60
+                for night in [false, true] {
+                    let light = if night then "night" else "day"
+                    let s = hud_fixture(cols, rows, 1, scent, night, false)
+                    write(s, t, dir, "scent-{scent}-{cols}x{rows}-{light}-{tier_name}")?
+                }
+            }
+        }
     }
 }
 
@@ -78,7 +90,9 @@ pub fn generate(dir: str) -> () ! {io} {
 /// is the count of cells that differ; `forward` and `left` the centroid's
 /// move in hundredths of a cell along the aim and to its left (the cub's
 /// lit cells on the plain tier, its lit pixels on the rich); `span` the
-/// cells the drawing covers across the aim; `shake` is `sim.head_shake`.
+/// cells the drawing covers across the aim; `shake` is `sim.head_shake`;
+/// `out` the cells the shaken drawing paints that the same drawing with
+/// the head still does not (the head cell out of the body).
 pub struct StrikeRow {
     age: int,
     changed: int,
@@ -86,6 +100,7 @@ pub struct StrikeRow {
     left: int,
     span: int,
     shake: int,
+    out: int,
 }
 
 /// The sum of lit pixel coordinates and their count over a grid of the
@@ -190,6 +205,21 @@ fn changed_cells(a: grid.Grid, b: grid.Grid) -> int {
     n
 }
 
+/// The cells painted in `a` that are blank in `b`.
+fn cells_beyond(a: grid.Grid, b: grid.Grid) -> int {
+    var n = 0
+    var r = 0
+    while r < a.rows {
+        var c = 0
+        while c < a.cols {
+            if grid.at(a, r, c).cp != 32 && grid.at(b, r, c).cp == 32 { n += 1 }
+            c += 1
+        }
+        r += 1
+    }
+    n
+}
+
 /// The strike census's rows for hit `hit` aimed `h` on tier `t`: the
 /// disclosed empty arena of `generate`, the real input loop's bite, then
 /// every age of the hit through production steps.
@@ -224,6 +254,8 @@ pub fn strike_rows(h: int, hit: int, t: int) -> List[StrikeRow] {
             let dy = (my * 100 / mass - oy * 100 / other) / 4
             let forward = (dx * sim.sin(h) - dy * sim.cos(h)) / sim.FP
             let left = 0 - (dx * sim.cos(h) + dy * sim.sin(h)) / sim.FP
+            var unshaken = grid.new(24, 80)
+            art.draw_combo_shaken(s, t, mut unshaken, 0)
             (mut rows).push(StrikeRow {
                 age: age,
                 changed: changed_cells(moved, still),
@@ -231,6 +263,7 @@ pub fn strike_rows(h: int, hit: int, t: int) -> List[StrikeRow] {
                 left: left,
                 span: span_across(moved, s.body_facing),
                 shake: sim.head_shake(s),
+                out: cells_beyond(moved, unshaken),
             })
         }
         sim.step(mut s, List[int]())
@@ -251,7 +284,7 @@ pub fn strike_census() -> int {
             for hit in [1, 2, 3] {
                 for r in strike_rows(h, hit, t) {
                     print(
-                        "strike tier={tier_name} aim={h} hit={hit} age={r.age} changed={r.changed} forward={r.forward} left={r.left} span={r.span} shake={r.shake}",
+                        "strike tier={tier_name} aim={h} hit={hit} age={r.age} changed={r.changed} forward={r.forward} left={r.left} span={r.span} shake={r.shake} out={r.out}",
                     )
                     n += 1
                 }
