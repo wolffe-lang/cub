@@ -186,3 +186,31 @@ fn test_cb08_boar_charge_hits_the_diagonal_edge_not_only_its_centre() {
         }
     }
 }
+
+fn test_cb08_half_cell_right_of_south_needs_the_cardinal_aim() {
+    // cb07's stalled walker: a target0.58 cell right, due south. A
+    // diagonal first bite centres at85, outside the target's cardinal
+    // bearing128. Touching bodies do not authorize a backwards jaw cone.
+    for heading in [96, 128] {
+        var s = hitcensus.fixture(sim.ASHEN)
+        s.foes[0].x = s.x + 149
+        s.foes[0].y = s.y + 4 * sim.FP
+        s.foes[0].heading = 0
+        s.action = sim.BITE
+        s.combo = 1
+        s.attack_heading = heading
+        s.body_facing = sim.eighth(heading)
+        assert(
+            sim.heading_to(s.x, s.y, s.foes[0].x, s.foes[0].y) == 128,
+            "eight-way bearing is south",
+        )
+        assert(sim.body_gap(s, 0) == 0, "the frozen target touches either facing's body")
+        let old = sim.in_front(s.x, s.y, sim.attack_direction(s), s.foes[0].x, s.foes[0].y)
+        assert(old == (heading == 128), "the cardinal aim also fixes the old centre cone here")
+        sim.strike_foes(mut s)
+        assert(
+            (s.foes[0].health < 1000) == (heading == 128),
+            "body intersection must not rescue the wrong diagonal aim",
+        )
+    }
+}

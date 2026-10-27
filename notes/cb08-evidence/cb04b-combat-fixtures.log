@@ -1,0 +1,61 @@
+cb08 cb04b-combat-fixtures start 2026-10-27T13:43:53Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:43:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:43:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:44:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:44:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:44:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:44:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:45:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:45:23Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:45:53Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:45:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:46:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:46:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:46:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:46:53Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:47:23Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:47:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:47:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:47:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:48:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:48:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:48:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:48:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:49:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:49:23Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:49:53Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:49:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:50:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:50:23Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:50:53Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:50:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:51:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:51:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:51:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:51:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:52:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:52:23Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:52:53Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:52:53Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:53:23Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:53:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:53:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:53:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:54:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:54:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:54:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:54:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:55:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:55:23Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:55:53Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:55:53Z
+cb08 cb04b-combat-fixtures waiting for cores 4-7 2026-10-27T13:56:23Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:56:23Z
+cb08 cb04b-combat-fixtures waiting for cores 8-11 2026-10-27T13:56:53Z
+cb08 cb04b-combat-fixtures acquired cores 4-7 2026-10-27T13:56:53Z
+test src/combat_test.lu::test_parry_riposte_doubles_next_bite_not_the_parry ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 385 filtered out
+test src/combat_test.lu::test_bite_windup_active_recovery_and_one_hit ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 385 filtered out
+wolf test: 0 passed; 0 failed; 0 rejected; 0 unsupported; 386 filtered out
+cb04b-combat-fixtures EXIT 0 2026-10-27T13:57:13Z

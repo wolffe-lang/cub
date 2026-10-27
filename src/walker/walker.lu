@@ -54,6 +54,8 @@ fn jaw_stance(s: sim.Sim, i: int, x: int, y: int) -> bool {
         var aimed = copy s
         aimed.x = x
         aimed.y = y
+        aimed.action_x = x
+        aimed.action_y = y
         aimed.action = sim.BITE
         aimed.combo = 1
         aimed.attack_heading = sim.heading_to(x, y, s.foes[i].x, s.foes[i].y)

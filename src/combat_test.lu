@@ -49,6 +49,9 @@ fn test_parry_window_edges() {
 
 fn test_parry_riposte_doubles_next_bite_not_the_parry() {
     var s = arena()
+    s.body_facing = 2
+    // Facing each other on the body ring, never settled from an overlap.
+    s.foes[0].x = s.x + 7 * sim.FP
     s.foes[0].health = 24
     strike_at(mut s)
     sim.step(mut s, keys(controls.KEY_PARRY))
@@ -62,6 +65,11 @@ fn test_parry_riposte_doubles_next_bite_not_the_parry() {
 
 fn test_bite_windup_active_recovery_and_one_hit() {
     var s = arena()
+    s.body_facing = 2
+    s.foes[0].heading = 0
+    s.foes[0].x = (sim.cub_body(s).x1 + 1) * sim.FP
+    s.foes[0].phase = sim.STAGGER
+    s.foes[0].since = 100000
     sim.step(mut s, keys(controls.KEY_BITE))
     ticks(mut s, 2)
     assert(s.foes[0].health == 8, "windup does not damage")

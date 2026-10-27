@@ -36,6 +36,8 @@ pub fn fixture(kind: int) -> sim.Sim {
     s.foes = foes
     s.tick = 103
     s.started = 100
+    s.action_x = s.x
+    s.action_y = s.y
     s.action = sim.BITE
     s.combo = 3
     s.locked = -1

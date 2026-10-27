@@ -1,0 +1,100 @@
+cb08 cb04b-hit-fixtures start 2026-10-27T13:39:23Z
+cb08 cb04b-hit-fixtures waiting for cores 4-7 2026-10-27T13:39:23Z
+cb08 cb04b-hit-fixtures waiting for cores 8-11 2026-10-27T13:39:23Z
+cb08 cb04b-hit-fixtures waiting for cores 4-7 2026-10-27T13:39:53Z
+cb08 cb04b-hit-fixtures waiting for cores 8-11 2026-10-27T13:39:53Z
+cb08 cb04b-hit-fixtures waiting for cores 4-7 2026-10-27T13:40:23Z
+cb08 cb04b-hit-fixtures waiting for cores 8-11 2026-10-27T13:40:23Z
+cb08 cb04b-hit-fixtures waiting for cores 8-11 2026-10-27T13:40:53Z
+cb08 cb04b-hit-fixtures waiting for cores 4-7 2026-10-27T13:40:53Z
+cb08 cb04b-hit-fixtures waiting for cores 8-11 2026-10-27T13:41:23Z
+cb08 cb04b-hit-fixtures acquired cores 4-7 2026-10-27T13:41:23Z
+test src/diagonals_test.lu::test_cb08_attack_and_movement_keep_all_eight_facings ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_body_is_not_a_rotated_cardinal_rectangle ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_pose_draws_inside_its_own_body_on_both_tiers ... ok
+test src/diagonals_test.lu::test_cb08_diagonals_are_one_drawing_turned_pixel_for_pixel ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_postures_are_visible_not_parameter_noops ... ok
+test src/diagonalwalk_test.lu::test_cb08_horizontal_arrival_clears_the_source_before_a_sideways_walk ... ok
+test src/diagonalwalk_test.lu::test_cb08_walker_parries_the_imminent_ashen_not_the_first_ordinal ... ok
+test src/diagonalwalk_test.lu::test_cb08_walker_locks_the_foe_its_jaw_stance_was_planned_for ... ok
+test src/ghost_test.lu::test_cb08_legacy_ghost_quarters_and_new_eighths_keep_their_direction ... ok
+test src/hitboxes_test.lu::test_cb08_whisper_flank_bite_is_not_refused_for_its_centre ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_whisper_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_boar_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_elk_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_staggered_alpha_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_whisper_flank_all_attacks_and_combos_land_once ... ok
+test src/hitboxes_test.lu::test_cb08_ordinary_ground_foes_share_the_same_jaw_rule ... ok
+test src/hitboxes_test.lu::test_cb08_alpha_guard_and_hawk_exclusion_survive_flank_reach ... ok
+test src/hitboxes_test.lu::test_cb08_boar_charge_hits_the_diagonal_edge_not_only_its_centre ... ok
+test src/hitboxes_test.lu::test_cb08_half_cell_right_of_south_needs_the_cardinal_aim ... ok
+wolf test: 19 passed; 0 failed; 0 rejected; 0 unsupported; 367 filtered out
+build: target/native/cub
+build: target/release/cub
+aim cub_x cub_y gap anchor_in_cone body_in_cone landed
+0 0 43 0 true true true
+1 -5 42 0 true true true
+2 -5 39 0 true true true
+3 -5 36 0 true true true
+4 0 36 0 true true true
+5 5 36 0 true true true
+6 5 39 0 true true true
+7 4 43 0 true true true
+0 0 43 1 true true true
+1 -6 43 1 true true true
+2 -6 39 1 true true true
+3 -6 35 1 true true true
+4 0 35 1 true true true
+5 5 35 1 true true true
+6 5 39 1 true true true
+7 5 43 1 true true true
+hitbox: green, a bite in reach lands from every aim, touching and a cell off
+kind gap direction hits pairs percent
+4 0 along 176 328 53.7
+4 0 away 0 884 0.0
+4 0 into 324 324 100.0
+4 1 along 64 424 15.1
+4 1 away 0 1012 0.0
+4 1 into 356 356 100.0
+4 2 along 0 520 0.0
+4 2 away 0 1140 0.0
+4 2 into 0 388 0.0
+5 0 along 152 296 51.4
+5 0 away 0 836 0.0
+5 0 into 276 276 100.0
+5 1 along 64 392 16.3
+5 1 away 0 964 0.0
+5 1 into 308 308 100.0
+5 2 along 0 488 0.0
+5 2 away 0 1092 0.0
+5 2 into 0 340 0.0
+6 0 along 200 368 54.3
+6 0 away 0 944 0.0
+6 0 into 384 384 100.0
+6 1 along 64 464 13.8
+6 1 away 0 1072 0.0
+6 1 into 416 416 100.0
+6 2 along 0 560 0.0
+6 2 away 0 1200 0.0
+6 2 into 0 448 0.0
+7 0 along 176 328 53.7
+7 0 away 0 884 0.0
+7 0 into 324 324 100.0
+7 1 along 64 424 15.1
+7 1 away 0 1012 0.0
+7 1 into 356 356 100.0
+7 2 along 0 520 0.0
+7 2 away 0 1140 0.0
+7 2 into 0 388 0.0
+8 0 along 88 208 42.3
+8 0 away 0 704 0.0
+8 0 into 144 144 100.0
+8 1 along 64 304 21.1
+8 1 away 0 832 0.0
+8 1 into 176 176 100.0
+8 2 along 0 400 0.0
+8 2 away 0 960 0.0
+8 2 into 0 208 0.0
+inward-gap01 misses 0
+gameplay: complete hit rings, inward gap0/1 100%, away/gap2 zero
+cb04b-hit-fixtures EXIT 0 2026-10-27T13:42:04Z
