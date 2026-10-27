@@ -21,7 +21,7 @@ the numeric events, the `# score` comment). cub's words in it are its vocabulary
 | 1–5 (inert, retained for old recordings) | `heart`, `wind`, `fang`, `paw`, `nose` |
 | Enter at rest | `confirm` (new id27; earlier ids unchanged) |
 | `m` | `mute` (cb03: the music off and on; inert in the simulation) |
-| Ctrl-C as a byte | `interrupt` |
+| Ctrl-C (legacy byte or enhanced key/modifier) | `interrupt` |
 
 Every key is recorded. Numeric `health N` and `scent N` events are explicit
 test/debug deltas, not enemy actions: negative health is ordinary interruptible
