@@ -56,14 +56,11 @@ fn abs(v: int) -> int {
     if v < 0 then 0 - v else v
 }
 
-/// The lane's centre at local row `at`: the route's meander, tapered to
-/// the portals at both ends so the thorn throat and the way on stand at
-/// x = 0.
+/// The lane's centre at local row `at`: the route's meander, standing at
+/// x = 0 at both portals (the thorn throat and the way on) by its end
+/// anchors, never by a taper.
 pub fn lane(seed: int, at: int) -> int {
-    let c = terrain.meander(seed, 36, at)
-    if at < 12 { return c * at / 12 }
-    if at > LENGTH - 12 { return c * (LENGTH - at) / 12 }
-    c
+    terrain.floor_cells(terrain.meander_ends_fp(seed, 36, at, LENGTH))
 }
 
 /// The plot a local row lies in (its house's rows and the passage after
