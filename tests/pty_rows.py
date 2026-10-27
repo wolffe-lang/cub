@@ -813,6 +813,25 @@ for _shot in range(len(OPENING_SHOTS)):
     ROWS['opening-skip-%02d' % _shot] = lambda binary, ctx, shot=_shot: opening_live(binary, ctx, shot)
 
 
+def _opening_evidence_readable(home):
+    """Publish only this synthetic fixture's evidence to the artifact reader.
+
+    mkdtemp uses0700. Docker creates it as root, while the host uploader
+    runs as another uid; rootless podman hides that ownership mismatch.
+    Keep failure traces rather than deleting them, including partial output.
+    """
+    home.chmod(0o755)
+    for directory, dirs, files in os.walk(home):
+        for name in dirs:
+            path = Path(directory) / name
+            if not path.is_symlink():
+                path.chmod(0o755)  # before os.walk descends into this child
+        for name in files:
+            path = Path(directory) / name
+            if not path.is_symlink():
+                path.chmod(0o644)
+
+
 def opening_quit_due(binary, ctx):
     """A quit on the commit tick must not cancel an already-due seen flag.
 
@@ -829,41 +848,44 @@ def opening_quit_due(binary, ctx):
     for explicit in (False, True):
         for attempt in range(2):
             home = Path(tempfile.mkdtemp(prefix='fresh-', dir=root))
-            env = ctx.env_for()
-            env['HOME'] = str(home)
-            path = home / ('missing/explicit.save' if explicit else '.cub/save')
-            record = home / 'record.pk'
-            args = [binary, '--seed', '1', '--no-title', '--mute', '--trace', '--tier', 'plain']
-            if explicit:
-                args += ['--save', str(path)]
-            session = ctx.Session(args + ['--record', str(record)], 24, 80, env)
-            session.type(b'\x1b[C', settle=0)
-            deadline = time.monotonic() + 3
-            while time.monotonic() < deadline:
-                session.pump(.001)
-                if re.search(rb'trace tick \d+ .*? scene 0 ', session.err):
-                    break
-            else:
-                problems.append('opening never acknowledged the skip')
-            session.type(b'q', settle=0)
-            session.finish()
-            ctx.common_checks(session, 0, problems)
-            (home / 'first.trace').write_bytes(session.err)
-            text = record.read_text()
-            skipped = re.search(r'^t (\d+) right$', text, re.M)
-            quit_at = re.search(r'^t (\d+) quit$', text, re.M)
-            if skipped and quit_at and int(quit_at[1]) == int(skipped[1]) + 1:
-                adjacent += 1
-            if 'opening 1' not in path.read_text():
-                problems.append('due seen flag lost on quit (%s attempt%d)' % ('explicit' if explicit else 'default', attempt))
-            if Path(str(path) + '.pending').exists():
-                problems.append('owned stage survived quit')
-            resumed = ctx.Session(args + ['--ticks', '2'], 24, 80, env)
-            resumed.finish()
-            ctx.common_checks(resumed, 0, problems)
-            (home / 'resumed.trace').write_bytes(resumed.err)
-            if re.search(rb'trace tick \d+ .*? scene 1 ', resumed.err):
-                problems.append('relaunch replayed an opening already seen')
+            try:
+                env = ctx.env_for()
+                env['HOME'] = str(home)
+                path = home / ('missing/explicit.save' if explicit else '.cub/save')
+                record = home / 'record.pk'
+                args = [binary, '--seed', '1', '--no-title', '--mute', '--trace', '--tier', 'plain']
+                if explicit:
+                    args += ['--save', str(path)]
+                session = ctx.Session(args + ['--record', str(record)], 24, 80, env)
+                session.type(b'\x1b[C', settle=0)
+                deadline = time.monotonic() + 3
+                while time.monotonic() < deadline:
+                    session.pump(.001)
+                    if re.search(rb'trace tick \d+ .*? scene 0 ', session.err):
+                        break
+                else:
+                    problems.append('opening never acknowledged the skip')
+                session.type(b'q', settle=0)
+                session.finish()
+                ctx.common_checks(session, 0, problems)
+                (home / 'first.trace').write_bytes(session.err)
+                text = record.read_text()
+                skipped = re.search(r'^t (\d+) right$', text, re.M)
+                quit_at = re.search(r'^t (\d+) quit$', text, re.M)
+                if skipped and quit_at and int(quit_at[1]) == int(skipped[1]) + 1:
+                    adjacent += 1
+                if 'opening 1' not in path.read_text():
+                    problems.append('due seen flag lost on quit (%s attempt%d)' % ('explicit' if explicit else 'default', attempt))
+                if Path(str(path) + '.pending').exists():
+                    problems.append('owned stage survived quit')
+                resumed = ctx.Session(args + ['--ticks', '2'], 24, 80, env)
+                resumed.finish()
+                ctx.common_checks(resumed, 0, problems)
+                (home / 'resumed.trace').write_bytes(resumed.err)
+                if re.search(rb'trace tick \d+ .*? scene 1 ', resumed.err):
+                    problems.append('relaunch replayed an opening already seen')
+            finally:
+                _opening_evidence_readable(home)
     if adjacent == 0:
         problems.append('no adjacent skip/quit interleaving witnessed')
     resumed.evidence = '%d adjacent skip/quit pairs; fresh HOME and explicit path; relaunch checked' % adjacent
