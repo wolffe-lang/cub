@@ -384,8 +384,10 @@ fn test_cb05_the_ashen_winds_up_slowly_is_parried_long_and_bitten_from_behind() 
     sim.step(mut u, bite)
     m = 0
     while m < 6 { sim.step(mut u, List[int]()); m += 1 }
+    // cb07 (R-cb07-1): the Ashen's health is `foe_health`, 20 now; the
+    // doubling is the claim, not the number.
     assert(
-        u.foes[0].health == 36 - 2 * sim.bite_damage(1),
+        u.foes[0].health == sim.foe_health(sim.ASHEN) - 2 * sim.bite_damage(1),
         "twice the bite from behind: {u.foes[0].health}",
     )
 }
