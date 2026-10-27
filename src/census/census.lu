@@ -75,15 +75,18 @@ pub fn ground_box(s: sim.Sim) -> Box {
 
 /// The cub's footprint where the frame draws it this tick.
 pub fn cub_box(s: sim.Sim) -> Box {
-    if s.action == sim.BITE { return ground_box(s) }
     let (ox, oy) = sim.attack_offset(s)
     let facing = cub_facing(s)
-    var b = placed(
-        cub_drawing(s),
-        facing,
-        sim.floor_div(s.x + ox, sim.FP),
-        sim.floor_div(s.y + oy, sim.FP),
-    )
+    var b = if s.action == sim.BITE {
+        ground_box(s)
+    } else {
+        placed(
+            cub_drawing(s),
+            facing,
+            sim.floor_div(s.x + ox, sim.FP),
+            sim.floor_div(s.y + oy, sim.FP),
+        )
+    }
     // The third bite's head shake moves the head one cell across the aim.
     let shake = sim.head_shake(s)
     if shake != 0 {
