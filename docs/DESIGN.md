@@ -1361,3 +1361,17 @@ The independent crossing census retains ordinary combat, starting health
 and its existing9-of-10 survival bar. Its scripted walker aligns to a
 non-overlapping jaw stance before biting; that is a witness tactic, not a
 new player rule or a mutation of the running simulation.
+
+
+The roll keeps cb04b's distinction: without a lock, body facing follows
+latched travel; with a lock, the body tracks the target, now in eighths.
+R-cb08-6 recommends this A reading. The B reading (body follows travel even
+while locked) is a one-line `LOCKED_ROLL_FACES_TARGET = false` change in
+`sim`; it is not selected. This does not change travel, timing or iframes.
+
+A target0.58 cell right and due south is a separate aim problem: the wrong
+SE first-strike aim96/cone85 misses under both centre and jaw/body tests;
+cardinal aim128 lands under both. The walker's quantized bearing fixes that
+specific case. Body intersection remains independently necessary for a
+flank whose cells enter the cone while its centre does not. Neither fix
+replaces the other generally.
