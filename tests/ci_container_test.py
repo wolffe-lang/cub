@@ -144,10 +144,11 @@ class ContainerCacheTests(unittest.TestCase):
                         perf.index('tools/ci-container.py run -- tools/check-perf'))
         self.assertIn('timeout-minutes: 20', perf)
 
-    def run_staged_gate(self, fail_score=False):
+    def run_staged_gate(self, fail_score=False, fail_memory=False):
         tools = self.root / 'tools'
         tools.mkdir()
         (tools / 'check-linux').write_text((ROOT / 'tools/check-linux').read_text())
+        (tools / 'check-memory').write_text((ROOT / 'tools/check-memory').read_text())
         engine_tools = self.root / '.lair/tools'
         engine_tools.mkdir()
         for name in ('check-linux', 'goldens'):
@@ -157,10 +158,11 @@ class ContainerCacheTests(unittest.TestCase):
         binaries = self.root / 'bin'
         binaries.mkdir()
         python = binaries / 'python3'
-        python.write_text('#!/bin/sh\ncase "$*" in *tools/score-check*) exit "${FAIL_SCORE:-0}";; esac\nexit 0\n')
+        python.write_text('#!/bin/sh\ncase "$*" in *tools/score-check*) exit "${FAIL_SCORE:-0}";; *tools/memory-probe.py*) exit "${FAIL_MEMORY:-0}";; esac\nexit 0\n')
         python.chmod(0o755)
         env = dict(os.environ, PATH=str(binaries) + os.pathsep + os.environ['PATH'],
-                   FAIL_SCORE='23' if fail_score else '0')
+                   FAIL_SCORE='23' if fail_score else '0',
+                   FAIL_MEMORY='23' if fail_memory else '0')
         return subprocess.run(['sh', str(tools / 'check-linux')], env=env,
                               capture_output=True, text=True)
 
@@ -168,7 +170,7 @@ class ContainerCacheTests(unittest.TestCase):
         result = self.run_staged_gate()
         self.assertEqual(result.returncode, 0, result.stderr)
         names = ['python-tests', 'pty-fixtures', 'engine-check', 'native-goldens',
-                 'score-check', 'native-gameplay', 'release-gameplay']
+                 'score-check', 'native-gameplay', 'release-gameplay', 'memory-gate']
         offsets = []
         for name in names:
             offsets.extend([result.stdout.index('ci-stage ' + name + ' START'),
@@ -176,6 +178,13 @@ class ContainerCacheTests(unittest.TestCase):
         self.assertEqual(offsets, sorted(offsets))
         self.assertEqual(result.stdout.count('status=0'), len(names))
         self.assertIn('cub check-linux: green', result.stdout)
+
+    def test_memory_budget_failure_is_not_a_green_stage(self):
+        result = self.run_staged_gate(fail_memory=True)
+        self.assertEqual(result.returncode, 23)
+        self.assertRegex(result.stdout, r'ci-stage memory-gate END .*status=23')
+        self.assertNotIn('memory gate: green', result.stdout)
+        self.assertNotIn('cub check-linux: green', result.stdout)
 
     def test_stage_failure_keeps_status_and_stops_before_later_gates(self):
         result = self.run_staged_gate(fail_score=True)

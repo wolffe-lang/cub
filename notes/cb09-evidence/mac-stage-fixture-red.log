@@ -1,0 +1,25 @@
+cb09 Mac complete gate source 8cf7a047ac2510b980dec24db8dd16c0d29e1490 start 2026-10-27T21:57:52Z
+cb09 waits for 8 GiB and one build 3630661632 bytes 2026-10-27T21:57:52Z
+cb09 waits for 8 GiB and one build 8287879168 bytes 2026-10-27T21:58:22Z
+cb09 waits for 8 GiB and one build 7981662208 bytes 2026-10-27T21:58:52Z
+cb09 memory gate clear 14138163200 bytes 2026-10-27T21:59:22Z
+ci-container source=build image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=13
+.ci-container source=local image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=13
+.....F...ci-container source=cache image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=12
+............................
+======================================================================
+FAIL: test_stage_markers_keep_every_gate (ci_container_test.ContainerCacheTests.test_stage_markers_keep_every_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/mfwolffe/lanes/cb09/cub/tests/ci_container_test.py", line 169, in test_stage_markers_keep_every_gate
+    self.assertEqual(result.returncode, 0, result.stderr)
+AssertionError: 127 != 0 : sh: tools/check-memory: No such file or directory
+
+
+----------------------------------------------------------------------
+Ran 38 tests in 1.095s
+
+FAILED (failures=1)
+prepare-pty: retained previous engine fixture in /Users/mfwolffe/lanes/cb09/cub/target/pty-fixture-tests/tmp5zllon6r/engine-previous-k42np5_i
+prepare-pty: engine fixture already fresh
+CB09_MAC_FINAL_EXIT 1 2026-10-27T21:59:23Z

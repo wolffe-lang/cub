@@ -1,0 +1,69 @@
+cb09 Linux source 8cf7a047ac2510b980dec24db8dd16c0d29e1490 start 2026-10-27T21:58:23Z
+build: target/release/cub
+{"seconds": 0.0, "tick": 0, "rss_bytes": 3907584}
+{"seconds": 1.021, "tick": 27, "rss_bytes": 46116864}
+{"seconds": 2.021, "tick": 57, "rss_bytes": 93999104}
+{"seconds": 3.021, "tick": 87, "rss_bytes": 141893632}
+{"seconds": 4.054, "tick": 118, "rss_bytes": 191352832}
+{"seconds": 5.055, "tick": 148, "rss_bytes": 239218688}
+{"seconds": 6.088, "tick": 178, "rss_bytes": 288669696}
+{"seconds": 7.121, "tick": 210, "rss_bytes": 338137088}
+{"seconds": 8.155, "tick": 240, "rss_bytes": 387592192}
+{"seconds": 9.156, "tick": 271, "rss_bytes": 435462144}
+{"seconds": 10.188, "tick": 302, "rss_bytes": 484921344}
+{"seconds": 11.188, "tick": 332, "rss_bytes": 532787200}
+{"seconds": 12.221, "tick": 363, "rss_bytes": 582250496}
+{"seconds": 13.255, "tick": 394, "rss_bytes": 631705600}
+{"seconds": 14.287, "tick": 425, "rss_bytes": 681164800}
+{"seconds": 15.288, "tick": 455, "rss_bytes": 729030656}
+{"seconds": 16.32, "tick": 486, "rss_bytes": 778493952}
+{"seconds": 17.321, "tick": 516, "rss_bytes": 826359808}
+{"seconds": 18.321, "tick": 546, "rss_bytes": 874221568}
+{"seconds": 19.321, "tick": 576, "rss_bytes": 922087424}
+{"seconds": 20.355, "tick": 606, "rss_bytes": 971542528}
+{"status": "RED", "start": {"seconds": 3.021, "tick": 87, "rss_bytes": 141893632}, "end": {"seconds": 20.355, "tick": 606, "rss_bytes": 971542528}, "ticks": 519, "growth_bytes": 829648896, "bytes_per_tick": 1598552.7861271675, "tick_source": "trace", "budget_bytes_per_tick": 4096.0}
+{"seconds": 0.0, "tick": 0, "rss_bytes": 3923968}
+{"seconds": 1.03, "tick": 27, "rss_bytes": 6832128}
+{"seconds": 2.031, "tick": 57, "rss_bytes": 9457664}
+{"seconds": 3.064, "tick": 88, "rss_bytes": 12173312}
+{"seconds": 4.064, "tick": 118, "rss_bytes": 14798848}
+{"seconds": 5.097, "tick": 149, "rss_bytes": 17510400}
+{"seconds": 6.098, "tick": 179, "rss_bytes": 20131840}
+{"seconds": 7.131, "tick": 210, "rss_bytes": 22872064}
+{"seconds": 8.131, "tick": 240, "rss_bytes": 25473024}
+{"seconds": 9.164, "tick": 270, "rss_bytes": 28176384}
+{"seconds": 10.164, "tick": 300, "rss_bytes": 30801920}
+{"seconds": 11.164, "tick": 331, "rss_bytes": 33427456}
+{"seconds": 12.197, "tick": 362, "rss_bytes": 36139008}
+{"seconds": 13.197, "tick": 392, "rss_bytes": 38776832}
+{"seconds": 14.198, "tick": 421, "rss_bytes": 41177088}
+{"seconds": 15.231, "tick": 452, "rss_bytes": 41459712}
+{"seconds": 16.231, "tick": 483, "rss_bytes": 41889792}
+{"seconds": 17.264, "tick": 514, "rss_bytes": 43786240}
+{"seconds": 18.265, "tick": 544, "rss_bytes": 45625344}
+{"seconds": 19.297, "tick": 575, "rss_bytes": 47525888}
+{"seconds": 20.297, "tick": 605, "rss_bytes": 49360896}
+{"status": "RED", "start": {"seconds": 3.064, "tick": 88, "rss_bytes": 12173312}, "end": {"seconds": 20.297, "tick": 605, "rss_bytes": 49360896}, "ticks": 517, "growth_bytes": 37187584, "bytes_per_tick": 71929.56286266925, "tick_source": "trace", "budget_bytes_per_tick": 4096.0}
+CB09_LINUX_TRUNK_PLANTS_RED 2026-10-27T21:59:24Z
+ci-stage python-tests START utc=2026-10-27T21:59:24Z
+ci-container source=build image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=13
+.ci-container source=local image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=13
+.....F...ci-container source=cache image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=12
+............................
+======================================================================
+FAIL: test_stage_markers_keep_every_gate (ci_container_test.ContainerCacheTests.test_stage_markers_keep_every_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/ci_container_test.py", line 169, in test_stage_markers_keep_every_gate
+    self.assertEqual(result.returncode, 0, result.stderr)
+AssertionError: 2 != 0 : sh: 0: cannot open tools/check-memory: No such file
+
+
+----------------------------------------------------------------------
+Ran 38 tests in 0.037s
+
+FAILED (failures=1)
+prepare-pty: retained previous engine fixture in /work/target/pty-fixture-tests/tmphldhdsdj/engine-previous-wqicyjw2
+prepare-pty: engine fixture already fresh
+ci-stage python-tests END utc=2026-10-27T21:59:24Z elapsed_seconds=0 status=1
+CB09_LINUX_FINAL_EXIT 1 2026-10-27T21:59:24Z
