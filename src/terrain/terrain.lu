@@ -191,6 +191,53 @@ pub fn floor_cells(v: int) -> int {
     (v + 4096 * FP) / FP - 4096
 }
 
+/// Smoothstep of `t` in `[0, FP]`, in `[0, FP]`.
+pub fn smoothstep(t: int) -> int {
+    let c = if t < 0 then 0 else if t > FP then FP else t
+    c * c / FP * (3 * FP - 2 * t) / FP
+}
+
+/// The meander of a route `l` rows long that must stand at zero at both
+/// ends (its portals), in fixed point (cb05): the anchors at and beyond
+/// the ends are zero, so the way in and out is one smooth bend, and the
+/// noise fades over the first and last sixteen rows. A curve tapered by a
+/// factor instead bends one way and then the other wherever its slope
+/// opposes its sign: a reversal the bends census sees.
+pub fn meander_ends_fp(seed: int, ch: int, at: int, l: int) -> int {
+    var k = at / 16
+    var r = at % 16
+    if r < 0 { k -= 1; r += 16 }
+    let a = anchor_fp(seed, ch, k, l)
+    let b = anchor_fp(seed, ch, k + 1, l)
+    // The first and last segments ramp straight from the portal (a
+    // smoothstep from zero starts flat: a long straight run); the noise is
+    // detrended to zero at both portals (a fade cancels the ramp's slope).
+    let ends = k <= 0 || (k + 1) * 16 >= l
+    let blend = if ends then r * FP / 16 else smoothstep(r * FP / 16)
+    noise_detrended(seed, ch, at, l) + a + (b - a) / FP * blend
+}
+
+/// The route noise, eight cells of swing, less the line between its
+/// values at the route's two ends: zero at both portals, continuous.
+pub fn noise_detrended(seed: int, ch: int, at: int, l: int) -> int {
+    // The noise at row 0 is its first lattice point's hash itself.
+    let n0 = (world.hash(seed, ch, 0, FP + 1) - FP / 2) * 8
+    let nl = (world.noise(seed, ch, l) - FP / 2) * 8
+    let n = (world.noise(seed, ch, at) - FP / 2) * 8
+    let t = if at < 0 then 0 else if at > l then l else at
+    n - n0 - (nl - n0) * t / l
+}
+
+/// A meander anchor, zero at and beyond the ends of a route `l` rows long;
+/// the anchors beside the ends swing 6..8 cells (the rest 3..5), so the
+/// ramp from a portal out-slopes the noise and never runs straight.
+fn anchor_fp(seed: int, ch: int, k: int, l: int) -> int {
+    if k <= 0 || k * 16 >= l { return 0 }
+    let sign = if (k % 2 + 2) % 2 == 0 then 1 else -1
+    if k == 1 || (k + 1) * 16 >= l { return sign * (6 + world.hash(seed, ch, k, 3)) * FP }
+    sign * (3 + world.hash(seed, ch, k, 3)) * FP
+}
+
 /// The meander in cells.
 pub fn meander(seed: int, ch: int, at: int) -> int {
     floor_cells(meander_fp(seed, ch, at))
