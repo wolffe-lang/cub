@@ -24,8 +24,9 @@ way to its rock jetties, and four winding offshoots leave it for guarded
 bundle alcoves, every path in the shore's own gravel; the forest is one
 trunk-and-canopy texture to every edge of the screen, the thicket and
 meadow filling the field they were made for. The cub, the foes and the
-bundle are solid pixel silhouettes, one drawing each, turned to face the
-way they go; the cub trots at 9.375 cells a second, its paws and tail
+bundle are solid pixel silhouettes. The cub has north and north-east drawings,
+turned by quarters to face all eight movement and attack directions; foes
+keep four facings. The cub trots at 9.375 cells a second, its paws and tail
 keeping time with its stride. The HUD is health, stamina and scent and
 nothing else: a red health bar and a green stamina bar flush on the
 forest at top-left, growing with the stats, their one-word labels beside
@@ -49,9 +50,10 @@ telegraphed long enough to parry, the one unparryable attack of each is
 dodged, a second phase begins at half health, and an engaged boss has its own
 health bar. The last five deaths stand as fading ghosts where they fell, and
 replay their last seconds when the cub comes near. The game opens on a
-title and, when the alpha falls, the cub crosses the ford as a wolf. Every body collides as the drawing it is:
-nothing is drawn inside another, and a foe that reaches the cub stands
-where a bite aimed its way lands. Original log and flotsam
+title and, when the alpha falls, the cub crosses the ford as a wolf. Actor bodies
+match their drawings and stay apart. Strikes reach from the cub's jaws to any
+cell of a foe's body, so a visible flank is a target rather than only its anchor.
+Original log and flotsam
 sprites mark the coast; gangly trees, stones, bones, stumps, crows, cairns,
 scent grass and a ford fill the meadow. Bite, forward lunge, parry, dodge,
 stamina sprint and chain attacks; a
@@ -163,6 +165,8 @@ target/cub --strike-census     every strike at every aim on both tiers, the draw
 target/cub --hud-census        every painted HUD cell held to the bars, the labels and the digits
 target/cub --encounter-census  one posted Ashen against a fresh cub, Book-II and no-parry play, ten seeds at both fields
 target/cub --crossing-trace 1 80  one crossing of Cinderwick narrated while a foe is within two cells
+target/cub --hit-census        every boss/Ashen body-ring bite: positions, aims and hits as CSV
+target/cub --narrow-audit 6 240  walk Cinderwick's single-file edges with diagonal chords
 ```
 
 `cub --help` lists the rest: the headless mode that writes frames for the goldens, `--trace` (one line a
@@ -203,7 +207,15 @@ the sim frame for frame;
 `--look-audit` scans fifty seeded camera walks for leftover world labels on both tiers.
 `--paths-audit` measures carved widths and centreline steps; `--doorways-audit`
 checks all shadow neighbours; `--foes-audit` checks clipped sprites on every
-route row. Rest panels have empty, pending and refused goldens at both sizes
+route row. The diagonal art goldens index410 pose states, sharing75 distinct
+drawings across four rotations, both tiers and80×24/200×60. `--hit-census`
+measures unslanted bites around each boss and the Ashen; its independent gate
+checks the complete position/aim ring and requires every inward gap0/1 bite
+to land. Focused rows cover the slanted combo strikes and other attack types.
+`--narrow-audit 6 240` walks every single-file edge with both diagonal chords
+in fifty Cinderwick seeds at both fields, without widening terrain collision.
+Older four-way ghost archives keep their original directions alongside new
+eight-way recordings. Rest panels have empty, pending and refused goldens at both sizes
 and tiers, plus real arrow/confirm/discard pty witnesses. The opening has
 every shot at 80×24, 120×40 and 200×60 on both tiers, disjoint sky/ice/water
 styles, a full-length terminal run and a recorded real-key skip per shot.
