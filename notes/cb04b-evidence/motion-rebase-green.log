@@ -1,0 +1,3 @@
+test src/motion_census_test.lu::test_cb04b_motion_census_includes_town_ash_and_embers_without_enum_indexing ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 361 filtered out
+build: target/release/cub
