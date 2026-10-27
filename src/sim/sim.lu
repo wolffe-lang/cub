@@ -2115,32 +2115,59 @@ pub fn landing_point(s: Sim) -> (int, int) {
     (s.x + dx, s.y + dy)
 }
 
-/// First/second bite lean, in fixed point perpendicular to the aim.
-pub const COMBO_LEAN: int = FP / 2
+/// The first and second strikes' lunge across the aim (cb07: a whole
+/// cell, where cb04b leaned half a cell for one tick).
+pub const COMBO_LEAN: int = FP
 
-/// Third bite's longer presentation arc; its reach and damage stay unchanged.
+/// The third strike's leap along the aim: two cells, held six ticks.
 pub const COMBO_FINISH_ARC: int = 2 * FP
 
-/// Two recovery ticks shaking the third bite's head left and right.
+/// The third bite's head shake (cb07): two full swings across the aim,
+/// the head a cell to the aim's left at ages 5-6, right at 7-8, left at
+/// 9-10 and right at 11-12, each side held two ticks so a person sees it
+/// at thirty ticks a second. The sprint snap keeps its three-tick shake.
 pub fn head_shake(s: Sim) -> int {
     if s.action != DASH && (s.action != BITE || s.combo != 3) { return 0 }
     let age = s.tick - s.started
     let shake = if s.action == DASH {
         if age == 3 || age == 5 then -1 else if age == 4 then 1 else 0
-    } else if age == 5 then -1 else if age == 6 then 1 else 0
+    } else if age >= 5 && age <= 12 {
+        (if (age - 5) / 2 % 2 == 0 then -1 else 1)
+    } else {
+        0
+    }
     if shake == 0 { return 0 }
     // The head moves a cell across the aim; it never moves into a body
     // (cb02c): with a foe against that side the head holds still.
     let (ox, oy) = attack_offset(s)
     var b = cub_body_at(s, s.x + ox, s.y + oy, s.body_facing)
-    if s.body_facing % 2 == 0 {
-        if shake < 0 { b.x0 -= 1 } else { b.x1 += 1 }
-    } else if shake < 0 {
-        b.y0 -= 1
-    } else {
-        b.y1 += 1
-    }
+    let (dr, dc) = shake_cells_of(s, shake)
+    if dc < 0 { b.x0 += dc } else { b.x1 += dc }
+    if dr < 0 { b.y0 += dr } else { b.y1 += dr }
     if drawn_body_in(s, b) then 0 else shake
+}
+
+/// The cells the shaken head moves by, `(rows, columns)`: a cell across
+/// the aim (cb07: across the committed aim itself, so a diagonal aim
+/// swings the head a cell on both axes and never back along the aim;
+/// the sprint snap keeps cb04b's swing across the body's facing), or
+/// `(0, 0)` with no shake this tick.
+pub fn shake_cells(s: Sim) -> (int, int) {
+    shake_cells_of(s, head_shake(s))
+}
+
+/// `shake_cells` for a given swing (-1 left, 1 right, 0 none).
+pub fn shake_cells_of(s: Sim, shake: int) -> (int, int) {
+    if shake == 0 { return (0, 0) }
+    if s.action == DASH {
+        return if s.body_facing % 2 == 0 then (0, shake) else (shake, 0)
+    }
+    // The aim's right-hand unit is (cos h, sin h) with y down; a diagonal
+    // has both parts at |181| of 256, a cardinal one at 256 and one at 0.
+    let h = s.attack_heading
+    let dc = if cos(h) >= 128 then 1 else if cos(h) <= -128 then -1 else 0
+    let dr = if sin(h) >= 128 then 1 else if sin(h) <= -128 then -1 else 0
+    (shake * dr, shake * dc)
 }
 
 /// Whether a rectangle shares a cell with a foe body the frame draws: a
@@ -4027,24 +4054,48 @@ pub fn combo_duration(hit: int) -> int { if hit == 3 then 17 else if hit == 2 th
 /// Each accepted link spends stamina; a refused link cannot advance the combo.
 pub fn combo_cost(hit: int) -> int { if hit == 3 then 18 else if hit == 2 then 14 else 12 }
 
+/// The last age of a strike's peak: the first and second hits hold their
+/// lunge through age 6, the third its leap through age 8 (cb07).
+pub fn strike_hold(hit: int) -> int { if hit == 3 then 8 else 6 }
+
+/// A strike's displacement from the commitment point at `age` of hit
+/// `hit` (cb07), in fixed point along the aim (`forward`) and across it
+/// (`side`, the aim's right positive). The first hit lunges a whole cell
+/// forward and a cell to the aim's left from age 3 through 6, the second
+/// the mirror, the third two cells straight forward through age 8; each
+/// then eases back to the commitment point a step a tick over the rest
+/// of its recovery, so the body is in place when the next link starts.
+/// The windup (ages 0-2) does not move.
+pub fn strike_offset(hit: int, age: int) -> (int, int) {
+    let forward = if hit == 3 then 2 * FP else FP
+    let side = if hit == 3 then 0 else if hit == 1 then 0 - FP else FP
+    let hold = strike_hold(hit)
+    if age < 3 { return (0, 0) }
+    if age <= hold { return (forward, side) }
+    let last = combo_duration(hit) - 1
+    if age >= last { return (0, 0) }
+    let left = last - age
+    let span = last - hold
+    (forward * left / span, side * left / span)
+}
+
+/// Whether the cub is at a strike's peak this tick: the jaws forward,
+/// the body stretched (the snapping pose).
+pub fn strike_peak(s: Sim) -> bool {
+    if s.action != BITE { return false }
+    let age = s.tick - s.started
+    age >= 3 && age <= strike_hold(s.combo)
+}
+
 fn combo_motion(mut s: Sim) {
     if s.action != BITE { return }
-    let age = s.tick - s.started
-    var forward = 0
-    var side = 0
-    if s.combo == 3 {
-        if age == 3 || age == 4 { forward = FP }
-    } else {
-        let sign = if s.combo == 1 then -1 else 1
-        if age == 3 { forward = FP / 4; side = sign * COMBO_LEAN }
-        if age == 5 || age == 6 { side = 0 - sign * COMBO_LEAN / 2 }
-    }
+    let (forward, side) = strike_offset(s.combo, s.tick - s.started)
     let h = s.attack_heading
-    move_cub(
-        mut s,
-        (forward * sin(h) + side * cos(h)) / FP,
-        (side * sin(h) - forward * cos(h)) / FP,
-    )
+    // Toward the offset's point from wherever the body is, so a lunge a
+    // wall or a foe shortened eases back to the commitment point exactly.
+    let tx = s.action_x + (forward * sin(h) + side * cos(h)) / FP
+    let ty = s.action_y + (side * sin(h) - forward * cos(h)) / FP
+    move_cub(mut s, tx - s.x, ty - s.y)
 }
 
 /// During a bite the camera stays at the commitment point, so body movement
