@@ -1,0 +1,291 @@
+//! member: false
+//!
+//! The HUD (cb07): health, stamina, scent and nothing else. The bars sit
+//! flush on the map with their one-word labels, no fill and no rail; the
+//! scent is one big number in the bottom right corner. The frame census
+//! holds every painted cell to the HUD's plan.
+
+use art
+use combatproof
+use digits
+use grid
+use sim
+use tier
+
+fn tier_name(t: int) -> str { if t == tier.RICH then "rich" else "plain" }
+
+fn test_cb07_hud_paints_only_bars_labels_and_digits_both_fields_both_tiers_day_and_night() {
+    for t in [tier.PLAIN, tier.RICH] {
+        for cols in [80, 200] {
+            let rows = if cols == 80 then 24 else 60
+            for night in [false, true] {
+                for scent in [0, 1234] {
+                    for stat in [1, 40] {
+                        let s = combatproof.hud_fixture(cols, rows, stat, scent, night, true)
+                        let h = combatproof.hud_row(s, t)
+                        assert(
+                            h.stray == 0,
+                            "{tier_name(t)} {cols}x{rows} night {night} scent {scent} stat {stat}: {h.stray} stray cells",
+                        )
+                        assert(
+                            h.painted > 0 && h.painted <= 120,
+                            "{tier_name(t)}: {h.painted} painted cells",
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn test_cb07_the_fills_and_rails_are_gone() {
+    for t in [tier.PLAIN, tier.RICH] {
+        let s = combatproof.hud_fixture(80, 24, 40, 42, false, false)
+        var full = grid.new(24, 80)
+        art.render(s, t, mut full)
+        var bare = grid.new(24, 80)
+        art.render_bare(s, t, mut bare)
+        // Rows 0, 2 and 4 (cb04b's rails) and row 6 are the map's own.
+        for row in [0, 2, 4, 6] {
+            var col = 0
+            while col < 80 {
+                assert(
+                    grid.same(grid.at(full, row, col), grid.at(bare, row, col)),
+                    "{tier_name(t)}: row {row} col {col} is the map's",
+                )
+                col += 1
+            }
+        }
+        // The bracket columns beside the bars are the map's own.
+        for row in [1, 3] {
+            assert(
+                grid.same(grid.at(full, row, 8), grid.at(bare, row, 8)),
+                "{tier_name(t)}: no left bracket",
+            )
+            assert(
+                grid.same(grid.at(full, row, 0), grid.at(bare, row, 0)),
+                "{tier_name(t)}: nothing before the label",
+            )
+        }
+    }
+}
+
+fn test_cb07_every_hud_cell_keeps_the_maps_background() {
+    for t in [tier.PLAIN, tier.RICH] {
+        for night in [false, true] {
+            let s = combatproof.hud_fixture(80, 24, 10, 1234, night, true)
+            var full = grid.new(24, 80)
+            art.render(s, t, mut full)
+            var bare = grid.new(24, 80)
+            art.render_bare(s, t, mut bare)
+            var n = 0
+            for c in art.hud_plan(s, t) {
+                assert(
+                    grid.at(full, c.row, c.col).bg == grid.at(bare, c.row, c.col).bg,
+                    "{tier_name(t)} night {night}: ({c.row}, {c.col}) keeps the map's background",
+                )
+                assert(grid.at(full, c.row, c.col).cp == c.cp, "the plan's glyph is painted")
+                n += 1
+            }
+            assert(n > 40, "a plan of {n} cells")
+        }
+    }
+}
+
+fn test_cb07_bars_grow_with_the_stats_and_show_the_rally_in_grey() {
+    for t in [tier.PLAIN, tier.RICH] {
+        let s = combatproof.hud_fixture(80, 24, 1, 0, false, true)
+        var g = grid.new(24, 80)
+        art.render(s, t, mut g)
+        let rich = t == tier.RICH
+        // Stat 1: 52 health over six cells, 70 stamina over seven; half
+        // the health gone, the rally stretch grey after the red.
+        assert(
+            grid.at(g, 1, art.HUD_BAR_COL).cp == (if rich then 9608 else 61),
+            "{tier_name(t)}: red health",
+        )
+        assert(
+            grid.at(g, 1, art.HUD_BAR_COL + 3).cp == (if rich then 9617 else 46),
+            "{tier_name(t)}: grey rally",
+        )
+        assert(
+            grid.at(g, 3, art.HUD_BAR_COL + 6).cp == (if rich then 9608 else 61),
+            "{tier_name(t)}: seventh stamina cell",
+        )
+        assert(
+            grid.at(g, 1, art.HUD_BAR_COL + art.bar_cells(sim.health_max(1))).cp !=
+                (if rich then 9608 else 61),
+            "{tier_name(t)}: the bar ends at its width",
+        )
+        let big = combatproof.hud_fixture(80, 24, 40, 0, false, false)
+        var w = grid.new(24, 80)
+        art.render(big, t, mut w)
+        assert(
+            grid.at(w, 1, art.HUD_BAR_COL + 24).cp == (if rich then 9608 else 61),
+            "{tier_name(t)}: stat 40 fills 25 cells",
+        )
+    }
+}
+
+fn test_cb07_scent_is_a_big_number_in_the_bottom_right_corner() {
+    for t in [tier.PLAIN, tier.RICH] {
+        let rich = t == tier.RICH
+        let tall = if rich then digits.RICH_ROWS else digits.PLAIN_ROWS
+        assert(tall >= 3, "a digit font at least three rows tall")
+        var last_left = 1000
+        for scent in [0, 7, 42, 1234] {
+            for cols in [80, 200] {
+                let rows = if cols == 80 then 24 else 60
+                let s = combatproof.hud_fixture(cols, rows, 1, scent, false, false)
+                var lo_row = 1000
+                var hi_row = -1
+                var lo_col = 1000
+                var hi_col = -1
+                var n = 0
+                for c in art.hud_plan(s, t) {
+                    if c.kind == art.HUD_DIGIT {
+                        if c.row < lo_row { lo_row = c.row }
+                        if c.row > hi_row { hi_row = c.row }
+                        if c.col < lo_col { lo_col = c.col }
+                        if c.col > hi_col { hi_col = c.col }
+                        n += 1
+                    }
+                }
+                assert(n > 0, "{tier_name(t)} scent {scent}: digit cells")
+                assert(
+                    hi_row == rows - 1,
+                    "{tier_name(t)} scent {scent} {cols}x{rows}: the number ends on the last row",
+                )
+                assert(
+                    hi_row - lo_row + 1 <= tall,
+                    "{tier_name(t)} scent {scent}: {hi_row - lo_row + 1} rows tall",
+                )
+                assert(
+                    hi_col == cols - 2,
+                    "{tier_name(t)} scent {scent} {cols}x{rows}: one cell in from the right edge",
+                )
+                let width = if rich then digits.rich_width(scent) else digits.plain_width(scent)
+                assert(
+                    lo_col >= cols - 1 - width,
+                    "{tier_name(t)} scent {scent}: within its width {width}",
+                )
+                if cols == 80 {
+                    // The field grows leftward as the digits grow.
+                    assert(lo_col < last_left, "{tier_name(t)} scent {scent}: grows leftward")
+                    last_left = lo_col
+                }
+            }
+        }
+        // At 80x24 on the rich tier the label and three digits fit twelve
+        // columns on three rows.
+        let s = combatproof.hud_fixture(80, 24, 1, 999, false, false)
+        var lo = 1000
+        var top = 1000
+        for c in art.hud_plan(s, tier.RICH) {
+            if c.kind == art.HUD_DIGIT || c.row >= 21 && c.kind == art.HUD_LABEL {
+                if c.col < lo { lo = c.col }
+                if c.row < top { top = c.row }
+            }
+        }
+        assert(
+            80 - lo <= 12 && 24 - top <= 3,
+            "rich 80x24: scent 999 with its label spans {80 - lo} columns, {24 - top} rows",
+        )
+    }
+}
+
+fn test_cb07_the_digit_font_draws_ten_distinct_digits_on_both_tiers() {
+    var d = 0
+    while d < 10 {
+        let rows = digits.glyph(d)
+        assert(rows.len == 5, "five rows")
+        for r in rows { assert(r.len == 3, "three pixels wide") }
+        var e = d + 1
+        while e < 10 {
+            var same = true
+            var i = 0
+            while i < 5 {
+                if rows[i] != digits.glyph(e)[i] { same = false }
+                i += 1
+            }
+            assert(!same, "digits {d} and {e} differ")
+            e += 1
+        }
+        d += 1
+    }
+    assert(
+        digits.rich_width(0) == 2 && digits.rich_width(1234) == 8,
+        "two cells a digit on the rich tier",
+    )
+    assert(
+        digits.plain_width(7) == 3 && digits.plain_width(42) == 7,
+        "three cells a digit and one between on the plain",
+    )
+    assert(
+        digits.rich_cells(8).len == 6 && digits.plain_cells(8).len == 13,
+        "an eight is six quadrant cells, thirteen plain cells",
+    )
+    assert(
+        digits.quadrant(15) == 0x2588 &&
+            digits.quadrant(9) == 0x259a &&
+            digits.quadrant(11) == 0x259c,
+        "the quadrants",
+    )
+    let dec = digits.decimal(1234)
+    assert(dec.len == 4 && dec[0] == 1 && dec[3] == 4, "decimal digits")
+}
+
+fn test_cb07_the_numbers_stay_in_the_debug_line_and_leave_the_frame() {
+    for t in [tier.PLAIN, tier.RICH] {
+        let s = combatproof.hud_fixture(80, 24, 1, 8, false, false)
+        assert(art.hud_text(s).contains("scent 8"), "the debug line carries the scent")
+        var g = grid.new(24, 80)
+        art.render(s, t, mut g)
+        // No "HP", no "rally" anywhere on rows 0-7.
+        var row = 0
+        while row < 8 {
+            var col = 0
+            while col < 78 {
+                let a = grid.at(g, row, col).cp
+                let b = grid.at(g, row, col + 1).cp
+                assert(!(a == 72 && b == 80), "{tier_name(t)}: no HP at row {row}")
+                col += 1
+            }
+            row += 1
+        }
+    }
+}
+
+fn test_cb07_the_water_line_sits_under_the_bars_flush_on_the_map() {
+    for t in [tier.PLAIN, tier.RICH] {
+        let s = combatproof.hud_fixture(80, 24, 1, 0, false, false)
+        var g = grid.new(24, 80)
+        art.render(s, t, mut g)
+        var bare = grid.new(24, 80)
+        art.render_bare(s, t, mut bare)
+        let text = "Water 2/2  w drink"
+        var i = 0
+        for b in text.bytes() {
+            if b as int != 32 {
+                assert(
+                    grid.at(g, art.HUD_WATER_ROW, 1 + i).cp == b as int,
+                    "{tier_name(t)}: the water line",
+                )
+                assert(
+                    grid.at(g, art.HUD_WATER_ROW, 1 + i).bg ==
+                        grid.at(bare, art.HUD_WATER_ROW, 1 + i).bg,
+                    "{tier_name(t)}: on the map",
+                )
+            } else {
+                assert(
+                    grid.same(
+                        grid.at(g, art.HUD_WATER_ROW, 1 + i),
+                        grid.at(bare, art.HUD_WATER_ROW, 1 + i),
+                    ),
+                    "{tier_name(t)}: a space is the map's",
+                )
+            }
+            i += 1
+        }
+    }
+}

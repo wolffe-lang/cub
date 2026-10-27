@@ -140,8 +140,8 @@ fn test_cb04b_bars_grow_and_show_rally_on_both_tiers() {
             "grey rally after red health",
         )
         assert(
-            grid.at(g, 5, 1).cp == 72 && grid.at(g, 6, 1).cp == 87,
-            "status and water below both bars",
+            grid.at(g, 5, 1).cp == 87 && grid.at(g, 6, 1).cp != 72,
+            "the water line below both bars, no status row (cb07)",
         )
     }
 }

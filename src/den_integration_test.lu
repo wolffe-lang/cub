@@ -15,7 +15,7 @@ fn test_cb04a_water_survives_the_hud_clear_on_both_tiers() {
         let text = "Water 1/2  w drink"
         var i = 0
         while i < text.len {
-            assert(grid.at(g, 6, 1 + i).cp == text.bytes()[i] as int, "charge HUD after its clear")
+            assert(grid.at(g, 5, 1 + i).cp == text.bytes()[i] as int, "charge HUD after its clear")
             i += 1
         }
     }
