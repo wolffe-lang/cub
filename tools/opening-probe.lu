@@ -1,0 +1,43 @@
+//! member: false
+//! cb06 measurement: every shot at 200x60, render plus terminal diff.
+
+use art
+use clock
+use grid
+use sim
+use tier
+
+fn main() -> int {
+    let ages = [120, 210, 260, 315, 345, 390, 440, 495, 555, 630, 690, 744, 777, 800, 825, 870]
+    for t in [tier.PLAIN, tier.RICH] {
+        for age in ages {
+            var s = sim.new(1, 200, 60)
+            sim.opening(mut s)
+            var front = grid.new(60, 200)
+            var back = grid.new(60, 200)
+            var pen = grid.pen_new()
+            var bytes = List[byte]()
+            var total = 0
+            var maximum = 0
+            var count = 0
+            while count < 120 {
+                s.tick = age + count % 3
+                let start = clock.now_ns()
+                art.render(s, t, mut back)
+                grid.diff(front, back, count == 0, mut pen, mut bytes, tier.dialect(t, false))
+                let elapsed = clock.now_ns() - start
+                total += elapsed
+                if elapsed > maximum { maximum = elapsed }
+                (mut bytes).reset()
+                let old = front
+                front = back
+                back = old
+                count += 1
+            }
+            print(
+                "opening-frame {tier.name(t)} age {age} samples {count} avg_us {total / count / 1000} max_us {maximum / 1000}",
+            )
+        }
+    }
+    0
+}

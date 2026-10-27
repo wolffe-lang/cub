@@ -100,7 +100,7 @@ def check(binary):
         print('gameplay:', Path(binary).parent.name, 'aim/combo/heavy', tier, 'ok')
     for tier in ('rich', 'plain'):
         _, opening, _ = run(binary, 'opening', tier)
-        assert opening[90]['scene'] == 1 and opening[180]['scene'] == 1 and opening[269]['scene'] == 1
+        assert opening[90]['scene'] == 1 and opening[180]['scene'] == 1 and opening[810]['scene'] == 1 and opening[900]['scene'] == 0
         _, skipped, _ = run(binary, 'opening-skip', tier)
         assert skipped[100]['scene'] == 1 and skipped[101]['scene'] == 0
         _, journey, enemies = run(binary, 'world-return', tier)
