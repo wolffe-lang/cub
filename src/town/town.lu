@@ -1,16 +1,22 @@
-//! town — Cinderwick (cb05, R-cb05-1 A): the village on the Ashwater
-//! above the Shingle, burnt the night the fire came and never left. A lane
-//! runs through it (the route); either side, plots of ruined houses with a
-//! one-cell passage between each pair, and behind every house a walled
-//! yard the passage leads to; a square in the middle with the cold hearth;
-//! embers that never went out in the verges and the yards; the dark wood
-//! closed round the back walls. The smoke never lifted: it is always the
-//! night of the fire here (the night keyframe is `art`'s).
+//! town — Cinderwick (cb05, R-cb05-1 A; the block plan of item 8): the
+//! village on the Ashwater above the Shingle, burnt the night the fire
+//! came and never left. A lane runs through it (the route's spine); two
+//! cross streets and the square join it to a side street each way, so the
+//! town is a rectangle across the field: at the 80 field the lane's plots
+//! and the side streets fill the width; at the 200 field a second row of
+//! plots faces the side streets' outer sides and an outer ring closes the
+//! blocks (more blocks, never wider streets). Either side of every street,
+//! plots of ruined houses with a one-cell passage between each pair, and
+//! behind every house a walled yard the passage leads to; the square in
+//! the middle with the cold hearth; embers that never went out in the
+//! verges and the yards; the dark wood closed round the back walls. The
+//! smoke never lifted: it is always the night of the fire here (the night
+//! keyframe is `art`'s).
 //!
-//! Every answer is a pure function of the seed and a cell: a plot is found
-//! by division, so a frame's cells cost a few hashes each and no table is
-//! built. The lane's centre is the town's own (`lane`), so `forest.spine`
-//! can delegate to it without a cycle.
+//! Every answer is a pure function of the seed, the field and a cell: a
+//! plot is found by division, so a frame's cells cost a few hashes each
+//! and no table is built. The lane's centre is the town's own (`lane`), so
+//! `forest.spine` can delegate to it without a cycle.
 
 use terrain
 use world
@@ -18,8 +24,9 @@ use world
 /// Fixed-point units a cell.
 pub const FP: int = 256
 
-/// The town's length along the route, cells (R-cb05-2 A).
-pub const LENGTH: int = 288
+/// The town's length along the route, cells (R-cb05-2 A, shrunk from 288
+/// to pay for the width, item 8).
+pub const LENGTH: int = 240
 
 /// The first plot's top wall row.
 pub const FIRST: int = 20
@@ -28,22 +35,44 @@ pub const FIRST: int = 20
 /// walls on the first and last) and the one-cell passage after it.
 pub const PITCH: int = 14
 
-/// Plots a side: rows 20..272.
-pub const PLOTS: int = 18
+/// Plots a side along the lane: rows 20..231 with the cross streets.
+pub const PLOTS: int = 14
 
 /// The square: two plots with no houses, the cold hearth in the middle.
-pub const SQUARE_PLOT: int = 7
+pub const SQUARE_PLOT: int = 6
 
 /// The lane's half width, cells.
 pub const LANE_HALF: int = 4
 
-/// Ash between the lane's nearest edge and a house's near wall, cells.
+/// Ash between a street's nearest edge and a house's near wall, cells.
 pub const VERGE: int = 4
 
-/// The farthest a yard's back wall stands from the lane's centre: the
-/// lane, the verge, the lane's reach across a plot (up to six cells),
+/// The widest house, cells (8..10).
+pub const HOUSE_MAX: int = 10
+
+/// The deepest yard, cells (5..8).
+pub const YARD_MAX: int = 8
+
+/// The farthest a lane plot's back wall stands from the lane's centre:
+/// the lane, the verge, the lane's reach across a plot (up to six cells),
 /// the widest house, the deepest yard and the wall.
-pub const EXTENT: int = LANE_HALF + VERGE + 6 + 1 + 11 + 9 + 1
+pub const EXTENT: int = LANE_HALF + VERGE + 6 + 1 + HOUSE_MAX + YARD_MAX + 1
+
+/// The side streets' centres, cells off x = 0: past the lane plots' reach
+/// with a cell of wood between at the worst.
+pub const SIDE: int = 44
+
+/// A side street's or cross street's half width, cells.
+pub const STREET_HALF: int = 3
+
+/// The outer ring's centres at the 200 field: past the side plots' reach.
+pub const OUTER: int = 80
+
+/// The near wall of a plot facing a side street, cells off its centre.
+pub const SIDE_NEAR: int = STREET_HALF + 1 + VERGE
+
+/// Rows a cross street takes between two plots (the passage row grown).
+pub const CROSS_ROWS: int = 8
 
 /// How far the Ashen roam past the last walls, rows (the town's edge).
 pub const EDGE_ROWS: int = 6
@@ -55,21 +84,39 @@ fn abs(v: int) -> int {
     if v < 0 then 0 - v else v
 }
 
-/// The lane's anchors lie every two plots (twenty-eight rows), at the
-/// even plots' middle rows: the street weaves three to six cells to
-/// alternate sides of them, three beside the road in and out, nothing
-/// beyond (the thorn throat at row 0 and the way on stand at x = 0).
+/// Whether the field is wide enough for the side plots and the outer
+/// ring: the half width must hold the ring (`OUTER + STREET_HALF`).
+pub fn wide(field: int) -> bool {
+    field / 2 + 8 >= OUTER + STREET_HALF
+}
+
+/// The town's half width across at this field: the side streets' outer
+/// edge, or the ring's.
+pub fn half_across(field: int) -> int {
+    (if wide(field) then OUTER else SIDE) + STREET_HALF
+}
+
+/// The lane's anchors lie every twenty-eight rows: the street weaves three
+/// to six cells to alternate sides of them, three beside the road in and
+/// out, nothing beyond (the thorn throat at row 0 and the way on stand at
+/// x = 0).
 pub const LANE_PITCH: int = 2 * PITCH
 
-/// The lane's anchor `j`, fixed point: at row `FIRST + PITCH / 2 +
-/// LANE_PITCH * j`. An anchor sits mid-cell: the apex row then shares its
-/// cell with the rows about it, never poking a cell out of a flat (a
-/// step out and back, the jaggedness census's reversal).
+/// The row of lane anchor `j`.
+fn anchor_row(j: int) -> int {
+    FIRST + PITCH / 2 + LANE_PITCH * j
+}
+
+/// The last nonzero lane anchor: the road out.
+const LAST_ANCHOR: int = 7
+
+/// The lane's anchor `j`, fixed point. An anchor sits mid-cell: the apex
+/// row then shares its cell with the rows about it, never poking a cell
+/// out of a flat (a step out and back, the jaggedness census's reversal).
 fn lane_anchor_fp(seed: int, j: int) -> int {
-    let last = (PLOTS + 1) / 2
-    if j < 0 || j > last { return 0 }
+    if j < 0 || j > LAST_ANCHOR { return 0 }
     let sign = if j % 2 == 0 then 1 else -1
-    if j == 0 || j == last { return sign * (3 * FP + FP / 2) }
+    if j == 0 || j == LAST_ANCHOR { return sign * (3 * FP + FP / 2) }
     sign * ((3 + world.hash(seed, 36, j + 2, 4)) * FP + FP / 2)
 }
 
@@ -96,10 +143,10 @@ fn blend(r: int) -> int {
 
 /// The lane's centre at local row `at`, fixed point: the blend between
 /// the anchors, monotone between two of them, so its reach toward a house
-/// over a plot's rows is read at the plot's end rows or its middle
-/// (`lane_edge`).
+/// over a plot's rows is read at the plot's end rows and any anchor row
+/// inside (`lane_edge`).
 pub fn lane_fp(seed: int, at: int) -> int {
-    let rel = at - (FIRST + PITCH / 2)
+    let rel = at - anchor_row(0)
     var j = rel / LANE_PITCH
     var r = rel % LANE_PITCH
     if r < 0 { j -= 1; r += LANE_PITCH }
@@ -115,25 +162,58 @@ pub fn lane(seed: int, at: int) -> int {
 
 /// The lane's farthest centre toward `side` over plot `k`'s rows (its
 /// walls and the passage after it): the lane is monotone between anchors,
-/// so the reach is at one of the plot's end rows, or at its middle when
-/// the plot holds an anchor swung to that side.
+/// so the reach is at one of the plot's end rows or at an anchor row
+/// inside the plot.
 fn lane_edge(seed: int, side: int, k: int) -> int {
-    if k % 2 == 0 {
-        let j = k / 2
-        let sign = if j % 2 == 0 then 1 else -1
-        if side == sign { return lane(seed, top(k) + PITCH / 2) }
+    let t = top(k)
+    let b = bottom(k) + 1
+    var e = lane(seed, t)
+    let eb = lane(seed, b)
+    if side * (eb - e) > 0 { e = eb }
+    var j = 0
+    while anchor_row(j) <= b {
+        if anchor_row(j) >= t {
+            let ea = lane(seed, anchor_row(j))
+            if side * (ea - e) > 0 { e = ea }
+        }
+        j += 1
     }
-    let a = lane(seed, top(k))
-    let b = lane(seed, bottom(k) + 1)
-    if side * (b - a) > 0 then b else a
+    e
+}
+
+/// How many cross streets lie above plot `k`: one after plot 2, one after
+/// plot 10.
+fn crosses_above(k: int) -> int {
+    (if k > 2 then 1 else 0) + (if k > 10 then 1 else 0)
+}
+
+/// Whether the passage after plot `k` is a cross street.
+pub fn cross_after(k: int) -> bool {
+    k == 2 || k == 10
+}
+
+/// A plot's top wall row.
+pub fn top(k: int) -> int {
+    FIRST + k * PITCH + CROSS_ROWS * crosses_above(k)
+}
+
+/// A plot's bottom wall row (the passage, or the cross street, is after it).
+pub fn bottom(k: int) -> int {
+    top(k) + PITCH - 2
 }
 
 /// The plot a local row lies in (its house's rows and the passage after
-/// it), or -1 on the road before the first plot and after the last.
+/// it), -2 in a cross street, or -1 on the road before the first plot and
+/// after the last.
 pub fn plot(at: int) -> int {
     if at < FIRST { return -1 }
-    let k = (at - FIRST) / PITCH
-    if k >= PLOTS then -1 else k
+    var k = 0
+    while k < PLOTS {
+        if at <= bottom(k) + 1 { return k }
+        if cross_after(k) && at <= bottom(k) + CROSS_ROWS { return -2 }
+        k += 1
+    }
+    -1
 }
 
 /// Whether plot `k` is the square (no houses, open ash, the hearth).
@@ -141,38 +221,64 @@ pub fn square(k: int) -> bool {
     k == SQUARE_PLOT || k == SQUARE_PLOT + 1
 }
 
-/// A plot's top wall row.
-pub fn top(k: int) -> int {
-    FIRST + k * PITCH
+/// The side streets' first and last rows: from the first cross street's
+/// top to the last's bottom, so every street loops (no dead end).
+fn side_rows() -> (int, int) {
+    (bottom(2) + 1, bottom(10) + CROSS_ROWS)
 }
 
-/// A plot's bottom wall row (the passage is the row after it).
-pub fn bottom(k: int) -> int {
-    top(k) + PITCH - 2
+/// Whether a local cell lies in a north–south side street (`SIDE`) or, at
+/// a wide field, the outer ring (`OUTER`).
+pub fn on_side_street(field: int, x: int, at: int) -> bool {
+    let (first, last) = side_rows()
+    if at < first || at > last { return false }
+    if abs(abs(x) - SIDE) <= STREET_HALF { return true }
+    wide(field) && abs(abs(x) - OUTER) <= STREET_HALF
 }
 
-/// The house on side `side` (-1 west, 1 east) of plot `k`: its near wall's
-/// column (toward the lane), its far wall's, measured from the lane's
-/// farthest reach toward it over the plot's rows so the whole house keeps
-/// the verge (the verge widens where the street bends away).
+/// Whether a local cell lies in a cross street (its band of rows across
+/// the town's width).
+pub fn on_cross_street(field: int, x: int, at: int) -> bool {
+    plot(at) == -2 && abs(x) <= half_across(field)
+}
+
+/// The house on side `side` (-1 west, 1 east) of lane plot `k`: its near
+/// wall's column (toward the lane), its far wall's, measured from the
+/// lane's farthest reach toward it over the plot's rows so the whole
+/// house keeps the verge (the verge widens where the street bends away).
 pub fn house_x(seed: int, side: int, k: int) -> (int, int) {
     let c = lane_edge(seed, side, k)
     let near = c + side * (LANE_HALF + VERGE + 1)
-    let width = 8 + world.hash(seed, 401 + side, k, 4)
+    let width = 8 + world.hash(seed, 401 + side, k, 3)
     (near, near + side * (width - 1))
 }
 
-/// The yard behind a house: the column just past the far wall to the
+/// The house facing side street `s` (-1 west, 1 east) from its outer side
+/// at plot `k` (a wide field): its near wall's column (toward the street)
+/// and its far wall's, outward.
+pub fn side_house_x(seed: int, s: int, k: int) -> (int, int) {
+    let near = s * (SIDE + SIDE_NEAR)
+    let width = 8 + world.hash(seed, 601 + s, k, 3)
+    (near, near + s * (width - 1))
+}
+
+/// The yard behind a lane house: the column just past the far wall to the
 /// yard's last open column, and the back wall's column after it.
 pub fn yard_x(seed: int, side: int, k: int) -> (int, int, int) {
     let (_, far) = house_x(seed, side, k)
-    yard_behind(seed, side, k, far)
+    yard_behind(seed, 411, side, k, far)
 }
 
-/// `yard_x` with the house's far wall already known (`kind` evaluates each
-/// house once a cell).
-fn yard_behind(seed: int, side: int, k: int, far: int) -> (int, int, int) {
-    let depth = 6 + world.hash(seed, 411 + side, k, 4)
+/// The yard behind a side-street house.
+pub fn side_yard_x(seed: int, s: int, k: int) -> (int, int, int) {
+    let (_, far) = side_house_x(seed, s, k)
+    yard_behind(seed, 611, s, k, far)
+}
+
+/// A yard with the house's far wall already known (`kind` evaluates each
+/// house once a cell); `ch` picks the lane's or the side streets' hashes.
+fn yard_behind(seed: int, ch: int, side: int, k: int, far: int) -> (int, int, int) {
+    let depth = 5 + world.hash(seed, ch + side, k, 4)
     (far + side, far + side * depth, far + side * (depth + 1))
 }
 
@@ -182,8 +288,13 @@ pub fn door_row(seed: int, side: int, k: int) -> int {
 }
 
 /// The yard's gap: a two-cell opening in its top wall (0) or bottom wall
-/// (1), at this many cells past the house's far wall.
+/// (1), at this many cells past the house's far wall (the lane's plots;
+/// the side streets' use their own hashes).
 pub fn yard_gap(seed: int, side: int, k: int) -> (int, int) {
+    gap_of(seed, 431, side, k)
+}
+
+fn gap_of(seed: int, ch: int, side: int, k: int) -> (int, int) {
     // The first plot's yard opens on the passage after it, the last's on
     // the passage before it: beyond them lies the road's closed wood.
     let which = if k == 0 {
@@ -191,9 +302,9 @@ pub fn yard_gap(seed: int, side: int, k: int) -> (int, int) {
     } else if k == PLOTS - 1 {
         0
     } else {
-        world.hash(seed, 431 + side, k, 2)
+        world.hash(seed, ch + side, k, 2)
     }
-    (which, 2 + world.hash(seed, 441 + side, k, 3))
+    (which, 2 + world.hash(seed, ch + 10 + side, k, 3))
 }
 
 /// Whether a wall cell has fallen (a ruin's gaps: one cell in nine, never
@@ -202,9 +313,9 @@ fn fallen(seed: int, x: int, at: int) -> bool {
     world.hash(seed + 451, x, at, 9) == 0
 }
 
-/// The ember of plot `k` on `side`, if it has one (local cells), else
-/// (-1000, -1000): in the verge by the lane for the odd plots, in the yard
-/// for the even ones, never in the square's plots (the square has its own).
+/// The ember of lane plot `k` on `side`, a local cell, or (-1000, -1000)
+/// when the plot has none (42 % do): in the verge for the odd plots, in
+/// the yard for the even.
 pub fn ember(seed: int, side: int, k: int) -> (int, int) {
     if k < 0 || k >= PLOTS || square(k) { return (-1000, -1000) }
     if world.hash(seed, 461 + side, k, 100) >= 42 { return (-1000, -1000) }
@@ -218,9 +329,22 @@ pub fn ember(seed: int, side: int, k: int) -> (int, int) {
     (yin + side * world.hash(seed, 491 + side, k, span + 1), at)
 }
 
-/// The square's two embers and the hearth: the hearth off the lane on the
-/// seeded side at the square's middle row; an ember on each side of the
-/// lane a few rows off.
+/// The ember of the plot facing side street `s` at plot `k` (a wide
+/// field), as `ember`.
+pub fn side_ember(seed: int, field: int, s: int, k: int) -> (int, int) {
+    if !wide(field) || k < 0 || k >= PLOTS || square(k) { return (-1000, -1000) }
+    if world.hash(seed, 661 + s, k, 100) >= 42 { return (-1000, -1000) }
+    let at = top(k) + 2 + world.hash(seed, 671 + s, k, 9)
+    if k % 2 == 1 {
+        let (near, _) = side_house_x(seed, s, k)
+        return (near - s * (1 + world.hash(seed, 681 + s, k, 2)), at)
+    }
+    let (yin, yout, _) = side_yard_x(seed, s, k)
+    let span = abs(yout - yin)
+    (yin + s * world.hash(seed, 691 + s, k, span + 1), at)
+}
+
+/// The cold hearth, the den: in the square, nine cells off the lane.
 pub fn hearth(seed: int) -> (int, int) {
     let at = top(SQUARE_PLOT) + PITCH - 2 + world.hash(seed, 501, 0, 4)
     let side = if world.hash(seed, 502, 0, 2) == 0 then -1 else 1
@@ -234,10 +358,10 @@ pub fn square_ember(seed: int, side: int) -> (int, int) {
 }
 
 /// The ember nearest a local cell among the plots around it (and the
-/// square's), reached from the lane (the verges' and the square's, never
+/// square's), reached from a street (the verges' and the square's, never
 /// a yard's behind its walls), or the cell itself when none is within two
-/// plots: where a lane's Ashen goes to stand when it hears nothing.
-pub fn nearest_ember(seed: int, x: int, at: int) -> (int, int) {
+/// plots: where a street's Ashen goes to stand when it hears nothing.
+pub fn nearest_ember(seed: int, field: int, x: int, at: int) -> (int, int) {
     let k = plot(at)
     var bx = x
     var by = at
@@ -246,12 +370,21 @@ pub fn nearest_ember(seed: int, x: int, at: int) -> (int, int) {
     while j <= k + 2 {
         for side in [-1, 1] {
             if j >= 0 && j < PLOTS {
-                let (ex, ey) = ember(seed, side, j)
-                let d = (ex - x) * (ex - x) + (ey - at) * (ey - at)
-                if ex > -1000 && j % 2 == 1 && d < best {
-                    best = d
-                    bx = ex
-                    by = ey
+                if j % 2 == 1 {
+                    let (ex, ey) = ember(seed, side, j)
+                    let d = (ex - x) * (ex - x) + (ey - at) * (ey - at)
+                    if ex > -1000 && d < best {
+                        best = d
+                        bx = ex
+                        by = ey
+                    }
+                    let (sx, sy) = side_ember(seed, field, side, j)
+                    let e = (sx - x) * (sx - x) + (sy - at) * (sy - at)
+                    if sx > -1000 && e < best {
+                        best = e
+                        bx = sx
+                        by = sy
+                    }
                 }
                 if square(j) {
                     let (sx, sy) = square_ember(seed, side)
@@ -269,58 +402,60 @@ pub fn nearest_ember(seed: int, x: int, at: int) -> (int, int) {
     (bx, by)
 }
 
-/// Whether local cell `(x, at)` is an ember.
-pub fn is_ember(seed: int, x: int, at: int) -> bool {
+/// Whether a local cell is an ember.
+pub fn is_ember(seed: int, field: int, x: int, at: int) -> bool {
     let k = plot(at)
     if k < 0 { return false }
     for side in [-1, 1] {
         let (ex, ey) = ember(seed, side, k)
         if ex == x && ey == at { return true }
+        let (sx, sy) = side_ember(seed, field, side, k)
+        if sx == x && sy == at { return true }
         if square(k) {
-            let (sx, sy) = square_ember(seed, side)
-            if sx == x && sy == at { return true }
+            let (qx, qy) = square_ember(seed, side)
+            if qx == x && qy == at { return true }
         }
     }
     false
 }
 
-/// The ember light at a cell: 2 within three columns (a row and a half) of
-/// an ember, 1 within six, else 0. Cells are twice as tall as wide, so a
-/// row counts double.
-pub fn light(seed: int, x: int, at: int) -> int {
+/// How an ember lights a local cell: 2 within three columns and a row and
+/// a half of one, 1 within six and three, else 0 (the night's warmth on
+/// the ash and the walls).
+pub fn light(seed: int, field: int, x: int, at: int) -> int {
     let k = plot(at)
     var best = 0
     var j = k - 1
     while j <= k + 1 {
         for side in [-1, 1] {
-            var ex = -1000
-            var ey = -1000
             if j >= 0 && j < PLOTS {
-                let (px, py) = ember(seed, side, j)
-                ex = px
-                ey = py
+                let (ex, ey) = ember(seed, side, j)
+                let d = (ex - x) * (ex - x) + 4 * (ey - at) * (ey - at)
+                if d <= 9 { best = 2 } else if d <= 36 && best < 1 { best = 1 }
+                let (sx, sy) = side_ember(seed, field, side, j)
+                let e = (sx - x) * (sx - x) + 4 * (sy - at) * (sy - at)
+                if e <= 9 { best = 2 } else if e <= 36 && best < 1 { best = 1 }
                 if square(j) {
-                    let (sx, sy) = square_ember(seed, side)
-                    let d = (sx - x) * (sx - x) + 4 * (sy - at) * (sy - at)
-                    if d <= 9 { best = 2 } else if d <= 36 && best < 1 { best = 1 }
+                    let (qx, qy) = square_ember(seed, side)
+                    let q = (qx - x) * (qx - x) + 4 * (qy - at) * (qy - at)
+                    if q <= 9 { best = 2 } else if q <= 36 && best < 1 { best = 1 }
                 }
             }
-            let d = (ex - x) * (ex - x) + 4 * (ey - at) * (ey - at)
-            if d <= 9 { best = 2 } else if d <= 36 && best < 1 { best = 1 }
         }
         j += 1
     }
     best
 }
 
-/// Whether the yard cache `cache` (0..3) lies in plot `k` on `side`: four
-/// yards hold caches, two a side, alternating, in plots 2, 5, 11 and 15.
+/// Whether the yard cache `cache` (0..3) lies in lane plot `k` on `side`:
+/// four yards hold caches, two a side, alternating, in plots 2, 4, 9 and
+/// 12 (every guard thirty cells and more from the hearth).
 pub fn cache_plot(cache: int) -> (int, int) {
     match cache {
         0 => (-1, 2),
-        1 => (1, 5),
-        2 => (-1, 11),
-        _ => (1, 15),
+        1 => (1, 4),
+        2 => (-1, 9),
+        _ => (1, 12),
     }
 }
 
@@ -332,10 +467,10 @@ pub fn cache(seed: int, k: int) -> (int, int) {
 }
 
 /// An old scent mark in a yard without a cache (two of them, the
-/// dead ends that reward): local cells.
+/// dead ends that reward): local cells, plots 3 (east) and 10 (west).
 pub fn scent_mark(seed: int, k: int) -> (int, int) {
     let side = if k == 0 then 1 else -1
-    let p = if k == 0 then 9 else 13
+    let p = if k == 0 then 3 else 10
     let (yin, yout, _) = yard_x(seed, side, p)
     ((yin + yout) / 2 + side, top(p) + 4 + world.hash(seed, 531, k, 5))
 }
@@ -345,58 +480,47 @@ pub fn on_lane(seed: int, x: int, at: int) -> bool {
     abs(x - lane(seed, at)) <= LANE_HALF
 }
 
-/// Whether local cell `(x, at)` lies within the town's walls: the Ashen's
-/// bound (they do not chase past the town's edge): between the road's
-/// ends and inside the back walls' reach.
-pub fn bound(seed: int, x: int, at: int) -> bool {
+/// Whether local cell `(x, at)` lies within the town: the Ashen's bound
+/// (they do not chase past the town's edge): between the road's ends and
+/// inside the streets' reach across.
+pub fn bound(seed: int, field: int, x: int, at: int) -> bool {
     at >= FIRST - EDGE_ROWS &&
         at <= top(PLOTS - 1) + PITCH + EDGE_ROWS &&
-        abs(x - lane(seed, at)) <= EXTENT
+        abs(x) <= half_across(field)
 }
 
-/// The ground of local cell `(x, at)` off the lane: the walls, the ash, the
-/// embers, and beyond the back walls the closed wood (`terrain.DARK` with
-/// trunks). The lane itself is carved by `forest` before this is asked.
-pub fn kind(seed: int, x: int, at: int) -> int {
-    let c = lane(seed, at)
-    let side = if x < c then -1 else 1
+/// The ground of a plot's cell on one street: `c` the street's centre at
+/// this row, `side` which side of it the cell is on, `near`/`far` the
+/// house's walls, `yin`, `yout`, `back` the yard's, `t`/`b` the plot's top
+/// and bottom rows, the yard's gap (`which`, `past`), the door row and how
+/// far the passage row runs (`reach`, from the centre); or -1 for a cell
+/// past the back wall (the caller's).
+fn plot_cell(
+    seed: int,
+    x: int,
+    at: int,
+    c: int,
+    side: int,
+    near: int,
+    far: int,
+    yin: int,
+    yout: int,
+    back: int,
+    t: int,
+    b: int,
+    which: int,
+    past: int,
+    door: int,
+    reach: int,
+) -> int {
     let off = abs(x - c)
-    if is_ember(seed, x, at) { return terrain.EMBER }
-    let k = plot(at)
-    if k < 0 {
-        // The road in and out: a verge of ash, then the wood.
-        if off <= LANE_HALF + VERGE { return terrain.ASH }
-        return closed(seed, x, at)
-    }
-    if square(k) {
-        // The square: open ash to the back walls' line, rubble here and
-        // there (never about the hearth), the wood beyond.
-        if off > EXTENT - 2 { return closed(seed, x, at) }
-        let (hx, hy) = hearth(seed)
-        let by_hearth = abs(x - hx) <= 5 && abs(at - hy) <= 3
-        if !by_hearth && world.hash(seed + 541, x, at, 23) == 0 && off > LANE_HALF + 2 {
-            return terrain.WALL
-        }
-        return terrain.ASH
-    }
-    let (near, far) = house_x(seed, side, k)
-    let (yin, yout, back) = yard_behind(seed, side, k, far)
-    let t = top(k)
-    let b = bottom(k)
     if at == b + 1 {
         // The passage between this house and the next, and the corridor
-        // behind it between the yards: one cell wide, ash, to the farther
-        // of the two yards' back walls (the next yard's gap may lie past
-        // this one's wall).
-        var reach = abs(back - c)
-        if k + 1 < PLOTS && !square(k + 1) {
-            let (_, _, next_back) = yard_x(seed, side, k + 1)
-            if abs(next_back - c) > reach { reach = abs(next_back - c) }
-        }
-        return if off <= reach then terrain.ASH else closed(seed, x, at)
+        // behind it between the yards: one cell wide, ash, out to `reach`.
+        return if off <= reach then terrain.ASH else -1
     }
     if off < abs(near - c) { return terrain.ASH }
-    if off > abs(back - c) { return closed(seed, x, at) }
+    if off > abs(back - c) { return -1 }
     let on_x = side * (x - near) >= 0 && side * (far - x) >= 0
     let in_yard = side * (x - yin) >= 0 && side * (yout - x) >= 0
     // The house's walls: the near wall with its door, the far wall, the top
@@ -404,8 +528,7 @@ pub fn kind(seed: int, x: int, at: int) -> int {
     if on_x {
         let wall = x == near || x == far || at == t || at == b
         if wall {
-            let d = door_row(seed, side, k)
-            if x == near && (at == d || at == d + 1) { return terrain.ASH }
+            if x == near && (at == door || at == door + 1) { return terrain.ASH }
             // A corner stands; the far wall stands (the yard is reached by
             // its passage, never through the house); elsewhere a ruin's
             // fallen cell is another way in.
@@ -419,7 +542,6 @@ pub fn kind(seed: int, x: int, at: int) -> int {
         // The yard's walls continue the house's top and bottom walls, with
         // one two-cell gap into the corridor; the back wall closes it.
         if at == t || at == b {
-            let (which, past) = yard_gap(seed, side, k)
             let gap_row = if which == 0 then t else b
             let gx = far + side * past
             if at == gap_row && (x == gx || x == gx + side) { return terrain.ASH }
@@ -440,8 +562,95 @@ pub fn kind(seed: int, x: int, at: int) -> int {
     terrain.ASH
 }
 
-/// The closed wood beyond the walls: the forest's own texture, every cell
-/// solid.
+/// The ground of local cell `(x, at)` off the lane: the streets, the
+/// walls, the ash, the embers, and beyond the back walls the closed wood
+/// (`terrain.DARK` with trunks). The lane itself is carved by `forest`
+/// before this is asked.
+pub fn kind(seed: int, field: int, x: int, at: int) -> int {
+    if is_ember(seed, field, x, at) { return terrain.EMBER }
+    if on_side_street(field, x, at) { return terrain.ASH }
+    let c = lane(seed, at)
+    let k = plot(at)
+    if k == -2 {
+        // A cross street: ash across the town's width.
+        return if abs(x) <= half_across(field) then terrain.ASH else closed(seed, x, at)
+    }
+    if k < 0 {
+        // The road in and out: a verge of ash, then the wood.
+        if abs(x - c) <= LANE_HALF + VERGE { return terrain.ASH }
+        return closed(seed, x, at)
+    }
+    if square(k) {
+        // The square: open ash across the width, rubble here and there
+        // (never about the hearth), the wood beyond.
+        if abs(x) > half_across(field) { return closed(seed, x, at) }
+        let (hx, hy) = hearth(seed)
+        let by_hearth = abs(x - hx) <= 5 && abs(at - hy) <= 3
+        if !by_hearth && world.hash(seed + 541, x, at, 23) == 0 && abs(x - c) > LANE_HALF + 2 {
+            return terrain.WALL
+        }
+        return terrain.ASH
+    }
+    let t = top(k)
+    let b = bottom(k)
+    // The lane's plot on this side, out to the side street's edge (the
+    // passage row runs on to it, a corridor behind the yards).
+    let side = if x < c then -1 else 1
+    if abs(x) < SIDE - STREET_HALF {
+        let (near, far) = house_x(seed, side, k)
+        let (yin, yout, back) = yard_behind(seed, 411, side, k, far)
+        let (which, past) = gap_of(seed, 431, side, k)
+        let reach = SIDE - STREET_HALF - 1 - side * c
+        let g = plot_cell(
+            seed,
+            x,
+            at,
+            c,
+            side,
+            near,
+            far,
+            yin,
+            yout,
+            back,
+            t,
+            b,
+            which,
+            past,
+            door_row(seed, side, k),
+            reach,
+        )
+        if g >= 0 { return g }
+        return if at == b + 1 then terrain.ASH else closed(seed, x, at)
+    }
+    // Past a side street: the plots facing it from outside (a wide field),
+    // the passage rows running out to the ring; else the wood.
+    if !wide(field) { return closed(seed, x, at) }
+    let s = if x < 0 then -1 else 1
+    let (near, far) = side_house_x(seed, s, k)
+    let (yin, yout, back) = yard_behind(seed, 611, s, k, far)
+    let (which, past) = gap_of(seed, 631, s, k)
+    let g = plot_cell(
+        seed,
+        x,
+        at,
+        s * SIDE,
+        s,
+        near,
+        far,
+        yin,
+        yout,
+        back,
+        t,
+        b,
+        which,
+        past,
+        top(k) + 3 + world.hash(seed, 621 + s, k, 7),
+        OUTER - STREET_HALF - 1 - SIDE,
+    )
+    if g >= 0 { return g }
+    closed(seed, x, at)
+}
+
 fn closed(seed: int, x: int, at: int) -> int {
     if world.hash(seed + 6 * 79, x, at, 100) < 16 then terrain.TRUNK else terrain.DARK
 }
