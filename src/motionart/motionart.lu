@@ -72,3 +72,53 @@ pub fn shifted(
         style,
     )
 }
+
+/// `shifted` for a body whose head is shaken: the body's rows at `(dx,
+/// dy)` and its head row a further `(hdx, hdy)` on, composed into one
+/// bitmap before drawing, so the two never overwrite each other's cells
+/// (cb07: a head swung diagonally lands beside the body's cells, and a
+/// cell both touch shows both; drawn one after the other, the second
+/// erased the first's pixels there and the body lost its front).
+pub fn shifted_shaken(
+    mut g: grid.Grid,
+    row: int,
+    col: int,
+    b: silhouette.Bitmap,
+    facing: int,
+    dx: int,
+    dy: int,
+    hdx: int,
+    hdy: int,
+    style: grid.Cell,
+) {
+    let body = silhouette.turned(silhouette.strip(b, false), facing)
+    let head = silhouette.turned(silhouette.strip(b, true), facing)
+    let (ar, ac) = silhouette.anchor(b, facing)
+    let px = if dx < 0 then 0 - ((0 - dx) * 2 + 128) / 256 else (dx * 2 + 128) / 256
+    let py = if dy < 0 then 0 - ((0 - dy) * 4 + 128) / 256 else (dy * 4 + 128) / 256
+    let hx = dx + hdx
+    let hy = dy + hdy
+    let hpx = if hx < 0 then 0 - ((0 - hx) * 2 + 128) / 256 else (hx * 2 + 128) / 256
+    let hpy = if hy < 0 then 0 - ((0 - hy) * 4 + 128) / 256 else (hy * 4 + 128) / 256
+    let w = body.w + 16
+    let h = body.h + 32
+    var pixels = List[int]()
+    var y = 0
+    while y < h {
+        var x = 0
+        while x < w {
+            let lit = silhouette.at(body, y - 16 - py, x - 8 - px) == 1 ||
+                silhouette.at(head, y - 16 - hpy, x - 8 - hpx) == 1
+            (mut pixels).push(if lit then 1 else 0)
+            x += 1
+        }
+        y += 1
+    }
+    silhouette.draw(
+        mut g,
+        row + ar - 4,
+        col + ac - 4,
+        silhouette.Bitmap { w: w, h: h, px: pixels },
+        style,
+    )
+}

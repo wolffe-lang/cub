@@ -349,14 +349,30 @@ pub fn cub_posed(pose: int, legs: int, tail: int, hurt: int, breath: int) -> Bit
     let swing = legs % 2 == 0
     let low = pose == 2 || pose == 3 || hurt >= 3
     let open = pose == 3 && breath == 1 && hurt < 3
-    row(if open then "..#..#.." else if low then "........" else "...##...", mut r)
-    row(if low then "...##..." else "..####..", mut r)
+    // The snap (pose 5, cb07): the jaws thrown open at the nose, the ears
+    // back along the head, the tail straight out behind: the strike's
+    // body, stretched from jaw to tail, distinct from the walk and the
+    // lunge's crouch.
+    let snap = pose == 5
+    row(
+        if snap {
+            "##....##"
+        } else if open {
+            "..#..#.."
+        } else if low {
+            "........"
+        } else {
+            "...##..."
+        },
+        mut r,
+    )
+    row(if snap then ".##..##." else if low then "...##..." else "..####..", mut r)
     row(if open then "..#..#.." else "..####..", mut r)
-    row(if low then "..####.." else ".######.", mut r)
+    row(if low || snap then "..####.." else ".######.", mut r)
     row(
         if hurt >= 2 {
             "..####.."
-        } else if hurt == 1 || low {
+        } else if hurt == 1 || low || snap {
             ".######."
         } else {
             "#.####.#"
@@ -391,7 +407,7 @@ pub fn cub_posed(pose: int, legs: int, tail: int, hurt: int, breath: int) -> Bit
     row(".######.", mut r)
     row(if breath == 1 && pose != 3 then ".######." else "..####..", mut r)
     row("...##...", mut r)
-    if hurt >= 2 {
+    if hurt >= 2 || snap {
         row("...##...", mut r)
         row("...##...", mut r)
     } else {
