@@ -322,8 +322,7 @@ def mute_key(binary, ctx):
     deadline = time.monotonic() + 10
     ready = False
     while not s.eof and time.monotonic() < deadline:
-        states = trace_states(s)
-        if states and states[-1]['tick'] > 0 and states[-1]['scene'] == 0:
+        if re.search(rb'^trace tick [1-9][0-9]* .* scene 0 .*\n', s.err, re.M):
             ready = True
             break
         s.pump(.02)
