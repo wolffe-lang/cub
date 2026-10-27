@@ -1,0 +1,44 @@
+cb07 prediction, written before the first change (2026-10-27, base 59c70201)
+
+The three strikes (peak centroid of the cub's drawn cells against the
+standing frame, aim coordinates: forward, left; from the code read, to be
+measured by the strike census before and after)
+
+  before (cb04b): hit 1 at age 3 only: rich 0.5 forward 0.5 left (a
+  quarter cell forward and half a cell left rounded to one braille pixel
+  each way), plain 1 forward 1 left (whole-cell rounding); ages 5-6 the
+  lean settles. Hit 2 the mirror. Hit 3: 1 forward at age 3, 2 forward
+  from age 4 on, and it stays there; the head a cell across the aim for
+  one tick at age 5 and one at age 6. Every peak is held one tick.
+
+  after: hit 1 forward 1, left 1 at ages 3-6 (four ticks), easing back
+  to 0 over ages 7-10; hit 2 forward 1, right 1 at ages 3-6, easing over
+  7-12; hit 3 forward 2 at ages 3-8 (six ticks), easing over 9-16, the
+  head a cell out of the body left at 5-6, right at 7-8, left at 9-10,
+  right at 11-12 (two full swings, each side held two ticks). Both tiers
+  show the same whole-cell displacements at the peaks; the rich tier
+  eases in pixels, the plain in cells. Active window, costs, durations
+  and the link window unchanged (3 windup, 2 active, 11/13/17, 12/14/18,
+  the link from age 5).
+
+The HUD (painted cells: cells of the frame that differ from the frame
+drawn without the HUD)
+
+  before: 360 at 80x24 (the 7x40 box plus two full-width rows, the
+  overlap counted once), 600 at 200x60, whatever the stats.
+  after: a count independent of the field: the two labels (13), the bar
+  cells (health_max/10 + stamina_max/10 rounded up: 13 at stat 1, 38 at
+  stat 10), the water line (14 at "Water 2/2  w drink", 23 before a
+  spring), the scent label (5) and the digits (at most 2 cells x 3 rows
+  a digit on the rich tier, 3 x 5 on the plain): about 51 at stat 1 and
+  scent 0 on the rich tier; never a cell outside those sets.
+
+The Ashen (one-Ashen encounter census, a fresh cub of 52 health, Book-II
+play, ten seeds, both fields; after the rebase onto cb05)
+
+  before (36 health, 22 blow): a blow that lands costs 22 of 52 (42%),
+  so any seed in which one blow lands misses the 35% bar; predicted 6-8
+  of 10 under the bar at each field; 5 bites to fell it (8 a bite).
+  after (20 health, 14 blow): one blow is 27%, two are 54%; predicted 9
+  or 10 of 10 under the bar at each field; 3 bites to fell it; cb05's
+  gate-to-hearth crossing still 10 of 10.
