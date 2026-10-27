@@ -2227,7 +2227,7 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
             let x = (forest.spine(seed, area, at) + member * 2 - 1) * FP
             let y = (forest.origin(seed, area) + at) * FP
             (mut foes).push(make_foe(kind, x, y))
-            if kind == ASHEN { home_at_ember(seed, mut foes) }
+            if kind == ASHEN { home_at_ember(seed, mut foes, member) }
             member += 1
         }
         group += 1
@@ -2245,12 +2245,12 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
         }
         if area == forest.TOWN {
             // A yard's guards: one Ashen, two at the far yards, a body's
-            // width apart along the yard.
+            // width apart along the yard; their post is their home (a
+            // yard's ember, when it has one, is theirs to stand by).
             var guard = 0
             while guard < (if cache % 2 == 1 then 2 else 1) {
                 let gy = cy + (if guard == 0 then -3 else 3) * FP
                 (mut foes).push(make_foe(ASHEN, x, gy))
-                home_at_ember(seed, mut foes)
                 guard += 1
             }
             cache += 1
@@ -2282,11 +2282,14 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
 
 /// The last foe pushed (an Ashen) takes the nearest ember as its home, the
 /// fire it gathers at when it hears nothing.
-fn home_at_ember(seed: int, mut foes: List[Foe]) {
+fn home_at_ember(seed: int, mut foes: List[Foe], member: int) {
     let i = foes.len - 1
     let (ex, ey) = town.nearest_ember(seed, floor_div(foes[i].x, FP), floor_div(foes[i].y, FP))
+    // A group shares an ember: the first stands on it, the rest a body's
+    // length down the verge from it (cb02c: never one inside another's
+    // drawing).
     foes[i].home_x = ex * FP + FP / 2
-    foes[i].home_y = ey * FP + FP / 2
+    foes[i].home_y = (ey + 3 * member) * FP + FP / 2
 }
 
 /// How many foe groups an area's route holds (cb05, R-cb05-4 A: twelve to
