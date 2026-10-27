@@ -1,0 +1,6 @@
+cb08 checkpoint-ghost start 2026-10-27T08:01:07Z
+cb08 checkpoint-ghost waiting for cores 8-11 2026-10-27T08:01:07Z
+cb08 checkpoint-ghost acquired cores 4-7 2026-10-27T08:01:07Z
+test src/ghost_test.lu::test_cb08_legacy_ghost_quarters_and_new_eighths_keep_their_direction ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 310 filtered out
+checkpoint-ghost EXIT 0 2026-10-27T08:01:11Z

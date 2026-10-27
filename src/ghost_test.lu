@@ -100,6 +100,14 @@ fn test_cb08_legacy_ghost_quarters_and_new_eighths_keep_their_direction() {
     var q = 0
     while q < 4 {
         assert(ghost.decode_facing(q) == q * 2, "legacy quarter {q}")
+        var legacy = replay.new(1, 1, 80, 24)
+        replay.push_arg(mut legacy, 0, controls.EV_GHOST_X, 256)
+        replay.push_arg(mut legacy, 0, controls.EV_GHOST_FACE, q)
+        let old = ghost.from_replay(legacy, "legacy-quarter") else {
+            assert(false, "missing legacy ghost")
+            return
+        }
+        assert(old.facing == q * 2, "legacy archive retains quarter {q}")
         q += 1
     }
     let g = ghost.from_replay(recorded(120, 1), "eight-way") else {
