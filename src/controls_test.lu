@@ -130,16 +130,16 @@ fn test_key_names_round_trip() {
 fn test_cb04b_input_events_do_not_overlap_schema_five_snapshot_slots() {
     let v = controls.vocab()
     var part = 0
-    while part < 36 {
+    while part < 37 {
         assert(v.args[controls.saved_event(part)] == "saved-{part}", "snapshot slot {part}")
         part += 1
     }
     assert(
-        controls.EV_PACE == 48 && v.args[controls.EV_PACE] == "pace",
+        controls.EV_PACE == 49 && v.args[controls.EV_PACE] == "pace",
         "pace appended after masks",
     )
     assert(
-        controls.EV_COMBAT_WITNESS == 49 && v.args[controls.EV_COMBAT_WITNESS] == "combat-witness",
+        controls.EV_COMBAT_WITNESS == 50 && v.args[controls.EV_COMBAT_WITNESS] == "combat-witness",
         "setup appended after pace",
     )
 }
