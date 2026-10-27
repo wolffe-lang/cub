@@ -1,10 +1,10 @@
-        ----------                        .The Teeth#O#O#O#O#O#O#O#O#O#O#O#O#O#O
- health [========]                            O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-        -----------                      ,:   #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
- stamina[=========]                     ~     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
-        -----------                     --._. #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
- HP 76/76  stamina 90/90  scent 0  rally 0                                      
- Water 3/3  w drink                                                             
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#   .The Teeth#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+Ohealth#O========#O#O#O#O#O#O#O#O#O#O#O       O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#  ,:   #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+OstaminaO=========O#O#O#O#O#O#O#O#O#O#O ~     O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#_.---._. #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+OWaterO3/3O#w#drink#O#O#O#O#O#O#O#O#O(     )O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O (_ * _)#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
 OThe Teeth - a den ahead; scent of home.....O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#     : #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     : O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
@@ -17,8 +17,8 @@ O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O      #####O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
 .| '  #O#O#O#O#O#O.   . .      .  , .   #O#O#O#O#       ,         #O#O#O#O#O#O#O
 O   |  #O#O#O#O              ,. .  :     :O#O# :   .    :.           #O#O#O#O#O#
 ,.#   .   . :                                .:            ,      ..   O#O#O#O#O
-'  :,|   .             .   .        ,     . ,                                #O#
-','O|"#....___                  .         .      .   :       .              :O#O
- #" |  .._/...     . ,                 ,         :   ,         ,    .  ~.o.~.oO#
-: . :,,_/.....    ,  . O#O#O#O#O   .         ,         O#O#O#O# .      .o.~.o.#O
- .     "  .       O#O#O#O#O#O#O#O#O#O.           #O#O#O#O#O#O#O#O#   . ~.o.~.oO#
+'  :,|   .             .   .        ,     . ,                               ####
+','O|"#....___                  .         .      .   :       .              #O#O
+ #" |  .._/...     . ,                 ,         :   ,         ,    . scent~#o##
+: . :,,_/.....    ,  . O#O#O#O#O   .         ,         O#O#O#O# .      .o.~.#.#O
+ .     "  .       O#O#O#O#O#O#O#O#O#O.           #O#O#O#O#O#O#O#O#   . ~.o.~####

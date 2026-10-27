@@ -1,24 +1,24 @@
-        ----------                      .., O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   
- health [========]                       . Whisper [#########...........] !O# ".
-        -----------                      .   #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'  
- stamina[         ]                     ..  ,O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#' .
-        -----------                           O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O' "
- HP 76/76  stamina 0/90  scent 20  rally 0                                      
- Water 3/3  w drink                                                             
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.      #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.  
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O O#O#..     #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O  #
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#      , .. ,  .#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# ' 
-O#O#O#O#O#O#O#O#O#O#O#O#O#O          ...:: .O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O '|
-#O#O#O#O#O#O#O#O#O#O#O#O#O:   ..        :  O#:#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.  '
-O#O#O#O#O#O#O#O#O#O#O#O#O      .        : O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O '   
-#O#O#O#O#O#O#O#O#O#O#O#O   ,## ## #  ._####=,O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#     
-O#O#O#O#O#O#O#O#O#O#O#O.  :,#######!!.<####=.#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O":' '
-#O#O#O#O#O#O#O#O#O#O#O# .   ##,## #   :     #O#O#O#O#O#O#O#O#O#O#O#O#O#O#    "" 
-O#O#O#O#O#O#O#O#O#O#O#      O#.,          :  #O#O#O#O#O#O#O#O#O#O#O#O#O   O' , "
-#O#O#O#O#O#O#O#O#O#O#O  .   #O             . O#O#O#O#O#O#O#O#O#O#O#O'    '.. ." 
-O#O#O#O#O#O#O#O#O#O#O#..  :    :             #O#O#O#O#O#O#O#   |  ' "" ""     ' 
-#O#O#O#O#O#O#O#O#O#O#O     .            : :  O#O#O#O#O#O  #      "|"  # :  O  " 
-O#O#O#O#O#O#O#O#O#O#O     O#    ,:   ,        O#O#O#O#O :  #": . " #O#  .  :O: '
-#O#O#O#O#O#O#O#O#O#O#O :  #O  .         . .: O#O#O#O#O   .#O  "' '# "  " |  ":  
-O#O#O#O#O#O#O#O#O#O#O#  :  . .   .   .       #O#O#O#  " O  ,"'O : '".    |  "'  
-#O#O#O#O#O#O#O#O#O#O#O          ..   .       O#O#O#"'|   , .  ',   O  "     #   
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O ,    .O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+Ohealth#O========#O#O#O#O#O#O#O#.    ..#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O .    .O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+OstaminaO---------O#O#O#O#O#O#O#O     ..O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     ..O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+OWaterO3/3O#w#drink#O#O#O#O#O#O#O# ,    .#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#     ..#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# 
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#    .  #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#   . , #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# 
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#  .    #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O 
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O..:,.  O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# 
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O :.. , O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O 
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O:,   :.O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# 
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#._####=.   #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.<####=,  ,O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#'
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O       O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#      :#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O   ,. ,O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#       #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O O#O#       #O#O#O#O#O#O#O#O#O#O#O#O######## 
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#      ,    ,  .#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# 
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O          .  ., .O#O#O#O#O#O#O#O#O#O#scent######## 
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O:   ..           O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# 
+O#O#O#O#O#O#O#O#O#O#O#O#O#O      .          O#O#O#O#O#O#O#O#O#O#O#O#O#O#O###### 
