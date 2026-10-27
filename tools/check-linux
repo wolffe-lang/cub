@@ -5,11 +5,20 @@ ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 cd "$ROOT"
 mkdir -p target/test-home
 export HOME="$ROOT/target/test-home"
-python3 -I -m unittest discover -s tests -p '*_test.py'
-python3 -I tools/prepare-pty
-.lair/tools/check-linux
-.lair/tools/goldens --bin target/native/cub
-python3 -I tools/score-check
-python3 -I tools/gameplay.py --bin target/native/cub
-python3 -I tools/gameplay.py --bin target/release/cub
+stage() {
+    name=$1
+    shift
+    started=$(date +%s)
+    echo "ci-stage $name START utc=$(date -u +%FT%TZ)"
+    if "$@"; then status=0; else status=$?; fi
+    echo "ci-stage $name END utc=$(date -u +%FT%TZ) elapsed_seconds=$(($(date +%s) - started)) status=$status"
+    return "$status"
+}
+stage python-tests python3 -I -m unittest discover -s tests -p '*_test.py'
+stage pty-fixtures python3 -I tools/prepare-pty
+stage engine-check .lair/tools/check-linux
+stage native-goldens .lair/tools/goldens --bin target/native/cub
+stage score-check python3 -I tools/score-check
+stage native-gameplay python3 -u -I tools/gameplay.py --bin target/native/cub
+stage release-gameplay python3 -u -I tools/gameplay.py --bin target/release/cub
 echo 'cub check-linux: green'

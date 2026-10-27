@@ -79,10 +79,25 @@ jobs:
           key: lair-toolchain-linux-${{ hashFiles('.lair/wolf-toolchain.toml') }}
       - name: the pinned toolchain, by digest
         run: .lair/tools/fetch-toolchain
+      # Exact recipe + runner architecture: no stale-image restore fallback.
+      - name: restore the pinned Linux image
+        id: container-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: target/ci-container/image.tar
+          key: lair-container-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.lair/ci/Containerfile') }}
+      - name: provision the pinned Linux image
+        run: python3 -I tools/ci-container.py prepare
+      # Save BEFORE tests: even a costly cold fill followed by a test timeout
+      # leaves the next attempt a warm cache. A failed build is never saved.
+      - name: save the pinned Linux image
+        if: steps.container-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: target/ci-container/image.tar
+          key: ${{ steps.container-cache.outputs.cache-primary-key }}
       - name: the Linux leg, in the container
-        env:
-          LAIR_ENGINE: docker
-        run: .lair/tools/in-container tools/check-linux
+        run: python3 -I tools/ci-container.py run -- tools/check-linux
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
