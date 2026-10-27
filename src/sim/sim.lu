@@ -822,6 +822,9 @@ pub struct Foe {
     poise: int,
     poise_at: int,
     engaged: bool,
+    /// An Ashen on the cub's trail (cb05, R-cb05-5): at most `ASHEN_PURSUERS`
+    /// at once; cleared when it is parried, loses the cub or dies.
+    chasing: bool,
 }
 
 /// Damage of an unmodified bite at this fang level.
@@ -868,6 +871,7 @@ pub fn spawn_foes(seed: int) -> List[Foe] {
             poise: 0,
             poise_at: 0,
             engaged: false,
+            chasing: false,
         })
         i += 1
     }
@@ -923,7 +927,9 @@ pub fn heading_to(x: int, y: int, tx: int, ty: int) -> int {
     )
 }
 
-fn in_front(x: int, y: int, heading: int, tx: int, ty: int) -> bool {
+/// Whether `(tx, ty)` lies in the ninety-degree cone ahead of `(x, y)`
+/// facing `heading` (pub for the hitbox audit, cb05).
+pub fn in_front(x: int, y: int, heading: int, tx: int, ty: int) -> bool {
     let dx = tx - x
     let dy = ty - y
     let dot = dx * sin(heading) - dy * cos(heading)
@@ -2385,8 +2391,16 @@ pub const ASHEN_DAMAGE: int = 22
 /// A parry's stagger, ticks: twice an ordinary foe's.
 pub const ASHEN_STAGGER: int = 60
 
-/// How far an Ashen hears a trotting cub, cells; a sneaking one a quarter.
-pub const ASHEN_HEARING: int = 16
+/// How far an Ashen hears a trotting cub, cells (R-cb05-5: sixteen was a
+/// swarm's reach on the second area; ten lets a cub pick its fights).
+pub const ASHEN_HEARING: int = 10
+
+/// How far an Ashen hears a sneaking cub, cells.
+pub const ASHEN_HEARING_SNEAK: int = 2
+
+/// How many Ashen pursue the cub at once (R-cb05-5): a third that hears it
+/// keeps its post until one of the two is parried or loses the cub.
+pub const ASHEN_PURSUERS: int = 2
 
 /// The Ashen's walk, FP units a tick: half a weasel's stalk.
 pub const ASHEN_V: int = FOE_STALK_V / 2
@@ -2402,10 +2416,19 @@ pub const EMBER_TICKS: int = 10
 
 /// Whether an Ashen hears the cub this tick: the cub moving at a trot
 /// within hearing (a sneak within a quarter of it), or its body touching.
+/// How many live Ashen are on the cub's trail.
+pub fn ashen_pursuers(s: Sim) -> int {
+    var n = 0
+    for f in s.foes {
+        if f.kind == ASHEN && f.health > 0 && f.chasing { n += 1 }
+    }
+    n
+}
+
 fn ashen_hears(s: Sim, f: Foe) -> bool {
     if gap(cub_body(s), foe_body(f)) == 0 { return true }
     if s.speed == 0 { return false }
-    near(f.x, f.y, s.x, s.y, (if s.sneaking then ASHEN_HEARING / 4 else ASHEN_HEARING) * FP)
+    near(f.x, f.y, s.x, s.y, (if s.sneaking then ASHEN_HEARING_SNEAK else ASHEN_HEARING) * FP)
 }
 
 /// One slow step of Ashen `i` toward `(tx, ty)`, refused at the town's
@@ -2442,7 +2465,8 @@ fn ashen_step(mut s: Sim, i: int) {
     let f = copy s.foes[i]
     let age = s.tick - f.since
     if f.phase == HUNT {
-        if ashen_hears(s, f) {
+        if ashen_hears(s, f) && (f.chasing || ashen_pursuers(s) < ASHEN_PURSUERS) {
+            s.foes[i].chasing = true
             s.foes[i].target_x = s.x
             s.foes[i].target_y = s.y
             if in_reach(s, i, 2) {
@@ -2452,9 +2476,16 @@ fn ashen_step(mut s: Sim, i: int) {
             } else {
                 ashen_move(mut s, i, s.x, s.y)
             }
+        } else if ashen_hears(s, f) {
+            // A third that hears the cub keeps its post, turned toward it.
+            s.foes[i].speed = 0
+            let h = heading_to(f.x, f.y, s.x, s.y)
+            if h >= 0 { turn_foe(mut s, i, h) }
         } else if near(f.x, f.y, f.home_x, f.home_y, FP) {
+            s.foes[i].chasing = false
             s.foes[i].speed = 0
         } else {
+            s.foes[i].chasing = false
             ashen_move(mut s, i, f.home_x, f.home_y)
         }
     } else if f.phase == CROUCH {
@@ -2503,6 +2534,7 @@ fn ashen_step(mut s: Sim, i: int) {
             s.foes[i].phase = STAGGER
             s.foes[i].since = s.tick
             s.foes[i].attack = 1
+            s.foes[i].chasing = false
             s.riposte = s.tick + ASHEN_STAGGER
             s.riposte_foe = i
         } else if !invulnerable(s) {
@@ -2564,6 +2596,7 @@ fn make_foe(kind: int, x: int, y: int) -> Foe {
         poise: 0,
         poise_at: 0,
         engaged: false,
+        chasing: false,
     }
 }
 
