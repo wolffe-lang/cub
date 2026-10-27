@@ -1036,8 +1036,9 @@ every seed, none within 30 cells of a den; 0 reversals within eight cells on any
 counted turns); cb04d's jaggedness per ten samples 0.068 / 0.105 / 0.057 / 0.100 / 0.103 / 0.111 against
 0.090 / 0.186 / 0.133 / 0.168 / 0.190 / 0.170 before, widths 7/9/9/7/9/11 at the median; 700 world-audit
 rows with 0 unreached and the longest straight run 10; every spur ends at a cache, a landmark or a den;
-generation at field 200 on the Mac release build 17 / 8 / 8 / 3 / 3 / 3 / 4 ms (bar 50); render means 174 /
-164 µs at 80×24 and 1264 / 1252 at 200×60 (cb04d: 182 / 174, 1306 / 1296).
+generation at field 200 on the Mac release build 14 / 7 / 7 / 3 / 3 / 2 / 4 ms (bar 50); render means 173 /
+164 µs at 80×24 and 1260 / 1290 at 200×60 (cb04d: 182 / 174, 1306 / 1296); the town's lane 0 counted turns; the crossing
+census ten of ten at both fields.
 
 **The branches** (`forest.Branch`, `branch_point`, `in_branch`): a cache branch leaves the route at its
 row on the side the switchback has swung away from (Bramblehold) or by parity, with half width 3 and an
