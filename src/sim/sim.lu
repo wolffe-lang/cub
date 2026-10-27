@@ -1878,16 +1878,62 @@ fn clear_between_from(s: Sim, x: int, y: int, a: Body, b: Body, tx: int, ty: int
 /// carries the body a cell across the aim, and a foe a cell further on
 /// is bitten where the drawn jaws land.
 pub fn strike_reaches(s: Sim, i: int, reach: int) -> bool {
-    let f = copy s.foes[i]
-    if in_reach(s, i, reach) && in_front(s.x, s.y, attack_direction(s), f.x, f.y) { return true }
-    if s.action != BITE { return false }
-    let cb = cub_body_at(s, s.action_x, s.action_y, s.body_facing)
-    let fb = foe_body(f)
-    let g = gap(cb, fb)
-    g >= 0 &&
-        g <= reach - 1 &&
-        (g == 0 || clear_between_from(s, s.action_x, s.action_y, cb, fb, f.x, f.y)) &&
-        in_front(s.action_x, s.action_y, attack_direction(s), f.x, f.y)
+    let fb = foe_body(s.foes[i])
+    if jaws_reach_body(s, cub_body(s), fb, reach) { return true }
+    s.action == BITE && jaws_reach_body(
+        s, cub_body_at(s, s.action_x, s.action_y, s.body_facing), fb, reach,
+    )
+}
+
+/// The front edge of a drawn body, in fixed point: centre of the
+/// leading cell on each directed axis, midpoint on the transverse axis.
+/// A diagonal has a leading corner; its extent comes from its own bitmap.
+pub fn jaws(body: Body, facing: int) -> (int, int) {
+    let dx = sin(facing * 32)
+    let dy = 0 - cos(facing * 32)
+    let x = if dx > 0 {
+        body.x1 * FP + FP / 2
+    } else if dx < 0 {
+        body.x0 * FP + FP / 2
+    } else {
+        (body.x0 + body.x1 + 1) * FP / 2
+    }
+    let y = if dy > 0 {
+        body.y1 * FP + FP / 2
+    } else if dy < 0 {
+        body.y0 * FP + FP / 2
+    } else {
+        (body.y0 + body.y1 + 1) * FP / 2
+    }
+    (x, y)
+}
+
+/// A jaw-origin cone intersects any cell of the foe's body. Reach keeps
+/// the game's cell metric (at most reach cells on either axis); combo
+/// slant remains attack_direction's, and each qualifying ray must be clear
+/// outside both bodies. The rectangles may be the present or committed
+/// position, so cb07's bite sweep can use this same test at both endpoints.
+pub fn jaws_reach_body(s: Sim, cb: Body, fb: Body, reach: int) -> bool {
+    if overlap(cb, fb) { return false }
+    let (jx, jy) = jaws(cb, s.body_facing)
+    let direction = attack_direction(s)
+    var y = fb.y0
+    while y <= fb.y1 {
+        var x = fb.x0
+        while x <= fb.x1 {
+            let tx = x * FP + FP / 2
+            let ty = y * FP + FP / 2
+            if abs(tx - jx) <= reach * FP &&
+                abs(ty - jy) <= reach * FP &&
+                in_front(jx, jy, direction, tx, ty) &&
+                clear_between_from(s, jx, jy, cb, fb, tx, ty) {
+                return true
+            }
+            x += 1
+        }
+        y += 1
+    }
+    false
 }
 
 /// Clear cells between the cub's body and foe `i`'s.

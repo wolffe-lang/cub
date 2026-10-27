@@ -1,0 +1,22 @@
+cb08 jaws-first start 2026-10-27T08:20:56Z
+cb08 jaws-first waiting for cores 8-11 2026-10-27T08:20:56Z
+cb08 jaws-first acquired cores 4-7 2026-10-27T08:20:56Z
+test src/diagonals_test.lu::test_cb08_attack_and_movement_keep_all_eight_facings ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_body_is_not_a_rotated_cardinal_rectangle ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_pose_draws_inside_its_own_body_on_both_tiers ... ok
+test src/diagonals_test.lu::test_cb08_diagonals_are_one_drawing_turned_pixel_for_pixel ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_postures_are_visible_not_parameter_noops ... ok
+test src/ghost_test.lu::test_cb08_legacy_ghost_quarters_and_new_eighths_keep_their_direction ... ok
+test src/hitboxes_test.lu::test_cb08_whisper_flank_bite_is_not_refused_for_its_centre ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_whisper_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_boar_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_elk_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_staggered_alpha_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_whisper_flank_all_attacks_and_combos_land_once ... ok
+wolf test: 12 passed; 0 failed; 0 rejected; 0 unsupported; 305 filtered out
+build: target/native/cub
+hit-census kind 4: 920/5376 pairs land
+hit-census kind 5: 800/4992 pairs land
+hit-census kind 6: 1064/5856 pairs land
+hit-census kind 7: 920/5376 pairs land
+jaws-first EXIT 0 2026-10-27T08:21:07Z

@@ -24,21 +24,35 @@ fn circle(kind: int) {
         let fb = sim.foe_body(s.foes[0])
         let dx = sim.sin(aim * 32)
         let dy = 0 - sim.cos(aim * 32)
-        let x = if dx > 0 { fb.x0 - 2 - cb.x1 } else if dx < 0 {
+        let x = if dx > 0 {
+            fb.x0 - 2 - cb.x1
+        } else if dx < 0 {
             fb.x1 + 2 - cb.x0
-        } else { (fb.x0 + fb.x1 - cb.x0 - cb.x1) / 2 }
-        let y = if dy > 0 { fb.y0 - 2 - cb.y1 } else if dy < 0 {
+        } else {
+            (fb.x0 + fb.x1 - cb.x0 - cb.x1) / 2
+        }
+        let y = if dy > 0 {
+            fb.y0 - 2 - cb.y1
+        } else if dy < 0 {
             fb.y1 + 2 - cb.y0
-        } else { (fb.y0 + fb.y1 - cb.y0 - cb.y1) / 2 }
+        } else {
+            (fb.y0 + fb.y1 - cb.y0 - cb.y1) / 2
+        }
         assert(hitcensus.bite(mut s, x, y, aim), "boss {kind}, gap one, aim {aim}")
-        assert(!hitcensus.bite(mut s, x, y, (aim + 4) % 8), "boss {kind} behind the jaws, aim {aim}")
+        assert(
+            !hitcensus.bite(mut s, x, y, (aim + 4) % 8),
+            "boss {kind} behind the jaws, aim {aim}",
+        )
         aim += 1
     }
 }
 
 fn test_cb08_bite_circles_whisper_on_all_eight_sides() { circle(sim.LYNX) }
+
 fn test_cb08_bite_circles_the_boar_on_all_eight_sides() { circle(sim.BOAR) }
+
 fn test_cb08_bite_circles_the_elk_on_all_eight_sides() { circle(sim.ELK) }
+
 fn test_cb08_bite_circles_the_staggered_alpha_on_all_eight_sides() { circle(sim.ALPHA) }
 
 fn test_cb08_whisper_flank_all_attacks_and_combos_land_once() {
@@ -52,12 +66,87 @@ fn test_cb08_whisper_flank_all_attacks_and_combos_land_once() {
             s.combo = combo
             s.attack_heading = 0
             s.body_facing = 0
-            s.tick = s.started + (if action == sim.LUNGE then 9 else if action == sim.HEAVY then sim.HEAVY_WINDUP else 3)
+            s.tick = s.started +
+                (
+                    if action == sim.LUNGE {
+                        9
+                    } else if action == sim.HEAVY {
+                        sim.HEAVY_WINDUP
+                    } else {
+                        3
+                    }
+                )
             sim.strike_foes(mut s)
-            let damage = sim.bite_damage(s.fang) * (if action == sim.LUNGE then 3 else if action == sim.HEAVY then sim.HEAVY_DAMAGE else if action == sim.DASH then 2 else 1)
+            let damage = sim.bite_damage(s.fang) *
+                (
+                    if action == sim.LUNGE {
+                        3
+                    } else if action == sim.HEAVY {
+                        sim.HEAVY_DAMAGE
+                    } else if action == sim.DASH {
+                        2
+                    } else {
+                        1
+                    }
+                )
             assert(s.foes[0].health == 1000 - damage, "flank action {action} combo {combo}")
             sim.strike_foes(mut s)
             assert(s.foes[0].health == 1000 - damage, "the same strike never hits twice")
+        }
+    }
+}
+
+fn test_cb08_ordinary_ground_foes_share_the_same_jaw_rule() {
+    circle(sim.WEASEL)
+    circle(sim.FOX)
+    circle(sim.DEER)
+}
+
+fn test_cb08_alpha_guard_and_hawk_exclusion_survive_flank_reach() {
+    var guarded = hitcensus.fixture(sim.ALPHA)
+    guarded.foes[0].phase = sim.FOE_PARRY
+    let fb = sim.foe_body(guarded.foes[0])
+    assert(
+        !hitcensus.bite(mut guarded, guarded.foes[0].x / sim.FP, fb.y1 + 2, 0),
+        "guard turns the bite",
+    )
+    assert(
+        guarded.action == sim.IDLE && guarded.foes[0].phase == sim.CROUCH,
+        "guard opens the existing riposte",
+    )
+    var hawk = hitcensus.fixture(sim.HAWK)
+    let hb = sim.foe_body(hawk.foes[0])
+    assert(
+        !hitcensus.bite(mut hawk, hawk.foes[0].x / sim.FP, hb.y1 + 2, 0),
+        "hawk cannot be bitten",
+    )
+}
+
+fn test_cb08_boar_charge_hits_the_diagonal_edge_not_only_its_centre() {
+    for face in [1, 3, 5, 7] {
+        for lateral in [6, 7] {
+            var s = hitcensus.fixture(sim.BOAR)
+            s.action = sim.IDLE
+            s.heading = face * 32
+            s.heading_target = s.heading
+            s.body_facing = face
+            s.x = s.foes[0].x + lateral * sim.FP
+            s.y = s.foes[0].y - 5 * sim.FP
+            s.foes[0].heading = 0
+            s.foes[0].phase = sim.STRIKE
+            s.foes[0].attack = 1
+            s.foes[0].since = s.tick
+            s.foes[0].hit = false
+            let health = s.health
+            sim.step(mut s, List[int]())
+            assert(
+                s.health == health - (if lateral == 6 then 22 else 0),
+                "diagonal {face} charge lateral {lateral}",
+            )
+            assert(
+                !sim.overlap(sim.cub_body(s), sim.foe_body(s.foes[0])),
+                "charge bodies remain disjoint",
+            )
         }
     }
 }

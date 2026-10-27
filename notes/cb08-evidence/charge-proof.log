@@ -1,0 +1,22 @@
+cb08 charge-proof start 2026-10-27T08:29:28Z
+cb08 charge-proof waiting for cores 8-11 2026-10-27T08:29:28Z
+cb08 charge-proof acquired cores 4-7 2026-10-27T08:29:28Z
+test src/diagonals_test.lu::test_cb08_attack_and_movement_keep_all_eight_facings ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_body_is_not_a_rotated_cardinal_rectangle ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_pose_draws_inside_its_own_body_on_both_tiers ... ok
+test src/diagonals_test.lu::test_cb08_diagonals_are_one_drawing_turned_pixel_for_pixel ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_postures_are_visible_not_parameter_noops ... ok
+test src/ghost_test.lu::test_cb08_legacy_ghost_quarters_and_new_eighths_keep_their_direction ... ok
+test src/hitboxes_test.lu::test_cb08_whisper_flank_bite_is_not_refused_for_its_centre ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_whisper_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_boar_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_elk_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_staggered_alpha_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_whisper_flank_all_attacks_and_combos_land_once ... ok
+test src/hitboxes_test.lu::test_cb08_ordinary_ground_foes_share_the_same_jaw_rule ... ok
+test src/hitboxes_test.lu::test_cb08_alpha_guard_and_hawk_exclusion_survive_flank_reach ... ok
+test src/hitboxes_test.lu::test_cb08_boar_charge_hits_the_diagonal_edge_not_only_its_centre ... ok
+wolf test: 15 passed; 0 failed; 0 rejected; 0 unsupported; 305 filtered out
+build: target/native/cub
+census total ticks 85752 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 1351 contact_unreachable 0 contact_behind 724 foe_overlap 0
+charge-proof EXIT 0 2026-10-27T08:29:41Z

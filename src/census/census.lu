@@ -93,8 +93,8 @@ pub fn cub_box(s: sim.Sim) -> Box {
     }
     // The third bite's head shake moves the head one cell across the aim.
     let shake = sim.head_shake(s)
-    if shake != 0 {
-        if facing % 2 == 0 {
+    if shake != 0 && facing % 2 == 0 {
+        if facing % 4 == 0 {
             if shake < 0 { b.x0 -= 1 } else { b.x1 += 1 }
         } else if shake < 0 {
             b.y0 -= 1
