@@ -1544,13 +1544,13 @@ pub fn step(mut s: Sim, keys: List[int]) {
 }
 
 /// One tick of a scene: the opening (1) ends on a key or after its three
-/// frames; the title (2) on a key, then the opening for a new journey; the
+/// sequence; the title (2) on a key, then the opening for a new journey; the
 /// end (3) shows its three frames (a key skips to the card) and the card
 /// until a key (`r` keeps playing, R-cb04-4 A).
 fn scene_step(mut s: Sim, key: bool) {
     let age = s.tick - s.scene_started
     if s.scene == 1 {
-        if key || age >= SCENE_TICKS * 3 {
+        if key || age >= OPENING_TICKS {
             s.scene = 0
             s.opening_seen = true
             s.entered = s.tick
@@ -2514,6 +2514,21 @@ fn drops_step(mut s: Sim) {
 
 /// Start the opening only for a new journey. Keys/skips live in the normal
 /// simulation event stream, so the scene needs no wall-clock or second loop.
+/// The opening lasts thirty seconds; the ending keeps its own 90-tick cards.
+pub const OPENING_TICKS: int = 900
+
+/// Half-open shot boundaries, shared by rendering and replay witnesses.
+pub fn opening_shot(age: int) -> int {
+    let ends = [210, 225, 300, 330, 360, 420, 480, 510, 600, 660, 720, 765, 789, 810, 840, 900]
+    var i = 0
+    while i < ends.len {
+        if age < ends[i] { return i }
+        i += 1
+    }
+    16
+}
+
+/// Start the opening only when the journey has not seen it.
 pub fn opening(mut s: Sim) {
     if !s.opening_seen { s.scene = 1; s.scene_started = s.tick }
 }

@@ -1398,58 +1398,283 @@ pub fn hawk_sheet(t: int) -> grid.Grid {
     g
 }
 
-/// Original opening frames: the crossing, the break, the bank. Scene time
-/// is simulation time; no renderer or wall clock can advance it.
+fn opening_abs(n: int) -> int { if n < 0 then -n else n }
+
+/// Separate material families, including blank cells: sky is near-black,
+/// ice is pale and scored, water is deep blue and moving. No style shared.
+pub fn opening_material(t: int, material: int, mark: int) -> grid.Cell {
+    if material == 0 {
+        return grid.cell(
+            if mark == 1 then 46 else 32,
+            if t == tier.RICH then 245 else 8,
+            if t == tier.RICH then 232 else 0,
+            0,
+        )
+    }
+    if material == 1 {
+        let cp = if mark == 1 then 95 else if mark == 2 then 47 else if mark == 3 then 92 else 32
+        return grid.cell(cp, if t == tier.RICH then 24 else 8, if t == tier.RICH then 153 else 7, 0)
+    }
+    grid.cell(
+        if mark == 0 then 32 else if t == tier.RICH then 8776 else 126,
+        if t == tier.RICH then 25 else 6,
+        if t == tier.RICH then 17 else 4,
+        0,
+    )
+}
+
+/// Eyelids open slowly and incompletely at first. Each blink is quicker;
+/// only the last reveal reaches the full, unfiltered gameplay frame.
+pub fn opening_aperture(age: int) -> int {
+    if age < 510 { return 0 }
+    if age < 600 { return (age - 510) * 60 / 90 }
+    if age < 660 { return (660 - age) * 60 / 60 }
+    if age < 720 { return (age - 660) * 80 / 60 }
+    if age < 765 { return (765 - age) * 80 / 45 }
+    if age < 789 { return (age - 765) * 95 / 24 }
+    if age < 810 { return (810 - age) * 95 / 21 }
+    if age < 840 { return (age - 810) * 100 / 30 }
+    100
+}
+
+fn opening_wake(s: sim.Sim, t: int, age: int, mut g: grid.Grid) {
+    var awake = copy s
+    awake.scene = 0
+    render(awake, t, mut g)
+    if age >= 840 { return }
+    let aperture = opening_aperture(age)
+    let black = grid.cell(32, 0, 0, 0)
+    var row = 0
+    while row < s.rows {
+        var col = 0
+        while col < s.cols {
+            // Rounded eyelids, not a rectangular wipe; narrowing at the sides.
+            let dx = opening_abs(col * 2 - s.cols)
+            let edge = dx * dx * s.rows / (s.cols * s.cols * 5)
+            let visible = aperture * s.rows / 200 - edge
+            if aperture == 0 || opening_abs(row - s.rows / 2) >= visible {
+                grid.put(mut g, row, col, black)
+            } else if age < 765 {
+                var cell = grid.at(g, row, col)
+                cell.attrs = grid.ATTR_DIM
+                if age < 660 && (row + col) % 3 == 0 { cell.cp = 32 }
+                grid.put(mut g, row, col, cell)
+            }
+            col += 1
+        }
+        row += 1
+    }
+}
+
+/// Original side silhouettes: the adults long and high, the cub small.
+/// Freeze changes neither the cub's anchor nor its feet while the pack walks.
+fn opening_wolf(mut g: grid.Grid, t: int, row: int, col: int, small: bool, stride: int) {
+    let style = grid.cell(32, if t == tier.RICH then 230 else 15, 0, grid.ATTR_BOLD)
+    if small {
+        put_over(mut g, row, col, " /\\", style)
+        put_over(mut g, row + 1, col - 2, "~(oo>", style)
+        put_over(mut g, row + 2, col - 1, if stride % 2 == 0 then "//" else "||", style)
+    } else {
+        put_over(mut g, row - 1, col + 3, "/\\", style)
+        put_over(mut g, row, col - 3, "~_____/  >", style)
+        put_over(mut g, row + 1, col - 2, "(_____/", style)
+        put_over(mut g, row + 2, col - 1, if stride % 2 == 0 then "/| /|" else "|/ |/", style)
+    }
+}
+
+fn opening_cracks(mut g: grid.Grid, t: int, row: int, col: int, age: int) {
+    if age < 210 { return }
+    let reach = if age < 300 then 3 else 4 + (if age < 360 then age - 300 else 60) / 4
+    var arm = 0
+    while arm < (if age < 300 then 1 else 6) {
+        var step = 1
+        while step <= reach {
+            let dx = if arm < 3 then step else -step
+            let dy = if arm % 3 == 0 then 0 else if arm % 3 == 1 then step / 3 else -step / 3
+            let mark = if dy == 0 then 1 else if (dx > 0) == (dy > 0) then 3 else 2
+            if row + dy >= g.rows / 3 && row + dy < g.rows - 5 {
+                grid.put(mut g, row + dy, col + dx, opening_material(t, 1, mark))
+            }
+            if step > 4 &&
+                step % 4 == 0 &&
+                row + dy + 1 < g.rows - 5 &&
+                row + dy + 1 >= g.rows / 3 {
+                grid.put(mut g, row + dy + 1, col + dx, opening_material(t, 1, 2))
+            }
+            step += 1
+        }
+        arm += 1
+    }
+}
+
+/// Original Moonford composition, with a horizontal coast, pale scored ice,
+/// a breaking plate, a sinking cub and three blinks onto the real Shingle.
+/// All geometry is tick-derived; resizing never restarts the sequence.
 pub fn opening_frame(s: sim.Sim, t: int, mut g: grid.Grid) {
     let age = s.tick - s.scene_started
-    let frame = age / sim.SCENE_TICKS
-    let style = grid.cell(
+    if age >= 480 { opening_wake(s, t, age, mut g); return }
+    let horizon = s.rows / 3
+    let coast = s.rows - 5
+    let river_mid = (horizon + coast) / 2
+    let cub_col = s.cols / 4 + (if age < 210 then age else 210) * s.cols / 2100
+    let text = grid.cell(
         32,
-        if t == tier.RICH then 153 else 7,
-        if t == tier.RICH then 17 else 4,
+        if t == tier.RICH then 230 else 15,
+        if t == tier.RICH then 232 else 0,
+        0,
+    )
+    let shore = grid.cell(
+        46,
+        if t == tier.RICH then 245 else 7,
+        if t == tier.RICH then 237 else 8,
+        0,
+    )
+    let trees = grid.cell(
+        94,
+        if t == tier.RICH then 22 else 2,
+        if t == tier.RICH then 232 else 0,
         0,
     )
     var row = 0
     while row < s.rows {
         var col = 0
         while col < s.cols {
-            var cell = copy style
-            if row > s.rows / 2 && (row * 7 + col + age / 6) % 9 == 0 {
-                cell.cp = if t == tier.RICH then 8776 else 126
+            var cell = opening_material(t, 0, if (col * 17 + row * 31) % 97 == 0 then 1 else 0)
+            if row >= horizon && row < coast {
+                let seam = (col + row / 4 * 13) % 43
+                let mark = if row % 4 == 0 && seam < 9 {
+                    1
+                } else if row % 4 == 1 && seam == 7 {
+                    2
+                } else {
+                    0
+                }
+                cell = opening_material(t, 1, mark)
+            }
+            if row == horizon - 1 {
+                cell = copy trees
+                cell.cp = if col % 4 == 0 then 94 else if col % 4 == 1 then 124 else 32
+            }
+            if row >= coast {
+                cell = copy shore
+                cell.cp = if (row * 7 + col) % 5 == 0 then 44 else if col % 3 == 0 then 46 else 32
+                if row == coast { cell.cp = if col % 3 == 0 then 124 else 95 }
+                if row == s.rows - 1 { cell = copy trees }
+            }
+            if age >= 420 {
+                cell = opening_material(t, 2, if (row * 7 + col + age / 3) % 11 < 2 then 1 else 0)
+                let light = (480 - age) * s.cols / 100
+                if row < 2 && opening_abs(col - cub_col) < light {
+                    cell = opening_material(t, 1, 0)
+                }
             }
             grid.put(mut g, row, col, cell)
             col += 1
         }
         row += 1
     }
-    let mid = s.cols / 2
-    if frame == 0 {
+    if age < 420 {
+        draw.put_text(mut g, 1, s.cols - 13, " .--. ", text)
+        draw.put_text(mut g, 2, s.cols - 13, "(    )", text)
+        draw.put_text(mut g, 3, s.cols - 13, " `--' ", text)
         var wolf = 0
-        while wolf < 4 {
-            draw_cub(mut g, t, s.rows / 2 - 2, mid - 18 + wolf * 10, 1, 0)
+        while wolf < 3 {
+            let advance = age * s.cols / 1800
+            let pack_row = river_mid -
+                3 -
+                (if age < 210 then 0 else age - 210) * (river_mid - horizon) / 210
+            opening_wolf(
+                mut g,
+                t,
+                pack_row,
+                s.cols / 4 + 14 + wolf * 15 + advance,
+                false,
+                age / 9 + wolf,
+            )
             wolf += 1
         }
-        draw.put_text(mut g, 3, 4, "Late winter. The pack crosses the frozen Ashwater.", style)
-        draw.put_text(mut g, 4, 4, "The smallest follows the tracks it knows.", style)
-        draw.put_text(mut g, s.rows / 2 + 1, mid - 15, "_____  ______  ______  _____", style)
-    } else if frame == 1 {
-        draw.put_text(mut g, 3, 4, "The ice gives beneath the last of the line.", style)
-        draw.put_text(mut g, 4, 4, "A cry, then water. The tracks are gone.", style)
-        draw_cub(mut g, t, s.rows / 2 + 2, mid, 2, 2)
-        draw.put_text(mut g, s.rows / 2, mid - 8, "__   _     __   _", style)
+        opening_cracks(mut g, t, river_mid + 2, cub_col, age)
+        if age >= 330 {
+            let width = if age < 360 then 3 + (age - 330) / 3 else 14
+            var dy = -2
+            while dy <= 4 {
+                var dx = -width
+                while dx <= width {
+                    if opening_abs(dx) + opening_abs(dy) * 3 < width {
+                        grid.put(
+                            mut g,
+                            river_mid + dy,
+                            cub_col + dx,
+                            opening_material(t, 2, if (dx + dy + age / 3) % 3 == 0 then 1 else 0),
+                        )
+                    }
+                    dx += 1
+                }
+                dy += 1
+            }
+            draw.put_text(mut g, river_mid - 2, cub_col - width, "__/", opening_material(t, 1, 0))
+            draw.put_text(
+                mut g,
+                river_mid + 3,
+                cub_col + width - 3,
+                "\\__",
+                opening_material(t, 1, 0),
+            )
+        }
+        let drop = if age < 360 then 0 else (age - 360) / 8
+        if drop < 6 {
+            opening_wolf(
+                mut g,
+                t,
+                river_mid - 1 + drop,
+                cub_col + drop / 2,
+                true,
+                if age >= 210 then 0 else age / 9,
+            )
+            // Water progressively occludes the body, not merely its colour.
+            if age >= 376 {
+                var dy = 2
+                while dy <= drop + 1 && river_mid + dy < coast {
+                    var dx = -3
+                    while dx <= 4 {
+                        grid.put(
+                            mut g,
+                            river_mid + dy,
+                            cub_col + dx + drop / 2,
+                            opening_material(t, 2, if (dx + age / 3) % 3 == 0 then 1 else 0),
+                        )
+                        dx += 1
+                    }
+                    dy += 1
+                }
+            }
+        }
+        let line = if age < 210 {
+            "Moonford. The smallest follows."
+        } else if age < 360 {
+            "The ice answers beneath its paws."
+        } else {
+            "A cry. Then the Ashwater."
+        }
+        draw.put_text(mut g, 2, 3, line, text)
+        draw.put_text(mut g, s.rows - 2, 3, "Any key skips", shore)
     } else {
-        draw.put_text(
-            mut g,
-            3,
-            4,
-            "Dawn. Gravel beneath its paws. Its mother's scent gone cold.",
-            style,
-        )
-        draw.put_text(mut g, 4, 4, "Home is upstream, and up.", style)
-        draw_cub(mut g, t, s.rows / 2 - 2, mid, 0, 1)
-        draw.put_text(mut g, s.rows / 2 + 1, mid - 8, ". , . , . , . , .", style)
+        let sink = (age - 420) / 8
+        opening_wolf(mut g, t, s.rows / 2 + sink, cub_col + sink * 2, true, 0)
+        if age >= 450 {
+            var r = 0
+            while r < s.rows {
+                var c = 0
+                while c < s.cols {
+                    if (r * 7 + c * 13) % 30 < age - 450 {
+                        grid.put(mut g, r, c, grid.cell(32, 0, 0, 0))
+                    }
+                    c += 1
+                }
+                r += 1
+            }
+        }
     }
-    draw.put_text(mut g, s.rows - 2, 4, "Any key skips; m mutes the music", style)
 }
 
 /// The line at a shortcut's mouth: how it opens, or that it is open.

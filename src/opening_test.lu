@@ -1,5 +1,6 @@
 //! member: false
 //! cb06: timing, material separation, blinking and score synchronisation.
+
 use art
 use controls
 use grid
@@ -45,7 +46,10 @@ fn test_cb06_sky_ice_water_are_disjoint_cell_styles() {
                     while j < 4 {
                         let x = art.opening_material(t, a, i)
                         let y = art.opening_material(t, b, j)
-                        assert(x.fg != y.fg || x.bg != y.bg || x.attrs != y.attrs, "sky ice and water cannot share a style")
+                        assert(
+                            x.fg != y.fg || x.bg != y.bg || x.attrs != y.attrs,
+                            "sky ice and water cannot share a style",
+                        )
                         j += 1
                     }
                     i += 1
@@ -83,14 +87,19 @@ fn test_cb06_crack_frame_has_the_cue() {
     assert(score.want(score.scene_of(s)) == "silence", "sting ends at the drop")
     s.tick = 510
     assert(score.want(score.scene_of(s)) == "shingle", "waking hears the shore")
-    var sch = score.schedule([
-        score.Cue { name: "crack", ticks: 150, once: true },
-        score.Cue { name: "shingle", ticks: 720, once: false },
-    ])
+    var sch = score.schedule(
+        [
+            score.Cue { name: "crack", ticks: 150, once: true },
+            score.Cue { name: "shingle", ticks: 720, once: false },
+        ],
+    )
     s.tick = 210
     assert(score.step(mut sch, score.scene_of(s), s.tick) == "crack", "start sting")
     sim.step(mut s, [controls.KEY_RIGHT])
-    assert(score.step(mut sch, score.scene_of(s), s.tick) == "shingle", "skip cuts sting immediately")
+    assert(
+        score.step(mut sch, score.scene_of(s), s.tick) == "shingle",
+        "skip cuts sting immediately",
+    )
 }
 
 fn test_cb06_clear_view_is_the_actual_spawn() {
@@ -106,5 +115,41 @@ fn test_cb06_clear_view_is_the_actual_spawn() {
     while i < a.cells.len {
         assert(grid.same(a.cells[i], b.cells[i]), "final shot is the actual spawn cell {i}")
         i += 1
+    }
+}
+
+fn test_cb06_cub_freezes_while_the_pack_walks() {
+    for t in [tier.PLAIN, tier.RICH] {
+        var s = sim.new(1, 80, 24)
+        sim.opening(mut s)
+        var a = grid.new(24, 80)
+        var b = grid.new(24, 80)
+        s.tick = 210
+        art.opening_frame(s, t, mut a)
+        s.tick = 260
+        art.opening_frame(s, t, mut b)
+        var r = 12
+        while r <= 14 {
+            var c = 26
+            while c <= 31 {
+                assert(
+                    grid.same(grid.at(a, r, c), grid.at(b, r, c)),
+                    "cub holds still during shock",
+                )
+                c += 1
+            }
+            r += 1
+        }
+        var changed = 0
+        r = 8
+        while r < 12 {
+            var c = 40
+            while c < 80 {
+                if !grid.same(grid.at(a, r, c), grid.at(b, r, c)) { changed += 1 }
+                c += 1
+            }
+            r += 1
+        }
+        assert(changed > 10, "pack keeps walking during cub's freeze")
     }
 }
