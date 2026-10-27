@@ -24,13 +24,16 @@ pub error PrepareErrors = {
 /// Named failures for CommitErrors.
 pub error CommitErrors = {save_io, save_committed_unsynced}
 
-/// Schema five adds six ordinary-foe slain masks. Schema four migrates
+/// Schema five adds an ordinary-foe slain mask an area (seven since cb05;
+/// `forest.AREAS`). Schema four migrates
 /// with empty masks; earlier shapes remain named save_version failures.
 pub const VERSION: int = 5
 
 /// The values a replay's initial journey snapshot carries (`saved-0` to
+/// Thirty values and a slain mask an area (`forest.AREAS`, seven since cb05;
+/// a literal: the checked machine resolves no cross-module name at comptime).
 /// `saved-35`; the `journey 4` event names this shape).
-pub const SNAPSHOT: int = 36
+pub const SNAPSHOT: int = 37
 
 /// The replay's journey event version this build writes and reads.
 pub const JOURNEY: int = 4
@@ -86,7 +89,7 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     if words.len < 2 || words[0] != "CUB" { return save_corrupt }
     if words[1] != "4" && words[1] != "5" { return save_version }
     let version = if words[1] == "4" then 4 else 5
-    if words.len != (if version == 4 then 55 else 62) { return save_corrupt }
+    if words.len != (if version == 4 then 55 else 56 + forest.AREAS) { return save_corrupt }
     var values = List[int]()
     var i = 0
     while i < words.len {
