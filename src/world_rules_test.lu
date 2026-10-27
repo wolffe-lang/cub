@@ -75,7 +75,7 @@ fn test_cb02_opening_is_timed_skippable_and_pure_on_both_tiers() {
     var s = sim.new(1, 80, 24)
     sim.opening(mut s)
     var n = 0
-    while n < sim.SCENE_TICKS * 3 - 1 { sim.step(mut s, key(0)); n += 1 }
+    while n < sim.OPENING_TICKS - 1 { sim.step(mut s, key(0)); n += 1 }
     assert(s.scene == 1 && !s.opening_seen && s.health == 52, "scene suspends play")
     var g = grid.new(24, 80)
     art.render(s, tier.PLAIN, mut g)
