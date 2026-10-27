@@ -1,0 +1,17 @@
+Measurement only, before any game-source edit; Mac arm64 2026-10-27.
+Binary /Users/mfwolffe/lanes/play/cub-trunk-1d0680a1, trunk runtime 1d0680a1.
+Probe tools/memory-probe.py; actual --trace ticks; pty 120x40, mute,
+no-title, no keys, private save/ghost copies; 768 MiB hard RSS stop.
+Crash fixture: ticks 87..608, 43,499,520 -> 453,165,056 resident bytes:
+786,306.211 bytes/tick endpoint slope. Final interval 577..608:
+50,216,960 / 31 = 1,619,901.935 bytes/tick.
+Fresh seed 7: ticks 88..606, 11,206,656 -> 32,505,856 resident bytes:
+41,118.147 bytes/tick endpoint slope. Final interval 577..606:
+1,818,624 / 29 = 62,711.172 bytes/tick.
+Both raw samples retained. RSS falls abruptly during both runs; resident
+compression/working-set effects mean the endpoint slope understates some
+intervals. These are measured RSS slopes, not allocation-ledger counts.
+Sound disabled; all terminal diff bytes discarded by the parent.
+Wolf ledger instrumentation and subsystem isolation follow this measurement
+commit. No source fix has been made. A GREEN without a budget merely means
+the bounded probe completed, not that the leak passed a gate.

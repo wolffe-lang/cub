@@ -1,0 +1,22 @@
+{"seconds": 0.0, "tick": 0, "rss_bytes": 2703360}
+{"seconds": 1.004, "tick": 26, "rss_bytes": 5668864}
+{"seconds": 2.037, "tick": 57, "rss_bytes": 8454144}
+{"seconds": 3.071, "tick": 88, "rss_bytes": 11206656}
+{"seconds": 4.103, "tick": 119, "rss_bytes": 13910016}
+{"seconds": 5.104, "tick": 149, "rss_bytes": 16564224}
+{"seconds": 6.136, "tick": 180, "rss_bytes": 19283968}
+{"seconds": 7.137, "tick": 210, "rss_bytes": 5619712}
+{"seconds": 8.137, "tick": 240, "rss_bytes": 8257536}
+{"seconds": 9.17, "tick": 270, "rss_bytes": 10895360}
+{"seconds": 10.171, "tick": 300, "rss_bytes": 13549568}
+{"seconds": 11.203, "tick": 332, "rss_bytes": 16367616}
+{"seconds": 12.204, "tick": 362, "rss_bytes": 19005440}
+{"seconds": 13.237, "tick": 392, "rss_bytes": 21659648}
+{"seconds": 14.237, "tick": 422, "rss_bytes": 23986176}
+{"seconds": 15.27, "tick": 453, "rss_bytes": 24313856}
+{"seconds": 16.27, "tick": 484, "rss_bytes": 24985600}
+{"seconds": 17.303, "tick": 515, "rss_bytes": 26886144}
+{"seconds": 18.337, "tick": 546, "rss_bytes": 28786688}
+{"seconds": 19.37, "tick": 577, "rss_bytes": 30687232}
+{"seconds": 20.371, "tick": 606, "rss_bytes": 32505856}
+{"status": "GREEN", "start": {"seconds": 3.071, "tick": 88, "rss_bytes": 11206656}, "end": {"seconds": 20.371, "tick": 606, "rss_bytes": 32505856}, "ticks": 518, "growth_bytes": 21299200, "bytes_per_tick": 41118.146718146716, "tick_source": "trace", "budget_bytes_per_tick": null}
