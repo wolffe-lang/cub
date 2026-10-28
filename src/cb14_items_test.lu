@@ -1,0 +1,125 @@
+//! member: false
+//!
+//! cb14 over cb15 (the rebase of 2026-10-28): cb15's provisional pickups on
+//! the new map's open ground, the alcoves' pine, shard and tuft as cb15's
+//! items (R-cb14-6 A), cb14's lines registered through cb15's lore paths
+//! (ids 13..31, which fill the pouch's 32 lore slots).
+
+use controls
+use forest
+use lore
+use pouch
+use sim
+
+fn press(mut s: sim.Sim, key: int) {
+    var keys = List[int]()
+    (mut keys).push(key)
+    sim.step(mut s, keys)
+}
+
+fn wait(mut s: sim.Sim, ticks: int) {
+    var keys = List[int]()
+    var n = 0
+    while n < ticks { sim.step(mut s, keys); n += 1 }
+}
+
+/// A cub with no foes about and every area's pickups already seeded.
+fn quiet(seed: int) -> sim.Sim {
+    var s = sim.new(seed, 80, 24)
+    (mut s.foes).reset()
+    s.pouch.seeded = pouch.bit(forest.AREAS) - 1
+    s
+}
+
+fn test_cb14_cb15s_provisional_pickups_stand_on_open_ground_in_the_new_map() {
+    for seed in [1, 7] {
+        for area in [forest.LARKMEADOW, forest.BRAMBLEHOLD, forest.RIVER] {
+            var s = quiet(seed)
+            s.area = area
+            s.pouch.seeded = 0
+            wait(mut s, 1)
+            let want = if area == forest.RIVER then 5 else 7
+            assert(s.pouch.pickups.len == want, "seed {seed} area {area}: {s.pouch.pickups.len} placed")
+            for p in s.pouch.pickups {
+                assert(
+                    p.area == area && !forest.blocked(s.seed, s.field, area, p.x, p.y),
+                    "seed {seed} area {area}: a pickup on open ground at {p.x},{p.y}",
+                )
+            }
+        }
+    }
+}
+
+/// Stand the cub on an alcove's cache and dig it.
+fn dig(mut s: sim.Sim, area: int, cache: int) {
+    let (x, y) = forest.cache_position(s.seed, s.field, area, cache)
+    s.area = area
+    s.x = x
+    s.y = y
+    press(mut s, controls.KEY_REST)
+}
+
+fn test_cb14_an_alcoves_pine_shard_and_tuft_are_cb15s_items() {
+    // The Hush's first alcove holds pine, the Shallows' first a shard, the
+    // Howe's first the tuft (`lore.alcove_slot`).
+    let (hush, _) = sim.cache_reward(forest.HUSH, 0)
+    let (shallows, _) = sim.cache_reward(forest.RIVER, 0)
+    let (howe, _) = sim.cache_reward(forest.HOWE, 0)
+    assert(hush == lore.PINE && shallows == lore.SHARD && howe == lore.TUFT, "the three kinds")
+    var s = quiet(1)
+    dig(mut s, forest.HUSH, 0)
+    assert(s.pouch.pine == 1 && sim.cache_open(s, 0), "pine in the pouch")
+    var t = quiet(1)
+    dig(mut t, forest.RIVER, 0)
+    assert(t.pouch.ice == 1 && sim.cache_open(t, 0), "the shard is cb15's ice")
+    var u = quiet(1)
+    dig(mut u, forest.HOWE, 0)
+    assert(u.pouch.tuft == 1 && sim.cache_open(u, 0), "the mother's tuft")
+    // A full stack leaves the alcove's item on the ground at the cache.
+    var v = quiet(1)
+    v.pouch.pine = pouch.cap(pouch.PINE)
+    dig(mut v, forest.HUSH, 0)
+    assert(
+        v.pouch.pine == pouch.cap(pouch.PINE) &&
+            v.pouch.pickups.len == 1 &&
+            v.pouch.pickups[0].kind == pouch.PINE,
+        "a full stack leaves it on the ground",
+    )
+}
+
+fn test_cb14_lines_are_registered_through_cb15s_paths_and_fill_the_slots() {
+    assert(
+        lore.STAND_LINE == 13 && lore.MENHIR_FIRST == 18 && lore.ALCOVE_FIRST == 23 && lore.COUNT == 32,
+        "cb14's ids append at 13 after cb15's 10..12",
+    )
+    // The ids fill the pouch's lore slots exactly: a further line needs a
+    // wider save.
+    assert(lore.COUNT == pouch.LORE_SLOTS, "the lore slots are full")
+    // The Stand's lookout: standing within four cells registers its line.
+    var s = quiet(1)
+    s.area = forest.STAND
+    var lm = 0
+    while lm < forest.landmark_count(forest.STAND) {
+        let (kind, x, y) = forest.landmark(1, s.field, forest.STAND, lm)
+        if kind == forest.LM_LOOKOUT {
+            s.x = x * sim.FP + sim.FP / 2
+            s.y = (forest.origin(1, forest.STAND) + y) * sim.FP + sim.FP / 2
+        }
+        lm += 1
+    }
+    wait(mut s, 1)
+    var found = false
+    for id in s.pouch.lore { if id == lore.STAND_LINE { found = true } }
+    assert(found, "the lookout's line is found lore")
+    // The Howe's third standing stone: its alpha's line.
+    var h = quiet(1)
+    h.area = forest.HOWE
+    let (kind, x, y) = forest.landmark(1, h.field, forest.HOWE, 2)
+    assert(kind == forest.LM_MENHIR, "the third stone")
+    h.x = x * sim.FP + sim.FP / 2
+    h.y = (forest.origin(1, forest.HOWE) + y) * sim.FP + sim.FP / 2
+    wait(mut h, 1)
+    var stone = false
+    for id in h.pouch.lore { if id == lore.MENHIR_FIRST + 2 { stone = true } }
+    assert(stone, "the stone's line is found lore")
+}
