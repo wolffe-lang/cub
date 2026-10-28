@@ -226,6 +226,8 @@ target/cub --npc-audit         every NPC's place on open, flood-reached ground, 
 target/cub --den-spacing       the route walk between dens over fifty seeds (cb05, with --foe-census,
                                --bends-audit, --spurs-audit and --gen-bench)
 target/cub --boss-census       fight every boss in fifty seeds at both sizes; a fairness line a boss
+target/cub --new-foe-census    six new foes in fifty seeds at both sizes, with chase/contact measurements
+target/cub --new-foe-proof DIR  record and independently replay the six disclosed test-arena encounters
 target/cub --fight-trace 7 1   narrate one scripted fight (the alpha, seed 1; a third number picks 80 or 200 columns)
 target/cub --strike-census     every strike at every aim on both tiers, the drawn body against standing
 target/cub --hud-census        every painted HUD cell held to the bars, the labels and the digits
@@ -244,6 +246,23 @@ Headless `--script` fixtures skip death cards after their minimum word hold;
 `--full-death` keeps the full scene. Live play and production `--replay` keep
 recorded key timing. A script's `# counter-frames` comment emits every integer
 as its own golden frame, without advancing the simulation again.
+
+## The six new foes
+
+The marten drops from a trunk and steals; the ash adder tightens its coil
+before a straight burning strike; cinder moths darken the palette as they
+circle. The heron guards a stone with an unparryable downward spear.
+Glow-worms carry cave light but flash and scatter on contact; a cold-blue
+wisp leads toward a sentry and can be snuffed, never killed. Every foe has
+four rotated facings and an ASCII plain-tier form. Existing pink floaters
+remain hawks, with their stopped-shadow tell and low bite windows.
+
+The six are first exercised in disclosed test arenas. The arena census
+uses ordinary player keys over50 seeds at both sizes, and records chase
+travel, contacts, overlaps and dodge counts. Their new-area placement and
+pouch/bleeding integration follow the connected-forest and pouch APIs.
+The art study also pins moth dimming, the six-frame contact flash and
+live/extinguished cave light on both tiers.
 
 ## Tests
 
