@@ -215,6 +215,25 @@ fn test_cb14_gravehollow_s_spine_portals_and_mouths_are_open() { area_open(fores
 
 fn test_cb14_the_hush_s_spine_portals_and_mouths_are_open() { area_open(forest.HUSH) }
 
+fn test_cb14_the_mouth_bands_hold_to_the_mouths() {
+    // The row guard's table says what the mouth table says, every area.
+    var area = 0
+    while area < forest.AREAS {
+        let (first, second) = forest.later_mouths(area)
+        let (e1, m1, e2, m2) = forest.mouth_bands(area)
+        assert(e1 == first && e2 == second, "the edges area {area}")
+        if first >= 0 {
+            let (row, _) = forest.mouth(area, first)
+            assert(m1 == row, "the first row area {area}: {m1} for {row}")
+        }
+        if second >= 0 {
+            let (row, _) = forest.mouth(area, second)
+            assert(m2 == row, "the second row area {area}: {m2} for {row}")
+        }
+        area += 1
+    }
+}
+
 fn test_cb14_the_sett_s_mouth_in_the_teeth_is_open() {
     let seed = 1
     let (sx, sy) = forest.portal(seed, forest.CRAGS, forest.EDGE_SETT)
