@@ -1,0 +1,50 @@
+[
+  {
+    "tier": "rich",
+    "size": [
+      80,
+      24
+    ],
+    "frames": 1000,
+    "max_batch_wall_us": 795,
+    "over_33333_us": 0,
+    "ticks": 20,
+    "dropped": 0
+  },
+  {
+    "tier": "rich",
+    "size": [
+      200,
+      60
+    ],
+    "frames": 1000,
+    "max_batch_wall_us": 4263,
+    "over_33333_us": 0,
+    "ticks": 20,
+    "dropped": 0
+  },
+  {
+    "tier": "plain",
+    "size": [
+      80,
+      24
+    ],
+    "frames": 1000,
+    "max_batch_wall_us": 709,
+    "over_33333_us": 0,
+    "ticks": 20,
+    "dropped": 0
+  },
+  {
+    "tier": "plain",
+    "size": [
+      200,
+      60
+    ],
+    "frames": 1000,
+    "max_batch_wall_us": 3834,
+    "over_33333_us": 0,
+    "ticks": 20,
+    "dropped": 0
+  }
+]
