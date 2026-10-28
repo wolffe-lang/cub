@@ -2,9 +2,9 @@ tick 891 resting 0 capacity 3 level 9 meat 0 area 3 den_id 4 shortcuts 3 caches 
 foe 0 kind 5 health 44 phase 4 since 869 x -3354 y 39436 heading 64 gap 0 last_hit 880 attack 0 poise 36
 foe 1 kind 1 health 0 phase 6 since 107 x 204 y 12744 heading 224 gap 103 last_hit 110 attack 0 poise 0
 foe 2 kind 1 health 0 phase 0 since 0 x 1280 y 12800 heading 0 gap 102 last_hit 142 attack 0 poise 0
-foe 3 kind 2 health 8 phase 0 since 296 x 2034 y 18236 heading 0 gap 80 last_hit -1 attack 0 poise 0
+foe 3 kind 2 health 8 phase 0 since 296 x 2034 y 18236 heading 0 gap 82 last_hit -1 attack 0 poise 0
 foe 4 kind 0 health -4 phase 1 since 385 x -1536 y 27480 heading 0 gap 45 last_hit 386 attack 0 poise 0
 foe 5 kind 0 health -4 phase 1 since 385 x -1024 y 27568 heading 0 gap 45 last_hit 386 attack 0 poise 0
 foe 6 kind 1 health 24 phase 0 since 0 x 2048 y 47616 heading 0 gap 29 last_hit -1 attack 0 poise 0
 foe 7 kind 1 health 24 phase 0 since 0 x 3072 y 47616 heading 0 gap 29 last_hit -1 attack 0 poise 0
-foe 8 kind 2 health 8 phase 0 since 0 x 1522 y 52540 heading 0 gap 48 last_hit -1 attack 0 poise 0
+foe 8 kind 2 health 8 phase 0 since 0 x 1522 y 52540 heading 0 gap 49 last_hit -1 attack 0 poise 0
