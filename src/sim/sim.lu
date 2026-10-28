@@ -4411,6 +4411,19 @@ fn item_set(mut s: Sim, kind: int, n: int) {
     }
 }
 
+/// Remove a given held kind without consuming its effect or placing a pickup.
+/// Returns its kind or -1 when absent/invalid; the marten can keep this tag.
+pub fn take_one(mut s: Sim, kind: int) -> int {
+    match kind {
+        0 => pouch.take_one(mut s.yarrow, kind),
+        1 => pouch.take_one(mut s.marrow, kind),
+        2 => pouch.take_one(mut s.pouch.pine, kind),
+        3 => pouch.take_one(mut s.pouch.ice, kind),
+        4 => pouch.take_one(mut s.pouch.tuft, kind),
+        _ => -1,
+    }
+}
+
 /// Refuse a full stack; callers do not charge or remove its world pickup.
 pub fn give_item(mut s: Sim, kind: int) -> bool {
     if kind < 0 || kind >= pouch.KINDS || item_count(s, kind) >= pouch.cap(kind) { return false }
@@ -4508,7 +4521,7 @@ pub fn melt_ice(mut s: Sim) {
 /// Public hook for the lost shades' tracking rule and the Burn's ash.
 pub fn trail_hidden(s: Sim) -> bool { s.pouch.hidden > item_tick(s) }
 
-fn item_tick(s: Sim) -> int { if s.pouch.open then s.pouch.paused_at else s.tick }
+fn item_tick(s: Sim) -> int { if s.pouch.open then s.pouch.paused_at - 1 else s.tick }
 
 /// Movement alone is halved; telegraphs and recovery retain their tick lengths.
 pub fn foe_speed(s: Sim, i: int, speed: int) -> int {
@@ -4633,8 +4646,10 @@ fn clear_menu_holds(mut s: Sim) {
 }
 
 fn inventory_close(mut s: Sim) {
-    let elapsed = s.tick - s.pouch.paused_at
+    // Opening and closing both return before a world update; include both.
+    let elapsed = s.tick - s.pouch.paused_at + 1
     s.started += elapsed
+    if s.combo_until >= 0 { s.combo_until += elapsed }
     s.rally_at += elapsed
     if s.riposte > 0 { s.riposte += elapsed }
     s.entered += elapsed

@@ -1,0 +1,49 @@
+//! member: false
+
+use pouch
+use sim
+
+fn test_cb15_take_one_removes_one_named_stack_or_returns_none() {
+    var held = 2
+    let first = pouch.take_one(mut held, pouch.PINE)
+    assert(first == pouch.PINE && held == 1, "one held item removed")
+    let second = pouch.take_one(mut held, pouch.PINE)
+    assert(second == pouch.PINE && held == 0, "last held item")
+    let empty = pouch.take_one(mut held, pouch.PINE)
+    assert(empty == -1 && held == 0, "empty is unchanged")
+    held = 1
+    let invalid = pouch.take_one(mut held, -1)
+    assert(invalid == -1 && held == 1, "invalid kind is unchanged")
+}
+
+fn test_cb15_take_one_adapter_routes_every_held_kind_without_effects() {
+    var s = sim.new(7, 80, 24)
+    var kind = 0
+    while kind < pouch.KINDS {
+        assert(sim.give_item(mut s, kind), "held fixture")
+        let taken = sim.take_one(mut s, kind)
+        assert(taken == kind && sim.item_count(s, kind) == 0, "correct held field")
+        let empty = sim.take_one(mut s, kind)
+        assert(empty == -1 && sim.item_count(s, kind) == 0, "no underflow")
+        kind += 1
+    }
+    assert(s.pouch.pickups.len == 0 && s.pouch.uses == 0, "no drop or passive use")
+}
+
+fn test_cb15_leave_records_the_given_cell_point_and_kind() {
+    var p = pouch.new()
+    assert(pouch.leave(mut p, 2, -3, 42, pouch.ICE), "place at trunk's cell")
+    let point = copy p.pickups[0]
+    assert(
+        p.pickups.len == 1 &&
+            point.area == 2 &&
+            point.x == -3 &&
+            point.y == 42 &&
+            point.kind == pouch.ICE,
+        "point fields are cell coordinates",
+    )
+    assert(
+        !pouch.leave(mut p, -1, -3, 42, pouch.ICE) && p.pickups.len == 1,
+        "invalid point does not change the pool",
+    )
+}

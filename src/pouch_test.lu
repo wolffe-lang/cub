@@ -326,6 +326,45 @@ fn test_cb15_menu_freezes_marrow_bleed_trail_and_absolute_expiries() {
     assert(s.health == 50 && s.pouch.marrow_ticks == 0, "heal resumes without fast-forward")
 }
 
+fn test_cb15_inventory_preserves_bite_age_and_two_queued_links() {
+    var s = quiet()
+    sim.combat_witness(mut s)
+    s.tick = 2
+    s.action = sim.BITE
+    s.combo = 1
+    s.started = 0
+    s.action_x = s.x
+    s.action_y = s.y
+    s.chained = 2
+    s.chained_heading = 0
+    s.chained_second_heading = 0
+    press(mut s, controls.KEY_INVENTORY)
+    wait(mut s, 100)
+    press(mut s, controls.KEY_RELEASE)
+    assert(s.tick - s.started == 2 && s.chained == 2, "opening tick does not consume an action age")
+    wait(mut s, 1)
+    assert(
+        s.tick - s.started == 3 && sim.strike_peak(s),
+        "first resumed tick is the first strike age",
+    )
+    wait(mut s, 8)
+    assert(s.combo == 2 && s.chained == 1, "first queued link survives")
+    wait(mut s, 13)
+    assert(s.combo == 3 && s.chained == 0, "second queued link survives")
+}
+
+fn test_cb15_inventory_preserves_cb11_six_tick_combo_grace() {
+    var s = quiet()
+    s.combo_previous = 1
+    s.combo_until = 6
+    press(mut s, controls.KEY_INVENTORY)
+    wait(mut s, 100)
+    press(mut s, controls.KEY_RELEASE)
+    assert(s.combo_until == s.tick + 6, "combat grace retains all six world ticks")
+    press(mut s, controls.KEY_BITE)
+    assert(s.action == sim.BITE && s.combo == 2, "fresh post-menu press continues the chain")
+}
+
 fn test_cb15_inventory_preserves_riposte_and_foe_poise_windows() {
     var s = quiet()
     (mut s.foes).push(sim.make_ashen(s.x + 30 * sim.FP, s.y))
@@ -337,7 +376,7 @@ fn test_cb15_inventory_preserves_riposte_and_foe_poise_windows() {
     wait(mut s, 100)
     press(mut s, controls.KEY_RELEASE)
     assert(
-        s.riposte == 151 && s.foes[0].poise_at == 101 && s.foes[0].poise == 7,
+        s.riposte == 152 && s.foes[0].poise_at == 102 && s.foes[0].poise == 7,
         "paused combat windows retain their remaining time",
     )
 }
@@ -350,8 +389,8 @@ fn test_cb15_inventory_also_pauses_offscreen_loot_expiry() {
     wait(mut s, 100)
     press(mut s, controls.KEY_RELEASE)
     assert(
-        s.away_loot[1].drops[0].until == 191 && s.away_loot[1].meat[0].until == 401,
-        "all cached loot deadlines shift by the101 paused ticks",
+        s.away_loot[1].drops[0].until == 192 && s.away_loot[1].meat[0].until == 402,
+        "all cached loot deadlines include the opening and closing paused ticks",
     )
 }
 
@@ -388,7 +427,7 @@ fn test_cb15_ice_slows_the_airborne_orbit_without_changing_its_tell() {
     wait(mut s, 20)
     assert(s.foes[0].x == x, "paused orbit")
     press(mut s, controls.KEY_RELEASE)
-    assert(s.foes[0].slow_until == s.tick + 69, "only menu time added to slow duration")
+    assert(s.foes[0].slow_until == s.tick + 70, "only menu time added to slow duration")
 }
 
 fn test_cb15_species_drop_rolls_are_stable_and_match_rates() {
