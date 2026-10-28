@@ -506,11 +506,7 @@ pub fn counter_partial(
             row += 1
         }
         for c in hud_plan_value(s, t, false, SCENT_LABEL_ALWAYS, value) {
-            if c.row >= top &&
-                c.row < s.rows &&
-                c.col >= left &&
-                c.col < s.cols - 1 &&
-                !inventory.covers(s, c.row, c.col) {
+            if c.row >= top && c.row < s.rows && c.col >= left && c.col < s.cols - 1 {
                 grid.put(
                     mut patch,
                     c.row - top,
