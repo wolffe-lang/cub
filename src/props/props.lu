@@ -78,8 +78,56 @@ pub const SCENT_MARK: int = 22
 /// caches; dug, the hollow in the heap.
 pub const ASHHEAP: int = 23
 
+/// The lookout at the Stand's top (cb14): a railed ledge.
+pub const LOOKOUT: int = 24
+
+/// The cutters' ruin beside it: four walls and no roof.
+pub const RUIN: int = 25
+
+/// The kiln: the charcoal-burners' dome of brick, the Burn's den feature.
+pub const KILN: int = 26
+
+/// Dunmoss's sett at the Teeth's foot: a hole under the bank.
+pub const SETT: int = 27
+
+/// The causeway's first post in the Mere.
+pub const POST: int = 28
+
+/// The bone heap at the Underteeth's bone cache.
+pub const BONEHEAP: int = 29
+
+/// The stone mouth into Gravehollow.
+pub const MOUTH: int = 30
+
+/// The scree slide's mouth.
+pub const SCREE: int = 31
+
+/// The dry streambed's mouth.
+pub const STREAM: int = 32
+
+/// The log raft.
+pub const RAFT: int = 33
+
+/// The roots climbed out of the Underteeth.
+pub const ROOTS: int = 34
+
+/// The way on into the Stand: the pines.
+pub const PINES: int = 35
+
+/// The way on into the Burn: the charred trunks.
+pub const CHARRED: int = 36
+
+/// The way on into the Mere: the water and a stone.
+pub const MERE: int = 37
+
+/// The way on into the Howe: the barrows and a stone.
+pub const HOWE: int = 38
+
+/// The way on into the Hush: the dark brush.
+pub const HUSH: int = 39
+
 /// count sprite identifier.
-pub const COUNT: int = 24
+pub const COUNT: int = 40
 
 /// The original plain glyph clusters; spaces leave terrain visible.
 pub fn rows(kind: int, opened: bool) -> List[str] {
@@ -119,11 +167,27 @@ pub fn rows(kind: int, opened: bool) -> List[str] {
         20 => ["  _^_  ", " /|||\\ ", "//|||\\\\"],
         21 => ["  \\ v  ", "   |   ", "  _|_  "],
         22 => ["  . :  ", " [##]. ", "  ::   "],
-        _ => if opened {
+        23 => if opened {
             [" .~~~. ", "(     )", " '~~~' "]
         } else {
             [" .~~~. ", "(##o##)", " '~~~' "]
         },
+        24 => ["==   ==", "|  .  |", "|=====|"],
+        25 => ["|_   _|", "|     |", "|__ __|"],
+        26 => [" .---. ", "/#####\\", "|##_##|"],
+        27 => ["  ___  ", " / . \\ ", "/_(_)_\\"],
+        28 => ["  |    ", " ~|~ ~ ", "~ |  ~ "],
+        29 => ["o  _ o ", " (ooo) ", "o  -  o"],
+        30 => ["## ^ ##", "#     #", "#_   _#"],
+        31 => ["\\ . . /", " \\ . / ", "  \\./  "],
+        32 => [" : : : ", ": : : :", " : : : "],
+        33 => ["~=====~", "~|___|~", "~  o  ~"],
+        34 => ["\\ |_| /", " \\| |/ ", "  | |  "],
+        35 => ["^ ^ ^ ^", "| | | |", "| | | |"],
+        36 => ["! \\ ! /", "!  !  !", "_!_!_!_"],
+        37 => ["~ ~ ~ ~", " ~ o ~ ", "~ ~ ~ ~"],
+        38 => [" /^\\ /^", "/   V  ", " I   I "],
+        _ => [" %%%%% ", "%% . %%", " %%%%% "],
     }
 }
 
@@ -179,17 +243,18 @@ pub fn draw_at(mut g: grid.Grid, t: int, row: int, col: int, kind: int, opened: 
     }
 }
 
-/// All landmarks and empty cache forms for the committed art atlas.
+/// All landmarks and empty cache forms for the committed art atlas (cb14:
+/// forty kinds, eight rows of five; the opened forms on the ninth).
 pub fn sheet(t: int) -> grid.Grid {
-    var g = grid.new(30, 80)
+    var g = grid.new(47, 80)
     var k = 0
     while k < COUNT {
         draw_at(mut g, t, 2 + k / 5 * 5, 7 + k % 5 * 15, k, false, 0)
         k += 1
     }
-    draw_at(mut g, t, 27, 7, HOLLOW, true, 0)
-    draw_at(mut g, t, 27, 22, BURROW, true, 0)
-    draw_at(mut g, t, 27, 37, HEDGE, true, 0)
-    draw_at(mut g, t, 27, 52, ASHHEAP, true, 0)
+    draw_at(mut g, t, 44, 7, HOLLOW, true, 0)
+    draw_at(mut g, t, 44, 22, BURROW, true, 0)
+    draw_at(mut g, t, 44, 37, HEDGE, true, 0)
+    draw_at(mut g, t, 44, 52, ASHHEAP, true, 0)
     g
 }

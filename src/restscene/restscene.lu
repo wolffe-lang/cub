@@ -11,13 +11,16 @@ fn abs(n: int) -> int { if n < 0 then -n else n }
 
 /// Regional ground, shadow and distant light. The plain palette stays 0..15.
 pub fn background(area: int, t: int) -> int {
-    if t == tier.PLAIN { return if area == 0 || area == 4 then 4 else 0 }
+    if t == tier.PLAIN { return if area == 0 || area == 4 || area == 9 then 4 else 0 }
     match area {
         0 => 17,
         1 => 233,
         2 => 60,
         3 => 236,
         4 => 23,
+        7 => 236,
+        9 => 17,
+        10 => 234,
         _ => 232,
     }
 }
@@ -137,6 +140,57 @@ fn surroundings(s: sim.Sim, t: int, mut g: grid.Grid, floor: int) {
                 if (x == 4 || x == 75) && y == 6 {
                     cp = 42
                     fg = if t == tier.PLAIN then 9 else 208
+                }
+            } else if s.area == 7 {
+                // The root hollow (cb14): pine columns either side, the
+                // needle floor, the crowns above.
+                if (x < 14 || x > 66) && x % 4 == 1 && y > 1 {
+                    cp = if t == tier.PLAIN then 124 else 0x28FF
+                    fg = if t == tier.PLAIN then 2 else 29
+                }
+                if y == 1 && x % 4 == 0 {
+                    cp = if t == tier.PLAIN then 94 else 0x28C0
+                    fg = if t == tier.PLAIN then 2 else 22
+                }
+                if y > 10 && (x * 3 + y) % 7 == 0 { cp = 46; fg = if t == tier.PLAIN then 3 else 130 }
+            } else if s.area == 8 {
+                // The kiln (cb14): a dome of brick round the fire, ash on
+                // the floor, charred trunks beyond its mouth.
+                if ellipse(x, y, 40, 9, 30, 8) && !ellipse(x, y, 40, 9, 26, 6) {
+                    cp = if t == tier.PLAIN then 35 else 0x2593
+                    fg = if t == tier.PLAIN then 8 else 243
+                }
+                if y > 11 && (x * 5 + y) % 9 == 0 { cp = 46; fg = if t == tier.PLAIN then 8 else 240 }
+                if (x == 3 || x == 76) && y > 2 && y < 9 { cp = 33; fg = if t == tier.PLAIN then 7 else 238 }
+            } else if s.area == 9 {
+                // The dry island (cb14): the Mere's black water either
+                // side, the reeds at its edge, the mist beyond.
+                if x < 16 || x > 64 {
+                    cp = if (x + 2 * y) % 8 < 2 then (if t == tier.PLAIN then 126 else 0x28C0) else 32
+                    fg = if t == tier.PLAIN then 6 else 24
+                }
+                if (x == 16 || x == 64 || x == 18 || x == 62) && y > 3 {
+                    cp = if t == tier.PLAIN then 124 else 0x2847
+                    fg = if t == tier.PLAIN then 3 else 178
+                }
+                if y < 2 && (x + y) % 3 == 0 {
+                    cp = if t == tier.PLAIN then 46 else 0x2802
+                    fg = if t == tier.PLAIN then 7 else 250
+                }
+            } else if s.area == 10 {
+                // The bone cache (cb14): the cavern's wet walls, the
+                // glow-worms' pink in the dark, bones in rows.
+                if x < 12 || x > 68 || y < 2 {
+                    cp = if t == tier.PLAIN then 35 else if (x + y) % 3 == 0 then 0x2593 else 0x2592
+                    fg = if t == tier.PLAIN then 5 else 60
+                }
+                if (x == 20 || x == 58) && y == 3 {
+                    cp = if t == tier.PLAIN then 111 else 0x2836
+                    fg = if t == tier.PLAIN then 13 else 213
+                }
+                if y >= 10 && y <= 12 && x > 24 && x < 56 && (x + y) % 3 == 0 {
+                    cp = if t == tier.PLAIN then 111 else 0x25CF
+                    fg = if t == tier.PLAIN then 7 else 250
                 }
             } else {
                 if x < 13 || x > 65 || y < 2 {

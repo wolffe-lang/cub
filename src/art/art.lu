@@ -13,6 +13,7 @@ use forest
 use ghost
 use grid
 use glow
+use lands
 use lore
 use inventory
 use meadow
@@ -46,21 +47,136 @@ pub fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
     var col = 0
     while col < s.cols {
         let (x, y) = sim.world_cell(s, row, col)
-        var cell = ground_at(s.seed, s.field, s.area, t, x, y)
+        let k = forest.kind(s.seed, s.field, s.area, x, y)
+        var cell = ground_cell(s.seed, s.field, s.area, t, x, y, k)
         // Sight hides creatures, never the forest itself.
         if s.area == forest.BRAMBLEHOLD &&
             !sim.near(s.x, s.y, x * sim.FP, y * sim.FP, 12 * sim.FP) {
             cell.attrs = 0
+        }
+        if s.area >= forest.STAND || s.area == forest.CRAGS {
+            cell = lands_cell(s, t, x, y, k, cell)
         }
         grid.put(mut g, row, col, cell)
         col += 1
     }
 }
 
+/// What the frame adds to cb14's ground (the simulation's tick and state,
+/// never the audit's): the Mere's ripple row moving a cell a second and
+/// its mist three cells off over the water, its stones dimming as they
+/// sink and gone while sunk; the Underteeth dark three cells off the cub
+/// and the glow-worms, its drips falling a cell a tick; the Burn's ember
+/// flaring underfoot; a pine's crown over its trunk; a standing stone's
+/// mark when the cub is near enough to read it; a gate dimmed once it
+/// lets the cub through.
+fn lands_cell(s: sim.Sim, t: int, x: int, y: int, k: int, cell0: grid.Cell) -> grid.Cell {
+    var cell = cell0
+    let rich = t == tier.RICH
+    let at = y - forest.origin(s.seed, s.area)
+    let dx = abs_of(x - sim.cell_x(s))
+    let dy = abs_of(y - sim.cell_y(s))
+    let off = if dx > dy then dx else dy
+    if s.area == forest.MERE {
+        if k == terrain.STONE {
+            let age = sim.stone_age(s, sim.stone_segment_at(s, y))
+            if age >= sim.STONE_BEAT && age < sim.STONE_RISE {
+                cell = ground_cell(s.seed, s.field, s.area, t, x, y, terrain.WATER)
+            } else if age >= 0 {
+                cell.attrs = if rich then grid.ATTR_DIM else 0
+                if !rich { cell.cp = 46 }
+            }
+        }
+        if k == terrain.WATER && ((at + s.tick / 30) % 4 + 4) % 4 == 0 {
+            cell.cp = if rich then 0x28C0 else 126
+        }
+        if off > 3 && (k == terrain.WATER || k == terrain.STONE) {
+            cell.cp = if rich then 0x2802 else 46
+            cell.fg = if rich then 250 else 7
+            cell.bg = if rich then 24 else 4
+            cell.attrs = 0
+        }
+        return cell
+    }
+    if s.area == forest.UNDERTEETH {
+        if off > 3 && !glow_lit(s, x, at) {
+            return grid.cell(32, if rich then 232 else 0, if rich then 232 else 0, 0)
+        }
+        if k == terrain.GRAVEL && world.hash(s.seed, x, 0, 12) == 0 {
+            var d = 1
+            while d <= 6 {
+                if forest.kind(s.seed, s.field, s.area, x, y - d) == terrain.CAVE {
+                    if (s.tick + world.hash(s.seed, x, 1, 90)) % 90 == d - 1 {
+                        cell.cp = if rich then 0x2802 else 39
+                        cell.fg = if rich then 117 else 14
+                    }
+                    break
+                }
+                d += 1
+            }
+        }
+        return cell
+    }
+    if s.area == forest.BURN {
+        if k == terrain.EMBER && sim.flaring(s, x, y) {
+            cell = ground_cell(s.seed, s.field, s.area, t, x, y, k)
+            cell.cp = if rich then 0x28FF else 64
+        }
+        if k == terrain.GATE && sim.gate_passable(s) { cell.attrs = grid.ATTR_DIM }
+        return cell
+    }
+    if s.area == forest.STAND {
+        if k == terrain.NEEDLES &&
+            (y + 1) % 2 == 0 &&
+            forest.kind(s.seed, s.field, s.area, x + 1, y + 1) == terrain.PINE {
+            cell.cp = if rich then 0x28C0 else 94
+            cell.fg = if rich then 22 else 2
+        }
+        if k == terrain.GATE && sim.gate_passable(s) { cell.attrs = grid.ATTR_DIM }
+        return cell
+    }
+    if s.area == forest.HOWE {
+        if k == terrain.MENHIR && off <= 4 && at < forest.length(s.area) - 8 && (at + 1) % 40 == 30 {
+            // The top cell of a standing stone (its row is one above
+            // `menhir_row`), read when the cub is within four cells.
+            cell.cp = if rich then 0x281B else 43
+        }
+        if k == terrain.GATE && sim.gate_passable(s) { cell.attrs = grid.ATTR_DIM }
+        return cell
+    }
+    if s.area == forest.CRAGS && k == terrain.GATE && sim.gate_passable(s) {
+        cell.attrs = grid.ATTR_DIM
+    }
+    cell
+}
+
+/// Whether local cell `(x, at)` of the Underteeth lies within three cells
+/// of a glow-worm cluster (the light the clusters give).
+fn glow_lit(s: sim.Sim, x: int, at: int) -> bool {
+    var k = 0
+    while k < lands.GLOWS {
+        let row = lands.glow_row(k)
+        if abs_of(at - row) <= 3 {
+            let gx = lands.glow_x(s.seed, k, forest.spine(s.seed, s.area, row))
+            if abs_of(x - gx) <= 4 { return true }
+        }
+        k += 1
+    }
+    false
+}
+
+fn abs_of(v: int) -> int {
+    if v < 0 then 0 - v else v
+}
+
 /// The ground world cell `(x, y)` of an area draws on tier `t`: its kind's
 /// sprite with the seed's texture, under the area's keyframe.
 pub fn ground_at(seed: int, field: int, area: int, t: int, x: int, y: int) -> grid.Cell {
-    let k = forest.kind(seed, field, area, x, y)
+    ground_cell(seed, field, area, t, x, y, forest.kind(seed, field, area, x, y))
+}
+
+/// `ground_at` with the cell's kind in hand.
+pub fn ground_cell(seed: int, field: int, area: int, t: int, x: int, y: int, k: int) -> grid.Cell {
     let v = world.hash(seed + 31, x, y, 4)
     // Foliage variants alternate their glyph set by the cell's parity,
     // so two adjacent canopy or deep-forest cells are never identical:
@@ -82,7 +198,32 @@ pub fn ground_at(seed: int, field: int, area: int, t: int, x: int, y: int) -> gr
     } else if k == terrain.ASH {
         if terrain.variant(seed, x, y, 5) == 0 then 1 + v % 3 else 0
     } else if k == terrain.EMBER {
+        // The Burn's coal under the ash (cb14); the town's star.
+        if area == forest.BURN then 2 else ((x + y) % 2 + 2) % 2
+    } else if k == terrain.GATE {
+        // The windthrown pine, the burnt oak, the stone mouth, the sett.
+        if area == forest.STAND {
+            0
+        } else if area == forest.BURN {
+            1
+        } else if area == forest.HOWE {
+            2
+        } else {
+            3
+        }
+    } else if k == terrain.CHAR {
+        if lands.leaning(seed, x, y - forest.origin(seed, area)) then 1 + v % 2 else 0
+    } else if k == terrain.MOUND {
+        // A barrow's three cells, west to east.
+        ((x % 3) + 3) % 3
+    } else if k == terrain.NEEDLES {
+        if terrain.variant(seed, x, y, 6) == 0 then 1 + v % 2 else 0
+    } else if k == terrain.CAVE || k == terrain.GLOW {
         ((x + y) % 2 + 2) % 2
+    } else if k == terrain.SPRING {
+        if terrain.variant(seed, x, y, 3) == 0 then 1 else 0
+    } else if k == terrain.STONE || k == terrain.MENHIR || k == terrain.PINE || k == terrain.DRIFT {
+        0
     } else {
         v
     }
@@ -134,6 +275,28 @@ fn sprite_of(k: int) -> int {
         sprites.SP_WALL
     } else if k == terrain.EMBER {
         sprites.SP_EMBER
+    } else if k == terrain.NEEDLES {
+        sprites.SP_NEEDLES
+    } else if k == terrain.PINE {
+        sprites.SP_PINE
+    } else if k == terrain.CHAR {
+        sprites.SP_CHAR
+    } else if k == terrain.DRIFT {
+        sprites.SP_DRIFT
+    } else if k == terrain.STONE {
+        sprites.SP_STONE
+    } else if k == terrain.CAVE {
+        sprites.SP_CAVE
+    } else if k == terrain.GLOW {
+        sprites.SP_GLOW
+    } else if k == terrain.SPRING {
+        sprites.SP_SPRING
+    } else if k == terrain.MOUND {
+        sprites.SP_MOUND
+    } else if k == terrain.MENHIR {
+        sprites.SP_MENHIR
+    } else if k == terrain.GATE {
+        sprites.SP_GATE
     } else {
         sprites.SP_DARK
     }
@@ -143,24 +306,57 @@ fn sprite_of(k: int) -> int {
 /// then the area's dusk keyframe over it inland.
 pub fn kind_cell(area: int, t: int, k: int, variant: int, foliage: int) -> grid.Cell {
     var cell = sprites.glyph(t, sprite_of(k), variant)
+    if area == forest.MERE { return mere_cell(t, k, foliage, cell) }
     // The Shallows' water, shallows and reeds keep the river's own colours
     // under its keyframe; everything else inland takes the area's floor.
     let water = k == terrain.WATER ||
         k == terrain.SHALLOWS ||
-        k == terrain.REEDS && area == forest.RIVER
+        k == terrain.REEDS && area == forest.RIVER ||
+        k == terrain.SPRING
     if area != forest.SHINGLE && !water {
         cell.bg = if t == tier.RICH then floor_of(area) else 0
         cell.fg = dusk_ink(area, t, k, foliage)
         // An ember glows on its own dark red (cb05).
         if k == terrain.EMBER {
             cell.bg = if t == tier.RICH then 52 else 0
-            cell.fg = if t == tier.RICH then (if variant == 0 then 208 else 202) else 9
+            cell.fg = if t == tier.RICH then (if variant % 2 == 0 then 208 else 202) else 9
         }
         // The old den's open floor carries the pack's scent: a dim mark on
-        // every other grass cell (cb04).
-        if area == forest.OLDDEN && k == terrain.GRASS && variant % 2 == 0 {
+        // every other grass cell (cb04; Gravehollow's too, cb14).
+        if (area == forest.HUSH || area == forest.GRAVEHOLLOW) &&
+            k == terrain.GRASS &&
+            variant % 2 == 0 {
             cell.cp = if variant % 4 == 0 then 58 else 46
         }
+    }
+    cell
+}
+
+/// The Mere's cell (cb14): ink-blue water with its ripple, reed gold on
+/// the water for the causeway and the islands' fringes, the islands' turf
+/// on a dark green, the stones pale on the water.
+fn mere_cell(t: int, k: int, foliage: int, cell0: grid.Cell) -> grid.Cell {
+    var cell = cell0
+    let rich = t == tier.RICH
+    if k == terrain.GRASS {
+        cell.bg = if rich then 22 else 0
+        cell.fg = if rich then (if foliage % 2 == 0 then 100 else 142) else 2
+        return cell
+    }
+    if k == terrain.TRUNK {
+        cell.bg = if rich then 22 else 0
+        cell.fg = if rich then 95 else 3
+        return cell
+    }
+    cell.bg = if rich then 17 else 4
+    cell.fg = if k == terrain.WATER {
+        (if rich then 24 else 6)
+    } else if k == terrain.REEDS {
+        (if rich then 178 else 3)
+    } else if k == terrain.STONE {
+        (if rich then 250 else 7)
+    } else {
+        (if rich then 24 else 6)
     }
     cell
 }
@@ -173,6 +369,10 @@ fn floor_of(area: int) -> int {
         3 => 236,
         4 => 233,
         6 => 233,
+        7 => 236,
+        8 => 232,
+        10 => 234,
+        11 => 235,
         _ => 232,
     }
 }
@@ -236,9 +436,13 @@ fn among(styles: List[grid.Cell], c: grid.Cell) -> bool {
 fn dusk_ink(area: int, t: int, k: int, foliage: int) -> int {
     let thicket = area == forest.BRAMBLEHOLD
     if area == forest.CRAGS { return crag_ink(t, k, foliage) }
-    if area == forest.OLDDEN { return night_ink(t, k, foliage) }
+    if area == forest.HUSH || area == forest.GRAVEHOLLOW { return night_ink(t, k, foliage) }
     if area == forest.RIVER { return river_ink(t, k, foliage) }
     if area == forest.TOWN { return town_ink(t, k, foliage) }
+    if area == forest.STAND { return stand_ink(t, k, foliage) }
+    if area == forest.BURN { return burn_ink(t, k, foliage) }
+    if area == forest.UNDERTEETH { return cave_ink(t, k, foliage) }
+    if area == forest.HOWE { return howe_ink(t, k, foliage) }
     // The burn's ash (cb05): grey in two tones over the area's floor.
     if k == terrain.ASH {
         return if t != tier.RICH then 8 else if foliage % 2 == 0 then 240 else 242
@@ -287,14 +491,91 @@ fn crag_ink(t: int, k: int, foliage: int) -> int {
         if k == terrain.ROCK { return if foliage % 2 == 0 then 7 else 15 }
         if k == terrain.GRASS { return 2 }
         if k == terrain.TRUNK { return 3 }
+        if k == terrain.GATE { return 8 }
         return 7
     }
     if k == terrain.ROCK { return if foliage % 2 == 0 then 243 else 250 }
     if k == terrain.GRAVEL { return 245 }
     if k == terrain.GRASS { return 101 }
     if k == terrain.TRUNK { return 95 }
+    if k == terrain.GATE { return 240 }
     if k == terrain.CANOPY { return if foliage % 4 < 2 then 58 else 22 }
     240
+}
+
+/// The Stand's keyframe (cb14): rust needles on dark grey, the pines in
+/// two greens, a pale sky's grey for the windthrown pine.
+fn stand_ink(t: int, k: int, foliage: int) -> int {
+    if t != tier.RICH {
+        if k == terrain.NEEDLES { return 3 }
+        if k == terrain.PINE { return 2 }
+        if k == terrain.GATE { return 7 }
+        return 2
+    }
+    if k == terrain.NEEDLES { return 130 }
+    if k == terrain.PINE { return if foliage % 2 == 0 then 29 else 22 }
+    if k == terrain.GATE { return 250 }
+    if k == terrain.GRASS { return 101 }
+    if k == terrain.TRUNK { return 95 }
+    22
+}
+
+/// The Burn's keyframe (cb14): black and grey, the ash in two greys, the
+/// charred trunks darker, the drifts pale; the embers' orange is the
+/// ember's own.
+fn burn_ink(t: int, k: int, foliage: int) -> int {
+    if t != tier.RICH {
+        if k == terrain.ASH { return 8 }
+        if k == terrain.CHAR { return 7 }
+        if k == terrain.DRIFT { return 7 }
+        if k == terrain.GATE { return 7 }
+        return 8
+    }
+    if k == terrain.ASH { return if foliage % 2 == 0 then 240 else 242 }
+    if k == terrain.CHAR { return 243 }
+    if k == terrain.DRIFT { return 250 }
+    if k == terrain.GATE { return 238 }
+    if k == terrain.TRUNK { return 95 }
+    if k == terrain.GRASS { return 240 }
+    236
+}
+
+/// The Underteeth's keyframe (cb14): violet-black, the wet walls in two
+/// violet greys, the floor's marks a wet grey, the glow-worms' pink.
+fn cave_ink(t: int, k: int, foliage: int) -> int {
+    if t != tier.RICH {
+        if k == terrain.CAVE { return 5 }
+        if k == terrain.GRAVEL { return 8 }
+        if k == terrain.GLOW { return 13 }
+        if k == terrain.GATE { return 5 }
+        return 8
+    }
+    if k == terrain.CAVE { return if foliage % 2 == 0 then 60 else 97 }
+    if k == terrain.GRAVEL { return 102 }
+    if k == terrain.GLOW { return 213 }
+    if k == terrain.GATE { return 60 }
+    60
+}
+
+/// The Howe's keyframe (cb14): grey-green turf in two tones, the barrows
+/// a darker grey-green, the standing stones white, the wood's night at
+/// the edges.
+fn howe_ink(t: int, k: int, foliage: int) -> int {
+    if t != tier.RICH {
+        if k == terrain.GRASS { return 2 }
+        if k == terrain.MOUND { return 8 }
+        if k == terrain.MENHIR { return 15 }
+        if k == terrain.TRUNK { return 3 }
+        if k == terrain.GATE { return 7 }
+        return 2
+    }
+    if k == terrain.GRASS { return if foliage % 2 == 0 then 65 else 108 }
+    if k == terrain.MOUND { return 102 }
+    if k == terrain.MENHIR { return 252 }
+    if k == terrain.TRUNK { return 59 }
+    if k == terrain.GATE { return 250 }
+    if k == terrain.CANOPY { return if foliage % 4 < 2 then 23 else 17 }
+    17
 }
 
 /// Gravehollow's keyframe (cb04): night in the deep wood, the brush in
@@ -578,9 +859,83 @@ fn frame(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid, hud: bool, scent: i
     draw_boss_bar(s, t, mut g)
     world_lines(s, t, mut g)
     if s.gate_hint_until > s.tick {
-        draw.put_text(mut g, s.rows - 2, 1, "the thorns need a lunge", ink(t, true))
+        draw.put_text(
+            mut g,
+            s.rows - 2,
+            1,
+            if s.area == forest.BURN {
+                "the burnt oak needs a lunge"
+            } else if s.area == forest.HOWE {
+                "the stone mouth needs a lunge"
+            } else {
+                "the thorns need a lunge"
+            },
+            ink(t, true),
+        )
     }
+    if sim.revealing(s) { draw_reveal(s, t, mut g) }
     if s.pouch.open { inventory.render(s, t, mut g) }
+}
+
+/// The lookout's reveal (cb14, the Stand): for sixty ticks the frame
+/// pulls back to the whole of Thornmere, the areas' names fading in where
+/// they lie along the way home, the Underteeth beside the Teeth, the cub's
+/// own area marked. A schematic, not a zoomed render (R-cb14-4 A).
+fn draw_reveal(s: sim.Sim, t: int, mut g: grid.Grid) {
+    let age = s.tick - s.reveal_at
+    let bg = if t == tier.RICH then 236 else 0
+    let dim = if t == tier.RICH then 243 else 8
+    let bright = if t == tier.RICH then 254 else 15
+    var row = 1
+    while row < s.rows - 1 {
+        var col = 0
+        while col < s.cols { grid.put(mut g, row, col, grid.cell(32, dim, bg, 0)); col += 1 }
+        row += 1
+    }
+    // The way home climbs the frame: the Shingle at the bottom left,
+    // Gravehollow at the top right, one station an area.
+    let line = [0, 6, 1, 7, 2, 8, 3, 9, 4, 5, 11, 12]
+    let stations = 12
+    let top = 2
+    let bottom = s.rows - 4
+    let left = 4
+    let right = s.cols - 22
+    var k = 0
+    while k < stations {
+        let area = line[k]
+        let r = bottom - (bottom - top) * k / (stations - 1)
+        let c = left + (right - left) * k / (stations - 1)
+        let shown = age >= k * 4
+        if shown {
+            let fresh = age < k * 4 + 8
+            let here = area == s.area
+            let style = grid.cell(
+                32,
+                if here then bright else if fresh then dim else bright,
+                bg,
+                if here then grid.ATTR_BOLD else 0,
+            )
+            draw.put_text(mut g, r, c + 2, forest.name(area), style)
+            grid.put(mut g, r, c, grid.cell(if here then 64 else 111, style.fg, bg, style.attrs))
+            if k > 0 {
+                // The way between the stations: a dotted climb.
+                let pr = bottom - (bottom - top) * (k - 1) / (stations - 1)
+                let pc = left + (right - left) * (k - 1) / (stations - 1)
+                var i = 1
+                while i < 4 {
+                    grid.put(mut g, pr + (r - pr) * i / 4, pc + (c - pc) * i / 4, grid.cell(46, dim, bg, 0))
+                    i += 1
+                }
+            }
+            if area == forest.CRAGS {
+                // The Underteeth hangs under the Teeth.
+                draw.put_text(mut g, r + 1, c + 4, "(" + forest.name(forest.UNDERTEETH) + ")", grid.cell(32, dim, bg, 0))
+            }
+        }
+        k += 1
+    }
+    draw.put_text(mut g, 1, 1, "Thornmere, from the lookout", grid.cell(32, bright, bg, grid.ATTR_BOLD))
+    draw.put_text(mut g, s.rows - 2, 1, lore.line(lore.STAND_LINE), grid.cell(32, dim, bg, 0))
 }
 
 /// The cub (or the wolf) as the frame draws it, nothing else: the roll's
@@ -1029,7 +1384,9 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
                 let (ddx, ddy) = d
                 world_prop(s, t, mut g, lx + ddx, wy + ddy, props.STUMP, false)
             }
-        } else {
+        } else if kind != forest.LM_MENHIR {
+            // A standing stone is its own terrain (the mark on its face
+            // when read, `terrain_row`); every other landmark a drawing.
             world_prop(
                 s,
                 t,
@@ -1043,6 +1400,13 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
                     4 => props.CLEFT,
                     5 => props.WILLOW,
                     6 => props.PERCH,
+                    8 => props.LOOKOUT,
+                    9 => props.RUIN,
+                    10 => props.KILN,
+                    11 => props.SETT,
+                    12 => props.POST,
+                    13 => props.BONEHEAP,
+                    15 => props.MOUTH,
                     _ => props.SCENT_MARK,
                 },
                 false,
@@ -1081,20 +1445,29 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
     } else if s.area == forest.TOWN {
         world_prop(s, t, mut g, 0, way_on, props.THICKET, false)
     } else if s.area == forest.BRAMBLEHOLD {
-        world_prop(s, t, mut g, 0, way_on, props.MEADOW, false)
+        world_prop(s, t, mut g, 0, way_on, props.PINES, false)
         world_prop(s, t, mut g, 12, forest.BOAR_ROW - 2, props.BOAR, false)
         world_prop(s, t, mut g, -10, 24, props.EMBER, false)
         world_prop(s, t, mut g, -4, 18, props.BONES, false)
     } else if s.area == forest.LARKMEADOW {
         world_prop(s, t, mut g, 10, 24, props.TREE, false)
-        world_prop(s, t, mut g, 0, way_on, props.CRAGS, false)
+        world_prop(s, t, mut g, 0, way_on, props.CHARRED, false)
     } else if s.area == forest.CRAGS {
-        world_prop(s, t, mut g, 0, way_on, props.RIVER, false)
+        world_prop(s, t, mut g, 0, way_on, props.MERE, false)
         world_prop(s, t, mut g, 8, 30, props.TRACKS, false)
     } else if s.area == forest.RIVER {
-        world_prop(s, t, mut g, 0, way_on, props.OLD_DEN, false)
-    } else {
+        world_prop(s, t, mut g, 0, way_on, props.HUSH, false)
+    } else if s.area == forest.HUSH {
         world_prop(s, t, mut g, 0, 36, props.TRACKS, false)
+        world_prop(s, t, mut g, 0, way_on, props.HOWE, false)
+    } else if s.area == forest.STAND {
+        world_prop(s, t, mut g, 0, way_on - 6, props.MEADOW, false)
+    } else if s.area == forest.BURN {
+        world_prop(s, t, mut g, 0, way_on - 6, props.CRAGS, false)
+    } else if s.area == forest.MERE {
+        world_prop(s, t, mut g, 0, way_on, props.RIVER, false)
+    } else if s.area == forest.HOWE {
+        world_prop(s, t, mut g, 0, way_on - 6, props.OLD_DEN, false)
     }
     var edge = 0
     while edge < forest.EDGES {
@@ -1119,6 +1492,16 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
                         props.HEDGE
                     } else if edge == 7 {
                         props.LEDGE
+                    } else if edge == forest.EDGE_SCREE {
+                        props.SCREE
+                    } else if edge == forest.EDGE_STREAMBED {
+                        props.STREAM
+                    } else if edge == forest.EDGE_RAFT {
+                        props.RAFT
+                    } else if edge == forest.EDGE_SETT {
+                        props.SETT
+                    } else if edge == forest.EDGE_ROOTS {
+                        props.ROOTS
                     } else {
                         props.FORD
                     },
@@ -1541,6 +1924,22 @@ fn plain_ashen(phase: int, fade: int, facing: int) -> List[str] {
 /// What the forest says at a landmark (cb05): the scent marks' lines, the
 /// raven's first words, the burn's three places.
 fn landmark_line(area: int, kind: int, k: int) -> str {
+    // cb14's places say their areas' lines (the-proposals.md section 3):
+    // the lookout the Stand's, the kiln the Burn's, the causeway's post
+    // the Mere's, the bone heap the Underteeth's, the stone mouth the
+    // Howe's, each standing stone an alpha's.
+    if kind == forest.LM_LOOKOUT { return lore.line(lore.STAND_LINE) }
+    if kind == forest.LM_KILN { return lore.line(lore.BURN_LINE) }
+    if kind == forest.LM_POST { return lore.line(lore.MERE_LINE) }
+    if kind == forest.LM_BONES { return lore.line(lore.UNDERTEETH_LINE) }
+    if kind == forest.LM_MOUTH { return lore.line(lore.HOWE_LINE) }
+    if kind == forest.LM_MENHIR { return lore.line(lore.MENHIR_FIRST + k) }
+    if kind == forest.LM_RUIN {
+        return "The cutters' ruin: four walls, no roof, and hawks' feathers on every sill."
+    }
+    if kind == forest.LM_SETT {
+        return "A badger's sett under the stone, dug deep. It smells of winters, and of bones."
+    }
     if kind == forest.LM_SCENT {
         return lore.line(
             if area == forest.TOWN {
@@ -2331,6 +2730,7 @@ pub fn opening_frame(s: sim.Sim, t: int, mut g: grid.Grid) {
 
 /// The line at a shortcut's mouth: how it opens, or that it is open.
 fn shortcut_hint(s: sim.Sim, edge: int) -> str {
+    if edge >= forest.EDGE_SCREE { return later_hint(s, edge) }
     if edge == 2 {
         if sim.shortcut_open(s, edge) {
             "r cross the fallen log"
@@ -2361,6 +2761,55 @@ fn shortcut_hint(s: sim.Sim, edge: int) -> str {
         "The ford is the elk's; beat it and the shallows are yours"
     } else {
         "The current is too strong here; the ford is upstream"
+    }
+}
+
+/// The lines at cb14's mouths: how each opens, or that it is open.
+fn later_hint(s: sim.Sim, edge: int) -> str {
+    let open = sim.shortcut_open(s, edge)
+    if edge == forest.EDGE_SCREE {
+        if open { return "r take the scree" }
+        return if s.area == forest.STAND {
+            "r slide down the scree to the split roots"
+        } else {
+            "A scree slope, loose; the way up is through the Stand"
+        }
+    }
+    if edge == forest.EDGE_STREAMBED {
+        if open { return "r follow the dry streambed" }
+        return if s.area == forest.BURN {
+            "r go down the dry streambed to Larkmeadow"
+        } else {
+            "A dry streambed choked with ash; it opens from the Burn"
+        }
+    }
+    if edge == forest.EDGE_RAFT {
+        if open { return "r pole the raft" }
+        return if s.area == forest.MERE {
+            "r pole the log raft back to the Teeth"
+        } else {
+            "A raft's mooring, empty; the raft is on the Mere"
+        }
+    }
+    if edge == forest.EDGE_SETT {
+        if open { return "r squeeze through the sett" }
+        return if s.area == forest.CRAGS {
+            (
+                if s.paw >= sim.UNDERTEETH_PAW {
+                    "r squeeze into Dunmoss's sett; the way under"
+                } else {
+                    "Dunmoss's sett: too narrow yet; grow your paw"
+                }
+            )
+        } else {
+            "The sett's mouth, from below"
+        }
+    }
+    if open { return "r climb the roots" }
+    if s.area == forest.UNDERTEETH {
+        "r climb Gravehollow's roots out into the Hush"
+    } else {
+        "Roots down into the dark; they are climbed from below"
     }
 }
 
@@ -3236,7 +3685,11 @@ pub fn den_rows(den: int) -> List[str] {
         5 => ["\\\\|_|//", " (   ) ", "~~\\_/~~"],
         6 => ["/\\___/\\", "(     )", "(_/ \\_)"],
         7 => ["o o o o", "o(   )o", "o o o o"],
-        _ => ["_.-~-._", "( ~ ~ )", " '-.-' "],
+        11 => ["_.-~-._", "( ~ ~ )", " '-.-' "],
+        12 => ["\\|/ \\|/", " (   ) ", "/|\\ /|\\"],
+        13 => [".-###-.", "#(   )#", "'-###-'"],
+        14 => ["~~\\_/~~", "~(   )~", "~~/_\\~~"],
+        _ => ["o o _ o", "o(   )o", " o o o "],
     }
 }
 

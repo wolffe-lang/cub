@@ -61,12 +61,47 @@ pub const SP_ASH: int = 9
 pub const SP_WALL: int = 10
 
 /// An ember that never went out (cb05): a glowing coal (variant 0-1, the
-/// pulse).
+/// pulse; cb14: 2 the Burn's coal under the ash, 3 its flare).
 pub const SP_EMBER: int = 11
+
+/// The Stand's needle floor (cb14): bare, two needle marks, the crown of a
+/// pine (variant 3, drawn in the cell up-left of a trunk's top).
+pub const SP_NEEDLES: int = 12
+
+/// A pine of the Stand: a full column.
+pub const SP_PINE: int = 13
+
+/// A charred trunk of the Burn (variant 0 standing, 1 and 2 leaning).
+pub const SP_CHAR: int = 14
+
+/// An ash drift (variant 0-1).
+pub const SP_DRIFT: int = 15
+
+/// A stepping stone of the Mere (variant 0 dry, 1 sinking).
+pub const SP_STONE: int = 16
+
+/// The Underteeth's wall (variant 0-1: the stone and its damp edge).
+pub const SP_CAVE: int = 17
+
+/// A glow-worm cluster (variant 0-1: the pulse).
+pub const SP_GLOW: int = 18
+
+/// The Underteeth's spring (variant 0 the pool, 1 its ripple).
+pub const SP_SPRING: int = 19
+
+/// A barrow of the Howe (variant 0-2: its three cells, west to east).
+pub const SP_MOUND: int = 20
+
+/// A standing stone (variant 0 the stone, 1 its mark when read).
+pub const SP_MENHIR: int = 21
+
+/// A gate's cells (variant 0 the windthrown pine, 1 the burnt oak, 2 the
+/// stone mouth, 3 the sett's squeeze).
+pub const SP_GATE: int = 22
 
 /// The number of sprites (every id below this). The cub and the foes are
 /// not sprites here: they are `silhouette`'s bitmaps.
-pub const SPRITE_COUNT: int = 12
+pub const SPRITE_COUNT: int = 23
 
 /// The most variants any sprite has (the canopy's and the gravel's four).
 pub const VARIANT_COUNT: int = 4
@@ -251,7 +286,77 @@ fn rich(sprite: int, v: int) -> grid.Cell {
                 0,
             ),  // SP_ASH
         10 => c(t, if v % 2 == 0 then 0x2593 else 0x2592, C_MARK, C_GRAVEL, 0),  // SP_WALL
-        11 => c(t, if v % 2 == 0 then 0x2736 else 0x2735, C_MARK, C_GRAVEL, grid.ATTR_BOLD),  // SP_EMBER
+        11 =>
+            c(
+                t,
+                if v % 4 == 0 {
+                    0x2736
+                } else if v % 4 == 1 {
+                    0x2735
+                } else if v % 4 == 2 {
+                    0x28E4
+                } else {
+                    0x28FF
+                },
+                C_MARK,
+                C_GRAVEL,
+                grid.ATTR_BOLD,
+            ),  // SP_EMBER
+        12 =>
+            c(
+                t,
+                if v % 4 == 0 {
+                    32
+                } else if v % 4 == 1 {
+                    0x2801
+                } else if v % 4 == 2 {
+                    0x2802
+                } else {
+                    0x28C0
+                },
+                C_MARK,
+                C_FLOOR,
+                0,
+            ),  // SP_NEEDLES
+        13 => c(t, 0x28FF, C_CANOPY, C_FLOOR, 0),  // SP_PINE
+        14 =>
+            c(
+                t,
+                if v % 3 == 0 then 0x2847 else if v % 3 == 1 then 0x28B8 else 0x2838,
+                C_MARK,
+                C_FLOOR,
+                0,
+            ),  // SP_CHAR
+        15 => c(t, 0x2591, C_MARK, C_FLOOR, 0),  // SP_DRIFT
+        16 => c(t, 0x28FF, C_MARK, C_WATER, if v % 2 == 0 then 0 else grid.ATTR_DIM),  // SP_STONE
+        17 => c(t, if v % 2 == 0 then 0x2593 else 0x2592, C_MARK, C_FLOOR, 0),  // SP_CAVE
+        18 => c(t, if v % 2 == 0 then 0x2836 else 0x283F, C_MARK, C_FLOOR, grid.ATTR_BOLD),  // SP_GLOW
+        19 => c(t, if v % 2 == 0 then 0x28C0 else 0x2248, C_SHALLOW, C_WATER, 0),  // SP_SPRING
+        20 =>
+            c(
+                t,
+                if v % 3 == 0 then 0x28E0 else if v % 3 == 1 then 0x28E4 else 0x28C4,
+                C_MARK,
+                C_FLOOR,
+                0,
+            ),  // SP_MOUND
+        21 => c(t, if v % 2 == 0 then 0x28FF else 0x281B, C_MARK, C_FLOOR, 0),  // SP_MENHIR
+        22 =>
+            c(
+                t,
+                if v % 4 == 0 {
+                    0x28C0
+                } else if v % 4 == 1 {
+                    0x2847
+                } else if v % 4 == 2 {
+                    0x2593
+                } else {
+                    0x2592
+                },
+                C_MARK,
+                C_FLOOR,
+                0,
+            ),  // SP_GATE
         _ => grid.blank(),
     }
 }
@@ -298,7 +403,25 @@ fn plain(sprite: int, v: int) -> grid.Cell {
                 0,
             ),  // SP_ASH
         10 => c(t, if v % 2 == 0 then 35 else 37, C_MARK, C_GRAVEL, 0),  // SP_WALL
-        11 => c(t, if v % 2 == 0 then 42 else 43, C_MARK, C_GRAVEL, grid.ATTR_BOLD),  // SP_EMBER
+        11 =>
+            c(
+                t,
+                if v % 4 == 0 then 42 else if v % 4 == 1 then 43 else if v % 4 == 2 then 42 else 64,
+                C_MARK,
+                C_GRAVEL,
+                grid.ATTR_BOLD,
+            ),  // SP_EMBER
+        12 => c(t, if v % 4 == 0 || v % 4 == 3 then 32 else 46, C_MARK, C_FLOOR, 0),  // SP_NEEDLES
+        13 => c(t, 124, C_CANOPY, C_FLOOR, 0),  // SP_PINE
+        14 => c(t, if v % 3 == 0 then 33 else if v % 3 == 1 then 47 else 92, C_MARK, C_FLOOR, 0),  // SP_CHAR
+        15 => c(t, 58, C_MARK, C_FLOOR, 0),  // SP_DRIFT
+        16 => c(t, if v % 2 == 0 then 111 else 46, C_MARK, C_WATER, 0),  // SP_STONE
+        17 => c(t, if v % 2 == 0 then 35 else 37, C_MARK, C_FLOOR, 0),  // SP_CAVE
+        18 => c(t, if v % 2 == 0 then 111 else 79, C_MARK, C_FLOOR, grid.ATTR_BOLD),  // SP_GLOW
+        19 => c(t, 126, C_SHALLOW, C_WATER, 0),  // SP_SPRING
+        20 => c(t, if v % 3 == 0 then 47 else if v % 3 == 1 then 94 else 92, C_MARK, C_FLOOR, 0),  // SP_MOUND
+        21 => c(t, 73, C_MARK, C_FLOOR, 0),  // SP_MENHIR
+        22 => c(t, if v % 4 == 0 then 61 else if v % 4 == 1 then 33 else if v % 4 == 2 then 35 else 37, C_MARK, C_FLOOR, 0),  // SP_GATE
         _ => grid.blank(),
     }
 }
