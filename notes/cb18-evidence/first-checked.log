@@ -1,0 +1,14 @@
+cb18 waits for Mac build lock 2026-10-28T07:38:37Z
+cb18 waits for Mac build lock 2026-10-28T07:39:07Z
+cb18 waits for Mac build lock 2026-10-28T07:39:37Z
+cb18 waits for Mac build lock 2026-10-28T07:40:07Z
+cb18 waits for Mac build lock 2026-10-28T07:40:37Z
+cb18 waits for Mac build lock 2026-10-28T07:41:07Z
+cb18 waits for Mac build lock 2026-10-28T07:41:37Z
+test src/newfoes_test.lu::test_cb18_each_new_foe_has_a_readable_tell_and_recovery ... ok
+test src/newfoes_test.lu::test_cb18_wisp_bite_snuffs_without_killing_or_scent ... FAILED (trap(assert))
+test src/newfoes_test.lu::test_cb18_moths_lose_two_per_bite_and_drop_four_each ... ok
+test src/newfoes_test.lu::test_cb18_burn_has_forty_ticks_and_does_not_lick_out ... ok
+test src/newfoes_test.lu::test_cb18_water_cures_burn_before_the_next_damage_tick ... ok
+test src/newfoes_test.lu::test_cb18_heron_parry_never_turns_the_spear ... ok
+wolf test: 5 passed; 1 failed; 0 rejected; 0 unsupported; 485 filtered out

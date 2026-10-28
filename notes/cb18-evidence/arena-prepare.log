@@ -1,0 +1,29 @@
+test src/newfoes_art_test.lu::test_cb18_marten_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_adder_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_moths_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_heron_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_glow_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_wisp_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_moth_dimming_keeps_every_glyph_and_uses_dim_on_both_tiers ... ok
+test src/newfoes_art_test.lu::test_cb18_glow_contact_flashes_exactly_six_frames_and_scatters_the_cluster ... ok
+test src/newfoes_art_test.lu::test_cb18_snuffed_wisp_returns_at_three_hundred_not_before ... ok
+test src/newfoes_art_test.lu::test_cb18_moth_bitmap_loses_two_visible_moths_per_bite ... ok
+test src/newfoes_art_test.lu::test_cb18_glow_worms_carry_light_and_their_death_darkens_the_cave ... ok
+test src/newfoes_test.lu::test_cb18_each_new_foe_has_a_readable_tell_and_recovery ... ok
+test src/newfoes_test.lu::test_cb18_wisp_bite_snuffs_without_killing_or_scent ... ok
+test src/newfoes_test.lu::test_cb18_moths_lose_two_per_bite_and_drop_four_each ... ok
+test src/newfoes_test.lu::test_cb18_burn_has_forty_ticks_and_does_not_lick_out ... ok
+test src/newfoes_test.lu::test_cb18_water_cures_burn_before_the_next_damage_tick ... ok
+test src/newfoes_test.lu::test_cb18_heron_parry_never_turns_the_spear ... ok
+test src/newfoes_test.lu::test_cb18_marten_movement_has_no_invisible_boss_arena_boundary ... ok
+test src/newfoes_test.lu::test_cb18_burn_damage_continues_during_dodge_iframes ... ok
+test src/newfoes_test.lu::test_cb18_adder_line_misses_a_body_off_the_committed_ray ... ok
+wolf test: 20 passed; 0 failed; 0 rejected; 0 unsupported; 485 filtered out
+build: target/native/cub
+encounter 9 ticks 74 done 1 parity 1 bites 2 dodges 0 theft 1 returned 1 dim 0 flash 0 health 75
+encounter 10 ticks 14 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 0 health 76
+encounter 11 ticks 42 done 1 parity 1 bites 2 dodges 0 theft 0 returned 0 dim 1 flash 0 health 76
+encounter 12 ticks 62 done 1 parity 1 bites 2 dodges 2 theft 0 returned 0 dim 0 flash 0 health 76
+encounter 13 ticks 17 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 1 health 76
+encounter 14 ticks 11 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 0 health 76
+diagonal-study: 410 states, 75 unique drawings, four facings, both fields and tiers

@@ -1,0 +1,7 @@
+build: target/native/cub
+encounter 9 ticks 263 done 1 parity 1 bites 2 dodges 0 theft 1 returned 1 dim 0 flash 0 health 75
+encounter 10 ticks 14 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 0 health 76
+encounter 11 ticks 42 done 1 parity 1 bites 2 dodges 0 theft 0 returned 0 dim 1 flash 0 health 76
+encounter 12 ticks 62 done 1 parity 1 bites 2 dodges 2 theft 0 returned 0 dim 0 flash 0 health 76
+encounter 13 ticks 11 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 0 health 76
+encounter 14 ticks 11 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 0 health 76

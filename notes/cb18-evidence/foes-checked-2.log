@@ -1,0 +1,11 @@
+test src/newfoes_art_test.lu::test_cb18_four_way_new_sprites_fit_their_hit_bodies_on_both_tiers ... unsupported (step budget exhausted)
+test src/newfoes_art_test.lu::test_cb18_moth_dimming_keeps_every_glyph_and_uses_dim_on_both_tiers ... ok
+test src/newfoes_art_test.lu::test_cb18_glow_contact_flashes_exactly_six_frames_and_scatters_the_cluster ... FAILED (trap(assert))
+test src/newfoes_art_test.lu::test_cb18_snuffed_wisp_returns_at_three_hundred_not_before ... ok
+test src/newfoes_test.lu::test_cb18_each_new_foe_has_a_readable_tell_and_recovery ... ok
+test src/newfoes_test.lu::test_cb18_wisp_bite_snuffs_without_killing_or_scent ... ok
+test src/newfoes_test.lu::test_cb18_moths_lose_two_per_bite_and_drop_four_each ... ok
+test src/newfoes_test.lu::test_cb18_burn_has_forty_ticks_and_does_not_lick_out ... ok
+test src/newfoes_test.lu::test_cb18_water_cures_burn_before_the_next_damage_tick ... ok
+test src/newfoes_test.lu::test_cb18_heron_parry_never_turns_the_spear ... ok
+wolf test: 8 passed; 1 failed; 0 rejected; 1 unsupported; 485 filtered out
