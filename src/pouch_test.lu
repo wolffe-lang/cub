@@ -217,9 +217,9 @@ fn test_cb15_a_found_frame_appends_its_existing_words_without_r() {
     )
     assert(
         lore.ASH_SHELTER == 11 &&
-            lore.COUNT == 13 &&
+            lore.COUNT == 32 &&
             lore.line(11).starts_with("The charred frame"),
-        "append-only words",
+        "append-only words (cb14 appends 13..31)",
     )
 }
 
