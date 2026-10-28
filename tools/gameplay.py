@@ -44,6 +44,8 @@ def check_fox_contact(before, after):
 
 
 def check(binary):
+    import runpy
+    runpy.run_path(str(ROOT / 'tools/combo-timing.py'))['check'](binary)
     expected = {}
     for tier in ('rich', 'plain'):
         for name in ('bite', 'parry', 'dodge', 'weasel-retreat', 'fox-feint',
