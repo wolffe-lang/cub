@@ -129,6 +129,7 @@ fn usage_text() -> str {
         "  cub --paths-audit / --doorways-audit / --foes-audit  route and clipping censuses\n" +
         "  cub --hit-census                  every boss/Ashen body-ring bite, as CSV\n" +
         "  cub --new-foe-census              six foes, 50 seeds x 2 sizes, ordinary-key fairness/contact audit\n" +
+        "  cub --new-foe-hit-census          appended six-foe bite/snuff rings, as CSV\n" +
         "  cub --new-foe-proof DIR           record and replay six disclosed test-arena encounters\n" +
         "  cub --narrow-audit AREA LENGTH    diagonal single-file clearance, fifty seeds\n" +
         "  cub --probe-glyphs                measure the rich glyphs' widths here\n" +
@@ -1461,6 +1462,7 @@ fn main() -> int {
         return memprobe.census(args[1].to_int() else 0, args[2], args[3])
     }
     if args.len > 0 && args[0] == "--new-foe-census" { return fight.new_foe_census() }
+    if args.len > 0 && args[0] == "--new-foe-hit-census" { return hitcensus.new_foe_census() }
     if args.len == 2 && args[0] == "--new-foe-proof" { return foeproof.generate(args[1]) }
     if args.len > 0 && args[0] == "--doorways-audit" { return doorproof.census() }
     if args.len > 0 && args[0] == "--den-spacing" { return wide.den_spacing() }

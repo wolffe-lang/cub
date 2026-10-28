@@ -58,14 +58,20 @@ pub fn bite(mut s: sim.Sim, x: int, y: int, aim: int) -> bool {
     s.foes[0].health = 1000
     s.foes[0].last_hit = -1
     sim.strike_foes(mut s)
-    s.foes[0].health < 1000
+    s.foes[0].health < 1000 || s.foes[0].kind == sim.WISP && s.foes[0].phase == sim.SNUFFED
 }
 
 /// Print every ring pair as CSV and per-kind totals on stderr; exit zero.
-pub fn census() -> int {
+pub fn census() -> int { census_range(sim.HAWK, sim.ASHEN) }
+
+/// Appended cb18 rings, kept separate so the inherited census remains
+/// byte-comparable. A wisp hit means snuff, never health damage or death.
+pub fn new_foe_census() -> int { census_range(sim.MARTEN, sim.WISP) }
+
+fn census_range(first: int, last: int) -> int {
     print("kind,foe_quarter,x,y,aim,gap,hit")
-    var kind = sim.HAWK
-    while kind <= sim.ASHEN {
+    var kind = first
+    while kind <= last {
         var total = 0
         var hits = 0
         var quarter = 0
