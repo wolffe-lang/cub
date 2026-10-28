@@ -1,0 +1,106 @@
+//! Explicit cb18 test arenas, separate from the live journey parser.
+//! Replays use the existing pk1 key vocabulary; the command's foe argument
+//! selects the disclosed arena fixture, never an event that teleports play.
+
+use art
+use controls
+use fight
+use grid
+use headless
+use replay
+use sim
+use std.fs
+use tier
+
+/// Record all six ordinary-key encounters, replay them from the initial
+/// fixture, compare final state, and retain tells/status frames both tiers.
+pub fn generate(dir: str) -> int {
+    fs.create_dir_all(dir) else { return 2 }
+    var kind = sim.MARTEN
+    while kind <= sim.WISP {
+        region encounter {
+            var s = sim.new_foe_arena(1, 80, 24, kind)
+            if kind == sim.MARTEN { s.scent = 20 }
+            var r = replay.new(1, tier.RICH, 80, 24)
+            var st = fight.fighter()
+            var tick = 0
+            var bites = 0
+            var dodges = 0
+            var theft = false
+            var dim = false
+            var flashed = false
+            var returned = false
+            var done = false
+            while tick < fight.FIGHT_TICKS && s.action != sim.FALL && !done {
+                var keys = List[int]()
+                if kind == sim.MARTEN && !theft {
+                    // Deliberately let the visible landing connect before
+                    // answering; no water or inventory key is generated.
+                } else {
+                    keys = fight.fight_keys(s, 0, mut st)
+                }
+                for key in keys {
+                    replay.push_key(mut r, tick, key)
+                    if key == controls.KEY_BITE { bites += 1 }
+                    if key == controls.KEY_DODGE { dodges += 1 }
+                }
+                sim.step(mut s, keys)
+                if s.foes[0].stolen_scent > 0 || s.foes[0].stolen_item >= 0 { theft = true }
+                if theft && s.foes[0].stolen_scent == 0 && s.foes[0].stolen_item < 0 {
+                    returned = true
+                }
+                if sim.moths_near(s) { dim = true }
+                if s.blind_until > s.tick { flashed = true }
+                // A few complete frames, never just a detached sprite.
+                if tick == 0 || tick == 12 || tick == 24 || tick == 58 {
+                    for t in [tier.RICH, tier.PLAIN] {
+                        var g = grid.new(24, 80)
+                        art.render(s, t, mut g)
+                        headless.write_frame(dir, "foe-{kind}-{t}-{tick}", g) else { return 2 }
+                    }
+                }
+                done = s.foes[0].health <= 0 || s.foes[0].phase == sim.SNUFFED
+                tick += 1
+            }
+            var bytes = List[byte]()
+            replay.format(r, controls.vocab(), mut bytes)
+            fs.write_bytes("{dir}/foe-{kind}.pk", bytes) else { return 2 }
+            let text = fs.read_text("{dir}/foe-{kind}.pk") else { return 2 }
+            let decoded = replay.from_text(text, controls.vocab()) else { return 2 }
+            let again = replay_arena(kind, decoded, tick)
+            let parity = again.x == s.x &&
+                again.y == s.y &&
+                again.health == s.health &&
+                again.scent == s.scent &&
+                again.foes[0].phase == s.foes[0].phase &&
+                again.foes[0].health == s.foes[0].health
+            print(
+                "encounter {kind} ticks {tick} done {if done then 1 else 0} parity {if parity then 1 else 0} bites {bites} dodges {dodges} theft {if theft then 1 else 0} returned {if returned then 1 else 0} dim {if dim then 1 else 0} flash {if flashed then 1 else 0} health {s.health}",
+            )
+            if !done ||
+                !parity ||
+                kind == sim.MARTEN && (!theft || !returned) ||
+                kind == sim.CINDER_MOTHS && !dim ||
+                kind == sim.HERON && dodges == 0 {
+                return 1
+            }
+        }
+        kind += 1
+    }
+    0
+}
+
+/// Replay a previously recorded disclosed fixture with no scripted
+/// fighter involved; keys alone must reproduce the complete outcome.
+pub fn replay_arena(kind: int, r: replay.Replay, ticks: int) -> sim.Sim {
+    var s = sim.new_foe_arena(r.seed, r.cols, r.rows, kind)
+    if kind == sim.MARTEN { s.scent = 20 }
+    var at = 0
+    while at < ticks {
+        var keys = List[int]()
+        let _ = replay.at(r, at, mut keys)
+        sim.step(mut s, keys)
+        at += 1
+    }
+    s
+}
