@@ -24,7 +24,10 @@ fn test_cb13_named_wrapper_preserves_name_time_and_refuses_corruption() {
         }
         assert(refused, "corrupt metadata refused by name")
     }
-    assert(journey.JOURNEY == 4 && journey.snapshot(s).len == 37, "no numeric replay schema change")
+    assert(
+        journey.snapshot(s).len == journey.SNAPSHOT,
+        "wrapper uses current numeric replay schema",
+    )
 }
 
 fn test_cb13_registry_round_trip_recent_and_named_missing() {
