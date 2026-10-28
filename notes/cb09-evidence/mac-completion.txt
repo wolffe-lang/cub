@@ -1,0 +1,41 @@
+cb09 final Mac and soak completion
+
+Mac complete sourceb9d31817a664eaa5d207a736bc27f77dfe4d2d3b, attempt6:
+CB09_MAC_FINAL_3_EXIT 0 at2026-10-27T23:29:54Z.
+Raw mac-final-3.log retains every memory-floor refusal and the complete green.
+39 Python tests;422 checked tests,0 failed/rejected/unsupported,0 SKIP.
+Both builds/selftests, all goldens and pty rows, score and both gameplay
+stages green. Mac loudly skips only Linux /proc idle, twice as expected.
+Strict render means171/165us at80x24 rich/plain and1262/1249 at200x60;
+latency median<=33.0ms,p90<=33.4ms. No floor bypass or maintainer-process stop.
+
+Final fixed-window RSS bytes/actual tick, budget4096:
+Mac crash1,601,393.668 before ->-2,503.551257253385 after.
+After: tick88 RSS5439488 ->tick605 RSS4145152,517 ticks.
+Mac fresh41,118.147 before ->-1,100.6525911708254 after.
+After: tick88 RSS3276800 ->tick609 RSS2703360,521 ticks.
+The fresh before window had working-set drops; its final interval62711.172.
+Negative RSS slopes mean reclamation, not negative allocation counts.
+Linux final values are388.208897 crash and316.293436 fresh, preserved in
+linux-completion.txt. All four fixed rows pass4096 bytes/tick.
+
+Two-hour crash-checkpoint idle soak:
+CB09_SOAK_EXIT 0 at2026-10-27T23:55:18Z, raw soak.log.
+Sample start tick1785,60.009s,RSS10158080.
+Sample end tick216045,7202.007s,RSS3670016.
+214260 measured ticks,-6488064 resident bytes,-30.281265751890228 bytes/tick.
+All122 JSON records retained:121 RSS observations including launch,120
+nonzero-tick minute observations, plus the final summary. No sample omitted.
+Post-warmup RSS range3670016..11042816; worst adjacent-minute positive
+slope573.1215991116046 bytes/tick. Reclamation occurs throughout; no
+accumulating resident rise. This is flat within the4096-byte/tick budget.
+The1KiB/tick calibration envelope covers that worst interval and the Linux
+fixed slopes;4x slack gives4096 (about7.15x worst observed minute interval).
+
+Soak runtime9ea9287a; the later edits are Python harness/tests/prose/evidence,
+not runtime changes. Soak binary sha256:
+b8c2064b91a1309c31bfee4092c46dae5b471b629cf5717b26ff34ad47d94d78.
+
+Full Linux/Mac gates and the soak now complete; final PR/audit follow this
+receipt. README read/current, fixed budgets and amended Linux-pr/Mac-full
+tier placement documented; no golden/replay/ghost/PCM fixture changed.
