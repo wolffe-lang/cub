@@ -81,7 +81,15 @@ pub fn area_map(seed: int, area: int, field: int) -> int {
     var cache = 0
     while cache < forest.cache_count(area) {
         let (x, y) = forest.cache_position(seed, field, area, cache)
-        mark(mut marks, w, top, l, (x - forest.FP / 2) / forest.FP, (y - forest.FP / 2) / forest.FP - o, 67)
+        mark(
+            mut marks,
+            w,
+            top,
+            l,
+            (x - forest.FP / 2) / forest.FP,
+            (y - forest.FP / 2) / forest.FP - o,
+            67,
+        )
         cache += 1
     }
     var k = 0
@@ -357,8 +365,18 @@ pub fn den_spacing() -> int {
                         var ahead = next
                         while ahead >= 0 && dens_of(seed, ahead).len == 0 && walk >= 0 {
                             let (ax, ay) = exit_cell(seed, ahead)
-                            let through = at_cell(distances(seed, field, ahead, 0, 1), field, ahead, ax, ay)
-                            walk = if through < 0 || next_area(ahead) < 0 then -2 else walk + through
+                            let through = at_cell(
+                                distances(seed, field, ahead, 0, 1),
+                                field,
+                                ahead,
+                                ax,
+                                ay,
+                            )
+                            walk = if through < 0 || next_area(ahead) < 0 {
+                                -2
+                            } else {
+                                walk + through
+                            }
                             ahead = next_area(ahead)
                         }
                         if walk == -2 {
@@ -441,15 +459,39 @@ pub fn den_spacing() -> int {
                         let (sx, sy) = forest.portal(seed, u, forest.EDGE_SETT)
                         let (rx, ry) = forest.portal(seed, u, forest.EDGE_ROOTS)
                         let inside = distances(seed, field, u, ux, uy)
-                        let to_sett = at_cell(inside, field, u, sx / forest.FP, sy / forest.FP - forest.origin(seed, u))
-                        let to_roots = at_cell(inside, field, u, rx / forest.FP, ry / forest.FP - forest.origin(seed, u))
+                        let to_sett = at_cell(
+                            inside,
+                            field,
+                            u,
+                            sx / forest.FP,
+                            sy / forest.FP - forest.origin(seed, u),
+                        )
+                        let to_roots = at_cell(
+                            inside,
+                            field,
+                            u,
+                            rx / forest.FP,
+                            ry / forest.FP - forest.origin(seed, u),
+                        )
                         let (cx, cy) = den_cell(seed, area, dens[0])
                         let (mx, my) = forest.portal(seed, area, forest.EDGE_SETT)
-                        let teeth = at_cell(distances(seed, field, area, cx, cy), field, area, mx / forest.FP, my / forest.FP - forest.origin(seed, area))
+                        let teeth = at_cell(
+                            distances(seed, field, area, cx, cy),
+                            field,
+                            area,
+                            mx / forest.FP,
+                            my / forest.FP - forest.origin(seed, area),
+                        )
                         let hd = dens_of(seed, forest.HUSH)
                         let (hx, hy) = den_cell(seed, forest.HUSH, hd[0])
                         let (nx, ny) = forest.portal(seed, forest.HUSH, forest.EDGE_ROOTS)
-                        let hush = at_cell(distances(seed, field, forest.HUSH, hx, hy), field, forest.HUSH, nx / forest.FP, ny / forest.FP - forest.origin(seed, forest.HUSH))
+                        let hush = at_cell(
+                            distances(seed, field, forest.HUSH, hx, hy),
+                            field,
+                            forest.HUSH,
+                            nx / forest.FP,
+                            ny / forest.FP - forest.origin(seed, forest.HUSH),
+                        )
                         if to_sett < 0 || to_roots < 0 || teeth < 0 || hush < 0 {
                             print("den-spacing: the Underteeth unreached seed {seed} field {field}")
                             return 1

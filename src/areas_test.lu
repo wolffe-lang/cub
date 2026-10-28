@@ -215,7 +215,10 @@ fn arenas_are_open_ground_inside_their_bounds(seed: int) {
                     dy += 1
                 }
                 if area == forest.CRAGS {
-                    assert(pillars == 2 * forest.PILLARS, "three ledges, a column of two sampled each: {pillars}")
+                    assert(
+                        pillars == 2 * forest.PILLARS,
+                        "three ledges, a column of two sampled each: {pillars}",
+                    )
                 }
             }
             area += 1
@@ -303,7 +306,10 @@ fn texture_and_path_bars(lo: int, hi: int, step: int) {
                 let k = forest.kind(0, 80, area, x, forest.origin(0, area) + y)
                 // cb14: a stepping stone, a gate's cell, a glow-worm
                 // cluster or the spring on the route draws as itself.
-                if k != terrain.STONE && k != terrain.GATE && k != terrain.GLOW && k != terrain.SPRING {
+                if k != terrain.STONE &&
+                    k != terrain.GATE &&
+                    k != terrain.GLOW &&
+                    k != terrain.SPRING {
                     assert(
                         art.is_path_style(
                             area,
@@ -372,7 +378,10 @@ fn test_cb04_the_boar_clearing_is_a_branch_off_the_thicket() {
     while seed < 8 {
         let field = 80
         let (cx, cy, r) = forest.arena(seed, field, forest.BRAMBLEHOLD)
-        assert(cx == forest.BOAR_X && cy == forest.BOAR_ROW && r == forest.BOAR_RADIUS, "the clearing")
+        assert(
+            cx == forest.BOAR_X && cy == forest.BOAR_ROW && r == forest.BOAR_RADIUS,
+            "the clearing",
+        )
         var x = forest.spine(seed, forest.BRAMBLEHOLD, cy)
         while x <= cx {
             assert(

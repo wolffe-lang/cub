@@ -52,7 +52,9 @@ fn test_cb14_thirteen_areas_on_one_line_and_twenty_edges_agreeing() {
         var next = -1
         var edge = 0
         while edge < forest.EDGES {
-            if forest.path_edge(edge) && forest.other(area, edge) >= 0 && forest.exit_end(area, edge) {
+            if forest.path_edge(edge) &&
+                forest.other(area, edge) >= 0 &&
+                forest.exit_end(area, edge) {
                 assert(next < 0, "one way on from area {area}")
                 next = forest.other(area, edge)
             }
@@ -111,7 +113,10 @@ fn test_cb14_the_journey_grew_by_half_and_the_dens_fill_the_second_bank() {
     assert(forest.length(forest.UNDERTEETH) == 192, "the branch's length")
     // The four new dens take the save's reserved ids 12..15.
     assert(
-        forest.den_exists(12) && forest.den_exists(13) && forest.den_exists(14) && forest.den_exists(15),
+        forest.den_exists(12) &&
+            forest.den_exists(13) &&
+            forest.den_exists(14) &&
+            forest.den_exists(15),
         "the second bank filled",
     )
     assert(
@@ -132,7 +137,13 @@ fn test_cb14_the_journey_grew_by_half_and_the_dens_fill_the_second_bank() {
             let (x, y) = forest.den_position(seed, den)
             let area = forest.den_area(den)
             assert(
-                !forest.blocked(seed, 80, area, (x - sim.FP / 2) / sim.FP, (y - sim.FP / 2) / sim.FP),
+                !forest.blocked(
+                    seed,
+                    80,
+                    area,
+                    (x - sim.FP / 2) / sim.FP,
+                    (y - sim.FP / 2) / sim.FP,
+                ),
                 "den {den} on open ground seed {seed}",
             )
             den += 1
@@ -173,7 +184,13 @@ fn area_open(area: int) {
         if forest.den_area(den) == area {
             let (dx, dy) = forest.den_position(seed, den)
             assert(
-                !forest.blocked(seed, 80, area, (dx - sim.FP / 2) / sim.FP, (dy - sim.FP / 2) / sim.FP),
+                !forest.blocked(
+                    seed,
+                    80,
+                    area,
+                    (dx - sim.FP / 2) / sim.FP,
+                    (dy - sim.FP / 2) / sim.FP,
+                ),
                 "den {den} open seed {seed}",
             )
         }
@@ -191,12 +208,18 @@ fn area_open(area: int) {
     var k = 0
     while k < forest.landmark_count(area) {
         let (_, lx, ly) = forest.landmark(seed, 80, area, k)
-        assert(!forest.blocked(seed, 80, area, lx, o + ly), "landmark {k} open seed {seed} area {area}")
+        assert(
+            !forest.blocked(seed, 80, area, lx, o + ly),
+            "landmark {k} open seed {seed} area {area}",
+        )
         k += 1
     }
     if forest.has_arena(area) {
         let (ax, ay, _) = forest.arena(seed, 80, area)
-        assert(!forest.blocked(seed, 80, area, ax, o + ay), "arena centre open seed {seed} area {area}")
+        assert(
+            !forest.blocked(seed, 80, area, ax, o + ay),
+            "arena centre open seed {seed} area {area}",
+        )
     }
     assert(forest.straight_run(seed, area) <= forest.STRAIGHT_MAX, "straight run area {area}")
 }
@@ -256,7 +279,10 @@ fn test_cb14_the_arenas_grew_by_half_and_kept_their_shapes() {
     let (_, _, ar) = forest.arena(0, 80, forest.GRAVEHOLLOW)
     assert(lr == 14 && er == 18 && ar == 20, "the lynx's, the elk's, the alpha's")
     assert(ex > forest.river_bank(0, 80, ey), "the ford still straddles the bank")
-    assert(forest.has_arena(forest.GRAVEHOLLOW) && !forest.has_arena(forest.HUSH), "the alpha's is Gravehollow")
+    assert(
+        forest.has_arena(forest.GRAVEHOLLOW) && !forest.has_arena(forest.HUSH),
+        "the alpha's is Gravehollow",
+    )
     assert(sim.boss_of(forest.GRAVEHOLLOW) == sim.ALPHA, "the alpha")
     // The old den's bowl is open ground to its edge at both fields.
     for field in [80, 200] {
@@ -377,7 +403,12 @@ fn test_cb14_the_burnt_oak_and_the_stone_mouth_open_to_a_lunge_and_save() {
 fn test_cb14_the_sett_is_a_growth_gate_of_paw_two() {
     let seed = 1
     let (px, py) = forest.portal(seed, forest.CRAGS, forest.EDGE_SETT)
-    var s = standing(seed, forest.CRAGS, px / sim.FP + 5, py / sim.FP - forest.origin(seed, forest.CRAGS))
+    var s = standing(
+        seed,
+        forest.CRAGS,
+        px / sim.FP + 5,
+        py / sim.FP - forest.origin(seed, forest.CRAGS),
+    )
     assert(s.paw == 1, "a fresh cub's paw")
     assert(sim.blocked(s, px / sim.FP, py / sim.FP), "the squeeze holds a cub of paw one")
     s.x = px
@@ -474,8 +505,14 @@ fn test_cb14_a_stepping_stone_sinks_a_beat_after_the_step_and_rises() {
     while at <= l && !lands.stone_row(seed, l, at) { at += 1 }
     assert(at < l, "a stone row")
     let x = forest.spine(seed, area, at)
-    assert(forest.kind(seed, 80, area, x, forest.origin(seed, area) + at) == terrain.STONE, "a stone")
-    assert(!forest.on_path(seed, 80, area, x, forest.origin(seed, area) + at), "the stones are not path")
+    assert(
+        forest.kind(seed, 80, area, x, forest.origin(seed, area) + at) == terrain.STONE,
+        "a stone",
+    )
+    assert(
+        !forest.on_path(seed, 80, area, x, forest.origin(seed, area) + at),
+        "the stones are not path",
+    )
     var s = standing(seed, area, x, at)
     let seg = lands.stone_segment(at)
     assert(sim.stone_age(s, seg) < 0, "untouched")
@@ -496,13 +533,17 @@ fn test_cb14_a_stepping_stone_sinks_a_beat_after_the_step_and_rises() {
     while i < 80 {
         sim.step(mut a, keys)
         sim.step(mut b, keys)
-        assert(a.x == b.x && a.y == b.y && a.stamina == b.stamina && a.stones.len == b.stones.len, "tick {i}")
+        assert(
+            a.x == b.x && a.y == b.y && a.stamina == b.stamina && a.stones.len == b.stones.len,
+            "tick {i}",
+        )
         i += 1
     }
     // The dry island holds its den on open ground among the water.
     let (dx, dy) = forest.den_position(seed, 14)
     assert(
-        forest.kind(seed, 80, area, (dx - sim.FP / 2) / sim.FP, (dy - sim.FP / 2) / sim.FP) == terrain.REEDS,
+        forest.kind(seed, 80, area, (dx - sim.FP / 2) / sim.FP, (dy - sim.FP / 2) / sim.FP) ==
+            terrain.REEDS,
         "the den on the island",
     )
 }
@@ -550,7 +591,8 @@ fn test_cb14_schema_six_carries_thirteen_masks_and_five_migrates() {
     }
     let fresh = journey.encode(migrated)
     assert(
-        fresh.starts_with("CUB 6\n") && fresh.contains("slain 0 0 0 0 0 0 0 0 0 0 0 0 0\ngates 0\n"),
+        fresh.starts_with("CUB 6\n") &&
+            fresh.contains("slain 0 0 0 0 0 0 0 0 0 0 0 0 0\ngates 0\n"),
         "written as six with empty new masks",
     )
     // A journey-4 snapshot (37 values) is still read.
@@ -558,7 +600,10 @@ fn test_cb14_schema_six_carries_thirteen_masks_and_five_migrates() {
     var short = List[int]()
     var i = 0
     while i < 37 { (mut short).push(if i < 30 then v[i] else 0); i += 1 }
-    let from = journey.from_snapshot(short, 80, 24) else |e| { assert(false, "journey 4 read: {e}"); return }
+    let from = journey.from_snapshot(short, 80, 24) else |e| {
+        assert(false, "journey 4 read: {e}")
+        return
+    }
     assert(from.seed == 3 && from.gates == 0, "the old snapshot")
     assert(journey.JOURNEY == 5, "this build writes journey 5")
 }

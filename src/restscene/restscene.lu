@@ -152,7 +152,10 @@ fn surroundings(s: sim.Sim, t: int, mut g: grid.Grid, floor: int) {
                     cp = if t == tier.PLAIN then 94 else 0x28C0
                     fg = if t == tier.PLAIN then 2 else 22
                 }
-                if y > 10 && (x * 3 + y) % 7 == 0 { cp = 46; fg = if t == tier.PLAIN then 3 else 130 }
+                if y > 10 && (x * 3 + y) % 7 == 0 {
+                    cp = 46
+                    fg = if t == tier.PLAIN then 3 else 130
+                }
             } else if s.area == 8 {
                 // The kiln (cb14): a dome of brick round the fire, ash on
                 // the floor, charred trunks beyond its mouth.
@@ -160,13 +163,23 @@ fn surroundings(s: sim.Sim, t: int, mut g: grid.Grid, floor: int) {
                     cp = if t == tier.PLAIN then 35 else 0x2593
                     fg = if t == tier.PLAIN then 8 else 243
                 }
-                if y > 11 && (x * 5 + y) % 9 == 0 { cp = 46; fg = if t == tier.PLAIN then 8 else 240 }
-                if (x == 3 || x == 76) && y > 2 && y < 9 { cp = 33; fg = if t == tier.PLAIN then 7 else 238 }
+                if y > 11 && (x * 5 + y) % 9 == 0 {
+                    cp = 46
+                    fg = if t == tier.PLAIN then 8 else 240
+                }
+                if (x == 3 || x == 76) && y > 2 && y < 9 {
+                    cp = 33
+                    fg = if t == tier.PLAIN then 7 else 238
+                }
             } else if s.area == 9 {
                 // The dry island (cb14): the Mere's black water either
                 // side, the reeds at its edge, the mist beyond.
                 if x < 16 || x > 64 {
-                    cp = if (x + 2 * y) % 8 < 2 then (if t == tier.PLAIN then 126 else 0x28C0) else 32
+                    cp = if (x + 2 * y) % 8 < 2 {
+                        (if t == tier.PLAIN then 126 else 0x28C0)
+                    } else {
+                        32
+                    }
                     fg = if t == tier.PLAIN then 6 else 24
                 }
                 if (x == 16 || x == 64 || x == 18 || x == 62) && y > 3 {

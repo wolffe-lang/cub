@@ -3344,7 +3344,9 @@ fn shortcut_key(mut s: Sim) {
                     s.cue = 2
                     open_shortcut(mut s, edge)
                 }
-                if edge >= forest.EDGE_SCREE && !shortcut_open(s, edge) && opens_from_here(s, edge) {
+                if edge >= forest.EDGE_SCREE &&
+                    !shortcut_open(s, edge) &&
+                    opens_from_here(s, edge) {
                     s.cue = 3
                     open_shortcut(mut s, edge)
                 }

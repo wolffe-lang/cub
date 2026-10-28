@@ -325,7 +325,11 @@ pub fn landmarks(dir: str) -> int {
                 eprint("proof: no den for landmark {area}-{k}")
                 return 1
             }
-            let s0 = if den >= 0 then den_journey(seed, den) else fight.journey_at(seed, 80, 24, sim.ALPHA)
+            let s0 = if den >= 0 {
+                den_journey(seed, den)
+            } else {
+                fight.journey_at(seed, 80, 24, sim.ALPHA)
+            }
             var s = copy s0
             var r = snapshot_replay(s0)
             walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))

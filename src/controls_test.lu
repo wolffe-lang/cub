@@ -151,7 +151,10 @@ fn test_cb04b_input_events_do_not_overlap_schema_five_snapshot_slots() {
         part += 1
     }
     // cb14's seven slots follow the witness flag: nothing older moves.
-    assert(controls.saved_event(37) == 51 && controls.saved_event(43) == 57, "cb14's slots appended")
+    assert(
+        controls.saved_event(37) == 51 && controls.saved_event(43) == 57,
+        "cb14's slots appended",
+    )
     assert(
         controls.EV_PACE == 49 && v.args[controls.EV_PACE] == "pace",
         "pace appended after masks",

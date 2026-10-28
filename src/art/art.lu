@@ -211,7 +211,11 @@ pub fn ground_cell(seed: int, field: int, area: int, t: int, x: int, y: int, k: 
         if terrain.variant(seed, x, y, 5) == 0 then 1 + v % 3 else 0
     } else if k == terrain.EMBER {
         // The Burn's coal under the ash (cb14); the town's star.
-        if area == forest.BURN then 2 else ((x + y) % 2 + 2) % 2
+        if area == forest.BURN {
+            2
+        } else {
+            ((x + y) % 2 + 2) % 2
+        }
     } else if k < terrain.NEEDLES {
         v
     } else if k == terrain.GATE {
@@ -229,7 +233,7 @@ pub fn ground_cell(seed: int, field: int, area: int, t: int, x: int, y: int, k: 
         if lands.leaning(seed, x, y - forest.origin(seed, area)) then 1 + v % 2 else 0
     } else if k == terrain.MOUND {
         // A barrow's three cells, west to east.
-        ((x % 3) + 3) % 3
+        (x % 3 + 3) % 3
     } else if k == terrain.NEEDLES {
         if terrain.variant(seed, x, y, 6) == 0 then 1 + v % 2 else 0
     } else if k == terrain.CAVE || k == terrain.GLOW {
@@ -943,18 +947,35 @@ fn draw_reveal(s: sim.Sim, t: int, mut g: grid.Grid) {
                 let pc = left + (right - left) * (k - 1) / (stations - 1)
                 var i = 1
                 while i < 4 {
-                    grid.put(mut g, pr + (r - pr) * i / 4, pc + (c - pc) * i / 4, grid.cell(46, dim, bg, 0))
+                    grid.put(
+                        mut g,
+                        pr + (r - pr) * i / 4,
+                        pc + (c - pc) * i / 4,
+                        grid.cell(46, dim, bg, 0),
+                    )
                     i += 1
                 }
             }
             if area == forest.CRAGS {
                 // The Underteeth hangs under the Teeth.
-                draw.put_text(mut g, r + 1, c + 4, "(" + forest.name(forest.UNDERTEETH) + ")", grid.cell(32, dim, bg, 0))
+                draw.put_text(
+                    mut g,
+                    r + 1,
+                    c + 4,
+                    "(" + forest.name(forest.UNDERTEETH) + ")",
+                    grid.cell(32, dim, bg, 0),
+                )
             }
         }
         k += 1
     }
-    draw.put_text(mut g, 1, 1, "Thornmere, from the lookout", grid.cell(32, bright, bg, grid.ATTR_BOLD))
+    draw.put_text(
+        mut g,
+        1,
+        1,
+        "Thornmere, from the lookout",
+        grid.cell(32, bright, bg, grid.ATTR_BOLD),
+    )
     draw.put_text(mut g, s.rows - 2, 1, lore.line(lore.STAND_LINE), grid.cell(32, dim, bg, 0))
 }
 

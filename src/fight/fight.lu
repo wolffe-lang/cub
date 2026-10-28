@@ -104,7 +104,9 @@ pub fn walk_on(mut s: sim.Sim, mut r: replay.Replay, target: int) -> bool {
         var found = -1
         var edge = 0
         while edge < forest.EDGES {
-            if forest.path_edge(edge) && forest.other(s.area, edge) >= 0 && forest.exit_end(s.area, edge) {
+            if forest.path_edge(edge) &&
+                forest.other(s.area, edge) >= 0 &&
+                forest.exit_end(s.area, edge) {
                 found = edge
             }
             edge += 1

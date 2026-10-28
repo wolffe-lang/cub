@@ -421,7 +421,14 @@ fn plain(sprite: int, v: int) -> grid.Cell {
         19 => c(t, 126, C_SHALLOW, C_WATER, 0),  // SP_SPRING
         20 => c(t, if v % 3 == 0 then 47 else if v % 3 == 1 then 94 else 92, C_MARK, C_FLOOR, 0),  // SP_MOUND
         21 => c(t, 73, C_MARK, C_FLOOR, 0),  // SP_MENHIR
-        22 => c(t, if v % 4 == 0 then 61 else if v % 4 == 1 then 33 else if v % 4 == 2 then 35 else 37, C_MARK, C_FLOOR, 0),  // SP_GATE
+        22 =>
+            c(
+                t,
+                if v % 4 == 0 then 61 else if v % 4 == 1 then 33 else if v % 4 == 2 then 35 else 37,
+                C_MARK,
+                C_FLOOR,
+                0,
+            ),  // SP_GATE
         _ => grid.blank(),
     }
 }
