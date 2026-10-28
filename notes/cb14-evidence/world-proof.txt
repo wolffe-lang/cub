@@ -1,0 +1,86 @@
+witness spring-found tick 116 area 0 scent 7606 mark 0 shortcuts 0
+witness world-gate tick 629 area 0 scent 7638 mark 0 shortcuts 0
+witness world-thorns tick 646 area 0 scent 7638 mark 0 shortcuts 0
+witness thorn-gate tick 657 area 0 scent 7638 mark 0 shortcuts 0
+witness world-open tick 672 area 0 scent 7638 mark 0 shortcuts 0
+witness town-den tick 1218 area 6 scent 7688 mark 0 shortcuts 0
+witness world-den tick 2781 area 1 scent 7758 mark 0 shortcuts 0
+witness world-meadow tick 3896 area 2 scent 7758 mark 0 shortcuts 0
+witness hawk-shadow tick 4009 from 4006 area 2
+witness hawk-stoop tick 4024 from 4022 area 2
+witness world-hawk tick 4024 area 2 scent 7758 mark 0 shortcuts 0
+witness world-recovered tick 5281 area 2 scent 7758 mark 0 shortcuts 0
+witness world-return tick 5683 area 0 scent 7758 mark 0 shortcuts 3
+witness coast-cache-0 tick 5797 area 0 scent 7778 mark 0 shortcuts 3
+witness coast-cache-1 tick 6322 area 0 scent 7798 mark 0 shortcuts 3
+witness coast-cache-2 tick 6990 area 0 scent 7818 mark 0 shortcuts 3
+witness coast-cache-3 tick 7829 area 0 scent 7838 mark 0 shortcuts 3
+witness bite tick 194 area 0 scent 16 mark 0 shortcuts 0
+witness parry tick 177 area 0 scent 0 mark 0 shortcuts 0
+witness dodge tick 177 area 0 scent 0 mark 0 shortcuts 0
+witness weasel-retreat tick 177 area 0 scent 0 mark 0 shortcuts 0
+witness fox-feint tick 315 area 0 scent 11 mark 0 shortcuts 0
+witness natural-death tick 481 area 0 scent 0 mark 1 shortcuts 0
+witness aim-lock tick 189 area 0 scent 0 mark 0 shortcuts 0
+witness sprint-hit tick 178 from 153 area 0
+boss boar attempts 1 ticks 1330 windup 100 phase2 962 beaten 1424 hits 0 0 0 unparryable 0
+witness boss-boar-windup frames 107 every 1 from 105
+witness boss-boar-phase2 frames 964 every 1 from 963
+witness boss-boar-beaten frames 1470 every 15 from 1425
+boss lynx attempts 1 ticks 399 windup 612 phase2 869 beaten 962 hits 0 0 1 unparryable 1
+witness boss-lynx-windup frames 619 every 1 from 617
+witness boss-lynx-phase2 frames 871 every 1 from 870
+witness boss-lynx-beaten frames 1008 every 15 from 963
+boss elk attempts 1 ticks 1115 windup 641 phase2 1216 beaten 1648 hits 0 0 0 unparryable 0
+witness boss-elk-windup frames 648 every 1 from 646
+witness boss-elk-phase2 frames 1218 every 1 from 1217
+witness boss-elk-beaten frames 1694 every 15 from 1649
+boss alpha attempts 1 ticks 430 windup 1749 phase2 1962 beaten 2109 hits 0 0 0 unparryable 0
+witness boss-alpha-windup frames 1756 every 1 from 1754
+witness boss-alpha-phase2 frames 1964 every 1 from 1963
+witness end frames 2454 every 45 from 2154
+witness boss-alpha-beaten frames 2155 every 15 from 2110
+witness ghost-death tick 101 area 0 scent 0 mark 0 shortcuts 0
+witness ghost tick 250
+witness crags frames 121 every 40 from 1
+witness river frames 121 every 40 from 1
+witness hush frames 121 every 40 from 1
+witness stand frames 121 every 40 from 1
+witness burn frames 121 every 40 from 1
+witness mere frames 121 every 40 from 1
+witness underteeth frames 121 every 40 from 1
+witness howe frames 819 every 40 from 699
+witness gravehollow frames 1562 every 40 from 1442
+witness town-passage frames 529 every 6 from 381
+witness ashen-parry frames 681 every 5 from 557
+witness ember-touch frames 456 every 10 from 416
+witness yard-cache frames 401 every 4 from 380
+witness town-lane-80x24 frames 121 every 40 from 1
+witness town-lane-120x40 frames 121 every 40 from 1
+witness landmark-1-0 frames 261 every 1 from 261
+witness landmark-1-1 frames 38 every 1 from 38
+witness landmark-1-2 frames 314 every 1 from 314
+witness landmark-1-3 frames 71 every 1 from 71
+witness landmark-2-0 frames 80 every 1 from 80
+witness landmark-2-1 frames 372 every 1 from 372
+witness landmark-2-2 frames 221 every 1 from 221
+witness landmark-2-3 frames 71 every 1 from 71
+witness landmark-3-0 frames 26 every 1 from 26
+witness landmark-3-1 frames 242 every 1 from 242
+witness landmark-4-0 frames 26 every 1 from 26
+witness landmark-5-0 frames 449 every 1 from 449
+witness landmark-6-0 frames 520 every 1 from 520
+witness landmark-6-1 frames 281 every 1 from 281
+witness landmark-7-0 frames 403 every 1 from 403
+witness landmark-7-1 frames 406 every 1 from 406
+witness landmark-8-0 frames 35 every 1 from 35
+witness landmark-9-0 frames 395 every 1 from 395
+witness landmark-10-0 frames 28 every 1 from 28
+witness landmark-11-0 frames 842 every 1 from 842
+witness landmark-11-1 frames 977 every 1 from 977
+witness landmark-11-2 frames 1029 every 1 from 1029
+witness landmark-11-3 frames 1165 every 1 from 1165
+witness landmark-11-4 frames 1343 every 1 from 1343
+witness landmark-11-5 frames 1425 every 1 from 1425
+witness landmark-12-0 frames 1701 every 1 from 1701
+witness demo tick 461 area 0 scent 0 mark 0 shortcuts 0

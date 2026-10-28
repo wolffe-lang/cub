@@ -1,0 +1,2 @@
+8,3,7,116,7,2,0
+hit-census kind 8: 472/3936 pairs land

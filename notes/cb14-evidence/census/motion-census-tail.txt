@@ -1,0 +1,3 @@
+travel paw=10 gait=2 ticks=14 dx=2646 dy=0 blocked=0 health=52 stamina=65
+travel paw=10 gait=3 ticks=14 dx=3328 dy=0 blocked=0 health=52 stamina=52
+motion-census rows=168000

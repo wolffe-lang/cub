@@ -1,0 +1,10 @@
+journey-length seed 1 field 80 (before)
+area name rows lateral spine_cells dens boss
+0 the_Shingle 160 88 248 1 -
+6 Cinderwick 240 74 314 1 -
+1 Bramblehold 288 324 612 2 Old Snag
+2 Larkmeadow 288 186 474 2 -
+3 the_Teeth 224 136 360 1 Whisper
+4 the_Shallows 224 138 362 1 Alder
+5 the_Hush_(area_5) 224 138 362 1 Ashgrim
+total rows 1648 spine_cells 2732 dens 9 bosses 4

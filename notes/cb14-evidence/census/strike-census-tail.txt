@@ -1,0 +1,2 @@
+strike tier=rich aim=224 hit=3 age=16 changed=0 forward=0 left=0 span=5 shake=0 out=0
+strike-census rows=656 broken=0

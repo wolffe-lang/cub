@@ -1,0 +1,201 @@
+den seed 0 field 80 distance 235 exit 340 centreline 652
+gates seed 0 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 0 field 200 distance 235 exit 342 centreline 652
+gates seed 0 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 1 field 80 distance 321 exit 390 centreline 612
+gates seed 1 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 1 field 200 distance 321 exit 390 centreline 612
+gates seed 1 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 2 field 80 distance 272 exit 362 centreline 638
+gates seed 2 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 2 field 200 distance 284 exit 376 centreline 638
+gates seed 2 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 3 field 80 distance 277 exit 374 centreline 598
+gates seed 3 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 3 field 200 distance 277 exit 374 centreline 598
+gates seed 3 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 4 field 80 distance 257 exit 356 centreline 612
+gates seed 4 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 4 field 200 distance 257 exit 356 centreline 612
+gates seed 4 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 5 field 80 distance 252 exit 360 centreline 652
+gates seed 5 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 5 field 200 distance 252 exit 360 centreline 652
+gates seed 5 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 6 field 80 distance 260 exit 358 centreline 638
+gates seed 6 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 6 field 200 distance 260 exit 358 centreline 638
+gates seed 6 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 7 field 80 distance 250 exit 360 centreline 638
+gates seed 7 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 7 field 200 distance 250 exit 378 centreline 638
+gates seed 7 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 8 field 80 distance 266 exit 338 centreline 598
+gates seed 8 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 8 field 200 distance 268 exit 340 centreline 598
+gates seed 8 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 9 field 80 distance 274 exit 356 centreline 652
+gates seed 9 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 9 field 200 distance 276 exit 358 centreline 652
+gates seed 9 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 10 field 80 distance 280 exit 414 centreline 598
+gates seed 10 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 10 field 200 distance 280 exit 414 centreline 598
+gates seed 10 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 11 field 80 distance 230 exit 362 centreline 652
+gates seed 11 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 11 field 200 distance 230 exit 354 centreline 652
+gates seed 11 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 12 field 80 distance 264 exit 380 centreline 652
+gates seed 12 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 12 field 200 distance 264 exit 380 centreline 652
+gates seed 12 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 13 field 80 distance 229 exit 362 centreline 626
+gates seed 13 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 13 field 200 distance 229 exit 362 centreline 626
+gates seed 13 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 14 field 80 distance 225 exit 338 centreline 612
+gates seed 14 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 14 field 200 distance 225 exit 338 centreline 612
+gates seed 14 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 15 field 80 distance 249 exit 354 centreline 598
+gates seed 15 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 15 field 200 distance 249 exit 356 centreline 598
+gates seed 15 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 16 field 80 distance 294 exit 392 centreline 598
+gates seed 16 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 16 field 200 distance 294 exit 392 centreline 598
+gates seed 16 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 17 field 80 distance 304 exit 382 centreline 638
+gates seed 17 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 17 field 200 distance 304 exit 382 centreline 638
+gates seed 17 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 18 field 80 distance 265 exit 384 centreline 612
+gates seed 18 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 18 field 200 distance 265 exit 386 centreline 612
+gates seed 18 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 19 field 80 distance 225 exit 344 centreline 626
+gates seed 19 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 19 field 200 distance 225 exit 344 centreline 626
+gates seed 19 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 20 field 80 distance 258 exit 370 centreline 626
+gates seed 20 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 20 field 200 distance 258 exit 370 centreline 626
+gates seed 20 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 21 field 80 distance 242 exit 388 centreline 638
+gates seed 21 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 21 field 200 distance 242 exit 388 centreline 638
+gates seed 21 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 22 field 80 distance 220 exit 362 centreline 598
+gates seed 22 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 22 field 200 distance 220 exit 362 centreline 598
+gates seed 22 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 23 field 80 distance 313 exit 440 centreline 638
+gates seed 23 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 23 field 200 distance 313 exit 440 centreline 638
+gates seed 23 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 24 field 80 distance 274 exit 412 centreline 638
+gates seed 24 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 24 field 200 distance 278 exit 416 centreline 638
+gates seed 24 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 25 field 80 distance 284 exit 404 centreline 652
+gates seed 25 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 25 field 200 distance 284 exit 404 centreline 652
+gates seed 25 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 26 field 80 distance 270 exit 406 centreline 638
+gates seed 26 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 26 field 200 distance 270 exit 406 centreline 638
+gates seed 26 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 27 field 80 distance 234 exit 362 centreline 638
+gates seed 27 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 27 field 200 distance 234 exit 362 centreline 638
+gates seed 27 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 28 field 80 distance 278 exit 402 centreline 626
+gates seed 28 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 28 field 200 distance 278 exit 402 centreline 626
+gates seed 28 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 29 field 80 distance 323 exit 460 centreline 652
+gates seed 29 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 29 field 200 distance 327 exit 464 centreline 652
+gates seed 29 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 30 field 80 distance 322 exit 442 centreline 612
+gates seed 30 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 30 field 200 distance 322 exit 442 centreline 612
+gates seed 30 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 31 field 80 distance 303 exit 420 centreline 626
+gates seed 31 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 31 field 200 distance 299 exit 406 centreline 626
+gates seed 31 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 32 field 80 distance 330 exit 454 centreline 638
+gates seed 32 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 32 field 200 distance 330 exit 454 centreline 638
+gates seed 32 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 33 field 80 distance 234 exit 364 centreline 638
+gates seed 33 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 33 field 200 distance 234 exit 364 centreline 638
+gates seed 33 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 34 field 80 distance 262 exit 410 centreline 612
+gates seed 34 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 34 field 200 distance 262 exit 410 centreline 612
+gates seed 34 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 35 field 80 distance 250 exit 346 centreline 612
+gates seed 35 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 35 field 200 distance 250 exit 346 centreline 612
+gates seed 35 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 36 field 80 distance 293 exit 444 centreline 652
+gates seed 36 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 36 field 200 distance 293 exit 444 centreline 652
+gates seed 36 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 37 field 80 distance 261 exit 412 centreline 626
+gates seed 37 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 37 field 200 distance 261 exit 412 centreline 626
+gates seed 37 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 38 field 80 distance 259 exit 360 centreline 652
+gates seed 38 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 38 field 200 distance 301 exit 386 centreline 652
+gates seed 38 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 39 field 80 distance 306 exit 384 centreline 598
+gates seed 39 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 39 field 200 distance 306 exit 386 centreline 598
+gates seed 39 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 40 field 80 distance 222 exit 316 centreline 598
+gates seed 40 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 40 field 200 distance 222 exit 320 centreline 598
+gates seed 40 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 41 field 80 distance 286 exit 372 centreline 612
+gates seed 41 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 41 field 200 distance 286 exit 372 centreline 612
+gates seed 41 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 42 field 80 distance 240 exit 350 centreline 612
+gates seed 42 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 42 field 200 distance 240 exit 350 centreline 612
+gates seed 42 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 43 field 80 distance 265 exit 364 centreline 598
+gates seed 43 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 43 field 200 distance 265 exit 362 centreline 598
+gates seed 43 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 44 field 80 distance 248 exit 372 centreline 638
+gates seed 44 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 44 field 200 distance 248 exit 372 centreline 638
+gates seed 44 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 45 field 80 distance 267 exit 368 centreline 638
+gates seed 45 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 45 field 200 distance 267 exit 368 centreline 638
+gates seed 45 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 46 field 80 distance 238 exit 342 centreline 612
+gates seed 46 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 46 field 200 distance 238 exit 342 centreline 612
+gates seed 46 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 47 field 80 distance 262 exit 402 centreline 652
+gates seed 47 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 47 field 200 distance 262 exit 402 centreline 652
+gates seed 47 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 48 field 80 distance 250 exit 360 centreline 612
+gates seed 48 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 48 field 200 distance 250 exit 360 centreline 612
+gates seed 48 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 49 field 80 distance 252 exit 376 centreline 612
+gates seed 49 field 80 gates 1 faces 2 tiers 2 closed-present open-gap
+den seed 49 field 200 distance 252 exit 376 centreline 612
+gates seed 49 field 200 gates 1 faces 2 tiers 2 closed-present open-gap
+den-census: green (100 den paths, 400 gate-face-tier rows, 0 skips)

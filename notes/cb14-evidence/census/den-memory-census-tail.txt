@@ -1,0 +1,3 @@
+memory seed 49 field 200 stage rest area 0 live 9
+memory seed 49 field 200 stage rest-return area 0 live 9
+den-memory: 100 journeys failures 0 skips 0
