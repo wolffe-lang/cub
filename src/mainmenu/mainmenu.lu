@@ -1,0 +1,350 @@
+//! The fire menu: key-driven routing and a quiet ledger beside the resting cub.
+//! No simulation mutation, filesystem writes, or gameplay-key leakage.
+
+use art
+use controls
+use draw
+use forest
+use grid
+use input
+use registry
+use replay
+use restscene
+use sim
+use std.fs
+use std.time
+use tier
+
+/// A recording's honest file metadata; old files may not name their ending.
+pub struct Recording { path: str, name: str, date: str, ticks: int, ending: str }
+
+/// Pages: -1 title, 0 main, 1 Load, 2 Playback, 3 path, 4 seed, 5 difficulty.
+pub struct Menu {
+    page: int,
+    row: int,
+    from: int,
+    text: str,
+    error: str,
+    action: int,
+    selected: str,
+    seed: int,
+    saves: List[registry.Entry],
+    recordings: List[Recording],
+}
+
+/// Router actions: 1 saved journey, 2 new journey, 3 replay, 4 quit.
+pub fn new(
+    saves: List[registry.Entry],
+    recordings: List[Recording],
+    title: bool,
+    seed: int,
+) -> Menu {
+    Menu {
+        page: if title then -1 else 0,
+        row: 0,
+        from: 0,
+        text: "",
+        error: "",
+        action: 0,
+        selected: "",
+        seed: seed,
+        saves: copy saves,
+        recordings: copy recordings,
+    }
+}
+
+/// Both default recording locations are listed; malformed files are named.
+pub fn recordings(base: str) -> List[Recording] {
+    var result = List[Recording]()
+    scan(base + "/ghosts", mut result)
+    scan(base + "/replays", mut result)
+    var i = 1
+    while i < result.len {
+        var j = i
+        while j > 0 && result[j].path < result[j - 1].path {
+            let old = result[j - 1]
+            result[j - 1] = result[j]
+            result[j] = old
+            j -= 1
+        }
+        i += 1
+    }
+    result
+}
+
+fn scan(dir: str, mut result: List[Recording]) {
+    let names = fs.read_dir(dir) else |_| { return }
+    for name in names {
+        if !name.ends_with(".pk") { continue }
+        let path = dir + "/" + name
+        if !fs.is_file(path) { continue }
+        let text = fs.read_text(path) else |_| {
+            (mut result).push(Recording {
+                path: path,
+                name: name,
+                date: time.to_iso8601(fs.modified_ms(path) else 0),
+                ticks: 0,
+                ending: "Unreadable",
+            })
+            continue
+        }
+        let r = replay.from_text(text, controls.vocab()) else |_| {
+            (mut result).push(Recording {
+                path: path,
+                name: name,
+                date: time.to_iso8601(fs.modified_ms(path) else 0),
+                ticks: 0,
+                ending: "Invalid",
+            })
+            continue
+        }
+        var ending = "not recorded"
+        var date = time.to_iso8601(fs.modified_ms(path) else 0)
+        for line in text.lines() {
+            if line.starts_with("# ending ") { ending = line[9..line.len] }
+            if line.starts_with("# recorded ") { date = line[11..line.len] }
+        }
+        for e in r.events {
+            if e.key == replay.EV_ARG + controls.EV_GHOST_DEATH { ending = "Fallen" }
+        }
+        (mut result).push(Recording {
+            path: path,
+            name: name,
+            date: date,
+            ticks: replay.last_tick(r),
+            ending: ending,
+        })
+    }
+}
+
+/// Explicit synthetic menu data for replay/golden rows, never user files.
+pub fn fixture() -> Menu {
+    var saves = List[registry.Entry]()
+    (mut saves).push(registry.Entry {
+        path: "/fixture/journey.save",
+        name: "journey",
+        seed: 7,
+        difficulty: 0,
+        area: 1,
+        level: 4,
+        last_played: 1793131200000,
+    })
+    var recordings = List[Recording]()
+    (mut recordings).push(Recording {
+        path: "/fixture/walk.pk",
+        name: "walk.pk",
+        date: "2026-10-27T20:00:00Z",
+        ticks: 900,
+        ending: "Fallen",
+    })
+    new(saves, recordings, false, 7)
+}
+
+/// Existing replay key ids keep their meaning; the fixture comment routes them.
+pub fn replay_key(mut m: Menu, k: int) {
+    let raw = if k == controls.KEY_UP {
+        input.KEY_UP
+    } else if k == controls.KEY_DOWN {
+        input.KEY_DOWN
+    } else if k == controls.KEY_BITE {
+        input.char_key(32)
+    } else if k == controls.KEY_RELEASE {
+        input.KEY_ESC
+    } else if k == controls.KEY_CONFIRM {
+        input.KEY_ENTER
+    } else if k == controls.KEY_QUIT {
+        input.char_key(113)
+    } else {
+        input.KEY_NONE
+    }
+    if raw != input.KEY_NONE { key(mut m, raw) }
+}
+
+/// Visible main items, with absent Continue and Playback actually omitted.
+pub fn items(m: Menu) -> List[str] {
+    var result = List[str]()
+    if m.saves.len > 0 { (mut result).push("Continue") }
+    (mut result).push("New journey")
+    (mut result).push("Load")
+    if m.recordings.len > 0 { (mut result).push("Playback") }
+    (mut result).push("Quit")
+    result
+}
+
+fn count(m: Menu) -> int {
+    if m.page == 0 { return items(m).len }
+    if m.page == 1 { return m.saves.len + 1 }
+    if m.page == 2 { return m.recordings.len + 1 }
+    1
+}
+
+/// One decoded press; releases are filtered by the terminal adapter.
+pub fn key(mut m: Menu, k: int) {
+    if k == input.KEY_INTERRUPT || k == input.char_key(113) && m.page != 3 && m.page != 4 {
+        m.action = 4
+        return
+    }
+    if m.page == -1 { m.page = 0; return }
+    if k == input.KEY_ESC {
+        m.page = if m.page == 3 then m.from else 0
+        m.row = 0
+        m.error = ""
+        m.text = ""
+        return
+    }
+    if m.page == 3 || m.page == 4 {
+        if k == input.KEY_BACKSPACE && m.text.len > 0 { m.text = m.text[0..m.text.len - 1]; return }
+        let ch = input.char_of(k)
+        if ch >= 32 && ch < 127 && m.text.len < 1024 {
+            var bytes = List[byte]()
+            (mut bytes).push(ch as byte)
+            m.text += str_from_utf8(bytes) else ""
+            return
+        }
+        if k != input.KEY_ENTER { return }
+        if m.page == 4 {
+            let seed = m.text.to_int() else |_| {
+                m.error = "Enter a seed from -1000000000 to 1000000000"
+                return
+            }
+            if seed < -1000000000 || seed > 1000000000 { m.error = "Seed out of range"; return }
+            m.seed = seed
+            m.page = 5
+            m.error = ""
+            return
+        }
+        if m.text == "" { m.error = "Type a path, then Enter"; return }
+        m.selected = copy m.text
+        m.action = if m.from == 1 then 1 else 3
+        return
+    }
+    let n = count(m)
+    if k == input.KEY_UP { m.row = (m.row + n - 1) % n; return }
+    if k == input.KEY_DOWN { m.row = (m.row + 1) % n; return }
+    if k != input.char_key(32) && k != input.KEY_ENTER { return }
+    m.error = ""
+    if m.page == 5 { m.action = 2; return }
+    if m.page == 1 || m.page == 2 {
+        if m.row == n - 1 {
+            m.from = m.page
+            m.page = 3
+            m.text = ""
+            return
+        }
+        m.selected = if m.page == 1 then copy m.saves[m.row].path else copy m.recordings[m.row].path
+        m.action = if m.page == 1 then 1 else 3
+        return
+    }
+    let label = items(m)[m.row]
+    if label == "Quit" {
+        m.action = 4
+    } else if label == "Continue" {
+        let e = registry.recent(m.saves) else |_| { m.error = "registry_missing"; return }
+        m.selected = e.path
+        m.action = 1
+    } else if label == "New journey" {
+        m.page = 4
+        m.text = "{m.seed}"
+    } else {
+        m.page = if label == "Load" then 1 else 2
+        m.row = 0
+    }
+}
+
+fn clipped(text: str, width: int) -> str {
+    var bytes = List[byte]()
+    var i = 0
+    while i < text.len && i < width {
+        let b = text.bytes()[i] as int
+        (mut bytes).push((if b >= 32 && b < 127 then b else 63) as byte)
+        i += 1
+    }
+    str_from_utf8(bytes) else ""
+}
+
+/// Same original fire composition, a bone-and-gold list on its left.
+pub fn render(m: Menu, s: sim.Sim, t: int, mut g: grid.Grid) {
+    if m.page == -1 { art.render(s, t, mut g); return }
+    restscene.render(s, t, mut g)
+    let left = restscene.panel_left(s)
+    let width = restscene.panel_width(s)
+    let top = 3
+    let height = s.rows - 5
+    let bg = if t == tier.PLAIN then 0 else 232
+    let bone = if t == tier.PLAIN then 15 else 230
+    let gold = if t == tier.PLAIN then 3 else 179
+    var r = top
+    while r < top + height {
+        var c = left
+        while c < left + width { grid.put(mut g, r, c, grid.cell(32, bone, bg, 0)); c += 1 }
+        r += 1
+    }
+    let style = grid.cell(32, bone, bg, 0)
+    let heading = if m.page == 0 {
+        "cub"
+    } else if m.page == 1 {
+        "Load"
+    } else if m.page == 2 {
+        "Playback"
+    } else if m.page == 3 {
+        "Type a path"
+    } else if m.page == 4 {
+        "New journey: seed"
+    } else {
+        "New journey: difficulty"
+    }
+    draw.put_text(mut g, top + 1, left + 2, heading, grid.cell(32, gold, bg, grid.ATTR_BOLD))
+    if m.page == 3 || m.page == 4 {
+        draw.put_text(mut g, top + 4, left + 2, clipped(m.text + "_", width - 4), style)
+        draw.put_text(mut g, top + 6, left + 2, "Enter accepts; Esc returns", style)
+    } else if m.page == 5 {
+        draw.put_text(mut g, top + 4, left + 2, "> wolf", grid.cell(32, gold, bg, grid.ATTR_BOLD))
+        draw.put_text(mut g, top + 6, left + 2, "The playable difficulty in this build", style)
+    } else {
+        let limit = (height - 7) / 2
+        let start = if m.row >= limit then m.row - limit + 1 else 0
+        var i = start
+        while i < count(m) && i < start + limit {
+            var label = ""
+            var detail = ""
+            if m.page == 0 {
+                label = items(m)[i]
+            } else if m.page == 1 && i < m.saves.len {
+                let e = copy m.saves[i]
+                label = "{e.name}  {forest.name(e.area)}  Lv {e.level}"
+                detail = time.to_iso8601(e.last_played)
+            } else if m.page == 2 && i < m.recordings.len {
+                let e = copy m.recordings[i]
+                label = e.name
+                detail = "{clipped(e.date, 10)}  {e.ticks / 30}s  {clipped(e.ending, 14)}"
+            } else {
+                label = "Type a path..."
+            }
+            let row = top + 3 + (i - start) * 2
+            draw.put_text(
+                mut g,
+                row,
+                left + 1,
+                if i == m.row then ">" else " ",
+                grid.cell(32, gold, bg, grid.ATTR_BOLD),
+            )
+            draw.put_text(
+                mut g,
+                row,
+                left + 3,
+                clipped(label, width - 5),
+                grid.cell(32, if i == m.row then gold else bone, bg, 0),
+            )
+            draw.put_text(mut g, row + 1, left + 3, clipped(detail, width - 5), style)
+            i += 1
+        }
+    }
+    draw.put_text(
+        mut g,
+        top + height - 3,
+        left + 2,
+        clipped(m.error, width - 4),
+        grid.cell(32, if t == tier.PLAIN then 12 else 203, bg, 0),
+    )
+    draw.put_text(mut g, top + height - 2, left + 2, "Arrows  Space choose  Esc back", style)
+}

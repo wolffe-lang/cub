@@ -394,8 +394,8 @@ def title(binary, ctx):
             problems.append('title lacks %r' % text)
     if not re.search(rb'trace tick \d+ .* scene 2 ', session.err):
         problems.append('no title scene in the trace')
-    if not re.search(rb'trace tick \d+ .* scene 1 ', session.err):
-        problems.append('a key did not begin the opening')
+    if not re.search(rb'trace tick \d+ menu 0 .* scene 0 ', session.err):
+        problems.append('a key did not reach the fire menu')
     session = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)), '--tier', 'plain', '--trace', '--mute', '--no-title'], 24, 80, env)
     session.pump(0.4)
     session.type(b'q')
@@ -1644,3 +1644,168 @@ ROWS['cb12-counter-input-once'] = cb12_counter_input_once
 # Keep the hand-timing matrix independent of earlier scripted strike rows.
 import runpy
 ROWS.update(runpy.run_path(str(Path(__file__).with_name('combo_pty.py')))['rows'](globals()))
+
+
+def _cb13_home(ctx, name):
+    root = Path(ctx.ROOT) / 'target' / 'pty' / name
+    root.mkdir(parents=True, exist_ok=True)
+    home = Path(tempfile.mkdtemp(prefix='home-', dir=root))
+    env = ctx.env_for()
+    env['HOME'] = str(home)
+    return home, env
+
+
+def cb13_menu_navigation(binary, ctx):
+    """Every item, both tiers/sizes; legacy import never rewrites its source."""
+    import re
+    problems = []
+    for tier in ('plain', 'rich'):
+        for rows, cols in ((24, 80), (40, 120)):
+            home, env = _cb13_home(ctx, 'cb13-menu-navigation')
+            base = home / '.cub'
+            (base / 'replays').mkdir(parents=True)
+            legacy = (Path(ctx.ROOT) / 'tests/saves/cb13-v5.save').read_bytes()
+            (base / 'save').write_bytes(legacy)
+            (base / 'replays/walk.pk').write_text('pk 1\nseed 7\ntier plain\nsize 80x24\nt 0 right\nt 300 release\n')
+            session = ctx.Session([binary, '--menu', '--mute', '--trace', '--tier', tier], rows, cols, env)
+            session.type(b'\x1b[B ', settle=.15)  # New: seed page.
+            session.type(b'\x1b', settle=.15)
+            session.type(b'\x1b[B\x1b[B ', settle=.15)  # Load.
+            session.type(b'\x1b', settle=.15)
+            session.type(b'\x1b[B\x1b[B\x1b[B ', settle=.15)  # Playback.
+            session.type(b'\x1b', settle=.15)
+            session.type(b'\x1b[A ', settle=.15)  # Quit by selection, not q.
+            session.finish()
+            ctx.common_checks(session, 0, problems)
+            for page in (0, 4, 1, 2):
+                if not re.search(rb'menu ' + str(page).encode() + rb' row ', session.err):
+                    problems.append('%s %dx%d never reached menu page %d' % (tier, cols, rows, page))
+            if (base / 'save').read_bytes() != legacy:
+                problems.append('legacy import altered its source')
+            lines = (base / 'registry').read_text().splitlines()
+            if len(lines) != 1 or lines[0].split('\t')[:2] != [str(base / 'save'), 'journey']:
+                problems.append('legacy journey not indexed once')
+    return session, problems
+
+
+def cb13_menu_new_and_continue(binary, ctx):
+    home, env = _cb13_home(ctx, 'cb13-menu-new')
+    problems = []
+    session = ctx.Session([binary, '--menu', '--mute', '--trace', '--tier', 'plain'], 24, 80, env)
+    session.type(b' ', settle=.12)
+    session.type(b'\x7f19\r', settle=.12)
+    session.type(b' ', settle=.25)
+    session.type(b'?', settle=.12)
+    session.type(b'q')
+    session.finish()
+    ctx.common_checks(session, 0, problems)
+    saves = list((home / '.cub/saves').glob('*.save'))
+    if len(saves) != 1 or not saves[0].read_text().startswith('CUB 6\nseed 19 difficulty 0\n'):
+        problems.append('new seed/difficulty journey was not created in saves/')
+        return session, problems
+    if 'played_ms 0\n' in saves[0].read_text():
+        problems.append('elapsed play time never advanced')
+    session = ctx.Session([binary, '--menu', '--mute', '--trace', '--tier', 'plain'], 24, 80, env)
+    session.type(b' ', settle=.25)  # Continue, now present.
+    session.type(b'q')
+    session.finish()
+    ctx.common_checks(session, 0, problems)
+    if b'seed 19 tier plain' not in session.err:
+        problems.append('Continue did not resume the registered journey')
+    return session, problems
+
+
+def cb13_menu_typed_save(binary, ctx):
+    home, env = _cb13_home(ctx, 'cb13-menu-typed-save')
+    path = home / 'outside registry' / 'winter.save'
+    path.parent.mkdir()
+    path.write_bytes((Path(ctx.ROOT) / 'tests/saves/cb13-v5.save').read_bytes())
+    problems = []
+    session = ctx.Session([binary, '--menu', '--mute', '--trace', '--tier', 'plain'], 24, 80, env)
+    session.type(b'\x1b[B ', settle=.12)  # Load.
+    session.type(b' ', settle=.12)  # Type a path.
+    session.type(b'/missing-cb13.save\r', settle=.15)
+    if b'registry_missing' not in session.out:
+        problems.append('missing typed save was not refused by name')
+    session.type(b'\x7f' * len('/missing-cb13.save') + str(path).encode() + b'\r', settle=.3)
+    session.type(b'q')
+    session.finish()
+    ctx.common_checks(session, 0, problems)
+    index = home / '.cub/registry'
+    if not index.is_file() or str(path) + '\tjourney\t7\t0\t0\t1\t' not in index.read_text():
+        problems.append('typed absolute save path with spaces was not registered')
+    if not path.read_text().startswith('CUB 6\n'):
+        problems.append('loaded CUB 5 was not migrated on its next write')
+    return session, problems
+
+
+def cb13_menu_typed_playback(binary, ctx):
+    home, env = _cb13_home(ctx, 'cb13-menu-typed-playback')
+    replays = home / '.cub/replays'
+    replays.mkdir(parents=True)
+    path = replays / 'walk with spaces.pk'
+    path.write_text('pk 1\nseed 7\ntier plain\nsize 80x24\nt 0 right\nt 300 release\n# recorded 2026-10-27T20:00:00Z\n# ending In progress\n')
+    problems = []
+    session = ctx.Session([binary, '--menu', '--mute', '--trace', '--tier', 'plain'], 24, 80, env)
+    session.type(b'\x1b[B\x1b[B ', settle=.15)
+    session.type(b'\x1b[B ', settle=.12)
+    session.type(str(path).encode() + b'\r', settle=.3)
+    session.type(b'\x1b', settle=.3)  # Escape from the actual --replay player.
+    session.type(b'q')
+    session.finish()
+    ctx.common_checks(session, 0, problems)
+    if b'seed 7 tier plain' not in session.err or session.err.count(b'menu 0 row ') < 2:
+        problems.append('typed Playback did not run the replay and return to the fire')
+    if (home / '.cub/registry').exists() or (home / '.cub/saves').exists():
+        problems.append('Playback created or changed a save')
+    return session, problems
+
+
+ROWS.update({'cb13-menu-navigation': cb13_menu_navigation,
+             'cb13-menu-new-and-continue': cb13_menu_new_and_continue,
+             'cb13-menu-typed-save': cb13_menu_typed_save,
+             'cb13-menu-typed-playback': cb13_menu_typed_playback})
+
+
+def cb13_registry_files(binary, ctx):
+    """Two arbitrary paths, most-recent selection, and named strict refusals."""
+    home, env = _cb13_home(ctx, 'cb13-registry-files')
+    problems = []
+    paths = [home / 'first.save', home / 'elsewhere with spaces' / 'second.save']
+    for seed, path in zip((7, 23), paths):
+        result = subprocess.run([binary, '--headless', '--seed', str(seed), '--frames', '1',
+                                 '--save', str(path), '--dump', str(home / ('headless-' + str(seed)))],
+                                env=env, capture_output=True)
+        if result.returncode:
+            problems.append('headless register failed: ' + result.stderr.decode())
+    index = home / '.cub/registry'
+    if not index.exists():
+        raise RuntimeError('save writes did not create the registry')
+    lines = [line.split('\t') for line in index.read_text().splitlines()]
+    if len(lines) != 2 or {line[0] for line in lines} != {str(p) for p in paths}:
+        problems.append('arbitrary absolute paths did not round-trip')
+    for line in lines:
+        line[6] = '100' if line[0] == str(paths[0]) else '200'
+    index.write_text(''.join('\t'.join(line) + '\n' for line in reversed(lines)))
+    session = ctx.Session([binary, '--menu', '--mute', '--trace', '--tier', 'plain'], 24, 80, env)
+    session.type(b' ', settle=.25)
+    session.type(b'q')
+    session.finish()
+    ctx.common_checks(session, 0, problems)
+    if b'seed 23 tier plain' not in session.err:
+        problems.append('Continue selected file order rather than greatest last-played time')
+    previous = index.read_bytes()
+    stage = home / '.cub/registry.pending'
+    stage.write_text('another writer')
+    result = subprocess.run([binary, '--no-title', '--save', str(paths[0]), '--mute'], env=env, capture_output=True)
+    if result.returncode != 2 or b'registry_busy' not in result.stderr or stage.read_text() != 'another writer' or index.read_bytes() != previous:
+        problems.append('exclusive index staging did not preserve the previous index/writer')
+    stage.unlink()  # This row owns the planted stage.
+    index.write_text('malformed\n')
+    result = subprocess.run([binary, '--menu', '--mute'], env=env, capture_output=True)
+    if result.returncode != 2 or b'registry_line' not in result.stderr or index.read_text() != 'malformed\n':
+        problems.append('malformed index was not refused by name without rewriting')
+    return session, problems
+
+
+ROWS['cb13-registry-files'] = cb13_registry_files

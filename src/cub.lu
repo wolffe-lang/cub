@@ -19,6 +19,8 @@ use hitcensus
 use coast
 use forest
 use journey
+use registry
+use mainmenu
 use denmemory
 use measure
 use memprobe
@@ -53,6 +55,7 @@ use sound
 use sprites
 use std.env
 use std.fs
+use std.time
 use term
 use tier
 use walker
@@ -97,6 +100,8 @@ struct Options {
     score_out: str,
     score_list: bool,
     no_title: bool,
+    menu: bool,
+    menu_playback: bool,
     pace: int,
     combat_witness: bool,
 }
@@ -131,7 +136,7 @@ fn usage_text() -> str {
         "  --allocation-probe N SAVE MODE     named-region allocation census; SAVE '-' is fresh seed 7\n" +
         "                                    MODE sim|render|terrain|actor|hud|history|save|all\n" +
         "  --bench                           render/diff timings for the performance gate\n" +
-        "  --save PATH                       journey file (live default ~/.cub/save)\n" +
+        "  --save PATH                       register a journey anywhere on disk\n" +
         "  --save-cut                        test a cut write; previous save stays intact\n" +
         "  --save-delay N                    ticks between staging and replacement (test witness)\n" +
         "  --make-world-proof DIR             generate real-key world test scripts\n" +
@@ -147,7 +152,8 @@ fn usage_text() -> str {
         "  --ghost-dir DIR                   the death archives (live default ~/.cub/ghosts): read for the\n" +
         "                                    ghosts, written on a death; headless, both\n" +
         "  --pace N                          debug walk/sprint speed,25..300 percent of default\n" +
-        "  --no-title                        begin in play, without the title card\n" +
+        "  --no-title                        historical: begin directly in play\n" +
+        "  --menu                            skip the title, begin at the fire menu\n" +
         "  --truecolor / --no-truecolor      override COLORTERM\n" +
         "  --ticks N                         quit after N ticks\n" +
         "  --trace                           one line a tick on standard error: the bytes read, the keys\n" +
@@ -194,6 +200,8 @@ fn options_default() -> Options {
         score_out: "",
         score_list: false,
         no_title: false,
+        menu: false,
+        menu_playback: false,
         pace: 100,
         combat_witness: false,
     }
@@ -235,6 +243,8 @@ fn parse_args(args: List[str]) -> Options ! {usage, parse} {
             i += 2
         } else if a == "--world-audit" {
             o.world_audit = true
+        } else if a == "--menu" {
+            o.menu = true
         } else if a == "--no-title" {
             o.no_title = true
         } else if a == "--save-cut" {
@@ -411,6 +421,10 @@ fn run_headless(o: Options, args: List[str]) -> int {
     var history = ghost.history()
     let demo_r = demo.load()
     var demo_tick = 0
+    var menu = mainmenu.fixture()
+    let case_path = if o.script != "" then o.script else o.replay_path
+    let fire = case_path != "" && (fs.read_text(case_path) else "").contains("# fire-menu\n")
+    if fire { s.area = 1; s.last_den = 1 }
     var g = grid.new(r.rows, r.cols)
     var keys = List[int]()
     var k = 0
@@ -426,12 +440,17 @@ fn run_headless(o: Options, args: List[str]) -> int {
         }
         replay_numbers(mut s, health, replay.args_at(r, k, controls.EV_SCENT))
         replay_events(mut s, r, k)
-        if !full_death &&
-            s.action == sim.FALL &&
-            s.tick + 1 - s.started >= sim.DEATH_FADE + sim.DEATH_HOLD {
-            (mut keys).push(controls.KEY_SKIP)
+        if fire {
+            for key in keys { mainmenu.replay_key(mut menu, key) }
+            s.tick += 1
+        } else {
+            if !full_death &&
+                s.action == sim.FALL &&
+                s.tick + 1 - s.started >= sim.DEATH_FADE + sim.DEATH_HOLD {
+                (mut keys).push(controls.KEY_SKIP)
+            }
+            sim.step(mut s, keys)
         }
-        sim.step(mut s, keys)
         ghost.record(mut history, s.tick, frame_of(s))
         demo_step(mut extra, s, demo_r, mut demo_tick)
         if s.deaths > archived {
@@ -459,7 +478,11 @@ fn run_headless(o: Options, args: List[str]) -> int {
             }
         }
         if k + 1 >= o.from_tick && (k + 1) % o.every == 0 && k + 1 < o.frames {
-            art.render_with(s, extra, r.tier, mut g)
+            if fire {
+                mainmenu.render(menu, s, r.tier, mut g)
+            } else {
+                art.render_with(s, extra, r.tier, mut g)
+            }
             headless.write_frame(o.dump, "frame-{headless.pad4(k + 1)}", g) else |_| {
                 eprint("cub: cannot write into {o.dump}")
                 return 2
@@ -468,17 +491,27 @@ fn run_headless(o: Options, args: List[str]) -> int {
         k += 1
     }
     if o.save_path != "" {
-        journey.prepare(o.save_path, s, o.save_cut) else |e| { eprint("cub: {e}"); return 2 }
-        journey.commit(o.save_path) else |e| { eprint("cub: {e}"); return 2 }
+        let meta = journey.load_metadata(o.save_path) else |e| { eprint("cub: {e}"); return 2 }
+        journey.prepare_named(o.save_path, s, meta, o.save_cut) else |e| {
+            eprint("cub: {e}")
+            return 2
+        }
+        commit_save(o.save_path) else |e| { eprint("cub: {e}"); return 2 }
         s.save_status = 2
     }
     // The last frame is always `final` (the pty runner compares it).
-    art.render_with(s, extra, r.tier, mut g)
+    if fire {
+        mainmenu.render(menu, s, r.tier, mut g)
+    } else {
+        art.render_with(s, extra, r.tier, mut g)
+    }
     headless.write_frame(o.dump, "final", g) else |_| {
         eprint("cub: cannot write into {o.dump}")
         return 2
     }
-    fs.write_text(o.dump + "/final.state", state_text(s)) else |_| { return 2 }
+    let final_state = state_text(s) +
+        (if fire then "menu page {menu.page} row {menu.row} action {menu.action}\n" else "")
+    fs.write_text(o.dump + "/final.state", final_state) else |_| { return 2 }
     0
 }
 
@@ -667,6 +700,208 @@ fn run_selftest() -> int {
     1
 }
 
+/// Commit the save first, then atomically refresh its independent index.
+fn commit_save(path: str) -> () ! {
+    save_io,
+    save_committed_unsynced,
+    registry_io,
+    registry_busy,
+    registry_line,
+    registry_missing,
+    save_corrupt,
+    save_version,
+    save_difficulty,
+} {
+    journey.commit(path)?
+    registry.register(registry.root() + "/registry", path, time.unix_ms())?
+}
+
+/// The startup owns a terminal session separately from the game's player.
+/// Returning from a playback reopens this scene; its keys never reach play.
+fn run_startup(o: Options, args: List[str]) -> int {
+    if o.replay_path != "" { return run_live(o, args) }
+    let base = registry.root()
+    registry.migrate(base) else |e| { eprint("cub: {e}"); return 2 }
+    if o.save_path != "" && fs.is_file(o.save_path) {
+        registry.register(base + "/registry", o.save_path, time.unix_ms()) else |e| {
+            eprint("cub: {e}")
+            return 2
+        }
+    }
+    if o.no_title && !o.menu {
+        var selected = copy o
+        selected.no_title = true
+        if selected.save_path == "" {
+            let entries = registry.load(base + "/registry") else |e| {
+                eprint("cub: {e}")
+                return 2
+            }
+            let recent = registry.recent(entries) else |_| {
+                selected.save_path = base + "/saves/journey-{time.unix_ms()}-{env.pid()}.save"
+                return run_live(selected, args)
+            }
+            let _ = registry.find(entries, recent.path) else |e| { eprint("cub: {e}"); return 2 }
+            selected.save_path = recent.path
+        }
+        return run_live(selected, args)
+    }
+    var title = !o.menu
+    loop {
+        let saves = registry.load(base + "/registry") else |e| { eprint("cub: {e}"); return 2 }
+        var menu = mainmenu.new(saves, mainmenu.recordings(base), title, o.seed)
+        title = false
+        let status = fire_menu(o, mut menu)
+        if status != 0 { return status }
+        if menu.action == 4 { return 0 }
+        var selected = copy o
+        selected.no_title = true
+        selected.menu = false
+        if menu.action == 3 {
+            selected.replay_path = menu.selected
+            selected.menu_playback = true
+            // A typed replay is validated before the terminal closes.
+            let result = run_live(selected, List[str]())
+            if result == 4 { return 0 }
+            if result != 0 { return result }
+            continue
+        }
+        selected.seed = menu.seed
+        selected.save_path = if menu.action == 1 {
+            menu.selected
+        } else if o.save_path != "" && !fs.exists(o.save_path) {
+            o.save_path
+        } else {
+            base + "/saves/journey-{time.unix_ms()}-{env.pid()}.save"
+        }
+        return run_live(selected, if menu.action == 1 then args else List[str]())
+    }
+}
+
+fn fire_menu(o: Options, mut menu: mainmenu.Menu) -> int {
+    let t = term.open() else |e| { eprint(term.message("{e}", "cub")); return 2 }
+    let (tr, truecolor) = pick_tier(o)
+    var s = sim.new(o.seed, t.cols, t.rows)
+    s.area = 1
+    s.last_den = 1
+    sim.title(mut s)
+    let sound_on = !o.mute && (env.get("CUB_SOUND") else "1") != "0"
+    let sound_dir = if o.sound_dir != "" then o.sound_dir else registry.root() + "/sound"
+    var player = score.player(score.backend_of(env.get("CUB_SOUND_BACKEND") else ""), sound_dir)
+    var sch = score.schedule(List[score.Cue]())
+    if sound_on {
+        if score.write_wavs(player) != 0 { return 2 }
+        sch = score.schedule(score.cues() else |_| { return 2 })
+        let _ = score.probe(mut player)
+    }
+    var session = term.open_input(term.MIN_COLS, term.MIN_ROWS) else |_| { return 3 }
+    var front = grid.new(t.rows, t.cols)
+    var back = grid.new(t.rows, t.cols)
+    var pen = grid.pen_new()
+    var out = List[byte]()
+    var d = input.new()
+    var raw = List[input.Event]()
+    input.events_all(mut d, session.startup, clock.now_ns() / 1000000, mut raw)
+    var c = clock.new(clock.now_ns())
+    var full = true
+    var status = 0
+    var extra = art.extra_none()
+    let demo_r = demo.load()
+    var demo_tick = 0
+    loop {
+        for e in raw { if e.kind != input.RELEASE { mainmenu.key(mut menu, e.key) } }
+        (mut raw).reset()
+        if menu.action == 1 {
+            if !fs.is_file(menu.selected) {
+                menu.error = "registry_missing: save not found"
+                menu.action = 0
+            } else {
+                let _ = journey.load(menu.selected, 1, s.cols, s.rows) else |e| {
+                    menu.error = "{e}"
+                    menu.action = 0
+                    sim.new(1, s.cols, s.rows)
+                }
+            }
+        }
+        if menu.action == 3 {
+            let text = fs.read_text(menu.selected) else |_| {
+                menu.error = "Replay not found"
+                menu.action = 0
+                ""
+            }
+            if menu.action == 3 {
+                let _ = replay.from_text(text, controls.vocab()) else |_| {
+                    menu.error = "Invalid replay"
+                    menu.action = 0
+                    replay.new(1, tr, s.cols, s.rows)
+                }
+            }
+        }
+        if menu.action > 0 { break }
+        if menu.page == -1 {
+            art.render_with(s, extra, tr, mut back)
+        } else {
+            mainmenu.render(menu, s, tr, mut back)
+        }
+        if o.trace {
+            eprint(
+                "trace tick {s.tick} menu {menu.page} row {menu.row} scene {if menu.page == -1 then sim.SCENE_TITLE else 0} demo {if extra.demo_on then 1 else 0} ",
+            )
+        }
+        grid.diff(front, back, full, mut pen, mut out, tier.dialect(tr, truecolor))
+        term.write(out) else |_| { status = 2; break }
+        (mut out).reset()
+        let old = front
+        front = back
+        back = old
+        full = false
+        if sound_on {
+            let sc = score.Scene {
+                title: menu.page == -1,
+                opening_age: -1,
+                fallen: false,
+                den: menu.page != -1,
+                boss: -1,
+                area: 1,
+            }
+            let cue = score.step(mut sch, sc, s.tick)
+            if cue != "" { score.play(mut player, cue) }
+        }
+        var deadline = clock.next_due_ns(c)
+        if input.esc_pending(d) && input.esc_deadline_ms(d) * 1000000 < deadline {
+            deadline = input.esc_deadline_ms(d) * 1000000
+        }
+        let w = clock.wait_until(mut c, deadline, term.signal_set()) else |_| { status = 2; break }
+        let now = clock.now_ns()
+        if w.meaning == 16384 {
+            if term.resize_input(mut session) {
+                sim.resize(mut s, session.terminal.cols, session.terminal.rows)
+                front = grid.new(s.rows, s.cols)
+                back = grid.new(s.rows, s.cols)
+                pen = grid.pen_new()
+                full = true
+            }
+        } else if w.meaning != 0 {
+            menu.action = 4
+            break
+        }
+        if w.input_ready {
+            let got = term.read_keys(64) else |_| { status = 2; break }
+            input.events_all(mut d, got, now / 1000000, mut raw)
+        }
+        input.flush_events(mut d, now / 1000000, mut raw)
+        let due = clock.advance(mut c, now)
+        var tick = 0
+        while tick < due {
+            s.tick += 1
+            if menu.page == -1 { demo_step(mut extra, s, demo_r, mut demo_tick) }
+            tick += 1
+        }
+    }
+    term.close_input(mut session)
+    if sound_on { score.close(mut player) }
+    status
+}
+
 /// The live game: the terminal opened and entered, one run, the terminal
 /// left on every path out.
 fn run_live(o: Options, args: List[str]) -> int {
@@ -709,6 +944,17 @@ fn run_live(o: Options, args: List[str]) -> int {
     } else {
         sim.new(rp.seed, cols, rows)
     }
+    var meta = if !replaying {
+        journey.load_metadata(save_path) else |e| { eprint("cub: {e}"); return 2 }
+    } else {
+        journey.Metadata { name: "journey", played_ms: 0 }
+    }
+    if !replaying && !fs.exists(save_path) {
+        let name = (fs.file_name(save_path) else "journey").replace(".save", "")
+        if journey.valid_name(name) { meta.name = name }
+    }
+    let played_before = meta.played_ms
+    let started_ns = clock.now_ns()
     s.pace_percent = o.pace
     if !replaying {
         replay.push_arg(mut rec, 0, controls.EV_PACE, o.pace)
@@ -781,12 +1027,12 @@ fn run_live(o: Options, args: List[str]) -> int {
     controls.events(raw, mut keys)
     (mut raw).reset()
     if !replaying && !fs.exists(save_path) {
-        journey.prepare(save_path, s, o.save_cut) else |e| {
+        journey.prepare_named(save_path, s, meta, o.save_cut) else |e| {
             term.close_input(mut session)
             eprint("cub: {e}")
             return 2
         }
-        journey.commit(save_path) else |e| {
+        commit_save(save_path) else |e| {
             term.close_input(mut session)
             eprint("cub: {e}")
             return 2
@@ -888,7 +1134,9 @@ fn run_live(o: Options, args: List[str]) -> int {
                 }
                 if n == 0 {
                     for k in keys {
-                        if k == controls.KEY_QUIT || k == controls.KEY_INTERRUPT {
+                        if k == controls.KEY_QUIT ||
+                            k == controls.KEY_INTERRUPT ||
+                            o.menu_playback && k == controls.KEY_RELEASE {
                             ended = if k == controls.KEY_QUIT {
                                 "the quit key"
                             } else {
@@ -932,7 +1180,7 @@ fn run_live(o: Options, args: List[str]) -> int {
             // quit forbids NEW stages below, not an already-due commit.
             if !replaying {
                 if pending.len > 0 && s.tick - pending_at >= o.save_delay {
-                    journey.commit(save_path) else |e| {
+                    commit_save(save_path) else |e| {
                         eprint("cub: {e}")
                         save_error = true
                         quit = true
@@ -948,7 +1196,8 @@ fn run_live(o: Options, args: List[str]) -> int {
                 }
                 journey.snapshot_into(s, mut current)
                 if !quit && pending.len == 0 && !journey.same_snapshot(current, saved) {
-                    journey.prepare(save_path, s, o.save_cut) else |e| {
+                    meta.played_ms = played_before + (clock.now_ns() - started_ns) / 1000000
+                    journey.prepare_named(save_path, s, meta, o.save_cut) else |e| {
                         eprint("cub: {e}")
                         save_error = true
                         quit = true
@@ -1081,6 +1330,7 @@ fn run_live(o: Options, args: List[str]) -> int {
             break
         }
     }
+    let cancelled = pending.len > 0
     if pending.len > 0 {
         journey.abort(save_path) else |e| {
             eprint("cub: {e} while cancelling save")
@@ -1090,17 +1340,47 @@ fn run_live(o: Options, args: List[str]) -> int {
     }
     term.close_input(mut session)
     if sound_on { score.close(mut player) }
-    if o.record_path != "" {
+    if !replaying && !cancelled && !save_error {
+        // Update elapsed time without persisting uncommitted gameplay changes.
+        let persisted = journey.load(save_path, s.seed, cols, rows) else |e| {
+            eprint("cub: {e}")
+            return 2
+        }
+        meta.played_ms = played_before + (clock.now_ns() - started_ns) / 1000000
+        journey.prepare_named(save_path, persisted, meta, false) else |e| {
+            eprint("cub: {e}")
+            return 2
+        }
+        commit_save(save_path) else |e| { eprint("cub: {e}"); return 2 }
+    }
+    let record_path = if o.record_path != "" {
+        o.record_path
+    } else if !replaying {
+        registry.root() + "/replays/journey-{s.seed}-{time.unix_ms()}-{env.pid()}.pk"
+    } else {
+        ""
+    }
+    if record_path != "" {
         var text = List[byte]()
         replay.format(rec, controls.vocab(), mut text)
-        fs.write_bytes(o.record_path, text) else |_| {
-            eprint("cub: cannot write {o.record_path}")
+        grid.push_str(
+            mut text,
+            "# recorded {time.unix_iso8601()}\n# ending {if s.end then "Finished" else "In progress"}\n",
+        )
+        fs.create_dir_all(fs.parent(record_path) else ".") else |_| {
+            eprint("cub: cannot create recording directory")
+            return 2
+        }
+        fs.write_bytes(record_path, text) else |_| {
+            eprint("cub: cannot write {record_path}")
+            return 2
         }
     }
     let avg_us = if frames > 0 then render_ns / frames / 1000 else 0
     eprint(
         "cub: ended by {ended}; {s.tick} ticks, {frames} frames, {c.dropped} dropped, {c.waits} waits, {sim.distance_cells(s)} cells, blocked {s.blocked}; heading {s.heading} at {sim.cell_x(s)},{sim.cell_y(s)}; render avg {avg_us} us max {render_max_ns / 1000} us; seed {rp.seed} tier {tier.name(rp.tier)} {cols}x{rows}; sound {if sound_on then "on" else "off"} backend {player.backend} answers {if player.on then 1 else 0} prepared {prepared_us} us starts {player.starts} stops {player.stops} cue {sch.current}",
     )
+    if o.menu_playback && (ended == "Ctrl-C" || ended == "the interrupt") { return 4 }
     if ghost_error || save_error then 2 else 0
 }
 
@@ -1212,7 +1492,7 @@ fn main() -> int {
     if o.headless {
         return run_headless(o, args)
     }
-    run_live(o, args)
+    run_startup(o, args)
 }
 
 /// The score's evidence paths (cb03): `--score-list` every part's name
@@ -1357,6 +1637,7 @@ fn write_ghost(r: replay.Replay, s: sim.Sim, history: ghost.History, dir: str) -
     ghost.trailer(mut death, history, s.tick, s.deaths)
     var bytes = List[byte]()
     replay.format(death, controls.vocab(), mut bytes)
+    grid.push_str(mut bytes, "# recorded {time.unix_iso8601()}\n# ending Fallen\n")
     // Exclusive creation, not a clock, protects earlier runs and concurrent games.
     var serial = 0
     loop {

@@ -1,0 +1,8 @@
+pk 1
+seed 7
+tier rich
+size 80x24
+# fire-menu
+t 0 down
+t 1 bite
+# frames 3 every 3

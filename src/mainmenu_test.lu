@@ -1,0 +1,111 @@
+//! member: false
+
+use controls
+use grid
+use input
+use mainmenu
+use registry
+use replay
+use restscene
+use sim
+use std.fs
+
+fn test_cb13_menu_replay_keys_reach_every_item_without_gameplay() {
+    for item in ["continue", "new", "load", "playback", "quit"] {
+        let text = fs.read_text("tests/cases/menu-{item}.pk") else |_| {
+            assert(false, "menu case {item}")
+            return
+        }
+        let r = replay.from_text(text, controls.vocab()) else |_| {
+            assert(false, "menu replay")
+            return
+        }
+        var menu = mainmenu.fixture()
+        var keys = List[int]()
+        var tick = 0
+        while tick <= replay.last_tick(r) {
+            (mut keys).reset()
+            let _ = replay.at(r, tick, mut keys)
+            for k in keys { mainmenu.replay_key(mut menu, k) }
+            tick += 1
+        }
+        let wanted = match item {
+            "continue" => 1,
+            "quit" => 4,
+            _ => 0,
+        }
+        assert(menu.action == wanted, "{item} routed correctly")
+        assert(
+            menu.page ==
+                (
+                    match item {
+                        "new" => 4,
+                        "load" => 1,
+                        "playback" => 2,
+                        _ => 0,
+                    }
+                ),
+            "{item} page",
+        )
+    }
+}
+
+fn test_cb13_menu_empty_omits_continue_and_playback_and_back_is_safe() {
+    var menu = mainmenu.new(List[registry.Entry](), List[mainmenu.Recording](), true, 7)
+    assert(mainmenu.items(menu).len == 3, "only New, Load, Quit")
+    mainmenu.key(mut menu, input.char_key(32))
+    assert(menu.page == 0 && menu.action == 0, "title dismissal consumed")
+    mainmenu.key(mut menu, input.KEY_DOWN)
+    mainmenu.key(mut menu, input.char_key(32))
+    mainmenu.key(mut menu, input.char_key(32))
+    assert(menu.page == 3, "empty Load offers typed path")
+    mainmenu.key(mut menu, input.KEY_ESC)
+    assert(menu.page == 1 && menu.action == 0, "path Escape backs to list")
+    mainmenu.key(mut menu, input.KEY_ESC)
+    assert(menu.page == 0 && menu.action == 0, "list Escape backs to main")
+}
+
+fn test_cb13_menu_typed_path_keeps_spaces_and_backspace() {
+    var menu = mainmenu.fixture()
+    menu.page = 1
+    menu.row = 1
+    mainmenu.key(mut menu, input.char_key(32))
+    for b in "/fixture/with space/a.savex".bytes() {
+        mainmenu.key(mut menu, input.char_key(b as int))
+    }
+    mainmenu.key(mut menu, input.KEY_BACKSPACE)
+    mainmenu.key(mut menu, input.KEY_ENTER)
+    assert(
+        menu.action == 1 && menu.selected == "/fixture/with space/a.save",
+        "path is not tokenized",
+    )
+}
+
+fn test_cb13_fire_menu_keeps_the_whole_rest_vignette_both_tiers() {
+    for cols in [80, 120] {
+        var s = sim.new(7, cols, if cols == 80 then 24 else 40)
+        s.area = 1
+        s.last_den = 1
+        let m = mainmenu.fixture()
+        for tier in [0, 1] {
+            var before = grid.new(s.rows, s.cols)
+            var after = grid.new(s.rows, s.cols)
+            restscene.render(s, tier, mut before)
+            mainmenu.render(m, s, tier, mut after)
+            var row = 0
+            while row < s.rows {
+                var col = restscene.panel_left(s) + restscene.panel_width(s)
+                while col < s.cols {
+                    let a = grid.at(before, row, col)
+                    let b = grid.at(after, row, col)
+                    assert(
+                        a.cp == b.cp && a.fg == b.fg && a.bg == b.bg && a.attrs == b.attrs,
+                        "vignette cell {row},{col} tier {tier}",
+                    )
+                    col += 1
+                }
+                row += 1
+            }
+        }
+    }
+}
