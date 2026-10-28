@@ -1,0 +1,23 @@
+cb11 prediction, before the first implementation change
+
+On eb34a399, three north-facing Space presses separated by 150, 200,
+250 or 330 ms (quantized to 30 Hz ticks) will not all show holds 1/2/3,
+left/right/forward. The age>=5 admission drops early requests; additionally,
+press 3 can reach strike 1's already-full one-slot buffer, or strike 2's
+age<5 window. The drawings may already be correct once the strike is admitted.
+Measure the production replay path and real terminal reader before fixing.
+
+Coordinator's checkpoint answers supersede the original one-slot proposal:
+- pending requests capped at 2, consumed one per completed bite; overflow drops;
+- any request from age1, plus six ticks after natural completion;
+- enhanced Space REPEAT never acts, only PRESS;
+- legacy Space gaps <=2 ticks are inferred repeats, each refreshing the last
+  Space tick; >=3 ticks are fresh (a documented heuristic, not physical key-up).
+Ownership granted only for Space handling in controls.events; cb10 owns Ctrl.
+Rebase exactly once when the coordinator announces cb10's merge.
+
+Expect unchanged strike geometry, timings, and art-study frames; gameplay
+recordings with formerly dropped presses can change outcomes and frames.
+New rows must test all four hand intervals, eight facings, early ages1..4,
+grace1..6 and expiry7, overflow, cancellation, affordability, enhanced repeats,
+legacy30/60ms repeat streams and >=100ms separate presses. Both visual tiers.
