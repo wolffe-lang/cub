@@ -79,18 +79,31 @@ prevents a held Shift+Space from issuing repeated heavy attacks.
 Without negotiation, literal byte `20` cannot identify a release or repeat.
 A Space within two simulation ticks of the previous Space is treated as a
 repeat and ignored, refreshing that timestamp even when ignored. A gap of
-three ticks or more counts as a new press. Thus 30/60-ms repeat streams do
-not chain, while presses 100 ms or more apart do. This is a heuristic:
-the first OS repeat after a 250/500-ms initial delay is indistinguishable
-from a fresh press and can request one extra strike. It does not promise
-physical key-up detection or reject every held-key repeat.
+three ticks or more counts as a new press. These are **delivered simulation
+ticks**, not a wall-clock guarantee: scheduling and input consumption can
+turn a nominal 60-ms gap into three ticks or a nominal 100-ms gap into two.
+The first OS repeat after a 250/500-ms initial delay is also indistinguishable
+from a fresh press and can request one extra strike. This heuristic does
+not promise physical key-up detection or reject every held-key repeat.
 
 The reported play terminal is Ghostty on macOS. The `cb11-hand-reader` row
 feeds Ghostty-compatible sequences through the real reader, checks the
-flags request, records three hand-spaced presses and holds with 250/500-ms
-initial delays, and compares live strike numbers with replay. These are
-injected pty measurements, not a physical Ghostty capture or a measurement
-of the user's repeat preference.
+flags request, and compares live strike numbers with replay. Its gating
+cadence is paced by observed trace ticks: hand presses use cumulative30Hz
+quantization, nominal30/60-ms repeats use1/2 ticks, and delayed repeats start
+after8/15 ticks for nominal250/500ms. Each input-bearing tick is acknowledged;
+requested and delivered gaps are printed and must agree. A misdelivery is
+an explicit harness failure, never a silently relaxed combo expectation.
+These are injected protocol fixtures, not a physical Ghostty capture or a
+measurement of the user's repeat preference.
+
+The wall-clock variant is measurement only, outside the default gate rows:
+`python3 -I tests/combo_pty.py --measure-wall-clock --bin target/native/cub`.
+It prints nominal/sent times, recorded bite ticks, delivered gaps and strike
+sequences without treating nominal milliseconds as a tick-policy assertion.
+The retained Mac failure included sends at602.493 and670.008ms for nominal
+600 and660ms, and a nominal100-ms sequence consumed at ticks3,7,9. The
+<=2/>=3 policy is unchanged; the two kinds of measurement are kept separate.
 
 ## Physical Shift+Space probe, 2026-10-25
 
