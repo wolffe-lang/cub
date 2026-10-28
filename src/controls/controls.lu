@@ -328,6 +328,8 @@ pub fn events(raw: List[input.Event], mut keys: List[int]) {
             continue
         }
         if e.key >= input.KEY_LEFT_SHIFT && e.key <= input.KEY_ALT { continue }
+        // Space is a request, never autorepeat (including Shift+Space).
+        if e.key == input.char_key(32) && e.kind == input.REPEAT { continue }
         var k = map(e.key)
         if k >= KEY_UP && k <= KEY_RIGHT && e.mods & input.MOD_SHIFT != 0 { k += 4 }
         if k == KEY_BITE && e.mods & input.MOD_SHIFT != 0 { k = KEY_HEAVY }
