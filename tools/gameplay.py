@@ -422,7 +422,10 @@ def paths_doors_rest(binary):
     routes = collections.defaultdict(list)
     for row in csv.DictReader(io.StringIO(census.stdout)):
         r = {k: int(v) for k, v in row.items()}
-        widths[r['area']].append(r['width'])
+        # The route's own width (path 0): a branch is narrower by design (cb05's
+        # half width 3), and from the Teeth on every area carries three (cb14).
+        if r['path'] == 0:
+            widths[r['area']].append(r['width'])
         routes[tuple(r[k] for k in ('seed', 'field', 'area', 'path'))].append(r)
     # cb14: thirteen areas; the Mere's causeway and the Underteeth's tunnel are narrow (3..4 half), the rest 4..6.
     for area, minimum in enumerate((7, 9, 9, 7, 9, 9, 9, 9, 9, 7, 7, 9, 9)):
