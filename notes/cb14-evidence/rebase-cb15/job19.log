@@ -1,0 +1,23 @@
+cb14 kasumi job bash /home/mfwolffe/lanes/cb14/job19.sh start 2026-10-28T22:09:21Z
+cb14 holds cores 12-15 2026-10-28T22:09:21Z
+cb14 source 6dda0fd22556c552d843cb100a6c173a07932dc1
+build: target/native/cub
+test 1
+test src/pouch_test.lu::test_cb15_a_found_frame_appends_its_existing_words_without_r ... FAILED (trap(assert))
+wolf test: 561 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out
+spurs-audit 0
+world-audit 0
+den-spacing 0
+foe-census 0
+bends-audit 0
+area-proof 0 9 cases
+world-proof 0 82 cases
+den-proof 0 25 cases
+den-memory 0
+aim-lock as ashen-parry bite burn cases coast-cache-0 coast-cache-1 coast-cache-2 coast-cache-3 committed crags demo den-checkpoint den-memory dodge ember-touch fox-feint ghost ghost-death gravehollow hawk-shadow hawk-stoop (header-only): howe hush kept landmark-1-0 landmark-1-1 landmark-1-2 landmark-1-3 landmark-2-0 landmark-2-1 landmark-2-2 landmark-2-3 landmark-3-0 landmark-4-0 landmark-6-0 landmark-6-1 mere natural-death parry rest-bramblehold-120x40 rest-bramblehold-80x24 rest-cinderwick-120x40 rest-cinderwick-80x24 rest-larkmeadow-120x40 rest-larkmeadow-80x24 rest-shallows-120x40 rest-shallows-80x24 rest-shingle-120x40 rest-shingle-80x24 rest-teeth-120x40 rest-teeth-80x24 river spring-drink spring-found sprint-hit stand thorn-gate town-den town-lane-120x40 town-lane-80x24 town-passage underteeth water-refill weasel-retreat world-den world-gate world-hawk world-meadow world-open world-recovered world-return world-thorns yard-cache 
+boss-alpha-beaten boss-alpha-phase2 boss-alpha-windup boss-boar-beaten boss-boar-phase2 boss-boar-windup boss-elk-beaten boss-elk-phase2 boss-elk-windup boss-lynx-beaten boss-lynx-phase2 boss-lynx-windup burn cases changed: end gravehollow howe hush landmark-10-0 landmark-11-0 landmark-11-1 landmark-11-2 landmark-11-3 landmark-11-4 landmark-11-5 landmark-12-0 landmark-3-1 landmark-5-0 landmark-7-0 landmark-7-1 landmark-8-0 landmark-9-0 mere rest-burn-120x40 rest-burn-80x24 rest-hush-120x40 rest-hush-80x24 rest-mere-120x40 rest-mere-80x24 rest-stand-120x40 rest-stand-80x24 rest-underteeth-120x40 rest-underteeth-80x24 stand underteeth 
+cases new:
+cases still at cb14's pre-rebase journey 5: whisper-flank
+build --all 0
+CB14_JOB19_DONE 2026-10-28T22:19:35Z
+CB14_KASUMI_EXIT 0 2026-10-28T22:19:35Z

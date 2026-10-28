@@ -1,0 +1,54 @@
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:20:45Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:21:15Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:21:45Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:22:15Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:22:45Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:23:15Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:23:45Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:24:15Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:24:45Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:25:15Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:25:45Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:26:15Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:26:45Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:27:15Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:27:45Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:28:15Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:28:45Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:29:15Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:29:45Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:30:16Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:30:46Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:31:16Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:31:46Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:32:16Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:32:46Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:33:16Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:33:46Z
+cb14 waits for the Mac build lock pid=starting lane=? 2026-10-28T22:34:16Z
+cb14 Mac floor clear 17714823168 bytes 2026-10-28T22:34:46Z
+build 0 079d3c5a
+starts 57: 627 696 697 698 710 724 725 743 755 771 783 797 798 799 800 801 802 803 804 805 806 807 808 809 810 811 823 824 840 841 853 854 855 856 857 858 859 860 861 862 863 864 865 866 867 868 869 870 871 872 873 874 875 928 929 930 942
+candidates 15048
+flank search 400/15048
+flank search 800/15048
+flank search 1200/15048
+flank search 1600/15048
+flank search 2000/15048
+flank search 2400/15048
+flank search 2800/15048
+flank search 3200/15048
+flank search 3600/15048
+flank search 4000/15048
+flank search 4400/15048
+flank search 4800/15048
+flank search 5200/15048
+flank search 5600/15048
+flank search 6000/15048
+flank search 6400/15048
+flank search 6800/15048
+flank search 7200/15048
+FLANK FOUND start 696 move up+right ticks 8 aim left result (708, 705, 245, 140, 128, 10100) trials 7306
+search 0
+CB14_FLANK2_DONE
+CB14_FLANK2_EXIT 0

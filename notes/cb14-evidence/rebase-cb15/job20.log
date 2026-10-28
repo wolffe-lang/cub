@@ -1,0 +1,16 @@
+cb14 kasumi job bash /home/mfwolffe/lanes/cb14/job20.sh start 2026-10-28T22:43:15Z
+cb14 holds cores 12-15 2026-10-28T22:43:15Z
+cb14 source 079d3c5a44a4894285277e87b9df54613796558b with 45 case paths carried
+build: target/native/cub
+test 0
+wolf test: 562 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+build --all 0
+goldens --update 0
+diagonal-study: 410 states, 75 unique drawings, four facings, both fields and tiers
+goldens: wrote tests/goldens/art
+    200 ??
+    196 D
+   1916 M
+memory gate 0 memory gate: green, crash checkpoint and fresh seed; budget 4096 bytes/tick
+CB14_JOB20_DONE 2026-10-28T22:49:50Z
+CB14_KASUMI_EXIT 0 2026-10-28T22:49:50Z
