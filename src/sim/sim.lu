@@ -16,6 +16,7 @@
 use controls
 use counter
 use forest
+use lands
 use meadow
 use input
 use lore
@@ -394,7 +395,56 @@ pub struct Sim {
     lost: int,
     lore: int,
     lore_until: int,
+    gates: int,
+    stones: List[Stone],
+    flare_x: int,
+    flare_y: int,
+    flare_at: int,
+    reveal_at: int,
 }
+
+/// A stepping stone of the Mere the cub has stepped on (cb14): the
+/// segment (four rows of the route over open water) and the tick of the
+/// first step. The stone sinks `STONE_BEAT` ticks after that and rises
+/// again `STONE_RISE` ticks after it; a cub on a sunk stone is in the
+/// water (half pace, the cold draining its stamina). Transient: the list
+/// empties on an area change, a rest and a death.
+pub struct Stone {
+    seg: int,
+    since: int,
+}
+
+/// Ticks from the first step on a stone to its sinking: a beat.
+pub const STONE_BEAT: int = 30
+
+/// Ticks from the first step to the stone's rising again.
+pub const STONE_RISE: int = 150
+
+/// The gates' bits in the journey's `gates` (cb14): the burnt oak across
+/// the Burn's way on (pushed over by a lunge) and the stone mouth into
+/// Gravehollow (opened by a lunge; its sentries are cb18's).
+pub const GATE_OAK: int = 1
+
+/// The stone mouth.
+pub const GATE_MOUTH: int = 2
+
+/// The paw the Underteeth's squeeze asks for (R-cb14-2 A): the first
+/// level of paw.
+pub const UNDERTEETH_PAW: int = 2
+
+/// Ticks the lookout's reveal lasts (the Stand): the camera pulls back and
+/// the areas' names fade in where they lie.
+pub const REVEAL_TICKS: int = 60
+
+/// Ticks an ember of the Burn flares after the cub steps on it.
+pub const FLARE_TICKS: int = 4
+
+/// The scent an alcove's slot yields while its consumable is not yet an
+/// item (cb15 makes the kinds real).
+pub const ALCOVE_SCENT: int = 30
+
+/// An alcove guard's health from the Teeth on: a fox and a half.
+pub const ALCOVE_GUARD_HEALTH: int = 36
 
 /// A new cub at the Shingle's start, facing north toward the water, still.
 pub fn new(seed: int, cols: int, rows: int) -> Sim {
@@ -506,6 +556,12 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         body_facing: 0,
         boss: -1,
         bosses: 0,
+        gates: 0,
+        stones: List[Stone](),
+        flare_x: 0,
+        flare_y: 0,
+        flare_at: -100,
+        reveal_at: -1,
         end: false,
         played: 0,
         played_at: 0,
@@ -657,14 +713,15 @@ fn locomotion(mut s: Sim) {
         sprint_held(s)
     var pace = if s.health * 3 < health_max(s.heart) then trot_at(s.paw) / 2 else trot_at(s.paw)
     // The Shallows' current (cb04): the cub wades at half its pace, the
-    // elk's second phase's ground.
-    if in_shallows(s, s.x, s.y) { pace = pace / 2 }
+    // elk's second phase's ground; the Burn's ash drifts and the Mere's
+    // sunk stones the same (cb14).
+    if slowed(s, s.x, s.y) { pace = pace / 2 }
     let want_v = if !s.moving || s.action != IDLE {
         0
     } else if s.sneaking {
         trot_at(s.paw) / 2
     } else if s.sprinting {
-        if in_shallows(s, s.x, s.y) then sprint_at(s.paw) / 2 else sprint_at(s.paw)
+        if slowed(s, s.x, s.y) then sprint_at(s.paw) / 2 else sprint_at(s.paw)
     } else {
         pace
     }
@@ -952,14 +1009,149 @@ pub fn in_shallows(s: Sim, x: int, y: int) -> bool {
     forest.kind(s.seed, s.field, s.area, floor_div(x, FP), floor_div(y, FP)) == terrain.SHALLOWS
 }
 
-/// Terrain and unopened thorns block a world cell.
+/// Terrain and unopened thorns block a world cell; cb14's gates while they
+/// are shut (`gate_shut`).
 pub fn blocked(s: Sim, x: int, y: int) -> bool {
     (s.area == forest.SHINGLE || s.area == forest.TOWN) &&
         !s.gate_open &&
         y == forest.thorn_row(s.seed, s.area) &&
         x >= -2 &&
         x <= 2 ||
-        forest.blocked(s.seed, s.field, s.area, x, y)
+        forest.blocked(s.seed, s.field, s.area, x, y) ||
+        gate_shut(s, x, y)
+}
+
+/// Whether a gate of the journey's area lets the cub through (cb14): the
+/// Stand's windthrown pine only a sneaking cub; the Burn's burnt oak once
+/// pushed over (`GATE_OAK`); the sett's squeeze into the Underteeth a cub
+/// of paw `UNDERTEETH_PAW` (R-cb14-2 A); the stone mouth once opened
+/// (`GATE_MOUTH`).
+pub fn gate_passable(s: Sim) -> bool {
+    if s.area == forest.STAND { return s.sneaking }
+    if s.area == forest.BURN { return s.gates / GATE_OAK % 2 == 1 }
+    if s.area == forest.CRAGS { return s.paw >= UNDERTEETH_PAW }
+    if s.area == forest.HOWE { return s.gates / GATE_MOUTH % 2 == 1 }
+    true
+}
+
+/// Whether world cell `(x, y)` is a shut gate cell of the area.
+pub fn gate_shut(s: Sim, x: int, y: int) -> bool {
+    if s.area != forest.STAND &&
+        s.area != forest.BURN &&
+        s.area != forest.CRAGS &&
+        s.area != forest.HOWE {
+        return false
+    }
+    !gate_passable(s) && forest.gate_cell(s.seed, s.area, x, y - forest.origin(s.seed, s.area))
+}
+
+/// The world cell a lunge opens a gate at (cb14): the middle of the burnt
+/// oak or the stone mouth, fixed point; (0, 0) in an area without one.
+pub fn gate_centre(s: Sim) -> (int, int) {
+    if s.area != forest.BURN && s.area != forest.HOWE { return (0, 0) }
+    let (lo, hi) = forest.gate_rows(s.area)
+    (FP / 2, (forest.origin(s.seed, s.area) + (lo + hi) / 2) * FP + FP / 2)
+}
+
+/// The gate bit a lunge sets in the area, 0 for none.
+pub fn gate_bit(area: int) -> int {
+    if area == forest.BURN then GATE_OAK else if area == forest.HOWE then GATE_MOUTH else 0
+}
+
+/// Ticks since the cub first stepped on stone segment `seg` of the Mere,
+/// -1 while it has not.
+pub fn stone_age(s: Sim, seg: int) -> int {
+    for st in s.stones { if st.seg == seg { return s.tick - st.since } }
+    -1
+}
+
+/// Whether stone segment `seg` is under the water now.
+pub fn stone_sunk(s: Sim, seg: int) -> bool {
+    let age = stone_age(s, seg)
+    age >= STONE_BEAT && age < STONE_RISE
+}
+
+/// The stone segment of a world row in the Mere.
+pub fn stone_segment_at(s: Sim, y: int) -> int {
+    lands.stone_segment(y - forest.origin(s.seed, s.area))
+}
+
+/// Whether the ground under fixed-point `(x, y)` slows the cub to half
+/// its pace: the Shallows' current (cb04), an ash drift of the Burn, a
+/// sunk stepping stone of the Mere (cb14).
+pub fn slowed(s: Sim, x: int, y: int) -> bool {
+    let k = forest.kind(s.seed, s.field, s.area, floor_div(x, FP), floor_div(y, FP))
+    if k == terrain.SHALLOWS || k == terrain.DRIFT { return true }
+    k == terrain.STONE && stone_sunk(s, stone_segment_at(s, floor_div(y, FP)))
+}
+
+/// Whether the lookout's reveal is showing (the Stand, cb14): the sixty
+/// ticks from the cub's arrival at the lookout.
+pub fn revealing(s: Sim) -> bool {
+    s.reveal_at >= 0 && s.tick - s.reveal_at < REVEAL_TICKS
+}
+
+/// Whether the ember at world cell `(x, y)` is flaring (the Burn, cb14).
+pub fn flaring(s: Sim, x: int, y: int) -> bool {
+    s.flare_x == x && s.flare_y == y && s.tick - s.flare_at < FLARE_TICKS
+}
+
+/// cb14's ground rules, a tick: the Mere's stones remember the cub's
+/// steps and sink; a sunk stone's cold drains stamina; the Underteeth's
+/// spring refills the water; an ember of the Burn flares underfoot; the
+/// lookout reveals the forest.
+fn lands_step(mut s: Sim) {
+    if s.area == forest.MERE {
+        var kept = List[Stone]()
+        for st in s.stones { if s.tick - st.since < STONE_RISE { (mut kept).push(st) } }
+        s.stones = kept
+        let k = forest.kind(s.seed, s.field, s.area, cell_x(s), cell_y(s))
+        if k == terrain.STONE {
+            let seg = stone_segment_at(s, cell_y(s))
+            if stone_age(s, seg) < 0 { (mut s.stones).push(Stone { seg: seg, since: s.tick }) }
+            if stone_sunk(s, seg) && s.stamina > 0 { s.stamina -= 1 }
+        }
+        return
+    }
+    if s.area == forest.UNDERTEETH {
+        if s.flask_max > 0 &&
+            s.flasks < s.flask_max &&
+            forest.kind(s.seed, s.field, s.area, cell_x(s), cell_y(s)) == terrain.SPRING {
+            s.flasks = s.flask_max
+            s.cue = 3
+        }
+        return
+    }
+    if s.area == forest.BURN {
+        let b = cub_body(s)
+        var y = b.y0
+        while y <= b.y1 {
+            var x = b.x0
+            while x <= b.x1 {
+                if forest.kind(s.seed, s.field, s.area, x, y) == terrain.EMBER {
+                    if !flaring(s, x, y) {
+                        s.flare_x = x
+                        s.flare_y = y
+                        s.flare_at = s.tick
+                    }
+                    return
+                }
+                x += 1
+            }
+            y += 1
+        }
+        return
+    }
+    if s.area == forest.STAND {
+        let (lx, ly) = forest.lookout(s.seed)
+        let wx = lx * FP + FP / 2
+        let wy = (forest.origin(s.seed, s.area) + ly) * FP + FP / 2
+        if near(s.x, s.y, wx, wy, 2 * FP) {
+            if s.reveal_at < 0 { s.reveal_at = s.tick }
+        } else if !near(s.x, s.y, wx, wy, 6 * FP) && s.reveal_at >= 0 && !revealing(s) {
+            s.reveal_at = -1
+        }
+    }
 }
 
 /// Occlusion is integer sampled at half-cell intervals, including the endpoint.
@@ -1084,6 +1276,9 @@ fn reset_world(mut s: Sim) {
     (mut s.drops).reset()
     (mut s.meat).reset()
     (mut s.trail).reset()
+    (mut s.stones).reset()
+    s.flare_at = -100
+    s.reveal_at = -1
     var i = 0
     while i < s.holds.len { s.holds[i] = input.hold_new(); i += 1 }
     input.clear(mut s.key_state)
@@ -1291,6 +1486,22 @@ pub fn strike_foes(mut s: Sim) {
         near(s.x, s.y, gate_x, gate_target_y, 2 * FP) &&
         in_front(s.x, s.y, attack_direction(s), gate_x, gate_target_y) {
         s.gate_hint_until = s.tick + ENTRY_TICKS
+    }
+    // cb14's gates: a lunge within four cells of the burnt oak or the
+    // stone mouth, facing it, opens it for the journey; a bite there
+    // shows the hint.
+    let bit = gate_bit(s.area)
+    if bit > 0 && s.gates / bit % 2 == 0 {
+        let (gx, gy) = gate_centre(s)
+        if s.action == LUNGE &&
+            near(s.x, s.y, gx, gy, 4 * FP) &&
+            in_front(s.x, s.y, attack_direction(s), gx, gy) {
+            s.gates += bit
+            s.cue = 3
+        }
+        if s.action == BITE && near(s.x, s.y, gx, gy, 3 * FP) {
+            s.gate_hint_until = s.tick + ENTRY_TICKS
+        }
     }
     var i = 0
     while i < s.foes.len {
@@ -1655,7 +1866,13 @@ fn trail_step(mut s: Sim, ox: int, oy: int) {
     var kept = List[Trail]()
     for tr in s.trail { if tr.until > s.tick { (mut kept).push(tr) } }
     s.trail = kept
-    if !s.sneaking && (floor_div(ox, FP) != cell_x(s) || floor_div(oy, FP) != cell_y(s)) {
+    // No trail is laid in an ash drift (cb14: the Burn hides the cub from
+    // what follows its scent).
+    let in_drift = s.area == forest.BURN &&
+        forest.kind(s.seed, s.field, s.area, cell_x(s), cell_y(s)) == terrain.DRIFT
+    if !s.sneaking &&
+        !in_drift &&
+        (floor_div(ox, FP) != cell_x(s) || floor_div(oy, FP) != cell_y(s)) {
         (mut s.trail).push(Trail {
             x: s.x,
             y: s.y,
@@ -1766,6 +1983,7 @@ fn step_tick(mut s: Sim, keys: List[int]) {
         return
     }
     hazards_step(mut s)
+    lands_step(mut s)
     trail_step(mut s, ox, oy)
     drops_step(mut s)
     healing_pickups(mut s)
@@ -2583,17 +2801,21 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
         // never one inside another's drawing), back along the branch's
         // centreline from the cache toward the route, so every guard
         // stands on the branch's ground: a weasel trio at the first cache,
-        // a fox pair at the second, one fox at the third.
-        let kind = if cache == 0 then WEASEL else FOX
+        // a fox pair at the second, one fox at the third. From the Teeth
+        // on (cb14's alcoves, item 10: a guard one tier above the area's)
+        // the guards are foxes with half again their health, a pair, a
+        // pair and one; cb18's foes replace them by area.
+        let late = area >= forest.CRAGS && area != forest.TOWN
+        let kind = if cache == 0 && !late then WEASEL else FOX
         let (w, _) = silhouette.foe_size(kind)
         let (_, _, wide, _) = silhouette.footprint(w, 12, 0)
         let len = forest.branch_len(seed, field, area, cache)
         var guard = 0
-        while guard < (if cache == 0 then 3 else if cache == 1 then 2 else 1) {
+        while guard < (if cache == 0 && !late then 3 else if cache <= 1 then 2 else 1) {
             let (gx, gy) = forest.branch_point(seed, field, area, cache, len - 3 - guard * wide)
-            (mut foes).push(
-                make_foe(kind, gx * FP + FP / 2, (forest.origin(seed, area) + gy) * FP + FP / 2),
-            )
+            var f = make_foe(kind, gx * FP + FP / 2, (forest.origin(seed, area) + gy) * FP + FP / 2)
+            if late { f.health = ALCOVE_GUARD_HEALTH }
+            (mut foes).push(f)
             guard += 1
         }
         cache += 1
@@ -2622,6 +2844,11 @@ fn home_at_ember(seed: int, field: int, mut foes: List[Foe], member: int) {
 /// eighteen foes in each big area with the guards; eight to twelve in the
 /// later three; the Shingle's three tutorial groups unchanged).
 pub fn group_count(area: int) -> int {
+    // cb14's areas (the Stand, the Burn, the Mere, the Underteeth, the
+    // Howe, Gravehollow) hold no route groups: their foes are cb18's (the
+    // marten, the ash adder and the cinder moths, the heron, the
+    // glow-worms, the wisps and the sentries); their alcove guards stand.
+    if area >= forest.STAND { return 0 }
     if area == forest.SHINGLE {
         3
     } else if area == forest.TOWN {
@@ -2693,7 +2920,10 @@ pub fn group_plan(seed: int, area: int, g: int) -> (int, int, int, int) {
         if g == 1 || g == 4 { return (row, 1, HAWK, HAWK) }
         return if g == 2 then (row, 2, WEASEL, WEASEL) else (row, 2, FOX, FOX)
     }
-    let row = (if g == 0 then 40 else if g == 1 then 72 else if g == 2 then 104 else 190) + jitter
+    // The Hush's last group at 136 (cb14: the wood ends at 160 now, the
+    // arena's rows are Gravehollow's).
+    let last = if area == forest.HUSH then 136 else 190
+    let row = (if g == 0 then 40 else if g == 1 then 72 else if g == 2 then 104 else last) + jitter
     if area == forest.RIVER { return if g == 1 then (row, 2, FOX, FOX) else (row, 2, HAWK, DEER) }
     if g == 1 then (row, 3, WEASEL, WEASEL) else (row, 2, FOX, FOX)
 }
@@ -2732,6 +2962,7 @@ fn encounter_row(seed: int, area: int, at: int) -> int {
 /// What a cache holds when dug (cb05): a lore line or a consumable, by
 /// area and cache (`lore`): the Shingle's bundles are counted apart.
 pub fn cache_reward(area: int, cache: int) -> (int, int) {
+    if area >= forest.CRAGS && area != forest.TOWN { return lore.alcove_slot(area, cache) }
     if area == forest.TOWN {
         return match cache {
             0 => (lore.LORE, lore.TOWN_DOORWAY),
@@ -2972,7 +3203,7 @@ fn hazards_step(mut s: Sim) {
 /// a fire is touched by any part of the cub, not only the cell it stands
 /// on).
 pub fn on_ember(s: Sim) -> bool {
-    if s.area != forest.TOWN { return false }
+    if s.area != forest.TOWN && s.area != forest.BURN { return false }
     let b = cub_body(s)
     var y = b.y0
     while y <= b.y1 {
@@ -3034,6 +3265,9 @@ pub fn enter_area(mut s: Sim, area: int, x: int, y: int) {
     s.drops = copy s.away_loot[area].drops
     s.meat = copy s.away_loot[area].meat
     (mut s.trail).reset()
+    (mut s.stones).reset()
+    s.flare_at = -100
+    s.reveal_at = -1
     s.locked = -1
     s.riposte = 0
     s.riposte_foe = -1
@@ -3069,14 +3303,26 @@ pub fn cross_edge(mut s: Sim, edge: int) -> bool {
     if !forest.path_edge(edge) && !shortcut_open(s, edge) { return false }
     let (x, y) = forest.portal(s.seed, to, edge)
     // Arrival is off the trigger; a return requires walking back to it:
-    // north of a far-end portal (the way back), south of an entry.
-    enter_area(
-        mut s,
-        to,
-        x,
-        y + (if forest.path_edge(edge) && forest.exit_end(to, edge) then -2 * FP else 2 * FP),
-    )
+    // north of a far-end portal (the way back), south of an entry. The
+    // Underteeth's far mouth (the roots) is a shortcut at a far end.
+    let far = forest.path_edge(edge) && forest.exit_end(to, edge) ||
+        y / FP - forest.origin(s.seed, to) >= forest.length(to) - 2
+    enter_area(mut s, to, x, y + (if far then -2 * FP else 2 * FP))
     true
+}
+
+/// Whether a cb14 shortcut opens from the side the cub stands on when `r`
+/// is pressed at its mouth: the scree slides down from the Stand, the
+/// streambed runs back from the Burn, the raft is poled from the Mere, the
+/// sett is squeezed through from the Teeth (paw `UNDERTEETH_PAW`), the
+/// roots are climbed out of the Underteeth. Each is open both ways after.
+fn opens_from_here(s: Sim, edge: int) -> bool {
+    if edge == forest.EDGE_SCREE { return s.area == forest.STAND }
+    if edge == forest.EDGE_STREAMBED { return s.area == forest.BURN }
+    if edge == forest.EDGE_RAFT { return s.area == forest.MERE }
+    if edge == forest.EDGE_SETT { return s.area == forest.CRAGS && s.paw >= UNDERTEETH_PAW }
+    if edge == forest.EDGE_ROOTS { return s.area == forest.UNDERTEETH }
+    false
 }
 
 fn shortcut_key(mut s: Sim) {
@@ -3093,6 +3339,10 @@ fn shortcut_key(mut s: Sim) {
                 }
                 if edge == 3 && s.area == forest.LARKMEADOW && !shortcut_open(s, edge) {
                     s.cue = 2
+                    open_shortcut(mut s, edge)
+                }
+                if edge >= forest.EDGE_SCREE && !shortcut_open(s, edge) && opens_from_here(s, edge) {
+                    s.cue = 3
                     open_shortcut(mut s, edge)
                 }
                 let _ = cross_edge(mut s, edge)
@@ -3384,6 +3634,11 @@ fn cache_key(mut s: Sim) {
                 remember_lore(mut s, line)
                 s.lore = line
                 s.lore_until = s.tick + lore.LINE_TICKS
+            }
+            // cb14's alcoves: a kind the pouch has no slot for yet (pine,
+            // a shard, the tuft) yields scent until cb15 makes it an item.
+            if reward == lore.PINE || reward == lore.SHARD || reward == lore.TUFT {
+                s.scent += ALCOVE_SCENT
             }
             s.cue = 3
         }

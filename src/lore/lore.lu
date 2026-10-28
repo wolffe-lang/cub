@@ -48,11 +48,37 @@ pub const ASH_SHELTER: int = 11
 /// The existing black stump field at the fire's edge.
 pub const COAL_ROOTS: int = 12
 
-/// The number of lines; future ids append at13.
-pub const COUNT: int = 13
+/// The Stand's line (cb14; the-proposals.md section 3), at the lookout;
+/// cb14's ids append at 13 after cb15's three.
+pub const STAND_LINE: int = 13
+
+/// The Burn's line, at the kiln.
+pub const BURN_LINE: int = 14
+
+/// The Mere's line, at the causeway's post.
+pub const MERE_LINE: int = 15
+
+/// The Underteeth's line, at the bone cache.
+pub const UNDERTEETH_LINE: int = 16
+
+/// The Howe's line, at the stone mouth.
+pub const HOWE_LINE: int = 17
+
+/// The Howe's five standing stones: the alphas before Ashgrim, one line a
+/// stone (`MENHIR_FIRST + k`).
+pub const MENHIR_FIRST: int = 18
+
+/// The alcoves' lines (cb14, item 10), one an area from the Teeth on:
+/// `ALCOVE_FIRST + (area - 3)` for the Teeth, the Shallows and the Hush,
+/// then the Stand's through Gravehollow's.
+pub const ALCOVE_FIRST: int = 23
+
+/// The number of lines; future ids append at 32.
+pub const COUNT: int = 32
 
 /// The line itself.
 pub fn line(id: int) -> str {
+    if id >= 13 { return later_line(id) }
     match id {
         0 => "Old bones. Nothing here carries a scent.",
         1 =>
@@ -80,8 +106,42 @@ pub fn line(id: int) -> str {
     }
 }
 
+/// cb14's lines: the five areas', the standing stones', the alcoves'.
+fn later_line(id: int) -> str {
+    match id {
+        13 =>
+            "The trees here grew straight because nothing ate them. The ones who cut them did not come back for the rest.",
+        14 =>
+            "The Ashwater is grey because of this. The fire came from the Stand side, in a dry year, with people in it.",
+        15 =>
+            "The ice that took you came from here. The Mere does not freeze; it only looks as if it does.",
+        16 => "The pack buried nothing. What is here was carried in by the badgers, one bone a winter.",
+        17 => "Every alpha before Ashgrim lies under a mound. Ashgrim is the one with no mound.",
+        18 =>
+            "The oldest mark, cut deep: Harrow, who found the Shingle and named the river for its ash. Under the mound.",
+        19 => "Tarn, who held the Teeth against the lynxes nine winters and lost the tenth. Under the mound.",
+        20 => "Sorrel, who led the pack over the ice the first time, and back. Under the mound.",
+        21 => "Greyback, who hunted the Hush and came out of it. The only one who did. Under the mound.",
+        22 => "Ashgrim's mark, cut by his own teeth. No mound. The stone is for the pack to read, not for him.",
+        23 => "A lynx's larder in the cleft: hare bones, picked clean, and one wolf tooth it did not pick.",
+        24 =>
+            "An otter's holt under the bank. Fish scales, and the elk's hoofprint pressed deep, as if it stood here a long time.",
+        25 => "A hollow the shadows walk round. Something was buried here once and dug up again.",
+        26 =>
+            "A cutter's cache in a root hollow: an axe head gone to rust, and the needles over it twenty winters deep.",
+        27 => "A kiln mouth full of ash. Whoever tended it tended it to the end.",
+        28 => "A heron's roost on the last dry stone. Fish bones, and one feather as grey as the mist.",
+        29 => "A badger's bone cache: a winter's worth, laid in rows. One of the skulls is a wolf's.",
+        30 =>
+            "A barrow's side, fallen in. Under the turf a wolf's ribs, and over them a mark the pack still uses.",
+        _ => "Roots over an old bed. The scent on it is Ashgrim's, and it is not old at all.",
+    }
+}
+
 /// What a cache holds when dug: a lore line (`LORE`), a marrow bone or a
-/// sprig of yarrow.
+/// sprig of yarrow; cb14's alcoves also a bundle of pine, a shard of ice
+/// or the mother's tuft (the-proposals.md section 4's kinds, the slot the
+/// item lane fills: until cb15 the slot yields scent, `sim.ALCOVE_SCENT`).
 pub const LORE: int = 0
 
 /// The reward: marrow (the bible's section 7).
@@ -90,11 +150,61 @@ pub const MARROW: int = 1
 /// The reward: yarrow.
 pub const YARROW: int = 2
 
+/// The reward: a bundle of pine (the trail hidden; cb15).
+pub const PINE: int = 3
+
+/// The reward: a shard of ice (thrown; cb15).
+pub const SHARD: int = 4
+
+/// The reward: the mother's tuft (the next death keeps its scent; cb15).
+pub const TUFT: int = 5
+
+/// The number of reward kinds.
+pub const KINDS: int = 6
+
+/// A reward kind's name.
+pub fn kind_name(reward: int) -> str {
+    match reward {
+        0 => "lore",
+        1 => "marrow",
+        2 => "yarrow",
+        3 => "pine",
+        4 => "shard",
+        _ => "tuft",
+    }
+}
+
+/// What an alcove of cb14's holds (item 10): from the Teeth on, each
+/// area's three (Gravehollow's two) by cache: a lore line in the middle
+/// one (`ALCOVE_FIRST + ...`), a consumable's slot in the others.
+pub fn alcove_slot(area: int, cache: int) -> (int, int) {
+    let line_id = ALCOVE_FIRST + (if area <= 5 then area - 3 else area - 4)
+    if area == 12 { return if cache == 0 then (LORE, line_id) else (MARROW, -1) }
+    if cache == 1 { return (LORE, line_id) }
+    let kind = match area {
+        3 => (if cache == 0 then YARROW else MARROW),
+        4 => SHARD,
+        5 => (if cache == 0 then PINE else MARROW),
+        7 => (if cache == 0 then PINE else MARROW),
+        8 => YARROW,
+        9 => SHARD,
+        10 => MARROW,
+        _ => (if cache == 0 then TUFT else PINE),
+    }
+    (kind, -1)
+}
+
 /// The line the cub hears at a dug cache that held a consumable.
 pub fn pouch_line(reward: int, bundle: bool) -> str {
     if bundle { return "The wrapping is empty; a bundle is in your pouch." }
     if reward == MARROW {
         "The hollow is empty; its marrow is in your pouch."
+    } else if reward == PINE {
+        "A bundle of pine, bound with grass. No pouch holds it yet; its scent is yours."
+    } else if reward == SHARD {
+        "A shard of old ice, packed in moss. No pouch holds it yet; its scent is yours."
+    } else if reward == TUFT {
+        "A tuft of grey fur, kept dry. Your mother's. No pouch holds it yet; its scent is yours."
     } else {
         "The burrow is empty; its herb is in your pouch."
     }
