@@ -1586,3 +1586,36 @@ def cb12_counter_frames(binary, ctx):
 
 ROWS['cb12-death-card'] = cb12_death_card
 ROWS['cb12-counter-frames'] = cb12_counter_frames
+
+
+def cb12_counter_input_once(binary, ctx):
+    import re
+    root = Path(ctx.ROOT)
+    home = root / 'target/pty/cb12-input'
+    home.mkdir(parents=True, exist_ok=True)
+    save = fresh_save(home)
+    record = save.parent / 'counting.pk'
+    subprocess.run([binary, '--headless', '--script', str(root / 'tests/cases/cb12-scent-burst.pk'),
+                    '--frames', '20', '--every', '20', '--dump', str(save.parent / 'setup'),
+                    '--save', str(save)], check=True, capture_output=True)
+    session = ctx.Session([binary, '--save', str(save), '--record', str(record), '--no-title', '--mute'],
+                          24, 80, ctx.env_for())
+    session.type(b'?', settle=.1)  # Skip this fresh journey's unseen opening.
+    session.type(b'r', settle=.1)
+    session.type(b'\x1b[C', settle=.1)
+    session.type(b'\x1b[A', settle=.1)
+    session.type(b'\r', settle=.05)  # Spend24, starting a twenty-tick downward count.
+    session.type(b'?', settle=.1)
+    session.type(b'q')
+    session.finish()
+    problems = []
+    ctx.common_checks(session, 0, problems)
+    text = record.read_text()
+    if len(re.findall(r'^t \d+ confirm$', text, re.M)) != 1:
+        problems.append('confirm was replayed from the live input queue during a count')
+    if len(re.findall(r'^t \d+ skip$', text, re.M)) != 2:
+        problems.append('an ordinary one-shot key repeated during a counter batch')
+    return session, problems
+
+
+ROWS['cb12-counter-input-once'] = cb12_counter_input_once

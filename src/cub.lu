@@ -885,8 +885,7 @@ fn run_live(o: Options, args: List[str]) -> int {
                 }
                 if n == 0 {
                     for k in keys {
-                        if k == controls.KEY_QUIT && s.action != sim.FALL ||
-                            k == controls.KEY_INTERRUPT {
+                        if k == controls.KEY_QUIT || k == controls.KEY_INTERRUPT {
                             ended = if k == controls.KEY_QUIT {
                                 "the quit key"
                             } else {
@@ -1022,8 +1021,8 @@ fn run_live(o: Options, args: List[str]) -> int {
             }
             n += 1
         }
+        if due > 0 { (mut keys).reset() }
         if due > 0 && counter.length(s.scent_count) == 0 {
-            (mut keys).reset()
             let r0 = clock.now_ns()
             art.render_with(s, extra, rp.tier, mut back)
             grid.diff(front, back, full, mut pen, mut out, dialect)
