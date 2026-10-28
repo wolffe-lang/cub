@@ -1375,3 +1375,38 @@ cardinal aim128 lands under both. The walker's quantized bearing fixes that
 specific case. Body intersection remains independently necessary for a
 flank whose cells enter the cone while its centre does not. Neither fix
 replaces the other generally.
+
+## cb10 — the small faults (2026-10-28)
+
+- **R-cb10-1 A:** sprint is `trot_at(paw) * 8 / 5 + 1`, the smallest
+  fixed-point increment, rather than B's five percent. At paw 1 the cap
+  is 128 → 129 units/tick (15 → 15.1171875 cells/s); paw 4 is 148 → 149
+  (17.34375 → 17.4609375 cells/s). Drain stays 12 stamina/s.
+- Legacy Ctrl+arrow sprint has a 17-tick (566.7 ms) grace from each
+  decoded refresh, covering a 500 ms first repeat and 60 ms later repeats.
+  The Ctrl-arrow's movement hold gets the same grace; normal arrows keep
+  their shorter inference. Exact modifier releases
+  are still immediate. This cannot recover a modifier the terminal never
+  reports, nor turn a legacy stream into physical key-up events.
+- **R-cb10-2 A:** the pink foes are hawks, not pickups. They keep airborne
+  immunity during circling and the stopped-shadow tell. A parry at the
+  stoop kills them; bites also kill in the low STRIKE and RETREAT phases
+  (3 active ticks, 36 recovery ticks). Their unrotated body is the
+  four-by-one-cell shadow on both tiers, one starting bite (8 health).
+  B would make them always biteable; A is implemented. No glow-worms,
+  scatter or white flash are introduced by this correction.
+- **R-cb10-3 A:** only drinking spends water. The old fox-hit path also
+  decremented flasks; this was not a kill-path or decoder alias. A landed
+  fox feint now takes `min(5, carried scent)` instead. B would steal
+  nothing. Killing a foe never invokes drinking.
+
+`--small-faults` runs the real-reader timed-repeat rows and an explicitly
+staged headless replay fixture: three fox contacts followed by three real
+keyed bites, without w. The fixture reports the keys, health, scent and
+flasks at every contact and kill; it is not a natural journey recording.
+
+Ghostty/macOS's negotiated path is tested separately with flags11,
+press/repeat/release, modifier order, a four-second silent Ctrl hold and
+diagonal chords. Exact holds never use the 17-tick fallback timeout. No
+enhanced fault is reproduced by these injected fixtures; a physical
+Ghostty key capture remains needed if the report persists.

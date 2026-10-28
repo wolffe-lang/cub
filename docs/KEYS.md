@@ -148,3 +148,40 @@ negotiated events, replays the recording headless a frame a tick, and
 measures the cub's drawn pixels on every frame: a cell forward-left for
 four ticks, a cell forward-right, two cells forward with the head swung
 left and right twice, each hit back in place by its last tick.
+
+## cb10 — slow Ctrl repeats and water (2026-10-28)
+
+Legacy Ctrl+arrow refreshes sprint on every decoded sequence. Its own
+17-tick grace covers the measured 500 ms initial delay and 60 ms repeat
+pattern. The movement half of that Ctrl-arrow gets the same grace; normal
+arrows retain the shorter inference described above.
+A terminal with exact events still ends sprint immediately on Ctrl-up.
+The regression rows inject real legacy byte sequences through the pinned
+reader at 250/30 ms and 500/60 ms, not physical-terminal measurements.
+
+Only w spends a mouthful. The fox's landed feint takes up to five scent
+instead, never water. The pink hawks can be bitten during their stoop and
+36-tick recovery; while circling or showing their stopped-shadow tell,
+parry at the stoop or evade. Their shadow and hit body share a 4×1 canvas.
+
+`--small-faults` prints the repeat timing and the three-kill/no-drink
+headless fixture's key lists and before/after water and scent counts.
+`--hitbox-audit` also runs 32 low-hawk rows (eight aims, gaps zero/one,
+stoop/recovery). `--hit-census` includes the hawk's four nonrotating facings.
+
+The fallback grace is 17/30 s (566.7 ms), tested through 500 ms initial
+repeat delays, not settings slower than that. On macOS Ghostty cub asks
+for kitty flags11 (`CSI >11u`: disambiguation, event types, all keys).
+Injected reader and live-pty rows cover Ctrl press `CSI 57442;5u`, Right
+press/repeat `CSI 1;5:1C` / `CSI 1;5:2C`, and releases; press-only fixtures
+exercise the inferred fallback. Extra reader rows cover an arrow already
+repeating when Ctrl goes down, Ctrl held four silent seconds before an
+arrow, Ctrl with two arrows, and Ctrl release/re-press mid-run. These are
+protocol fixtures, not bytes captured from a physical Ghostty window.
+No enhanced-path dropout is reproduced by these rows.
+
+A possible cause outside cub: macOS uses Ctrl+Left/Right for Mission
+Control's move-a-space shortcuts by default. If enabled, those keystrokes
+may never reach Ghostty; check System Settings > Keyboard > Keyboard
+Shortcuts > Mission Control. This is a candidate, not a verified diagnosis
+of the reported play session.

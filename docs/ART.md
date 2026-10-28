@@ -493,3 +493,16 @@ wide and three rows tall a number, gold 221) and from bold `#` cells on the plai
 five rows tall), the small `scent` label on the number's middle row to its left. The art study's
 `scent-<n>-<field>-<day|night>` frames show 0, 7, 42 and 1234 at 80x24 and 200x60 by day over the Shingle's
 water and by night in Gravehollow.
+
+## cb10 — the low hawk's shadow (2026-10-28)
+
+The pink floaters are hawks (`draw_hawk`), not scent motes. The existing
+8×4-pixel rich shadow is now anchored on the foe cell without the extra
+head/body/tail cells outside its hit body. Its canvas and the plain
+four-character bird both occupy four cells on one row, independent of
+heading. Spread, stopped wings tell the stoop; folded wings are the
+active stoop; half-open wings are the 36-tick low recovery. The stopped
+tell remains airborne; active/recovery birds take one bite. The art and
+contact rows cover every posture, both tiers and four headings. The
+hawk-sheet and frames containing hawks change intentionally with this
+alignment; other drawings are unchanged.

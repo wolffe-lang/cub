@@ -185,3 +185,15 @@ by live chord rows. Neither is part of a persistent journey schema.
 Held directions, rather than a recent-arrow window or lock override,
 commit bite and roll aim at the input event. `dodge` now means the roll;
 `ctrl-down`/`ctrl-up` express sprint, never repeated `dodge`.
+
+## cb10 — compatibility after the small faults (2026-10-28)
+
+The pk 1 vocabulary, saved snapshot and event numbering are unchanged.
+Older files still parse and replay their recorded keys; no key is
+invented or rewritten. They do **not** promise the same frames: an older
+legacy Ctrl recording can sprint across a gap that formerly expired,
+sprint moves one fixed-point unit faster, a fox hit now steals scent
+rather than water, and a low hawk is biteable. Exact Ctrl-up remains exact.
+The existing witnesses are retained; changed frames are identified in
+cb10's golden-change receipt. `--small-faults` uses an explicit fixture
+and a parsed ordinary-key record, not a claimed saved natural journey.
