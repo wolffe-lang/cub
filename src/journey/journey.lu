@@ -3,6 +3,7 @@
 
 use forest
 use sim
+use pouch
 use std.fs
 
 /// Named failures for DecodeErrors.
@@ -76,18 +77,20 @@ pub fn load_metadata(path: str) -> Metadata ! LoadErrors {
 /// Thirty values and one slain mask an area (`forest.AREAS`, seven since cb05).
 /// The literal is needed by the checked machine at comptime: saved-0 through
 /// saved-36, named by the unchanged journey 4 event.
-pub const SNAPSHOT: int = 37
+pub const SNAPSHOT: int = 204
 
 /// The replay's journey event version this build writes and reads.
-pub const JOURNEY: int = 4
+pub const JOURNEY: int = 5
 
 /// The widest field a save may name.
 pub const FIELD_MAX: int = 10000
 
 /// Canonical persistent state; health resets at the last den, slain foes do not.
-pub fn payload(s: sim.Sim) -> str { payload_version(s, VERSION) + "name journey\nplayed_ms 0\n" }
+pub fn payload(s: sim.Sim) -> str {
+    payload_core(s, VERSION) + "name journey\nplayed_ms 0\n" + items_payload(s)
+}
 
-fn payload_version(s: sim.Sim, version: int) -> str {
+fn payload_core(s: sim.Sim, version: int) -> str {
     var masks = ""
     if version >= 5 {
         masks = "slain"
@@ -109,6 +112,18 @@ fn payload_version(s: sim.Sim, version: int) -> str {
         masks
 }
 
+fn items_payload(s: sim.Sim) -> str {
+    var text = "items {s.pouch.pine} {s.pouch.ice} {s.pouch.tuft} {s.pouch.uses} {s.pouch.seeded} {s.pouch.lore.len} {s.pouch.pickups.len}"
+    for id in s.pouch.lore { text += " {id + 1}" }
+    for item in s.pouch.pickups { text += " {pouch.pack(item)}" }
+    text + "\n"
+}
+
+// Internal simulation-only form used to validate legacy cores and snapshots.
+fn payload_version(s: sim.Sim, version: int) -> str {
+    payload_core(s, version) + (if version >= 6 then items_payload(s) else "")
+}
+
 /// Small non-cryptographic corruption check; intermediate products fit int64.
 pub fn checksum(text: str) -> int {
     var h = 7
@@ -122,35 +137,41 @@ pub fn encode(s: sim.Sim) -> str { encode_named(s, Metadata { name: "journey", p
 
 /// Canonical CUB 6 wrapper around the unchanged CUB 5 simulation payload.
 pub fn encode_named(s: sim.Sim, meta: Metadata) -> str {
-    let text = payload_version(s, VERSION) + "name {meta.name}\nplayed_ms {meta.played_ms}\n"
+    let text = payload_core(s, VERSION) + "name {meta.name}\nplayed_ms {meta.played_ms}\n" + items_payload(s)
     text + "check {checksum(text)}\n"
 }
 
 /// Reject malformed, unsupported, out-of-range and inconsistent data.
 /// Only default wolf difficulty is playable in this build.
 pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
-    if text.len > 1024 { return save_corrupt }
-    if text.starts_with("CUB 6\n") {
-        let meta = metadata(text)?
-        var legacy = "CUB 5\n"
-        var index = 0
-        for line in text.lines() {
-            if index > 0 && index < 12 { legacy += line + "\n" }
-            index += 1
-        }
-        if index != 15 { return save_corrupt }
-        let s = decode(legacy + "check {checksum(legacy)}\n", cols, rows)?
-        let canonical = legacy.replace("CUB 5\n", "CUB 6\n") +
-            "name {meta.name}\nplayed_ms {meta.played_ms}\n"
-        if canonical + "check {checksum(canonical)}\n" != text { return save_corrupt }
-        return s
-    }
+    if text.len > 16384 { return save_corrupt }
+    if !text.starts_with("CUB 6\n") { return decode_core(text, cols, rows)? }
+    let meta = metadata(text)?
+    var lines = List[str]()
+    for line in text.lines() { (mut lines).push(line) }
+    // cb13's original fifteen-line wrapper migrates with an empty extension.
+    if lines.len != 15 && lines.len != 16 { return save_corrupt }
+    let extended = lines.len == 16
+    var core = "CUB 6\n"
+    var index = 1
+    while index < 12 { core += lines[index] + "\n"; index += 1 }
+    let inner = if extended then core + lines[14] + "\n" else core.replace("CUB 6\n", "CUB 5\n")
+    let s = decode_core(inner + "check {checksum(inner)}\n", cols, rows)?
+    let canonical = core + "name {meta.name}\nplayed_ms {meta.played_ms}\n" +
+        (if extended then lines[14] + "\n" else "")
+    if canonical + "check {checksum(canonical)}\n" != text { return save_corrupt }
+    s
+}
+
+fn decode_core(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
+    if text.len > 16384 { return save_corrupt }
     var words = List[str]()
     for word in text.words() { (mut words).push(word) }
     if words.len < 2 || words[0] != "CUB" { return save_corrupt }
-    if words[1] != "4" && words[1] != "5" { return save_version }
-    let version = if words[1] == "4" then 4 else 5
-    if words.len != (if version == 4 then 55 else 56 + forest.AREAS) { return save_corrupt }
+    if words[1] != "4" && words[1] != "5" && words[1] != "6" { return save_version }
+    let version = words[1].to_int() else |_| { return save_corrupt }
+    let count = if version == 4 then 55 else 56 + forest.AREAS
+    if version < 6 && words.len != count || version == 6 && words.len < count + 8 { return save_corrupt }
     var values = List[int]()
     var i = 0
     while i < words.len {
@@ -311,8 +332,35 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
             area += 1
         }
     }
+    if version >= 6 {
+        var items = List[int]()
+        let start = 55 + forest.AREAS
+        var item = 0
+        while item < 7 {
+            (mut items).push(words[start + item].to_int() else |_| { return save_corrupt })
+            item += 1
+        }
+        let lines = items[5]
+        let ground = items[6]
+        if lines < 0 || lines > pouch.LORE_SLOTS || ground < 0 || ground > pouch.PICKUPS ||
+            words.len != count + 8 + lines + ground { return save_corrupt }
+        item = 0
+        while item < pouch.LORE_SLOTS {
+            (mut items).push(if item < lines then (words[start + 7 + item].to_int() else |_| { return save_corrupt }) else 0)
+            item += 1
+        }
+        item = 0
+        while item < pouch.PICKUPS {
+            (mut items).push(if item < ground then (words[start + 7 + lines + item].to_int() else |_| { return save_corrupt }) else 0)
+            item += 1
+        }
+        s.pouch = pouch.from_values(items, 0, forest.AREAS) else |_| { return save_corrupt }
+        if s.yarrow > pouch.cap(pouch.YARROW) || s.marrow > pouch.cap(pouch.MARROW) { return save_corrupt }
+    }
     let canonical = payload_version(s, version)
     if canonical + "check {checksum(canonical)}\n" != text { return save_corrupt }
+    if s.yarrow > pouch.cap(pouch.YARROW) { s.yarrow = pouch.cap(pouch.YARROW) }
+    if s.marrow > pouch.cap(pouch.MARROW) { s.marrow = pouch.cap(pouch.MARROW) }
     let remembered = copy s.slain
     sim.wake(mut s)
     s.slain = remembered
@@ -425,6 +473,7 @@ pub fn snapshot_into(s: sim.Sim, mut values: List[int]) {
     (mut values).push(sim.level(s))
     var area = 0
     while area < forest.AREAS { (mut values).push(sim.slain_mask(s, area)); area += 1 }
+    pouch.snapshot_into(s.pouch, mut values)
 }
 
 /// Exact equality, never a hash: every canonical payload field is represented.
@@ -437,7 +486,7 @@ pub fn same_snapshot(a: List[int], b: List[int]) -> bool {
 
 /// Validate a complete initial replay journey before applying it.
 pub fn from_snapshot(v: List[int], cols: int, rows: int) -> sim.Sim ! DecodeErrors {
-    if v.len != SNAPSHOT && v.len != 30 || v[0] < -1000000000 || v[0] > 1000000000 {
+    if v.len != SNAPSHOT && v.len != 37 && v.len != 30 || v[0] < -1000000000 || v[0] > 1000000000 {
         return save_corrupt
     }
     var s = sim.new(v[0], cols, rows)
@@ -486,9 +535,15 @@ pub fn from_snapshot(v: List[int], cols: int, rows: int) -> sim.Sim ! DecodeErro
     s.yarrow = v[21]
     s.marrow = v[22]
     s.opening_seen = v[23] == 1
-    if v.len == SNAPSHOT {
+    if v.len >= 37 {
         var area = 0
         while area < forest.AREAS { s.slain[area] = v[30 + area]; area += 1 }
+    }
+    if v.len == SNAPSHOT {
+        s.pouch = pouch.from_values(v, 37, forest.AREAS) else |_| { return save_corrupt }
+    } else {
+        if s.yarrow > pouch.cap(pouch.YARROW) { s.yarrow = pouch.cap(pouch.YARROW) }
+        if s.marrow > pouch.cap(pouch.MARROW) { s.marrow = pouch.cap(pouch.MARROW) }
     }
     decode(encode(s), cols, rows)?
 }
