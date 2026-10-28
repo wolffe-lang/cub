@@ -256,7 +256,9 @@ circle. The heron guards a stone with an unparryable downward spear.
 Glow-worms carry cave light but flash and scatter on contact; a cold-blue
 wisp leads toward a sentry and can be snuffed, never killed. Every foe has
 four rotated facings and an ASCII plain-tier form. Existing pink floaters
-remain hawks, with their stopped-shadow tell and low bite windows.
+remain hawks, with their stopped-shadow tell and low bite windows. The
+marten stays overhead during its warning; falling needles remain visible
+over the cub, but underneath the HUD and menus.
 
 The six are first exercised in disclosed test arenas. The arena census
 uses ordinary player keys over 50 seeds at both sizes, and records chase
