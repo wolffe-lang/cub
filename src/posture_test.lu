@@ -208,21 +208,25 @@ fn test_cb03a_health_changes_the_cub_and_its_bar() {
     )
 }
 
-fn test_cb03_the_death_card_and_the_den_name_the_numbers() {
+fn test_cb12_death_word_replaces_numeric_card_and_den_keeps_numbers() {
     var s = sim.new(7, 80, 24)
     s.flasks = 2
     s.scent = 5
     sim.hurt(mut s, 100)
     assert(s.action == sim.FALL, "fallen")
     assert(s.scent == 0 && s.mark_scent == 5, "the scent lies where the cub fell")
+    s.tick = s.started + sim.DEATH_FADE
     var g = grid.new(24, 80)
     art.render(s, tier.PLAIN, mut g)
-    let r = sim.screen_row(s)
-    let c = sim.screen_col(s)
-    assert(has_text(g, r, c - 4, "fallen - scent lost 5"), "the death card names the scent lost")
+    assert(grid.at(g, 5, 5).cp == 35 && grid.at(g, 5, 5).fg == 9, "red FALLEN follows the fade")
     assert(
-        has_text(g, r + 2, c - 4, "health 0   stamina 70   water 2   scent 0"),
-        "the death card names health, stamina, water and scent",
+        !has_text(
+            g,
+            sim.screen_row(s) + 2,
+            sim.screen_col(s) - 4,
+            "health 0   stamina 70   water 2   scent 0",
+        ),
+        "the word replaces the old numeric death overlay",
     )
     var d = sim.new(7, 80, 24)
     d.den = true

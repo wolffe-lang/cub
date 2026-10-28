@@ -6,6 +6,7 @@
 //! graph; every census bar of cb02b and cb02c extended to six areas.
 
 use art
+use controls
 use journey
 use forest
 use grid
@@ -419,7 +420,8 @@ fn test_cb04_played_and_lost_are_counted_at_rests_and_deaths() {
         "folded at the death; the first mark stands",
     )
     i = 0
-    while i < 30 { sim.step(mut s, keys); i += 1 }
+    while i < sim.DEATH_FADE + sim.DEATH_HOLD - 1 { sim.step(mut s, keys); i += 1 }
+    sim.step(mut s, [controls.KEY_SKIP])
     s.scent = 5
     sim.hurt(mut s, 1000)
     assert(s.lost == 30 && s.mark_scent == 5, "a second death loses the first mark's scent")

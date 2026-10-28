@@ -1,6 +1,7 @@
 //! member: false
 
 use art
+use controls
 use glow
 use grid
 use sim
@@ -48,7 +49,9 @@ fn test_cb04c_mark_recovers_once_at_contact_ring_with_burst() {
     sim.hurt(mut s, 100)
     assert(s.mark && s.mark_scent == 28 && s.scent == 0, "actual death drops scent")
     var n = 0
-    while n < 31 { sim.step(mut s, List[int]()); n += 1 }
+    while n < sim.DEATH_FADE + sim.DEATH_HOLD - 1 { sim.step(mut s, List[int]()); n += 1 }
+    sim.step(mut s, [controls.KEY_SKIP])
+    sim.step(mut s, List[int]())
     s.foes = List[sim.Foe]()
     s.x = s.mark_x - 3 * sim.FP
     s.y = s.mark_y

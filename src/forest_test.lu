@@ -65,7 +65,8 @@ fn test_cb02_death_and_mark_cross_area() {
     assert(s.mark_area == 6 && s.mark_scent == 31, "mark in the town")
     var keys = List[int]()
     var n = 0
-    while n < 30 { sim.step(mut s, keys); n += 1 }
+    while n < sim.DEATH_FADE + sim.DEATH_HOLD - 1 { sim.step(mut s, keys); n += 1 }
+    sim.step(mut s, [controls.KEY_SKIP])
     assert(s.area == 0 && s.last_den == 0, "wake across edge")
     let _ = sim.cross_edge(mut s, 0)
     s.x = s.mark_x

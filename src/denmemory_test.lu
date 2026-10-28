@@ -51,7 +51,8 @@ fn test_cb04f_rest_and_death_reset_every_area_but_not_bosses() {
                 "death card resume resets all areas",
             )
             var tick = 0
-            while tick < 30 { sim.step(mut s, key(0)); tick += 1 }
+            while tick < sim.DEATH_FADE + sim.DEATH_HOLD - 1 { sim.step(mut s, key(0)); tick += 1 }
+            sim.step(mut s, key(controls.KEY_SKIP))
             assert(s.deaths == 1 && s.mark, "real death wake preserves scent mark")
         } else {
             sim.step(mut s, key(controls.KEY_REST))

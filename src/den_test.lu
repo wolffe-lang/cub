@@ -1,5 +1,6 @@
 //! member: false
 
+use controls
 use forest
 use sim
 
@@ -60,7 +61,8 @@ fn test_cb04a_death_wakes_at_rested_den_two_not_the_start() {
     let death_x = s.mark_x
     let death_y = s.mark_y
     var n = 0
-    while n < 30 { sim.step(mut s, den_key(0)); n += 1 }
+    while n < sim.DEATH_FADE + sim.DEATH_HOLD - 1 { sim.step(mut s, den_key(0)); n += 1 }
+    sim.step(mut s, den_key(controls.KEY_SKIP))
     assert(s.area == 1 && s.x == x && s.y == y && s.last_den == 2, "death checkpoint, not start")
     assert(
         s.mark &&
