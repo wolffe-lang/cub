@@ -22,7 +22,10 @@ the half frame is death age65, the final closed frame age380.
 
 The corner's existing original digit font, colour, alignment and background
 are unchanged. A tick can draw several successive numbers: every integer is
-flushed before the next, with no extra world tick. The same big corner number
+flushed before the next, with no extra world tick. Intermediate values repaint
+only the counter rectangle, restoring the actual map beneath old digits; the
+last value is the ordinary full frame. A terminal-model test checks shrinking
+and growing digit widths against the HUD plan. The same big corner number
 is visible on the rest scene while the ledger continues to show exact totals.
 `cb12-scent-gain` and `cb12-scent-spend` enumerate every integer's frame on both
 tiers; changing render sampling cannot change their batches.

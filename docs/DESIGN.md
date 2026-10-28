@@ -26,11 +26,17 @@ exact currency and pending cost. The sim, saves, score and replay see the exact 
 scent immediately. Display state is not saved; loading starts settled at the saved
 value. Neither rendering frequency nor wall time advances it (R-cb12-1 A).
 
-Every live batch is flushed integer by integer, including catch-up ticks, without
-extra simulation, score, save, archive or replay steps and without intentional
-sleep. Terminal throughput can still exceed a tick's wall-time budget; the
-`cb12-counter-frames` pty row measures it at both sizes/tiers in
-`target/pty/cb12-counter-cost.json`, including1000 distinct flushed numbers.
+Live intermediate integers repaint only the old/new counter rectangle using the
+engine's public CUP/SGR/UTF-8 builders and a cached counter-free underlay; the tick's
+last integer goes through the ordinary full-frame renderer. The underlay is drawn
+once per batch, not once per integer. Neither extra simulation/score/save/replay
+ticks nor intentional sleeps are used. This implements the partial-repaint choice
+of R-cb12-2, not a stretched count or dropped frames. The original full-frame path
+measured63.673/66.215ms per wide1000-gain batch and is retained as the before table in `notes/cb12-evidence/counter-cost-before-partial.json`.
+`cb12-counter-frames` measures whole-batch wall time, requires1000 flushed numbers
+in20 ticks with0 late/catch-up frames at80×24 and200×60, and compares the final
+terminal model with ordinary full-frame output. Its results are in
+`target/pty/cb12-counter-cost.json`.
 Headless script fixtures and walkers press the ordinary skip after the minimum
 hold; `--full-death` or a `# full-death` script comment keeps the full card. Actual
 live play and `--replay` retain recorded key timing. `# counter-frames` enumerates

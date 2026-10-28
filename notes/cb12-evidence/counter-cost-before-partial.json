@@ -1,0 +1,42 @@
+[
+  {
+    "tier": "rich",
+    "size": [
+      80,
+      24
+    ],
+    "frames": 1000,
+    "max_batch_flush_us": 10341,
+    "over_33333_us": 0
+  },
+  {
+    "tier": "rich",
+    "size": [
+      200,
+      60
+    ],
+    "frames": 1000,
+    "max_batch_flush_us": 63673,
+    "over_33333_us": 20
+  },
+  {
+    "tier": "plain",
+    "size": [
+      80,
+      24
+    ],
+    "frames": 1000,
+    "max_batch_flush_us": 9107,
+    "over_33333_us": 0
+  },
+  {
+    "tier": "plain",
+    "size": [
+      200,
+      60
+    ],
+    "frames": 1000,
+    "max_batch_flush_us": 66215,
+    "over_33333_us": 20
+  }
+]
