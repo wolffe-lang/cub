@@ -1,0 +1,151 @@
+//! member: false
+//!
+//! cb14's schema 7 and journey 6 over cb13's and cb15's schema 6 and
+//! journey 5. The save and the recording a binary built at cub 60890a49
+//! wrote (`tests/saves/cb15-v6.save`, `cb15-journey5.pk`; how, in
+//! `tests/saves/provenance.json`) migrate with their items, lore, name and
+//! time, the six new areas' masks empty and no gate opened; CUB 7
+//! round-trips byte-exact; the older fixtures (the CUB 5 saves, a journey 4
+//! and a journey 3 case) still read; a rechecksummed CUB 7 with bad masks or
+//! gates is refused.
+
+use forest
+use journey
+use sim
+use std.fs
+
+/// A CUB 6 file's text as CUB 7 writes the same journey: the version, six
+/// empty masks after the seven, no gate, every other line kept, its check.
+fn seven(old: str) -> str {
+    let cut = old.find("check ") else 0
+    var out = ""
+    for line in old[0..cut].lines() {
+        if line == "CUB 6" {
+            out += "CUB 7\n"
+        } else if line.starts_with("slain ") {
+            out += line + " 0 0 0 0 0 0\ngates 0\n"
+        } else {
+            out += line + "\n"
+        }
+    }
+    out + "check {journey.checksum(out)}\n"
+}
+
+/// A recording's initial `saved-K` values, `count` of them (absent ones 0,
+/// as the replay reads them).
+fn saved_values(path: str, count: int) -> List[int] {
+    var v = List[int]()
+    let text = fs.read_text(path) else |_| { return v }
+    var i = 0
+    while i < count { (mut v).push(0); i += 1 }
+    for line in text.lines() {
+        if line.starts_with("t 0 saved-") {
+            var w = List[str]()
+            for word in line.words() { (mut w).push(word) }
+            let k = w[2][6..w[2].len].to_int() else |_| { return List[int]() }
+            let n = w[3].to_int() else |_| { return List[int]() }
+            if k < count { v[k] = n }
+        }
+    }
+    v
+}
+
+fn test_cb14_the_trunk_writers_cub6_migrates_to_cub7_with_items_lore_name_and_time() {
+    let text = fs.read_text("tests/saves/cb15-v6.save") else |_| {
+        assert(false, "fixture missing")
+        return
+    }
+    assert(text.starts_with("CUB 6\n") && text.contains("\nname birch_7\nplayed_ms "), "a CUB 6")
+    let s = journey.decode(text, 80, 24) else |e| { assert(false, "CUB 6 reads: {e}"); return }
+    let meta = journey.metadata(text) else |_| { assert(false, "metadata"); return }
+    assert(meta.name == "birch_7" && meta.played_ms == 6974, "the name and the time")
+    assert(
+        s.pouch.pine == 1 && s.pouch.ice == 1 && s.pouch.tuft == 1 && s.pouch.seeded == 127,
+        "the items",
+    )
+    assert(
+        s.pouch.lore.len == 2 && s.pouch.lore[0] == 0 && s.pouch.lore[1] == 1,
+        "the found lore, in order",
+    )
+    assert(s.yarrow == 2 && s.marrow == 1 && s.gates == 0, "the counts kept, no gate opened")
+    var area = 7
+    while area < forest.AREAS {
+        assert(sim.slain_mask(s, area) == 0, "area {area}'s mask empty")
+        area += 1
+    }
+    let written = journey.encode_named(s, meta)
+    assert(written == seven(text), "the exact CUB 7 bytes")
+    let back = journey.decode(written, 120, 40) else |e| { assert(false, "CUB 7 reads: {e}"); return }
+    let again = journey.metadata(written) else |_| { assert(false, "CUB 7 metadata"); return }
+    assert(journey.encode_named(back, again) == written, "CUB 7 round-trips byte-exact")
+}
+
+fn test_cb14_the_trunk_writers_journey5_snapshot_reads_into_journey6() {
+    let v = saved_values("tests/saves/cb15-journey5.pk", journey.SNAPSHOT_V5)
+    assert(v.len == journey.SNAPSHOT_V5 && v[0] == 7, "the trunk writer's 204 slots")
+    let s = journey.from_snapshot(v, 80, 24) else |e| { assert(false, "journey 5 reads: {e}"); return }
+    assert(
+        s.pouch.pine == 1 && s.pouch.ice == 1 && s.pouch.tuft == 1 && s.pouch.lore.len == 2,
+        "the items and the lore",
+    )
+    let six = journey.snapshot(s)
+    assert(six.len == journey.SNAPSHOT, "written as journey 6")
+    var i = 0
+    while i < 37 { assert(six[i] == v[i], "slot {i} kept"); i += 1 }
+    while i < 43 { assert(six[i] == 0, "new area's mask {i} empty"); i += 1 }
+    assert(six[43] == 0, "no gate")
+    i = 37
+    while i < journey.SNAPSHOT_V5 { assert(six[i + 7] == v[i], "pouch slot {i} kept"); i += 1 }
+}
+
+fn test_cb14_the_older_fixtures_still_read() {
+    for name in ["cb13-v5", "trunk-95a4889d", "cb05-4a7cd345", "cb09-memory"] {
+        let text = fs.read_text("tests/saves/{name}.save") else |_| {
+            assert(false, "{name} missing")
+            return
+        }
+        assert(text.starts_with("CUB 5\n"), "{name} is a CUB 5")
+        let s = journey.decode(text, 80, 24) else |e| { assert(false, "{name} reads: {e}"); return }
+        let written = journey.encode(s)
+        assert(written.starts_with("CUB 7\n") && written.contains("\ngates 0\n"), "{name} writes CUB 7")
+        var area = 7
+        while area < forest.AREAS {
+            assert(sim.slain_mask(s, area) == 0, "{name}: area {area}'s mask empty")
+            area += 1
+        }
+    }
+    let four = saved_values("tests/cases/ember-touch.pk", journey.SNAPSHOT_V4)
+    let s4 = journey.from_snapshot(four, 80, 24) else |e| { assert(false, "journey 4 reads: {e}"); return }
+    assert(journey.snapshot(s4).len == journey.SNAPSHOT && s4.gates == 0, "a journey 4 case")
+    let three = saved_values("tests/cases/den-after-cluster.pk", 30)
+    let s3 = journey.from_snapshot(three, 80, 24) else |e| { assert(false, "journey 3 reads: {e}"); return }
+    assert(journey.snapshot(s3).len == journey.SNAPSHOT, "a journey 3 case")
+}
+
+fn test_cb14_a_rechecksummed_cub7_with_bad_masks_or_gates_is_refused() {
+    let good = journey.payload(sim.new(7, 80, 24))
+    let thirteen = "slain 0 0 0 0 0 0 0 0 0 0 0 0 0\n"
+    assert(good.starts_with("CUB 7\n") && good.contains(thirteen + "gates 0\nname journey\n"), "the shape")
+    for body in [
+        good.replace("gates 0\n", ""),
+        good.replace("gates 0\n", "gates 4\n"),
+        good.replace("gates 0\n", "gates -1\n"),
+        good.replace(thirteen, "slain 0 0 0 0 0 0 0\n"),
+        good.replace(thirteen, "slain 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n"),
+        good.replace("CUB 7\n", "CUB 6\n"),
+        good.replace("gates 0\n", "gates 0\ngates 0\n"),
+    ] {
+        var rejected = false
+        let _ = journey.decode(body + "check {journey.checksum(body)}\n", 80, 24) else |_| {
+            rejected = true
+            sim.new(7, 80, 24)
+        }
+        assert(rejected, "a rechecksummed bad CUB 7 is refused")
+    }
+    var named = false
+    let _ = journey.decode(good.replace("CUB 7\n", "CUB 8\n") + "check 0\n", 80, 24) else |e| {
+        named = "{e}" == "save_version"
+        sim.new(7, 80, 24)
+    }
+    assert(named, "an unknown schema is refused by name")
+}
