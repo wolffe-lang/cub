@@ -81,11 +81,12 @@ def check(binary):
                     expanded = []
                     for chunk in row.split():
                         style, repeat = chunk.split('*')
-                        expanded.extend([int(style.split(',')[0])] * int(repeat))
+                        fg, bg, attrs = map(int, style.split(','))
+                        expanded.extend([(fg, attrs)] * int(repeat))
                     styles.append(expanded)
                 width = len(str(value)) * (2 if tier == 'rich' else 4) - (0 if tier == 'rich' else 1)
                 actual = {(y, x): text[y][x] for y in range(21 if tier == 'rich' else 19, 24)
-                          for x in range(79 - width, 79) if styles[y][x] == (221 if tier == 'rich' else 11)}
+                          for x in range(79 - width, 79) if styles[y][x] == ((221, 0) if tier == 'rich' else (11, 1))}
                 assert actual == expected, (name, tier, tick, value, 'HUD drew another number')
                 for suffix in ('.txt', '.sty'):
                     assert path.with_suffix(suffix).read_bytes() == (second / path.with_suffix(suffix).name).read_bytes(), 'render frequency changed counter frame'
