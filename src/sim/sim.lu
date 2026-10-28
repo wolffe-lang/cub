@@ -1698,7 +1698,7 @@ fn step_tick(mut s: Sim, keys: List[int]) {
     for k in keys { if k == controls.KEY_EXACT { s.key_state = input.state_new(true) } }
     if s.scene != 0 {
         var pressed = false
-        for k in keys { if k > 0 && k < controls.KEY_EXACT { pressed = true } }
+        for k in keys { if k > 0 && k < controls.KEY_EXACT || k == controls.KEY_INVENTORY { pressed = true } }
         scene_step(mut s, pressed)
         return
     }
@@ -3327,8 +3327,12 @@ fn cache_key(mut s: Sim) {
             pickup_flash(mut s, x, y)
             s.caches += cache_mask(s.area, cache)
             let (reward, line) = cache_reward(s.area, cache)
-            if reward == lore.MARROW { let _ = give_item(mut s, pouch.MARROW) }
-            if reward == lore.YARROW { let _ = give_item(mut s, pouch.YARROW) }
+            if reward == lore.MARROW && !give_item(mut s, pouch.MARROW) {
+                let _ = pouch.leave(mut s.pouch, s.area, floor_div(x, FP), floor_div(y, FP), pouch.MARROW)
+            }
+            if reward == lore.YARROW && !give_item(mut s, pouch.YARROW) {
+                let _ = pouch.leave(mut s.pouch, s.area, floor_div(x, FP), floor_div(y, FP), pouch.YARROW)
+            }
             if reward == lore.LORE {
                 remember_lore(mut s, line)
                 s.lore = line
