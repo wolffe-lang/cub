@@ -641,7 +641,7 @@ def rest_allocate(binary, ctx):
                         '--frames', '1', '--save', str(save), '--dump', str(root / ('setup-' + tier))], check=True, capture_output=True)
         session = ctx.Session([binary, '--save', str(save), '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, ctx.env_for())
         session.type(b'?', settle=.15)
-        for key in (b'r', b'\x1b[C', b'\x1b[B', b'\x1b[C', b'\x1b[C', b'\x1b[D', b'\x1b[A', b'\x1b[A', b'\r'):
+        for key in (b'r', b'\x1b[C', b'\x1b[B', b'\x1b[C', b'\x1b[C', b'\x1b[D', b'\x1b[A', b'\x1b[A', b'\x1b[A', b'\r'):
             session.type(key, settle=.12)
         session.type(b'\x1b[C', settle=.12)  # pending heart at row zero; still affordable
         session.type(b'\x1b', settle=.2)

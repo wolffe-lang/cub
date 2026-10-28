@@ -42,7 +42,7 @@ fn test_cb04d_rest_lower_wrap_discard_and_numeric_keys() {
     s.den = true
     s.scent = 100
     sim.rest_key(mut s, controls.KEY_UP)
-    assert(s.rest_row == 5, "up wraps to confirm")
+    assert(s.rest_row == 6, "up wraps to Lore after Confirm")
     sim.rest_key(mut s, controls.KEY_DOWN)
     sim.rest_key(mut s, controls.KEY_LEFT)
     assert(sim.rest_delta(s, 0) == 0, "never below current")

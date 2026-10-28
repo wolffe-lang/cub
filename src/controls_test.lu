@@ -87,6 +87,8 @@ fn test_the_moves_and_the_quit() {
     check("\t", one(controls.KEY_LOCK), "Tab locks on")
     check("w", one(controls.KEY_WATER), "w drinks")
     check("r", one(controls.KEY_REST), "r rests")
+    check("i", one(controls.KEY_INVENTORY), "i opens the pouch")
+    check("I", one(controls.KEY_INVENTORY), "I opens the pouch")
     check("\r", one(controls.KEY_CONFIRM), "Enter confirms at rest")
     check("q", one(controls.KEY_QUIT), "q quits")
     check("\x1b", one(controls.KEY_RELEASE), "Esc releases")
@@ -125,6 +127,20 @@ fn test_key_names_round_trip() {
     )
     let v = controls.vocab()
     assert(v.keys.len == controls.KEY_COUNT && v.args.len == controls.EV_COUNT, "the vocabulary")
+}
+
+fn test_cb15_pouch_snapshot_slots_are_appended_after_existing_numeric_events() {
+    let v = controls.vocab()
+    var part = 37
+    while part < 204 {
+        assert(
+            controls.saved_event(part) >= 51 &&
+                v.args[controls.saved_event(part)] == "saved-{part}",
+            "appended pouch slot",
+        )
+        part += 1
+    }
+    assert(v.keys[37] == "inventory" && controls.KEY_COUNT == 38, "appended inventory key")
 }
 
 fn test_cb04b_input_events_do_not_overlap_schema_five_snapshot_slots() {
