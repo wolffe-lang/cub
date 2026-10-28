@@ -68,7 +68,7 @@ jobs:
     needs: plan
     if: contains(fromJSON(needs.plan.outputs.jobs || '[]'), 'linux')
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - name: the engine, at lair.pin
@@ -112,7 +112,7 @@ jobs:
     needs: plan
     if: contains(fromJSON(needs.plan.outputs.jobs || '[]'), 'macos')
     runs-on: macos-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - name: the engine, at lair.pin
