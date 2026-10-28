@@ -68,6 +68,13 @@ pub fn generate(dir: str) -> int {
                 }
                 tick += 1
             }
+            // Retain the actual response, not only its earlier tell:
+            // returned loot, the passed heron and the absent live wisp.
+            for t in [tier.RICH, tier.PLAIN] {
+                var g = grid.new(24, 80)
+                art.render(s, t, mut g)
+                headless.write_frame(dir, "foe-{kind}-{t}-final", g) else { return 2 }
+            }
             var bytes = List[byte]()
             replay.format(r, controls.vocab(), mut bytes)
             fs.write_bytes("{dir}/foe-{kind}.pk", bytes) else { return 2 }
