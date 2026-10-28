@@ -17,7 +17,7 @@ pub fn fixture(kind: int) -> sim.Sim {
     } else if kind == sim.ELK {
         forest.RIVER
     } else {
-        forest.OLDDEN
+        forest.HUSH
     }
     let (x, y, _) = forest.arena(1, s.field, area)
     let cy = y + forest.origin(1, area)

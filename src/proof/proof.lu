@@ -259,7 +259,7 @@ fn den_journey(seed: int, den: int) -> sim.Sim {
         sim.LYNX
     } else if area == forest.RIVER {
         sim.ELK
-    } else if area == forest.OLDDEN {
+    } else if area == forest.HUSH {
         sim.ALPHA
     } else if area == forest.LARKMEADOW {
         sim.LYNX

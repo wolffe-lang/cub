@@ -25,9 +25,9 @@ fn test_cb04_the_graph_has_six_areas_and_nine_edges() {
     // Shallows, Gravehollow, one path edge between each pair.
     assert(forest.other(forest.LARKMEADOW, 4) == forest.CRAGS, "the meadow leads to the crags")
     assert(forest.other(forest.CRAGS, 5) == forest.RIVER, "the crags lead to the river")
-    assert(forest.other(forest.RIVER, 6) == forest.OLDDEN, "the river leads to the old den")
+    assert(forest.other(forest.RIVER, 6) == forest.HUSH, "the river leads to the old den")
     assert(
-        forest.other(forest.OLDDEN, 6) == forest.RIVER && forest.other(forest.OLDDEN, 5) < 0,
+        forest.other(forest.HUSH, 6) == forest.RIVER && forest.other(forest.HUSH, 5) < 0,
         "the end",
     )
     // The shortcuts home: the ledge (crags to the meadow), the shallows
@@ -57,7 +57,7 @@ fn test_cb04_the_graph_has_six_areas_and_nine_edges() {
     assert(
         forest.den_area(4) == forest.CRAGS &&
             forest.den_area(5) == forest.RIVER &&
-            forest.den_area(6) == forest.OLDDEN &&
+            forest.den_area(6) == forest.HUSH &&
             forest.den_area(7) == forest.TOWN,
         "the dens",
     )
@@ -136,7 +136,7 @@ fn test_cb04_every_area_reaches_its_dens_portals_and_arena() {
         "the river: a den, three portals, the arena, the willow",
     )
     assert(
-        forest.required(forest.OLDDEN) == 4,
+        forest.required(forest.HUSH) == 4,
         "the old den: a den, a portal, the arena, a scent mark",
     )
     assert(
@@ -299,14 +299,14 @@ fn test_cb04_the_new_areas_keep_the_texture_and_path_bars() {
     }
     assert(
         forest.path_kind(forest.CRAGS) == terrain.GRAVEL &&
-            forest.path_kind(forest.OLDDEN) == terrain.GRASS,
+            forest.path_kind(forest.HUSH) == terrain.GRASS,
         "path kinds",
     )
     // Each new area draws under its own keyframe on both tiers.
     var t = tier.PLAIN
     while t <= tier.RICH {
         let crag = art.kind_cell(forest.CRAGS, t, terrain.ROCK, 0, 0)
-        let night = art.kind_cell(forest.OLDDEN, t, terrain.CANOPY, 0, 0)
+        let night = art.kind_cell(forest.HUSH, t, terrain.CANOPY, 0, 0)
         let river = art.kind_cell(forest.RIVER, t, terrain.SHALLOWS, 1, 0)
         assert(crag.cp != 32 && crag.fg != crag.bg, "stone is drawn")
         assert(
@@ -378,7 +378,7 @@ fn test_cb04_schema_3_carries_the_bosses_and_refuses_schema_2() {
         "the fields survive",
     )
     assert(
-        back.area == forest.OLDDEN && back.last_den == 6 && back.mark_area == 5,
+        back.area == forest.HUSH && back.last_den == 6 && back.mark_area == 5,
         "the whole forest",
     )
     assert(journey.encode(back) == text, "byte-identical")
