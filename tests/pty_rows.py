@@ -1746,7 +1746,8 @@ def cb13_menu_typed_playback(binary, ctx):
     replays = home / '.cub/replays'
     replays.mkdir(parents=True)
     path = replays / 'walk with spaces.pk'
-    path.write_text('pk 1\nseed 7\ntier plain\nsize 80x24\nt 0 right\nt 300 release\n# recorded 2026-10-27T20:00:00Z\n# ending In progress\n')
+    path.write_text('pk 1\nseed 7\ntier plain\nsize 80x24\nt 0 right\nt 300 release\n# recorded 1900-01-01T00:00:00Z\n# ending In progress\n')
+    os.utime(path, (1793131200, 1793131200))  # The file date, never the embedded clock comment.
     problems = []
     forbidden_record = home / 'do-not-record-playback.pk'
     session = ctx.Session([binary, '--menu', '--mute', '--trace', '--tier', 'plain',
@@ -1763,6 +1764,8 @@ def cb13_menu_typed_playback(binary, ctx):
             break
     session.finish()
     ctx.common_checks(session, 0, problems)
+    if b'1900-01-01' in session.out or b'2026-10-27' not in session.out:
+        problems.append('Playback date came from archive bytes instead of file mtime')
     if b'seed 7 tier plain' not in session.err or session.err.count(b'menu 0 row ') < 2:
         problems.append('typed Playback did not run the replay and return to the fire')
     if (home / '.cub/registry').exists() or (home / '.cub/saves').exists() or forbidden_record.exists():

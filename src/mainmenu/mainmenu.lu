@@ -99,10 +99,9 @@ fn scan(dir: str, mut result: List[Recording]) {
             continue
         }
         var ending = "not recorded"
-        var date = time.to_iso8601(fs.modified_ms(path) else 0)
+        let date = time.to_iso8601(fs.modified_ms(path) else 0)
         for line in text.lines() {
             if line.starts_with("# ending ") { ending = line[9..line.len] }
-            if line.starts_with("# recorded ") { date = line[11..line.len] }
         }
         for e in r.events {
             if e.key == replay.EV_ARG + controls.EV_GHOST_DEATH { ending = "Fallen" }

@@ -242,13 +242,15 @@ resumed save, or consume a gameplay tick. New gameplay still records its
 opening event. Old title events reproduce the original title scene.
 
 Live sessions record by default under `~/.cub/replays/`, with `--record FILE`
-as the explicit override; deaths remain under `~/.cub/ghosts/`. Optional
-`# recorded ISO-UTC` and `# ending TEXT` comments add display metadata without
-changing pk1. New files say Finished, Fallen, or In progress according to
-the observed run state; no story ending is inferred for an older file.
-Playback uses recorded metadata when present, otherwise file modification
-date, (last event tick + 1)/30 for duration, and not recorded for an unknown ending.
-Playback never writes saves or default recordings; Esc returns to the fire.
+as the explicit override; deaths remain under `~/.cub/ghosts/`. Replay bytes
+are deterministic session data: no wall-clock date is written into a `.pk`.
+The chooser's recorded date always comes from the file's modification time,
+never a comment inside the archive. Live session files may carry a deterministic
+`# ending TEXT` comment (Finished or In progress); death archives retain their
+existing byte shape and the chooser derives Fallen from the ghost-death event.
+No story ending is invented for an older recording. Duration is (last event
+tick + 1)/30. Playback never writes saves or default recordings; Esc returns
+to the fire.
 
 `# fire-menu` marks synthetic headless menu fixtures. Only that explicit
 comment routes existing up/down/bite/confirm/release/quit keys into the menu

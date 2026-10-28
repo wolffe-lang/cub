@@ -1,0 +1,8 @@
+--- committed
++++ fresh CI
+@@ -524,3 +524,5 @@
+ t 101 ghost-pose 4
+ t 101 ghost-area 0
+ t 101 ghost-death 1
++# recorded 2026-10-28T04:50:34.274Z
++# ending Fallen

@@ -1381,10 +1381,7 @@ fn run_live(o: Options, args: List[str]) -> int {
     if record_path != "" {
         var text = List[byte]()
         replay.format(rec, controls.vocab(), mut text)
-        grid.push_str(
-            mut text,
-            "# recorded {time.unix_iso8601()}\n# ending {if s.end then "Finished" else "In progress"}\n",
-        )
+        grid.push_str(mut text, "# ending {if s.end then "Finished" else "In progress"}\n")
         fs.create_dir_all(fs.parent(record_path) else ".") else |_| {
             eprint("cub: cannot create recording directory")
             return 2
@@ -1655,7 +1652,6 @@ fn write_ghost(r: replay.Replay, s: sim.Sim, history: ghost.History, dir: str) -
     ghost.trailer(mut death, history, s.tick, s.deaths)
     var bytes = List[byte]()
     replay.format(death, controls.vocab(), mut bytes)
-    grid.push_str(mut bytes, "# recorded {time.unix_iso8601()}\n# ending Fallen\n")
     // Exclusive creation, not a clock, protects earlier runs and concurrent games.
     var serial = 0
     loop {
