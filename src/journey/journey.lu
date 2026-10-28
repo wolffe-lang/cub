@@ -28,7 +28,14 @@ pub error CommitErrors = {save_io, save_committed_unsynced}
 /// Schema six wraps schema five's ordinary-foe masks with name and played_ms,
 /// followed by bounded items, lore and ground pickups. Original CUB6 wrappers
 /// migrate with an empty extension; CUB5 also defaults metadata and CUB4 masks.
-pub const VERSION: int = 6
+/// Schema seven (cb14) carries thirteen masks (the map's thirteen areas) and a
+/// `gates` line (the burnt oak, the stone mouth) before the metadata; a CUB6,
+/// CUB5 or CUB4 file migrates with empty masks for the six new areas and no
+/// gate opened, its items, lore, name and time kept.
+pub const VERSION: int = 7
+
+/// The areas a schema-five or schema-six file carried masks for.
+pub const AREAS_V5: int = 7
 
 /// Metadata belongs to the save wrapper, not deterministic simulation state.
 pub struct Metadata { name: str, played_ms: int }
@@ -50,7 +57,7 @@ pub fn valid_name(name: str) -> bool {
 /// Legacy saves migrate with these defaults; decode validates the full shape.
 pub fn metadata(text: str) -> Metadata ! DecodeErrors {
     var result = Metadata { name: "journey", played_ms: 0 }
-    if !text.starts_with("CUB 6\n") { return result }
+    if !text.starts_with("CUB 6\n") && !text.starts_with("CUB 7\n") { return result }
     for line in text.lines() {
         if line.starts_with("name ") { result.name = line[5..line.len] }
         if line.starts_with("played_ms ") {
@@ -74,12 +81,21 @@ pub fn load_metadata(path: str) -> Metadata ! LoadErrors {
     metadata(text)?
 }
 
-/// Thirty-seven legacy values plus167 bounded item/lore/ground slots.
-/// Metadata stays outside deterministic numeric replay snapshots.
-pub const SNAPSHOT: int = 204
+/// Thirty values, a slain mask an area (`forest.AREAS`, thirteen since cb14;
+/// a literal: the checked machine resolves no cross-module name at comptime),
+/// the gates (cb14) and 167 bounded item/lore/ground slots (cb15). Metadata
+/// stays outside deterministic numeric replay snapshots.
+pub const SNAPSHOT: int = 211
 
-/// The replay's journey event version this build writes and reads.
-pub const JOURNEY: int = 5
+/// A `journey 5` snapshot (cb15): thirty values, seven masks, the 167 slots.
+pub const SNAPSHOT_V5: int = 204
+
+/// A `journey 4` snapshot: thirty values and seven masks.
+pub const SNAPSHOT_V4: int = 37
+
+/// The replay's journey event version this build writes and reads; journey
+/// 5, 4 and 3 snapshots are still read.
+pub const JOURNEY: int = 6
 
 /// The widest field a save may name.
 pub const FIELD_MAX: int = 10000
@@ -94,8 +110,10 @@ fn payload_core(s: sim.Sim, version: int) -> str {
     if version >= 5 {
         masks = "slain"
         var area = 0
-        while area < forest.AREAS { masks += " {sim.slain_mask(s, area)}"; area += 1 }
+        let areas = if version >= 7 then forest.AREAS else AREAS_V5
+        while area < areas { masks += " {sim.slain_mask(s, area)}"; area += 1 }
         masks += "\n"
+        if version >= 7 { masks += "gates {s.gates}\n" }
     }
     "CUB {version}\n" +
         "seed {s.seed} difficulty {s.difficulty}\n" +
@@ -134,7 +152,7 @@ pub fn checksum(text: str) -> int {
 /// Byte-identical encoding for the same persistent journey.
 pub fn encode(s: sim.Sim) -> str { encode_named(s, Metadata { name: "journey", played_ms: 0 }) }
 
-/// Canonical CUB6 wrapper with metadata before the persistent item extension.
+/// Canonical CUB7 wrapper with metadata before the persistent item extension.
 pub fn encode_named(s: sim.Sim, meta: Metadata) -> str {
     let text = payload_core(s, VERSION) +
         "name {meta.name}\nplayed_ms {meta.played_ms}\n" +
@@ -146,6 +164,7 @@ pub fn encode_named(s: sim.Sim, meta: Metadata) -> str {
 /// Only default wolf difficulty is playable in this build.
 pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     if text.len > 16384 { return save_corrupt }
+    if text.starts_with("CUB 7\n") { return decode_seven(text, cols, rows)? }
     if !text.starts_with("CUB 6\n") { return decode_core(text, cols, rows)? }
     let meta = metadata(text)?
     var lines = List[str]()
@@ -165,15 +184,38 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     s
 }
 
+/// CUB7: the core (thirteen lines: the version, ten state lines, the slain
+/// masks, the gates), the name, played_ms, the items line, the check.
+fn decode_seven(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
+    let meta = metadata(text)?
+    var lines = List[str]()
+    for line in text.lines() { (mut lines).push(line) }
+    if lines.len != 17 { return save_corrupt }
+    var core = ""
+    var index = 0
+    while index < 13 { core += lines[index] + "\n"; index += 1 }
+    let inner = core + lines[15] + "\n"
+    let s = decode_core(inner + "check {checksum(inner)}\n", cols, rows)?
+    let canonical = core +
+        "name {meta.name}\nplayed_ms {meta.played_ms}\n" +
+        lines[15] +
+        "\n"
+    if canonical + "check {checksum(canonical)}\n" != text { return save_corrupt }
+    s
+}
+
 fn decode_core(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     if text.len > 16384 { return save_corrupt }
     var words = List[str]()
     for word in text.words() { (mut words).push(word) }
     if words.len < 2 || words[0] != "CUB" { return save_corrupt }
-    if words[1] != "4" && words[1] != "5" && words[1] != "6" { return save_version }
+    if words[1] != "4" && words[1] != "5" && words[1] != "6" && words[1] != "7" {
+        return save_version
+    }
     let version = words[1].to_int() else |_| { return save_corrupt }
-    let count = if version == 4 then 55 else 56 + forest.AREAS
-    if version < 6 && words.len != count || version == 6 && words.len < count + 8 {
+    let areas = if version >= 7 then forest.AREAS else AREAS_V5
+    let count = if version == 4 then 55 else if version <= 6 then 56 + areas else 58 + areas
+    if version < 6 && words.len != count || version >= 6 && words.len < count + 8 {
         return save_corrupt
     }
     var values = List[int]()
@@ -255,7 +297,7 @@ fn decode_core(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
         return save_corrupt
     }
     if s.caches < 0 ||
-        s.caches > 65535 ||
+        s.caches >= cache_limit() ||
         s.yarrow < 0 ||
         s.yarrow > 6 ||
         s.marrow < 0 ||
@@ -277,7 +319,10 @@ fn decode_core(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
         s.lit_dens < 1 ||
         s.lit_dens > 65535 ||
         s.shortcuts < 0 ||
-        s.shortcuts > 15 ||
+        s.shortcuts > forest.SHORTCUTS_ALL ||
+        // The sett's squeeze is a growth gate (cb14, R-cb14-2 A): a journey
+        // that went through it has the paw for it.
+        s.shortcuts / 128 % 2 == 1 && s.paw < sim.UNDERTEETH_PAW ||
         values[13] < 0 ||
         values[13] > 1 ||
         s.story < 0 ||
@@ -326,7 +371,7 @@ fn decode_core(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     }
     if version >= 5 {
         var area = 0
-        while area < forest.AREAS {
+        while area < areas {
             let mask = words[54 + area].to_int() else |_| { return save_corrupt }
             let foes = sim.area_foes(s.seed, s.field, area, 15)
             var limit = 1
@@ -335,10 +380,16 @@ fn decode_core(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
             s.slain[area] = mask
             area += 1
         }
+        if version >= 7 {
+            if words[54 + areas] != "gates" { return save_corrupt }
+            let gates = words[55 + areas].to_int() else |_| { return save_corrupt }
+            if gates < 0 || gates > sim.GATE_OAK + sim.GATE_MOUTH { return save_corrupt }
+            s.gates = gates
+        }
     }
     if version >= 6 {
         var items = List[int]()
-        let start = 55 + forest.AREAS
+        let start = (if version >= 7 then 57 else 55) + areas
         var item = 0
         while item < 7 {
             (mut items).push(words[start + item].to_int() else |_| { return save_corrupt })
@@ -375,7 +426,7 @@ fn decode_core(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
             )
             item += 1
         }
-        s.pouch = pouch.from_values(items, 0, forest.AREAS) else |_| { return save_corrupt }
+        s.pouch = pouch.from_values(items, 0, areas) else |_| { return save_corrupt }
         if s.yarrow > pouch.cap(pouch.YARROW) || s.marrow > pouch.cap(pouch.MARROW) {
             return save_corrupt
         }
@@ -496,7 +547,17 @@ pub fn snapshot_into(s: sim.Sim, mut values: List[int]) {
     (mut values).push(sim.level(s))
     var area = 0
     while area < forest.AREAS { (mut values).push(sim.slain_mask(s, area)); area += 1 }
+    (mut values).push(s.gates)
     pouch.snapshot_into(s.pouch, mut values)
+}
+
+/// One past the widest `caches` word a journey may hold: every cache bit
+/// (`forest.CACHE_BITS`) set.
+pub fn cache_limit() -> int {
+    var limit = 1
+    var i = 0
+    while i < forest.CACHE_BITS { limit *= 2; i += 1 }
+    limit
 }
 
 /// Exact equality, never a hash: every canonical payload field is represented.
@@ -509,7 +570,9 @@ pub fn same_snapshot(a: List[int], b: List[int]) -> bool {
 
 /// Validate a complete initial replay journey before applying it.
 pub fn from_snapshot(v: List[int], cols: int, rows: int) -> sim.Sim ! DecodeErrors {
-    if v.len != SNAPSHOT && v.len != 37 && v.len != 30 || v[0] < -1000000000 || v[0] > 1000000000 {
+    if v.len != SNAPSHOT && v.len != SNAPSHOT_V5 && v.len != SNAPSHOT_V4 && v.len != 30 ||
+        v[0] < -1000000000 ||
+        v[0] > 1000000000 {
         return save_corrupt
     }
     var s = sim.new(v[0], cols, rows)
@@ -558,12 +621,21 @@ pub fn from_snapshot(v: List[int], cols: int, rows: int) -> sim.Sim ! DecodeErro
     s.yarrow = v[21]
     s.marrow = v[22]
     s.opening_seen = v[23] == 1
-    if v.len >= 37 {
+    if v.len == SNAPSHOT_V4 || v.len == SNAPSHOT_V5 {
         var area = 0
-        while area < forest.AREAS { s.slain[area] = v[30 + area]; area += 1 }
+        while area < AREAS_V5 { s.slain[area] = v[30 + area]; area += 1 }
     }
     if v.len == SNAPSHOT {
-        s.pouch = pouch.from_values(v, 37, forest.AREAS) else |_| { return save_corrupt }
+        var area = 0
+        while area < forest.AREAS { s.slain[area] = v[30 + area]; area += 1 }
+        s.gates = v[30 + forest.AREAS]
+    }
+    if v.len == SNAPSHOT {
+        s.pouch = pouch.from_values(v, 31 + forest.AREAS, forest.AREAS) else |_| {
+            return save_corrupt
+        }
+    } else if v.len == SNAPSHOT_V5 {
+        s.pouch = pouch.from_values(v, SNAPSHOT_V4, AREAS_V5) else |_| { return save_corrupt }
     } else {
         if s.yarrow > pouch.cap(pouch.YARROW) { s.yarrow = pouch.cap(pouch.YARROW) }
         if s.marrow > pouch.cap(pouch.MARROW) { s.marrow = pouch.cap(pouch.MARROW) }
