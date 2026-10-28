@@ -75,6 +75,7 @@ fn test_cb12_den_spending_and_save_use_exact_currency_during_count() {
         controls.KEY_RIGHT,
         controls.KEY_UP,
         controls.KEY_UP,
+        controls.KEY_UP,
         controls.KEY_CONFIRM,
     ] {
         sim.step(mut s, [key])
