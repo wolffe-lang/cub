@@ -149,12 +149,25 @@ no key the eyes finish closing before the cub wakes at its last den.
 
 ## The title and the end (cb04, 2026-10-26)
 
-The game opens on the title: any decoded key begins (the opening for a new journey, the forest for a
-resumed one) and is recorded as `title 1` then the key; `--no-title` skips it (the pty rows and the engine's
-rows start past it, `tests/lair.conf`). After ten idle seconds the demo plays behind the title; any key
-still begins. On the end card `r` keeps playing and `q` leaves; both are the ordinary keys, recorded as
-such. The title row and the title-demo row in `tests/pty_rows.py` are the live witnesses; the death
-witnesses still type bytes into the pty, never a signal from a script.
+The game opens on the title: any decoded key opens the fire menu, without
+performing a gameplay move. Continue uses the most recently played registered
+journey. New journey prompts for the seed, then wolf (the playable difficulty).
+Load lists name, area, level and last played, followed by Type a path. Playback
+appears when recordings exist in `~/.cub/ghosts/` or `~/.cub/replays/`; it lists
+the date, duration and ending and also offers Type a path. Quit leaves.
+Up/Down wrap, Space or Enter chooses, and Esc backs out. Path/seed entry uses
+printable keys, Backspace to edit and Enter to accept; q is text there, and
+quits elsewhere. Ctrl-C restores the terminal from every menu page. Playback
+uses the same player as `--replay`; Esc returns to the fire without writing a
+save or another recording. On the end card r keeps playing and q leaves.
+
+`--no-title` is a historical name: it retains straight-to-play behavior for
+the gameplay harness, using `--save PATH` or the most recent registered save.
+`--menu` skips only the title and lands at the fire. No flag gives title →
+fire menu → play. The existing `tests/lair.conf` and gameplay pty args are
+unchanged. Title and rest-scene replay goldens retain their old bytes; the
+live title row now expects the fire menu after dismissal. The menu and typed
+path pty rows inject bytes, not a physical-terminal measurement.
 
 The bars sit flush on the map since cb07: no panel, no fill, no margin; the
 cell beside the stamina bar is the map's own, and what may never show there

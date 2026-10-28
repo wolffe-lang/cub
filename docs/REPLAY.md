@@ -229,3 +229,29 @@ rather than water, and a low hawk is biteable. Exact Ctrl-up remains exact.
 The existing witnesses are retained; changed frames are identified in
 cb10's golden-change receipt. `--small-faults` uses an explicit fixture
 and a parsed ordinary-key record, not a claimed saved natural journey.
+
+
+## The fire menu and CUB 6 (cb13)
+
+Save-only metadata (`name`, `played_ms`) wraps the unchanged simulation
+payload. CUB 5 migrates on read with name journey and zero elapsed time;
+CUB 4 still migrates with empty slain masks. Numeric replay snapshots remain
+`journey 4`, slots0..36; no existing key or event id changes. The menu is
+outside the gameplay recording: its keys do not attack, alter the seed of a
+resumed save, or consume a gameplay tick. New gameplay still records its
+opening event. Old title events reproduce the original title scene.
+
+Live sessions record by default under `~/.cub/replays/`, with `--record FILE`
+as the explicit override; deaths remain under `~/.cub/ghosts/`. Optional
+`# recorded ISO-UTC` and `# ending TEXT` comments add display metadata without
+changing pk1. New files say Finished, Fallen, or In progress according to
+the observed run state; no story ending is inferred for an older file.
+Playback uses recorded metadata when present, otherwise file modification
+date, last event tick/30 for duration, and not recorded for an unknown ending.
+Playback never writes saves or default recordings; Esc returns to the fire.
+
+`# fire-menu` marks synthetic headless menu fixtures. Only that explicit
+comment routes existing up/down/bite/confirm/release/quit keys into the menu
+state machine, using fixed `/fixture/` registry and recording data, never
+files under the viewer's HOME. `final.state` appends the page, row and action.
+The menu fixtures pin both tiers; existing title and den goldens are unchanged.
