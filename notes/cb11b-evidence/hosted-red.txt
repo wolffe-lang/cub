@@ -1,0 +1,15 @@
+Hosted macOS red, run40688342154, inspected with gh run view --log-failed.
+Job: macOS arm64 (build, goldens, pty rows), 2026-10-28T13:13:16Z.
+pty: cb11-hand-reader FAILED (darwin arm64):
+cb11-ticks-enhanced-200-plain: DELIVERY late before write: wanted tick21, observed22
+cb11-ticks-enhanced-330-rich: DELIVERY late before write: wanted tick19, observed20
+cb11-ticks-enhanced-100-plain: DELIVERY late before write: wanted tick10, observed11
+cb11-ticks-enhanced-30-rich: DELIVERY late before write: wanted tick19, observed20
+cb11-ticks-enhanced-30-plain: DELIVERY late before write: wanted tick20, observed21
+cb11-ticks-enhanced-60-plain: DELIVERY late before write: wanted tick39, observed40
+cb11-ticks-enhanced-held250-rich: DELIVERY late before write: wanted tick10, observed11
+cb11-ticks-enhanced-held250-plain: DELIVERY late delivery: wanted tick23, observed24
+cb11-ticks-enhanced-held500-plain: DELIVERY late before write: wanted tick32, observed33
+cb11-ticks-legacy-150-plain: DELIVERY late before write: wanted tick4, observed5
+cb11-ticks-legacy-held250-rich: DELIVERY late before write: wanted tick21, observed22
+cb11-ticks-legacy-held500-rich: DELIVERY late before write: wanted tick20, observed21

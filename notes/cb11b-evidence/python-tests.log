@@ -1,0 +1,10 @@
+ci-container source=build image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=13
+.ci-container source=local image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=13
+..........ci-container source=cache image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=12
+...........................................................
+----------------------------------------------------------------------
+Ran 70 tests in 1.716s
+
+OK
+prepare-pty: retained previous engine fixture in /Users/mfwolffe/lanes/cb11b/cub/target/pty-fixture-tests/tmp_pc7pogv/engine-previous-a590w3e3
+prepare-pty: engine fixture already fresh

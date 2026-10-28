@@ -1,0 +1,6 @@
+(0, 'press', 12)
+(1, 'release', 15)
+(6, 'press', 18)
+(7, 'release', 21)
+(12, 'press', 24)
+(13, 'release', 27)
