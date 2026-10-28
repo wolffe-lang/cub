@@ -36,6 +36,13 @@ def run(binary, name, tier='rich', frames=None, ghosts=None, label=''):
     return dest, states, foes
 
 
+def check_fox_contact(before, after):
+    """A landed real feint steals carried scent, never a mouthful."""
+    assert after['health'] == before['health'] - 16, 'fox real strike did not land'
+    assert after['flasks'] == before['flasks'], 'fox contact spent water without w'
+    assert after['scent'] == max(0, before['scent'] - 5), 'fox did not steal bounded scent'
+
+
 def check(binary):
     expected = {}
     for tier in ('rich', 'plain'):
@@ -63,7 +70,7 @@ def check(binary):
                 real = next(t for t, fs in foes.items() if fs[2]['phase'] == 1)
                 active = next(t for t, fs in foes.items() if fs[2]['phase'] == 2)
                 assert real - false == 16 and active - real == 12
-                assert states[active]['flasks'] == states[active - 1]['flasks'] - 1
+                check_fox_contact(states[active - 1], states[active])
             elif name == 'trail-fading':
                 assert states[60]['trail'] > 0 and final['trail'] == 0
             elif name == 'rest':

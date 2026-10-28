@@ -1,0 +1,15 @@
+cb10 full-gate follow-up, source 93086e0e
+
+Linux gate ended status 1 at 2026-10-28T02:58:47Z. The native-gameplay failure was tools/gameplay.py:66 in the fox-feint branch, after its FEINT/CROUCH/STRIKE timing checks:
+    assert states[active]['flasks'] == states[active - 1]['flasks'] - 1
+This was the old fox-water-theft expectation, not a drink row. Replace it with a landed 16-health hit, unchanged flasks, and scent max(0, before - 5). Separate spring-drink checks still require one charge spent and healing to full. No simulation change is needed.
+
+The corrected helper has four Python unit tests, all green, including rejection of the old water theft, water theft even with correct scent, no theft, too much theft, a missing real hit and scent underflow.
+
+Mac first gate reached check: green, including the live cb10-ghostty-repeat row at both tiers and both repeat settings. Then native-goldens refused the memory floor (3 GB available) and the wrapper returned status 3. The -2 wrapper keeps the global build lock, waits in printing 30-second loops for >=8 GiB, and retries only memory-floor status 3 rather than ending the gate. The engine memory checks remain enabled.
+
+Original durable logs:
+/Users/mfwolffe/lanes/cb10/mac-final.log
+/home/mfwolffe/lanes/cb10/linux-final.log
+
+The original audit was run exactly once at 93086e0e; it is not rerun for this follow-up. Final -2 gates cover the new harness head; results remain pending until their markers exist.
