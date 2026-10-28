@@ -127,6 +127,28 @@ fn test_cb15_caps_and_full_pickup_refusal() {
     assert(sim.pickup_item(mut s) && s.pouch.pickups.len == 1, "full stack leaves ground item")
 }
 
+fn test_cb15_provisional_tuft_is_at_the_first_den_not_the_checkpoint_den() {
+    var s = quiet()
+    s.area = forest.BRAMBLEHOLD
+    s.pouch.seeded = 0
+    wait(mut s, 1)
+    let (x, y) = forest.den_position(s.seed, 1)
+    var tufts = 0
+    for p in s.pouch.pickups {
+        if p.kind == pouch.TUFT {
+            assert(
+                p.x == sim.floor_div(x, sim.FP) + 4 && p.y == sim.floor_div(y, sim.FP),
+                "first den's east cell",
+            )
+            assert(!forest.blocked(s.seed, s.field, s.area, p.x, p.y), "reachable ground")
+            tufts += 1
+        }
+    }
+    assert(tufts == 1 && s.pouch.pickups.len == 7, "six marrow, one finite tuft")
+    wait(mut s, 1)
+    assert(s.pouch.pickups.len == 7, "seed only once")
+}
+
 fn test_cb15_r_at_a_den_recovers_a_dropped_item_and_still_rests() {
     var s = quiet()
     let _ = sim.give_item(mut s, pouch.TUFT)
