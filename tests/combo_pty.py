@@ -31,6 +31,8 @@ def send_at_tick(session, traces, data, target, timeout=5, observer_stall_ms=0):
     if observer_stall_ms:
         session.pump(observer_stall_ms / 1000)
     before = traces(session)[-1]['tick']
+    if before != target - 1:
+        raise DeliveryError(f'late before write: wanted tick{target - 1}, observed{before}')
     session.type(data, settle=0)
     deadline = time.monotonic() + timeout
     while True:
@@ -38,6 +40,8 @@ def send_at_tick(session, traces, data, target, timeout=5, observer_stall_ms=0):
         carrying = next((r for r in live if r['tick'] > before and
                          r.get('in', 0) > 0 and r.get('keys', 0) > 0), None)
         if carrying is not None:
+            if carrying['tick'] != target:
+                raise DeliveryError(f'late delivery: wanted tick{target}, observed{carrying["tick"]}')
             return carrying['tick']
         if time.monotonic() >= deadline:
             raise DeliveryError(f'input never consumed after write at tick{before}; requested{target}')
