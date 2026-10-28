@@ -37,6 +37,21 @@ measured63.673/66.215ms per wide1000-gain batch and is retained as the before ta
 in20 ticks with0 late/catch-up frames at80×24 and200×60, and compares the final
 terminal model with ordinary full-frame output. Its results are in
 `target/pty/cb12-counter-cost.json`.
+
+Measured on nomad's release binary,2026-10-28, a1000 gain (50 integers/tick):
+
+| tier / size | before: max render+flush sum | after: max whole-batch wall time | after ticks / late frames |
+|---|---:|---:|---:|
+| rich80×24 |10.341ms|0.795ms|20 /0|
+| rich200×60 |63.673ms|4.263ms|20 /0|
+| plain80×24 |9.107ms|0.709ms|20 /0|
+| plain200×60 |66.215ms|3.834ms|20 /0|
+
+The after measurement includes the underlay, all integer repaints, trace writes
+and the final ordinary frame; it is stricter than the before sum. Every after
+batch fits the33.333ms tick, and every1000-value run flushes all1000 integers.
+Both raw tables are retained under `notes/cb12-evidence/`.
+
 Headless script fixtures and walkers press the ordinary skip after the minimum
 hold; `--full-death` or a `# full-death` script comment keeps the full card. Actual
 live play and `--replay` retain recorded key timing. `# counter-frames` enumerates
