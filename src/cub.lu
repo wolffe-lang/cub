@@ -34,6 +34,7 @@ use diagonalstudy
 use denproof
 use doorproof
 use fight
+use faultproof
 use ghost
 use grid
 use glow
@@ -1026,6 +1027,7 @@ fn main() -> int {
     if args.len > 0 && args[0] == "--spurs-audit" { return wide.spurs() }
     if args.len > 0 && args[0] == "--gen-bench" { return wide.gen_bench() }
     if args.len > 0 && args[0] == "--crossing-census" { return cross.crossing() }
+    if args.len > 0 && args[0] == "--small-faults" { return faultproof.run() }
     if args.len > 0 && args[0] == "--hitbox-audit" { return cross.hitbox() }
     if args.len > 0 && args[0] == "--encounter-census" { return cross.encounter() }
     if args.len == 3 && args[0] == "--crossing-trace" {

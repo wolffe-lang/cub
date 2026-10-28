@@ -477,6 +477,10 @@ def diagonal_censuses(binary):
     import runpy
     hit = runpy.run_path(str(ROOT / 'tools/hit-census.py'))
     hit['check'](binary, OUT)
+    faults = subprocess.run([str(binary), '--small-faults'], text=True, capture_output=True, check=True)
+    (OUT / (Path(binary).parent.name + '-small-faults.txt')).write_text(faults.stdout)
+    assert 'kills=3 flasks=3 green=true' in faults.stdout
+    print('gameplay: real reader repeat delays and three-kill no-drink fixture green')
     rendered = runpy.run_path(str(ROOT / 'tools/check-render-glyphs.py'))
     rendered['check'](binary, OUT)
     p = subprocess.run([str(binary), '--narrow-audit', '6', '240'],

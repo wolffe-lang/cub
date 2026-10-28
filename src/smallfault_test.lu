@@ -60,3 +60,100 @@ fn test_cb10_reader_modifier_and_legacy_arrows_never_alias_water() {
     controls.events(raw, mut keys)
     for k in keys { assert(k != controls.KEY_WATER, "no ctrl/arrow/release alias to w") }
 }
+
+fn test_cb10_fox_scent_theft_never_underflows() {
+    for scent in [0, 1, 4, 5, 6] {
+        assert(faultproof.fox_scent_row(scent), "min(5, scent), water unchanged at {scent}")
+    }
+}
+
+fn test_cb10_a_kill_with_any_physical_key_held_preserves_water() {
+    for key in [
+        input.KEY_UP,
+        input.KEY_DOWN,
+        input.KEY_LEFT,
+        input.KEY_RIGHT,
+        input.KEY_CTRL,
+        input.KEY_SHIFT,
+        input.char_key(119),
+        input.char_key(32),
+        input.char_key(120),
+        input.char_key(122),
+        input.char_key(99),
+    ] {
+        var s = hitcensus.fixture(sim.WEASEL)
+        s.flasks = 3
+        s.flask_max = 3
+        input.update(mut s.key_state, input.Event { key: key, mods: 0, kind: input.PRESS }, s.tick)
+        let fb = sim.foe_body(s.foes[0])
+        let _ = hitcensus.bite(mut s, s.foes[0].x / sim.FP, fb.y1 + 2, 0)
+        s.foes[0].health = 8
+        s.foes[0].last_hit = -1
+        sim.strike_foes(mut s)
+        assert(
+            s.foes[0].health == 0 && s.flasks == 3,
+            "kill does not drink for held physical key {key}",
+        )
+    }
+}
+
+fn test_cb10_legacy_ctrl_grace_expires_and_pace_is_one_unit_faster() {
+    var s = sim.new(1, 80, 24)
+    input.hold_press(mut s.sprint_hold, 1)
+    s.tick = sim.SPRINT_GRACE
+    assert(sim.sprint_held(s), "last tick of slow-repeat grace")
+    s.tick += 1
+    assert(!sim.sprint_held(s), "not a sticky sprint modifier")
+    for paw in [1, 4] {
+        let before = sim.trot_at(paw) * 8 / 5
+        let after = sim.sprint_at(paw)
+        assert(
+            after == before + 1 && sim.SPRINT_PER_SECOND == 12,
+            "smallest integer pace step, unchanged drain",
+        )
+        print(
+            "cb10 sprint paw={paw} before={before} after={after} cells-per-second={before * 30}/256->{after * 30}/256",
+        )
+    }
+}
+
+fn test_cb10_macos_ghostty_event_types_default_repeat_and_releases() {
+    assert(faultproof.ghostty_row(250, 30, true), "flags11 press/repeat/release")
+}
+
+fn test_cb10_macos_ghostty_event_types_slow_repeat_and_releases() {
+    assert(
+        faultproof.ghostty_row(500, 60, true),
+        "flags11 holds through500 ms and releases immediately",
+    )
+}
+
+fn test_cb10_macos_ghostty_press_only_default_repeat() {
+    assert(
+        faultproof.ghostty_row(250, 30, false),
+        "no event types: repeated presses, inferred hold",
+    )
+}
+
+fn test_cb10_macos_ghostty_press_only_slow_repeat() {
+    assert(
+        faultproof.ghostty_row(500, 60, false),
+        "no event types: slow repeated presses, inferred hold",
+    )
+}
+
+fn test_cb10_macos_ghostty_arrow_repeating_before_ctrl() {
+    assert(faultproof.ghostty_order(0), "modifier changes on repeats without another press")
+}
+
+fn test_cb10_macos_ghostty_ctrl_held_four_seconds_before_arrow() {
+    assert(faultproof.ghostty_order(1), "exact modifier does not expire in silence")
+}
+
+fn test_cb10_macos_ghostty_diagonal_ctrl_sprint() {
+    assert(faultproof.ghostty_order(2), "two held arrows keep diagonal sprint")
+}
+
+fn test_cb10_macos_ghostty_ctrl_released_and_repressed_mid_run() {
+    assert(faultproof.ghostty_order(3), "arrow persists across modifier transitions")
+}

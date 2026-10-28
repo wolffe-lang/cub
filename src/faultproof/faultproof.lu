@@ -33,7 +33,7 @@ pub fn repeat_row(delay_ms: int, rate_ms: int) -> bool {
             next_ms = if next_ms == 0 then delay_ms else next_ms + rate_ms
         }
         sim.step(mut s, keys)
-        if !sim.sprint_held(s) {
+        if !sim.sprint_held(s) || !s.sprinting {
             print("cb10 legacy-repeat delay={delay_ms} rate={rate_ms} tick={s.tick} held=false")
             good = false
         }
@@ -63,9 +63,10 @@ fn contact(mut s: sim.Sim) {
 /// Three kills, no water key. Return false if even one hit spends water.
 /// The same ordinary-key record is decoded and replayed in each round.
 pub fn water() -> bool {
-    let text = "pk 1\nseed 1\ntier plain\nsize 200x60\nt 1 ctrl-down\nt 2 bite\n"
+    let text = "pk 1\nseed 1\ntier plain\nsize 200x60\nt 1 ctrl-down\nt 2 bite\nt 7 ctrl-down\nt 8 bite\nt 13 ctrl-down\nt 14 bite\n"
     let r = replay.from_text(text, controls.vocab()) else { return false }
     var s = hitcensus.fixture(sim.FOX)
+    s.tick = 0
     s.health = sim.health_max(s.heart)
     s.flask_max = 3
     s.flasks = 3
@@ -74,7 +75,6 @@ pub fn water() -> bool {
     var kills = 0
     var good = true
     while round < 3 {
-        s.tick = 0
         s.foes[0].health = 8
         (mut s.drops).reset()
         (mut s.meat).reset()
@@ -82,14 +82,16 @@ pub fn water() -> bool {
         let before = s.flasks
         let scent = s.scent
         var keys = List[int]()
-        let _ = replay.at(r, 1, mut keys)
+        let _ = replay.at(r, s.tick + 1, mut keys)
         sim.step(mut s, keys)
-        print("cb10 water round={round} tick=1 keys={keys} health={s.health} flasks={before}->{s.flasks} scent={scent}->{s.scent}")
+        print(
+            "cb10 water round={round} tick={s.tick} keys={keys} health={s.health} flasks={before}->{s.flasks} scent={scent}->{s.scent}",
+        )
         if s.flasks != before || s.scent != scent - 5 { good = false }
         s.foes[0].phase = sim.STAGGER
         s.foes[0].since = s.tick + 1000
         (mut keys).reset()
-        let _ = replay.at(r, 2, mut keys)
+        let _ = replay.at(r, s.tick + 1, mut keys)
         sim.step(mut s, keys)
         var n = 0
         while n < 4 { sim.step(mut s, List[int]()); n += 1 }
@@ -98,7 +100,9 @@ pub fn water() -> bool {
         if s.flasks != before { good = false }
         round += 1
     }
-    print("cb10 water three-kill-no-drink kills={kills} flasks={s.flasks} green={good && kills == 3}")
+    print(
+        "cb10 water three-kill-no-drink kills={kills} flasks={s.flasks} green={good && kills == 3}",
+    )
     good && kills == 3
 }
 
@@ -107,5 +111,141 @@ pub fn run() -> int {
     let normal = repeat_row(250, 30)
     let slow = repeat_row(500, 60)
     let drink = water()
-    if normal && slow && drink then 0 else 1
+    let exact_normal = ghostty_row(250, 30, true)
+    let exact_slow = ghostty_row(500, 60, true)
+    let press_normal = ghostty_row(250, 30, false)
+    let press_slow = ghostty_row(500, 60, false)
+    var orders = true
+    var order = 0
+    while order < 4 {
+        if !ghostty_order(order) { orders = false }
+        order += 1
+    }
+    if normal &&
+        slow &&
+        drink &&
+        exact_normal &&
+        exact_slow &&
+        press_normal &&
+        press_slow &&
+        orders {
+        0
+    } else {
+        1
+    }
+}
+
+/// Fox theft clamps at zero and never takes a mouthful.
+pub fn fox_scent_row(scent: int) -> bool {
+    var s = hitcensus.fixture(sim.FOX)
+    s.tick = 0
+    s.flasks = 3
+    s.flask_max = 3
+    s.scent = scent
+    contact(mut s)
+    sim.step(mut s, List[int]())
+    let expected = if scent < 5 then 0 else scent - 5
+    s.scent == expected && s.flasks == 3 && s.health == 36
+}
+
+fn wire(mut d: input.Decoder, bytes: str, ms: int, mut keys: List[int]) {
+    var events = List[input.Event]()
+    for b in bytes.bytes() { input.feed_events(mut d, b, ms, mut events) }
+    controls.events(events, mut keys)
+}
+
+/// macOS/Ghostty kitty-protocol wire fixture, injected not physically
+/// captured. Flags11 requests disambiguation, event types and all keys.
+/// Without event types a press-only stream must use inferred lifetimes.
+pub fn ghostty_row(delay_ms: int, rate_ms: int, types: bool) -> bool {
+    var s = sim.new(1, 80, 24)
+    (mut s.foes).reset()
+    var d = input.new()
+    var next_ms = 0
+    var tick = 1
+    var good = true
+    while tick <= 36 {
+        let ms = (tick - 1) * 1000 / 30
+        var keys = List[int]()
+        if tick == 1 {
+            if types { (mut keys).push(controls.KEY_EXACT) }
+            wire(mut d, "\x1b[57442;5u", 0, mut keys)
+        }
+        while next_ms <= ms {
+            let seq = if types {
+                if next_ms == 0 then "\x1b[1;5:1C" else "\x1b[1;5:2C"
+            } else {
+                "\x1b[1;5C"
+            }
+            wire(mut d, seq, next_ms, mut keys)
+            next_ms = if next_ms == 0 then delay_ms else next_ms + rate_ms
+        }
+        sim.step(mut s, keys)
+        if !sim.sprint_held(s) || !s.sprinting { good = false }
+        tick += 1
+    }
+    if types {
+        var keys = List[int]()
+        wire(mut d, "\x1b[1;5:3C\x1b[57442;1:3u", 1200, mut keys)
+        sim.step(mut s, keys)
+        if sim.sprint_held(s) || s.moving { good = false }
+    } else {
+        s.tick = s.sprint_hold.last + sim.SPRINT_GRACE
+        if sim.sprint_held(s) { good = false }
+    }
+    print(
+        "cb10 macOS Ghostty injected kitty bytes delay={delay_ms} rate={rate_ms} event-types={types} continuous-moving-sprint={good}",
+    )
+    good
+}
+
+fn event_tick(mut s: sim.Sim, mut d: input.Decoder, bytes: str) {
+    var keys = List[int]()
+    wire(mut d, bytes, s.tick * 1000 / 30, mut keys)
+    sim.step(mut s, keys)
+}
+
+fn idle_ticks(mut s: sim.Sim, ticks: int) {
+    var n = 0
+    while n < ticks { sim.step(mut s, List[int]()); n += 1 }
+}
+
+/// Four Ghostty/macOS press-order fixtures. No physical capture claimed.
+pub fn ghostty_order(order: int) -> bool {
+    var s = sim.new(1, 80, 24)
+    (mut s.foes).reset()
+    var d = input.new()
+    var exact = List[int]()
+    (mut exact).push(controls.KEY_EXACT)
+    sim.step(mut s, exact)
+    var good = true
+    if order == 0 {
+        event_tick(mut s, mut d, "\x1b[1;1:1C")
+        idle_ticks(mut s, 10)
+        event_tick(mut s, mut d, "\x1b[1;1:2C")
+        if s.sprinting { good = false }
+        event_tick(mut s, mut d, "\x1b[57442;5u\x1b[1;5:2C")
+        idle_ticks(mut s, 16)
+        if !s.sprinting || sim.held_direction(s) != 64 { good = false }
+    } else if order == 1 {
+        event_tick(mut s, mut d, "\x1b[57442;5u")
+        idle_ticks(mut s, 120)
+        if !sim.sprint_held(s) { good = false }
+        event_tick(mut s, mut d, "\x1b[1;5:1C")
+        if !s.sprinting { good = false }
+    } else if order == 2 {
+        event_tick(mut s, mut d, "\x1b[57442;5u\x1b[1;5:1C\x1b[1;5:1B")
+        idle_ticks(mut s, 16)
+        if !s.sprinting || sim.held_direction(s) != 96 { good = false }
+    } else {
+        event_tick(mut s, mut d, "\x1b[57442;5u\x1b[1;5:1C")
+        if !s.sprinting { good = false }
+        event_tick(mut s, mut d, "\x1b[57442;1:3u")
+        if s.sprinting || sim.held_direction(s) != 64 { good = false }
+        idle_ticks(mut s, 9)
+        event_tick(mut s, mut d, "\x1b[57442;5u")
+        if !s.sprinting || sim.held_direction(s) != 64 { good = false }
+    }
+    print("cb10 macOS Ghostty injected press-order={order} sprint={s.sprinting} green={good}")
+    good
 }

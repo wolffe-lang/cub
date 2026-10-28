@@ -1503,3 +1503,40 @@ def cb08_whisper_flank(binary, ctx):
 
 
 ROWS['cb08-whisper-flank'] = cb08_whisper_flank
+
+
+def cb10_ghostty_repeat(binary, ctx):
+    """macOS Ghostty protocol fixture: injected kitty bytes, not a physical capture."""
+    problems = []
+    for tier in ('rich', 'plain'):
+        for delay, rate in ((.250, .030), (.500, .060)):
+            name = f'cb10-ghostty-{int(delay * 1000)}-{int(rate * 1000)}'
+            s, dest = cb04b_session(binary, ctx, name, tier)
+            # Ghostty answers the support query; cub requests flags11.
+            # Left Control down, Right press, then event-type2 repeats.
+            s.type(b'\x1b[57442;5u\x1b[1;5:1C', settle=delay)
+            for _ in range(10):
+                s.type(b'\x1b[1;5:2C', settle=rate)
+            held = cb04b_traces(s)
+            first = next((i for i, row in enumerate(held) if row.get('sprint') == 1), None)
+            if first is None or any(row.get('sprint') != 1 or row.get('exact') != 1
+                                    or row.get('held') != 64 for row in held[first:]):
+                problems.append(f'{name} {tier}: enhanced moving sprint dropped across repeats')
+            if b'\x1b[>11u' not in s.out:
+                problems.append(f'{name} {tier}: flags11 not requested')
+            s.type(b'\x1b[57442;1:3u', settle=.08)
+            last = cb04b_traces(s)[-1]
+            if last.get('sprint') != 0 or last.get('held') != 64:
+                problems.append(f'{name} {tier}: Control release not immediate or lost Right')
+            s.type(b'\x1b[1;1:3C', settle=.08)
+            if cb04b_traces(s)[-1].get('held') != -1:
+                problems.append(f'{name} {tier}: Right release stayed held')
+            s.type(cb04b_event('q'))
+            s.finish()
+            ctx.common_checks(s, 0, problems)
+            (dest / 'trace.txt').write_bytes(s.err)
+            print(f'cb10 macOS Ghostty injected kitty row tier={tier} delay={delay} rate={rate} flags=11')
+    return s, problems
+
+
+ROWS['cb10-ghostty-repeat'] = cb10_ghostty_repeat
