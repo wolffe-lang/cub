@@ -390,10 +390,13 @@ pub fn hud_fixture(
     if night {
         // The night keyframe's wood (cb14: Gravehollow, the old den's own
         // area; the Hush between keeps the brush but gained the alcoves).
+        // Below the alpha's clearing: the rows past its ring carry no
+        // alcove branch, so a frame there stays within the checked
+        // machine's budget twice over (`hud_test`).
         s.area = forest.GRAVEHOLLOW
-        let (x, y, _) = forest.arena(s.seed, s.field, s.area)
+        let (x, y, r) = forest.arena(s.seed, s.field, s.area)
         s.x = x * sim.FP + sim.FP / 2
-        s.y = (forest.origin(s.seed, s.area) + y) * sim.FP + sim.FP / 2
+        s.y = (forest.origin(s.seed, s.area) + y + r + 10) * sim.FP + sim.FP / 2
     } else {
         s.area = forest.SHINGLE
         s.x = sim.FP / 2
