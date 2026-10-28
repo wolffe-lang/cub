@@ -1784,6 +1784,9 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
             return lands.underteeth(seed, x, at, c, half(seed, area, at), cr, carved_here)
         }
         if area == HOWE {
+            // PLANT (cb14): a wall of stones across the Howe's sixtieth row
+            // cuts the area in two; the world audit must say so by name.
+            if at == 60 { return terrain.MENHIR }
             // The stone mouth: a wall of standing stones about the gate,
             // the deep brush closing the rest of the row.
             let (lo, hi) = gate_rows(area)
