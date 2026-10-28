@@ -1,6 +1,7 @@
 //! member: false
 
 use sim
+use controls
 use hitcensus
 
 fn test_cb18_each_new_foe_has_a_readable_tell_and_recovery() {
@@ -26,7 +27,12 @@ fn test_cb18_wisp_bite_snuffs_without_killing_or_scent() {
     s.action_y = s.y
     s.attack_heading = 0
     s.combo = 3
+    s.health = sim.health_max(s.heart) - 10
+    s.rally_pool = 10
+    s.rally_at = s.tick
+    let before = s.health
     sim.strike_foes(mut s)
+    assert(s.health == before, "snuffing an undamaged wisp cannot farm rally health")
     assert(s.foes[0].health > 0 && s.foes[0].phase == sim.SNUFFED, "alive but snuffed")
     assert(s.foes[0].since == 103 && s.scent == 0 && s.drops.len == 0, "no kill reward")
 }
@@ -42,7 +48,12 @@ fn test_cb18_moths_lose_two_per_bite_and_drop_four_each() {
     s.action_y = s.y
     s.attack_heading = 0
     s.combo = 3
+    s.health = sim.health_max(s.heart) - 10
+    s.rally_pool = 10
+    s.rally_at = s.tick
+    let before = s.health
     sim.strike_foes(mut s)
+    assert(s.health > before, "a damaging moth bite keeps the standard counter-hit rally")
     assert(s.foes[0].health == 3 && s.drops.len == 1, "two of five moths")
     assert(s.drops[0].value == 8, "four scent each, never a five-moth kill reward")
 }
@@ -105,6 +116,10 @@ fn test_cb18_marten_movement_has_no_invisible_boss_arena_boundary() {
     s.x = x - 10 * sim.FP
     sim.new_foe_step(mut s, 0)
     assert(s.foes[0].x > x, "a landing can move on open Shingle ground, outside every boss arena")
+    assert(
+        s.foes[0].x - x == sim.new_foe_move(sim.MARTEN).travel,
+        "the fighter's visible-move descriptor must report the actual ground advance",
+    )
 }
 
 fn test_cb18_burn_damage_continues_during_dodge_iframes() {
@@ -247,5 +262,69 @@ fn test_cb18_legacy_alpha_dodge_is_not_mistaken_for_a_snuffed_wisp() {
     assert(
         hitcensus.bite(mut s, x, y, 0),
         "the alpha's existing dodge is evasive motion, not new wisp immunity",
+    )
+}
+
+fn test_cb18_moths_circle_the_cub_not_their_old_ember() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.CINDER_MOTHS)
+    s.foes[0].phase = sim.RETREAT
+    s.foes[0].since = 0
+    s.foes[0].x = s.x + 3 * sim.FP
+    s.foes[0].y = s.y
+    s.foes[0].home_x = s.foes[0].x + 4 * sim.FP
+    s.foes[0].home_y = s.y
+    s.tick = 6
+    let before = s.foes[0].x
+    sim.new_foe_step(mut s, 0)
+    assert(
+        s.foes[0].x < before,
+        "the cub can lead a swarm into ash drifts instead of merely leaving its ember",
+    )
+}
+
+fn test_cb18_first_tab_skips_the_snuffed_wisp_and_locks_its_sentry() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.WISP)
+    s.foes[0].phase = sim.SNUFFED
+    s.foes[0].x = s.x + sim.FP
+    s.foes[0].y = s.y
+    (mut s.foes).push(sim.make_ashen(s.x + 5 * sim.FP, s.y))
+    sim.step(mut s, [controls.KEY_LOCK])
+    assert(
+        s.locked == 1,
+        "one real Tab selects the next eligible foe, not a lock cleared by an invisible wisp",
+    )
+    s.foes[0].phase = sim.HUNT
+    s.locked = -1
+    sim.step(mut s, [controls.KEY_LOCK])
+    assert(s.locked == 0, "a visible, unsnuffed wisp remains lockable")
+}
+
+fn test_cb18_marten_cannot_be_bitten_during_the_trunk_needles() {
+    var s = hitcensus.fixture(sim.MARTEN)
+    s.foes[0].phase = sim.CROUCH
+    let fb = sim.foe_body(s.foes[0])
+    let cb = sim.cub_body_at(s, 0, 0, 0)
+    let x = sim.floor_div(s.foes[0].x, sim.FP)
+    let y = fb.y1 + 1 - cb.y0
+    assert(!hitcensus.bite(mut s, x, y, 0), "needles fall while the marten is still up the trunk")
+    s.foes[0].phase = sim.STRIKE
+    assert(hitcensus.bite(mut s, x, y, 0), "the same bite lands once the marten lands")
+}
+
+fn test_cb18_marten_landing_under_the_cub_keeps_ground_bodies_disjoint() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+    s.foes[0].phase = sim.CROUCH
+    s.foes[0].since = 0
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y
+    s.foes[0].target_x = s.x
+    s.foes[0].target_y = s.y
+    s.tick = sim.new_foe_move(sim.MARTEN).windup - 1
+    assert(!sim.solid(s.foes[0]), "a windup up the trunk is not a ground blocker")
+    sim.step(mut s, List[int]())
+    assert(s.foes[0].phase == sim.STRIKE, "the drop actually lands in the open arena")
+    assert(
+        !sim.overlap(sim.cub_body(s), sim.foe_body(s.foes[0])),
+        "turning solid at landing must not materialize a body inside the cub",
     )
 }

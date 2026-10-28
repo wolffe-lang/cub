@@ -288,11 +288,13 @@ pub fn fight_keys(s: sim.Sim, i: int, mut st: Fighter) -> List[int] {
         }
         if m.parryable &&
             m.travel > 0 &&
+            f.kind != sim.MARTEN &&
             gap <= 3 &&
             idle &&
             s.stamina >= 30 + RESERVE &&
             !s.exhausted {
-            // A charge within a lunge's reach: the lunge into it staggers.
+            // A ground charge within a lunge's reach: the lunge staggers.
+            // The marten's windup is still above ground, not a charge to counter.
             arrows(mut keys, sim.heading_to(s.x, s.y, f.x, f.y))
             (mut keys).push(controls.KEY_LUNGE)
             return keys

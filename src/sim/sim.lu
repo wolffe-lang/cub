@@ -1400,6 +1400,7 @@ pub fn lock_next(mut s: Sim) {
         let j = if s.locked < 0 then i else (s.locked + 1 + i) % s.foes.len
         let f = copy s.foes[j]
         if f.health > 0 &&
+            !(f.kind == WISP && f.phase == SNUFFED) &&
             near(s.x, s.y, f.x, f.y, lock_reach(s.nose) * FP) &&
             visible(s, s.x, s.y, f.x, f.y) {
             let d = (s.x - f.x) * (s.x - f.x) + (s.y - f.y) * (s.y - f.y)
@@ -1590,7 +1591,7 @@ pub fn strike_foes(mut s: Sim) {
         if f.health > 0 &&
             (f.kind != HAWK || f.phase == STRIKE || f.phase == RETREAT) &&
             f.last_hit != s.started &&
-            !(f.kind == MARTEN && f.phase == PERCHED) &&
+            !(f.kind == MARTEN && (f.phase == PERCHED || f.phase == CROUCH)) &&
             !(f.kind == WISP && f.phase == SNUFFED) &&
             strike_reaches(s, i, reach) {
             if is_new_foe(f.kind) {
@@ -2286,7 +2287,7 @@ pub fn solid(f: Foe) -> bool {
         f.kind != GLOW_WORMS &&
         f.kind != WISP &&
         f.kind != CINDER_MOTHS &&
-        !(f.kind == MARTEN && f.phase == PERCHED)
+        !(f.kind == MARTEN && (f.phase == PERCHED || f.phase == CROUCH))
 }
 
 /// Whether foe `i` is within a reach of `reach` cells of the cub: at most
@@ -5641,7 +5642,7 @@ pub fn new_foe_size(kind: int) -> (int, int) {
 /// cannot be parried; the adder's twelve-tick line can be, for a kill.
 pub fn new_foe_move(kind: int) -> Move {
     match kind {
-        9 => mv(20, 3, 36, 8, 2, true, 0, false),
+        9 => mv(20, 3, 36, 8, 2, true, 128, false),
         10 => mv(12, 3, 36, 6, 3, true, 0, false),
         11 => mv(12, 2, 24, 0, 2, false, 0, false),
         12 => mv(8, 3, 42, 18, 3, false, 0, false),
@@ -5764,6 +5765,7 @@ fn new_foe_bitten(mut s: Sim, i: int) {
     }
     if f.kind == MARTEN { marten_return(mut s, i) }
     if f.kind == CINDER_MOTHS {
+        rally_hit(mut s)
         let n = if f.health >= 2 then 2 else 1
         s.foes[i].health -= n
         leave_drop(mut s, f.x, f.y, 4 * n)
@@ -5786,7 +5788,11 @@ fn new_foe_begin(mut s: Sim, i: int) {
     s.foes[i].target_x = s.x
     s.foes[i].target_y = s.y
     s.foes[i].speed = 0
-    if f.kind != HERON {
+    if f.kind == MARTEN {
+        // It is still up the trunk during the falling-needles tell.
+        let h = heading_to(f.x, f.y, s.x, s.y)
+        if h >= 0 { s.foes[i].heading = h }
+    } else if f.kind != HERON {
         turn_foe(mut s, i, heading_to(f.x, f.y, s.x, s.y))
     }
 }
@@ -5912,15 +5918,16 @@ pub fn new_foe_step(mut s: Sim, i: int) {
             s.foes[i].since = s.tick
             s.foes[i].hit = false
             if f.kind == MARTEN {
-                // Landing is clipped by the same body/terrain rule as a
-                // running mammal; it never teleports into the cub.
-                new_ground_run(mut s, i, f.target_x, f.target_y, 128)
+                // Turning solid is part of landing: the cub may have
+                // stepped below its trunk while it was still overhead.
+                if !marten_lands(mut s, i) { return }
+                new_ground_run(mut s, i, f.target_x, f.target_y, m.travel)
             }
         }
         return
     }
     if f.phase == STRIKE {
-        if f.kind == MARTEN { new_ground_run(mut s, i, f.target_x, f.target_y, 128) }
+        if f.kind == MARTEN { new_ground_run(mut s, i, f.target_x, f.target_y, m.travel) }
         if f.kind == CINDER_MOTHS {
             drift_foe(mut s, i, s.x, s.y, 24)
         } else if !f.hit &&
@@ -5961,10 +5968,11 @@ pub fn new_foe_step(mut s: Sim, i: int) {
             new_ground_run(mut s, i, f.home_x, f.home_y, 48)
         }
         if f.kind == CINDER_MOTHS {
-            // The ember is the orbit centre; it never follows the cub
-            // into another encounter. Ash drift dismissal is a spawn hook.
+            // The swarm rises from its ember, then circles the cub.
+            // This lets the cub lead it into ash drifts after cb14's
+            // terrain hook is live, rather than merely leaving an ember.
             let h = (age * 8 + s.seed * 17) % TURN
-            drift_foe(mut s, i, f.home_x + 2 * sin(h), f.home_y - 2 * cos(h), 24)
+            drift_foe(mut s, i, s.x + 2 * sin(h), s.y - 2 * cos(h), 24)
         }
         if age >= m.recovery {
             s.foes[i].phase = if f.kind == MARTEN then PERCHED else HUNT
@@ -6035,4 +6043,21 @@ fn new_foe_line_hits(s: Sim, i: int, reach: int) -> bool {
     } else {
         cb.y0 <= y && cb.y1 >= y && cb.x1 < fb.x0 && fb.x0 - cb.x1 <= reach
     }
+}
+
+// Only the new mover yields on landing; no existing foe is pushed aside.
+// If there is no legal ground body within the common collision search,
+// the marten stays up its trunk instead of materializing inside the cub.
+fn marten_lands(mut s: Sim, i: int) -> bool {
+    let f = copy s.foes[i]
+    if blocked(s, floor_div(f.x, FP), floor_div(f.y, FP)) ||
+        foe_blocked_by_body(s, i, f.x, f.y, f.heading) {
+        if !push_out(mut s, i, cub_body(s)) {
+            s.foes[i].phase = PERCHED
+            s.foes[i].since = s.tick
+            s.foes[i].speed = 0
+            return false
+        }
+    }
+    true
 }
