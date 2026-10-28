@@ -1,0 +1,8 @@
+From /home/mfwolffe/lanes/cb15/cb13-witness-fix.bundle
+ * branch                cb15       -> FETCH_HEAD
+HEAD is now at 34b223caa Use cb15 snapshot bound in named-wrapper witness
+CB15_CUB6_CORRECTED_PREPARATION_SOURCE 34b223caa1808623e9f463cb569869b92cf43f6d
+cb15-cb13-stage format START 2026-10-28T20:28:27Z
+wolf fmt --check: src/registry_test.lu is not canonically formatted
+cb15-cb13-stage format EXIT 1 2026-10-28T20:28:28Z
+CB15_CB13_FIXED_PREP_EXIT 1 2026-10-28T20:28:28Z

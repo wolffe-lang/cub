@@ -1,0 +1,13 @@
+[cb15 34b223ca] Use cb15 snapshot bound in named-wrapper witness
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+test src/counter_test.lu::test_cb12_gain_300_renders_first_batch_not_target ... ok
+test src/counter_test.lu::test_cb12_every_integer_for_1_8_30_300_1000_in_both_directions ... ok
+test src/counter_test.lu::test_cb12_retarget_continues_from_last_rendered_integer ... ok
+test src/counter_test.lu::test_cb12_den_spending_and_save_use_exact_currency_during_count ... ok
+test src/counter_test.lu::test_cb12_count_is_a_function_of_ticks_and_values_not_render_calls ... ok
+test src/registry_test.lu::test_cb13_named_wrapper_preserves_name_time_and_refuses_corruption ... ok
+test src/registry_test.lu::test_cb13_registry_round_trip_recent_and_named_missing ... ok
+test src/registry_test.lu::test_cb13_registry_malformed_line_is_refused_by_name ... ok
+wolf test: 8 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+
+[exited with code 0]
