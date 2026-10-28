@@ -3324,9 +3324,12 @@ fn cache_key(mut s: Sim) {
             for foe in s.foes {
                 if foe.health > 0 && near(foe.x, foe.y, x, y, 6 * FP) { return }
             }
+            let (reward, line) = cache_reward(s.area, cache)
+            let item = if reward == lore.MARROW then pouch.MARROW else pouch.YARROW
+            if reward != lore.LORE && item_count(s, item) >= pouch.cap(item) &&
+                s.pouch.pickups.len >= pouch.PICKUPS { return }
             pickup_flash(mut s, x, y)
             s.caches += cache_mask(s.area, cache)
-            let (reward, line) = cache_reward(s.area, cache)
             if reward == lore.MARROW && !give_item(mut s, pouch.MARROW) {
                 let _ = pouch.leave(mut s.pouch, s.area, floor_div(x, FP), floor_div(y, FP), pouch.MARROW)
             }
@@ -4469,18 +4472,20 @@ pub fn drop_item(mut s: Sim, kind: int) -> bool {
 /// Standing on a pickup means the cub's anchor cell, not its broad sprite.
 pub fn pickup_item(mut s: Sim) -> bool {
     var i = 0
+    var found = false
     while i < s.pouch.pickups.len {
         let p = copy s.pouch.pickups[i]
         if p.area == s.area && p.x == cell_x(s) && p.y == cell_y(s) {
+            found = true
             if give_item(mut s, p.kind) {
                 pouch.remove(mut s.pouch, i)
                 pickup_flash(mut s, p.x * FP, p.y * FP)
+                return true
             }
-            return true
         }
         i += 1
     }
-    false
+    found
 }
 /// Deterministic species rolls: boar's kin and otters gain hooks with cb18.
 pub fn foe_item_drop(mut s: Sim, spawn_id: int, kind: int, x: int, y: int) {

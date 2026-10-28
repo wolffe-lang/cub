@@ -1,0 +1,36 @@
+pk 1
+seed 7
+tier rich
+size 80x24
+# frames 35 every 1 from 24
+# disclosed initial pouch; walk away from the den, drop, r re-pickup, discard
+t 0 journey 5
+t 0 saved-0 7
+t 0 saved-2 1
+t 0 saved-3 1
+t 0 saved-4 1
+t 0 saved-5 1
+t 0 saved-6 1
+t 0 saved-10 1
+t 0 saved-21 1
+t 0 saved-24 80
+t 0 saved-29 1
+t 0 saved-41 127
+t 0 right
+t 4 right
+t 8 right
+t 12 right
+t 16 right
+t 20 right
+t 23 inventory
+t 24 bite
+t 25 down
+t 26 bite
+t 27 release
+t 28 rest
+t 29 inventory
+t 30 bite
+t 31 down
+t 32 down
+t 33 bite
+t 34 release

@@ -1,0 +1,23 @@
+pk 1
+seed 7
+tier rich
+size 80x24
+# frames 2 every 1
+# disclosed ground-pickup checkpoint: five silhouettes, not random loot
+t 0 journey 5
+t 0 saved-0 7
+t 0 saved-2 1
+t 0 saved-3 1
+t 0 saved-4 1
+t 0 saved-5 1
+t 0 saved-6 1
+t 0 saved-10 1
+t 0 saved-24 80
+t 0 saved-29 1
+t 0 saved-41 127
+t 0 saved-43 5
+t 0 saved-76 1997709989
+t 0 saved-77 5999129996
+t 0 saved-78 10000550003
+t 0 saved-79 14001970010
+t 0 saved-80 18003390017

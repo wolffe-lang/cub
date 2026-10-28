@@ -1,0 +1,23 @@
+pk 1
+seed 7
+tier rich
+size 80x24
+# frames 6 every 1
+# disclosed shard; no foe in range, aiming refuses without spending
+t 0 journey 5
+t 0 saved-0 7
+t 0 saved-2 1
+t 0 saved-3 1
+t 0 saved-4 1
+t 0 saved-5 1
+t 0 saved-6 1
+t 0 saved-10 1
+t 0 saved-24 80
+t 0 saved-29 1
+t 0 saved-38 1
+t 0 saved-41 127
+t 0 inventory
+t 1 bite
+t 2 bite
+t 3 bite
+t 4 release
