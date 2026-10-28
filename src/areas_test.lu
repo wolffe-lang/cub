@@ -138,8 +138,8 @@ fn test_cb04_every_area_reaches_its_dens_portals_and_arena() {
         seed += 1
     }
     assert(
-        forest.required(forest.CRAGS) == 12,
-        "the crags: a den, five portals, three alcoves, the arena, the cleft and a scent mark",
+        forest.required(forest.CRAGS) == 13,
+        "the crags: a den, six portals, three alcoves, the arena, the cleft and a scent mark",
     )
     assert(
         forest.required(forest.RIVER) == 9,
