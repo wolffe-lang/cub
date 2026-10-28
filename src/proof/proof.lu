@@ -317,11 +317,20 @@ pub fn landmarks(dir: str) -> int {
                 }
                 id += 1
             }
-            if den < 0 { eprint("proof: no den for landmark {area}-{k}"); return 1 }
-            let s0 = den_journey(seed, den)
+            // The Howe has no den (R-cb14-1): its stones are reached from
+            // the cold den by the fighter's walk on, as its first screen is.
+            if den < 0 && area != forest.HOWE {
+                eprint("proof: no den for landmark {area}-{k}")
+                return 1
+            }
+            let s0 = if den >= 0 then den_journey(seed, den) else fight.journey_at(seed, 80, 24, sim.ALPHA)
             var s = copy s0
             var r = snapshot_replay(s0)
             walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
+            if den < 0 && !fight.walk_on(mut s, mut r, area) {
+                eprint("proof: the walk on to landmark {area}-{k} ended in area {s.area}")
+                return 1
+            }
             let o = forest.origin(seed, area)
             // The clearing's corner beside the landmark, or the cell below
             // it, or its own cell: the first open one (a yard's mark sits
