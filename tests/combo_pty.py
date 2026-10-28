@@ -16,7 +16,7 @@ def rows(helpers):
         oracle = runpy.run_path(str(root / 'tools/combo-timing.py'))
         for enhanced in (True, False):
             protocol = 'enhanced' if enhanced else 'legacy'
-            for interval in (150, 200, 250, 330, 100, 30, 60, 'held'):
+            for interval in (150, 200, 250, 330, 100, 30, 60, 'held250', 'held500'):
                 for tier in ('rich', 'plain'):
                     label = f'cb11-{protocol}-{interval}-{tier}'
                     dest = root / 'target/pty' / label
@@ -31,9 +31,15 @@ def rows(helpers):
                     while not traces(s) and time.monotonic() < deadline:
                         s.pump(.01)
                     schedule = []
-                    if interval == 'held':
-                        schedule.append((0, event(' ') if enhanced else b' '))
-                        for ms in range(250, 851, 30):
+                    # Ghostty-compatible kitty sequences: flags 1|2|8 request
+                    # event types AND all keys. PRESS may omit default fields.
+                    press = b'\x1b[32u' if enhanced else b' '
+                    if enhanced and b'\x1b[>11u' not in s.out:
+                        problems.append(f'{label}: missing event-types/all-keys request ESC[>11u')
+                    if isinstance(interval, str):
+                        delay = int(interval[4:])
+                        schedule.append((0, press))
+                        for ms in range(delay, 851, 30):
                             schedule.append((ms, event(' ', 2) if enhanced else b' '))
                         if enhanced:
                             schedule.append((870, event(' ', 3)))
@@ -41,7 +47,7 @@ def rows(helpers):
                         # repeat: its 250ms gap is indistinguishable from a tap.
                         expected = [1] if enhanced else [1, 2]
                     elif interval in (30, 60):
-                        schedule.append((0, event(' ') if enhanced else b' '))
+                        schedule.append((0, press))
                         for ms in range(interval, 851, interval):
                             schedule.append((ms, event(' ', 2) if enhanced else b' '))
                         if enhanced:
@@ -49,7 +55,7 @@ def rows(helpers):
                         expected = [1]
                     else:
                         for n in range(3):
-                            schedule.append((n * interval, event(' ') if enhanced else b' '))
+                            schedule.append((n * interval, press))
                             if enhanced:
                                 schedule.append((n * interval + 45, event(' ', 3)))
                         expected = [1, 2, 3]
@@ -57,8 +63,13 @@ def rows(helpers):
                     sent = []
                     for ms, data in sorted(schedule):
                         remaining = began + ms / 1000 - time.monotonic()
+                        if remaining > .025:
+                            s.pump(remaining - .025)
+                        # Session.pump polls in 20ms quanta; do not let that
+                        # polling cadence turn a requested 60ms gap into 80ms.
+                        remaining = began + ms / 1000 - time.monotonic()
                         if remaining > 0:
-                            s.pump(remaining)
+                            time.sleep(remaining)
                         sent.append((ms, round((time.monotonic() - began) * 1000, 3), data.hex()))
                         s.type(data, settle=0)
                     s.pump(1.5)

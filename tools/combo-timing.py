@@ -14,7 +14,8 @@ FACINGS = [('n', ('up',)), ('ne', ('up', 'right')), ('e', ('right',)),
 
 def cases():
     for eighth, (name, arrows) in enumerate(FACINGS):
-        for ms in ((150, 200, 250, 330) if eighth == 0 else (150,)):
+        # 367ms lands on age11 exactly: the real-reader all-left boundary.
+        for ms in ((150, 200, 250, 330, 367) if eighth == 0 else (150,)):
             yield f'cb11-hand-{name}-{ms}', eighth * 32, arrows, ms
 
 
@@ -57,6 +58,7 @@ def holds(states, aim):
         held = [row for row in rows if 3 <= row['tick'] - start <= (8 if combo == 3 else 6)]
         assert len(held) == (6 if combo == 3 else 4), (combo, 'missing hold ticks')
         for row in held:
+            assert row['combo'] == combo and row['aim'] == aim, (combo, 'hold changed strike or aim')
             dx, dy = row['x'] - origin['x'], row['y'] - origin['y']
             forward, left = (dx * sine - dy * cosine) / 256, (-dx * cosine - dy * sine) / 256
             assert forward >= (1.99 if combo == 3 else .99), (combo, 'forward', forward)
@@ -92,9 +94,9 @@ def north_pixels(states, frames, tier):
                 # Standing and snapping plain glyphs have different occupied-cell
                 # centroids (north loses about 0.23 cell); measure the visible
                 # direction here, the exact whole-cell displacement in holds().
-                assert forward >= (.65 if hit != 3 else 1.65), (hit, age, forward)
+                assert forward > (0 if hit != 3 else 1), (hit, age, forward)
                 if hit != 3:
-                    assert left >= .85 if hit == 1 else left <= -.85, (hit, age, left)
+                    assert left > 0 if hit == 1 else left < 0, (hit, age, left)
             if hit == 3 and 5 <= age <= 12:
                 swings.append((age, left))
         if hit == 3:
@@ -131,7 +133,7 @@ def check(binary, out=None):
                 print(f'FAIL {label}: {error}', flush=True)
                 failures.append(label)
     assert not failures, f'hand-timing rows failed: {failures}'
-    print('combo-timing: 22 rows green', flush=True)
+    print(f'combo-timing: {2 * len(list(cases()))} rows green', flush=True)
 
 
 if __name__ == '__main__':

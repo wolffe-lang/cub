@@ -37,6 +37,8 @@ def run(binary, name, tier='rich', frames=None, ghosts=None, label=''):
 
 
 def check(binary):
+    import runpy
+    runpy.run_path(str(ROOT / 'tools/combo-timing.py'))['check'](binary)
     expected = {}
     for tier in ('rich', 'plain'):
         for name in ('bite', 'parry', 'dodge', 'weasel-retreat', 'fox-feint',
