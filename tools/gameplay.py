@@ -424,7 +424,8 @@ def paths_doors_rest(binary):
         r = {k: int(v) for k, v in row.items()}
         widths[r['area']].append(r['width'])
         routes[tuple(r[k] for k in ('seed', 'field', 'area', 'path'))].append(r)
-    for area, minimum in enumerate((7, 9, 9, 7, 9, 9, 9)):
+    # cb14: thirteen areas; the Mere's causeway and the Underteeth's tunnel are narrow (3..4 half), the rest 4..6.
+    for area, minimum in enumerate((7, 9, 9, 7, 9, 9, 9, 9, 9, 7, 7, 9, 9)):
         assert statistics.median(widths[area]) >= minimum, ('path median lost two-cell widening', area)
         turns = samples = 0
         for key, rows in routes.items():
