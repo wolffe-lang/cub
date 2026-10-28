@@ -326,10 +326,14 @@ pub struct Sim {
     sprint_charge: int,
     attack_heading: int,
     chained_heading: int,
+    chained_second_heading: int,
     action: int,
     started: int,
-    chained: bool,
+    chained: int,
     combo: int,
+    combo_previous: int,
+    combo_until: int,
+    bite_key_tick: int,
     exhausted: bool,
     locked: int,
     unseen: int,
@@ -439,10 +443,14 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         sprint_charge: 0,
         attack_heading: 0,
         chained_heading: 0,
+        chained_second_heading: 0,
         action: IDLE,
         started: 0,
-        chained: false,
+        chained: 0,
         combo: 0,
+        combo_previous: 0,
+        combo_until: -1,
+        bite_key_tick: -100,
         exhausted: false,
         locked: -1,
         unseen: 0,
@@ -1019,6 +1027,8 @@ pub fn hurt(mut s: Sim, damage: int) {
         s.health = 0
         s.rally_pool = 0
         s.action = FALL
+        clear_combo(mut s)
+        s.combo = 0
         s.started = s.tick
         s.death_at = s.tick
         s.deaths += 1
@@ -1048,7 +1058,7 @@ fn reset_world(mut s: Sim) {
     s.locked = -1
     s.riposte = 0
     s.riposte_foe = -1
-    s.chained = false
+    clear_combo(mut s)
     s.combo = 0
     s.slain = empty_slain()
     s.away_loot = empty_loot()
@@ -1110,6 +1120,13 @@ pub fn lock_next(mut s: Sim) {
     s.unseen = 0
 }
 
+// Requests survive the windup, but never an interruption or another action.
+fn clear_combo(mut s: Sim) {
+    s.chained = 0
+    s.combo_previous = 0
+    s.combo_until = -1
+}
+
 fn start_action(mut s: Sim, action: int, cost: int) {
     if s.action != IDLE || s.stamina < cost { return }
     if s.exhausted && (action == LUNGE || action == HEAVY || action == DASH || action == DODGE) {
@@ -1128,7 +1145,7 @@ fn start_action(mut s: Sim, action: int, cost: int) {
     s.combo = if action == BITE then 1 else 0
     s.started = s.tick
     s.speed = 0
-    s.chained = false
+    clear_combo(mut s)
     alpha_reacts(mut s, action)
 }
 
@@ -1173,11 +1190,30 @@ fn action_keys(mut s: Sim, keys: List[int]) {
         if s.den { continue }
         if k == controls.KEY_REST && !at_den(s) { cache_key(mut s); shortcut_key(mut s) }
         if k == controls.KEY_BITE {
-            if s.action == BITE &&
-                s.tick - s.started >= 5 &&
-                s.tick - s.started < combo_duration(s.combo) {
-                s.chained = true
-                s.chained_heading = attack_aim(s)
+            // Legacy Space has no event type. Refresh even on a suppressed
+            // repeat, so a held stream cannot periodically rearm itself.
+            let fresh = input.exact(s.key_state) || s.tick - s.bite_key_tick > 2
+            s.bite_key_tick = s.tick
+            if !fresh { continue }
+            if s.action == BITE {
+                let age = s.tick - s.started
+                // Input precedes action_step: age == duration is STILL live.
+                if age >= 1 && age <= combo_duration(s.combo) && s.chained < 2 {
+                    let aim = attack_aim(s)
+                    if s.chained == 0 {
+                        s.chained_heading = aim
+                    } else {
+                        s.chained_second_heading = aim
+                    }
+                    s.chained += 1
+                }
+                continue
+            }
+            if s.action == IDLE && s.combo_previous > 0 && s.tick <= s.combo_until {
+                let next_combo = s.combo_previous % 3 + 1
+                start_action(mut s, BITE, combo_cost(next_combo))
+                if s.action == BITE { s.combo = next_combo }
+                continue
             }
             if s.sprinting &&
                 sprint_held(s) &&
@@ -1249,7 +1285,7 @@ pub fn strike_foes(mut s: Sim) {
                 s.foes[i].last_hit = s.started
                 s.action = IDLE
                 s.combo = 0
-                s.chained = false
+                clear_combo(mut s)
                 s.foes[i].phase = CROUCH
                 s.foes[i].attack = 0
                 s.foes[i].since = s.tick - (boss_move(ALPHA, 0, phase_two(f)).windup - PARRY_WINDOW)
@@ -1555,14 +1591,26 @@ fn action_step(mut s: Sim, _want: int) {
         0
     }
     if s.action != IDLE && age >= duration {
-        let chain = s.action == BITE && s.chained
-        let next_combo = s.combo % 3 + 1
+        let bite = s.action == BITE
+        let previous = s.combo
+        let pending = s.chained
+        let aim = s.chained_heading
+        let second_aim = s.chained_second_heading
         s.combo = 0
         s.action = IDLE
-        if chain {
-            let aim = s.chained_heading
+        clear_combo(mut s)
+        if bite && pending > 0 {
+            let next_combo = previous % 3 + 1
             start_action(mut s, BITE, combo_cost(next_combo))
-            if s.action == BITE { s.attack_heading = aim; s.combo = next_combo }
+            if s.action == BITE {
+                s.attack_heading = aim
+                s.combo = next_combo
+                s.chained = pending - 1
+                s.chained_heading = second_aim
+            }
+        } else if bite {
+            s.combo_previous = previous
+            s.combo_until = s.tick + 6
         }
     }
 }
@@ -2916,7 +2964,7 @@ pub fn enter_area(mut s: Sim, area: int, x: int, y: int) {
     s.riposte_foe = -1
     s.action = IDLE
     s.speed = 0
-    s.chained = false
+    clear_combo(mut s)
     s.combo = 0
     s.den = false
     var i = 0
