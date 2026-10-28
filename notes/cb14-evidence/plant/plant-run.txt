@@ -1,7 +1,7 @@
-cb14 plant source 4c14bc6d44af1dbfb5aea03ada71727e89a74c78
+cb14 plant source 1a612e19717418f166f2d26b27851f7d2b8291a4
 plant world audit exit 1
 0 80 11 3 11 5 1000 3 1 1 100 67 0
 plant test exit 1
 test src/areas_test.lu::test_cb14_the_howe_and_gravehollow_keep_the_texture_and_path_bars ... FAILED (trap(assert))
 test src/map_test.lu::test_cb14_the_howe_s_spine_portals_and_mouths_are_open ... FAILED (trap(assert))
-wolf test: 507 passed; 2 failed; 0 rejected; 0 unsupported; 0 filtered out
+wolf test: 560 passed; 2 failed; 0 rejected; 0 unsupported; 0 filtered out
