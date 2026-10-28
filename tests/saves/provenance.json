@@ -10,5 +10,17 @@
     "writer_sha256": "08b40f93095773024c7469f50ac5b2020882d33a40740548d39f0fdb7d6645b2",
     "fixture_sha256": "56367f596f3a1b2a35ca2c18b4bf426d9142f11799c36e1293e60dbeadcb52cc",
     "method": "Real pty: seed137, no-title, mute, skip opening, rest, Escape, quit; save copied byte-for-byte."
+  },
+  "cb15-v6": {
+    "writer_binary": "cub-60890a49 (cub trunk 60890a49, cb15 over cb13; the native build on nomad)",
+    "writer_sha256": "15f5b9315a0cb1d1cbf2fd735381f37df0f815943735555121027b81abc9c89f",
+    "fixture_sha256": "bd9544f563cbc39c2e25f4e54e1ef5d5fb9c82a192a593ed7b496fd9f70cab9e",
+    "method": "Three real runs of that binary, nothing edited: live in a pty with --no-title --mute --tier plain --seed 7 --save <dir>/birch_7.save (the name is the new file's, played_ms the wall time), the opening skipped, quit; headless --script tests/cases/pouch-inventory.pk --save that file --frames 2 (pine, ice, tuft, two found lore lines; the wrapper's name and time kept); live in a pty again with --record (cb15-journey5), quit; the save copied byte-for-byte."
+  },
+  "cb15-journey5": {
+    "writer_binary": "cub-60890a49 (as cb15-v6)",
+    "writer_sha256": "15f5b9315a0cb1d1cbf2fd735381f37df0f815943735555121027b81abc9c89f",
+    "fixture_sha256": "927f516054a9aa5b9645172b167aa4e69882c5f23bed8d8343bb395acc5d067b",
+    "method": "The third run of cb15-v6's: live in a pty with --save <dir>/birch_7.save --record <dir>/journey5.pk, Space, then q; its initial journey 5 snapshot (204 slots) is the loaded save; the recording copied byte-for-byte."
   }
 }
