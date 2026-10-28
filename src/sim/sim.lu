@@ -316,6 +316,10 @@ pub struct Sim {
     paw: int,
     nose: int,
     health: int,
+    /// Transient ash-adder burn, remaining one-health ticks.
+    burn_left: int,
+    /// Glow-worm contact blinds for six frames.
+    blind_until: int,
     stamina: int,
     holds: List[input.Hold],
     key_state: input.KeyState,
@@ -433,6 +437,8 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         paw: STAT_START,
         nose: STAT_START,
         health: health_max(STAT_START),
+        burn_left: 0,
+        blind_until: 0,
         stamina: stamina_max(STAT_START),
         holds: holds,
         key_state: input.state_new(false),
@@ -879,6 +885,9 @@ pub struct Foe {
     /// An Ashen on the cub's trail (cb05, R-cb05-5): at most `ASHEN_PURSUERS`
     /// at once; cleared when it is parried, loses the cub or dies.
     chasing: bool,
+    /// Loot held by a marten until bitten at its landing or trunk foot.
+    stolen_scent: int,
+    stolen_item: int,
 }
 
 /// Damage of an unmodified bite at this fang level.
@@ -928,6 +937,8 @@ pub fn spawn_foes(seed: int) -> List[Foe] {
             poise_at: 0,
             engaged: false,
             chasing: false,
+            stolen_scent: 0,
+            stolen_item: -1,
         })
         i += 1
     }
@@ -1015,8 +1026,10 @@ pub fn invulnerable(s: Sim) -> bool {
 }
 
 /// Apply damage unless protected; zero health replaces the scent mark.
-pub fn hurt(mut s: Sim, damage: int) {
-    if s.action == FALL || s.den || invulnerable(s) { return }
+pub fn hurt(mut s: Sim, damage: int) { hurt_damage(mut s, damage, false) }
+
+fn hurt_damage(mut s: Sim, damage: int, status: bool) {
+    if s.action == FALL || s.den || !status && invulnerable(s) { return }
     let lost = if damage > s.health then s.health else damage
     s.rally_pool = rally_available(s) + lost
     s.rally_spent = 0
@@ -1049,6 +1062,8 @@ pub fn hurt(mut s: Sim, damage: int) {
 
 fn reset_world(mut s: Sim) {
     s.health = health_max(s.heart)
+    s.burn_left = 0
+    s.blind_until = 0
     s.rally_pool = 0
     s.stamina = stamina_max(s.wind)
     s.flasks = s.flask_max
@@ -1094,6 +1109,8 @@ pub fn grow(mut s: Sim, stat: int) {
     if stat == 3 { s.paw += 1 }
     if stat == 4 { s.nose += 1 }
     s.health = health_max(s.heart)
+    s.burn_left = 0
+    s.blind_until = 0
     s.rally_pool = 0
     s.stamina = stamina_max(s.wind)
 }
@@ -1266,7 +1283,14 @@ pub fn strike_foes(mut s: Sim) {
         if f.health > 0 &&
             (f.kind != HAWK || f.phase == STRIKE || f.phase == RETREAT) &&
             f.last_hit != s.started &&
+            !(f.kind == MARTEN && f.phase == PERCHED) &&
+            f.phase != SNUFFED &&
             strike_reaches(s, i, reach) {
+            if is_new_foe(f.kind) {
+                new_foe_bitten(mut s, i)
+                i += 1
+                continue
+            }
             var damage = bite_damage(s.fang)
             // The Ashen's weakness (cb05): a bite from behind, out of the
             // cone it faces, lands twice.
@@ -1404,6 +1428,11 @@ fn foes_step(mut s: Sim) {
     while i < s.foes.len && s.action != FALL {
         let f = copy s.foes[i]
         if f.health <= 0 { i += 1; continue }
+        if is_new_foe(f.kind) {
+            new_foe_step(mut s, i)
+            i += 1
+            continue
+        }
         if f.kind == HAWK {
             hawk_step(mut s, i)
             i += 1
@@ -1724,6 +1753,8 @@ fn step_tick(mut s: Sim, keys: List[int]) {
         s.motion_ry = 0
         return
     }
+    new_foe_status(mut s)
+    if s.action == FALL { return }
     hazards_step(mut s)
     trail_step(mut s, ox, oy)
     drops_step(mut s)
@@ -1894,7 +1925,7 @@ pub fn cub_body(s: Sim) -> Body {
 pub fn foe_body_at(f: Foe, x: int, y: int, heading: int) -> Body {
     // The hawk is an unrotated four-cell shadow, not a ground mammal.
     if f.kind == HAWK { return rect(8, 4, 0, floor_div(x, FP), floor_div(y, FP)) }
-    let (w, h) = silhouette.foe_size(f.kind)
+    let (w, h) = if is_new_foe(f.kind) then new_foe_size(f.kind) else silhouette.foe_size(f.kind)
     rect(w, h, quarter(heading), floor_div(x, FP), floor_div(y, FP))
 }
 
@@ -1923,7 +1954,12 @@ pub fn overlap(a: Body, b: Body) -> bool {
 /// A ground body that collides: alive and not the hawk (whose shadow is
 /// not solid).
 pub fn solid(f: Foe) -> bool {
-    f.health > 0 && f.kind != HAWK
+    f.health > 0 &&
+        f.kind != HAWK &&
+        f.kind != GLOW_WORMS &&
+        f.kind != WISP &&
+        f.kind != CINDER_MOTHS &&
+        !(f.kind == MARTEN && f.phase == PERCHED)
 }
 
 /// Whether foe `i` is within a reach of `reach` cells of the cub: at most
@@ -2942,6 +2978,8 @@ fn make_foe(kind: int, x: int, y: int) -> Foe {
         poise_at: 0,
         engaged: false,
         chasing: false,
+        stolen_scent: 0,
+        stolen_item: -1,
     }
 }
 
@@ -3397,6 +3435,12 @@ pub fn boss_name(kind: int) -> str {
 pub fn foe_health(kind: int) -> int {
     match kind {
         1 => 24,
+        9 => 16,
+        10 => 16,
+        11 => 5,
+        12 => 72,
+        13 => 8,
+        14 => 1,
         8 => 20,
         4 => 240,
         5 => 140,
@@ -4293,4 +4337,368 @@ pub fn combat_witness(mut s: Sim) {
     s.speed = 0
     s.health = health_max(s.heart)
     s.stamina = stamina_max(s.wind)
+}
+
+/// The Stand's trunk-thief (cb18); new kinds are append-only after ASHEN.
+pub const MARTEN: int = 9
+
+/// The Burn's coiled, straight-line striker.
+pub const ASH_ADDER: int = 10
+
+/// Five moths, represented by a bounded live-count health value.
+pub const CINDER_MOTHS: int = 11
+
+/// The Mere's stationary downward spear.
+pub const HERON: int = 12
+
+/// One drifting, flashing glow-worm; clusters are three separate bodies.
+pub const GLOW_WORMS: int = 13
+
+/// A harmless, unkillable guide to a sentry.
+pub const WISP: int = 14
+
+/// A marten up a trunk cannot be bitten.
+pub const PERCHED: int = 7
+
+/// A bitten wisp stays alive but absent for three hundred ticks.
+pub const SNUFFED: int = 8
+
+/// Whether a kind belongs to cb18's six.
+pub fn is_new_foe(kind: int) -> bool { kind >= MARTEN && kind <= WISP }
+
+/// North-facing pixel envelopes shared with the six original drawings.
+pub fn new_foe_size(kind: int) -> (int, int) {
+    match kind {
+        9 => (4, 12),
+        10 => (8, 8),
+        11 => (8, 8),
+        12 => (4, 12),
+        13 => (8, 4),
+        _ => (4, 4),
+    }
+}
+
+/// The six tells/active/recovery windows. The heron's eight-tick spear
+/// cannot be parried; the adder's twelve-tick line can be, for a kill.
+pub fn new_foe_move(kind: int) -> Move {
+    match kind {
+        9 => mv(20, 3, 36, 8, 2, true, 0, false),
+        10 => mv(12, 3, 36, 6, 3, true, 0, false),
+        11 => mv(12, 2, 24, 0, 2, false, 0, false),
+        12 => mv(8, 3, 42, 18, 3, false, 0, false),
+        13 => mv(12, 2, 24, 0, 1, false, 0, false),
+        _ => mv(12, 1, 24, 0, 1, false, 0, false),
+    }
+}
+
+/// A new foe at a fixed-point home; the fixture and later spawn hooks
+/// share this constructor. Martens begin on their trunk, not on the cub.
+pub fn make_new_foe(kind: int, x: int, y: int) -> Foe {
+    assert(is_new_foe(kind), "make_new_foe: kind belongs to the six")
+    var f = make_foe(kind, x, y)
+    if kind == MARTEN { f.phase = PERCHED }
+    if kind == HERON { f.heading = 128 }
+    if kind == WISP { f.target_y = y - 8 * FP }
+    f
+}
+
+/// An explicitly staged, existing open boss arena, with no journey/save
+/// mutation after setup. All encounter motion/damage uses ordinary keys.
+/// New-area placement remains separate until cb14's announced merge.
+pub fn new_foe_arena(seed: int, cols: int, rows: int, kind: int) -> Sim {
+    var s = new(seed, cols, rows)
+    let (x, y, _) = forest.arena(seed, s.field, forest.BRAMBLEHOLD)
+    let cy = y + forest.origin(seed, forest.BRAMBLEHOLD)
+    enter_area(mut s, forest.BRAMBLEHOLD, x * FP, (cy + 5) * FP)
+    s.heading = 0
+    s.heading_target = 0
+    s.body_facing = 0
+    s.opening_seen = true
+    s.edge_ready = false
+    s.fang = 1
+    s.heart = 3
+    s.health = health_max(s.heart)
+    s.wind = 3
+    s.stamina = stamina_max(s.wind)
+    s.flasks = 3
+    s.flask_max = 3
+    (mut s.foes).reset()
+    (mut s.drops).reset()
+    (mut s.meat).reset()
+    (mut s.foes).push(make_new_foe(kind, x * FP, cy * FP))
+    s
+}
+
+/// The Burn's forty health ticks; a second bite refreshes, never stacks.
+pub fn apply_burn(mut s: Sim) { s.burn_left = 40 }
+
+/// Status tick, paused by the same den/scene early returns as the foes.
+/// Water extinguishes at the first drinking tick, before burn can cancel
+/// the mouthful. Yarrow's cure hook is attached at cb15's announced merge.
+pub fn new_foe_status(mut s: Sim) {
+    if s.burn_left <= 0 { return }
+    if s.action == DRINK || in_shallows(s, s.x, s.y) {
+        s.burn_left = 0
+        return
+    }
+    s.burn_left -= 1
+    hurt_damage(mut s, 1, true)
+}
+
+/// Whether the live moth swarm is close enough to dim the entire palette.
+pub fn moths_near(s: Sim) -> bool {
+    for f in s.foes {
+        if f.kind == CINDER_MOTHS &&
+            f.health > 0 &&
+            f.phase != HUNT &&
+            near(s.x, s.y, f.x, f.y, 6 * FP) {
+            return true
+        }
+    }
+    false
+}
+
+/// Scent released by an ordinary kill, never by a snuffed wisp.
+pub fn new_foe_scent(kind: int) -> int {
+    match kind {
+        9 => 15,
+        10 => 18,
+        11 => 4,
+        12 => 60,
+        13 => 6,
+        _ => 0,
+    }
+}
+
+fn new_foe_die(mut s: Sim, i: int) {
+    let f = copy s.foes[i]
+    s.foes[i].health = 0
+    s.foes[i].died = s.tick
+    leave_drop(mut s, f.x, f.y, new_foe_scent(f.kind))
+}
+
+fn marten_return(mut s: Sim, i: int) {
+    let f = copy s.foes[i]
+    if f.stolen_scent > 0 {
+        leave_drop(mut s, f.home_x, f.home_y, f.stolen_scent)
+        s.foes[i].stolen_scent = 0
+    }
+    // Pending-by-name: cb15's item_count/item_set and pouch.leave supply
+    // one-item theft/return here at its announced merge, not a fake API.
+}
+
+fn new_foe_bitten(mut s: Sim, i: int) {
+    let f = copy s.foes[i]
+    if f.kind == ASH_ADDER && f.phase != RETREAT && f.phase != STAGGER { return }
+    s.foes[i].last_hit = s.started
+    if f.kind == WISP {
+        s.foes[i].phase = SNUFFED
+        s.foes[i].since = s.tick
+        s.foes[i].speed = 0
+        return
+    }
+    if f.kind == MARTEN { marten_return(mut s, i) }
+    if f.kind == CINDER_MOTHS {
+        let n = if f.health >= 2 then 2 else 1
+        s.foes[i].health -= n
+        leave_drop(mut s, f.x, f.y, 4 * n)
+        if s.foes[i].health <= 0 { s.foes[i].died = s.tick }
+        return
+    }
+    var damage = bite_damage(s.fang)
+    if s.action == LUNGE { damage *= 3 }
+    if s.action == HEAVY { damage *= HEAVY_DAMAGE }
+    if s.action == DASH { damage *= 2 }
+    rally_hit(mut s)
+    s.foes[i].health -= damage
+    if s.foes[i].health <= 0 { new_foe_die(mut s, i) }
+}
+
+fn new_foe_begin(mut s: Sim, i: int) {
+    let f = copy s.foes[i]
+    s.foes[i].phase = CROUCH
+    s.foes[i].since = s.tick
+    s.foes[i].target_x = s.x
+    s.foes[i].target_y = s.y
+    s.foes[i].speed = 0
+    if f.kind != HERON {
+        turn_foe(mut s, i, heading_to(f.x, f.y, s.x, s.y))
+    }
+}
+
+fn drift_foe(mut s: Sim, i: int, tx: int, ty: int, speed: int) {
+    let f = copy s.foes[i]
+    let h = heading_to(f.x, f.y, tx, ty)
+    if h < 0 { s.foes[i].speed = 0; return }
+    let nx = f.x + speed * sin(h) / FP
+    let ny = f.y - speed * cos(h) / FP
+    if !blocked(s, floor_div(nx, FP), floor_div(ny, FP)) {
+        s.foes[i].x = nx
+        s.foes[i].y = ny
+        s.foes[i].heading = h
+        s.foes[i].speed = speed
+    } else {
+        s.foes[i].speed = 0
+    }
+}
+
+fn scatter_glow_worms(mut s: Sim, from: int) {
+    var j = 0
+    while j < s.foes.len {
+        if j != from && s.foes[j].kind == GLOW_WORMS && s.foes[j].health > 0 {
+            let f = copy s.foes[j]
+            s.foes[j].phase = RETREAT
+            s.foes[j].since = s.tick
+            let h = heading_to(s.x, s.y, f.x, f.y)
+            s.foes[j].target_x = f.x + 4 * sin(h)
+            s.foes[j].target_y = f.y - 4 * cos(h)
+        }
+        j += 1
+    }
+}
+
+/// One of the six state machines. Active attacks commit their target at
+/// the tell, never track invisibly during the active window. No foe can
+/// restart an attack without passing its bounded recovery.
+pub fn new_foe_step(mut s: Sim, i: int) {
+    let f = copy s.foes[i]
+    let age = s.tick - f.since
+    let m = new_foe_move(f.kind)
+    if f.kind == WISP {
+        if f.phase == SNUFFED {
+            if age >= 300 { s.foes[i].phase = HUNT; s.foes[i].since = s.tick }
+            return
+        }
+        if f.phase == CROUCH && age >= m.windup {
+            s.foes[i].phase = STRIKE
+            s.foes[i].since = s.tick
+        } else if f.phase == STRIKE {
+            s.foes[i].phase = RETREAT
+            s.foes[i].since = s.tick
+        } else if f.phase == RETREAT {
+            // The bright guide moves toward its assigned sentry, never
+            // away forever or through a wall; it stops over that post.
+            if !near(f.x, f.y, f.target_x, f.target_y, FP / 2) {
+                drift_foe(mut s, i, f.target_x, f.target_y, 20)
+            }
+            if age >= m.recovery { s.foes[i].phase = HUNT; s.foes[i].since = s.tick }
+        } else if f.phase == HUNT &&
+            near(f.x, f.y, s.x, s.y, 6 * FP) &&
+            !near(f.x, f.y, f.target_x, f.target_y, FP) {
+            s.foes[i].phase = CROUCH
+            s.foes[i].since = s.tick
+        }
+        return
+    }
+    if f.kind == GLOW_WORMS {
+        if gap(foe_body(f), cub_body(s)) <= 0 {
+            s.blind_until = s.tick + 6
+            s.foes[i].health = 0
+            s.foes[i].died = s.tick
+            scatter_glow_worms(mut s, i)
+            return
+        }
+        if f.phase == RETREAT {
+            drift_foe(mut s, i, f.target_x, f.target_y, 36)
+            if age >= m.recovery { s.foes[i].phase = HUNT; s.foes[i].since = s.tick }
+        } else if near(f.x, f.y, s.x, s.y, 9 * FP) {
+            drift_foe(mut s, i, s.x, s.y, 12)
+            if f.phase == HUNT { s.foes[i].phase = CROUCH; s.foes[i].since = s.tick }
+            if f.phase == CROUCH && age >= m.windup {
+                s.foes[i].phase = STRIKE
+                s.foes[i].since = s.tick
+            }
+            if f.phase == STRIKE && age >= m.active {
+                s.foes[i].phase = RETREAT
+                s.foes[i].since = s.tick
+            }
+        }
+        return
+    }
+    if f.kind == HERON && s.y < f.home_y - 3 * FP {
+        // Passing the last stone is an answer: no compulsory kill/reward.
+        s.foes[i].health = 0
+        s.foes[i].died = -1
+        return
+    }
+    if f.kind == MARTEN && f.phase == PERCHED {
+        if age >= m.recovery && near(f.x, f.y, s.x, s.y, 9 * FP) { new_foe_begin(mut s, i) }
+        return
+    }
+    if f.phase == HUNT {
+        if near(f.x, f.y, s.x, s.y, (if f.kind == HERON then 7 else 9) * FP) {
+            new_foe_begin(mut s, i)
+        }
+        return
+    }
+    if f.phase == CROUCH {
+        if age >= m.windup {
+            s.foes[i].phase = STRIKE
+            s.foes[i].since = s.tick
+            s.foes[i].hit = false
+            if f.kind == MARTEN {
+                // Landing is clipped by the same body/terrain rule as a
+                // running mammal; it never teleports into the cub.
+                boss_run(mut s, i, f.target_x, f.target_y, 128)
+            }
+        }
+        return
+    }
+    if f.phase == STRIKE {
+        if f.kind == MARTEN { boss_run(mut s, i, f.target_x, f.target_y, 128) }
+        if f.kind == CINDER_MOTHS {
+            drift_foe(mut s, i, s.x, s.y, 24)
+        } else if !f.hit &&
+            body_gap(s, i) <= m.reach - 1 &&
+            in_front(f.x, f.y, f.heading, s.x, s.y) {
+            s.foes[i].hit = true
+            if m.parryable && parrying(s) {
+                if f.kind == ASH_ADDER { new_foe_die(mut s, i); return }
+                s.foes[i].phase = STAGGER
+                s.foes[i].since = s.tick
+                return
+            }
+            if !invulnerable(s) {
+                hurt(mut s, m.damage)
+                if f.kind == ASH_ADDER { apply_burn(mut s) }
+                if f.kind == MARTEN {
+                    // Pre-cb15 bounded scent theft; its one-item API is
+                    // attached at the announced merge, never water.
+                    marten_steal(mut s, i)
+                }
+            }
+        }
+        if age + 1 >= m.active {
+            s.foes[i].phase = RETREAT
+            s.foes[i].since = s.tick
+            s.foes[i].speed = 0
+        }
+        return
+    }
+    if f.phase == RETREAT || f.phase == STAGGER {
+        if f.kind == MARTEN && age >= 12 {
+            boss_run(mut s, i, f.home_x, f.home_y, 48)
+        }
+        if f.kind == CINDER_MOTHS {
+            // The ember is the orbit centre; it never follows the cub
+            // into another encounter. Ash drift dismissal is a spawn hook.
+            let h = (age * 8 + s.seed * 17) % TURN
+            drift_foe(mut s, i, f.home_x + 2 * sin(h), f.home_y - 2 * cos(h), 24)
+        }
+        if age >= m.recovery {
+            s.foes[i].phase = if f.kind == MARTEN then PERCHED else HUNT
+            s.foes[i].since = s.tick
+        }
+    }
+}
+
+// Named pre-cb15 hook; replaced with its public take_one/leave pair at
+// the announced merge. A second hit cannot steal another held payload.
+fn marten_steal(mut s: Sim, i: int) {
+    let f = copy s.foes[i]
+    if f.stolen_scent == 0 && f.stolen_item < 0 {
+        let taken = if s.scent < 5 then s.scent else 5
+        s.scent -= taken
+        s.foes[i].stolen_scent = taken
+    }
 }

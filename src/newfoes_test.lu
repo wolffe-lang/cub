@@ -1,0 +1,91 @@
+//! member: false
+
+use sim
+
+fn test_cb18_each_new_foe_has_a_readable_tell_and_recovery() {
+    var kind = sim.MARTEN
+    while kind <= sim.WISP {
+        let m = sim.new_foe_move(kind)
+        assert(m.windup >= 8 && m.active > 0 && m.active <= 6, "finite tell and active window")
+        assert(m.recovery >= 12, "fairness: a bite fits in recovery")
+        kind += 1
+    }
+    assert(!sim.new_foe_move(sim.HERON).parryable, "the spear requires a dodge")
+}
+
+fn test_cb18_wisp_bite_snuffs_without_killing_or_scent() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.WISP)
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y - 3 * sim.FP
+    s.foes[0].phase = sim.RETREAT
+    s.tick = 103
+    s.started = 100
+    s.action = sim.BITE
+    s.action_x = s.x
+    s.action_y = s.y
+    s.attack_heading = 0
+    s.combo = 3
+    sim.strike_foes(mut s)
+    assert(s.foes[0].health > 0 && s.foes[0].phase == sim.SNUFFED, "alive but snuffed")
+    assert(s.foes[0].since == 103 && s.scent == 0 && s.drops.len == 0, "no kill reward")
+}
+
+fn test_cb18_moths_lose_two_per_bite_and_drop_four_each() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.CINDER_MOTHS)
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y - 4 * sim.FP
+    s.tick = 103
+    s.started = 100
+    s.action = sim.BITE
+    s.action_x = s.x
+    s.action_y = s.y
+    s.attack_heading = 0
+    s.combo = 3
+    sim.strike_foes(mut s)
+    assert(s.foes[0].health == 3 && s.drops.len == 1, "two of five moths")
+    assert(s.drops[0].value == 8, "four scent each, never a five-moth kill reward")
+}
+
+fn test_cb18_burn_has_forty_ticks_and_does_not_lick_out() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.ASH_ADDER)
+    (mut s.foes).reset()
+    s.heart = 20
+    s.health = sim.health_max(s.heart)
+    let before = s.health
+    sim.apply_burn(mut s)
+    var tick = 0
+    while tick < 40 {
+        s.tick += 1
+        sim.new_foe_status(mut s)
+        tick += 1
+    }
+    assert(s.health == before - 40 && s.burn_left == 0, "exact forty damage at rest")
+    sim.new_foe_status(mut s)
+    assert(s.health == before - 40, "bounded expiry")
+}
+
+fn test_cb18_water_cures_burn_before_the_next_damage_tick() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.ASH_ADDER)
+    sim.apply_burn(mut s)
+    s.action = sim.DRINK
+    let before = s.health
+    sim.new_foe_status(mut s)
+    assert(
+        s.burn_left == 0 && s.health == before,
+        "water extinguishes rather than interrupting itself",
+    )
+}
+
+fn test_cb18_heron_parry_never_turns_the_spear() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.HERON)
+    s.foes[0].heading = 128
+    s.foes[0].phase = sim.STRIKE
+    s.foes[0].since = s.tick
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y - 4 * sim.FP
+    s.action = sim.PARRY
+    s.started = s.tick
+    let before = s.health
+    sim.new_foe_step(mut s, 0)
+    assert(s.health < before && s.foes[0].phase == sim.STRIKE, "z cannot parry downward spear")
+}
