@@ -1029,7 +1029,7 @@ pub fn hurt(mut s: Sim, damage: int) {
         // Replace, never accumulate: a second death destroys the first mark;
         // the scent it held is lost for good (R-CB-1), and counted (cb04).
         if s.mark { s.lost += s.mark_scent }
-        if s.pouch.tuft > 0 {
+        if s.pouch.tuft > 1 {
             s.pouch.tuft -= 1
             s.pouch.uses += 1
             s.mark = false
