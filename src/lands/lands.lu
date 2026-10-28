@@ -234,6 +234,15 @@ pub fn spring_cell(seed: int, cr: int) -> (int, int) {
     (cx - 1, chamber_row(SPRING_CHAMBER))
 }
 
+/// Whether local cell `(x, at)` is one of the spring's six (`cr` the
+/// tunnel's centre at the spring chamber's row): a row guard first.
+pub fn spring_here(seed: int, x: int, at: int, cr: int) -> bool {
+    let row = chamber_row(SPRING_CHAMBER)
+    if at < row || at > row + 1 { return false }
+    let (sx, _) = spring_cell(seed, cr)
+    x >= sx && x <= sx + 2
+}
+
 /// The Howe's barrows: twelve, every sixteen rows from row 16, seven to
 /// twenty cells off the route to alternating sides.
 pub const MOUNDS: int = 12
