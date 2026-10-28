@@ -7,15 +7,17 @@ Thornmere is a line again, but half again as long: Shingle, Cinderwick, Brambleh
 branch under the Teeth out into the Hush (the-proposals.md §3; items 4, 10 and 12 of the second playtest). Every area
 from the Teeth on has two or three branches to guarded alcoves with a slot for cb15's consumables; every boss arena
 grew by half; the whole forest holds under the world audit's 1300 rows, every census extended, the save at schema
-6, the goldens for every new area's first screen on both tiers. Game code, game-owned tests, witnesses, censuses,
+7 over cb13's and cb15's schema 6, the goldens for every new area's first screen on both tiers. Game code, game-owned tests, witnesses, censuses,
 docs and goldens only: no engine, pin or CI change.
 
 Ledger: cb14 — five areas (the Stand, the Burn, the Mere, the Underteeth, the Howe; Gravehollow split off the Hush),
-alcoves with a `kind` slot from the Teeth on, arenas +50 %, CUB 6 with a slain mask an area and the gates word,
-`journey 5`; module; plant #75; final source `5db48d71` (on cub trunk `f20650d4`, cb10's, cb12's and cb11's merges
-under it); the walk on the Mac green (9369 ticks, the stone mouth opened); Mac build, checked tests (509) and the
-full golden check green at the first attempt; Linux gate green at `5db48d71` (check-linux, the memory gate, the
-native goldens, gameplay on both backends, perf at slack 1 inside the container).
+alcoves from the Teeth on whose pine, shard and tuft are cb15's items (R-cb14-6 A), arenas +50 %, CUB 7 (thirteen
+slain masks and the gates over cb13's wrapper and cb15's items) and `journey 6` (211 slots), cb15's CUB 6 and
+`journey 5` migrating, lore 13..31 through cb15's paths; module; plant #75; final source `0e815256` (on cub trunk
+`feb57572`: cb10's, cb12's, cb11's, cb11b's, cb13's and cb15's merges under it); the checked suite 562/0/0 and the
+memory gate green on kasumi at `079d3c5a`; the Mac and Linux gates at the PR head launched detached at the
+hand-back; before the rebase onto cb15, at `5db48d71`, both green (the walk 9369 ticks, the full golden check at
+the first attempt).
 
 ## Prediction
 
@@ -38,7 +40,9 @@ what held:
    landmarks moved), and `stand`; the rest scenes, the thicket's and the meadow's landmarks, the yards, the town's
    lane and `crags`/`river` changed only in the snapshot header and were kept as committed (their goldens
    byte-equal). Over cb11's bite chain (the rebase onto `f20650d4`) the fights moved again: 33 cases regenerated
-   and the goldens rewritten at `aa5698f8` (the Evidence index's "Goldens").
+   and the goldens rewritten at `aa5698f8` (the Evidence index's "Goldens"). Over cb15 (the rebase onto
+   `feb57572`) cb13's and cb15's schema 6 and journey 5 had the numbers first: the save is CUB 7, the snapshot
+   journey 6, and theirs migrate (the Evidence index's "The rebase onto cb15").
 3. **Censuses** held: `--world-audit` 1300 rows, reached = required everywhere, `path_off` 0, nearest foe ≥ 30 (a
    den-less area reports 1000); den spacing least within an area 122, least onward 135 (the bar 110); bends 0
    reversals; spurs every end named; the foe census green (the old areas' counts unchanged, the new areas 4..6 —
@@ -52,8 +56,8 @@ what held:
 4. **Render cost**: not measured on the Mac — the loaded-server condition (the-rules.md, the Mac leg) refused the
    first build at 7 GB free; the checked machine's cost was measured instead (below). The memory gate green on
    kasumi's release build: 316 bytes a tick over 519 ticks against the 4096 budget, the crash checkpoint and the
-   fresh seed both (`tools/check-memory`); at the final source, in the Linux gate, 425 and 310 bytes a tick over
-   520 and 515 ticks.
+   fresh seed both (`tools/check-memory`); at `5db48d71`, in the Linux gate, 425 and 310 bytes a tick over
+   520 and 515 ticks; over cb15, at `079d3c5a` (job20), 482 and 308 over 518 and 519.
 5. **Arenas** held: 11/12 → 14, 14 → 18, 12 → 20, the shapes kept (`map_test`); the hit census and the hitbox
    audit green (their fights are not at a boss).
 6. The den-spacing bar held without a move (the kiln at row 112 is 135 from the last warm hollow along the way);
@@ -69,14 +73,19 @@ band), a Gravehollow night frame fit twice before and once after at 80×24 at th
 Original code, art, lore and names only (the proposals' names and lines are the orchestrator's drafts in the
 bible's register; the five standing stones' alphas — Harrow, Tarn, Sorrel, Greyback — and every alcove line are
 this lane's); no other game's code, art, text or music. No engine (`lair`) change, no pin, workflow or CI change;
-the hooks the contract names were left and not filled: no item (cb15: the alcoves' `kind` slot yields scent until
-then), no NPC (cb16: the anchors are the landmarks), no part (cb17: `score.area_part` is `none` for the new
+the hooks the contract names were left and not filled: no item of this lane's (since cb15's merge the alcoves'
+pine, shard and tuft are cb15's own items, R-cb14-6 A), no NPC (cb16: the anchors are the landmarks), no part (cb17: `score.area_part` is `none` for the new
 areas), no new foe (cb18: `sim.group_count` is 0 for the six areas and the alcove guards are foxes). No other
 lane's file touched: `src/sim/sim.lu`'s edits are the ground rules, the gates, the new edges and the alcove
 guards (cb10's input and drink paths, cb11's bite chain, cb12's death scene, cb13's journey menu and cb15's pouch
-untouched); the save gained its field under schema 6 (cb13 and cb15 bump the schema too: the first to merge takes
-6 and this lane rebases, as the-rules.md says). No ruling decided: R-cb14-1 .. R-cb14-5 are recommendations the
-lane implemented (`docs/DESIGN.md`). Never labelled a PR, merged, tagged, created or closed an issue, edited
+untouched); the save gained its fields under schema 7 (cb13 and cb15 took 6 first, as the-rules.md says the
+first to merge does). At the rebase onto cb15's merge the merged code of cb13 and cb15 was extended where the
+two met, never rewritten: `journey.lu` (CUB 7 beside their CUB 6 path, untouched), `controls.lu` (seven slots
+appended after cb15's), `sim.lu`'s `cache_key` (the alcove kinds through cb15's `give_item`) and `hazards_step`
+(cb14's landmarks through cb15's `remember_lore`), `art.lu` (the reveal under cb15's inventory overlay); three
+of cb13's migration tests now expect CUB 7 bytes from the same fixture, cb15's `pouch_test` pins `lore.COUNT` 32
+for 13, and the current-schema assertions in the tests and tools name CUB 7. No ruling decided: R-cb14-1 ..
+R-cb14-6 are recommendations the lane implemented (`docs/DESIGN.md`). Never labelled a PR, merged, tagged, created or closed an issue, edited
 `~/.claude` or the planning repo, installed a package. No attribution or co-author trailers.
 
 The Mac held the worktree for git, the walk and the flank searches behind the shared `mkdir` lock (`/Users/mfwolffe/lanes/mac-build.lock`,
@@ -90,7 +99,7 @@ signalled; nothing of another lane moved or renamed.
 ## Inputs verified
 
 Base cub trunk `eb34a399` (cb09 + its note), rebased once onto each merge the orchestrator announced: `1497b5d3`
-(cb10), `f6af855c` (cb12), `f20650d4` (cb11); the worktree `~/lanes/cb14/cub` on branch `cb14`. Engine
+(cb10), `f6af855c` (cb12), `f20650d4` (cb11), `feb57572` (cb11b `991cc704`, cb13 `918dd9a0`, cb15); the worktree `~/lanes/cb14/cub` on branch `cb14`. Engine
 `74b89744` as `lair.pin` names it (staged by `tools/fetch-lair` from the org's lair clone; `LAIR-REV` read), wolf 0.2.35 and lupin 0.1.56 with std `2386522e`
 staged by `.lair/tools/fetch-toolchain` (the digests verified by the fetcher on both hosts; kasumi's stage copied
 from cb09's, `STAMP` read). The contract, `the-rules.md`, the maintainer's notes (items 4, 10, 12),
@@ -113,7 +122,15 @@ golden frames job18 removed in place on the Mac: the sync ran with `--delete` (i
 228), and the Mac's `git status` set and a hash over every file in `tests/cases` and `tests/goldens` then matched
 kasumi's (`286ad08b…` on both); (6) the rebase onto cb11's merge resolved `tests/cases/whisper-flank.pk` to
 trunk's (cb11's own prefix-820 recipe) in `355e9b18` while keeping this lane's 808..815 goldens, so the witness
-was stale from there until `d2f2a6c7` found it again (the Evidence index's "Goldens").
+was stale from there until `d2f2a6c7` found it again (the Evidence index's "Goldens"); (7) at the rebase onto
+cb15, the auto-mode classifier refused resolving the golden-only commits' conflicts by taking trunk's side
+(`git checkout --ours --pathspec-from-file=…`); the maintainer ruled "skip and regenerate": the two golden-only
+commits (`66a826fa` "Write the goldens afresh", `aecbaff8` the post-cb11 rewrite) were skipped with `git rebase
+--skip` and every golden and case written once more by the repo's generators in `0e815256`; (8) an empty regular
+file at `/Users/mfwolffe/lanes/mac-build.lock` (22:19:41Z, no holder, not the `mkdir` protocol's directory) held
+every Mac lane's lock; the orchestrator removed it; (9) cb15's note says "cb14 and cb16 start at 13": cb14's
+nineteen lines take 13..31, and with `pouch.LORE_SLOTS` 32 the found-lore list is now exactly full, so cb16's
+first line needs a capacity change, a format bump (held by `cb14_items_test`: `lore.COUNT == pouch.LORE_SLOTS`).
 
 Rulings recommended and implemented, none decided (`docs/DESIGN.md`, "The map overhaul"):
 
@@ -125,13 +142,17 @@ Rulings recommended and implemented, none decided (`docs/DESIGN.md`, "The map ov
 - **R-cb14-4 A** (new): the lookout's reveal is a schematic frame of the stations, not a zoomed render.
 - **R-cb14-5 A** (new): the alcove guards stand on top of R-cb05-4's band in the Teeth, the Shallows and the Hush
   (`wide.FOES_LATE_MAX` 12 → 14); the new areas hold 3..6 until cb18.
+- **R-cb14-6 A** (new, at the rebase onto cb15): the alcoves' pine, shard and tuft are cb15's PINE, ICE and TUFT,
+  given through `sim.give_item` or left on the ground at the cache when the stack is full, as cb15 does for
+  marrow and yarrow (`sim.reward_item`); B would keep the scent placeholder (30) for a later lane. The
+  maintainer's to overturn.
 
-Hooks left for the lanes under this one: **cb15** `lore.alcove_slot(area, cache)` is the alcove list with its
-`kind` (`lore.PINE`, `SHARD`, `TUFT` beside `MARROW`, `YARROW`, `LORE`; `sim.cache_key` yields `ALCOVE_SCENT` for
-the three until the pouch holds them; the shard "melts at the Burn" is cb15's); **cb16** one anchor an area in
+Hooks left for the lanes under this one: **cb15** (merged first) `lore.alcove_slot(area, cache)` is the alcove
+list with its `kind`, filled at the rebase (R-cb14-6 A); the shard "melts at the Burn" stays cb15's hook; **cb16**
+one anchor an area in
 `forest.landmark` (the lookout and the ruin for the Hermit, the kiln for the Charcoal-burner, the causeway's post
 for the Ferryman, the sett's mouth — `forest.portal(seed, CRAGS, EDGE_SETT)` — for Dunmoss, Quill's perch, the
-cold hearth; the lost in the Hush); **cb17** `score.area_part` names `none` for areas 7..12 (the Hush keeps
+cold hearth; the lost in the Hush; its first lore line needs the wider save, correction 9); **cb17** `score.area_part` names `none` for areas 7..12 (the Hush keeps
 `old-den`); **cb18** `sim.group_count(area)` is 0 for areas 7..12 and `sim.area_foes` places only the alcove
 guards there (the heron's stone is the Mere's last, rows 196..199 on the route; the sentries' post the stone
 mouth's rows 218..220 in the Howe; the glow-worm clusters `lands.glow_row/glow_x`; the wisps the Howe's barrows).
@@ -145,9 +166,10 @@ and the boss census again in the Linux gate at `5db48d71`; `tools/journey-length
 instrument (`cub --paths-audit | python3 -I tools/journey-length.py`), the before table from trunk `eb34a399` built
 with the same toolchain on kasumi.
 
-- **Checked tests** (`.lair/tools/test`, kasumi and the Mac at `5db48d71`): `wolf test: 509 passed; 0 failed; 0
-  rejected; 0 unsupported; 0 filtered out` on both (`checked-tests.txt`; 446 before cb10's and cb12's merges and
-  482 before cb11's, which the branch was rebased onto once each at the orchestrator's word). The new rows:
+- **Checked tests** (`.lair/tools/test`): at `079d3c5a`, over cb15, on kasumi `wolf test: 562 passed; 0 failed;
+  0 rejected; 0 unsupported; 0 filtered out` (`checked-tests.txt`; the Mac's at the PR head is in its gate);
+  509 on both hosts at `5db48d71` before it, 446 before cb10's and cb12's merges and 482 before cb11's (the branch
+  rebased onto each once at the orchestrator's word). The new rows:
   `src/map_test.lu` (the graph, the dens, the arenas' growth, the gates, the alcoves' guards and slots, the mouths, the stones' sinking,
   the ash, the mist, the spring, the reveal, the mouth bands), the schema-6 and thirteen-area rows in
   `src/areas_test.lu`, `src/refuge_test.lu`, `src/doorrest_test.lu`, `src/denmemory_test.lu`,
@@ -161,6 +183,28 @@ with the same toolchain on kasumi.
   (`combatproof.hud_fixture`) stands in Gravehollow ten rows below the alpha's ring, where no alcove branch lies
   (the Hush's cells pay for three); the elk's health-bar row is one frame a test. The three row changes are named
   here because the step budget, not the behaviour, forced them.
+- **The rebase onto cb15** (`rebase-cb15/`): the CUB 6 save and the journey 5 recording a binary built at trunk
+  `60890a49` wrote (`tests/saves/cb15-v6.save`, `cb15-journey5.pk`: three real runs of that binary, how in
+  `tests/saves/provenance.json` and `rebase-cb15/make-cb15-fixtures.py`) migrate: `src/cb14_migration_test.lu`
+  holds the CUB 6 (name `birch_7`, played_ms 6974, pine, ice and tuft, two found lines, seeded 127) to its
+  exact CUB 7 bytes, the six new masks empty and no gate, the CUB 7 round trip byte-exact; the journey 5
+  snapshot read into journey 6 with every pouch slot kept; the four CUB 5 fixtures, a journey 4 and a journey 3
+  case still read; a rechecksummed CUB 7 with a missing, out-of-range or doubled gates line, seven or fourteen
+  masks or a CUB 6 header refused, CUB 8 refused by name; cb13's rechecksummed wrapper rows refusing at CUB 7
+  (`cb13_migration_test`); `tools/world_checks.py` the same migration at file level with the shipping binary.
+  `src/cb14_items_test.lu`: cb15's provisional pickups (seven yarrow, six marrow and the tuft, five ice) all on
+  open ground in the new map for seeds 1 and 7; the Hush's pine, the Shallows' shard and the Howe's tuft in the
+  pouch when dug, a full stack's on the ground; the lookout's and a standing stone's lines in the found-lore
+  list. The cases and goldens written once more by the repo's generators on kasumi (`0e815256`; `summary.txt`):
+  44 cases off cb14's pre-rebase 44-slot journey 5 regenerated as journey 6, `whisper-flank` found again by
+  the widened search with the same keys (start 696, `pty: cb08-whisper-flank ok` on the Mac), every other
+  generated case header-only identical and kept; golden keys 7256 → 7630, 238 missing and 612 extra, each
+  cb14's own before the rebase; 1916 changed, all the map (218 byte-identical to cb14's pre-rebase goldens,
+  1692 changed by both lanes, cb14's world under cb15's drawing, 6 rich final frames with cb15's pickups in
+  view); the format bump 0 keys, the items swap 0 keys; the 450 inherited final.states 382 byte-identical to
+  trunk's and 68 the map's, none moved against cb14 before the rebase (`golden-classes.txt`, `golden-keys.txt`,
+  `final-states.txt`, both instruments beside them). The quick audits at `6dda0fd2` byte-equal to the census
+  files here (`job19.log`).
 - **The world audit** (`census/world-audit.txt`): 1300 rows, every one `reached == required`, `path_off 0`,
   straight runs ≤ the bar, bank step ≤ 1, nearest foe ≥ 30 or 1000 (den-less). `--area-map SEED AREA FIELD`
   (new) prints an area's map with every destination's cell, ground and flood answer — the instrument that found
@@ -222,17 +266,22 @@ with the same toolchain on kasumi.
   width 3 by design, and the Hush's 160 rows gave them the median.
 - **The memory gate** (`tools/check-memory`, kasumi's release build): green, 316 bytes a tick over 519 ticks, the
   crash checkpoint and the fresh seed, budget 4096; at `5db48d71` in the Linux gate `memory gate: green, crash
-  checkpoint and fresh seed; budget 4096 bytes/tick`, 425 and 310 bytes a tick over 520 and 515 ticks.
-- **The plant**: PR #75 (`cb14-plant-disconnected`, `4c14bc6d` on `2b27378e`, rebased once from `1bbd4979` on
-  `cd757027`; not an ancestor of the branch): a wall of stones across the Howe's sixtieth row; `--world-audit`
-  red by name at its first row `0 80 11 3 11 5 1000 3 1 1 100 67 0` (reached 3 of 11),
-  `test_cb14_the_howe_s_spine_portals_and_mouths_are_open ... FAILED (trap(assert))` and the Howe's texture row,
-  `wolf test: 507 passed; 2 failed` (`plant/plant-run.txt`, kasumi at `4c14bc6d`). Never merged.
+  checkpoint and fresh seed; budget 4096 bytes/tick`, 425 and 310 bytes a tick over 520 and 515 ticks; over cb15
+  at `079d3c5a` (job20) the same line, 482 and 308 over 518 and 519 (`rebase-cb15/job20.log`).
+- **The plant**: PR #75 (`cb14-plant-disconnected`, `1a612e19` on `b1e57f53`, rebased once at each of this
+  lane's rebases from `1bbd4979` on `cd757027`; not an ancestor of the branch): a wall of stones across the
+  Howe's sixtieth row; `--world-audit` red by name at its first row `0 80 11 3 11 5 1000 3 1 1 100 67 0`
+  (reached 3 of 11), `test_cb14_the_howe_s_spine_portals_and_mouths_are_open ... FAILED (trap(assert))` and the
+  Howe's texture row, `wolf test: 560 passed; 2 failed` (`plant/plant-run.txt`, kasumi at `1a612e19`). Never
+  merged.
 - **The walk** (item 5): `walk/walk.pk` (9369 ticks, written on the Mac by `cub --make-walk` at `5db48d71`: the
   alpha fixture's growth at the Shingle's start, every shortcut open, the gates shut) and `walk/walk.txt` with
   each area's entry tick — Cinderwick 548, Bramblehold 1645, the Stand 2808, Larkmeadow 3480, the Burn 4378, the
   Teeth 5092, the Mere 6122, the Shallows 6991, the Hush 7888, the Howe 8673, the stone mouth opened at 9369 (9076
   before cb11's merge) — and the frame at each entry on both tiers (`walk/entry-<area>-{rich,plain}.txt`).
+- **The gates at the PR head** (over cb15): the Linux job on kasumi cores 12–15 and the Mac gate behind the
+  lock, launched detached at the hand-back; their pids, logs and markers are in the hand-back, their verdicts
+  the orchestrator's to read. Before the rebase onto cb15, both were green at `5db48d71`:
 - **The Linux gate** (kasumi cores 12–15, the engine's container, `5db48d71`, `gates/linux-gate.log`):
   `check-linux 0 check-linux: green` (`check-fmt: canonical`, `wolf test: 509 passed; 0 failed; 0 rejected; 0
   unsupported; 0 filtered out`, 481 goldens `ok` and 0 `DIFFERS`, 82 pty rows `ok` and 0 `FAILED`, among them
@@ -260,10 +309,13 @@ with the same toolchain on kasumi.
 - [x] Arenas +50 % (14 / 14 / 18 / 20), the censuses re-run.
 - [x] `--world-audit` seeds 0..49 green over 1300 rows; every census extended and compared; the journey-length
       table before/after; replay determinism (the cases replay; the goldens written once).
-- [x] The memory gate green (316 bytes a tick against 4096; 425 and 310 at the final source).
+- [x] The memory gate green (316 bytes a tick against 4096; 482 and 308 over cb15 at `079d3c5a`).
 - [x] Goldens of each new area's first screen on both tiers.
 - [x] The walk from the Shingle to the Howe's stone mouth on the Mac, its entry frames in the evidence.
 - [x] The note (five sections, the ledger line, the hooks), the plant red by name, the evidence directory.
-- [x] The full gauntlet: Linux green at `5db48d71` (check-linux, check-memory, native goldens, gameplay on both
-      backends, perf at slack 1 inside the container); Mac green at `5db48d71` (build, checked 509, walk, the full
-      golden check at the first attempt).
+- [x] The rebase onto cb15: CUB 7 and journey 6 over theirs with the trunk writer's migration witnesses, lore
+      13..31 through cb15's paths, R-cb14-6 A, the cases and goldens regenerated once with every changed key's
+      cause, the plant red again.
+- [ ] The full gauntlet at the PR head: launched detached at the hand-back (Linux: check-linux, check-memory,
+      native goldens, gameplay on both backends, perf at slack 1 inside the container; Mac: build, checked, walk,
+      the full golden check under the three-attempt rule). At `5db48d71`, before the rebase onto cb15: both green.
