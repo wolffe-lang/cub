@@ -141,10 +141,11 @@ fn test_cb14_the_journey_grew_by_half_and_the_dens_fill_the_second_bank() {
     }
 }
 
-/// One area's route and flood: the spine walkable row by row, every
-/// portal and every destination reached, the meander bound. One seed on
-/// the checked machine (a flood an area is a test's budget); the
-/// fifty-seed, both-field flood is `cub --world-audit`'s.
+/// One area's route and destinations, sampled as cb04's reach test
+/// samples: the spine walkable row by row, every portal, den, alcove,
+/// landmark and the arena's centre on open ground, the meander bound; one
+/// seed on the checked machine (a flood is past its budget), the
+/// fifty-seed, both-field flood `cub --world-audit`'s.
 fn area_open(area: int) {
     let seed = 1
     let o = forest.origin(seed, area)
@@ -156,19 +157,47 @@ fn area_open(area: int) {
         )
         y += 1
     }
-    let seen = forest.flood(seed, 80, area)
     var edge = 0
     while edge < forest.EDGES {
         if forest.other(area, edge) >= 0 {
             let (px, py) = forest.portal(seed, area, edge)
             assert(
-                forest.reached(seen, 80, area, px / sim.FP, py / sim.FP - o),
-                "portal {edge} reached seed {seed} area {area}",
+                !forest.blocked(seed, 80, area, px / sim.FP, py / sim.FP),
+                "portal {edge} open seed {seed} area {area}",
             )
         }
         edge += 1
     }
-    assert(forest.reachable(seed, 80, area), "every destination reached seed {seed} area {area}")
+    var den = 0
+    while den < forest.DEN_LIMIT {
+        if forest.den_area(den) == area {
+            let (dx, dy) = forest.den_position(seed, den)
+            assert(
+                !forest.blocked(seed, 80, area, (dx - sim.FP / 2) / sim.FP, (dy - sim.FP / 2) / sim.FP),
+                "den {den} open seed {seed}",
+            )
+        }
+        den += 1
+    }
+    var cache = 0
+    while cache < forest.cache_count(area) {
+        let (cx, cy) = forest.cache_position(seed, 80, area, cache)
+        assert(
+            !forest.blocked(seed, 80, area, (cx - sim.FP / 2) / sim.FP, (cy - sim.FP / 2) / sim.FP),
+            "alcove {cache} open seed {seed} area {area}",
+        )
+        cache += 1
+    }
+    var k = 0
+    while k < forest.landmark_count(area) {
+        let (_, lx, ly) = forest.landmark(seed, 80, area, k)
+        assert(!forest.blocked(seed, 80, area, lx, o + ly), "landmark {k} open seed {seed} area {area}")
+        k += 1
+    }
+    if forest.has_arena(area) {
+        let (ax, ay, _) = forest.arena(seed, 80, area)
+        assert(!forest.blocked(seed, 80, area, ax, o + ay), "arena centre open seed {seed} area {area}")
+    }
     assert(forest.straight_run(seed, area) <= forest.STRAIGHT_MAX, "straight run area {area}")
 }
 
@@ -186,13 +215,17 @@ fn test_cb14_gravehollow_s_spine_portals_and_mouths_are_open() { area_open(fores
 
 fn test_cb14_the_hush_s_spine_portals_and_mouths_are_open() { area_open(forest.HUSH) }
 
-fn test_cb14_the_sett_s_mouth_in_the_teeth_is_reached() {
+fn test_cb14_the_sett_s_mouth_in_the_teeth_is_open() {
     let seed = 1
-    let seen = forest.flood(seed, 80, forest.CRAGS)
     let (sx, sy) = forest.portal(seed, forest.CRAGS, forest.EDGE_SETT)
     assert(
-        forest.reached(seen, 80, forest.CRAGS, sx / sim.FP, sy / sim.FP - forest.origin(seed, forest.CRAGS)),
-        "the sett reached seed {seed}",
+        !forest.blocked(seed, 80, forest.CRAGS, sx / sim.FP, sy / sim.FP),
+        "the sett open seed {seed}",
+    )
+    let (rx, ry) = forest.portal(seed, forest.CRAGS, forest.EDGE_RAFT)
+    assert(
+        !forest.blocked(seed, 80, forest.CRAGS, rx / sim.FP, ry / sim.FP),
+        "the raft's mouth open seed {seed}",
     )
 }
 
