@@ -202,9 +202,10 @@ and posture sheets, every combo/roll frame, scaled bars and rally, the score's P
 pty restoration and replay agreement, death-word/half-closed/closed-eye goldens,
 every integer of gains and spending with replay-deterministic batches, the real
 terminal's1000-frame count at both sizes and tiers, exact held-key and eight-direction chord rows,
-hand-timed bite requests in all eight facings, observed-tick-paced real-reader
-Ghostty-compatible Space press/release/repeat sequences and the legacy repeat
-fallback, regional rest scenes at80×24 and120×40,
+hand-timed bite requests in all eight facings, real-reader Ghostty-compatible
+Space press/release/repeat sequences checked against an independent
+consumed-tick/stamina oracle (late delivery is measured, not rejected),
+the legacy repeat fallback, regional rest scenes at80×24 and120×40,
 found-water/drink/refill and last-den respawn, and performance. Both platform gates
 also bound resident growth to 4096 bytes per actual tick over a resumed checkpoint
 and fresh seed (`sh tools/check-memory target/release/cub`). Frame scratch is
