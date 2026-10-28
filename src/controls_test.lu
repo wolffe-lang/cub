@@ -146,13 +146,14 @@ fn test_cb15_pouch_snapshot_slots_are_appended_after_existing_numeric_events() {
 fn test_cb04b_input_events_do_not_overlap_schema_five_snapshot_slots() {
     let v = controls.vocab()
     var part = 0
-    while part < 44 {
+    while part < 211 {
         assert(v.args[controls.saved_event(part)] == "saved-{part}", "snapshot slot {part}")
         part += 1
     }
-    // cb14's seven slots follow the witness flag: nothing older moves.
+    // cb14's journey 6 is seven slots longer than cb15's journey 5: its
+    // slots 204..210 are events 218..224, appended; nothing older moves.
     assert(
-        controls.saved_event(37) == 51 && controls.saved_event(43) == 57,
+        controls.saved_event(204) == 218 && controls.saved_event(210) == 224,
         "cb14's slots appended",
     )
     assert(
