@@ -140,8 +140,8 @@ fn later_line(id: int) -> str {
 
 /// What a cache holds when dug: a lore line (`LORE`), a marrow bone or a
 /// sprig of yarrow; cb14's alcoves also a bundle of pine, a shard of ice
-/// or the mother's tuft (the-proposals.md section 4's kinds, the slot the
-/// item lane fills: until cb15 the slot yields scent, `sim.ALCOVE_SCENT`).
+/// or the mother's tuft (the-proposals.md section 4's kinds; since cb15's
+/// merge cb15's pine, ice and tuft, `sim.reward_item`, R-cb14-6 A).
 pub const LORE: int = 0
 
 /// The reward: marrow (the bible's section 7).
@@ -200,11 +200,11 @@ pub fn pouch_line(reward: int, bundle: bool) -> str {
     if reward == MARROW {
         "The hollow is empty; its marrow is in your pouch."
     } else if reward == PINE {
-        "A bundle of pine, bound with grass. No pouch holds it yet; its scent is yours."
+        "A bundle of pine, bound with grass. It is in your pouch."
     } else if reward == SHARD {
-        "A shard of old ice, packed in moss. No pouch holds it yet; its scent is yours."
+        "A shard of old ice, packed in moss. It is in your pouch."
     } else if reward == TUFT {
-        "A tuft of grey fur, kept dry. Your mother's. No pouch holds it yet; its scent is yours."
+        "A tuft of grey fur, kept dry. Your mother's. It is in your pouch."
     } else {
         "The burrow is empty; its herb is in your pouch."
     }
