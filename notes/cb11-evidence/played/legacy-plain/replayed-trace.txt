@@ -1,0 +1,118 @@
+tick 1 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 0 health 52 stamina 70 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 0 lock -1 aim 0 combo 0 body 0 gait 36 sprint 0 cone 0 bosses 0 end 0 arena 1 played 1 lost 0
+
+tick 2 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 0 health 52 stamina 70 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 0 lock -1 aim 0 combo 0 body 0 gait 72 sprint 0 cone 0 bosses 0 end 0 arena 1 played 2 lost 0
+
+tick 3 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 0 health 52 stamina 70 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 0 lock -1 aim 0 combo 0 body 0 gait 108 sprint 0 cone 0 bosses 0 end 0 arena 1 played 3 lost 0
+
+tick 4 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 0 health 52 stamina 70 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 0 lock -1 aim 0 combo 0 body 0 gait 144 sprint 0 cone 0 bosses 0 end 0 arena 1 played 4 lost 0
+
+tick 5 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 1 started 5 health 52 stamina 58 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 0 lock -1 aim 0 combo 1 body 0 gait 180 sprint 0 cone 245 bosses 0 end 0 arena 1 played 5 lost 0
+
+tick 6 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 1 started 5 health 52 stamina 58 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 0 lock -1 aim 0 combo 1 body 0 gait 216 sprint 0 cone 245 bosses 0 end 0 arena 1 played 6 lost 0
+
+tick 7 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 1 started 5 health 52 stamina 58 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 0 lock -1 aim 0 combo 1 body 0 gait 252 sprint 0 cone 245 bosses 0 end 0 arena 1 played 7 lost 0
+
+tick 8 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7552 y 27520 heading 0 action 1 started 5 health 52 stamina 58 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 1 lock -1 aim 0 combo 1 body 0 gait 288 sprint 0 cone 245 bosses 0 end 0 arena 1 played 8 lost 0
+
+tick 9 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7552 y 27520 heading 0 action 1 started 5 health 52 stamina 58 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 1 lock -1 aim 0 combo 1 body 0 gait 324 sprint 0 cone 245 bosses 0 end 0 arena 1 played 9 lost 0
+
+tick 10 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7552 y 27520 heading 0 action 1 started 5 health 52 stamina 58 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 1 lock -1 aim 0 combo 1 body 0 gait 360 sprint 0 cone 245 bosses 0 end 0 arena 1 played 10 lost 0
+
+tick 11 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7552 y 27520 heading 0 action 1 started 5 health 52 stamina 58 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 1 lock -1 aim 0 combo 1 body 0 gait 396 sprint 0 cone 245 bosses 0 end 0 arena 1 played 11 lost 0
+
+tick 12 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7616 y 27584 heading 0 action 1 started 5 health 52 stamina 58 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 1 lock -1 aim 0 combo 1 body 0 gait 432 sprint 0 cone 245 bosses 0 end 0 arena 1 played 12 lost 0
+
+tick 13 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7680 y 27648 heading 0 action 1 started 5 health 52 stamina 58 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 2 lock -1 aim 0 combo 1 body 0 gait 468 sprint 0 cone 245 bosses 0 end 0 arena 1 played 13 lost 0
+
+tick 14 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7744 y 27712 heading 0 action 1 started 5 health 52 stamina 58 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 2 lock -1 aim 0 combo 1 body 0 gait 504 sprint 0 cone 245 bosses 0 end 0 arena 1 played 14 lost 0
+
+tick 15 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 1 started 5 health 52 stamina 58 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 2 lock -1 aim 0 combo 1 body 0 gait 540 sprint 0 cone 245 bosses 0 end 0 arena 1 played 15 lost 0
+
+tick 16 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 1 started 16 health 52 stamina 44 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 2 lock -1 aim 0 combo 2 body 0 gait 576 sprint 0 cone 11 bosses 0 end 0 arena 1 played 16 lost 0
+
+tick 17 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 1 started 16 health 52 stamina 44 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 2 lock -1 aim 0 combo 2 body 0 gait 612 sprint 0 cone 11 bosses 0 end 0 arena 1 played 17 lost 0
+
+tick 18 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 1 started 16 health 52 stamina 44 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 2 lock -1 aim 0 combo 2 body 0 gait 648 sprint 0 cone 11 bosses 0 end 0 arena 1 played 18 lost 0
+
+tick 19 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 8064 y 27520 heading 0 action 1 started 16 health 52 stamina 44 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 3 lock -1 aim 0 combo 2 body 0 gait 684 sprint 0 cone 11 bosses 0 end 0 arena 1 played 19 lost 0
+
+tick 20 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 8064 y 27520 heading 0 action 1 started 16 health 52 stamina 44 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 3 lock -1 aim 0 combo 2 body 0 gait 720 sprint 0 cone 11 bosses 0 end 0 arena 1 played 20 lost 0
+
+tick 21 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 8064 y 27520 heading 0 action 1 started 16 health 52 stamina 44 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 3 lock -1 aim 0 combo 2 body 0 gait 756 sprint 0 cone 11 bosses 0 end 0 arena 1 played 21 lost 0
+
+tick 22 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 8064 y 27520 heading 0 action 1 started 16 health 52 stamina 44 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 3 lock -1 aim 0 combo 2 body 0 gait 792 sprint 0 cone 11 bosses 0 end 0 arena 1 played 22 lost 0
+
+tick 23 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 8021 y 27563 heading 0 action 1 started 16 health 52 stamina 44 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 3 lock -1 aim 0 combo 2 body 0 gait 828 sprint 0 cone 11 bosses 0 end 0 arena 1 played 23 lost 0
+
+tick 24 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7978 y 27606 heading 0 action 1 started 16 health 52 stamina 44 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 3 lock -1 aim 0 combo 2 body 0 gait 864 sprint 0 cone 11 bosses 0 end 0 arena 1 played 24 lost 0
+
+tick 25 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7936 y 27648 heading 0 action 1 started 16 health 52 stamina 44 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 4 lock -1 aim 0 combo 2 body 0 gait 900 sprint 0 cone 11 bosses 0 end 0 arena 1 played 25 lost 0
+
+tick 26 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7893 y 27691 heading 0 action 1 started 16 health 52 stamina 44 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 5 lock -1 aim 0 combo 2 body 0 gait 936 sprint 0 cone 11 bosses 0 end 0 arena 1 played 26 lost 0
+
+tick 27 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7850 y 27734 heading 0 action 1 started 16 health 52 stamina 44 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 5 lock -1 aim 0 combo 2 body 0 gait 972 sprint 0 cone 11 bosses 0 end 0 arena 1 played 27 lost 0
+
+tick 28 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 1 started 16 health 52 stamina 44 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 5 lock -1 aim 0 combo 2 body 0 gait 1008 sprint 0 cone 11 bosses 0 end 0 arena 1 played 28 lost 0
+
+tick 29 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 5 lock -1 aim 0 combo 3 body 0 gait 1044 sprint 0 cone 0 bosses 0 end 0 arena 1 played 29 lost 0
+
+tick 30 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 5 lock -1 aim 0 combo 3 body 0 gait 1080 sprint 0 cone 0 bosses 0 end 0 arena 1 played 30 lost 0
+
+tick 31 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 5 lock -1 aim 0 combo 3 body 0 gait 1116 sprint 0 cone 0 bosses 0 end 0 arena 1 played 31 lost 0
+
+tick 32 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27264 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 6 lock -1 aim 0 combo 3 body 0 gait 1152 sprint 0 cone 0 bosses 0 end 0 arena 1 played 32 lost 0
+
+tick 33 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27264 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 6 lock -1 aim 0 combo 3 body 0 gait 1188 sprint 0 cone 0 bosses 0 end 0 arena 1 played 33 lost 0
+
+tick 34 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27264 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 6 lock -1 aim 0 combo 3 body 0 gait 1224 sprint 0 cone 0 bosses 0 end 0 arena 1 played 34 lost 0
+
+tick 35 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27264 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 6 lock -1 aim 0 combo 3 body 0 gait 1260 sprint 0 cone 0 bosses 0 end 0 arena 1 played 35 lost 0
+
+tick 36 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27264 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 6 lock -1 aim 0 combo 3 body 0 gait 1296 sprint 0 cone 0 bosses 0 end 0 arena 1 played 36 lost 0
+
+tick 37 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27264 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 6 lock -1 aim 0 combo 3 body 0 gait 1332 sprint 0 cone 0 bosses 0 end 0 arena 1 played 37 lost 0
+
+tick 38 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27328 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 6 lock -1 aim 0 combo 3 body 0 gait 1368 sprint 0 cone 0 bosses 0 end 0 arena 1 played 38 lost 0
+
+tick 39 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27392 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 7 lock -1 aim 0 combo 3 body 0 gait 1404 sprint 0 cone 0 bosses 0 end 0 arena 1 played 39 lost 0
+
+tick 40 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27456 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 7 lock -1 aim 0 combo 3 body 0 gait 1440 sprint 0 cone 0 bosses 0 end 0 arena 1 played 40 lost 0
+
+tick 41 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27520 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 7 lock -1 aim 0 combo 3 body 0 gait 1476 sprint 0 cone 0 bosses 0 end 0 arena 1 played 41 lost 0
+
+tick 42 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27584 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 7 lock -1 aim 0 combo 3 body 0 gait 1512 sprint 0 cone 0 bosses 0 end 0 arena 1 played 42 lost 0
+
+tick 43 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27648 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 3 body 0 gait 1548 sprint 0 cone 0 bosses 0 end 0 arena 1 played 43 lost 0
+
+tick 44 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27712 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 3 body 0 gait 1584 sprint 0 cone 0 bosses 0 end 0 arena 1 played 44 lost 0
+
+tick 45 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 1 started 29 health 52 stamina 26 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 3 body 0 gait 1620 sprint 0 cone 0 bosses 0 end 0 arena 1 played 45 lost 0
+
+tick 46 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 29 health 52 stamina 28 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 0 body 0 gait 1656 sprint 0 cone 0 bosses 0 end 0 arena 1 played 46 lost 0
+
+tick 47 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 29 health 52 stamina 30 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 0 body 0 gait 1692 sprint 0 cone 0 bosses 0 end 0 arena 1 played 47 lost 0
+
+tick 48 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 29 health 52 stamina 32 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 0 body 0 gait 1728 sprint 0 cone 0 bosses 0 end 0 arena 1 played 48 lost 0
+
+tick 49 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 29 health 52 stamina 34 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 0 body 0 gait 1764 sprint 0 cone 0 bosses 0 end 0 arena 1 played 49 lost 0
+
+tick 50 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 29 health 52 stamina 36 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 0 body 0 gait 1800 sprint 0 cone 0 bosses 0 end 0 arena 1 played 50 lost 0
+
+tick 51 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 29 health 52 stamina 38 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 0 body 0 gait 1836 sprint 0 cone 0 bosses 0 end 0 arena 1 played 51 lost 0
+
+tick 52 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 29 health 52 stamina 40 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 0 body 0 gait 1872 sprint 0 cone 0 bosses 0 end 0 arena 1 played 52 lost 0
+
+tick 53 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 29 health 52 stamina 42 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 0 body 0 gait 1908 sprint 0 cone 0 bosses 0 end 0 arena 1 played 53 lost 0
+
+tick 54 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 29 health 52 stamina 44 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 0 body 0 gait 1944 sprint 0 cone 0 bosses 0 end 0 arena 1 played 54 lost 0
+
+tick 55 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 29 health 52 stamina 46 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 0 body 0 gait 1980 sprint 0 cone 0 bosses 0 end 0 arena 1 played 55 lost 0
+
+tick 56 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 29 health 52 stamina 48 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 0 body 0 gait 2016 sprint 0 cone 0 bosses 0 end 0 arena 1 played 56 lost 0
+
+tick 57 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 29 health 52 stamina 50 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 0 body 0 gait 2052 sprint 0 cone 0 bosses 0 end 0 arena 1 played 57 lost 0
+
+tick 58 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 29 health 52 stamina 52 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 0 body 0 gait 2088 sprint 0 cone 0 bosses 0 end 0 arena 1 played 58 lost 0
+
+tick 59 resting 0 capacity 0 level 1 meat 0 area 1 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 7808 y 27776 heading 0 action 0 started 29 health 52 stamina 54 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 0 combo 0 body 0 gait 2124 sprint 0 cone 0 bosses 0 end 0 arena 1 played 59 lost 0
+

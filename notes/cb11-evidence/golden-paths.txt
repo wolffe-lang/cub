@@ -1,0 +1,778 @@
+Inherited golden changes (every path), relative to eb34a399.
+No timing, damage or gate assertion was loosened. Generated journeys
+use the unchanged world/den-memory generators and ordinary keys.
+The new queue/grace advances accepted bites and changes costs; combat
+and AI tick choices therefore change routes, durations and snapshots.
+All art-study files (including cb07 combo and cb08 diagonal sheets) remain byte-equal.
+
+tests/goldens/boss-alpha-beaten-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-beaten-plain/frame-1050.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-beaten-plain/frame-1050.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-beaten-plain/frame-1065.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-beaten-plain/frame-1065.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-beaten-plain/frame-1080.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-beaten-plain/frame-1080.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-beaten-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-beaten-rich/frame-1050.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-beaten-rich/frame-1050.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-beaten-rich/frame-1065.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-beaten-rich/frame-1065.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-beaten-rich/frame-1080.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-beaten-rich/frame-1080.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-phase2-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-phase2-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-phase2-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-phase2-plain/frame-0767.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-phase2-plain/frame-0767.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-phase2-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-phase2-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-phase2-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-phase2-rich/frame-0767.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-phase2-rich/frame-0767.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-windup-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-windup-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-windup-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-windup-plain/frame-0531.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-windup-plain/frame-0531.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-windup-plain/frame-0532.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-windup-plain/frame-0532.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-windup-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-windup-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-windup-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-windup-rich/frame-0531.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-windup-rich/frame-0531.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-windup-rich/frame-0532.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-alpha-windup-rich/frame-0532.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-plain/frame-1095.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-plain/frame-1095.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-plain/frame-1110.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-plain/frame-1110.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-plain/frame-1125.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-plain/frame-1125.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-rich/frame-1095.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-rich/frame-1095.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-rich/frame-1110.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-rich/frame-1110.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-rich/frame-1125.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-beaten-rich/frame-1125.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-phase2-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-phase2-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-phase2-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-phase2-plain/frame-0414.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-phase2-plain/frame-0414.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-phase2-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-phase2-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-phase2-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-phase2-rich/frame-0414.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-boar-phase2-rich/frame-0414.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-plain/frame-1800.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-plain/frame-1800.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-plain/frame-1815.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-plain/frame-1815.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-plain/frame-1830.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-plain/frame-1830.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-rich/frame-1800.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-rich/frame-1800.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-rich/frame-1815.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-rich/frame-1815.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-rich/frame-1830.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-beaten-rich/frame-1830.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-phase2-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-phase2-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-phase2-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-phase2-plain/frame-1338.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-phase2-plain/frame-1338.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-phase2-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-phase2-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-phase2-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-phase2-rich/frame-1338.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-elk-phase2-rich/frame-1338.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-plain/frame-1035.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-plain/frame-1035.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-plain/frame-1050.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-plain/frame-1050.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-plain/frame-1065.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-plain/frame-1065.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-rich/frame-1035.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-rich/frame-1035.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-rich/frame-1050.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-rich/frame-1050.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-rich/frame-1065.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-beaten-rich/frame-1065.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-phase2-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-phase2-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-phase2-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-phase2-plain/frame-0890.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-phase2-plain/frame-0890.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-phase2-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-phase2-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-phase2-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-phase2-rich/frame-0890.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-phase2-rich/frame-0890.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-windup-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-windup-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-windup-plain/frame-0586.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-windup-plain/frame-0586.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-windup-plain/frame-0587.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-windup-plain/frame-0587.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-windup-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-windup-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-windup-rich/frame-0586.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-windup-rich/frame-0586.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-windup-rich/frame-0587.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/boss-lynx-windup-rich/frame-0587.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-0-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-0-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-0-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-0-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-1-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-1-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-1-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-1-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-2-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-2-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-2-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-2-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-2-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-2-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-3-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-3-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-3-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-3-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-3-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/coast-cache-3-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/den-memory-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/den-memory-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/frame-1125.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/frame-1125.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/frame-1170.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/frame-1170.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/frame-1215.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/frame-1215.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/frame-1260.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/frame-1260.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/frame-1305.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/frame-1305.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/frame-1350.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-plain/frame-1350.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/frame-1125.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/frame-1125.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/frame-1170.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/frame-1170.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/frame-1215.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/frame-1215.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/frame-1260.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/frame-1260.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/frame-1305.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/frame-1305.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/frame-1350.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/end-rich/frame-1350.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/fox-feint-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/fox-feint-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-plain/frame-3235.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-plain/frame-3235.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-plain/frame-3236.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-plain/frame-3236.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-plain/frame-3237.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-plain/frame-3237.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-rich/frame-3235.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-rich/frame-3235.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-rich/frame-3236.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-rich/frame-3236.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-rich/frame-3237.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-shadow-rich/frame-3237.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-stoop-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-stoop-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-stoop-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-stoop-plain/frame-3251.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-stoop-plain/frame-3251.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-stoop-plain/frame-3252.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-stoop-plain/frame-3252.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-stoop-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-stoop-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-stoop-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-stoop-rich/frame-3251.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-stoop-rich/frame-3251.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-stoop-rich/frame-3252.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/hawk-stoop-rich/frame-3252.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-2-1-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-2-1-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-2-1-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-2-1-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-2-1-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-2-1-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-3-1-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-3-1-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-3-1-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-3-1-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-3-1-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-3-1-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-6-0-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-6-0-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-6-0-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-6-0-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-6-1-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-6-1-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-6-1-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-6-1-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/landmark-6-1-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/natural-death-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/natural-death-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/natural-death-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/natural-death-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/natural-death-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/natural-death-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/thorn-gate-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/thorn-gate-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-den-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-den-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0384.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0384.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0390.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0390.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0396.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0396.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0402.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0402.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0414.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0414.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0426.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0456.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0456.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0462.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0462.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0474.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0474.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0480.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0480.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0486.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0486.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0492.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0492.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0498.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0498.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0504.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0504.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0510.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0510.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0516.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0516.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0522.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0522.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-plain/frame-0528.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0384.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0384.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0390.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0390.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0396.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0396.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0402.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0402.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0414.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0414.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0426.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0456.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0456.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0462.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0462.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0468.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0468.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0474.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0474.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0480.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0480.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0486.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0486.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0492.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0492.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0498.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0498.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0504.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0504.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0510.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0510.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0516.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0516.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0522.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0522.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/town-passage-rich/frame-0528.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/whisper-flank-plain/final.state | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/final.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/final.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/frame-0756.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/frame-0756.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/frame-0757.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/frame-0757.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/frame-0758.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/frame-0758.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/frame-0759.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/frame-0759.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/frame-0760.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/frame-0760.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/frame-0761.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/frame-0761.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/frame-0762.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-plain/frame-0762.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/final.state | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/final.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/final.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/frame-0756.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/frame-0756.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/frame-0757.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/frame-0757.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/frame-0758.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/frame-0758.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/frame-0759.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/frame-0759.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/frame-0760.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/frame-0760.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/frame-0761.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/frame-0761.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/frame-0762.sty | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/whisper-flank-rich/frame-0762.txt | same bounded real-key search on regenerated lynx journey: prefix820, down12, aim160, hit836
+tests/goldens/world-den-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-den-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-gate-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-gate-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-hawk-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-hawk-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-hawk-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-hawk-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-hawk-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-hawk-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-meadow-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-meadow-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-meadow-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-meadow-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-meadow-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-meadow-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-open-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-open-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-recovered-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-recovered-plain/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-recovered-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-recovered-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-recovered-rich/final.sty | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-recovered-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-return-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-return-plain/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-return-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-return-rich/final.txt | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-thorns-plain/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+tests/goldens/world-thorns-rich/final.state | unchanged generator reran ordinary-key journey after new bite requests/costs
+
+Added timing or regenerated journey-frame paths:
+tests/goldens/boss-alpha-beaten-plain/frame-0960.sty
+tests/goldens/boss-alpha-beaten-plain/frame-0960.txt
+tests/goldens/boss-alpha-beaten-plain/frame-0975.sty
+tests/goldens/boss-alpha-beaten-plain/frame-0975.txt
+tests/goldens/boss-alpha-beaten-plain/frame-0990.sty
+tests/goldens/boss-alpha-beaten-plain/frame-0990.txt
+tests/goldens/boss-alpha-beaten-rich/frame-0960.sty
+tests/goldens/boss-alpha-beaten-rich/frame-0960.txt
+tests/goldens/boss-alpha-beaten-rich/frame-0975.sty
+tests/goldens/boss-alpha-beaten-rich/frame-0975.txt
+tests/goldens/boss-alpha-beaten-rich/frame-0990.sty
+tests/goldens/boss-alpha-beaten-rich/frame-0990.txt
+tests/goldens/boss-alpha-phase2-plain/frame-0750.sty
+tests/goldens/boss-alpha-phase2-plain/frame-0750.txt
+tests/goldens/boss-alpha-phase2-rich/frame-0750.sty
+tests/goldens/boss-alpha-phase2-rich/frame-0750.txt
+tests/goldens/boss-alpha-windup-plain/frame-0514.sty
+tests/goldens/boss-alpha-windup-plain/frame-0514.txt
+tests/goldens/boss-alpha-windup-plain/frame-0515.sty
+tests/goldens/boss-alpha-windup-plain/frame-0515.txt
+tests/goldens/boss-alpha-windup-rich/frame-0514.sty
+tests/goldens/boss-alpha-windup-rich/frame-0514.txt
+tests/goldens/boss-alpha-windup-rich/frame-0515.sty
+tests/goldens/boss-alpha-windup-rich/frame-0515.txt
+tests/goldens/boss-boar-beaten-plain/frame-1860.sty
+tests/goldens/boss-boar-beaten-plain/frame-1860.txt
+tests/goldens/boss-boar-beaten-plain/frame-1875.sty
+tests/goldens/boss-boar-beaten-plain/frame-1875.txt
+tests/goldens/boss-boar-beaten-plain/frame-1890.sty
+tests/goldens/boss-boar-beaten-plain/frame-1890.txt
+tests/goldens/boss-boar-beaten-rich/frame-1860.sty
+tests/goldens/boss-boar-beaten-rich/frame-1860.txt
+tests/goldens/boss-boar-beaten-rich/frame-1875.sty
+tests/goldens/boss-boar-beaten-rich/frame-1875.txt
+tests/goldens/boss-boar-beaten-rich/frame-1890.sty
+tests/goldens/boss-boar-beaten-rich/frame-1890.txt
+tests/goldens/boss-boar-phase2-plain/frame-0426.sty
+tests/goldens/boss-boar-phase2-plain/frame-0426.txt
+tests/goldens/boss-boar-phase2-rich/frame-0426.sty
+tests/goldens/boss-boar-phase2-rich/frame-0426.txt
+tests/goldens/boss-elk-beaten-plain/frame-1890.sty
+tests/goldens/boss-elk-beaten-plain/frame-1890.txt
+tests/goldens/boss-elk-beaten-plain/frame-1905.sty
+tests/goldens/boss-elk-beaten-plain/frame-1905.txt
+tests/goldens/boss-elk-beaten-plain/frame-1920.sty
+tests/goldens/boss-elk-beaten-plain/frame-1920.txt
+tests/goldens/boss-elk-beaten-rich/frame-1890.sty
+tests/goldens/boss-elk-beaten-rich/frame-1890.txt
+tests/goldens/boss-elk-beaten-rich/frame-1905.sty
+tests/goldens/boss-elk-beaten-rich/frame-1905.txt
+tests/goldens/boss-elk-beaten-rich/frame-1920.sty
+tests/goldens/boss-elk-beaten-rich/frame-1920.txt
+tests/goldens/boss-elk-phase2-plain/frame-1256.sty
+tests/goldens/boss-elk-phase2-plain/frame-1256.txt
+tests/goldens/boss-elk-phase2-rich/frame-1256.sty
+tests/goldens/boss-elk-phase2-rich/frame-1256.txt
+tests/goldens/boss-lynx-beaten-plain/frame-1005.sty
+tests/goldens/boss-lynx-beaten-plain/frame-1005.txt
+tests/goldens/boss-lynx-beaten-plain/frame-1020.sty
+tests/goldens/boss-lynx-beaten-plain/frame-1020.txt
+tests/goldens/boss-lynx-beaten-rich/frame-1005.sty
+tests/goldens/boss-lynx-beaten-rich/frame-1005.txt
+tests/goldens/boss-lynx-beaten-rich/frame-1020.sty
+tests/goldens/boss-lynx-beaten-rich/frame-1020.txt
+tests/goldens/boss-lynx-phase2-plain/frame-0837.sty
+tests/goldens/boss-lynx-phase2-plain/frame-0837.txt
+tests/goldens/boss-lynx-phase2-rich/frame-0837.sty
+tests/goldens/boss-lynx-phase2-rich/frame-0837.txt
+tests/goldens/boss-lynx-windup-plain/frame-0618.sty
+tests/goldens/boss-lynx-windup-plain/frame-0618.txt
+tests/goldens/boss-lynx-windup-plain/frame-0619.sty
+tests/goldens/boss-lynx-windup-plain/frame-0619.txt
+tests/goldens/boss-lynx-windup-rich/frame-0618.sty
+tests/goldens/boss-lynx-windup-rich/frame-0618.txt
+tests/goldens/boss-lynx-windup-rich/frame-0619.sty
+tests/goldens/boss-lynx-windup-rich/frame-0619.txt
+tests/goldens/cb11-hand-e-150-plain/final.state
+tests/goldens/cb11-hand-e-150-plain/final.sty
+tests/goldens/cb11-hand-e-150-plain/final.txt
+tests/goldens/cb11-hand-e-150-rich/final.state
+tests/goldens/cb11-hand-e-150-rich/final.sty
+tests/goldens/cb11-hand-e-150-rich/final.txt
+tests/goldens/cb11-hand-n-150-plain/final.state
+tests/goldens/cb11-hand-n-150-plain/final.sty
+tests/goldens/cb11-hand-n-150-plain/final.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0001.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0001.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0002.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0002.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0003.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0003.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0004.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0004.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0005.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0005.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0006.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0006.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0007.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0007.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0008.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0008.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0009.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0009.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0010.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0010.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0011.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0011.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0012.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0012.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0013.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0013.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0014.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0014.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0015.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0015.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0016.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0016.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0017.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0017.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0018.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0018.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0019.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0019.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0020.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0020.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0021.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0021.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0022.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0022.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0023.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0023.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0024.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0024.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0025.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0025.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0026.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0026.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0027.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0027.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0028.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0028.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0029.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0029.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0030.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0030.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0031.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0031.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0032.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0032.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0033.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0033.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0034.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0034.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0035.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0035.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0036.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0036.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0037.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0037.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0038.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0038.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0039.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0039.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0040.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0040.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0041.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0041.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0042.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0042.txt
+tests/goldens/cb11-hand-n-150-plain/frame-0043.sty
+tests/goldens/cb11-hand-n-150-plain/frame-0043.txt
+tests/goldens/cb11-hand-n-150-rich/final.state
+tests/goldens/cb11-hand-n-150-rich/final.sty
+tests/goldens/cb11-hand-n-150-rich/final.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0001.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0001.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0002.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0002.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0003.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0003.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0004.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0004.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0005.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0005.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0006.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0006.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0007.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0007.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0008.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0008.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0009.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0009.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0010.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0010.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0011.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0011.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0012.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0012.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0013.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0013.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0014.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0014.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0015.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0015.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0016.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0016.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0017.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0017.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0018.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0018.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0019.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0019.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0020.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0020.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0021.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0021.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0022.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0022.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0023.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0023.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0024.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0024.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0025.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0025.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0026.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0026.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0027.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0027.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0028.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0028.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0029.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0029.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0030.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0030.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0031.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0031.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0032.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0032.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0033.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0033.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0034.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0034.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0035.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0035.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0036.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0036.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0037.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0037.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0038.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0038.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0039.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0039.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0040.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0040.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0041.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0041.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0042.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0042.txt
+tests/goldens/cb11-hand-n-150-rich/frame-0043.sty
+tests/goldens/cb11-hand-n-150-rich/frame-0043.txt
+tests/goldens/cb11-hand-n-200-plain/final.state
+tests/goldens/cb11-hand-n-200-plain/final.sty
+tests/goldens/cb11-hand-n-200-plain/final.txt
+tests/goldens/cb11-hand-n-200-rich/final.state
+tests/goldens/cb11-hand-n-200-rich/final.sty
+tests/goldens/cb11-hand-n-200-rich/final.txt
+tests/goldens/cb11-hand-n-250-plain/final.state
+tests/goldens/cb11-hand-n-250-plain/final.sty
+tests/goldens/cb11-hand-n-250-plain/final.txt
+tests/goldens/cb11-hand-n-250-rich/final.state
+tests/goldens/cb11-hand-n-250-rich/final.sty
+tests/goldens/cb11-hand-n-250-rich/final.txt
+tests/goldens/cb11-hand-n-330-plain/final.state
+tests/goldens/cb11-hand-n-330-plain/final.sty
+tests/goldens/cb11-hand-n-330-plain/final.txt
+tests/goldens/cb11-hand-n-330-rich/final.state
+tests/goldens/cb11-hand-n-330-rich/final.sty
+tests/goldens/cb11-hand-n-330-rich/final.txt
+tests/goldens/cb11-hand-n-367-plain/final.state
+tests/goldens/cb11-hand-n-367-plain/final.sty
+tests/goldens/cb11-hand-n-367-plain/final.txt
+tests/goldens/cb11-hand-n-367-rich/final.state
+tests/goldens/cb11-hand-n-367-rich/final.sty
+tests/goldens/cb11-hand-n-367-rich/final.txt
+tests/goldens/cb11-hand-ne-150-plain/final.state
+tests/goldens/cb11-hand-ne-150-plain/final.sty
+tests/goldens/cb11-hand-ne-150-plain/final.txt
+tests/goldens/cb11-hand-ne-150-rich/final.state
+tests/goldens/cb11-hand-ne-150-rich/final.sty
+tests/goldens/cb11-hand-ne-150-rich/final.txt
+tests/goldens/cb11-hand-nw-150-plain/final.state
+tests/goldens/cb11-hand-nw-150-plain/final.sty
+tests/goldens/cb11-hand-nw-150-plain/final.txt
+tests/goldens/cb11-hand-nw-150-rich/final.state
+tests/goldens/cb11-hand-nw-150-rich/final.sty
+tests/goldens/cb11-hand-nw-150-rich/final.txt
+tests/goldens/cb11-hand-s-150-plain/final.state
+tests/goldens/cb11-hand-s-150-plain/final.sty
+tests/goldens/cb11-hand-s-150-plain/final.txt
+tests/goldens/cb11-hand-s-150-rich/final.state
+tests/goldens/cb11-hand-s-150-rich/final.sty
+tests/goldens/cb11-hand-s-150-rich/final.txt
+tests/goldens/cb11-hand-se-150-plain/final.state
+tests/goldens/cb11-hand-se-150-plain/final.sty
+tests/goldens/cb11-hand-se-150-plain/final.txt
+tests/goldens/cb11-hand-se-150-rich/final.state
+tests/goldens/cb11-hand-se-150-rich/final.sty
+tests/goldens/cb11-hand-se-150-rich/final.txt
+tests/goldens/cb11-hand-sw-150-plain/final.state
+tests/goldens/cb11-hand-sw-150-plain/final.sty
+tests/goldens/cb11-hand-sw-150-plain/final.txt
+tests/goldens/cb11-hand-sw-150-rich/final.state
+tests/goldens/cb11-hand-sw-150-rich/final.sty
+tests/goldens/cb11-hand-sw-150-rich/final.txt
+tests/goldens/cb11-hand-w-150-plain/final.state
+tests/goldens/cb11-hand-w-150-plain/final.sty
+tests/goldens/cb11-hand-w-150-plain/final.txt
+tests/goldens/cb11-hand-w-150-rich/final.state
+tests/goldens/cb11-hand-w-150-rich/final.sty
+tests/goldens/cb11-hand-w-150-rich/final.txt
+tests/goldens/end-plain/frame-1035.sty
+tests/goldens/end-plain/frame-1035.txt
+tests/goldens/end-plain/frame-1080.sty
+tests/goldens/end-plain/frame-1080.txt
+tests/goldens/end-rich/frame-1035.sty
+tests/goldens/end-rich/frame-1035.txt
+tests/goldens/end-rich/frame-1080.sty
+tests/goldens/end-rich/frame-1080.txt
+tests/goldens/hawk-shadow-plain/frame-3171.sty
+tests/goldens/hawk-shadow-plain/frame-3171.txt
+tests/goldens/hawk-shadow-plain/frame-3172.sty
+tests/goldens/hawk-shadow-plain/frame-3172.txt
+tests/goldens/hawk-shadow-plain/frame-3173.sty
+tests/goldens/hawk-shadow-plain/frame-3173.txt
+tests/goldens/hawk-shadow-rich/frame-3171.sty
+tests/goldens/hawk-shadow-rich/frame-3171.txt
+tests/goldens/hawk-shadow-rich/frame-3172.sty
+tests/goldens/hawk-shadow-rich/frame-3172.txt
+tests/goldens/hawk-shadow-rich/frame-3173.sty
+tests/goldens/hawk-shadow-rich/frame-3173.txt
+tests/goldens/hawk-stoop-plain/frame-3187.sty
+tests/goldens/hawk-stoop-plain/frame-3187.txt
+tests/goldens/hawk-stoop-plain/frame-3188.sty
+tests/goldens/hawk-stoop-plain/frame-3188.txt
+tests/goldens/hawk-stoop-rich/frame-3187.sty
+tests/goldens/hawk-stoop-rich/frame-3187.txt
+tests/goldens/hawk-stoop-rich/frame-3188.sty
+tests/goldens/hawk-stoop-rich/frame-3188.txt
+tests/goldens/whisper-flank-plain/frame-0831.sty
+tests/goldens/whisper-flank-plain/frame-0831.txt
+tests/goldens/whisper-flank-plain/frame-0832.sty
+tests/goldens/whisper-flank-plain/frame-0832.txt
+tests/goldens/whisper-flank-plain/frame-0833.sty
+tests/goldens/whisper-flank-plain/frame-0833.txt
+tests/goldens/whisper-flank-plain/frame-0834.sty
+tests/goldens/whisper-flank-plain/frame-0834.txt
+tests/goldens/whisper-flank-plain/frame-0835.sty
+tests/goldens/whisper-flank-plain/frame-0835.txt
+tests/goldens/whisper-flank-plain/frame-0836.sty
+tests/goldens/whisper-flank-plain/frame-0836.txt
+tests/goldens/whisper-flank-plain/frame-0837.sty
+tests/goldens/whisper-flank-plain/frame-0837.txt
+tests/goldens/whisper-flank-plain/frame-0838.sty
+tests/goldens/whisper-flank-plain/frame-0838.txt
+tests/goldens/whisper-flank-rich/frame-0831.sty
+tests/goldens/whisper-flank-rich/frame-0831.txt
+tests/goldens/whisper-flank-rich/frame-0832.sty
+tests/goldens/whisper-flank-rich/frame-0832.txt
+tests/goldens/whisper-flank-rich/frame-0833.sty
+tests/goldens/whisper-flank-rich/frame-0833.txt
+tests/goldens/whisper-flank-rich/frame-0834.sty
+tests/goldens/whisper-flank-rich/frame-0834.txt
+tests/goldens/whisper-flank-rich/frame-0835.sty
+tests/goldens/whisper-flank-rich/frame-0835.txt
+tests/goldens/whisper-flank-rich/frame-0836.sty
+tests/goldens/whisper-flank-rich/frame-0836.txt
+tests/goldens/whisper-flank-rich/frame-0837.sty
+tests/goldens/whisper-flank-rich/frame-0837.txt
+tests/goldens/whisper-flank-rich/frame-0838.sty
+tests/goldens/whisper-flank-rich/frame-0838.txt

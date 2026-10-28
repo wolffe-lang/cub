@@ -1,0 +1,4 @@
+flank search 16/544; prefix 820
+flank search 32/544; prefix 820
+flank search 48/544; prefix 820
+FLANK FOUND prefix 820 move ('down',) ticks 12 aim 160 result (836, 160, 149, 104, 80, 32578) trials 59

@@ -1,0 +1,48 @@
+cb11 waits for Mac lock holder=14352 2026-10-28T03:08:06Z
+cb11 waits for Mac lock holder=14352 2026-10-28T03:08:36Z
+cb11 waits for Mac lock holder=14352 2026-10-28T03:09:06Z
+cb11 memory floor clear 10983931904 bytes 2026-10-28T03:09:36Z
+cb11-enhanced-150-rich: strike_starts=[(2, 1), (13, 2), (26, 3)] expected=[1, 2, 3]
+cb11-enhanced-150-plain: strike_starts=[(9, 1), (20, 2), (33, 3)] expected=[1, 2, 3]
+cb11-enhanced-200-rich: strike_starts=[(9, 1), (20, 2), (33, 3)] expected=[1, 2, 3]
+cb11-enhanced-200-plain: strike_starts=[(9, 1), (20, 2), (33, 3)] expected=[1, 2, 3]
+cb11-enhanced-250-rich: strike_starts=[(9, 1), (20, 2), (33, 3)] expected=[1, 2, 3]
+cb11-enhanced-250-plain: strike_starts=[(9, 1), (20, 2), (33, 3)] expected=[1, 2, 3]
+cb11-enhanced-330-rich: strike_starts=[(9, 1), (20, 2), (33, 3)] expected=[1, 2, 3]
+cb11-enhanced-330-plain: strike_starts=[(9, 1), (20, 2), (33, 3)] expected=[1, 2, 3]
+cb11-enhanced-100-rich: strike_starts=[(9, 1), (20, 2), (33, 3)] expected=[1, 2, 3]
+cb11-enhanced-100-plain: strike_starts=[(9, 1), (20, 2), (33, 3)] expected=[1, 2, 3]
+cb11-enhanced-30-rich: strike_starts=[(9, 1)] expected=[1]
+cb11-enhanced-30-plain: strike_starts=[(9, 1)] expected=[1]
+cb11-enhanced-60-rich: strike_starts=[(9, 1)] expected=[1]
+cb11-enhanced-60-plain: strike_starts=[(9, 1)] expected=[1]
+cb11-enhanced-held250-rich: strike_starts=[(9, 1)] expected=[1]
+cb11-enhanced-held250-plain: strike_starts=[(9, 1)] expected=[1]
+cb11-enhanced-held500-rich: strike_starts=[(9, 1)] expected=[1]
+cb11-enhanced-held500-plain: strike_starts=[(9, 1)] expected=[1]
+cb11-legacy-150-rich: strike_starts=[(5, 1), (16, 2), (29, 3)] expected=[1, 2, 3]
+cb11-legacy-150-plain: strike_starts=[(5, 1), (16, 2), (29, 3)] expected=[1, 2, 3]
+cb11-legacy-200-rich: strike_starts=[(4, 1), (15, 2), (28, 3)] expected=[1, 2, 3]
+cb11-legacy-200-plain: strike_starts=[(5, 1), (16, 2), (29, 3)] expected=[1, 2, 3]
+cb11-legacy-250-rich: strike_starts=[(5, 1), (16, 2), (29, 3)] expected=[1, 2, 3]
+cb11-legacy-250-plain: strike_starts=[(5, 1), (16, 2), (29, 3)] expected=[1, 2, 3]
+cb11-legacy-330-rich: strike_starts=[(5, 1), (16, 2), (29, 3)] expected=[1, 2, 3]
+cb11-legacy-330-plain: strike_starts=[(5, 1), (16, 2), (29, 3)] expected=[1, 2, 3]
+cb11-legacy-100-rich: strike_starts=[(5, 1), (16, 2), (29, 3)] expected=[1, 2, 3]
+cb11-legacy-100-plain: strike_starts=[(4, 1), (15, 2), (28, 3)] expected=[1, 2, 3]
+cb11-legacy-30-rich: strike_starts=[(5, 1)] expected=[1]
+cb11-legacy-30-plain: strike_starts=[(4, 1)] expected=[1]
+cb11-legacy-60-rich: strike_starts=[(5, 1)] expected=[1]
+cb11-legacy-60-plain: strike_starts=[(5, 1)] expected=[1]
+cb11-legacy-held250-rich: strike_starts=[(5, 1), (16, 2)] expected=[1, 2]
+cb11-legacy-held250-plain: strike_starts=[(5, 1), (16, 2)] expected=[1, 2]
+cb11-legacy-held500-rich: strike_starts=[(5, 1), (20, 2)] expected=[1, 2]
+cb11-legacy-held500-plain: strike_starts=[(5, 1), (20, 2)] expected=[1, 2]
+pty: cb11-hand-reader ok (darwin arm64, exit 0, 7620 bytes captured)
+cb07 strikes tier=rich hit=1 0:-0.25/-0.0 1:-0.25/-0.0 2:-0.25/-0.0 3:1.12/1.07 4:1.04/1.01 5:1.04/1.01 6:1.04/1.01 7:1.0/0.75 8:0.5/0.51 9:0.5/0.26 10:0.0/0.01
+cb07 strikes tier=rich hit=2 0:-0.25/-0.0 1:-0.25/-0.0 2:-0.25/-0.0 3:1.12/-0.94 4:1.04/-1.0 5:1.04/-1.0 6:1.04/-1.0 7:1.0/-0.75 8:0.5/-0.75 9:0.5/-0.5 10:0.5/-0.25 11:0.0/-0.25 12:0.0/0.01
+cb07 strikes tier=rich hit=3 0:-0.25/0.0 1:-0.25/0.0 2:-0.25/0.0 3:2.12/0.05 4:2.04/-0.01 5:2.04/0.2 6:2.04/0.2 7:2.04/-0.22 8:2.04/-0.22 9:2.0/0.21 10:1.5/0.21 11:1.5/-0.21 12:1.0/-0.21 13:1.0/-0.0 14:0.5/-0.01 15:0.5/-0.01 16:0.0/-0.01
+cb07 strikes tier=plain hit=1 0:0.0/-0.0 1:0.0/-0.0 2:0.0/-0.0 3:1.03/1.03 4:1.0/1.0 5:1.0/1.0 6:1.0/1.0 7:1.0/1.0 8:1.0/1.0 9:1.0/1.0 10:0.0/-0.0
+cb07 strikes tier=plain hit=2 0:0.0/-0.0 1:0.0/-0.0 2:0.0/-0.0 3:1.03/-0.97 4:1.0/-1.0 5:1.0/-1.0 6:1.0/-1.0 7:1.0/-1.0 8:1.0/-1.0 9:1.0/-1.0 10:1.0/-1.0 11:1.0/-1.0 12:0.0/-0.0
+cb07 strikes tier=plain hit=3 0:0.0/-0.0 1:0.0/-0.0 2:0.0/-0.0 3:2.03/0.03 4:2.0/-0.0 5:2.15/0.09 6:2.15/0.09 7:2.15/-0.09 8:2.15/-0.09 9:2.15/0.09 10:2.15/0.09 11:2.15/-0.09 12:1.15/-0.09 13:1.0/-0.0 14:1.0/-0.0 15:1.0/-0.0 16:0.0/-0.0
+pty: cb07-strikes ok (darwin arm64, exit 0, 17509 bytes captured)

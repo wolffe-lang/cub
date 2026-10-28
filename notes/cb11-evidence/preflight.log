@@ -1,0 +1,89 @@
+cb11 waits for Mac lock holder=4566 2026-10-28T02:31:22Z
+cb11 waits for Mac lock holder=4566 2026-10-28T02:31:52Z
+cb11 waits for Mac lock holder=4566 2026-10-28T02:32:22Z
+cb11 waits for Mac lock holder=4566 2026-10-28T02:32:52Z
+cb11 waits for Mac lock holder=4566 2026-10-28T02:33:22Z
+cb11 waits for Mac lock holder=4566 2026-10-28T02:33:52Z
+cb11 waits for Mac lock holder=4566 2026-10-28T02:34:22Z
+cb11 waits for Mac lock holder=4566 2026-10-28T02:34:52Z
+cb11 memory floor clear 11279138816 bytes 2026-10-28T02:35:22Z
+test src/combo_request_test.lu::test_cb11_hand_north_150ms_has_three_holds ... ok
+test src/combo_request_test.lu::test_cb11_hand_north_200ms_has_three_holds ... ok
+test src/combo_request_test.lu::test_cb11_hand_north_250ms_has_three_holds ... ok
+test src/combo_request_test.lu::test_cb11_hand_north_330ms_has_three_holds ... ok
+test src/combo_request_test.lu::test_cb11_hand_northeast ... ok
+test src/combo_request_test.lu::test_cb11_hand_east ... ok
+test src/combo_request_test.lu::test_cb11_hand_southeast ... ok
+test src/combo_request_test.lu::test_cb11_hand_south ... ok
+test src/combo_request_test.lu::test_cb11_hand_southwest ... ok
+test src/combo_request_test.lu::test_cb11_hand_west ... ok
+test src/combo_request_test.lu::test_cb11_hand_northwest ... ok
+test src/combo_request_test.lu::test_cb11_request_at_age_one ... ok
+test src/combo_request_test.lu::test_cb11_request_at_age_two ... ok
+test src/combo_request_test.lu::test_cb11_request_at_age_three ... ok
+test src/combo_request_test.lu::test_cb11_request_at_age_four ... ok
+test src/combo_request_test.lu::test_cb11_request_at_end_boundary ... ok
+test src/combo_request_test.lu::test_cb11_grace_first_tick ... ok
+test src/combo_request_test.lu::test_cb11_grace_last_tick ... ok
+test src/combo_request_test.lu::test_cb11_grace_expired ... ok
+test src/combo_request_test.lu::test_cb11_two_pending_requests_preserve_order_and_drop_overflow ... ok
+test src/combo_request_test.lu::test_cb11_same_tick_is_not_an_age_one_request ... ok
+test src/combo_request_test.lu::test_cb11_unaffordable_queue_does_not_restart_later ... ok
+test src/combo_request_test.lu::test_cb11_other_action_closes_the_grace ... ok
+test src/combo_request_test.lu::test_cb11_legacy_30ms_repeat_does_not_chain ... ok
+test src/combo_request_test.lu::test_cb11_legacy_60ms_repeat_does_not_chain ... ok
+test src/combo_request_test.lu::test_cb11_legacy_100ms_fresh_presses_chain ... ok
+test src/combo_request_test.lu::test_cb11_enhanced_repeat_is_not_a_bite_or_heavy_request ... ok
+wolf test: 27 passed; 0 failed; 0 rejected; 0 unsupported; 422 filtered out
+build: target/native/cub
+OBSERVED cb11-hand-n-150-rich (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-150-plain (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+FAIL cb11-hand-n-150-plain: (1, 3, 0.7748538011695913)
+OBSERVED cb11-hand-n-200-rich (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-200-rich interval_ms=200 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-200-plain (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+FAIL cb11-hand-n-200-plain: (1, 3, 0.7748538011695913)
+OBSERVED cb11-hand-n-250-rich (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-250-rich interval_ms=250 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-250-plain (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+FAIL cb11-hand-n-250-plain: (1, 3, 0.7748538011695913)
+OBSERVED cb11-hand-n-330-rich (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-330-rich interval_ms=330 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-330-plain (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+FAIL cb11-hand-n-330-plain: (1, 3, 0.7748538011695913)
+OBSERVED cb11-hand-ne-150-rich (tick, strike, dx, dy)=[(6, 1, 0, -362), (17, 2, 362, 0), (30, 3, 362, -362)]
+PASS cb11-hand-ne-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-ne-150-plain (tick, strike, dx, dy)=[(6, 1, 0, -362), (17, 2, 362, 0), (30, 3, 362, -362)]
+PASS cb11-hand-ne-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-e-150-rich (tick, strike, dx, dy)=[(6, 1, 256, -256), (17, 2, 256, 256), (30, 3, 512, 0)]
+PASS cb11-hand-e-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-e-150-plain (tick, strike, dx, dy)=[(6, 1, 256, -256), (17, 2, 256, 256), (30, 3, 512, 0)]
+PASS cb11-hand-e-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-se-150-rich (tick, strike, dx, dy)=[(6, 1, 362, 0), (17, 2, 0, 362), (30, 3, 362, 362)]
+PASS cb11-hand-se-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-se-150-plain (tick, strike, dx, dy)=[(6, 1, 362, 0), (17, 2, 0, 362), (30, 3, 362, 362)]
+PASS cb11-hand-se-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-s-150-rich (tick, strike, dx, dy)=[(6, 1, 256, 256), (17, 2, -256, 256), (30, 3, 0, 512)]
+PASS cb11-hand-s-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-s-150-plain (tick, strike, dx, dy)=[(6, 1, 256, 256), (17, 2, -256, 256), (30, 3, 0, 512)]
+PASS cb11-hand-s-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-sw-150-rich (tick, strike, dx, dy)=[(6, 1, 0, 362), (17, 2, -362, 0), (30, 3, -362, 362)]
+PASS cb11-hand-sw-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-sw-150-plain (tick, strike, dx, dy)=[(6, 1, 0, 362), (17, 2, -362, 0), (30, 3, -362, 362)]
+PASS cb11-hand-sw-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-w-150-rich (tick, strike, dx, dy)=[(6, 1, -256, 256), (17, 2, -256, -256), (30, 3, -512, 0)]
+PASS cb11-hand-w-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-w-150-plain (tick, strike, dx, dy)=[(6, 1, -256, 256), (17, 2, -256, -256), (30, 3, -512, 0)]
+PASS cb11-hand-w-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-nw-150-rich (tick, strike, dx, dy)=[(6, 1, -362, 0), (17, 2, 0, -362), (30, 3, -362, -362)]
+PASS cb11-hand-nw-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-nw-150-plain (tick, strike, dx, dy)=[(6, 1, -362, 0), (17, 2, 0, -362), (30, 3, -362, -362)]
+PASS cb11-hand-nw-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+Traceback (most recent call last):
+  File "/Users/mfwolffe/lanes/cb11/cub/tools/combo-timing.py", line 146, in <module>
+    check(args.bin, args.out)
+  File "/Users/mfwolffe/lanes/cb11/cub/tools/combo-timing.py", line 133, in check
+    assert not failures, f'hand-timing rows failed: {failures}'
+           ^^^^^^^^^^^^
+AssertionError: hand-timing rows failed: ['cb11-hand-n-150-plain', 'cb11-hand-n-200-plain', 'cb11-hand-n-250-plain', 'cb11-hand-n-330-plain']

@@ -1,0 +1,159 @@
+Per-fixture SHA256 receipts: unchanged generators, ordinary recorded keys.
+The grace makes the next idle bite combo2/3 (cost14/18 rather than12),
+and the queue accepts formerly dropped early/end requests. Combat/AI
+choices and movement therefore diverge. No generator, tactic, damage,
+world geometry or semantic assertion was changed to get these fixtures.
+
+tests/cases/boss-alpha-beaten.pk
+  old 3f18d45eeb93dd1bbc374f69fe50fecbc3618e7be5c4ef8592ea907f93b744b6
+  new 7d3fc41dbcca7329e572814af7b63933cd3f696cb26f6e38bc30b8e83e12357c
+  grace advances idle follow-up bites and their costs; unchanged fighter records new windup/phase/win ticks; frames 1083->1000; first differing event 't 328 up'->'t 328 down'
+tests/cases/boss-alpha-phase2.pk
+  old 6d9516c1523bbd607ef61610c8499c3b9e3fffe944d4e4b3fb449a32913616dd
+  new f62de76980bef0b24b5c23c099885452bb6dc4541a50121a31467ce02575fdd8
+  grace advances idle follow-up bites and their costs; unchanged fighter records new windup/phase/win ticks; frames 768->751; first differing event 't 328 up'->'t 328 down'
+tests/cases/boss-alpha-windup.pk
+  old 7353ff15e518e88cc7faf48813fe29c31c9deaed1c98b6262444cdbb4648bc81
+  new 617633c5afab108ea8da9e0f80c543c3ec880f763fba729e63fe7c1a294f292e
+  grace advances idle follow-up bites and their costs; unchanged fighter records new windup/phase/win ticks; frames 533->516; first differing event 't 328 up'->'t 328 down'
+tests/cases/boss-boar-beaten.pk
+  old d82f0e7c26923deba192ac5d93be81f8f38ba3a6374ac1d1ad0a7d836b14eddb
+  new 5c824409bde18f95ccda3ddebcb05272e9b21cc0e621d89acb3e4f79e90d588d
+  grace advances idle follow-up bites and their costs; unchanged fighter records new windup/phase/win ticks; frames 1134->1897; first differing event 't 332 parry'->'t 334 parry'
+tests/cases/boss-boar-phase2.pk
+  old 1ba807457772ecdcfc3eac489ddc297bd6dca7fa8b15a94bd40078e81c3c497d
+  new f63dd9f48b29a8abf05a679f87f052a06ae0a01b948b8b91dfab280d327bd511
+  grace advances idle follow-up bites and their costs; unchanged fighter records new windup/phase/win ticks; frames 415->427; first differing event 't 332 parry'->'t 334 parry'
+tests/cases/boss-boar-windup.pk
+  old 11e1ea170d1776ba68e1328d37902c59239d50d64b4d0cdb19e50e69bf1d22b3
+  new aec1fe442fc15d989a314bc2fe4a1b852a579e2156bb08e73533e160780ed27b
+  grace advances idle follow-up bites and their costs; unchanged fighter records new windup/phase/win ticks; frames 107->107; first differing event 't 332 parry'->'t 334 parry'
+tests/cases/boss-elk-beaten.pk
+  old b5a5385a6e35b9a51c5a610e7f6f387db42fc261b12cbcf957370c69a1782afb
+  new 39cc0a892d91af9171d6c5caf5f263a9574d9325ae901895bea0bb51f1127af3
+  grace advances idle follow-up bites and their costs; unchanged fighter records new windup/phase/win ticks; frames 1840->1928; first differing event 't 772 left'->'t 772 down'
+tests/cases/boss-elk-phase2.pk
+  old 50daf5e6fe55d0493bce1026e6d16861707d4e2ef615c4c0d77f14290dafb3a7
+  new 0ad0fc91887eb0e1f79693786499c551fd6ad4f547cec45a26e151eb47b5ed1f
+  grace advances idle follow-up bites and their costs; unchanged fighter records new windup/phase/win ticks; frames 1339->1257; first differing event 't 772 left'->'t 772 down'
+tests/cases/boss-elk-windup.pk
+  old 2b294320a5e9097c245c0726d02d5c9e37ac2ebe61e7e6a07f9888552746366c
+  new 828c33025b3bc86818d6480d8527b31cc6f29eb1dbd21256b34e27c86dae538a
+  grace advances idle follow-up bites and their costs; unchanged fighter records new windup/phase/win ticks; frames 630->630; first differing event 't 772 left'->'t 772 down'
+tests/cases/boss-lynx-beaten.pk
+  old 51fe8ddfda404003b17b5197a745d7f0244160155d87971892a28710f68bda43
+  new 6cae700abd03bc2e2bfed1b6521621afdabfa5a074e033b152f7e75b55451367
+  grace advances idle follow-up bites and their costs; unchanged fighter records new windup/phase/win ticks; frames 1076->1040; first differing event 't 124 down'->'t 124 right'
+tests/cases/boss-lynx-phase2.pk
+  old 32639da1842768a57f4fdb1959b8834826c3edf3cb78b2bff72ec0659f812c33
+  new e8f7528453575209d04380d2b90cce27c05e051a07cc645df3f7a26716417a3d
+  grace advances idle follow-up bites and their costs; unchanged fighter records new windup/phase/win ticks; frames 891->838; first differing event 't 124 down'->'t 124 right'
+tests/cases/boss-lynx-windup.pk
+  old 51a353450dc5b9f20c7dad6f90a62a13058eb4676a3c5054d3a3abce5793cafc
+  new b45cd196603cb03cc7d9af9deaf73a9c98b517b54093540f161fdbf699be0cbe
+  grace advances idle follow-up bites and their costs; unchanged fighter records new windup/phase/win ticks; frames 588->620; first differing event 't 124 down'->'t 124 right'
+tests/cases/coast-cache-0.pk
+  old 821e9a4b2e0b62ad40df4c021fdbdae220ade68984e8c7bd3b26387041e5ddf0
+  new 4ed10bb9d41a5659be65d7d3bb23dbff612b9c58fd89b3cbfabec0d49b3e3636
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 4298->4210; first differing event 't 220 down'->'t 219 right'
+tests/cases/coast-cache-1.pk
+  old 9adacf5db5cb087b854e70c075c632fb846440899d250809616fd5976aca55ec
+  new 039c256dda58053537121d4ad8b4943125b94339fabe77a5de4ad8c0869f46ea
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 4823->4737; first differing event 't 220 down'->'t 219 right'
+tests/cases/coast-cache-2.pk
+  old 6ed0df8d0059a935b9d32c482386e725fb5020efb9100812634976a0c9d690c3
+  new 038b686214763b41bd39a0546395697c928c9c9fc0ec2f33c766b4ea607f3589
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 5492->5408; first differing event 't 220 down'->'t 219 right'
+tests/cases/coast-cache-3.pk
+  old e56640d7f054c67992fb797ae188f8d038aa44527374a3a3d6bc626378c6d9df
+  new 445985e7de081dfed2ca510d54076a3c4d4c814e3d0116fa98d49f04d55276f8
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 6330->6248; first differing event 't 220 down'->'t 219 right'
+tests/cases/den-memory.pk
+  old c532e8142e5760c0e52f90992e49d5c4383fb1335145d415fc2dcac84fc30e9e
+  new a3d980445650f6774c2fe935482bd61da7a5bd2777f0a723ef85764fb817216f
+  grace/costs change the ordinary-key fight before the path/log crossings; unchanged den-memory generator restores both returns; frames 1121->1123; first differing event 't 183 down'->'t 182 right'
+tests/cases/end.pk
+  old 1c5ee79672f808d831f8283111e6b695fb728c200b3fc6dd25d3fb52013c08cf
+  new b2cdd57cd76efd7e409f20fa5c2c7ffaf8dd899c7a6dffa2d1138a67347155ef
+  grace advances idle follow-up bites and their costs; unchanged fighter records new windup/phase/win ticks; frames 1382->1299; first differing event 't 328 up'->'t 328 down'
+tests/cases/fox-feint.pk
+  old 097ec6cb2c86ca87eaecb3916140d05d7ebd73876577bd13f317d3eb32dddc90
+  new cbfe9df7c58e5a0ae46451c910ce3739bc7694453558ec0b0535a9a900c7976d
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 315->317; first differing event 't 185 down'->'t 184 right'
+tests/cases/hawk-shadow.pk
+  old 39b841dbf64d55722f46a44c3099284d22055e9a45fa486014677a0808d77d35
+  new ae4208150028543171b0ac9e2563c62921ef9fca7f1ecdf99e2d89365940ee34
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 3238->3174; first differing event 't 220 down'->'t 219 right'
+tests/cases/hawk-stoop.pk
+  old 43778f09617e99d8702074d3b82b658c86adde0f0a75209be3814260d11780d0
+  new 97e33c0319cded544cac52592d25d1d9662b9fceb313ffbbdd1a80d871fd0160
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 3253->3189; first differing event 't 220 down'->'t 219 right'
+tests/cases/landmark-2-1.pk
+  old 6ca82448dbe55faf2f5e82a9f37bcedac3afeed78e2551fa494141d96ae2882d
+  new cd128ab970c74325aaa2cde5c6fd1f1baadff04f0e743a467c30a33b0d03b6b4
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 372->374; first differing event 't 270 down'->'t 269 right'
+tests/cases/landmark-3-1.pk
+  old cea362c426fea6d236ec402e75c5740aa79390202a4beb63a1caa23fa360268c
+  new d9e648f9f6ecb3c6def95e2b1507671ad79d26840f1033caedc5768b2c29b499
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 239->258; first differing event 't 125 down'->'t 125 right'
+tests/cases/landmark-6-0.pk
+  old 1ff7ffa2e4220d71690f4d93a7ac5dae334c1971cf510e2bdc2a1997a38f23b9
+  new 1ffbeedd3ad0bc3d32c5ad69de6a0fd08d80cc87d77deb496c293d1537750872
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 520->524; first differing event 't 270 right'->'t 271 up'
+tests/cases/landmark-6-1.pk
+  old 9e4c86b3ef3c3cb77c05332c70e56f16390a5ef7672ecc5128df98ca98c25bc3
+  new 40c06b5db1f3d0e4df3d52b6f214c9830ceccb3f8b012c0c8534fb5cad1dc2a3
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 281->289; first differing event 't 199 left'->'t 201 left'
+tests/cases/natural-death.pk
+  old 38f8cfed371b2a40c45461ea8398dac039ad9f638b150a4ae0aea839ad873bf6
+  new fd5b39a1cd7c3cb746dfd058ee5b769e31bdbee0c80afcb8195608a495e6ed90
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 481->483; first differing event 't 183 down'->'t 182 right'
+tests/cases/thorn-gate.pk
+  old 7b219fde561294f995807c2ea46c59056dffe6d00433a4d39df80e873258e823
+  new da81916e42dfbbabc4adce3b93ad28ab107500714c2c525c9b9c5a26dc0a894e
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 657->659; first differing event 't 220 down'->'t 219 right'
+tests/cases/town-den.pk
+  old dbc366c0366675cc6d4ce951d40beb174dff7ae1a418eb3231125af976fe24e4
+  new e7971288fec905c5d6b937e3972ab65c4329074b1ae4adc591c97882386bb0d3
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 1218->1220; first differing event 't 220 down'->'t 219 right'
+tests/cases/town-passage.pk
+  old 89c5e0c78c2e03f2e38645650a9a679639bc63b867f8acff11ea91b72c6ba4af
+  new fd4e6d4274e1d3d10d64d00495e579bf234539b068faeb35e11d2a02292d208a
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 529->533; first differing event 't 270 right'->'t 271 up'
+tests/cases/whisper-flank.pk
+  old 2ed0cbda622b3a473d69c0beb3196629e8ceb413814f52b7de73fb94207b4504
+  new fd88ff88280f563a64b15b9c9796f218935a51a9c809ec9ec1d2a31b21fa8526
+  new accepted combo costs changed lynx approach; unchanged bounded predicate finds prefix820/down12/aim160, hit836 (104->80), both-centre miss margin32578; old prefix756 no longer lands its special flank; frames 763->839; first differing event 't 124 down'->'t 124 right'
+tests/cases/world-den.pk
+  old 9382d5239216013da2da4465e5db9fa8d5bafc9a855f672c784216e195a077f1
+  new ef8910e73bf40bb6bce7f73c392e386e812f6e4eab02295413d8c95ab7ebce8a
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 2781->2728; first differing event 't 220 down'->'t 219 right'
+tests/cases/world-gate.pk
+  old 1ceb6057389abad3f45ac702c6659aaa6dc01f101c1f44c74ec23754706c0dc1
+  new d4f4d3fc57bf8d52ef03fbf6e727d050f9aacef17865ad62565563c19200963f
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 629->631; first differing event 't 220 down'->'t 219 right'
+tests/cases/world-hawk.pk
+  old 9271d16783621093d19f1c5a05a9a52560f811aad5c57b84588dbdee297af599
+  new b3ebdba22476f0846181d860b9dd60582823f84f99aae205d5069a13886ab954
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 3253->3189; first differing event 't 220 down'->'t 219 right'
+tests/cases/world-meadow.pk
+  old bb19afed946ba9cad9085199ac5dc3250ab4b7187aeb19a26d52e086ae34bdf3
+  new b210f355b73c0268761083c1ffabd5564409e27bbfd38d522df7ff1e6c8a3e66
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 3115->3062; first differing event 't 220 down'->'t 219 right'
+tests/cases/world-open.pk
+  old dbd9ab2babda72f8f1012ce28a50f5b4ad3af5e94ee6464875df35d69427f71f
+  new ca33fb98c37e84e592e3c4f009b524937bd1fb95b01e411503e0109371f638d1
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 672->674; first differing event 't 220 down'->'t 219 right'
+tests/cases/world-recovered.pk
+  old 917717b64f0b2b0990b458d774975edc23077f4d3c1bdcbe4e646d1a18face36
+  new 443f137572f8f2cc6c6e1c3acd1ea603133687843f7ebc442c24040ae08d34a0
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 3769->3665; first differing event 't 220 down'->'t 219 right'
+tests/cases/world-return.pk
+  old e064dcf1a142699266e651183a092bf984931139d7520ce76db506e08ca2d2c7
+  new cfc6555f2aa5975e45b653b036a50b697bc62535f824d43b95bc0a4dccc86f59
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 4184->4094; first differing event 't 220 down'->'t 219 right'
+tests/cases/world-thorns.pk
+  old db2bf9dc05eb10718f9a1d4f14fe193595bc073546e1a84c234f1a7635d5b996
+  new dff8019e2ea50db0a32a466fb26b6bf4b25361e2506e73d9fd93987dd41db023
+  grace advances idle follow-up bites and their costs along the world route; unchanged walker records the resulting approach and encounter timing; frames 646->648; first differing event 't 220 down'->'t 219 right'
+Fixtures changed: 38 (37 generators, one custom real-key flank search).

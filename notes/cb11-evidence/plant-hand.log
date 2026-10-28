@@ -1,0 +1,82 @@
+cb11 waits for Mac lock holder=13029 2026-10-28T02:51:38Z
+cb11 waits for Mac lock holder=13029 2026-10-28T02:52:08Z
+cb11 waits for Mac lock holder=13029 2026-10-28T02:52:38Z
+cb11 waits for Mac lock holder=13029 2026-10-28T02:53:08Z
+cb11 waits for Mac lock holder=13029 2026-10-28T02:53:38Z
+cb11 waits for Mac lock holder=13029 2026-10-28T02:54:08Z
+cb11 waits for Mac lock holder=13029 2026-10-28T02:54:38Z
+cb11 waits for Mac lock holder=13029 2026-10-28T02:55:08Z
+cb11 waits for Mac lock holder=13029 2026-10-28T02:55:38Z
+cb11 waits for Mac lock holder=13029 2026-10-28T02:56:08Z
+cb11 waits for Mac lock holder=13029 2026-10-28T02:56:38Z
+cb11 waits for Mac lock holder=13029 2026-10-28T02:57:08Z
+cb11 waits for Mac lock holder=13029 2026-10-28T02:57:38Z
+cb11 waits for Mac lock holder=13029 2026-10-28T02:58:08Z
+cb11 waits for Mac lock holder=13029 2026-10-28T02:58:38Z
+cb11 waits for Mac lock holder=17266 2026-10-28T02:59:08Z
+cb11 waits for Mac lock holder=17266 2026-10-28T02:59:38Z
+cb11 waits for Mac lock holder=17266 2026-10-28T03:00:08Z
+cb11 waits for Mac lock holder=17266 2026-10-28T03:00:38Z
+cb11 waits for Mac lock holder=17266 2026-10-28T03:01:08Z
+cb11 waits for Mac lock holder=17266 2026-10-28T03:01:38Z
+cb11 waits for Mac lock holder=17266 2026-10-28T03:02:08Z
+cb11 waits for Mac lock holder=23612 2026-10-28T03:02:38Z
+cb11 waits for Mac lock holder=36099 2026-10-28T03:03:08Z
+cb11 waits for Mac lock holder=16070 2026-10-28T03:03:38Z
+cb11 memory floor clear 10161422336 bytes 2026-10-28T03:04:08Z
+OBSERVED cb11-hand-n-150-rich (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256)]
+FAIL cb11-hand-n-150-rich: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-n-150-plain (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256)]
+FAIL cb11-hand-n-150-plain: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-n-200-rich (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256)]
+FAIL cb11-hand-n-200-rich: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-n-200-plain (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256)]
+FAIL cb11-hand-n-200-plain: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-n-250-rich (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256)]
+FAIL cb11-hand-n-250-rich: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-n-250-plain (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256)]
+FAIL cb11-hand-n-250-plain: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-n-330-rich (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-330-rich interval_ms=330 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-330-plain (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-330-plain interval_ms=330 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-367-rich (tick, strike, dx, dy)=[(6, 1, -256, -256), (28, 1, -256, -256)]
+FAIL cb11-hand-n-367-rich: hold sequence [1, 1], expected [1, 2, 3]
+OBSERVED cb11-hand-n-367-plain (tick, strike, dx, dy)=[(6, 1, -256, -256), (28, 1, -256, -256)]
+FAIL cb11-hand-n-367-plain: hold sequence [1, 1], expected [1, 2, 3]
+OBSERVED cb11-hand-ne-150-rich (tick, strike, dx, dy)=[(6, 1, 0, -362), (17, 2, 362, 0)]
+FAIL cb11-hand-ne-150-rich: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-ne-150-plain (tick, strike, dx, dy)=[(6, 1, 0, -362), (17, 2, 362, 0)]
+FAIL cb11-hand-ne-150-plain: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-e-150-rich (tick, strike, dx, dy)=[(6, 1, 256, -256), (17, 2, 256, 256)]
+FAIL cb11-hand-e-150-rich: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-e-150-plain (tick, strike, dx, dy)=[(6, 1, 256, -256), (17, 2, 256, 256)]
+FAIL cb11-hand-e-150-plain: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-se-150-rich (tick, strike, dx, dy)=[(6, 1, 362, 0), (17, 2, 0, 362)]
+FAIL cb11-hand-se-150-rich: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-se-150-plain (tick, strike, dx, dy)=[(6, 1, 362, 0), (17, 2, 0, 362)]
+FAIL cb11-hand-se-150-plain: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-s-150-rich (tick, strike, dx, dy)=[(6, 1, 256, 256), (17, 2, -256, 256)]
+FAIL cb11-hand-s-150-rich: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-s-150-plain (tick, strike, dx, dy)=[(6, 1, 256, 256), (17, 2, -256, 256)]
+FAIL cb11-hand-s-150-plain: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-sw-150-rich (tick, strike, dx, dy)=[(6, 1, 0, 362), (17, 2, -362, 0)]
+FAIL cb11-hand-sw-150-rich: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-sw-150-plain (tick, strike, dx, dy)=[(6, 1, 0, 362), (17, 2, -362, 0)]
+FAIL cb11-hand-sw-150-plain: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-w-150-rich (tick, strike, dx, dy)=[(6, 1, -256, 256), (17, 2, -256, -256)]
+FAIL cb11-hand-w-150-rich: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-w-150-plain (tick, strike, dx, dy)=[(6, 1, -256, 256), (17, 2, -256, -256)]
+FAIL cb11-hand-w-150-plain: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-nw-150-rich (tick, strike, dx, dy)=[(6, 1, -362, 0), (17, 2, 0, -362)]
+FAIL cb11-hand-nw-150-rich: hold sequence [1, 2], expected [1, 2, 3]
+OBSERVED cb11-hand-nw-150-plain (tick, strike, dx, dy)=[(6, 1, -362, 0), (17, 2, 0, -362)]
+FAIL cb11-hand-nw-150-plain: hold sequence [1, 2], expected [1, 2, 3]
+Traceback (most recent call last):
+  File "/Users/mfwolffe/lanes/cb11/plant/tools/combo-timing.py", line 148, in <module>
+    check(args.bin, args.out)
+  File "/Users/mfwolffe/lanes/cb11/plant/tools/combo-timing.py", line 135, in check
+    assert not failures, f'hand-timing rows failed: {failures}'
+           ^^^^^^^^^^^^
+AssertionError: hand-timing rows failed: ['cb11-hand-n-150-rich', 'cb11-hand-n-150-plain', 'cb11-hand-n-200-rich', 'cb11-hand-n-200-plain', 'cb11-hand-n-250-rich', 'cb11-hand-n-250-plain', 'cb11-hand-n-367-rich', 'cb11-hand-n-367-plain', 'cb11-hand-ne-150-rich', 'cb11-hand-ne-150-plain', 'cb11-hand-e-150-rich', 'cb11-hand-e-150-plain', 'cb11-hand-se-150-rich', 'cb11-hand-se-150-plain', 'cb11-hand-s-150-rich', 'cb11-hand-s-150-plain', 'cb11-hand-sw-150-rich', 'cb11-hand-sw-150-plain', 'cb11-hand-w-150-rich', 'cb11-hand-w-150-plain', 'cb11-hand-nw-150-rich', 'cb11-hand-nw-150-plain']
+CB11_PLANT_EXIT 1

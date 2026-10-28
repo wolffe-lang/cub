@@ -1,0 +1,645 @@
+den-memory: wrote target/cb11-den-memory.pk, 1123 ticks, final live 4
+witness spring-found tick 116 area 0 scent 7606 mark 0 shortcuts 0
+witness world-gate tick 631 area 0 scent 7638 mark 0 shortcuts 0
+witness world-thorns tick 648 area 0 scent 7638 mark 0 shortcuts 0
+witness thorn-gate tick 659 area 0 scent 7638 mark 0 shortcuts 0
+witness world-open tick 674 area 0 scent 7638 mark 0 shortcuts 0
+witness town-den tick 1220 area 6 scent 7688 mark 0 shortcuts 0
+witness world-den tick 2728 area 1 scent 7758 mark 0 shortcuts 0
+witness world-meadow tick 3062 area 2 scent 7758 mark 0 shortcuts 0
+witness hawk-shadow tick 3174 from 3171 area 2
+witness hawk-stoop tick 3189 from 3187 area 2
+witness world-hawk tick 3189 area 2 scent 7758 mark 0 shortcuts 0
+witness world-recovered tick 3665 area 2 scent 7758 mark 0 shortcuts 0
+witness world-return tick 4094 area 0 scent 7770 mark 0 shortcuts 3
+witness coast-cache-0 tick 4210 area 0 scent 7790 mark 0 shortcuts 3
+witness coast-cache-1 tick 4737 area 0 scent 7810 mark 0 shortcuts 3
+witness coast-cache-2 tick 5408 area 0 scent 7830 mark 0 shortcuts 3
+witness coast-cache-3 tick 6248 area 0 scent 7830 mark 0 shortcuts 3
+witness bite tick 194 area 0 scent 16 mark 0 shortcuts 0
+witness parry tick 177 area 0 scent 0 mark 0 shortcuts 0
+witness dodge tick 177 area 0 scent 0 mark 0 shortcuts 0
+witness weasel-retreat tick 177 area 0 scent 0 mark 0 shortcuts 0
+witness fox-feint tick 317 area 0 scent 16 mark 0 shortcuts 0
+witness natural-death tick 483 area 0 scent 0 mark 16 shortcuts 0
+witness aim-lock tick 189 area 0 scent 0 mark 0 shortcuts 0
+witness sprint-hit tick 178 from 153 area 0
+boss boar attempts 1 ticks 1757 windup 100 phase2 425 beaten 1851 hits 1 2 0 unparryable 2
+witness boss-boar-windup frames 107 every 1 from 105
+witness boss-boar-phase2 frames 427 every 1 from 426
+witness boss-boar-beaten frames 1897 every 15 from 1852
+boss lynx attempts 1 ticks 426 windup 613 phase2 836 beaten 994 hits 1 1 1 unparryable 1
+witness boss-lynx-windup frames 620 every 1 from 618
+witness boss-lynx-phase2 frames 838 every 1 from 837
+witness boss-lynx-beaten frames 1040 every 15 from 995
+boss elk attempts 1 ticks 1346 windup 623 phase2 1255 beaten 1882 hits 0 0 0 unparryable 0
+witness boss-elk-windup frames 630 every 1 from 628
+witness boss-elk-phase2 frames 1257 every 1 from 1256
+witness boss-elk-beaten frames 1928 every 15 from 1883
+boss alpha attempts 1 ticks 502 windup 509 phase2 749 beaten 954 hits 0 0 0 unparryable 0
+witness boss-alpha-windup frames 516 every 1 from 514
+witness boss-alpha-phase2 frames 751 every 1 from 750
+witness end frames 1299 every 45 from 999
+witness boss-alpha-beaten frames 1000 every 15 from 955
+witness ghost-death tick 101 area 0 scent 0 mark 0 shortcuts 0
+witness ghost tick 250
+witness crags frames 121 every 40 from 1
+witness river frames 121 every 40 from 1
+witness old-den frames 121 every 40 from 1
+witness town-passage frames 533 every 6 from 383
+witness ashen-parry frames 681 every 5 from 557
+witness ember-touch frames 456 every 10 from 416
+witness yard-cache frames 401 every 4 from 380
+witness town-lane-80x24 frames 121 every 40 from 1
+witness town-lane-120x40 frames 121 every 40 from 1
+witness landmark-1-0 frames 261 every 1 from 261
+witness landmark-1-1 frames 38 every 1 from 38
+witness landmark-1-2 frames 314 every 1 from 314
+witness landmark-1-3 frames 71 every 1 from 71
+witness landmark-2-0 frames 80 every 1 from 80
+witness landmark-2-1 frames 374 every 1 from 374
+witness landmark-2-2 frames 221 every 1 from 221
+witness landmark-2-3 frames 71 every 1 from 71
+witness landmark-3-0 frames 26 every 1 from 26
+witness landmark-3-1 frames 258 every 1 from 258
+witness landmark-4-0 frames 26 every 1 from 26
+witness landmark-5-0 frames 389 every 1 from 389
+witness landmark-6-0 frames 524 every 1 from 524
+witness landmark-6-1 frames 289 every 1 from 289
+witness demo tick 461 area 0 scent 0 mark 0 shortcuts 0
+goldens: wrote tests/goldens/aim-e-rich
+goldens: wrote tests/goldens/aim-e-plain
+goldens: wrote tests/goldens/aim-lock-rich
+goldens: wrote tests/goldens/aim-lock-plain
+goldens: wrote tests/goldens/aim-n-rich
+goldens: wrote tests/goldens/aim-n-plain
+goldens: wrote tests/goldens/aim-ne-rich
+goldens: wrote tests/goldens/aim-ne-plain
+goldens: wrote tests/goldens/aim-nw-rich
+goldens: wrote tests/goldens/aim-nw-plain
+goldens: wrote tests/goldens/aim-s-rich
+goldens: wrote tests/goldens/aim-s-plain
+goldens: wrote tests/goldens/aim-se-rich
+goldens: wrote tests/goldens/aim-se-plain
+goldens: wrote tests/goldens/aim-sw-rich
+goldens: wrote tests/goldens/aim-sw-plain
+goldens: wrote tests/goldens/aim-w-rich
+goldens: wrote tests/goldens/aim-w-plain
+goldens: wrote tests/goldens/ashen-parry-rich
+goldens: wrote tests/goldens/ashen-parry-plain
+goldens: wrote tests/goldens/bite-arc-rich
+goldens: wrote tests/goldens/bite-arc-plain
+goldens: wrote tests/goldens/bite-rich
+goldens: wrote tests/goldens/bite-plain
+goldens: wrote tests/goldens/boss-alpha-beaten-rich
+goldens: wrote tests/goldens/boss-alpha-beaten-plain
+goldens: wrote tests/goldens/boss-alpha-phase2-rich
+goldens: wrote tests/goldens/boss-alpha-phase2-plain
+goldens: wrote tests/goldens/boss-alpha-windup-rich
+goldens: wrote tests/goldens/boss-alpha-windup-plain
+goldens: wrote tests/goldens/boss-boar-beaten-rich
+goldens: wrote tests/goldens/boss-boar-beaten-plain
+goldens: wrote tests/goldens/boss-boar-phase2-rich
+goldens: wrote tests/goldens/boss-boar-phase2-plain
+goldens: wrote tests/goldens/boss-boar-windup-rich
+goldens: wrote tests/goldens/boss-boar-windup-plain
+goldens: wrote tests/goldens/boss-elk-beaten-rich
+goldens: wrote tests/goldens/boss-elk-beaten-plain
+goldens: wrote tests/goldens/boss-elk-phase2-rich
+goldens: wrote tests/goldens/boss-elk-phase2-plain
+goldens: wrote tests/goldens/boss-elk-windup-rich
+goldens: wrote tests/goldens/boss-elk-windup-plain
+goldens: wrote tests/goldens/boss-lynx-beaten-rich
+goldens: wrote tests/goldens/boss-lynx-beaten-plain
+goldens: wrote tests/goldens/boss-lynx-phase2-rich
+goldens: wrote tests/goldens/boss-lynx-phase2-plain
+goldens: wrote tests/goldens/boss-lynx-windup-rich
+goldens: wrote tests/goldens/boss-lynx-windup-plain
+goldens: wrote tests/goldens/cb11-hand-e-150-rich
+goldens: wrote tests/goldens/cb11-hand-e-150-plain
+goldens: wrote tests/goldens/cb11-hand-n-150-rich
+goldens: wrote tests/goldens/cb11-hand-n-150-plain
+goldens: wrote tests/goldens/cb11-hand-n-200-rich
+goldens: wrote tests/goldens/cb11-hand-n-200-plain
+goldens: wrote tests/goldens/cb11-hand-n-250-rich
+goldens: wrote tests/goldens/cb11-hand-n-250-plain
+goldens: wrote tests/goldens/cb11-hand-n-330-rich
+goldens: wrote tests/goldens/cb11-hand-n-330-plain
+goldens: wrote tests/goldens/cb11-hand-n-367-rich
+goldens: wrote tests/goldens/cb11-hand-n-367-plain
+goldens: wrote tests/goldens/cb11-hand-ne-150-rich
+goldens: wrote tests/goldens/cb11-hand-ne-150-plain
+goldens: wrote tests/goldens/cb11-hand-nw-150-rich
+goldens: wrote tests/goldens/cb11-hand-nw-150-plain
+goldens: wrote tests/goldens/cb11-hand-s-150-rich
+goldens: wrote tests/goldens/cb11-hand-s-150-plain
+goldens: wrote tests/goldens/cb11-hand-se-150-rich
+goldens: wrote tests/goldens/cb11-hand-se-150-plain
+goldens: wrote tests/goldens/cb11-hand-sw-150-rich
+goldens: wrote tests/goldens/cb11-hand-sw-150-plain
+goldens: wrote tests/goldens/cb11-hand-w-150-rich
+goldens: wrote tests/goldens/cb11-hand-w-150-plain
+goldens: wrote tests/goldens/coast-cache-0-rich
+goldens: wrote tests/goldens/coast-cache-0-plain
+goldens: wrote tests/goldens/coast-cache-1-rich
+goldens: wrote tests/goldens/coast-cache-1-plain
+goldens: wrote tests/goldens/coast-cache-2-rich
+goldens: wrote tests/goldens/coast-cache-2-plain
+goldens: wrote tests/goldens/coast-cache-3-rich
+goldens: wrote tests/goldens/coast-cache-3-plain
+goldens: wrote tests/goldens/crags-rich
+goldens: wrote tests/goldens/crags-plain
+goldens: wrote tests/goldens/death-recovery-rich
+goldens: wrote tests/goldens/death-recovery-plain
+goldens: wrote tests/goldens/demo-rich
+goldens: wrote tests/goldens/demo-plain
+goldens: wrote tests/goldens/den-after-cluster-rich
+goldens: wrote tests/goldens/den-after-cluster-plain
+goldens: wrote tests/goldens/den-bars-120x40-rich
+goldens: wrote tests/goldens/den-bars-120x40-plain
+goldens: wrote tests/goldens/den-bars-80x24-rich
+goldens: wrote tests/goldens/den-bars-80x24-plain
+goldens: wrote tests/goldens/den-checkpoint-rich
+goldens: wrote tests/goldens/den-checkpoint-plain
+goldens: wrote tests/goldens/den-memory-rich
+goldens: wrote tests/goldens/den-memory-plain
+goldens: wrote tests/goldens/diagonal-rich
+goldens: wrote tests/goldens/diagonal-plain
+goldens: wrote tests/goldens/dodge-rich
+goldens: wrote tests/goldens/dodge-plain
+goldens: wrote tests/goldens/ember-touch-rich
+goldens: wrote tests/goldens/ember-touch-plain
+goldens: wrote tests/goldens/end-rich
+goldens: wrote tests/goldens/end-plain
+goldens: wrote tests/goldens/forward-windup-rich
+goldens: wrote tests/goldens/forward-windup-plain
+goldens: wrote tests/goldens/fox-feint-rich
+goldens: wrote tests/goldens/fox-feint-plain
+goldens: wrote tests/goldens/ghost-death-rich
+goldens: wrote tests/goldens/ghost-death-plain
+goldens: wrote tests/goldens/ghost-rich
+goldens: wrote tests/goldens/ghost-plain
+goldens: wrote tests/goldens/hawk-shadow-rich
+goldens: wrote tests/goldens/hawk-shadow-plain
+goldens: wrote tests/goldens/hawk-stoop-rich
+goldens: wrote tests/goldens/hawk-stoop-plain
+goldens: wrote tests/goldens/heavy-rich
+goldens: wrote tests/goldens/heavy-plain
+goldens: wrote tests/goldens/hud-after-c-120x40-rich
+goldens: wrote tests/goldens/hud-after-c-120x40-plain
+goldens: wrote tests/goldens/hud-after-c-80x24-rich
+goldens: wrote tests/goldens/hud-after-c-80x24-plain
+goldens: wrote tests/goldens/landmark-1-0-rich
+goldens: wrote tests/goldens/landmark-1-0-plain
+goldens: wrote tests/goldens/landmark-1-1-rich
+goldens: wrote tests/goldens/landmark-1-1-plain
+goldens: wrote tests/goldens/landmark-1-2-rich
+goldens: wrote tests/goldens/landmark-1-2-plain
+goldens: wrote tests/goldens/landmark-1-3-rich
+goldens: wrote tests/goldens/landmark-1-3-plain
+goldens: wrote tests/goldens/landmark-2-0-rich
+goldens: wrote tests/goldens/landmark-2-0-plain
+goldens: wrote tests/goldens/landmark-2-1-rich
+goldens: wrote tests/goldens/landmark-2-1-plain
+goldens: wrote tests/goldens/landmark-2-2-rich
+goldens: wrote tests/goldens/landmark-2-2-plain
+goldens: wrote tests/goldens/landmark-2-3-rich
+goldens: wrote tests/goldens/landmark-2-3-plain
+goldens: wrote tests/goldens/landmark-3-0-rich
+goldens: wrote tests/goldens/landmark-3-0-plain
+goldens: wrote tests/goldens/landmark-3-1-rich
+goldens: wrote tests/goldens/landmark-3-1-plain
+goldens: wrote tests/goldens/landmark-4-0-rich
+goldens: wrote tests/goldens/landmark-4-0-plain
+goldens: wrote tests/goldens/landmark-5-0-rich
+goldens: wrote tests/goldens/landmark-5-0-plain
+goldens: wrote tests/goldens/landmark-6-0-rich
+goldens: wrote tests/goldens/landmark-6-0-plain
+goldens: wrote tests/goldens/landmark-6-1-rich
+goldens: wrote tests/goldens/landmark-6-1-plain
+goldens: wrote tests/goldens/meadow-ford-rich
+goldens: wrote tests/goldens/meadow-ford-plain
+goldens: wrote tests/goldens/meadow-landmarks-rich
+goldens: wrote tests/goldens/meadow-landmarks-plain
+goldens: wrote tests/goldens/natural-death-rich
+goldens: wrote tests/goldens/natural-death-plain
+goldens: wrote tests/goldens/old-den-rich
+goldens: wrote tests/goldens/old-den-plain
+goldens: wrote tests/goldens/opening-black-120x40-rich
+goldens: wrote tests/goldens/opening-black-120x40-plain
+goldens: wrote tests/goldens/opening-black-200x60-rich
+goldens: wrote tests/goldens/opening-black-200x60-plain
+goldens: wrote tests/goldens/opening-black-80x24-rich
+goldens: wrote tests/goldens/opening-black-80x24-plain
+goldens: wrote tests/goldens/opening-blink1-close-120x40-rich
+goldens: wrote tests/goldens/opening-blink1-close-120x40-plain
+goldens: wrote tests/goldens/opening-blink1-close-200x60-rich
+goldens: wrote tests/goldens/opening-blink1-close-200x60-plain
+goldens: wrote tests/goldens/opening-blink1-close-80x24-rich
+goldens: wrote tests/goldens/opening-blink1-close-80x24-plain
+goldens: wrote tests/goldens/opening-blink1-open-120x40-rich
+goldens: wrote tests/goldens/opening-blink1-open-120x40-plain
+goldens: wrote tests/goldens/opening-blink1-open-200x60-rich
+goldens: wrote tests/goldens/opening-blink1-open-200x60-plain
+goldens: wrote tests/goldens/opening-blink1-open-80x24-rich
+goldens: wrote tests/goldens/opening-blink1-open-80x24-plain
+goldens: wrote tests/goldens/opening-blink1-peak-120x40-rich
+goldens: wrote tests/goldens/opening-blink1-peak-120x40-plain
+goldens: wrote tests/goldens/opening-blink1-peak-200x60-rich
+goldens: wrote tests/goldens/opening-blink1-peak-200x60-plain
+goldens: wrote tests/goldens/opening-blink1-peak-80x24-rich
+goldens: wrote tests/goldens/opening-blink1-peak-80x24-plain
+goldens: wrote tests/goldens/opening-blink1-shut-120x40-rich
+goldens: wrote tests/goldens/opening-blink1-shut-120x40-plain
+goldens: wrote tests/goldens/opening-blink1-shut-200x60-rich
+goldens: wrote tests/goldens/opening-blink1-shut-200x60-plain
+goldens: wrote tests/goldens/opening-blink1-shut-80x24-rich
+goldens: wrote tests/goldens/opening-blink1-shut-80x24-plain
+goldens: wrote tests/goldens/opening-blink2-close-120x40-rich
+goldens: wrote tests/goldens/opening-blink2-close-120x40-plain
+goldens: wrote tests/goldens/opening-blink2-close-200x60-rich
+goldens: wrote tests/goldens/opening-blink2-close-200x60-plain
+goldens: wrote tests/goldens/opening-blink2-close-80x24-rich
+goldens: wrote tests/goldens/opening-blink2-close-80x24-plain
+goldens: wrote tests/goldens/opening-blink2-open-120x40-rich
+goldens: wrote tests/goldens/opening-blink2-open-120x40-plain
+goldens: wrote tests/goldens/opening-blink2-open-200x60-rich
+goldens: wrote tests/goldens/opening-blink2-open-200x60-plain
+goldens: wrote tests/goldens/opening-blink2-open-80x24-rich
+goldens: wrote tests/goldens/opening-blink2-open-80x24-plain
+goldens: wrote tests/goldens/opening-blink2-shut-120x40-rich
+goldens: wrote tests/goldens/opening-blink2-shut-120x40-plain
+goldens: wrote tests/goldens/opening-blink2-shut-200x60-rich
+goldens: wrote tests/goldens/opening-blink2-shut-200x60-plain
+goldens: wrote tests/goldens/opening-blink2-shut-80x24-rich
+goldens: wrote tests/goldens/opening-blink2-shut-80x24-plain
+goldens: wrote tests/goldens/opening-blink3-close-120x40-rich
+goldens: wrote tests/goldens/opening-blink3-close-120x40-plain
+goldens: wrote tests/goldens/opening-blink3-close-200x60-rich
+goldens: wrote tests/goldens/opening-blink3-close-200x60-plain
+goldens: wrote tests/goldens/opening-blink3-close-80x24-rich
+goldens: wrote tests/goldens/opening-blink3-close-80x24-plain
+goldens: wrote tests/goldens/opening-blink3-open-120x40-rich
+goldens: wrote tests/goldens/opening-blink3-open-120x40-plain
+goldens: wrote tests/goldens/opening-blink3-open-200x60-rich
+goldens: wrote tests/goldens/opening-blink3-open-200x60-plain
+goldens: wrote tests/goldens/opening-blink3-open-80x24-rich
+goldens: wrote tests/goldens/opening-blink3-open-80x24-plain
+goldens: wrote tests/goldens/opening-blink3-shut-120x40-rich
+goldens: wrote tests/goldens/opening-blink3-shut-120x40-plain
+goldens: wrote tests/goldens/opening-blink3-shut-200x60-rich
+goldens: wrote tests/goldens/opening-blink3-shut-200x60-plain
+goldens: wrote tests/goldens/opening-blink3-shut-80x24-rich
+goldens: wrote tests/goldens/opening-blink3-shut-80x24-plain
+goldens: wrote tests/goldens/opening-clear-120x40-rich
+goldens: wrote tests/goldens/opening-clear-120x40-plain
+goldens: wrote tests/goldens/opening-clear-200x60-rich
+goldens: wrote tests/goldens/opening-clear-200x60-plain
+goldens: wrote tests/goldens/opening-clear-80x24-rich
+goldens: wrote tests/goldens/opening-clear-80x24-plain
+goldens: wrote tests/goldens/opening-clear-open-120x40-rich
+goldens: wrote tests/goldens/opening-clear-open-120x40-plain
+goldens: wrote tests/goldens/opening-clear-open-200x60-rich
+goldens: wrote tests/goldens/opening-clear-open-200x60-plain
+goldens: wrote tests/goldens/opening-clear-open-80x24-rich
+goldens: wrote tests/goldens/opening-clear-open-80x24-plain
+goldens: wrote tests/goldens/opening-crack-120x40-rich
+goldens: wrote tests/goldens/opening-crack-120x40-plain
+goldens: wrote tests/goldens/opening-crack-200x60-rich
+goldens: wrote tests/goldens/opening-crack-200x60-plain
+goldens: wrote tests/goldens/opening-crack-80x24-rich
+goldens: wrote tests/goldens/opening-crack-80x24-plain
+goldens: wrote tests/goldens/opening-crossing-120x40-rich
+goldens: wrote tests/goldens/opening-crossing-120x40-plain
+goldens: wrote tests/goldens/opening-crossing-200x60-rich
+goldens: wrote tests/goldens/opening-crossing-200x60-plain
+goldens: wrote tests/goldens/opening-crossing-80x24-rich
+goldens: wrote tests/goldens/opening-crossing-80x24-plain
+goldens: wrote tests/goldens/opening-fall-120x40-rich
+goldens: wrote tests/goldens/opening-fall-120x40-plain
+goldens: wrote tests/goldens/opening-fall-200x60-rich
+goldens: wrote tests/goldens/opening-fall-200x60-plain
+goldens: wrote tests/goldens/opening-fall-80x24-rich
+goldens: wrote tests/goldens/opening-fall-80x24-plain
+goldens: wrote tests/goldens/opening-freeze-120x40-rich
+goldens: wrote tests/goldens/opening-freeze-120x40-plain
+goldens: wrote tests/goldens/opening-freeze-200x60-rich
+goldens: wrote tests/goldens/opening-freeze-200x60-plain
+goldens: wrote tests/goldens/opening-freeze-80x24-rich
+goldens: wrote tests/goldens/opening-freeze-80x24-plain
+goldens: wrote tests/goldens/opening-plate-120x40-rich
+goldens: wrote tests/goldens/opening-plate-120x40-plain
+goldens: wrote tests/goldens/opening-plate-200x60-rich
+goldens: wrote tests/goldens/opening-plate-200x60-plain
+goldens: wrote tests/goldens/opening-plate-80x24-rich
+goldens: wrote tests/goldens/opening-plate-80x24-plain
+goldens: wrote tests/goldens/opening-skip-rich
+goldens: wrote tests/goldens/opening-skip-plain
+goldens: wrote tests/goldens/opening-spread-120x40-rich
+goldens: wrote tests/goldens/opening-spread-120x40-plain
+goldens: wrote tests/goldens/opening-spread-200x60-rich
+goldens: wrote tests/goldens/opening-spread-200x60-plain
+goldens: wrote tests/goldens/opening-spread-80x24-rich
+goldens: wrote tests/goldens/opening-spread-80x24-plain
+goldens: wrote tests/goldens/opening-underwater-120x40-rich
+goldens: wrote tests/goldens/opening-underwater-120x40-plain
+goldens: wrote tests/goldens/opening-underwater-200x60-rich
+goldens: wrote tests/goldens/opening-underwater-200x60-plain
+goldens: wrote tests/goldens/opening-underwater-80x24-rich
+goldens: wrote tests/goldens/opening-underwater-80x24-plain
+goldens: wrote tests/goldens/opening-rich
+goldens: wrote tests/goldens/opening-plain
+goldens: wrote tests/goldens/parry-rich
+goldens: wrote tests/goldens/parry-plain
+goldens: wrote tests/goldens/posture-badly-rich
+goldens: wrote tests/goldens/posture-badly-plain
+goldens: wrote tests/goldens/posture-dying-rich
+goldens: wrote tests/goldens/posture-dying-plain
+goldens: wrote tests/goldens/posture-full-rich
+goldens: wrote tests/goldens/posture-full-plain
+goldens: wrote tests/goldens/posture-hurt-rich
+goldens: wrote tests/goldens/posture-hurt-plain
+goldens: wrote tests/goldens/resize-rich
+goldens: wrote tests/goldens/resize-plain
+goldens: wrote tests/goldens/rest-bramblehold-120x40-rich
+goldens: wrote tests/goldens/rest-bramblehold-120x40-plain
+goldens: wrote tests/goldens/rest-bramblehold-80x24-rich
+goldens: wrote tests/goldens/rest-bramblehold-80x24-plain
+goldens: wrote tests/goldens/rest-cinderwick-120x40-rich
+goldens: wrote tests/goldens/rest-cinderwick-120x40-plain
+goldens: wrote tests/goldens/rest-cinderwick-80x24-rich
+goldens: wrote tests/goldens/rest-cinderwick-80x24-plain
+goldens: wrote tests/goldens/rest-larkmeadow-120x40-rich
+goldens: wrote tests/goldens/rest-larkmeadow-120x40-plain
+goldens: wrote tests/goldens/rest-larkmeadow-80x24-rich
+goldens: wrote tests/goldens/rest-larkmeadow-80x24-plain
+goldens: wrote tests/goldens/rest-menu-empty-120x40-rich
+goldens: wrote tests/goldens/rest-menu-empty-120x40-plain
+goldens: wrote tests/goldens/rest-menu-empty-200x60-rich
+goldens: wrote tests/goldens/rest-menu-empty-200x60-plain
+goldens: wrote tests/goldens/rest-menu-empty-80x24-rich
+goldens: wrote tests/goldens/rest-menu-empty-80x24-plain
+goldens: wrote tests/goldens/rest-menu-pending-120x40-rich
+goldens: wrote tests/goldens/rest-menu-pending-120x40-plain
+goldens: wrote tests/goldens/rest-menu-pending-200x60-rich
+goldens: wrote tests/goldens/rest-menu-pending-200x60-plain
+goldens: wrote tests/goldens/rest-menu-pending-80x24-rich
+goldens: wrote tests/goldens/rest-menu-pending-80x24-plain
+goldens: wrote tests/goldens/rest-menu-refused-120x40-rich
+goldens: wrote tests/goldens/rest-menu-refused-120x40-plain
+goldens: wrote tests/goldens/rest-menu-refused-200x60-rich
+goldens: wrote tests/goldens/rest-menu-refused-200x60-plain
+goldens: wrote tests/goldens/rest-menu-refused-80x24-rich
+goldens: wrote tests/goldens/rest-menu-refused-80x24-plain
+goldens: wrote tests/goldens/rest-old-den-120x40-rich
+goldens: wrote tests/goldens/rest-old-den-120x40-plain
+goldens: wrote tests/goldens/rest-old-den-80x24-rich
+goldens: wrote tests/goldens/rest-old-den-80x24-plain
+goldens: wrote tests/goldens/rest-shallows-120x40-rich
+goldens: wrote tests/goldens/rest-shallows-120x40-plain
+goldens: wrote tests/goldens/rest-shallows-80x24-rich
+goldens: wrote tests/goldens/rest-shallows-80x24-plain
+goldens: wrote tests/goldens/rest-shingle-120x40-rich
+goldens: wrote tests/goldens/rest-shingle-120x40-plain
+goldens: wrote tests/goldens/rest-shingle-80x24-rich
+goldens: wrote tests/goldens/rest-shingle-80x24-plain
+goldens: wrote tests/goldens/rest-teeth-120x40-rich
+goldens: wrote tests/goldens/rest-teeth-120x40-plain
+goldens: wrote tests/goldens/rest-teeth-80x24-rich
+goldens: wrote tests/goldens/rest-teeth-80x24-plain
+goldens: wrote tests/goldens/rest-rich
+goldens: wrote tests/goldens/rest-plain
+goldens: wrote tests/goldens/river-rich
+goldens: wrote tests/goldens/river-plain
+goldens: wrote tests/goldens/saved-den-rich
+goldens: wrote tests/goldens/saved-den-plain
+goldens: wrote tests/goldens/scent-orb-120x40-rich
+goldens: wrote tests/goldens/scent-orb-120x40-plain
+goldens: wrote tests/goldens/scent-orb-80x24-rich
+goldens: wrote tests/goldens/scent-orb-80x24-plain
+goldens: wrote tests/goldens/scent-recover-120x40-rich
+goldens: wrote tests/goldens/scent-recover-120x40-plain
+goldens: wrote tests/goldens/scent-recover-80x24-rich
+goldens: wrote tests/goldens/scent-recover-80x24-plain
+goldens: wrote tests/goldens/scroll-rich
+goldens: wrote tests/goldens/scroll-plain
+goldens: wrote tests/goldens/sneak-rich
+goldens: wrote tests/goldens/sneak-plain
+goldens: wrote tests/goldens/spring-drink-rich
+goldens: wrote tests/goldens/spring-drink-plain
+goldens: wrote tests/goldens/spring-found-rich
+goldens: wrote tests/goldens/spring-found-plain
+goldens: wrote tests/goldens/sprint-120x40-rich
+goldens: wrote tests/goldens/sprint-120x40-plain
+goldens: wrote tests/goldens/sprint-80x24-rich
+goldens: wrote tests/goldens/sprint-80x24-plain
+goldens: wrote tests/goldens/sprint-hit-rich
+goldens: wrote tests/goldens/sprint-hit-plain
+goldens: wrote tests/goldens/stand-rich
+goldens: wrote tests/goldens/stand-plain
+goldens: wrote tests/goldens/thorn-gate-rich
+goldens: wrote tests/goldens/thorn-gate-plain
+goldens: wrote tests/goldens/three-bites-rich
+goldens: wrote tests/goldens/three-bites-plain
+goldens: wrote tests/goldens/title-demo-rich
+goldens: wrote tests/goldens/title-demo-plain
+goldens: wrote tests/goldens/title-rich
+goldens: wrote tests/goldens/title-plain
+goldens: wrote tests/goldens/town-den-rich
+goldens: wrote tests/goldens/town-den-plain
+goldens: wrote tests/goldens/town-lane-120x40-rich
+goldens: wrote tests/goldens/town-lane-120x40-plain
+goldens: wrote tests/goldens/town-lane-80x24-rich
+goldens: wrote tests/goldens/town-lane-80x24-plain
+goldens: wrote tests/goldens/town-passage-rich
+goldens: wrote tests/goldens/town-passage-plain
+goldens: wrote tests/goldens/trail-fading-rich
+goldens: wrote tests/goldens/trail-fading-plain
+goldens: wrote tests/goldens/turn-east-rich
+goldens: wrote tests/goldens/turn-east-plain
+goldens: wrote tests/goldens/walk-north-rich
+goldens: wrote tests/goldens/walk-north-plain
+goldens: wrote tests/goldens/water-refill-rich
+goldens: wrote tests/goldens/water-refill-plain
+goldens: wrote tests/goldens/weasel-retreat-rich
+goldens: wrote tests/goldens/weasel-retreat-plain
+goldens: wrote tests/goldens/whisper-flank-rich
+goldens: wrote tests/goldens/whisper-flank-plain
+goldens: wrote tests/goldens/wide-rich
+goldens: wrote tests/goldens/wide-plain
+goldens: wrote tests/goldens/world-den-rich
+goldens: wrote tests/goldens/world-den-plain
+goldens: wrote tests/goldens/world-gate-rich
+goldens: wrote tests/goldens/world-gate-plain
+goldens: wrote tests/goldens/world-hawk-rich
+goldens: wrote tests/goldens/world-hawk-plain
+goldens: wrote tests/goldens/world-meadow-rich
+goldens: wrote tests/goldens/world-meadow-plain
+goldens: wrote tests/goldens/world-open-rich
+goldens: wrote tests/goldens/world-open-plain
+goldens: wrote tests/goldens/world-recovered-rich
+goldens: wrote tests/goldens/world-recovered-plain
+goldens: wrote tests/goldens/world-return-rich
+goldens: wrote tests/goldens/world-return-plain
+goldens: wrote tests/goldens/world-thorns-rich
+goldens: wrote tests/goldens/world-thorns-plain
+goldens: wrote tests/goldens/yard-cache-rich
+goldens: wrote tests/goldens/yard-cache-plain
+diagonal-study: 410 states, 75 unique drawings, four facings, both fields and tiers
+goldens: wrote tests/goldens/art
+kind gap direction hits pairs percent
+4 0 along 176 328 53.7
+4 0 away 0 884 0.0
+4 0 into 324 324 100.0
+4 1 along 64 424 15.1
+4 1 away 0 1012 0.0
+4 1 into 356 356 100.0
+4 2 along 0 520 0.0
+4 2 away 0 1140 0.0
+4 2 into 0 388 0.0
+5 0 along 152 296 51.4
+5 0 away 0 836 0.0
+5 0 into 276 276 100.0
+5 1 along 64 392 16.3
+5 1 away 0 964 0.0
+5 1 into 308 308 100.0
+5 2 along 0 488 0.0
+5 2 away 0 1092 0.0
+5 2 into 0 340 0.0
+6 0 along 200 368 54.3
+6 0 away 0 944 0.0
+6 0 into 384 384 100.0
+6 1 along 64 464 13.8
+6 1 away 0 1072 0.0
+6 1 into 416 416 100.0
+6 2 along 0 560 0.0
+6 2 away 0 1200 0.0
+6 2 into 0 448 0.0
+7 0 along 176 328 53.7
+7 0 away 0 884 0.0
+7 0 into 324 324 100.0
+7 1 along 64 424 15.1
+7 1 away 0 1012 0.0
+7 1 into 356 356 100.0
+7 2 along 0 520 0.0
+7 2 away 0 1140 0.0
+7 2 into 0 388 0.0
+8 0 along 88 208 42.3
+8 0 away 0 704 0.0
+8 0 into 144 144 100.0
+8 1 along 64 304 21.1
+8 1 away 0 832 0.0
+8 1 into 176 176 100.0
+8 2 along 0 400 0.0
+8 2 away 0 960 0.0
+8 2 into 0 208 0.0
+inward-gap01 misses 0
+gameplay: complete hit rings, inward gap0/1 100%, away/gap2 zero
+diagonal-study: 410 states, 75 unique drawings, four facings, both fields and tiers
+rendered-glyphs art_frames 1092 golden_frames 3020 nonbyte_codepoints 227 unlisted 0
+gameplay: every single-file edge crossed by both diagonal chords, fifty seeds and both fields
+den-memory: ledger rich 80x24 centre 27 12
+den-memory: ledger rich 120x40 centre 40 20
+den-memory: ledger rich 200x60 centre 67 30
+den-memory: ledger plain 80x24 centre 27 12
+den-memory: ledger plain 120x40 centre 40 20
+den-memory: ledger plain 200x60 centre 67 30
+gameplay: den-memory path/log, 100 journeys and centred ledgers green
+OBSERVED cb11-hand-n-150-rich (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-150-plain (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-200-rich (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-200-rich interval_ms=200 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-200-plain (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-200-plain interval_ms=200 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-250-rich (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-250-rich interval_ms=250 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-250-plain (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-250-plain interval_ms=250 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-330-rich (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-330-rich interval_ms=330 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-330-plain (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-330-plain interval_ms=330 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-367-rich (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-367-rich interval_ms=367 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-n-367-plain (tick, strike, dx, dy)=[(6, 1, -256, -256), (17, 2, 256, -256), (30, 3, 0, -512)]
+PASS cb11-hand-n-367-plain interval_ms=367 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, 0.0)]
+OBSERVED cb11-hand-ne-150-rich (tick, strike, dx, dy)=[(6, 1, 0, -362), (17, 2, 362, 0), (30, 3, 362, -362)]
+PASS cb11-hand-ne-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-ne-150-plain (tick, strike, dx, dy)=[(6, 1, 0, -362), (17, 2, 362, 0), (30, 3, 362, -362)]
+PASS cb11-hand-ne-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-e-150-rich (tick, strike, dx, dy)=[(6, 1, 256, -256), (17, 2, 256, 256), (30, 3, 512, 0)]
+PASS cb11-hand-e-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-e-150-plain (tick, strike, dx, dy)=[(6, 1, 256, -256), (17, 2, 256, 256), (30, 3, 512, 0)]
+PASS cb11-hand-e-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-se-150-rich (tick, strike, dx, dy)=[(6, 1, 362, 0), (17, 2, 0, 362), (30, 3, 362, 362)]
+PASS cb11-hand-se-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-se-150-plain (tick, strike, dx, dy)=[(6, 1, 362, 0), (17, 2, 0, 362), (30, 3, 362, 362)]
+PASS cb11-hand-se-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-s-150-rich (tick, strike, dx, dy)=[(6, 1, 256, 256), (17, 2, -256, 256), (30, 3, 0, 512)]
+PASS cb11-hand-s-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-s-150-plain (tick, strike, dx, dy)=[(6, 1, 256, 256), (17, 2, -256, 256), (30, 3, 0, 512)]
+PASS cb11-hand-s-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-sw-150-rich (tick, strike, dx, dy)=[(6, 1, 0, 362), (17, 2, -362, 0), (30, 3, -362, 362)]
+PASS cb11-hand-sw-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-sw-150-plain (tick, strike, dx, dy)=[(6, 1, 0, 362), (17, 2, -362, 0), (30, 3, -362, 362)]
+PASS cb11-hand-sw-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-w-150-rich (tick, strike, dx, dy)=[(6, 1, -256, 256), (17, 2, -256, -256), (30, 3, -512, 0)]
+PASS cb11-hand-w-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-w-150-plain (tick, strike, dx, dy)=[(6, 1, -256, 256), (17, 2, -256, -256), (30, 3, -512, 0)]
+PASS cb11-hand-w-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-nw-150-rich (tick, strike, dx, dy)=[(6, 1, -362, 0), (17, 2, 0, -362), (30, 3, -362, -362)]
+PASS cb11-hand-nw-150-rich interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+OBSERVED cb11-hand-nw-150-plain (tick, strike, dx, dy)=[(6, 1, -362, 0), (17, 2, 0, -362), (30, 3, -362, -362)]
+PASS cb11-hand-nw-150-plain interval_ms=150 holds=[(1, 6, 1.0, 1.0), (2, 17, 1.0, -1.0), (3, 30, 2.0, -0.0)]
+combo-timing: 24 rows green
+gameplay: release bite rich ok
+gameplay: release parry rich ok
+gameplay: release dodge rich ok
+gameplay: release weasel-retreat rich ok
+gameplay: release fox-feint rich ok
+gameplay: release trail-fading rich ok
+gameplay: release rest rich ok
+gameplay: release death-recovery rich ok
+gameplay: release thorn-gate rich ok
+gameplay: release bite plain ok
+gameplay: release parry plain ok
+gameplay: release dodge plain ok
+gameplay: release weasel-retreat plain ok
+gameplay: release fox-feint plain ok
+gameplay: release trail-fading plain ok
+gameplay: release rest plain ok
+gameplay: release death-recovery plain ok
+gameplay: release thorn-gate plain ok
+gameplay: release aim/combo/heavy rich ok
+gameplay: release aim/combo/heavy plain ok
+gameplay: connected journey, hawk, opening and recovery rich ok
+gameplay: connected journey, hawk, opening and recovery plain ok
+gameplay: death archive replay-verified at tick 483
+gameplay: release body census over 209 scripts: census total ticks 110115 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 4949 contact_unreachable 0 contact_behind 1064 foe_overlap 0
+gameplay: release body audit, 100 worlds: total ticks 204760 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 2168 contact_unreachable 0 contact_behind 634 foe_overlap 0
+gameplay: release boar rich windup/phase2/beaten ok, 38 telegraphs, shortest 12
+gameplay: release lynx rich windup/phase2/beaten ok, 9 telegraphs, shortest 10
+gameplay: release elk rich windup/phase2/beaten ok, 21 telegraphs, shortest 16
+gameplay: release alpha rich windup/phase2/beaten ok, 11 telegraphs, shortest 9
+gameplay: end, the three new areas, the title rich ok
+gameplay: release boar plain windup/phase2/beaten ok, 38 telegraphs, shortest 12
+gameplay: release lynx plain windup/phase2/beaten ok, 9 telegraphs, shortest 10
+gameplay: release elk plain windup/phase2/beaten ok, 21 telegraphs, shortest 16
+gameplay: release alpha plain windup/phase2/beaten ok, 11 telegraphs, shortest 9
+gameplay: end, the three new areas, the title plain ok
+gameplay: ghost trailer, display and absence rich ok
+gameplay: ghost trailer, display and absence plain ok
+gameplay: fairness boar attempts 1:96 2:4 3:0 4:0 5:0 unwon:0 hits 84 54 30 unparryable_hits 84 tells 12 24 12 parry_window 9 arena_breaches 0
+gameplay: fairness lynx attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 72 33 26 unparryable_hits 26 tells 10 12 15 parry_window 9 arena_breaches 0
+gameplay: fairness elk attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 18 0 2 unparryable_hits 0 tells 16 24 18 parry_window 9 arena_breaches 0
+gameplay: fairness alpha attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 76 0 0 unparryable_hits 0 tells 9 12 20 parry_window 9 arena_breaches 0
+gameplay: den entry, checkpoint, spring/drink/refill and 50-seed censuses green
+gameplay: door shadows, clipped foe walk, staged rest panels green
+gameplay: den/path/chase censuses, sprint costs, real-key hit and retired HUD flag: green
+gameplay: fifty-seed world labels, after-c padding, scent recovery: green
+world: 50 seeds, all dens/exits/caches, meanders, density, save roundtrip/cut/busy/corrupt/mark: green
+gameplay: every path under /work/target/gameplay readable
+gameplay: green (0 skips)
+CB11_FIXTURE_SEMANTICS_GREEN
