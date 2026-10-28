@@ -259,13 +259,15 @@ fn test_cb04_the_shallows_are_waded_at_half_pace() {
     assert(cx > b, "the ford's arena straddles the bank")
 }
 
-fn test_cb04_the_new_areas_keep_the_texture_and_path_bars() {
-    // cb02b's and cb02c's rules in the new areas, sampled (the fifty-seed,
-    // every-position census is the shipping binary's audit): a row of each
-    // area drawn on both tiers with no empty forest cell and no flat pair,
-    // stone included; every spine cell in its area's one path colour.
-    var area = 3
-    while area < forest.AREAS {
+/// cb02b's and cb02c's rules in areas `lo` to `hi` (exclusive), sampled
+/// (the fifty-seed, every-position census is the shipping binary's audit):
+/// a row of each area drawn on both tiers with no empty forest cell and no
+/// flat pair, stone included; every `step`-th spine cell in its area's one
+/// path colour. A test takes two or four areas (cb14: the checked
+/// machine's budget).
+fn texture_and_path_bars(lo: int, hi: int, step: int) {
+    var area = lo
+    while area < hi {
         var t = tier.PLAIN
         while t <= tier.RICH {
             var s = sim.new(0, 80, 24)
@@ -311,14 +313,17 @@ fn test_cb04_the_new_areas_keep_the_texture_and_path_bars() {
                         "spine in the path colour area {area} row {y}",
                     )
                 }
-                // Every eighth row (cb14: thirteen areas on one budget).
-                y += 8
+                y += step
             }
             t += 1
         }
         assert(forest.straight_run(0, area) <= forest.STRAIGHT_MAX, "straight run area {area}")
         area += 1
     }
+}
+
+fn test_cb04_the_new_areas_keep_the_texture_and_path_bars() {
+    texture_and_path_bars(3, 7, 4)
     assert(
         forest.path_kind(forest.CRAGS) == terrain.GRAVEL &&
             forest.path_kind(forest.HUSH) == terrain.GRASS,
@@ -345,6 +350,18 @@ fn test_cb04_the_new_areas_keep_the_texture_and_path_bars() {
         }
         t += 1
     }
+}
+
+fn test_cb14_the_stand_and_the_burn_keep_the_texture_and_path_bars() {
+    texture_and_path_bars(forest.STAND, forest.MERE, 4)
+}
+
+fn test_cb14_the_mere_and_the_underteeth_keep_the_texture_and_path_bars() {
+    texture_and_path_bars(forest.MERE, forest.HOWE, 4)
+}
+
+fn test_cb14_the_howe_and_gravehollow_keep_the_texture_and_path_bars() {
+    texture_and_path_bars(forest.HOWE, forest.AREAS, 4)
 }
 
 fn test_cb04_the_boar_clearing_is_a_branch_off_the_thicket() {
