@@ -62,8 +62,8 @@ pub fn recordings(base: str) -> List[Recording] {
     while i < result.len {
         var j = i
         while j > 0 && result[j].path < result[j - 1].path {
-            let old = result[j - 1]
-            result[j - 1] = result[j]
+            let old = copy result[j - 1]
+            result[j - 1] = copy result[j]
             result[j] = old
             j -= 1
         }
@@ -111,7 +111,7 @@ fn scan(dir: str, mut result: List[Recording]) {
             path: path,
             name: name,
             date: date,
-            ticks: replay.last_tick(r),
+            ticks: replay.last_tick(r) + 1,
             ending: ending,
         })
     }
@@ -186,10 +186,10 @@ pub fn key(mut m: Menu, k: int) {
     }
     if m.page == -1 { m.page = 0; return }
     if k == input.KEY_ESC {
-        m.page = if m.page == 3 then m.from else 0
+        m.page = if m.page == 3 then m.from else if m.page == 5 then 4 else 0
         m.row = 0
         m.error = ""
-        m.text = ""
+        m.text = if m.page == 4 then "{m.seed}" else ""
         return
     }
     if m.page == 3 || m.page == 4 {
@@ -295,32 +295,38 @@ pub fn render(m: Menu, s: sim.Sim, t: int, mut g: grid.Grid) {
     }
     draw.put_text(mut g, top + 1, left + 2, heading, grid.cell(32, gold, bg, grid.ATTR_BOLD))
     if m.page == 3 || m.page == 4 {
-        draw.put_text(mut g, top + 4, left + 2, clipped(m.text + "_", width - 4), style)
+        let entry = m.text + "_"
+        let offset = if entry.len > width - 4 then entry.len - width + 4 else 0
+        draw.put_text(mut g, top + 4, left + 2, clipped(entry[offset..], width - 4), style)
         draw.put_text(mut g, top + 6, left + 2, "Enter accepts; Esc returns", style)
     } else if m.page == 5 {
         draw.put_text(mut g, top + 4, left + 2, "> wolf", grid.cell(32, gold, bg, grid.ATTR_BOLD))
         draw.put_text(mut g, top + 6, left + 2, "The playable difficulty in this build", style)
     } else {
-        let limit = (height - 7) / 2
+        let stride = if m.page == 0 then 2 else 3
+        let limit = (height - 7) / stride
         let start = if m.row >= limit then m.row - limit + 1 else 0
         var i = start
         while i < count(m) && i < start + limit {
             var label = ""
             var detail = ""
+            var date = ""
             if m.page == 0 {
                 label = items(m)[i]
             } else if m.page == 1 && i < m.saves.len {
                 let e = copy m.saves[i]
-                label = "{e.name}  {forest.name(e.area)}  Lv {e.level}"
-                detail = time.to_iso8601(e.last_played)
+                label = e.name
+                detail = "{forest.name(e.area)}  Lv {e.level}"
+                date = time.to_iso8601(e.last_played)
             } else if m.page == 2 && i < m.recordings.len {
                 let e = copy m.recordings[i]
                 label = e.name
-                detail = "{clipped(e.date, 10)}  {e.ticks / 30}s  {clipped(e.ending, 14)}"
+                detail = "{e.ticks / 30}s  {e.ending}"
+                date = e.date
             } else {
                 label = "Type a path..."
             }
-            let row = top + 3 + (i - start) * 2
+            let row = top + 3 + (i - start) * stride
             draw.put_text(
                 mut g,
                 row,
@@ -336,6 +342,9 @@ pub fn render(m: Menu, s: sim.Sim, t: int, mut g: grid.Grid) {
                 grid.cell(32, if i == m.row then gold else bone, bg, 0),
             )
             draw.put_text(mut g, row + 1, left + 3, clipped(detail, width - 5), style)
+            if stride == 3 {
+                draw.put_text(mut g, row + 2, left + 3, clipped(date, width - 5), style)
+            }
             i += 1
         }
     }

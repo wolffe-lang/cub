@@ -156,7 +156,8 @@ Load lists name, area, level and last played, followed by Type a path. Playback
 appears when recordings exist in `~/.cub/ghosts/` or `~/.cub/replays/`; it lists
 the date, duration and ending and also offers Type a path. Quit leaves.
 Up/Down wrap, Space or Enter chooses, and Esc backs out. Path/seed entry uses
-printable keys, Backspace to edit and Enter to accept; q is text there, and
+printable ASCII keys (the pinned decoder's text range), Backspace to edit and
+Enter to accept; q is text there, and
 quits elsewhere. Ctrl-C restores the terminal from every menu page. Playback
 uses the same player as `--replay`; Esc returns to the fire without writing a
 save or another recording. On the end card r keeps playing and q leaves.

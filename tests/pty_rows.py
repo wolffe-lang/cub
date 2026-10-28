@@ -374,8 +374,9 @@ def mute_key(binary, ctx):
 
 ROWS.update({'sound-live': sound_live, 'sound-oss': sound_oss, 'sound-mute': sound_mute, 'mute-key': mute_key})
 def title(binary, ctx):
-    """The title (cb04): drawn first with the four silhouettes and the
-    keys; any key begins the opening; `--no-title` starts the game."""
+    """The title retains its silhouettes and demo; a key opens the fire menu.
+    Historical --no-title still starts directly in play.
+    """
     import re
     root = Path(ctx.ROOT) / 'target/pty/title'
     root.mkdir(parents=True, exist_ok=True)
@@ -1747,18 +1748,25 @@ def cb13_menu_typed_playback(binary, ctx):
     path = replays / 'walk with spaces.pk'
     path.write_text('pk 1\nseed 7\ntier plain\nsize 80x24\nt 0 right\nt 300 release\n# recorded 2026-10-27T20:00:00Z\n# ending In progress\n')
     problems = []
-    session = ctx.Session([binary, '--menu', '--mute', '--trace', '--tier', 'plain'], 24, 80, env)
-    session.type(b'\x1b[B\x1b[B ', settle=.15)
-    session.type(b'\x1b[B ', settle=.12)
-    session.type(str(path).encode() + b'\r', settle=.3)
-    session.type(b'\x1b', settle=.3)  # Escape from the actual --replay player.
-    session.type(b'q')
+    forbidden_record = home / 'do-not-record-playback.pk'
+    session = ctx.Session([binary, '--menu', '--mute', '--trace', '--tier', 'plain',
+                           '--record', str(forbidden_record)], 24, 80, env)
+    for data, settle in ((b'\x1b[B\x1b[B ', .15),
+                         (b'\x1b[B ', .12),
+                         (str(path).encode() + b'\r', .3),
+                         (b'\x1b', .3),  # Escape from the actual --replay player.
+                         (b'q', .08)):
+        try:
+            session.type(data, settle=settle)
+        except OSError as error:
+            problems.append('Playback exited before the menu returned: ' + str(error))
+            break
     session.finish()
     ctx.common_checks(session, 0, problems)
     if b'seed 7 tier plain' not in session.err or session.err.count(b'menu 0 row ') < 2:
         problems.append('typed Playback did not run the replay and return to the fire')
-    if (home / '.cub/registry').exists() or (home / '.cub/saves').exists():
-        problems.append('Playback created or changed a save')
+    if (home / '.cub/registry').exists() or (home / '.cub/saves').exists() or forbidden_record.exists():
+        problems.append('Playback created a save or recording')
     return session, problems
 
 
@@ -1779,6 +1787,9 @@ def cb13_registry_files(binary, ctx):
                                 env=env, capture_output=True)
         if result.returncode:
             problems.append('headless register failed: ' + result.stderr.decode())
+    invalid = subprocess.run([binary, '--menu', '--save', str(home), '--mute'], env=env, capture_output=True)
+    if invalid.returncode != 2 or b'save_io' not in invalid.stderr:
+        problems.append('a directory passed to --save was silently ignored')
     index = home / '.cub/registry'
     if not index.exists():
         raise RuntimeError('save writes did not create the registry')
@@ -1802,6 +1813,19 @@ def cb13_registry_files(binary, ctx):
     if result.returncode != 2 or b'registry_busy' not in result.stderr or stage.read_text() != 'another writer' or index.read_bytes() != previous:
         problems.append('exclusive index staging did not preserve the previous index/writer')
     stage.unlink()  # This row owns the planted stage.
+    failing = ctx.Session([binary, '--no-title', '--save', str(paths[0]), '--mute',
+                           '--trace', '--save-delay', '2'], 24, 80, env)
+    stage.write_text('another writer during commit')
+    failing.type(b'?', settle=.2)  # Skip the unseen opening: a real persistent change.
+    failing.finish()
+    ctx.common_checks(failing, 2, problems)
+    if b'registry_busy' not in failing.err or b'previous journey preserved' in failing.err:
+        problems.append('post-replacement index failure did not distinguish a committed save')
+    if 'opening 1\n' not in paths[0].read_text() or Path(str(paths[0]) + '.pending').exists():
+        problems.append('post-replacement index failure lost the committed save or left its stage')
+    if stage.read_text() != 'another writer during commit':
+        problems.append('index failure removed the other writer stage')
+    stage.unlink()
     index.write_text('malformed\n')
     result = subprocess.run([binary, '--menu', '--mute'], env=env, capture_output=True)
     if result.returncode != 2 or b'registry_line' not in result.stderr or index.read_text() != 'malformed\n':

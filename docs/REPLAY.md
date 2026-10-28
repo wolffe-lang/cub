@@ -247,7 +247,7 @@ as the explicit override; deaths remain under `~/.cub/ghosts/`. Optional
 changing pk1. New files say Finished, Fallen, or In progress according to
 the observed run state; no story ending is inferred for an older file.
 Playback uses recorded metadata when present, otherwise file modification
-date, last event tick/30 for duration, and not recorded for an unknown ending.
+date, (last event tick + 1)/30 for duration, and not recorded for an unknown ending.
 Playback never writes saves or default recordings; Esc returns to the fire.
 
 `# fire-menu` marks synthetic headless menu fixtures. Only that explicit

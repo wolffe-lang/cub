@@ -721,6 +721,10 @@ fn commit_save(path: str) -> () ! {
 fn run_startup(o: Options, args: List[str]) -> int {
     if o.replay_path != "" { return run_live(o, args) }
     let base = registry.root()
+    if o.save_path != "" && fs.exists(o.save_path) && !fs.is_file(o.save_path) {
+        eprint("cub: save_io: --save is not a file")
+        return 2
+    }
     registry.migrate(base) else |e| { eprint("cub: {e}"); return 2 }
     if o.save_path != "" && fs.is_file(o.save_path) {
         registry.register(base + "/registry", o.save_path, time.unix_ms()) else |e| {
@@ -737,7 +741,8 @@ fn run_startup(o: Options, args: List[str]) -> int {
                 return 2
             }
             let recent = registry.recent(entries) else |_| {
-                selected.save_path = base + "/saves/journey-{time.unix_ms()}-{env.pid()}.save"
+                // Historical --no-title harnesses still expect this first path.
+                selected.save_path = base + "/save"
                 return run_live(selected, args)
             }
             let _ = registry.find(entries, recent.path) else |e| { eprint("cub: {e}"); return 2 }
@@ -759,6 +764,8 @@ fn run_startup(o: Options, args: List[str]) -> int {
         if menu.action == 3 {
             selected.replay_path = menu.selected
             selected.menu_playback = true
+            selected.record_path = ""
+            selected.ghost_dir = ""
             // A typed replay is validated before the terminal closes.
             let result = run_live(selected, List[str]())
             if result == 4 { return 0 }
@@ -772,6 +779,12 @@ fn run_startup(o: Options, args: List[str]) -> int {
             o.save_path
         } else {
             base + "/saves/journey-{time.unix_ms()}-{env.pid()}.save"
+        }
+        if menu.action == 1 {
+            registry.register(base + "/registry", selected.save_path, time.unix_ms()) else |e| {
+                eprint("cub: {e}")
+                return 2
+            }
         }
         return run_live(selected, if menu.action == 1 then args else List[str]())
     }
@@ -1139,6 +1152,8 @@ fn run_live(o: Options, args: List[str]) -> int {
                             o.menu_playback && k == controls.KEY_RELEASE {
                             ended = if k == controls.KEY_QUIT {
                                 "the quit key"
+                            } else if k == controls.KEY_RELEASE {
+                                "the playback back key"
                             } else {
                                 "Ctrl-C"
                             }
@@ -1182,6 +1197,9 @@ fn run_live(o: Options, args: List[str]) -> int {
                 if pending.len > 0 && s.tick - pending_at >= o.save_delay {
                     commit_save(save_path) else |e| {
                         eprint("cub: {e}")
+                        // The save may already be replaced when its index fails.
+                        // Never abort a consumed stage or claim the old save survived.
+                        if !fs.exists(save_path + ".pending") { (mut pending).reset() }
                         save_error = true
                         quit = true
                         ended = "a failed save"

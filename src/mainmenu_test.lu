@@ -81,6 +81,41 @@ fn test_cb13_menu_typed_path_keeps_spaces_and_backspace() {
     )
 }
 
+fn test_cb13_long_names_keep_load_metadata_and_do_not_emit_controls() {
+    var menu = mainmenu.fixture()
+    menu.saves[0].name = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ab"
+    menu.recordings[0].name = "walk\x1b[31m.pk"
+    var s = sim.new(7, 80, 24)
+    s.area = 1
+    s.last_den = 1
+    for tier in [0, 1] {
+        var g = grid.new(24, 80)
+        menu.page = 1
+        mainmenu.render(menu, s, tier, mut g)
+        var bytes = List[byte]()
+        grid.dump_text(g, mut bytes)
+        let text = str_from_utf8(bytes) else ""
+        assert(
+            text.contains("Lv 4") && text.contains("2026-10-27"),
+            "long name cannot hide level or last played",
+        )
+        menu.page = 2
+        mainmenu.render(menu, s, tier, mut g)
+        var row = 3
+        while row < s.rows - 2 {
+            var col = restscene.panel_left(s)
+            while col < restscene.panel_left(s) + restscene.panel_width(s) {
+                assert(
+                    grid.at(g, row, col).cp >= 32,
+                    "untrusted replay name never emits a terminal control",
+                )
+                col += 1
+            }
+            row += 1
+        }
+    }
+}
+
 fn test_cb13_fire_menu_keeps_the_whole_rest_vignette_both_tiers() {
     for cols in [80, 120] {
         var s = sim.new(7, cols, if cols == 80 then 24 else 40)
