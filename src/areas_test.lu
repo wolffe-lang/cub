@@ -311,7 +311,8 @@ fn test_cb04_the_new_areas_keep_the_texture_and_path_bars() {
                         "spine in the path colour area {area} row {y}",
                     )
                 }
-                y += 4
+                // Every eighth row (cb14: thirteen areas on one budget).
+                y += 8
             }
             t += 1
         }

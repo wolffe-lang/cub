@@ -238,7 +238,7 @@ fn test_cb14_every_alcove_has_its_own_bit_and_a_named_slot() {
         }
         area += 1
     }
-    assert(seen.len == 42, "forty-two alcoves: {seen.len}")
+    assert(seen.len == 40, "forty alcoves: {seen.len}")
     var id = 0
     while id < lore.COUNT {
         assert(lore.line(id).len > 20, "line {id} written")

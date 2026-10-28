@@ -47,7 +47,9 @@ fn test_cb02_shortcut_round_trips() {
     sim.step(mut s, keys)
     assert(s.shortcuts == 1 && s.area == 0, "push log to bank")
     assert(sim.cross_edge(mut s, 2) && s.area == 1, "log back")
-    assert(sim.cross_edge(mut s, 1) && s.area == 2, "meadow")
+    // cb14: the Stand lies between the thicket and the meadow.
+    assert(sim.cross_edge(mut s, 1) && s.area == forest.STAND, "the ridge")
+    assert(sim.cross_edge(mut s, forest.EDGE_STAND_OUT) && s.area == 2, "meadow")
     let (hx, hy) = forest.portal(s.seed, 2, 3)
     s.x = hx
     s.y = hy
