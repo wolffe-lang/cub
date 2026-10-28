@@ -1,0 +1,22 @@
+R-cb11-2 A prediction, before the harness change
+
+At c0a9a2ea the rebased Mac native-reader stage failed at05:55:15Z.
+The simulation followed the agreed <=2 / >=3 delivered-tick legacy rule:
+nominal100ms presses were recorded at ticks3,7,9, hence final gap2 was
+suppressed; nominal60ms streams acquired gaps21->24 and12->15 and thus
+issued extra strikes. Actual sends include602.493->670.008ms instead of
+the nominal600->660ms. Wall-clock scheduling and 30Hz consumption are
+not interchangeable under load. No simulation or threshold change is owed.
+
+Ruling A: pace the gating reader by observed trace ticks, acknowledge each
+input-bearing tick, print requested/delivered gaps and explicitly reject a
+misdelivery.100ms's three-tick gaps must give1/2/3;60ms's two-tick repeats
+must give only1. The enhanced protocol's event types remain exact.
+Keep the wall-clock variant as an explicitly invoked non-gating measurement
+outside default ROWS, reporting nominal/sent/delivered times and outcomes.
+Do not loosen the repeat policy or silently accept mismatched delivery.
+
+Preserve the red archive and log. Add unit tests of the pacing/delivery
+oracle (including late/missing input), rerun the bounded Mac leg and shared
+Linux gate because Linux consumes this same harness. One push/CI read/audit
+at the final head. A future cb12 rebase waits for its announced merge.
