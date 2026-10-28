@@ -89,3 +89,112 @@ fn test_cb18_heron_parry_never_turns_the_spear() {
     sim.new_foe_step(mut s, 0)
     assert(s.health < before && s.foes[0].phase == sim.STRIKE, "z cannot parry downward spear")
 }
+
+fn test_cb18_marten_movement_has_no_invisible_boss_arena_boundary() {
+    var s = sim.new(1, 80, 24)
+    let x = s.x
+    let y = s.y
+    (mut s.foes).reset()
+    var f = sim.make_new_foe(sim.MARTEN, x, y)
+    f.phase = sim.STRIKE
+    f.heading = 64
+    f.target_x = x + sim.FP
+    f.target_y = y
+    (mut s.foes).push(f)
+    s.x = x - 10 * sim.FP
+    sim.new_foe_step(mut s, 0)
+    assert(s.foes[0].x > x, "a landing can move on open Shingle ground, outside every boss arena")
+}
+
+fn test_cb18_burn_damage_continues_during_dodge_iframes() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.ASH_ADDER)
+    sim.apply_burn(mut s)
+    s.action = sim.DODGE
+    s.started = s.tick
+    let before = s.health
+    sim.new_foe_status(mut s)
+    assert(
+        s.health == before - 1 && s.burn_left == 39,
+        "a roll does not extinguish an existing burn",
+    )
+}
+
+fn test_cb18_adder_line_misses_a_body_off_the_committed_ray() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.ASH_ADDER)
+    s.foes[0].heading = 128
+    s.foes[0].phase = sim.STRIKE
+    s.foes[0].since = s.tick
+    s.x = s.foes[0].x + 3 * sim.FP
+    s.y = s.foes[0].y + 4 * sim.FP
+    let before = s.health
+    sim.new_foe_step(mut s, 0)
+    assert(
+        s.health == before && s.burn_left == 0,
+        "inside the old cone is not on the narrow strike line",
+    )
+}
+
+fn test_cb18_every_new_foe_retains_its_actual_recovery_phase() {
+    var kind = sim.MARTEN
+    while kind <= sim.WISP {
+        region encounter {
+            var s = sim.new_foe_arena(1, 80, 24, kind)
+            s.foes[0].phase = sim.RETREAT
+            s.foes[0].since = 0
+            s.tick = 11
+            sim.new_foe_step(mut s, 0)
+            assert(s.foes[0].phase == sim.RETREAT, "eleven ticks is still recovery")
+            s.tick = sim.new_foe_move(kind).recovery
+            sim.new_foe_step(mut s, 0)
+            assert(
+                s.foes[0].phase == (if kind == sim.MARTEN then sim.PERCHED else sim.HUNT),
+                "recovery expires at its declared bound, never earlier",
+            )
+        }
+        kind += 1
+    }
+}
+
+fn test_cb18_adder_parry_kills_and_only_a_landed_strike_burns() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.ASH_ADDER)
+    s.foes[0].heading = 128
+    s.foes[0].phase = sim.STRIKE
+    s.foes[0].since = s.tick
+    let fb = sim.foe_body(s.foes[0])
+    let cb = sim.cub_body_at(s, 0, 0, 0)
+    s.x = s.foes[0].x
+    s.y = (fb.y1 + 1 - cb.y0) * sim.FP
+    s.action = sim.PARRY
+    s.started = s.tick
+    let before = s.health
+    sim.new_foe_step(mut s, 0)
+    assert(
+        s.foes[0].health == 0 && s.health == before && s.burn_left == 0,
+        "a parry kills the adder and does not apply the burn",
+    )
+    assert(s.drops.len == 1 && s.drops[0].value == 18, "parry and bite share the scent reward")
+}
+
+fn test_cb18_heron_dodge_answers_the_unparryable_spear() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.HERON)
+    s.foes[0].phase = sim.STRIKE
+    s.foes[0].since = s.tick
+    let fb = sim.foe_body(s.foes[0])
+    let cb = sim.cub_body_at(s, 0, 0, 0)
+    s.x = s.foes[0].x
+    s.y = (fb.y1 + 1 - cb.y0) * sim.FP
+    s.action = sim.DODGE
+    s.started = s.tick
+    let before = s.health
+    sim.new_foe_step(mut s, 0)
+    assert(s.health == before && s.foes[0].hit, "the spear happened, but the dodge evaded it")
+}
+
+// Pending-by-name until cb15's announced merge, not skipped green tests:
+// test_cb18_lynx_bite_starts_cb15_bleeding — sim.bleed(mut s).
+// test_cb18_marten_bite_starts_cb15_bleeding — sim.bleed(mut s).
+// test_cb18_marten_takes_one_pouch_item_and_returns_it_at_the_trunk — take_one/leave.
+// test_cb18_empty_pouch_does_not_steal_water_or_scent — take_one returns none.
+// test_cb18_yarrow_extinguishes_the_adder_burn — cb15's cure-use signal.
+// The adder's status is burn (40), not bleed (60); this distinction is
+// asserted here after the API exists and the boss/fairness baselines compare.

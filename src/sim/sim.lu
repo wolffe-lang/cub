@@ -5739,7 +5739,12 @@ fn new_foe_die(mut s: Sim, i: int) {
 fn marten_return(mut s: Sim, i: int) {
     let f = copy s.foes[i]
     if f.stolen_scent > 0 {
-        leave_drop(mut s, f.home_x, f.home_y, f.stolen_scent)
+        (mut s.drops).push(Drop {
+            x: f.home_x,
+            y: f.home_y,
+            value: f.stolen_scent,
+            until: s.tick + DROP_TICKS,
+        })
         s.foes[i].stolen_scent = 0
     }
     // Pending-by-name: cb15's item_count/item_set and pouch.leave supply
@@ -5754,6 +5759,7 @@ fn new_foe_bitten(mut s: Sim, i: int) {
         s.foes[i].phase = SNUFFED
         s.foes[i].since = s.tick
         s.foes[i].speed = 0
+        if s.locked == i { s.locked = -1 }
         return
     }
     if f.kind == MARTEN { marten_return(mut s, i) }
@@ -5825,6 +5831,7 @@ pub fn new_foe_step(mut s: Sim, i: int) {
     let m = new_foe_move(f.kind)
     if f.kind == WISP {
         if f.phase == SNUFFED {
+            if s.locked == i { s.locked = -1 }
             if age >= 300 { s.foes[i].phase = HUNT; s.foes[i].since = s.tick }
             return
         }
@@ -5898,18 +5905,24 @@ pub fn new_foe_step(mut s: Sim, i: int) {
             if f.kind == MARTEN {
                 // Landing is clipped by the same body/terrain rule as a
                 // running mammal; it never teleports into the cub.
-                boss_run(mut s, i, f.target_x, f.target_y, 128)
+                new_ground_run(mut s, i, f.target_x, f.target_y, 128)
             }
         }
         return
     }
     if f.phase == STRIKE {
-        if f.kind == MARTEN { boss_run(mut s, i, f.target_x, f.target_y, 128) }
+        if f.kind == MARTEN { new_ground_run(mut s, i, f.target_x, f.target_y, 128) }
         if f.kind == CINDER_MOTHS {
             drift_foe(mut s, i, s.x, s.y, 24)
         } else if !f.hit &&
             body_gap(s, i) <= m.reach - 1 &&
-            in_front(f.x, f.y, f.heading, s.x, s.y) {
+            (
+                if f.kind == ASH_ADDER || f.kind == HERON {
+                    new_foe_line_hits(s, i, m.reach)
+                } else {
+                    in_front(f.x, f.y, f.heading, s.x, s.y)
+                }
+            ) {
             s.foes[i].hit = true
             if m.parryable && parrying(s) {
                 if f.kind == ASH_ADDER { new_foe_die(mut s, i); return }
@@ -5936,7 +5949,7 @@ pub fn new_foe_step(mut s: Sim, i: int) {
     }
     if f.phase == RETREAT || f.phase == STAGGER {
         if f.kind == MARTEN && age >= 12 {
-            boss_run(mut s, i, f.home_x, f.home_y, 48)
+            new_ground_run(mut s, i, f.home_x, f.home_y, 48)
         }
         if f.kind == CINDER_MOTHS {
             // The ember is the orbit centre; it never follows the cub
@@ -5959,5 +5972,58 @@ fn marten_steal(mut s: Sim, i: int) {
         let taken = if s.scent < 5 then s.scent else 5
         s.scent -= taken
         s.foes[i].stolen_scent = taken
+    }
+}
+
+// The marten lives outdoors. Unlike boss_run this uses ordinary ground
+// and body clearance without imposing a boss arena's invisible boundary.
+fn new_ground_run(mut s: Sim, i: int, tx: int, ty: int, speed: int) {
+    let f = copy s.foes[i]
+    let h = heading_to(f.x, f.y, tx, ty)
+    if h < 0 { s.foes[i].speed = 0; return }
+    turn_foe(mut s, i, h)
+    let heading = s.foes[i].heading
+    let nx = f.x + speed * sin(heading) / FP
+    let ny = f.y - speed * cos(heading) / FP
+    if !blocked(s, floor_div(nx, FP), floor_div(ny, FP)) &&
+        !foe_blocked_by_body(s, i, nx, ny, heading) {
+        s.foes[i].x = nx
+        s.foes[i].y = ny
+        s.foes[i].speed = speed
+    } else {
+        s.foes[i].speed = 0
+    }
+}
+
+/// Area hook: no existing cave is silently repopulated/re-darkened.
+/// Replaced with cb14's UNDERTEETH id only at its announced merge.
+pub fn glow_dark_area(area: int) -> bool { area == -1 }
+
+/// A live worm lights cells within three cells of its drifting body.
+pub fn glow_lights(s: Sim, x: int, y: int) -> bool {
+    for f in s.foes {
+        if f.kind == GLOW_WORMS && f.health > 0 && near(f.x, f.y, x, y, 3 * FP) { return true }
+    }
+    false
+}
+
+// The adder and heron strike a committed cardinal line, not a ninety-
+// degree cone. Test the cub's whole body against the two-cell-wide ray
+// from the drawn head; reach retains the common clear-body-gap convention.
+fn new_foe_line_hits(s: Sim, i: int, reach: int) -> bool {
+    let f = copy s.foes[i]
+    let fb = foe_body(f)
+    let cb = cub_body(s)
+    let q = quarter(f.heading)
+    let x = floor_div(f.x, FP)
+    let y = floor_div(f.y, FP)
+    if q == 0 {
+        cb.x0 <= x + 1 && cb.x1 >= x && cb.y1 < fb.y0 && fb.y0 - cb.y1 <= reach
+    } else if q == 2 {
+        cb.x0 <= x + 1 && cb.x1 >= x && cb.y0 > fb.y1 && cb.y0 - fb.y1 <= reach
+    } else if q == 1 {
+        cb.y0 <= y && cb.y1 >= y && cb.x0 > fb.x1 && cb.x0 - fb.x1 <= reach
+    } else {
+        cb.y0 <= y && cb.y1 >= y && cb.x1 < fb.x0 && fb.x0 - cb.x1 <= reach
     }
 }
