@@ -141,45 +141,59 @@ fn test_cb14_the_journey_grew_by_half_and_the_dens_fill_the_second_bank() {
     }
 }
 
-fn test_cb14_every_new_area_s_spine_portals_and_mouths_are_open() {
-    // One seed on the checked machine (a flood an area is the budget's
-    // worth); the fifty-seed, both-field flood is `cub --world-audit`'s.
-    var seed = 1
-    while seed < 2 {
-        for area in [7, 8, 9, 10, 11, 12, 5] {
-            let o = forest.origin(seed, area)
-            var y = 0
-            while y <= forest.length(area) {
-                assert(
-                    !forest.blocked(seed, 80, area, forest.spine(seed, area, y), o + y),
-                    "clear spine seed {seed} area {area} row {y}",
-                )
-                y += 1
-            }
-            let seen = forest.flood(seed, 80, area)
-            var edge = 0
-            while edge < forest.EDGES {
-                if forest.other(area, edge) >= 0 {
-                    let (px, py) = forest.portal(seed, area, edge)
-                    assert(
-                        forest.reached(seen, 80, area, px / sim.FP, py / sim.FP - o),
-                        "portal {edge} reached seed {seed} area {area}",
-                    )
-                }
-                edge += 1
-            }
-            assert(forest.reachable(seed, 80, area), "every destination reached seed {seed} area {area}")
-            assert(forest.straight_run(seed, area) <= forest.STRAIGHT_MAX, "straight run area {area}")
-        }
-        // The sett's mouth in the Teeth and the roots' in the Hush.
-        let seen = forest.flood(seed, 80, forest.CRAGS)
-        let (sx, sy) = forest.portal(seed, forest.CRAGS, forest.EDGE_SETT)
+/// One area's route and flood: the spine walkable row by row, every
+/// portal and every destination reached, the meander bound. One seed on
+/// the checked machine (a flood an area is a test's budget); the
+/// fifty-seed, both-field flood is `cub --world-audit`'s.
+fn area_open(area: int) {
+    let seed = 1
+    let o = forest.origin(seed, area)
+    var y = 0
+    while y <= forest.length(area) {
         assert(
-            forest.reached(seen, 80, forest.CRAGS, sx / sim.FP, sy / sim.FP - forest.origin(seed, forest.CRAGS)),
-            "the sett reached seed {seed}",
+            !forest.blocked(seed, 80, area, forest.spine(seed, area, y), o + y),
+            "clear spine seed {seed} area {area} row {y}",
         )
-        seed += 1
+        y += 1
     }
+    let seen = forest.flood(seed, 80, area)
+    var edge = 0
+    while edge < forest.EDGES {
+        if forest.other(area, edge) >= 0 {
+            let (px, py) = forest.portal(seed, area, edge)
+            assert(
+                forest.reached(seen, 80, area, px / sim.FP, py / sim.FP - o),
+                "portal {edge} reached seed {seed} area {area}",
+            )
+        }
+        edge += 1
+    }
+    assert(forest.reachable(seed, 80, area), "every destination reached seed {seed} area {area}")
+    assert(forest.straight_run(seed, area) <= forest.STRAIGHT_MAX, "straight run area {area}")
+}
+
+fn test_cb14_the_stand_s_spine_portals_and_mouths_are_open() { area_open(forest.STAND) }
+
+fn test_cb14_the_burn_s_spine_portals_and_mouths_are_open() { area_open(forest.BURN) }
+
+fn test_cb14_the_mere_s_spine_portals_and_mouths_are_open() { area_open(forest.MERE) }
+
+fn test_cb14_the_underteeth_s_spine_portals_and_mouths_are_open() { area_open(forest.UNDERTEETH) }
+
+fn test_cb14_the_howe_s_spine_portals_and_mouths_are_open() { area_open(forest.HOWE) }
+
+fn test_cb14_gravehollow_s_spine_portals_and_mouths_are_open() { area_open(forest.GRAVEHOLLOW) }
+
+fn test_cb14_the_hush_s_spine_portals_and_mouths_are_open() { area_open(forest.HUSH) }
+
+fn test_cb14_the_sett_s_mouth_in_the_teeth_is_reached() {
+    let seed = 1
+    let seen = forest.flood(seed, 80, forest.CRAGS)
+    let (sx, sy) = forest.portal(seed, forest.CRAGS, forest.EDGE_SETT)
+    assert(
+        forest.reached(seen, 80, forest.CRAGS, sx / sim.FP, sy / sim.FP - forest.origin(seed, forest.CRAGS)),
+        "the sett reached seed {seed}",
+    )
 }
 
 fn test_cb14_the_arenas_grew_by_half_and_kept_their_shapes() {
