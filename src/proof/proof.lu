@@ -317,9 +317,11 @@ pub fn landmarks(dir: str) -> int {
                 }
                 id += 1
             }
-            // The Howe has no den (R-cb14-1): its stones are reached from
-            // the cold den by the fighter's walk on, as its first screen is.
-            if den < 0 && area != forest.HOWE {
+            // The Howe and Gravehollow have no den (R-cb14-1): their stones
+            // and the pack's mark are reached from the cold den by the
+            // fighter's walk on, as their first screens are.
+            let den_less = area == forest.HOWE || area == forest.GRAVEHOLLOW
+            if den < 0 && !den_less {
                 eprint("proof: no den for landmark {area}-{k}")
                 return 1
             }
