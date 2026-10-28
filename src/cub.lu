@@ -27,6 +27,7 @@ use narrowaudit
 use look
 use clock
 use controls
+use counter
 use cross
 use combatproof
 use demo
@@ -409,6 +410,7 @@ fn run_headless(o: Options, args: List[str]) -> int {
     var keys = List[int]()
     var k = 0
     var archived = s.deaths
+    let count_frames = script_counter_frames(o)
     while k < o.frames {
         (mut keys).reset()
         let (c, rows, health) = replay.at(r, k, mut keys)
@@ -429,6 +431,18 @@ fn run_headless(o: Options, args: List[str]) -> int {
             }
         }
         if o.trace { eprint(state_text(s)) }
+        if count_frames && k + 1 >= o.from_tick {
+            var index = 0
+            while index < counter.length(s.scent_count) {
+                let value = counter.value(s.scent_count, index)
+                art.render_count_with(s, extra, r.tier, value, mut g)
+                headless.write_frame(o.dump, "count-{headless.pad4(k + 1)}-{headless.pad4(index)}-{value}", g) else |_| {
+                    eprint("cub: cannot write counter frame into {o.dump}")
+                    return 2
+                }
+                index += 1
+            }
+        }
         if k + 1 >= o.from_tick && (k + 1) % o.every == 0 && k + 1 < o.frames {
             art.render_with(s, extra, r.tier, mut g)
             headless.write_frame(o.dump, "frame-{headless.pad4(k + 1)}", g) else |_| {
@@ -959,9 +973,28 @@ fn run_live(o: Options, args: List[str]) -> int {
                 ended = "--ticks"
                 quit = true
             }
+            // Every integer of every due tick reaches the terminal. No extra
+            // simulation, score, save, ghost or replay step belongs to a batch.
+            var index = 0
+            while index < counter.length(s.scent_count) {
+                let r0 = clock.now_ns()
+                art.render_count_with(s, extra, rp.tier, counter.value(s.scent_count, index), mut back)
+                grid.diff(front, back, full, mut pen, mut out, dialect)
+                let cost = clock.now_ns() - r0
+                render_ns += cost
+                if cost > render_max_ns { render_max_ns = cost }
+                term.write(out) else |_| { ended = "a failed write"; quit = true }
+                (mut out).reset()
+                let tmp = front
+                front = back
+                back = tmp
+                full = false
+                frames += 1
+                index += 1
+            }
             n += 1
         }
-        if due > 0 {
+        if due > 0 && counter.length(s.scent_count) == 0 {
             (mut keys).reset()
             let r0 = clock.now_ns()
             art.render_with(s, extra, rp.tier, mut back)
@@ -1223,6 +1256,14 @@ fn demo_step(mut extra: art.Extra, s: sim.Sim, r: replay.Replay, mut demo_tick: 
     }
     sim.step(mut extra.demo[0], keys)
     demo_tick += 1
+}
+
+fn script_counter_frames(o: Options) -> bool {
+    let path = if o.script != "" then o.script else o.replay_path
+    if path == "" { return false }
+    let text = fs.read_text(path) else |_| { return false }
+    for raw in text.lines() { if raw.trim() == "# counter-frames" { return true } }
+    false
 }
 
 /// The `# ghost-dir DIR` line of a headless script, or "".
