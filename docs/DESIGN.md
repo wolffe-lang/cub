@@ -29,6 +29,17 @@ the rest menu's Lore row. Lore ids are append-only: existing coals/frame/stump
 lines are10/11/12 without wording changes; cb14 and cb16 append from13.
 Menus freeze effect/attack/lifetime clocks and
 clear held movement on exit; marrow never catches up for paused ticks.
+The opening and closing ticks are both paused, including queued bite links,
+the six-tick combo grace, riposte, poise and offscreen loot lifetimes.
+
+`pouch.take_one(mut held_count, kind)` removes one from a given stack and
+returns its kind, or -1 when absent/invalid. `sim.take_one(mut s, kind)` routes
+all five stacks, including the two legacy Sim fields; taking never consumes
+an effect or creates a pickup. `pouch.leave(mut pouch, area, x, y, kind)` places
+one at the given **cell** point, not fixed-point coordinates, and returns false
+without placement when full or invalid. These are the marten's carry/drop
+hooks; no pick-order or new save field is introduced.
+
 
 Foe drops are stable seed/area/spawn rolls: weasel yarrow10%, hawk yarrow15%,
 fox marrow10%. The future boar-kin25% and otter20% use the same roll hook.
