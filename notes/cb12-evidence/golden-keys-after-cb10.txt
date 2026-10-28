@@ -1,0 +1,676 @@
+Base 1497b5d3: 6238 files; current 6794 files.
+Existing changed 776; added 556; removed 0.
+No golden case/directory removed. Both key sets compared before regeneration was committed.
+All unchanged existing files remain byte-equal by git; art sheets and score goldens unchanged.
+
+Named golden rows and reason:
+bite-plain: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+bite-rich: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+boss-lynx-beaten-plain: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+boss-lynx-beaten-rich: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+cb12-fallen-closed-plain: 3 changed/added files; new post-fade word / reversed eyelid / closed-eye frame
+cb12-fallen-closed-rich: 3 changed/added files; new post-fade word / reversed eyelid / closed-eye frame
+cb12-fallen-half-plain: 3 changed/added files; new post-fade word / reversed eyelid / closed-eye frame
+cb12-fallen-half-rich: 3 changed/added files; new post-fade word / reversed eyelid / closed-eye frame
+cb12-fallen-word-plain: 3 changed/added files; new post-fade word / reversed eyelid / closed-eye frame
+cb12-fallen-word-rich: 3 changed/added files; new post-fade word / reversed eyelid / closed-eye frame
+cb12-scent-burst-plain: 3 changed/added files; new each-integer gain/spending sequence or1000-gain endpoint
+cb12-scent-burst-rich: 3 changed/added files; new each-integer gain/spending sequence or1000-gain endpoint
+cb12-scent-gain-plain: 63 changed/added files; new each-integer gain/spending sequence or1000-gain endpoint
+cb12-scent-gain-rich: 63 changed/added files; new each-integer gain/spending sequence or1000-gain endpoint
+cb12-scent-spend-plain: 199 changed/added files; new each-integer gain/spending sequence or1000-gain endpoint
+cb12-scent-spend-rich: 199 changed/added files; new each-integer gain/spending sequence or1000-gain endpoint
+coast-cache-0-plain: 1 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+coast-cache-0-rich: 1 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+coast-cache-1-plain: 2 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+coast-cache-1-rich: 2 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+coast-cache-2-plain: 2 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+coast-cache-2-rich: 2 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+coast-cache-3-plain: 1 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+coast-cache-3-rich: 3 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+death-recovery-plain: 23 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+death-recovery-rich: 23 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+den-after-cluster-plain: 8 changed/added files; big scent counter remains visible at rest; gain/spending animation
+den-after-cluster-rich: 8 changed/added files; big scent counter remains visible at rest; gain/spending animation
+den-bars-120x40-plain: 4 changed/added files; big scent counter remains visible at rest; gain/spending animation
+den-bars-120x40-rich: 4 changed/added files; big scent counter remains visible at rest; gain/spending animation
+den-bars-80x24-plain: 4 changed/added files; big scent counter remains visible at rest; gain/spending animation
+den-bars-80x24-rich: 4 changed/added files; big scent counter remains visible at rest; gain/spending animation
+den-checkpoint-plain: 3 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+den-checkpoint-rich: 3 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+fox-feint-plain: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+fox-feint-rich: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+ghost-death-plain: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+ghost-death-rich: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+natural-death-plain: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+natural-death-rich: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+rest-bramblehold-120x40-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-bramblehold-120x40-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-bramblehold-80x24-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-bramblehold-80x24-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-cinderwick-120x40-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-cinderwick-120x40-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-cinderwick-80x24-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-cinderwick-80x24-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-larkmeadow-120x40-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-larkmeadow-120x40-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-larkmeadow-80x24-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-larkmeadow-80x24-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-empty-120x40-plain: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-empty-120x40-rich: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-empty-200x60-plain: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-empty-200x60-rich: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-empty-80x24-plain: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-empty-80x24-rich: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-pending-120x40-plain: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-pending-120x40-rich: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-pending-200x60-plain: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-pending-200x60-rich: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-pending-80x24-plain: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-pending-80x24-rich: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-refused-120x40-plain: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-refused-120x40-rich: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-refused-200x60-plain: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-refused-200x60-rich: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-refused-80x24-plain: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-menu-refused-80x24-rich: 2 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-old-den-120x40-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-old-den-120x40-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-old-den-80x24-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-old-den-80x24-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-shallows-120x40-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-shallows-120x40-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-shallows-80x24-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-shallows-80x24-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-shingle-120x40-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-shingle-120x40-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-shingle-80x24-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-shingle-80x24-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-teeth-120x40-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-teeth-120x40-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-teeth-80x24-plain: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+rest-teeth-80x24-rich: 12 changed/added files; big scent counter remains visible at rest; gain/spending animation
+saved-den-plain: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+saved-den-rich: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+scent-orb-120x40-plain: 13 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+scent-orb-120x40-rich: 14 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+scent-orb-80x24-plain: 13 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+scent-orb-80x24-rich: 14 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+scent-recover-120x40-plain: 45 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+scent-recover-120x40-rich: 45 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+scent-recover-80x24-plain: 45 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+scent-recover-80x24-rich: 45 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+town-den-plain: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+town-den-rich: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+town-passage-plain: 6 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+town-passage-rich: 5 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+water-refill-plain: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+water-refill-rich: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+world-den-plain: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+world-den-rich: 2 changed/added files; presentation-only scent animation at the sampled tick; simulation snapshot unchanged
+world-recovered-plain: 3 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+world-recovered-rich: 3 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+world-return-plain: 1 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+world-return-rich: 2 changed/added files; minimum death-word hold and recorded skip; animated currency; den HUD as applicable
+
+ADDED KEYS
+tests/goldens/cb12-fallen-closed-plain/final.state
+tests/goldens/cb12-fallen-closed-plain/final.sty
+tests/goldens/cb12-fallen-closed-plain/final.txt
+tests/goldens/cb12-fallen-closed-rich/final.state
+tests/goldens/cb12-fallen-closed-rich/final.sty
+tests/goldens/cb12-fallen-closed-rich/final.txt
+tests/goldens/cb12-fallen-half-plain/final.state
+tests/goldens/cb12-fallen-half-plain/final.sty
+tests/goldens/cb12-fallen-half-plain/final.txt
+tests/goldens/cb12-fallen-half-rich/final.state
+tests/goldens/cb12-fallen-half-rich/final.sty
+tests/goldens/cb12-fallen-half-rich/final.txt
+tests/goldens/cb12-fallen-word-plain/final.state
+tests/goldens/cb12-fallen-word-plain/final.sty
+tests/goldens/cb12-fallen-word-plain/final.txt
+tests/goldens/cb12-fallen-word-rich/final.state
+tests/goldens/cb12-fallen-word-rich/final.sty
+tests/goldens/cb12-fallen-word-rich/final.txt
+tests/goldens/cb12-scent-burst-plain/final.state
+tests/goldens/cb12-scent-burst-plain/final.sty
+tests/goldens/cb12-scent-burst-plain/final.txt
+tests/goldens/cb12-scent-burst-rich/final.state
+tests/goldens/cb12-scent-burst-rich/final.sty
+tests/goldens/cb12-scent-burst-rich/final.txt
+tests/goldens/cb12-scent-gain-plain/count-0001-0000-1.sty
+tests/goldens/cb12-scent-gain-plain/count-0001-0000-1.txt
+tests/goldens/cb12-scent-gain-plain/count-0002-0000-2.sty
+tests/goldens/cb12-scent-gain-plain/count-0002-0000-2.txt
+tests/goldens/cb12-scent-gain-plain/count-0002-0001-3.sty
+tests/goldens/cb12-scent-gain-plain/count-0002-0001-3.txt
+tests/goldens/cb12-scent-gain-plain/count-0003-0000-4.sty
+tests/goldens/cb12-scent-gain-plain/count-0003-0000-4.txt
+tests/goldens/cb12-scent-gain-plain/count-0004-0000-5.sty
+tests/goldens/cb12-scent-gain-plain/count-0004-0000-5.txt
+tests/goldens/cb12-scent-gain-plain/count-0004-0001-6.sty
+tests/goldens/cb12-scent-gain-plain/count-0004-0001-6.txt
+tests/goldens/cb12-scent-gain-plain/count-0005-0000-7.sty
+tests/goldens/cb12-scent-gain-plain/count-0005-0000-7.txt
+tests/goldens/cb12-scent-gain-plain/count-0006-0000-8.sty
+tests/goldens/cb12-scent-gain-plain/count-0006-0000-8.txt
+tests/goldens/cb12-scent-gain-plain/count-0006-0001-9.sty
+tests/goldens/cb12-scent-gain-plain/count-0006-0001-9.txt
+tests/goldens/cb12-scent-gain-plain/count-0007-0000-10.sty
+tests/goldens/cb12-scent-gain-plain/count-0007-0000-10.txt
+tests/goldens/cb12-scent-gain-plain/count-0008-0000-11.sty
+tests/goldens/cb12-scent-gain-plain/count-0008-0000-11.txt
+tests/goldens/cb12-scent-gain-plain/count-0008-0001-12.sty
+tests/goldens/cb12-scent-gain-plain/count-0008-0001-12.txt
+tests/goldens/cb12-scent-gain-plain/count-0009-0000-13.sty
+tests/goldens/cb12-scent-gain-plain/count-0009-0000-13.txt
+tests/goldens/cb12-scent-gain-plain/count-0010-0000-14.sty
+tests/goldens/cb12-scent-gain-plain/count-0010-0000-14.txt
+tests/goldens/cb12-scent-gain-plain/count-0010-0001-15.sty
+tests/goldens/cb12-scent-gain-plain/count-0010-0001-15.txt
+tests/goldens/cb12-scent-gain-plain/count-0011-0000-16.sty
+tests/goldens/cb12-scent-gain-plain/count-0011-0000-16.txt
+tests/goldens/cb12-scent-gain-plain/count-0012-0000-17.sty
+tests/goldens/cb12-scent-gain-plain/count-0012-0000-17.txt
+tests/goldens/cb12-scent-gain-plain/count-0012-0001-18.sty
+tests/goldens/cb12-scent-gain-plain/count-0012-0001-18.txt
+tests/goldens/cb12-scent-gain-plain/count-0013-0000-19.sty
+tests/goldens/cb12-scent-gain-plain/count-0013-0000-19.txt
+tests/goldens/cb12-scent-gain-plain/count-0014-0000-20.sty
+tests/goldens/cb12-scent-gain-plain/count-0014-0000-20.txt
+tests/goldens/cb12-scent-gain-plain/count-0014-0001-21.sty
+tests/goldens/cb12-scent-gain-plain/count-0014-0001-21.txt
+tests/goldens/cb12-scent-gain-plain/count-0015-0000-22.sty
+tests/goldens/cb12-scent-gain-plain/count-0015-0000-22.txt
+tests/goldens/cb12-scent-gain-plain/count-0016-0000-23.sty
+tests/goldens/cb12-scent-gain-plain/count-0016-0000-23.txt
+tests/goldens/cb12-scent-gain-plain/count-0016-0001-24.sty
+tests/goldens/cb12-scent-gain-plain/count-0016-0001-24.txt
+tests/goldens/cb12-scent-gain-plain/count-0017-0000-25.sty
+tests/goldens/cb12-scent-gain-plain/count-0017-0000-25.txt
+tests/goldens/cb12-scent-gain-plain/count-0018-0000-26.sty
+tests/goldens/cb12-scent-gain-plain/count-0018-0000-26.txt
+tests/goldens/cb12-scent-gain-plain/count-0018-0001-27.sty
+tests/goldens/cb12-scent-gain-plain/count-0018-0001-27.txt
+tests/goldens/cb12-scent-gain-plain/count-0019-0000-28.sty
+tests/goldens/cb12-scent-gain-plain/count-0019-0000-28.txt
+tests/goldens/cb12-scent-gain-plain/count-0020-0000-29.sty
+tests/goldens/cb12-scent-gain-plain/count-0020-0000-29.txt
+tests/goldens/cb12-scent-gain-plain/count-0020-0001-30.sty
+tests/goldens/cb12-scent-gain-plain/count-0020-0001-30.txt
+tests/goldens/cb12-scent-gain-plain/final.state
+tests/goldens/cb12-scent-gain-plain/final.sty
+tests/goldens/cb12-scent-gain-plain/final.txt
+tests/goldens/cb12-scent-gain-rich/count-0001-0000-1.sty
+tests/goldens/cb12-scent-gain-rich/count-0001-0000-1.txt
+tests/goldens/cb12-scent-gain-rich/count-0002-0000-2.sty
+tests/goldens/cb12-scent-gain-rich/count-0002-0000-2.txt
+tests/goldens/cb12-scent-gain-rich/count-0002-0001-3.sty
+tests/goldens/cb12-scent-gain-rich/count-0002-0001-3.txt
+tests/goldens/cb12-scent-gain-rich/count-0003-0000-4.sty
+tests/goldens/cb12-scent-gain-rich/count-0003-0000-4.txt
+tests/goldens/cb12-scent-gain-rich/count-0004-0000-5.sty
+tests/goldens/cb12-scent-gain-rich/count-0004-0000-5.txt
+tests/goldens/cb12-scent-gain-rich/count-0004-0001-6.sty
+tests/goldens/cb12-scent-gain-rich/count-0004-0001-6.txt
+tests/goldens/cb12-scent-gain-rich/count-0005-0000-7.sty
+tests/goldens/cb12-scent-gain-rich/count-0005-0000-7.txt
+tests/goldens/cb12-scent-gain-rich/count-0006-0000-8.sty
+tests/goldens/cb12-scent-gain-rich/count-0006-0000-8.txt
+tests/goldens/cb12-scent-gain-rich/count-0006-0001-9.sty
+tests/goldens/cb12-scent-gain-rich/count-0006-0001-9.txt
+tests/goldens/cb12-scent-gain-rich/count-0007-0000-10.sty
+tests/goldens/cb12-scent-gain-rich/count-0007-0000-10.txt
+tests/goldens/cb12-scent-gain-rich/count-0008-0000-11.sty
+tests/goldens/cb12-scent-gain-rich/count-0008-0000-11.txt
+tests/goldens/cb12-scent-gain-rich/count-0008-0001-12.sty
+tests/goldens/cb12-scent-gain-rich/count-0008-0001-12.txt
+tests/goldens/cb12-scent-gain-rich/count-0009-0000-13.sty
+tests/goldens/cb12-scent-gain-rich/count-0009-0000-13.txt
+tests/goldens/cb12-scent-gain-rich/count-0010-0000-14.sty
+tests/goldens/cb12-scent-gain-rich/count-0010-0000-14.txt
+tests/goldens/cb12-scent-gain-rich/count-0010-0001-15.sty
+tests/goldens/cb12-scent-gain-rich/count-0010-0001-15.txt
+tests/goldens/cb12-scent-gain-rich/count-0011-0000-16.sty
+tests/goldens/cb12-scent-gain-rich/count-0011-0000-16.txt
+tests/goldens/cb12-scent-gain-rich/count-0012-0000-17.sty
+tests/goldens/cb12-scent-gain-rich/count-0012-0000-17.txt
+tests/goldens/cb12-scent-gain-rich/count-0012-0001-18.sty
+tests/goldens/cb12-scent-gain-rich/count-0012-0001-18.txt
+tests/goldens/cb12-scent-gain-rich/count-0013-0000-19.sty
+tests/goldens/cb12-scent-gain-rich/count-0013-0000-19.txt
+tests/goldens/cb12-scent-gain-rich/count-0014-0000-20.sty
+tests/goldens/cb12-scent-gain-rich/count-0014-0000-20.txt
+tests/goldens/cb12-scent-gain-rich/count-0014-0001-21.sty
+tests/goldens/cb12-scent-gain-rich/count-0014-0001-21.txt
+tests/goldens/cb12-scent-gain-rich/count-0015-0000-22.sty
+tests/goldens/cb12-scent-gain-rich/count-0015-0000-22.txt
+tests/goldens/cb12-scent-gain-rich/count-0016-0000-23.sty
+tests/goldens/cb12-scent-gain-rich/count-0016-0000-23.txt
+tests/goldens/cb12-scent-gain-rich/count-0016-0001-24.sty
+tests/goldens/cb12-scent-gain-rich/count-0016-0001-24.txt
+tests/goldens/cb12-scent-gain-rich/count-0017-0000-25.sty
+tests/goldens/cb12-scent-gain-rich/count-0017-0000-25.txt
+tests/goldens/cb12-scent-gain-rich/count-0018-0000-26.sty
+tests/goldens/cb12-scent-gain-rich/count-0018-0000-26.txt
+tests/goldens/cb12-scent-gain-rich/count-0018-0001-27.sty
+tests/goldens/cb12-scent-gain-rich/count-0018-0001-27.txt
+tests/goldens/cb12-scent-gain-rich/count-0019-0000-28.sty
+tests/goldens/cb12-scent-gain-rich/count-0019-0000-28.txt
+tests/goldens/cb12-scent-gain-rich/count-0020-0000-29.sty
+tests/goldens/cb12-scent-gain-rich/count-0020-0000-29.txt
+tests/goldens/cb12-scent-gain-rich/count-0020-0001-30.sty
+tests/goldens/cb12-scent-gain-rich/count-0020-0001-30.txt
+tests/goldens/cb12-scent-gain-rich/final.state
+tests/goldens/cb12-scent-gain-rich/final.sty
+tests/goldens/cb12-scent-gain-rich/final.txt
+tests/goldens/cb12-scent-spend-plain/count-0001-0000-1.sty
+tests/goldens/cb12-scent-spend-plain/count-0001-0000-1.txt
+tests/goldens/cb12-scent-spend-plain/count-0001-0001-2.sty
+tests/goldens/cb12-scent-spend-plain/count-0001-0001-2.txt
+tests/goldens/cb12-scent-spend-plain/count-0002-0000-3.sty
+tests/goldens/cb12-scent-spend-plain/count-0002-0000-3.txt
+tests/goldens/cb12-scent-spend-plain/count-0002-0001-4.sty
+tests/goldens/cb12-scent-spend-plain/count-0002-0001-4.txt
+tests/goldens/cb12-scent-spend-plain/count-0003-0000-5.sty
+tests/goldens/cb12-scent-spend-plain/count-0003-0000-5.txt
+tests/goldens/cb12-scent-spend-plain/count-0003-0001-6.sty
+tests/goldens/cb12-scent-spend-plain/count-0003-0001-6.txt
+tests/goldens/cb12-scent-spend-plain/count-0003-0002-7.sty
+tests/goldens/cb12-scent-spend-plain/count-0003-0002-7.txt
+tests/goldens/cb12-scent-spend-plain/count-0004-0000-8.sty
+tests/goldens/cb12-scent-spend-plain/count-0004-0000-8.txt
+tests/goldens/cb12-scent-spend-plain/count-0004-0001-9.sty
+tests/goldens/cb12-scent-spend-plain/count-0004-0001-9.txt
+tests/goldens/cb12-scent-spend-plain/count-0005-0000-10.sty
+tests/goldens/cb12-scent-spend-plain/count-0005-0000-10.txt
+tests/goldens/cb12-scent-spend-plain/count-0005-0001-11.sty
+tests/goldens/cb12-scent-spend-plain/count-0005-0001-11.txt
+tests/goldens/cb12-scent-spend-plain/count-0005-0002-12.sty
+tests/goldens/cb12-scent-spend-plain/count-0005-0002-12.txt
+tests/goldens/cb12-scent-spend-plain/count-0006-0000-13.sty
+tests/goldens/cb12-scent-spend-plain/count-0006-0000-13.txt
+tests/goldens/cb12-scent-spend-plain/count-0006-0001-14.sty
+tests/goldens/cb12-scent-spend-plain/count-0006-0001-14.txt
+tests/goldens/cb12-scent-spend-plain/count-0007-0000-15.sty
+tests/goldens/cb12-scent-spend-plain/count-0007-0000-15.txt
+tests/goldens/cb12-scent-spend-plain/count-0007-0001-16.sty
+tests/goldens/cb12-scent-spend-plain/count-0007-0001-16.txt
+tests/goldens/cb12-scent-spend-plain/count-0007-0002-17.sty
+tests/goldens/cb12-scent-spend-plain/count-0007-0002-17.txt
+tests/goldens/cb12-scent-spend-plain/count-0008-0000-18.sty
+tests/goldens/cb12-scent-spend-plain/count-0008-0000-18.txt
+tests/goldens/cb12-scent-spend-plain/count-0008-0001-19.sty
+tests/goldens/cb12-scent-spend-plain/count-0008-0001-19.txt
+tests/goldens/cb12-scent-spend-plain/count-0009-0000-20.sty
+tests/goldens/cb12-scent-spend-plain/count-0009-0000-20.txt
+tests/goldens/cb12-scent-spend-plain/count-0009-0001-21.sty
+tests/goldens/cb12-scent-spend-plain/count-0009-0001-21.txt
+tests/goldens/cb12-scent-spend-plain/count-0009-0002-22.sty
+tests/goldens/cb12-scent-spend-plain/count-0009-0002-22.txt
+tests/goldens/cb12-scent-spend-plain/count-0010-0000-23.sty
+tests/goldens/cb12-scent-spend-plain/count-0010-0000-23.txt
+tests/goldens/cb12-scent-spend-plain/count-0010-0001-24.sty
+tests/goldens/cb12-scent-spend-plain/count-0010-0001-24.txt
+tests/goldens/cb12-scent-spend-plain/count-0011-0000-25.sty
+tests/goldens/cb12-scent-spend-plain/count-0011-0000-25.txt
+tests/goldens/cb12-scent-spend-plain/count-0011-0001-26.sty
+tests/goldens/cb12-scent-spend-plain/count-0011-0001-26.txt
+tests/goldens/cb12-scent-spend-plain/count-0012-0000-27.sty
+tests/goldens/cb12-scent-spend-plain/count-0012-0000-27.txt
+tests/goldens/cb12-scent-spend-plain/count-0012-0001-28.sty
+tests/goldens/cb12-scent-spend-plain/count-0012-0001-28.txt
+tests/goldens/cb12-scent-spend-plain/count-0012-0002-29.sty
+tests/goldens/cb12-scent-spend-plain/count-0012-0002-29.txt
+tests/goldens/cb12-scent-spend-plain/count-0013-0000-30.sty
+tests/goldens/cb12-scent-spend-plain/count-0013-0000-30.txt
+tests/goldens/cb12-scent-spend-plain/count-0013-0001-31.sty
+tests/goldens/cb12-scent-spend-plain/count-0013-0001-31.txt
+tests/goldens/cb12-scent-spend-plain/count-0014-0000-32.sty
+tests/goldens/cb12-scent-spend-plain/count-0014-0000-32.txt
+tests/goldens/cb12-scent-spend-plain/count-0014-0001-33.sty
+tests/goldens/cb12-scent-spend-plain/count-0014-0001-33.txt
+tests/goldens/cb12-scent-spend-plain/count-0014-0002-34.sty
+tests/goldens/cb12-scent-spend-plain/count-0014-0002-34.txt
+tests/goldens/cb12-scent-spend-plain/count-0015-0000-35.sty
+tests/goldens/cb12-scent-spend-plain/count-0015-0000-35.txt
+tests/goldens/cb12-scent-spend-plain/count-0015-0001-36.sty
+tests/goldens/cb12-scent-spend-plain/count-0015-0001-36.txt
+tests/goldens/cb12-scent-spend-plain/count-0016-0000-37.sty
+tests/goldens/cb12-scent-spend-plain/count-0016-0000-37.txt
+tests/goldens/cb12-scent-spend-plain/count-0016-0001-38.sty
+tests/goldens/cb12-scent-spend-plain/count-0016-0001-38.txt
+tests/goldens/cb12-scent-spend-plain/count-0016-0002-39.sty
+tests/goldens/cb12-scent-spend-plain/count-0016-0002-39.txt
+tests/goldens/cb12-scent-spend-plain/count-0017-0000-40.sty
+tests/goldens/cb12-scent-spend-plain/count-0017-0000-40.txt
+tests/goldens/cb12-scent-spend-plain/count-0017-0001-41.sty
+tests/goldens/cb12-scent-spend-plain/count-0017-0001-41.txt
+tests/goldens/cb12-scent-spend-plain/count-0018-0000-42.sty
+tests/goldens/cb12-scent-spend-plain/count-0018-0000-42.txt
+tests/goldens/cb12-scent-spend-plain/count-0018-0001-43.sty
+tests/goldens/cb12-scent-spend-plain/count-0018-0001-43.txt
+tests/goldens/cb12-scent-spend-plain/count-0018-0002-44.sty
+tests/goldens/cb12-scent-spend-plain/count-0018-0002-44.txt
+tests/goldens/cb12-scent-spend-plain/count-0019-0000-45.sty
+tests/goldens/cb12-scent-spend-plain/count-0019-0000-45.txt
+tests/goldens/cb12-scent-spend-plain/count-0019-0001-46.sty
+tests/goldens/cb12-scent-spend-plain/count-0019-0001-46.txt
+tests/goldens/cb12-scent-spend-plain/count-0020-0000-47.sty
+tests/goldens/cb12-scent-spend-plain/count-0020-0000-47.txt
+tests/goldens/cb12-scent-spend-plain/count-0020-0001-48.sty
+tests/goldens/cb12-scent-spend-plain/count-0020-0001-48.txt
+tests/goldens/cb12-scent-spend-plain/count-0020-0002-49.sty
+tests/goldens/cb12-scent-spend-plain/count-0020-0002-49.txt
+tests/goldens/cb12-scent-spend-plain/count-0026-0000-48.sty
+tests/goldens/cb12-scent-spend-plain/count-0026-0000-48.txt
+tests/goldens/cb12-scent-spend-plain/count-0026-0001-47.sty
+tests/goldens/cb12-scent-spend-plain/count-0026-0001-47.txt
+tests/goldens/cb12-scent-spend-plain/count-0027-0000-46.sty
+tests/goldens/cb12-scent-spend-plain/count-0027-0000-46.txt
+tests/goldens/cb12-scent-spend-plain/count-0027-0001-45.sty
+tests/goldens/cb12-scent-spend-plain/count-0027-0001-45.txt
+tests/goldens/cb12-scent-spend-plain/count-0028-0000-44.sty
+tests/goldens/cb12-scent-spend-plain/count-0028-0000-44.txt
+tests/goldens/cb12-scent-spend-plain/count-0028-0001-43.sty
+tests/goldens/cb12-scent-spend-plain/count-0028-0001-43.txt
+tests/goldens/cb12-scent-spend-plain/count-0028-0002-42.sty
+tests/goldens/cb12-scent-spend-plain/count-0028-0002-42.txt
+tests/goldens/cb12-scent-spend-plain/count-0029-0000-41.sty
+tests/goldens/cb12-scent-spend-plain/count-0029-0000-41.txt
+tests/goldens/cb12-scent-spend-plain/count-0029-0001-40.sty
+tests/goldens/cb12-scent-spend-plain/count-0029-0001-40.txt
+tests/goldens/cb12-scent-spend-plain/count-0030-0000-39.sty
+tests/goldens/cb12-scent-spend-plain/count-0030-0000-39.txt
+tests/goldens/cb12-scent-spend-plain/count-0030-0001-38.sty
+tests/goldens/cb12-scent-spend-plain/count-0030-0001-38.txt
+tests/goldens/cb12-scent-spend-plain/count-0030-0002-37.sty
+tests/goldens/cb12-scent-spend-plain/count-0030-0002-37.txt
+tests/goldens/cb12-scent-spend-plain/count-0031-0000-36.sty
+tests/goldens/cb12-scent-spend-plain/count-0031-0000-36.txt
+tests/goldens/cb12-scent-spend-plain/count-0031-0001-35.sty
+tests/goldens/cb12-scent-spend-plain/count-0031-0001-35.txt
+tests/goldens/cb12-scent-spend-plain/count-0032-0000-34.sty
+tests/goldens/cb12-scent-spend-plain/count-0032-0000-34.txt
+tests/goldens/cb12-scent-spend-plain/count-0032-0001-33.sty
+tests/goldens/cb12-scent-spend-plain/count-0032-0001-33.txt
+tests/goldens/cb12-scent-spend-plain/count-0032-0002-32.sty
+tests/goldens/cb12-scent-spend-plain/count-0032-0002-32.txt
+tests/goldens/cb12-scent-spend-plain/count-0033-0000-31.sty
+tests/goldens/cb12-scent-spend-plain/count-0033-0000-31.txt
+tests/goldens/cb12-scent-spend-plain/count-0033-0001-30.sty
+tests/goldens/cb12-scent-spend-plain/count-0033-0001-30.txt
+tests/goldens/cb12-scent-spend-plain/count-0034-0000-29.sty
+tests/goldens/cb12-scent-spend-plain/count-0034-0000-29.txt
+tests/goldens/cb12-scent-spend-plain/count-0034-0001-28.sty
+tests/goldens/cb12-scent-spend-plain/count-0034-0001-28.txt
+tests/goldens/cb12-scent-spend-plain/count-0034-0002-27.sty
+tests/goldens/cb12-scent-spend-plain/count-0034-0002-27.txt
+tests/goldens/cb12-scent-spend-plain/count-0035-0000-26.sty
+tests/goldens/cb12-scent-spend-plain/count-0035-0000-26.txt
+tests/goldens/cb12-scent-spend-plain/count-0035-0001-25.sty
+tests/goldens/cb12-scent-spend-plain/count-0035-0001-25.txt
+tests/goldens/cb12-scent-spend-plain/count-0036-0000-24.sty
+tests/goldens/cb12-scent-spend-plain/count-0036-0000-24.txt
+tests/goldens/cb12-scent-spend-plain/count-0036-0001-23.sty
+tests/goldens/cb12-scent-spend-plain/count-0036-0001-23.txt
+tests/goldens/cb12-scent-spend-plain/count-0037-0000-22.sty
+tests/goldens/cb12-scent-spend-plain/count-0037-0000-22.txt
+tests/goldens/cb12-scent-spend-plain/count-0037-0001-21.sty
+tests/goldens/cb12-scent-spend-plain/count-0037-0001-21.txt
+tests/goldens/cb12-scent-spend-plain/count-0037-0002-20.sty
+tests/goldens/cb12-scent-spend-plain/count-0037-0002-20.txt
+tests/goldens/cb12-scent-spend-plain/count-0038-0000-19.sty
+tests/goldens/cb12-scent-spend-plain/count-0038-0000-19.txt
+tests/goldens/cb12-scent-spend-plain/count-0038-0001-18.sty
+tests/goldens/cb12-scent-spend-plain/count-0038-0001-18.txt
+tests/goldens/cb12-scent-spend-plain/count-0039-0000-17.sty
+tests/goldens/cb12-scent-spend-plain/count-0039-0000-17.txt
+tests/goldens/cb12-scent-spend-plain/count-0039-0001-16.sty
+tests/goldens/cb12-scent-spend-plain/count-0039-0001-16.txt
+tests/goldens/cb12-scent-spend-plain/count-0039-0002-15.sty
+tests/goldens/cb12-scent-spend-plain/count-0039-0002-15.txt
+tests/goldens/cb12-scent-spend-plain/count-0040-0000-14.sty
+tests/goldens/cb12-scent-spend-plain/count-0040-0000-14.txt
+tests/goldens/cb12-scent-spend-plain/count-0040-0001-13.sty
+tests/goldens/cb12-scent-spend-plain/count-0040-0001-13.txt
+tests/goldens/cb12-scent-spend-plain/count-0041-0000-12.sty
+tests/goldens/cb12-scent-spend-plain/count-0041-0000-12.txt
+tests/goldens/cb12-scent-spend-plain/count-0041-0001-11.sty
+tests/goldens/cb12-scent-spend-plain/count-0041-0001-11.txt
+tests/goldens/cb12-scent-spend-plain/count-0041-0002-10.sty
+tests/goldens/cb12-scent-spend-plain/count-0041-0002-10.txt
+tests/goldens/cb12-scent-spend-plain/count-0042-0000-9.sty
+tests/goldens/cb12-scent-spend-plain/count-0042-0000-9.txt
+tests/goldens/cb12-scent-spend-plain/count-0042-0001-8.sty
+tests/goldens/cb12-scent-spend-plain/count-0042-0001-8.txt
+tests/goldens/cb12-scent-spend-plain/count-0043-0000-7.sty
+tests/goldens/cb12-scent-spend-plain/count-0043-0000-7.txt
+tests/goldens/cb12-scent-spend-plain/count-0043-0001-6.sty
+tests/goldens/cb12-scent-spend-plain/count-0043-0001-6.txt
+tests/goldens/cb12-scent-spend-plain/count-0043-0002-5.sty
+tests/goldens/cb12-scent-spend-plain/count-0043-0002-5.txt
+tests/goldens/cb12-scent-spend-plain/count-0044-0000-4.sty
+tests/goldens/cb12-scent-spend-plain/count-0044-0000-4.txt
+tests/goldens/cb12-scent-spend-plain/count-0044-0001-3.sty
+tests/goldens/cb12-scent-spend-plain/count-0044-0001-3.txt
+tests/goldens/cb12-scent-spend-plain/count-0045-0000-2.sty
+tests/goldens/cb12-scent-spend-plain/count-0045-0000-2.txt
+tests/goldens/cb12-scent-spend-plain/count-0045-0001-1.sty
+tests/goldens/cb12-scent-spend-plain/count-0045-0001-1.txt
+tests/goldens/cb12-scent-spend-plain/count-0045-0002-0.sty
+tests/goldens/cb12-scent-spend-plain/count-0045-0002-0.txt
+tests/goldens/cb12-scent-spend-plain/final.state
+tests/goldens/cb12-scent-spend-plain/final.sty
+tests/goldens/cb12-scent-spend-plain/final.txt
+tests/goldens/cb12-scent-spend-rich/count-0001-0000-1.sty
+tests/goldens/cb12-scent-spend-rich/count-0001-0000-1.txt
+tests/goldens/cb12-scent-spend-rich/count-0001-0001-2.sty
+tests/goldens/cb12-scent-spend-rich/count-0001-0001-2.txt
+tests/goldens/cb12-scent-spend-rich/count-0002-0000-3.sty
+tests/goldens/cb12-scent-spend-rich/count-0002-0000-3.txt
+tests/goldens/cb12-scent-spend-rich/count-0002-0001-4.sty
+tests/goldens/cb12-scent-spend-rich/count-0002-0001-4.txt
+tests/goldens/cb12-scent-spend-rich/count-0003-0000-5.sty
+tests/goldens/cb12-scent-spend-rich/count-0003-0000-5.txt
+tests/goldens/cb12-scent-spend-rich/count-0003-0001-6.sty
+tests/goldens/cb12-scent-spend-rich/count-0003-0001-6.txt
+tests/goldens/cb12-scent-spend-rich/count-0003-0002-7.sty
+tests/goldens/cb12-scent-spend-rich/count-0003-0002-7.txt
+tests/goldens/cb12-scent-spend-rich/count-0004-0000-8.sty
+tests/goldens/cb12-scent-spend-rich/count-0004-0000-8.txt
+tests/goldens/cb12-scent-spend-rich/count-0004-0001-9.sty
+tests/goldens/cb12-scent-spend-rich/count-0004-0001-9.txt
+tests/goldens/cb12-scent-spend-rich/count-0005-0000-10.sty
+tests/goldens/cb12-scent-spend-rich/count-0005-0000-10.txt
+tests/goldens/cb12-scent-spend-rich/count-0005-0001-11.sty
+tests/goldens/cb12-scent-spend-rich/count-0005-0001-11.txt
+tests/goldens/cb12-scent-spend-rich/count-0005-0002-12.sty
+tests/goldens/cb12-scent-spend-rich/count-0005-0002-12.txt
+tests/goldens/cb12-scent-spend-rich/count-0006-0000-13.sty
+tests/goldens/cb12-scent-spend-rich/count-0006-0000-13.txt
+tests/goldens/cb12-scent-spend-rich/count-0006-0001-14.sty
+tests/goldens/cb12-scent-spend-rich/count-0006-0001-14.txt
+tests/goldens/cb12-scent-spend-rich/count-0007-0000-15.sty
+tests/goldens/cb12-scent-spend-rich/count-0007-0000-15.txt
+tests/goldens/cb12-scent-spend-rich/count-0007-0001-16.sty
+tests/goldens/cb12-scent-spend-rich/count-0007-0001-16.txt
+tests/goldens/cb12-scent-spend-rich/count-0007-0002-17.sty
+tests/goldens/cb12-scent-spend-rich/count-0007-0002-17.txt
+tests/goldens/cb12-scent-spend-rich/count-0008-0000-18.sty
+tests/goldens/cb12-scent-spend-rich/count-0008-0000-18.txt
+tests/goldens/cb12-scent-spend-rich/count-0008-0001-19.sty
+tests/goldens/cb12-scent-spend-rich/count-0008-0001-19.txt
+tests/goldens/cb12-scent-spend-rich/count-0009-0000-20.sty
+tests/goldens/cb12-scent-spend-rich/count-0009-0000-20.txt
+tests/goldens/cb12-scent-spend-rich/count-0009-0001-21.sty
+tests/goldens/cb12-scent-spend-rich/count-0009-0001-21.txt
+tests/goldens/cb12-scent-spend-rich/count-0009-0002-22.sty
+tests/goldens/cb12-scent-spend-rich/count-0009-0002-22.txt
+tests/goldens/cb12-scent-spend-rich/count-0010-0000-23.sty
+tests/goldens/cb12-scent-spend-rich/count-0010-0000-23.txt
+tests/goldens/cb12-scent-spend-rich/count-0010-0001-24.sty
+tests/goldens/cb12-scent-spend-rich/count-0010-0001-24.txt
+tests/goldens/cb12-scent-spend-rich/count-0011-0000-25.sty
+tests/goldens/cb12-scent-spend-rich/count-0011-0000-25.txt
+tests/goldens/cb12-scent-spend-rich/count-0011-0001-26.sty
+tests/goldens/cb12-scent-spend-rich/count-0011-0001-26.txt
+tests/goldens/cb12-scent-spend-rich/count-0012-0000-27.sty
+tests/goldens/cb12-scent-spend-rich/count-0012-0000-27.txt
+tests/goldens/cb12-scent-spend-rich/count-0012-0001-28.sty
+tests/goldens/cb12-scent-spend-rich/count-0012-0001-28.txt
+tests/goldens/cb12-scent-spend-rich/count-0012-0002-29.sty
+tests/goldens/cb12-scent-spend-rich/count-0012-0002-29.txt
+tests/goldens/cb12-scent-spend-rich/count-0013-0000-30.sty
+tests/goldens/cb12-scent-spend-rich/count-0013-0000-30.txt
+tests/goldens/cb12-scent-spend-rich/count-0013-0001-31.sty
+tests/goldens/cb12-scent-spend-rich/count-0013-0001-31.txt
+tests/goldens/cb12-scent-spend-rich/count-0014-0000-32.sty
+tests/goldens/cb12-scent-spend-rich/count-0014-0000-32.txt
+tests/goldens/cb12-scent-spend-rich/count-0014-0001-33.sty
+tests/goldens/cb12-scent-spend-rich/count-0014-0001-33.txt
+tests/goldens/cb12-scent-spend-rich/count-0014-0002-34.sty
+tests/goldens/cb12-scent-spend-rich/count-0014-0002-34.txt
+tests/goldens/cb12-scent-spend-rich/count-0015-0000-35.sty
+tests/goldens/cb12-scent-spend-rich/count-0015-0000-35.txt
+tests/goldens/cb12-scent-spend-rich/count-0015-0001-36.sty
+tests/goldens/cb12-scent-spend-rich/count-0015-0001-36.txt
+tests/goldens/cb12-scent-spend-rich/count-0016-0000-37.sty
+tests/goldens/cb12-scent-spend-rich/count-0016-0000-37.txt
+tests/goldens/cb12-scent-spend-rich/count-0016-0001-38.sty
+tests/goldens/cb12-scent-spend-rich/count-0016-0001-38.txt
+tests/goldens/cb12-scent-spend-rich/count-0016-0002-39.sty
+tests/goldens/cb12-scent-spend-rich/count-0016-0002-39.txt
+tests/goldens/cb12-scent-spend-rich/count-0017-0000-40.sty
+tests/goldens/cb12-scent-spend-rich/count-0017-0000-40.txt
+tests/goldens/cb12-scent-spend-rich/count-0017-0001-41.sty
+tests/goldens/cb12-scent-spend-rich/count-0017-0001-41.txt
+tests/goldens/cb12-scent-spend-rich/count-0018-0000-42.sty
+tests/goldens/cb12-scent-spend-rich/count-0018-0000-42.txt
+tests/goldens/cb12-scent-spend-rich/count-0018-0001-43.sty
+tests/goldens/cb12-scent-spend-rich/count-0018-0001-43.txt
+tests/goldens/cb12-scent-spend-rich/count-0018-0002-44.sty
+tests/goldens/cb12-scent-spend-rich/count-0018-0002-44.txt
+tests/goldens/cb12-scent-spend-rich/count-0019-0000-45.sty
+tests/goldens/cb12-scent-spend-rich/count-0019-0000-45.txt
+tests/goldens/cb12-scent-spend-rich/count-0019-0001-46.sty
+tests/goldens/cb12-scent-spend-rich/count-0019-0001-46.txt
+tests/goldens/cb12-scent-spend-rich/count-0020-0000-47.sty
+tests/goldens/cb12-scent-spend-rich/count-0020-0000-47.txt
+tests/goldens/cb12-scent-spend-rich/count-0020-0001-48.sty
+tests/goldens/cb12-scent-spend-rich/count-0020-0001-48.txt
+tests/goldens/cb12-scent-spend-rich/count-0020-0002-49.sty
+tests/goldens/cb12-scent-spend-rich/count-0020-0002-49.txt
+tests/goldens/cb12-scent-spend-rich/count-0026-0000-48.sty
+tests/goldens/cb12-scent-spend-rich/count-0026-0000-48.txt
+tests/goldens/cb12-scent-spend-rich/count-0026-0001-47.sty
+tests/goldens/cb12-scent-spend-rich/count-0026-0001-47.txt
+tests/goldens/cb12-scent-spend-rich/count-0027-0000-46.sty
+tests/goldens/cb12-scent-spend-rich/count-0027-0000-46.txt
+tests/goldens/cb12-scent-spend-rich/count-0027-0001-45.sty
+tests/goldens/cb12-scent-spend-rich/count-0027-0001-45.txt
+tests/goldens/cb12-scent-spend-rich/count-0028-0000-44.sty
+tests/goldens/cb12-scent-spend-rich/count-0028-0000-44.txt
+tests/goldens/cb12-scent-spend-rich/count-0028-0001-43.sty
+tests/goldens/cb12-scent-spend-rich/count-0028-0001-43.txt
+tests/goldens/cb12-scent-spend-rich/count-0028-0002-42.sty
+tests/goldens/cb12-scent-spend-rich/count-0028-0002-42.txt
+tests/goldens/cb12-scent-spend-rich/count-0029-0000-41.sty
+tests/goldens/cb12-scent-spend-rich/count-0029-0000-41.txt
+tests/goldens/cb12-scent-spend-rich/count-0029-0001-40.sty
+tests/goldens/cb12-scent-spend-rich/count-0029-0001-40.txt
+tests/goldens/cb12-scent-spend-rich/count-0030-0000-39.sty
+tests/goldens/cb12-scent-spend-rich/count-0030-0000-39.txt
+tests/goldens/cb12-scent-spend-rich/count-0030-0001-38.sty
+tests/goldens/cb12-scent-spend-rich/count-0030-0001-38.txt
+tests/goldens/cb12-scent-spend-rich/count-0030-0002-37.sty
+tests/goldens/cb12-scent-spend-rich/count-0030-0002-37.txt
+tests/goldens/cb12-scent-spend-rich/count-0031-0000-36.sty
+tests/goldens/cb12-scent-spend-rich/count-0031-0000-36.txt
+tests/goldens/cb12-scent-spend-rich/count-0031-0001-35.sty
+tests/goldens/cb12-scent-spend-rich/count-0031-0001-35.txt
+tests/goldens/cb12-scent-spend-rich/count-0032-0000-34.sty
+tests/goldens/cb12-scent-spend-rich/count-0032-0000-34.txt
+tests/goldens/cb12-scent-spend-rich/count-0032-0001-33.sty
+tests/goldens/cb12-scent-spend-rich/count-0032-0001-33.txt
+tests/goldens/cb12-scent-spend-rich/count-0032-0002-32.sty
+tests/goldens/cb12-scent-spend-rich/count-0032-0002-32.txt
+tests/goldens/cb12-scent-spend-rich/count-0033-0000-31.sty
+tests/goldens/cb12-scent-spend-rich/count-0033-0000-31.txt
+tests/goldens/cb12-scent-spend-rich/count-0033-0001-30.sty
+tests/goldens/cb12-scent-spend-rich/count-0033-0001-30.txt
+tests/goldens/cb12-scent-spend-rich/count-0034-0000-29.sty
+tests/goldens/cb12-scent-spend-rich/count-0034-0000-29.txt
+tests/goldens/cb12-scent-spend-rich/count-0034-0001-28.sty
+tests/goldens/cb12-scent-spend-rich/count-0034-0001-28.txt
+tests/goldens/cb12-scent-spend-rich/count-0034-0002-27.sty
+tests/goldens/cb12-scent-spend-rich/count-0034-0002-27.txt
+tests/goldens/cb12-scent-spend-rich/count-0035-0000-26.sty
+tests/goldens/cb12-scent-spend-rich/count-0035-0000-26.txt
+tests/goldens/cb12-scent-spend-rich/count-0035-0001-25.sty
+tests/goldens/cb12-scent-spend-rich/count-0035-0001-25.txt
+tests/goldens/cb12-scent-spend-rich/count-0036-0000-24.sty
+tests/goldens/cb12-scent-spend-rich/count-0036-0000-24.txt
+tests/goldens/cb12-scent-spend-rich/count-0036-0001-23.sty
+tests/goldens/cb12-scent-spend-rich/count-0036-0001-23.txt
+tests/goldens/cb12-scent-spend-rich/count-0037-0000-22.sty
+tests/goldens/cb12-scent-spend-rich/count-0037-0000-22.txt
+tests/goldens/cb12-scent-spend-rich/count-0037-0001-21.sty
+tests/goldens/cb12-scent-spend-rich/count-0037-0001-21.txt
+tests/goldens/cb12-scent-spend-rich/count-0037-0002-20.sty
+tests/goldens/cb12-scent-spend-rich/count-0037-0002-20.txt
+tests/goldens/cb12-scent-spend-rich/count-0038-0000-19.sty
+tests/goldens/cb12-scent-spend-rich/count-0038-0000-19.txt
+tests/goldens/cb12-scent-spend-rich/count-0038-0001-18.sty
+tests/goldens/cb12-scent-spend-rich/count-0038-0001-18.txt
+tests/goldens/cb12-scent-spend-rich/count-0039-0000-17.sty
+tests/goldens/cb12-scent-spend-rich/count-0039-0000-17.txt
+tests/goldens/cb12-scent-spend-rich/count-0039-0001-16.sty
+tests/goldens/cb12-scent-spend-rich/count-0039-0001-16.txt
+tests/goldens/cb12-scent-spend-rich/count-0039-0002-15.sty
+tests/goldens/cb12-scent-spend-rich/count-0039-0002-15.txt
+tests/goldens/cb12-scent-spend-rich/count-0040-0000-14.sty
+tests/goldens/cb12-scent-spend-rich/count-0040-0000-14.txt
+tests/goldens/cb12-scent-spend-rich/count-0040-0001-13.sty
+tests/goldens/cb12-scent-spend-rich/count-0040-0001-13.txt
+tests/goldens/cb12-scent-spend-rich/count-0041-0000-12.sty
+tests/goldens/cb12-scent-spend-rich/count-0041-0000-12.txt
+tests/goldens/cb12-scent-spend-rich/count-0041-0001-11.sty
+tests/goldens/cb12-scent-spend-rich/count-0041-0001-11.txt
+tests/goldens/cb12-scent-spend-rich/count-0041-0002-10.sty
+tests/goldens/cb12-scent-spend-rich/count-0041-0002-10.txt
+tests/goldens/cb12-scent-spend-rich/count-0042-0000-9.sty
+tests/goldens/cb12-scent-spend-rich/count-0042-0000-9.txt
+tests/goldens/cb12-scent-spend-rich/count-0042-0001-8.sty
+tests/goldens/cb12-scent-spend-rich/count-0042-0001-8.txt
+tests/goldens/cb12-scent-spend-rich/count-0043-0000-7.sty
+tests/goldens/cb12-scent-spend-rich/count-0043-0000-7.txt
+tests/goldens/cb12-scent-spend-rich/count-0043-0001-6.sty
+tests/goldens/cb12-scent-spend-rich/count-0043-0001-6.txt
+tests/goldens/cb12-scent-spend-rich/count-0043-0002-5.sty
+tests/goldens/cb12-scent-spend-rich/count-0043-0002-5.txt
+tests/goldens/cb12-scent-spend-rich/count-0044-0000-4.sty
+tests/goldens/cb12-scent-spend-rich/count-0044-0000-4.txt
+tests/goldens/cb12-scent-spend-rich/count-0044-0001-3.sty
+tests/goldens/cb12-scent-spend-rich/count-0044-0001-3.txt
+tests/goldens/cb12-scent-spend-rich/count-0045-0000-2.sty
+tests/goldens/cb12-scent-spend-rich/count-0045-0000-2.txt
+tests/goldens/cb12-scent-spend-rich/count-0045-0001-1.sty
+tests/goldens/cb12-scent-spend-rich/count-0045-0001-1.txt
+tests/goldens/cb12-scent-spend-rich/count-0045-0002-0.sty
+tests/goldens/cb12-scent-spend-rich/count-0045-0002-0.txt
+tests/goldens/cb12-scent-spend-rich/final.state
+tests/goldens/cb12-scent-spend-rich/final.sty
+tests/goldens/cb12-scent-spend-rich/final.txt
+tests/goldens/death-recovery-plain/frame-0120.sty
+tests/goldens/death-recovery-plain/frame-0120.txt
+tests/goldens/death-recovery-plain/frame-0130.sty
+tests/goldens/death-recovery-plain/frame-0130.txt
+tests/goldens/death-recovery-rich/frame-0120.sty
+tests/goldens/death-recovery-rich/frame-0120.txt
+tests/goldens/death-recovery-rich/frame-0130.sty
+tests/goldens/death-recovery-rich/frame-0130.txt
+
+REMOVED KEYS
