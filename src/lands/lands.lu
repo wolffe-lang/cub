@@ -1,0 +1,284 @@
+//! lands — the ground of cb14's areas (the-proposals.md section 3): the
+//! Stand, the Burn, the Mere, the Underteeth, the Howe and Gravehollow.
+//! `forest` owns the graph, the routes, the branches, the dens and the
+//! arenas and asks here, after its own carving, what kind a cell of one of
+//! these areas is; every answer is a pure function of the seed and the cell
+//! (the engine's hash and the terrain's noise), so a frame costs a few
+//! hashes a cell and the same seed is the same ground on every machine.
+//!
+//! - the Stand: an old pine stand on a ridge, trunks two cells tall in
+//!   columns, a needle floor, the lookout at its top and a windthrown pine
+//!   across the way on that the cub squeezes under (`terrain.GATE`);
+//! - the Burn: charred trunks standing, ash drifts two cells wide the cub
+//!   sinks into, embers under the ash, a burnt oak across the way on;
+//! - the Mere: still black water, a reed causeway, islands joined by
+//!   stepping stones that sink a beat after the cub steps on them;
+//! - the Underteeth: a cavern of wet stone, a tunnel with chambers off it,
+//!   glow-worm clusters for light, a spring in the first chamber;
+//! - the Howe: turf, barrows, five standing stones beside the way, the
+//!   stone mouth across the way on;
+//! - Gravehollow: the deep wood's night rules (the Hush's), the old den's
+//!   bowl forced open by `forest.arena_cell`.
+
+use terrain
+use world
+
+/// Fixed-point units a cell.
+pub const FP: int = 256
+
+/// The Mere's causeway rows: the first `CAUSEWAY` rows and the last.
+pub const CAUSEWAY: int = 60
+
+/// The Mere's islands: their centre rows (the second is the dry island's).
+pub fn island_row(k: int) -> int {
+    match k {
+        0 => 72,
+        1 => 110,
+        2 => 150,
+        _ => 186,
+    }
+}
+
+/// The number of islands.
+pub const ISLANDS: int = 4
+
+/// An island's radius in rows (its reach in columns is twice that): the
+/// dry island is the widest.
+pub fn island_radius(seed: int, k: int) -> int {
+    if k == 1 then 11 else 8 + world.hash(seed, 401, k, 3)
+}
+
+/// Whether local cell `(x, at)` lies on island `k`, whose centre column is
+/// `cx` (the route's centre at its row: the islands are threaded on the
+/// route).
+fn on_island(seed: int, k: int, cx: int, x: int, at: int) -> bool {
+    let r = island_radius(seed, k)
+    let dx = (x - cx) / 2
+    let dy = at - island_row(k)
+    dx * dx + dy * dy <= r * r
+}
+
+/// Whether local cell `(x, at)` lies on island `k`'s fringe (its outer
+/// ring of reeds).
+fn on_fringe(seed: int, k: int, cx: int, x: int, at: int) -> bool {
+    let r = island_radius(seed, k) - 2
+    let dx = (x - cx) / 2
+    let dy = at - island_row(k)
+    dx * dx + dy * dy > r * r
+}
+
+/// The island a local row may lie on, -1 for open water or the causeways
+/// (a row guard before the column is asked).
+pub fn island_at(seed: int, at: int) -> int {
+    var k = 0
+    while k < ISLANDS {
+        if abs(at - island_row(k)) <= island_radius(seed, k) { return k }
+        k += 1
+    }
+    -1
+}
+
+/// Whether the route at local row `at` of the Mere crosses open water on
+/// stepping stones: between the causeways and off every island's rows.
+pub fn stone_row(seed: int, length: int, at: int) -> bool {
+    at > CAUSEWAY && at < length - CAUSEWAY && island_at(seed, at) < 0
+}
+
+/// A stone segment's id from its local row: four rows a stone.
+pub fn stone_segment(at: int) -> int {
+    at / 4
+}
+
+/// The Mere's ground at local cell `(x, at)`: the route's centre `c`
+/// there, `half` the route's half width, `carved` whether the forest
+/// carved the cell (the route, a branch, an alcove, a mouth's run).
+pub fn mere(seed: int, length: int, x: int, at: int, c: int, half: int, carved: bool) -> int {
+    let k = island_at(seed, at)
+    if k >= 0 {
+        // The islands are threaded on the route: their centre column is
+        // the route's at their centre row, so the route always lands.
+        if on_island(seed, k, c, x, at) {
+            if carved { return terrain.REEDS }
+            return if on_fringe(seed, k, c, x, at) then terrain.REEDS else terrain.GRASS
+        }
+    }
+    if stone_row(seed, length, at) && abs(x - c) <= half { return terrain.STONE }
+    if carved { return terrain.REEDS }
+    terrain.WATER
+}
+
+/// Whether a pine stands on local cell `(x, y)` of the Stand: trunks two
+/// cells tall (a pine covers a row pair) in columns, 11 % of the floor,
+/// thickening to a wall where the stand's noise runs high.
+fn pine(seed: int, x: int, y: int) -> bool {
+    let pair = if y < 0 then (y - 1) / 2 else y / 2
+    let h = world.hash(seed + 7 * 79, x, pair, 100)
+    let n = terrain.noise2(seed + 7 * 101, 5, x, y)
+    h < 11 || n > 150 && h < 60
+}
+
+/// The Stand's ground at local cell `(x, at)`, world row `y`.
+pub fn stand(seed: int, x: int, at: int, y: int, carved: bool) -> int {
+    if carved { return terrain.NEEDLES }
+    if pine(seed, x, y) then terrain.PINE else terrain.NEEDLES
+}
+
+/// Whether local cell `(x, at)` of the Burn lies in an ash drift: runs two
+/// cells wide where the fire's noise ran hot.
+pub fn drift(seed: int, x: int, at: int) -> bool {
+    let px = if x < 0 then (x - 1) / 2 else x / 2
+    terrain.noise2(seed + 8 * 101, 6, px * 2, at) > 150
+}
+
+/// The Burn's ground at local cell `(x, at)`, world row `y`: charred
+/// trunks standing (9 % of the ground), the drifts with embers under them,
+/// ash everywhere else.
+pub fn burn(seed: int, x: int, at: int, y: int, carved: bool) -> int {
+    if carved { return terrain.ASH }
+    let h = world.hash(seed + 8 * 79, x, y, 100)
+    if h < 9 { return terrain.CHAR }
+    if drift(seed, x, at) {
+        return if world.hash(seed + 8 * 83, x, y, 100) < 4 then terrain.EMBER else terrain.DRIFT
+    }
+    terrain.ASH
+}
+
+/// Whether a charred trunk at local cell `(x, at)` leans (every third).
+pub fn leaning(seed: int, x: int, at: int) -> bool {
+    world.hash(seed + 8 * 79, x, at, 3) == 0
+}
+
+/// The Underteeth's chambers: six, one every thirty-two rows from row 24,
+/// off the tunnel to alternating sides.
+pub const CHAMBERS: int = 6
+
+/// A chamber's centre row.
+pub fn chamber_row(k: int) -> int {
+    24 + 32 * k
+}
+
+/// A chamber's centre column, from the tunnel's centre `c` at its row,
+/// and its radius.
+pub fn chamber(seed: int, k: int, c: int) -> (int, int) {
+    let side = if k % 2 == 0 then 1 else -1
+    (c + side * (8 + world.hash(seed, 410, k, 5)), 5 + world.hash(seed, 411, k, 4))
+}
+
+/// The chamber whose rows hold local row `at`, -1 for none (a row guard).
+pub fn chamber_at(at: int) -> int {
+    var k = 0
+    while k < CHAMBERS {
+        if abs(at - chamber_row(k)) <= 8 { return k }
+        k += 1
+    }
+    -1
+}
+
+/// The spring's chamber: the second.
+pub const SPRING_CHAMBER: int = 1
+
+/// The glow-worm clusters: eight, every twenty-four rows from row 12, on
+/// the tunnel's floor.
+pub const GLOWS: int = 8
+
+/// A cluster's row.
+pub fn glow_row(k: int) -> int {
+    12 + 24 * k
+}
+
+/// A cluster's centre column from the tunnel's centre `c` at its row: in
+/// the tunnel, a cell or two off its middle.
+pub fn glow_x(seed: int, k: int, c: int) -> int {
+    c + world.hash(seed, 412, k, 5) - 2
+}
+
+/// The Underteeth's ground at local cell `(x, at)`: the tunnel's centre
+/// `c` and half width `half` there, `cr` the tunnel's centre at the
+/// chamber's row (0 when `at` lies in no chamber's rows).
+pub fn underteeth(seed: int, x: int, at: int, c: int, half: int, cr: int, carved: bool) -> int {
+    // The clusters first: light on the tunnel's floor.
+    var k = 0
+    while k < GLOWS {
+        if at == glow_row(k) {
+            let gx = glow_x(seed, k, c)
+            if abs(x - gx) <= 1 && abs(x - c) <= half { return terrain.GLOW }
+        }
+        k += 1
+    }
+    let ch = chamber_at(at)
+    if ch >= 0 {
+        let (cx, r) = chamber(seed, ch, cr)
+        let dx = x - cx
+        let dy = at - chamber_row(ch)
+        if dx * dx + dy * dy <= r * r {
+            if ch == SPRING_CHAMBER && abs(dx) <= 1 && dy >= 0 && dy <= 1 { return terrain.SPRING }
+            return terrain.GRAVEL
+        }
+        // The chamber's neck: a run from the tunnel to the chamber on its
+        // centre row.
+        if dy == 0 || dy == 1 {
+            let lo = if cx < c then cx else c
+            let hi = if cx < c then c else cx
+            if x >= lo && x <= hi { return terrain.GRAVEL }
+        }
+    }
+    if carved { return terrain.GRAVEL }
+    terrain.CAVE
+}
+
+/// The spring's cell (its upper left) in the Underteeth, from the tunnel's
+/// centre at the spring chamber's row.
+pub fn spring_cell(seed: int, cr: int) -> (int, int) {
+    let (cx, _) = chamber(seed, SPRING_CHAMBER, cr)
+    (cx - 1, chamber_row(SPRING_CHAMBER))
+}
+
+/// The Howe's barrows: twelve, every sixteen rows from row 16, seven to
+/// twenty cells off the route to alternating sides.
+pub const MOUNDS: int = 12
+
+/// A barrow's centre row.
+pub fn mound_row(seed: int, k: int) -> int {
+    16 + 16 * k + world.hash(seed, 420, k, 5)
+}
+
+/// A barrow's centre column from the route's centre `c` at its row.
+pub fn mound_x(seed: int, k: int, c: int) -> int {
+    let side = if k % 2 == 0 then -1 else 1
+    c + side * (7 + world.hash(seed, 421, k, 14))
+}
+
+/// The Howe's ground at local cell `(x, at)`, world row `y`: turf, the
+/// barrows (three cells wide), the standing stones (`menhir` says which
+/// cells), a few trees and the wood's dark patches at the edges.
+pub fn howe(seed: int, x: int, at: int, y: int, c: int, menhir: bool, carved: bool) -> int {
+    if carved { return terrain.GRASS }
+    if menhir { return terrain.MENHIR }
+    var k = 0
+    while k < MOUNDS {
+        let row = mound_row(seed, k)
+        if at == row {
+            if abs(x - mound_x(seed, k, c)) <= 1 { return terrain.MOUND }
+        }
+        k += 1
+    }
+    let h = world.hash(seed + 11 * 79, x, y, 100)
+    let n = terrain.noise2(seed + 11 * 101, 5, x, y)
+    if h < 6 { return terrain.TRUNK }
+    if n > 170 { return terrain.DARK }
+    terrain.GRASS
+}
+
+/// Gravehollow's ground at local cell `(x, at)`, world row `y`: the deep
+/// wood's night rules, the old den's bowl forced open by the forest.
+pub fn gravehollow(seed: int, x: int, y: int, carved: bool) -> int {
+    if carved { return terrain.GRASS }
+    let h = world.hash(seed + 12 * 79, x, y, 100)
+    let n = terrain.noise2(seed + 12 * 101, 5, x, y)
+    if h < 14 { return terrain.TRUNK }
+    if n > 110 then terrain.DARK else if h < 50 then terrain.CANOPY else terrain.GRASS
+}
+
+fn abs(v: int) -> int {
+    if v < 0 then 0 - v else v
+}

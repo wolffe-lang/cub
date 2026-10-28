@@ -59,6 +59,65 @@ pub const WALL: int = 10
 /// (contact costs health), light at night, the Ashen's gathering place.
 pub const EMBER: int = 11
 
+/// The Stand's needle floor (cb14): open, rust needles on the ridge.
+pub const NEEDLES: int = 12
+
+/// A pine of the Stand (cb14): a straight trunk two cells tall; solid.
+pub const PINE: int = 13
+
+/// A charred trunk of the Burn (cb14): still standing, every third
+/// leaning; solid.
+pub const CHAR: int = 14
+
+/// An ash drift of the Burn (cb14): open, but the cub sinks into it (half
+/// pace) and lays no trail in it.
+pub const DRIFT: int = 15
+
+/// A stepping stone of the Mere (cb14): open ground over the water that
+/// sinks a beat after the cub steps on it (`sim.stone_sunk`).
+pub const STONE: int = 16
+
+/// The Underteeth's wet stone wall (cb14): solid.
+pub const CAVE: int = 17
+
+/// A glow-worm cluster of the Underteeth (cb14): open floor with light
+/// three cells round it; cb18's foes stand on it.
+pub const GLOW: int = 18
+
+/// The Underteeth's spring (cb14): a pool the cub refills its water at.
+pub const SPRING: int = 19
+
+/// A barrow of the Howe (cb14): a three-cell hump; solid.
+pub const MOUND: int = 20
+
+/// A standing stone of the Howe (cb14): two cells tall; solid; a line of
+/// the old pack's lore on its face.
+pub const MENHIR: int = 21
+
+/// A gate's cells (cb14): the windthrown pine's squeeze at the Stand's
+/// top, the burnt oak across the Burn's way on, the sett's squeeze into the
+/// Underteeth, the stone mouth into Gravehollow. Open ground to the
+/// forest; the simulation holds each shut by its own rule (`sim.blocked`).
+pub const GATE: int = 22
+
+/// The number of kinds.
+pub const KINDS: int = 23
+
+/// Whether a kind is solid for the forest's flood and every actor (the
+/// gates apart: the simulation's rule).
+pub fn solid(k: int) -> bool {
+    k == TRUNK ||
+        k == DARK ||
+        k == WATER ||
+        k == ROCK ||
+        k == WALL ||
+        k == PINE ||
+        k == CHAR ||
+        k == CAVE ||
+        k == MOUND ||
+        k == MENHIR
+}
+
 /// The water's edge: the river occupies world rows below `bank(x)`; the
 /// bank wanders about this row by `BANK_SWING`.
 pub const BANK_ROW: int = -8

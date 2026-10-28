@@ -27,6 +27,7 @@
 //! Bramblehold: Shingle - Cinderwick - Bramblehold - Larkmeadow - the Teeth
 //! - the Shallows - Gravehollow.
 
+use lands
 use meadow
 use terrain
 use town
@@ -47,26 +48,90 @@ pub const CRAGS: int = 3
 /// The Shallows: the river upstream, the elk's ford (cb04).
 pub const RIVER: int = 4
 
-/// Gravehollow: the old den in the deep wood, the shadow alpha's (cb04).
-pub const OLDDEN: int = 5
+/// The Hush: the deep wood, night always, the cold den at its entry (cb04
+/// built it as "Gravehollow" with the old den's arena at its far end; cb14
+/// split the arena off into `GRAVEHOLLOW` and gave the wood the bible's
+/// name for it, so the Howe can lie between the two).
+pub const HUSH: int = 5
 
 /// Cinderwick: the burnt town between the Shingle and Bramblehold (cb05).
 pub const TOWN: int = 6
 
+/// The Stand (cb14): an old pine stand on a ridge between Bramblehold and
+/// Larkmeadow, the lookout at its top.
+pub const STAND: int = 7
+
+/// The Burn (cb14): the old fire's ground between Larkmeadow and the Teeth.
+pub const BURN: int = 8
+
+/// The Mere (cb14): the dark lake between the Teeth and the Shallows.
+pub const MERE: int = 9
+
+/// The Underteeth (cb14): the cavern under the Teeth, a branch from
+/// Dunmoss's sett out into the Hush.
+pub const UNDERTEETH: int = 10
+
+/// The Howe (cb14): the barrow field between the Hush and Gravehollow.
+pub const HOWE: int = 11
+
+/// Gravehollow (cb14, split from area 5): the old den under the fallen
+/// oak's roots, the stone mouth at its entry, the shadow alpha's arena.
+pub const GRAVEHOLLOW: int = 12
+
 /// The number of areas (every id below this).
-pub const AREAS: int = 7
+pub const AREAS: int = 13
 
 /// The number of dens in the first bank of ids (0..7): the hollow log, the
 /// split roots, the briar hollow, the grass nest, the ledge cleft, the
 /// willow root, the cold den, the cold hearth. Ids 8..15 are the second
-/// bank (`DEN_LIMIT`): 11 the last warm hollow; 8, 9 and 10 retired.
+/// bank (`DEN_LIMIT`): 11 the last warm hollow; 8, 9 and 10 retired; 12
+/// the root hollow, 13 the kiln, 14 the dry island, 15 the bone cache
+/// (cb14).
 pub const DENS: int = 8
 
-/// The number of edges (ids 0..9): the thorn path (the Shingle into
-/// Cinderwick), the meadow path, the log, the hedge, the crags path, the
-/// river path, the old den's path, the ledge, the shallows, the town's way
-/// on into Bramblehold.
-pub const EDGES: int = 10
+/// The number of edges (ids 0..19): the thorn path (the Shingle into
+/// Cinderwick), the ridge path (Bramblehold into the Stand), the log, the
+/// hedge, the burn path (Larkmeadow into the Burn), the mere path (the
+/// Teeth into the Mere), the hush path (the Shallows into the Hush), the
+/// ledge, the shallows, the town's way on into Bramblehold; then cb14's:
+/// the meadow path (the Stand into Larkmeadow), the crags path (the Burn
+/// into the Teeth), the river path (the Mere into the Shallows), the howe
+/// path (the Hush into the Howe), the stone mouth (the Howe into
+/// Gravehollow), the scree (the Stand back to Bramblehold), the streambed
+/// (the Burn back to Larkmeadow), the raft (the Mere back to the Teeth),
+/// the sett (the Teeth into the Underteeth), the roots (the Underteeth
+/// out into the Hush).
+pub const EDGES: int = 20
+
+/// The first of cb14's edges.
+pub const EDGE_STAND_OUT: int = 10
+
+/// The Burn into the Teeth.
+pub const EDGE_BURN_OUT: int = 11
+
+/// The Mere into the Shallows.
+pub const EDGE_MERE_OUT: int = 12
+
+/// The Hush into the Howe.
+pub const EDGE_HOWE_IN: int = 13
+
+/// The stone mouth: the Howe into Gravehollow.
+pub const EDGE_MOUTH: int = 14
+
+/// The scree: the Stand back to Bramblehold's second den.
+pub const EDGE_SCREE: int = 15
+
+/// The dry streambed: the Burn back to Larkmeadow.
+pub const EDGE_STREAMBED: int = 16
+
+/// The log raft: the Mere back to the Teeth.
+pub const EDGE_RAFT: int = 17
+
+/// The sett: the Teeth into the Underteeth (the growth gate).
+pub const EDGE_SETT: int = 18
+
+/// The roots: the Underteeth out into the Hush.
+pub const EDGE_ROOTS: int = 19
 
 /// The smallest field: the engine's minimum terminal width.
 pub const FIELD_MIN: int = 80
@@ -199,6 +264,11 @@ pub fn length(area: int) -> int {
     if area == SHINGLE { return LENGTH }
     if area == TOWN { return town.LENGTH }
     if area == BRAMBLEHOLD || area == LARKMEADOW { return LENGTH_MAX }
+    // cb14: the Hush keeps the wood and loses the arena's rows; Gravehollow
+    // is the short last walk to the old den; the Underteeth a cavern.
+    if area == HUSH { return 160 }
+    if area == GRAVEHOLLOW { return 128 }
+    if area == UNDERTEETH { return 192 }
     224
 }
 
@@ -210,19 +280,25 @@ pub fn name(area: int) -> str {
         2 => "Larkmeadow",
         3 => "The Teeth",
         4 => "The Shallows",
-        5 => "Gravehollow",
-        _ => "Cinderwick",
+        5 => "The Hush",
+        6 => "Cinderwick",
+        7 => "The Stand",
+        8 => "The Burn",
+        9 => "The Mere",
+        10 => "The Underteeth",
+        11 => "The Howe",
+        _ => "Gravehollow",
     }
 }
 
 /// The den ids the save format holds: 0..15.
 pub const DEN_LIMIT: int = 16
 
-/// Whether a den id is a place the cub can rest at: 0..7 and 11. Ids 8, 9
-/// and 10 are retired (cb05: landmarks now, `den_retired`); 12..15 are
-/// reserved. Unknown/reserved ids are not locations.
+/// Whether a den id is a place the cub can rest at: 0..7 and 11..15. Ids
+/// 8, 9 and 10 are retired (cb05: landmarks now, `den_retired`). Unknown
+/// ids are not locations.
 pub fn den_exists(den: int) -> bool {
-    den >= 0 && den <= 7 || den == 11
+    den >= 0 && den <= 7 || den >= 11 && den <= 15
 }
 
 /// Whether a den id was a den once and is a landmark now (cb05): the coal
@@ -243,9 +319,13 @@ pub fn den_area(den: int) -> int {
         3 => LARKMEADOW,
         4 => CRAGS,
         5 => RIVER,
-        6 => OLDDEN,
+        6 => HUSH,
         7 => TOWN,
-        _ => LARKMEADOW,
+        11 => LARKMEADOW,
+        12 => STAND,
+        13 => BURN,
+        14 => MERE,
+        _ => UNDERTEETH,
     }
 }
 
@@ -280,7 +360,11 @@ pub fn den_name(den: int) -> str {
         8 => "The coal roots",
         9 => "The low embers",
         10 => "The ash shelter",
-        _ => "The last warm hollow",
+        11 => "The last warm hollow",
+        12 => "The root hollow",
+        13 => "The kiln",
+        14 => "The dry island",
+        _ => "The bone cache",
     }
 }
 
@@ -415,7 +499,11 @@ pub fn spine(seed: int, area: int, at: int) -> int {
 /// are narrower, 3..4 (cb04: a climb); the town's lane is fixed.
 pub fn half(seed: int, area: int, at: int) -> int {
     if area == TOWN { return town.LANE_HALF }
-    if area == CRAGS { return 3 + world.noise(seed, 45 + area, at * 3) / FP }
+    // The crags' ledges, the Mere's causeway and the Underteeth's tunnel
+    // are narrow: 3..4.
+    if area == CRAGS || area == MERE || area == UNDERTEETH {
+        return 3 + world.noise(seed, 45 + area, at * 3) / FP
+    }
     4 + world.noise(seed, 45 + area, at * 3) * 2 / FP
 }
 
@@ -426,6 +514,10 @@ pub fn half(seed: int, area: int, at: int) -> int {
 /// ledge cleft a little further in, so the way on from the last warm
 /// hollow is a den's spacing). The seed moves each by up to three rows.
 pub fn den_row(seed: int, den: int) -> int {
+    // cb14: the root hollow under the Stand's ridge (96, a den's spacing
+    // from the split roots behind and the grass nest ahead), the kiln in
+    // the Burn's middle (112), the dry island in the Mere's middle (104),
+    // the bone cache in the Underteeth's deepest chamber (100).
     let base = match den {
         1 => 196,
         2 => 100,
@@ -433,6 +525,10 @@ pub fn den_row(seed: int, den: int) -> int {
         4 => 18,
         7 => 132,
         11 => 190,
+        12 => 96,
+        13 => 112,
+        14 => 104,
+        15 => 100,
         _ => 7,
     }
     base + world.hash(seed, den, 92, 4)
@@ -500,7 +596,10 @@ pub fn cache_position(seed: int, field: int, area: int, cache: int) -> (int, int
 /// bending toward the farther den, keeps the quiet radius from both), the
 /// seed moving each by up to four rows.
 pub fn cache_row(seed: int, area: int, cache: int) -> int {
-    (if cache == 0 then 60 else if cache == 1 then 136 else 232) +
+    // The rows scale with the area's length (cb14: 60 / 136 / 232 of 288
+    // are 46 / 105 / 180 of 224); Gravehollow's two keep clear of its arena.
+    let l = length(area)
+    (if cache == 0 then 60 * l / LENGTH_MAX else if cache == 1 then 136 * l / LENGTH_MAX else 232 * l / LENGTH_MAX) +
         world.hash(seed, area, cache + 62, 5)
 }
 
@@ -529,6 +628,10 @@ pub fn branch_side(seed: int, area: int, cache: int) -> int {
     if area == BRAMBLEHOLD {
         return if spine(seed, area, cache_row(seed, area, cache)) > 0 then -1 else 1
     }
+    // The Shallows' branches leave east (the Ashwater lies west of the
+    // route); the Underteeth's alternate from the east.
+    if area == RIVER { return 1 }
+    if area == UNDERTEETH { return if cache % 2 == 0 then 1 else -1 }
     if cache % 2 == 0 then -1 else 1
 }
 
@@ -837,7 +940,7 @@ pub fn in_branch(seed: int, field: int, area: int, cache: int, x: int, at: int) 
 pub fn pocket_count(area: int) -> int {
     if area == BRAMBLEHOLD {
         2
-    } else if area == LARKMEADOW || area == CRAGS || area == OLDDEN {
+    } else if area == LARKMEADOW || area == CRAGS || area == HUSH {
         1
     } else {
         0
@@ -968,6 +1071,9 @@ pub fn jetty(seed: int, field: int, x: int, y: int) -> bool {
 /// in the crags the closed ground is stone.
 fn closed(seed: int, area: int, x: int, y: int) -> int {
     if area == CRAGS { return terrain.ROCK }
+    if area == UNDERTEETH { return terrain.CAVE }
+    if area == MERE { return terrain.WATER }
+    if area == STAND { return terrain.PINE }
     if world.hash(seed + area * 79, x, y, 100) < 16 then terrain.TRUNK else terrain.DARK
 }
 
@@ -1008,22 +1114,30 @@ pub fn near_route(seed: int, field: int, x: int, at: int) -> bool {
 /// a path cell may draw in, and `--world-audit`'s `path_off` holds every
 /// area to it.
 pub fn path_kind(area: int) -> int {
-    if area == SHINGLE || area == CRAGS || area == RIVER || area == TOWN {
+    if area == SHINGLE || area == CRAGS || area == RIVER || area == TOWN || area == UNDERTEETH {
         terrain.GRAVEL
+    } else if area == STAND {
+        terrain.NEEDLES
+    } else if area == BURN {
+        terrain.ASH
+    } else if area == MERE {
+        terrain.REEDS
     } else {
         terrain.GRASS
     }
 }
 
-/// Whether an area holds a boss arena (every area but the Shingle, the
-/// town and the meadow).
+/// Whether an area holds a boss arena: Bramblehold (the boar), the Teeth
+/// (the lynx), the Shallows (the elk), Gravehollow (the alpha).
 pub fn has_arena(area: int) -> bool {
-    area == BRAMBLEHOLD || area == CRAGS || area == RIVER || area == OLDDEN
+    area == BRAMBLEHOLD || area == CRAGS || area == RIVER || area == GRAVEHOLLOW
 }
 
-/// Whether an area has a shortcut mouth (and so the cross path at row 22).
+/// Whether an area has cb02's shortcut band (the cross path at row 22,
+/// both sides): the five areas whose mouths cb02, cb03a and cb04 placed
+/// there. cb14's mouths each carve their own run (`mouth_run`).
 pub fn has_shortcut(area: int) -> bool {
-    area != TOWN && area != OLDDEN
+    area == SHINGLE || area == BRAMBLEHOLD || area == LARKMEADOW || area == CRAGS || area == RIVER
 }
 
 /// The west bank of the Ashwater in the Shallows at local row `at`: the
@@ -1051,11 +1165,29 @@ pub fn arena_row(area: int) -> int {
 /// ford and the alpha's clearing lie on their routes at `arena_row`, the
 /// elk's astride the bank so the shallows are half of it.
 pub fn arena(seed: int, field: int, area: int) -> (int, int, int) {
-    if area == BRAMBLEHOLD { return (BOAR_X, BOAR_ROW, 11) }
+    if area == BRAMBLEHOLD { return (BOAR_X, BOAR_ROW, BOAR_RADIUS) }
     let row = arena_row(area)
-    if area == RIVER { return (river_bank(seed, field, row) + 4, row, 14) }
-    (spine(seed, area, row), row, 12)
+    if area == RIVER { return (river_bank(seed, field, row) + 4, row, ELK_RADIUS) }
+    if area == GRAVEHOLLOW { return (spine(seed, area, row), row, ALPHA_RADIUS) }
+    (spine(seed, area, row), row, LYNX_RADIUS)
 }
+
+/// The arenas' radii (cb14, item 12: every boss arena grown by half, the
+/// shapes kept): the boar's clearing 11 -> 14, the lynx's bowl 12 -> 14,
+/// the elk's ford 14 -> 18, the old den's bowl 12 -> 20.
+pub const BOAR_RADIUS: int = 14
+
+/// The lynx's bowl.
+pub const LYNX_RADIUS: int = 14
+
+/// The elk's ford.
+pub const ELK_RADIUS: int = 18
+
+/// The old den's bowl.
+pub const ALPHA_RADIUS: int = 20
+
+/// The largest arena radius (the row guard's reach).
+pub const ARENA_MAX: int = 20
 
 /// Whether local cell `(x, at)` lies inside the area's arena (within its
 /// radius of the centre, inclusive).
@@ -1063,7 +1195,7 @@ pub fn in_arena(seed: int, field: int, area: int, x: int, at: int) -> bool {
     if !has_arena(area) { return false }
     // The row first: the centre's column costs a spine evaluation.
     let cy0 = if area == BRAMBLEHOLD then BOAR_ROW else arena_row(area)
-    if abs(at - cy0) > 14 { return false }
+    if abs(at - cy0) > ARENA_MAX { return false }
     let (cx, cy, r) = arena(seed, field, area)
     let dx = x - cx
     let dy = at - cy
@@ -1127,6 +1259,11 @@ fn carved_at(seed: int, field: int, area: int, x: int, at: int, c: int) -> bool 
     if area == BRAMBLEHOLD && in_clearing(seed, x, at) { return true }
     if thorn_collar(area, x, at) { return false }
     let hw = half(seed, area, at)
+    // The Mere's stepping stones are the route over open water, but not
+    // path: they sink, and draw as stone (the path audit holds the reeds).
+    if area == MERE && lands.stone_row(seed, length(area), at) && x >= c - hw && x <= c + hw {
+        return false
+    }
     if x >= c - hw && x <= c + hw { return true }
     if area == TOWN { return false }
     if arena_cell(seed, field, area, x, at) == path_kind(area) { return true }
@@ -1165,6 +1302,15 @@ fn carved_at(seed: int, field: int, area: int, x: int, at: int, c: int) -> bool 
         let by = 22 + curve(seed, area + 71, x) / 2
         if at >= by - 3 && at <= by + 3 { return true }
     }
+    // cb14's mouths: a curved run from the route to each mouth at its own
+    // row, on the mouth's side alone.
+    var edge = EDGE_STAND_OUT
+    while edge < EDGES {
+        if !path_edge(edge) && other(area, edge) >= 0 && mouth_run(seed, area, edge, x, at, c) {
+            return true
+        }
+        edge += 1
+    }
     // The thorn wall sits at the end of a deliberate treeless branch.
     if area == SHINGLE && at >= 140 && at <= LENGTH {
         let exit_centre = if at < 150 then spine(seed, area, 140) * (150 - at) / 10 else 0
@@ -1196,12 +1342,109 @@ pub fn landmark_count(area: int) -> int {
     match area {
         1 => 4,
         2 => 4,
-        3 => 2,
+        3 => 3,
         4 => 1,
         5 => 1,
         6 => 2,
+        7 => 2,
+        8 => 1,
+        9 => 1,
+        10 => 1,
+        11 => 6,
+        12 => 1,
         _ => 0,
     }
+}
+
+/// Landmark kinds of cb14: the lookout at the Stand's top (the map's
+/// reveal), the cutters' ruin beside it (the Hermit's), the kiln (the
+/// charcoal-burners', the Burn's den), the sett at the Teeth's foot
+/// (Dunmoss's, the Underteeth's mouth), the causeway's first post in the
+/// Mere, the bone cache's heap in the Underteeth, a standing stone of the
+/// Howe (five, one line each), the stone mouth into Gravehollow.
+pub const LM_LOOKOUT: int = 8
+
+/// The cutters' ruin.
+pub const LM_RUIN: int = 9
+
+/// The kiln.
+pub const LM_KILN: int = 10
+
+/// Dunmoss's sett.
+pub const LM_SETT: int = 11
+
+/// The causeway's post.
+pub const LM_POST: int = 12
+
+/// The bone heap.
+pub const LM_BONES: int = 13
+
+/// A standing stone.
+pub const LM_MENHIR: int = 14
+
+/// The stone mouth.
+pub const LM_MOUTH: int = 15
+
+/// The number of landmark kinds, cb14's counted.
+pub const LM_KINDS: int = 16
+
+/// The local row the lookout stands on: the Stand's top, before the
+/// windthrown pine.
+pub const LOOKOUT_ROW: int = 200
+
+/// The lookout's local cell: a ledge east of the route at the ridge's top.
+pub fn lookout(seed: int) -> (int, int) {
+    (spine(seed, STAND, LOOKOUT_ROW) + 8, LOOKOUT_ROW)
+}
+
+/// The rows of the Howe's five standing stones.
+pub fn menhir_row(k: int) -> int {
+    30 + 40 * k
+}
+
+/// A standing stone's local cell: beside the route, alternating sides,
+/// six to eight cells off it.
+pub fn menhir(seed: int, k: int) -> (int, int) {
+    let row = menhir_row(k)
+    let side = if k % 2 == 0 then -1 else 1
+    (spine(seed, HOWE, row) + side * (6 + world.hash(seed, 310, k, 3)), row)
+}
+
+/// Whether local cell `(x, at)` is one of a standing stone's two cells
+/// (the stone stands on its row and the row above).
+pub fn on_menhir(seed: int, x: int, at: int) -> bool {
+    var k = 0
+    while k < 5 {
+        let row = menhir_row(k)
+        if at == row || at == row - 1 {
+            let (mx, _) = menhir(seed, k)
+            if x == mx { return true }
+        }
+        k += 1
+    }
+    false
+}
+
+/// The rows a gate's cells span at an area's far end (the way on): the
+/// last five rows but two.
+pub fn gate_rows(area: int) -> (int, int) {
+    (length(area) - 6, length(area) - 4)
+}
+
+/// Whether local cell `(x, at)` is a gate cell of the area (cb14): the
+/// Stand's windthrown pine (a squeeze three cells wide), the Burn's burnt
+/// oak, the Howe's stone mouth, across the route at the far end; the sett
+/// at the Teeth's mouth of the Underteeth.
+pub fn gate_cell(seed: int, area: int, x: int, at: int) -> bool {
+    if area == STAND || area == BURN || area == HOWE {
+        let (lo, hi) = gate_rows(area)
+        return at >= lo && at <= hi && x >= -2 && x <= 2
+    }
+    if area == CRAGS {
+        let (px, py) = portal(seed, area, EDGE_SETT)
+        return abs(x - px / FP) <= 2 && abs(at - (py / FP - origin(seed, area))) <= 1
+    }
+    false
 }
 
 /// Landmark `k` of an area: its kind and local cell. The den features
@@ -1240,9 +1483,35 @@ pub fn landmark(seed: int, field: int, area: int, k: int) -> (int, int, int) {
         let (dx, dy) = den_position(seed, 5)
         return (LM_WILLOW, (dx - FP / 2) / FP - 7, (dy - FP / 2) / FP - 1)
     }
-    if area == OLDDEN {
+    if area == HUSH {
         let (px, py) = pocket_end(seed, area, 0)
         return (LM_SCENT, px, py)
+    }
+    if area == STAND {
+        let (lx, ly) = lookout(seed)
+        if k == 0 { return (LM_LOOKOUT, lx, ly) }
+        return (LM_RUIN, lx + 5, ly - 3)
+    }
+    if area == BURN {
+        let (dx, dy) = den_position(seed, 13)
+        return (LM_KILN, (dx - FP / 2) / FP + 6, (dy - FP / 2) / FP - 1)
+    }
+    if area == MERE { return (LM_POST, spine(seed, area, 12) + 4, 12) }
+    if area == UNDERTEETH {
+        let (dx, dy) = den_position(seed, 15)
+        return (LM_BONES, (dx - FP / 2) / FP + 4, (dy - FP / 2) / FP - 1)
+    }
+    if area == HOWE {
+        if k < 5 {
+            let (mx, my) = menhir(seed, k)
+            return (LM_MENHIR, mx, my)
+        }
+        let (lo, _) = gate_rows(area)
+        return (LM_MOUTH, 0, lo - 2)
+    }
+    if area == GRAVEHOLLOW {
+        let (cx, cy, r) = arena(seed, field, area)
+        return (LM_SCENT, cx, cy - r - 3)
     }
     let (sx, sy) = town.scent_mark(seed, k)
     (LM_SCENT, sx, sy)
@@ -1270,10 +1539,20 @@ pub fn landmark_row(seed: int, area: int, k: int) -> int {
         return row
     }
     if area == RIVER { return den_row(seed, 5) - 1 }
-    if area == OLDDEN {
+    if area == HUSH {
         let (row, _) = pocket_mouth(area, 0)
         return row
     }
+    if area == STAND { return if k == 0 then LOOKOUT_ROW else LOOKOUT_ROW - 3 }
+    if area == BURN { return den_row(seed, 13) - 1 }
+    if area == MERE { return 12 }
+    if area == UNDERTEETH { return den_row(seed, 15) - 1 }
+    if area == HOWE {
+        if k < 5 { return menhir_row(k) }
+        let (lo, _) = gate_rows(area)
+        return lo - 2
+    }
+    if area == GRAVEHOLLOW { return arena_row(area) - ALPHA_RADIUS - 3 }
     let (_, sy) = town.scent_mark(seed, k)
     sy
 }
@@ -1354,8 +1633,43 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
         }
         if x <= b + 3 { return path_kind(area) }
     }
-    if carved_at(seed, field, area, x, at, c) { return path_kind(area) }
+    if area < STAND && carved_at(seed, field, area, x, at, c) {
+        // The sett's squeeze (the Underteeth's mouth in the Teeth) is open
+        // ground on the route's branch, held shut by the simulation.
+        if area == CRAGS && gate_cell(seed, area, x, at) { return terrain.GATE }
+        return path_kind(area)
+    }
     if area == SHINGLE && !near_route(seed, field, x, at) { return closed(seed, area, x, y) }
+    if area >= STAND {
+        // cb14's areas: carved cells are the area's path kind (the Mere's
+        // stones apart: `lands.mere` says), the rest is `lands`'s.
+        let carved_here = carved_at(seed, field, area, x, at, c)
+        if area == MERE {
+            return lands.mere(seed, length(area), x, at, c, half(seed, area, at), carved_here)
+        }
+        if gate_cell(seed, area, x, at) { return terrain.GATE }
+        if area == STAND {
+            let (lo, hi) = gate_rows(area)
+            if at >= lo && at <= hi { return terrain.PINE }
+            return lands.stand(seed, x, at, y, carved_here)
+        }
+        if area == BURN {
+            let (lo, hi) = gate_rows(area)
+            if at >= lo && at <= hi { return terrain.CHAR }
+            return lands.burn(seed, x, at, y, carved_here)
+        }
+        if area == UNDERTEETH {
+            let ch = lands.chamber_at(at)
+            let cr = if ch >= 0 then spine(seed, area, lands.chamber_row(ch)) else 0
+            return lands.underteeth(seed, x, at, c, half(seed, area, at), cr, carved_here)
+        }
+        if area == HOWE {
+            let (lo, hi) = gate_rows(area)
+            if at >= lo && at <= hi { return terrain.MENHIR }
+            return lands.howe(seed, x, at, y, c, on_menhir(seed, x, at), carved_here)
+        }
+        return lands.gravehollow(seed, x, y, carved_here)
+    }
     let h = world.hash(seed + area * 79, x, y, 100)
     if landmark_clear(seed, field, area, x, at) {
         return if burnt(seed, area, x, at) then terrain.ASH else terrain.GRASS
@@ -1376,7 +1690,7 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
         if n > 100 || h < 10 { return terrain.ROCK }
         return if h < 14 then terrain.TRUNK else if h < 34 then terrain.GRASS else terrain.GRAVEL
     }
-    if area == OLDDEN {
+    if area == HUSH {
         // The deep wood: night always, the brush thick, the floor open
         // under it where the pack's scent lies.
         if h < 14 { return terrain.TRUNK }
@@ -1391,46 +1705,108 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
 
 /// Terrain collision, shared by actors and the independent reachability flood.
 pub fn blocked(seed: int, field: int, area: int, x: int, y: int) -> bool {
-    let k = kind(seed, field, area, x, y)
-    k == terrain.TRUNK ||
-        k == terrain.DARK ||
-        k == terrain.WATER ||
-        k == terrain.ROCK ||
-        k == terrain.WALL
+    terrain.solid(kind(seed, field, area, x, y))
 }
 
 /// Whether an edge is a path (an area's entry or exit, crossed by walking
 /// through) rather than a shortcut (opened, then crossed with `r`).
 pub fn path_edge(edge: int) -> bool {
-    edge == 0 || edge == 1 || edge == 4 || edge == 5 || edge == 6 || edge == 9
+    edge == 0 ||
+        edge == 1 ||
+        edge == 4 ||
+        edge == 5 ||
+        edge == 6 ||
+        edge == 9 ||
+        edge >= EDGE_STAND_OUT && edge <= EDGE_MOUTH
+}
+
+/// The two ends of an edge: the area it leaves (the far end of the way
+/// on, for a path edge) and the area it enters.
+fn ends(edge: int) -> (int, int) {
+    match edge {
+        0 => (SHINGLE, TOWN),
+        1 => (BRAMBLEHOLD, STAND),
+        2 => (BRAMBLEHOLD, SHINGLE),
+        3 => (LARKMEADOW, BRAMBLEHOLD),
+        4 => (LARKMEADOW, BURN),
+        5 => (CRAGS, MERE),
+        6 => (RIVER, HUSH),
+        7 => (CRAGS, LARKMEADOW),
+        8 => (RIVER, CRAGS),
+        9 => (TOWN, BRAMBLEHOLD),
+        10 => (STAND, LARKMEADOW),
+        11 => (BURN, CRAGS),
+        12 => (MERE, RIVER),
+        13 => (HUSH, HOWE),
+        14 => (HOWE, GRAVEHOLLOW),
+        15 => (STAND, BRAMBLEHOLD),
+        16 => (BURN, LARKMEADOW),
+        17 => (MERE, CRAGS),
+        18 => (CRAGS, UNDERTEETH),
+        19 => (UNDERTEETH, HUSH),
+        _ => (-1, -1),
+    }
 }
 
 /// Whether a path edge's portal in `area` is the area's far end (local row
 /// `length - 1`), the way on; else its entry (row 1), the way back.
 pub fn exit_end(area: int, edge: int) -> bool {
-    edge == 0 && area == SHINGLE ||
-        edge == 9 && area == TOWN ||
-        edge == 1 && area == BRAMBLEHOLD ||
-        edge == 4 && area == LARKMEADOW ||
-        edge == 5 && area == CRAGS ||
-        edge == 6 && area == RIVER
+    let (from, _) = ends(edge)
+    path_edge(edge) && from == area
 }
 
 /// The column a shortcut's mouth stands in: the log and the ledge west,
 /// the hedge east; the shallows east of the crags and west (over the
-/// water, on the gravel bar) in the Shallows.
+/// water, on the gravel bar) in the Shallows; cb14's mouths by `mouth`.
 pub fn shortcut_x(area: int, edge: int) -> int {
+    if edge >= EDGE_STAND_OUT {
+        let (_, x) = mouth(area, edge)
+        return x
+    }
     if edge == 2 || edge == 7 { return -32 }
     if edge == 8 && area == RIVER then -32 else 32
 }
 
-/// Portals: thorn path, meadow path, fallen log, hedge tunnel, the crags
-/// path, the river path, the old den's path, the ledge, the shallows, the
-/// town's way on.
+/// A cb14 shortcut mouth in an area: its local row and column. The scree
+/// leaves the Stand west at row 60 and lands beside Bramblehold's split
+/// roots (east, row 212); the streambed leaves the Burn east at row 40 and
+/// lands past Larkmeadow's last warm hollow (east, row 250); the raft
+/// leaves the Mere's far shore west at row 190 and lands at the Teeth's
+/// way on (east, row 200); the sett is west of the Teeth's route at row
+/// 72 and is the Underteeth's entry; the roots are the Underteeth's far end
+/// and open into the Hush west at row 40.
+pub fn mouth(area: int, edge: int) -> (int, int) {
+    if edge == EDGE_SCREE { return if area == STAND then (60, -32) else (212, 32) }
+    if edge == EDGE_STREAMBED { return if area == BURN then (40, 32) else (250, 32) }
+    if edge == EDGE_RAFT { return if area == MERE then (190, -32) else (200, 32) }
+    if edge == EDGE_SETT { return if area == CRAGS then (72, -32) else (1, 0) }
+    if area == UNDERTEETH then (length(UNDERTEETH) - 1, 0) else (40, -32)
+}
+
+/// Whether local cell `(x, at)` lies on the run from the route to a cb14
+/// mouth: a curve of half width 3 from the route's centre at the mouth's
+/// row to the mouth's column (`c` is the route's centre at `at`).
+fn mouth_run(seed: int, area: int, edge: int, x: int, at: int, c: int) -> bool {
+    let (m, mx) = mouth(area, edge)
+    if mx == 0 || abs(at - m) > 8 { return false }
+    let by = m + curve(seed, area + 71 + edge, x) / 2
+    if at < by - 3 || at > by + 3 { return false }
+    let x0 = spine(seed, area, m)
+    let _ = c
+    if mx < 0 then x >= mx && x <= x0 else x >= x0 && x <= mx
+}
+
+/// Portals: a path edge's at the area's end (the entry row 1 or the far
+/// row), a shortcut's at its mouth.
 pub fn portal(seed: int, area: int, edge: int) -> (int, int) {
     let o = origin(seed, area)
     if path_edge(edge) {
         return if exit_end(area, edge) then (0, (o + length(area) - 1) * FP) else (0, FP)
+    }
+    if edge >= EDGE_STAND_OUT {
+        let (m, x) = mouth(area, edge)
+        if x == 0 { return (0, (o + m) * FP) }
+        return (x * FP, (o + m + curve(seed, area + 71 + edge, x) / 2) * FP)
     }
     let x = shortcut_x(area, edge)
     (x * FP, (o + 22 + curve(seed, area + 71, x) / 2) * FP)
@@ -1438,47 +1814,30 @@ pub fn portal(seed: int, area: int, edge: int) -> (int, int) {
 
 /// Other area for an incident edge, -1 otherwise.
 pub fn other(area: int, edge: int) -> int {
-    if edge == 0 {
-        return if area == SHINGLE then TOWN else if area == TOWN then SHINGLE else -1
-    }
-    if edge == 9 {
-        return if area == TOWN then BRAMBLEHOLD else if area == BRAMBLEHOLD then TOWN else -1
-    }
-    if edge == 2 {
-        return if area == SHINGLE then BRAMBLEHOLD else if area == BRAMBLEHOLD then SHINGLE else -1
-    }
-    if edge == 1 || edge == 3 {
-        return if area == BRAMBLEHOLD {
-            LARKMEADOW
-        } else if area == LARKMEADOW {
-            BRAMBLEHOLD
-        } else {
-            -1
-        }
-    }
-    if edge == 4 || edge == 7 {
-        return if area == LARKMEADOW then CRAGS else if area == CRAGS then LARKMEADOW else -1
-    }
-    if edge == 5 || edge == 8 {
-        return if area == CRAGS then RIVER else if area == RIVER then CRAGS else -1
-    }
-    if edge == 6 {
-        return if area == RIVER then OLDDEN else if area == OLDDEN then RIVER else -1
-    }
-    -1
+    let (a, b) = ends(edge)
+    if area == a then b else if area == b then a else -1
 }
 
 /// The shortcut bit an edge sets in the journey's `shortcuts`: the log 1,
-/// the hedge 2, the ledge 4, the shallows 8; 0 for a path edge.
+/// the hedge 2, the ledge 4, the shallows 8, the scree 16, the streambed
+/// 32, the raft 64, the sett 128, the roots 256; 0 for a path edge.
 pub fn shortcut_bit(edge: int) -> int {
     match edge {
         2 => 1,
         3 => 2,
         7 => 4,
         8 => 8,
+        15 => 16,
+        16 => 32,
+        17 => 64,
+        18 => 128,
+        19 => 256,
         _ => 0,
     }
 }
+
+/// Every shortcut bit set.
+pub const SHORTCUTS_ALL: int = 511
 
 /// Longest quantised straight run of centre positions in an area.
 pub fn straight_run(seed: int, area: int) -> int {
@@ -1593,23 +1952,33 @@ pub fn reach_count(seed: int, field: int, area: int) -> int {
 pub fn cache_count(area: int) -> int {
     if area == SHINGLE || area == TOWN {
         4
-    } else if area == BRAMBLEHOLD || area == LARKMEADOW {
-        3
+    } else if area == GRAVEHOLLOW {
+        2
     } else {
-        0
+        3
     }
 }
 
 /// The journey's bit for a cache: the Shingle's four first (0..3), then
 /// the thicket's first two (4, 5), the meadow's first two (6, 7), the
 /// town's four (8..11), the thicket's third (12), the meadow's third (13);
-/// sixteen bits in all (cb05 widened the eight).
+/// sixteen bits in all (cb05 widened the eight). cb14's alcoves follow:
+/// the Teeth's, the Shallows' and the Hush's three each (16..24), then the
+/// Stand's, the Burn's, the Mere's, the Underteeth's, the Howe's three
+/// each and Gravehollow's two (25..41): forty-two bits.
 pub fn cache_bit(area: int, cache: int) -> int {
     if area == SHINGLE { return cache }
     if area == TOWN { return 8 + cache }
-    if cache == 2 { return if area == BRAMBLEHOLD then 12 else 13 }
-    if area == BRAMBLEHOLD then 4 + cache else 6 + cache
+    if area == BRAMBLEHOLD || area == LARKMEADOW {
+        if cache == 2 { return if area == BRAMBLEHOLD then 12 else 13 }
+        return if area == BRAMBLEHOLD then 4 + cache else 6 + cache
+    }
+    if area <= HUSH { return 16 + 3 * (area - CRAGS) + cache }
+    25 + 3 * (area - STAND) + cache
 }
+
+/// The number of cache bits a journey may hold (`cache_bit` below it).
+pub const CACHE_BITS: int = 42
 
 /// Destinations an area must reach: its dens, incident portals, caches,
 /// its arena's centre and its landmarks.
