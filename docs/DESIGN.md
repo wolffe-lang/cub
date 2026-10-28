@@ -1372,6 +1372,30 @@ rows on the plain tier; B: `digits.stroke_glyph`, a three-row font of `_` and `|
 width). R-cb07-5 `art.SCENT_LABEL_ALWAYS` (A true: the label stays beside four digits, fourteen columns;
 B: the label drops at four digits). `hud_plan_with` and `digits.plain_cells_of` take the switches as
 arguments so the B paths are tested without flipping them.
+## Hand-timed bite requests (cb11)
+
+This supersedes the age-5 link window above, not the strike drawings,
+11/13/17-tick durations, 12/14/18 costs, hitboxes or head-shake ages.
+A fresh Space at ages 1 through duration inclusive queues a bite. The
+inclusive endpoint matters because input runs before action completion:
+the former strict bound dropped a press at age 11 while start_action still
+saw an active bite, so a later press restarted strike 1 and moved left again.
+
+The queue holds at most two requests, each with its committed aim. At a
+natural bite end, consume one and start combo % 3 + 1 if stamina permits;
+carry the remaining request. Overflow is ignored without replacing an aim.
+An unaffordable queued link discards both requests without spending stamina.
+With no queued request, the completed strike opens a six-tick grace: a
+fresh Space starts its successor immediately. Outside it, start strike 1.
+Other actions, rest, death, area entry and the alpha's guard clear the queue
+and grace. Same-tick duplicate presses (age 0) do not queue.
+
+Enhanced Space repeats never request a bite; legacy <=2-tick gaps are
+suppressed and >=3-tick gaps are fresh. The first legacy repeat after a
+long OS delay remains indistinguishable from a press (KEYS documents this).
+No persistent save fields or replay ids are added: the request queue is
+transient and deterministically reconstructed from the recorded keys.
+
 ## Eight-way bodies and jaw reach (cb08)
 
 The cub's body facing is the clockwise eighth, north0 through north-west7.

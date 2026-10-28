@@ -202,6 +202,14 @@ Key ids0..27 remain unchanged. New words are `exact`, `ctrl-down`,
 `exact`; ordinary old recordings retain inferred holds. Modifier changes
 precede the associated action. A key release never fires its action.
 A repeated c in the enhanced stream does not queue another roll.
+Since cb11, an enhanced Space repeat also records no `bite` (its modifier
+transitions may still be recorded); releases remain non-actions. The
+legacy `bite` word has a <=2-tick repeat filter in inferred mode. An
+`exact` recording bypasses that heuristic because the reader already
+removed repeat events. No ids, headers or persistent save slots change.
+Old recordings still parse, but newly accepted early/end-boundary/grace
+requests and suppressed legacy repeats can change their simulated result.
+The transient two-request queue is reconstructed from keys, never saved.
 
 `pace N` records the debug percentage25..300 (default100). The explicit
 `combat-witness 1` event reproduces the test-only empty-arena setup used

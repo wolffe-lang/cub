@@ -62,6 +62,36 @@ checks the exact expiry and stopping tick, then eight stationary ticks,
 without a wall or foe stopping the cub. Exact-protocol releases do not wait
 for this inference window.
 
+## Space requests and terminal repeats
+
+Space requests the next bite from age 1 of the current bite, including its
+end tick, or during the six ticks after it ends. Two pending requests fit:
+three fast presses give left, right, then forward with the head shake. Each
+request keeps its own aim; a third pending request is discarded. A new press
+outside the grace starts strike 1. Stamina is paid when a strike starts,
+not when its request is buffered; an unaffordable link drops the queue.
+
+The enhanced keyboard request is `ESC[>11u` (flags 1|2|8: disambiguation,
+event types, all keys). Space PRESS (`ESC[32u`, or explicit `ESC[32;1:1u`)
+acts; REPEAT (`ESC[32;1:2u`) and RELEASE (`ESC[32;1:3u`) do not. This also
+prevents a held Shift+Space from issuing repeated heavy attacks.
+
+Without negotiation, literal byte `20` cannot identify a release or repeat.
+A Space within two simulation ticks of the previous Space is treated as a
+repeat and ignored, refreshing that timestamp even when ignored. A gap of
+three ticks or more counts as a new press. Thus 30/60-ms repeat streams do
+not chain, while presses 100 ms or more apart do. This is a heuristic:
+the first OS repeat after a 250/500-ms initial delay is indistinguishable
+from a fresh press and can request one extra strike. It does not promise
+physical key-up detection or reject every held-key repeat.
+
+The reported play terminal is Ghostty on macOS. The `cb11-hand-reader` row
+feeds Ghostty-compatible sequences through the real reader, checks the
+flags request, records three hand-spaced presses and holds with 250/500-ms
+initial delays, and compares live strike numbers with replay. These are
+injected pty measurements, not a physical Ghostty capture or a measurement
+of the user's repeat preference.
+
 ## Physical Shift+Space probe, 2026-10-25
 
 In the maintainer's play terminal, `TERM=xterm-256color`, the pinned engine
