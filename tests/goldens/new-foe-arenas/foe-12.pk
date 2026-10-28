@@ -1,0 +1,48 @@
+pk 1
+seed 1
+tier rich
+size 80x24
+t 0 up
+t 1 left
+t 2 left
+t 3 left
+t 4 left
+t 5 left
+t 6 left
+t 7 left
+t 8 left
+t 8 dodge
+t 12 right
+t 13 right
+t 14 right
+t 15 right
+t 16 right
+t 17 right
+t 18 right
+t 19 right
+t 20 right
+t 21 right
+t 22 right
+t 23 right
+t 24 right
+t 25 right
+t 26 right
+t 27 right
+t 28 right
+t 29 right
+t 30 right
+t 31 right
+t 32 right
+t 33 right
+t 33 bite
+t 45 right
+t 45 bite
+t 54 up
+t 55 up
+t 56 up
+t 57 up
+t 58 up
+t 59 up
+t 60 up
+t 61 up
+t 61 dodge
