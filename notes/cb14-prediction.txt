@@ -1,0 +1,71 @@
+cb14 — the map overhaul: the prediction, written 2026-10-28T02:10Z at cub trunk
+eb34a399 before the first change (RULES §7; the-rules.md).
+
+What will be built, and the numbers I expect to read afterward.
+
+1. The graph. Thirteen areas (seven today): the Stand (7) between Bramblehold
+   and Larkmeadow, the Burn (8) between Larkmeadow and the Teeth, the Mere (9)
+   between the Teeth and the Shallows, the Underteeth (10) as a branch the
+   Teeth <-> the Hush, the Howe (11) between the Hush and Gravehollow, and
+   Gravehollow (12) split off area 5: area 5 keeps its id and the cold den and
+   becomes the Hush (the deep wood the bible's section 2 and 16 name; cb04 had
+   folded the dark wood and the old den into one area), Gravehollow is the
+   short last area holding the stone mouth and the alpha's arena. I expect
+   this split to be the one placement the maintainer may change (R-cb14-3).
+   Edges: 10 today; after, 10 kept (four of the path edges re-pointed) plus
+   8 path edges and 5 shortcut edges = 23. Dens: four new (12 the root hollow,
+   13 the kiln, 14 the dry island, 15 the bone cache) filling the save's
+   reserved 12..15 exactly; the Howe and Gravehollow none (R-cb14-1 A).
+   Lengths: the Stand, the Burn, the Mere, the Howe 224; the Underteeth 192;
+   the Hush 160 (its arena rows cut); Gravehollow 128. Journey length (cells
+   of spine along the way on, the Underteeth apart): before 160 + 240 + 288 +
+   288 + 224 + 224 + 224 = 1648; after 1648 - 224 + 160 + 128 + 4 x 224 =
+   2608, plus the Underteeth's 192 off the line: about 1.6x. Dens on the way
+   on: 9 -> 12; bosses 4 -> 4 (none added: the heron and the sentries are
+   cb18's foes, not bosses).
+
+2. Save and replay. CUB 5 -> CUB 6: a slain mask per area (13), a `gates`
+   word (the burnt oak, the stone mouth), shortcuts 0..255 (four new bits),
+   caches widened past 16 bits for the alcoves. A CUB 5 file migrates with
+   empty masks for the six new areas and gates 0; CUB 4 as before through
+   5. The replay snapshot `journey 4` (37 values) is still read; this build
+   writes `journey 5` with 44 values. Every committed case keeps replaying
+   (their snapshots are journey 4 or none); the goldens of cases that cross
+   or stand in the Teeth, the Shallows, area 5 and the boss arenas move (new
+   branches, the renamed area 5, the arenas' radii); I predict about 40 of
+   the 197 case directories move and 14 new ones appear (seven area first
+   screens at two tiers), the opening, title, score, HUD, posture and Shingle
+   cases unchanged.
+
+3. Censuses. --world-audit 1300 rows (50 seeds x 2 fields x 13 areas), 0
+   unreached, path_off 0, nearest foe >= 30; den spacing least within an
+   area >= 110 and least onward >= 110 along the whole line (the Howe and
+   Gravehollow carry no den, the Underteeth is measured apart); bends 0
+   reversals on every route and branch including the new areas' (the branch
+   shapes are cb05's); spurs every end named; foe census: the old areas'
+   counts unchanged (9/16/18/18/8/8/9), the new areas 4..6 each (alcove
+   guards only: the route tables are cb18's and empty here); gen-bench every
+   area under 50 ms at field 200 on the release build (the Mere's and the
+   Underteeth's per-cell rules are the costliest: I predict under 20 ms).
+   The boss census: every world still won within five lives; the boar's
+   first-attempt share may fall a little with the larger clearing (more
+   room for the charge), the elk's shallows at 18 and Gravehollow at 20
+   change nothing in attempts; arena_breaches 0.
+
+4. Render cost. Means within +15 % of cb09's (171/165 us at 80x24, 1262/1249
+   at 200x60 on the Mac): the new areas are not on the Shingle bench. The
+   memory gate (cb09's 4096 bytes a tick) green: every new per-tick list
+   (the stones' timers, the flare, the reveal) is bounded and reset on area
+   entry.
+
+5. Arenas. The boar's and the lynx's radius 11/12 -> 14, the elk's 14 -> 18,
+   Gravehollow's 12 -> 20, shapes kept; the hit census and the hitbox audit
+   byte-equal (they fight in Bramblehold's thicket and a test arena, not at
+   a boss); the fairness census re-run.
+
+6. What might not hold: the den-spacing bar for the Burn's kiln against the
+   last warm hollow (row 190 of 288) and the ledge cleft (row 18) at once;
+   the fighter's walk to the alpha from Gravehollow's entry (the cold den is
+   two areas back now; the fight starts at the stone mouth, opened); the
+   Mac's goldens for the Mere (animated ripples by tick) must be byte-equal
+   on kasumi.
