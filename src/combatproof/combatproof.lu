@@ -388,7 +388,9 @@ pub fn hud_fixture(
     var s = sim.new(1, cols, rows)
     sim.combat_witness(mut s)
     if night {
-        s.area = forest.HUSH
+        // The night keyframe's wood (cb14: Gravehollow, the old den's own
+        // area; the Hush between keeps the brush but gained the alcoves).
+        s.area = forest.GRAVEHOLLOW
         let (x, y, _) = forest.arena(s.seed, s.field, s.area)
         s.x = x * sim.FP + sim.FP / 2
         s.y = (forest.origin(s.seed, s.area) + y) * sim.FP + sim.FP / 2
