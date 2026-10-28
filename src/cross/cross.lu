@@ -147,6 +147,7 @@ fn place_at_gap(mut s: sim.Sim, k: int, want: int) {
 pub fn hitbox() -> int {
     print("aim cub_x cub_y gap anchor_in_cone body_in_cone landed")
     if hitbox_rows(0, 16) != 0 { return 1 }
+    if hawk_rows(0, 16) != 0 { return 1 }
     print("hitbox: green, a bite in reach lands from every aim, touching and a cell off")
     0
 }
@@ -221,6 +222,43 @@ pub fn hitbox_rows(first: int, last: int) -> int {
         return 1
     }
     0
+}
+
+/// Low hawks: real keyed bites at all aims, both body gaps, both windows.
+/// Each row keeps the hawk AI running: STRIKE naturally enters RETREAT.
+pub fn hawk_rows(first: int, last: int) -> int {
+    var misses = 0
+    var k = first
+    while k < last {
+        for phase in [sim.STRIKE, sim.RETREAT] {
+            var s = sim.new(3, 80, 24)
+            sim.enter_area(mut s, forest.LARKMEADOW, 0, 40 * sim.FP)
+            (mut s.foes).reset()
+            var f = sim.make_ashen(sim.FP / 2, 40 * sim.FP + sim.FP / 2)
+            f.kind = sim.HAWK
+            f.health = sim.foe_health(sim.HAWK)
+            f.phase = phase
+            f.since = s.tick
+            f.heading = k % 4 * 64
+            (mut s.foes).push(f)
+            place_at_gap(mut s, k % 8, k / 8)
+            var keys = List[int]()
+            let h = aim_heading(k % 8)
+            walker.aim(mut keys, sim.sin(h), 0 - sim.cos(h))
+            (mut keys).push(controls.KEY_BITE)
+            sim.step(mut s, keys)
+            var n = 0
+            while n < 4 { sim.step(mut s, List[int]()); n += 1 }
+            let dead = s.foes[0].health == 0
+            print(
+                "hitbox hawk phase={phase} aim={k % 8} gap={k / 8} quarter={k % 4} one-bite={dead}",
+            )
+            if !dead { misses += 1 }
+        }
+        k += 1
+    }
+    if misses > 0 { print("hitbox hawk RED misses={misses}") }
+    misses
 }
 
 /// A map of Cinderwick at a field, a row a line, a character a cell

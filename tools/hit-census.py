@@ -14,7 +14,7 @@ from pathlib import Path
 import subprocess
 
 VECTORS = [(0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1)]
-PIXELS = {4: (12, 24), 5: (10, 20), 6: (14, 28), 7: (12, 24), 8: (4, 12)}
+PIXELS = {2: (8, 4), 4: (12, 24), 5: (10, 20), 6: (14, 28), 7: (12, 24), 8: (4, 12)}
 
 
 def body(x, y, aim, old):
@@ -53,7 +53,7 @@ def audit(rows, old=False, enforce=False):
             fb = (min(r['x'] for r in north) + 5, min(r['y'] for r in north) + 5,
                   max(r['x'] for r in north) - 4, max(r['y'] for r in north) - 4)
             pw, ph = PIXELS[kind]
-            if q % 2:
+            if q % 2 and kind != 2:
                 pw, ph = ph, pw
             assert (fb[2] - fb[0] + 1, fb[3] - fb[1] + 1) == ((pw + 1) // 2, (ph + 3) // 4)
             bounds[kind, q] = fb

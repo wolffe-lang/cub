@@ -151,10 +151,11 @@ fn test_cb08_alpha_guard_and_hawk_exclusion_survive_flank_reach() {
         "guard opens the existing riposte",
     )
     var hawk = hitcensus.fixture(sim.HAWK)
+    hawk.foes[0].phase = sim.HUNT
     let hb = sim.foe_body(hawk.foes[0])
     assert(
         !hitcensus.bite(mut hawk, hawk.foes[0].x / sim.FP, hb.y1 + 2, 0),
-        "hawk cannot be bitten",
+        "hawk in the air cannot be bitten",
     )
 }
 

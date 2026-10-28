@@ -1800,27 +1800,22 @@ pub fn draw_hawk(mut g: grid.Grid, t: int, row: int, col: int, phase: int, fade:
         } else {
             0
         }
-        // A connected bird: beak, wings, body, tail. The old one-row
-        // diamond shadow was easy to mistake for a thrown boomerang.
-        if fade < 5 { put_over(mut g, row - 2, col, "v", style) }
-        silhouette.draw(mut g, row - 1, col - 1, silhouette.hawk(posture, fade), style)
-        if fade < 10 { put_over(mut g, row, col, "O", style) }
-        put_over(mut g, row + 1, col, if phase == sim.STRIKE then "|" else "v", style)
+        // The complete shadow fits its unrotated four-by-one hit body.
+        // The stopped, spread wings are the tell; the folded stoop and
+        // half-open recovery are the low, one-bite windows (cb10).
+        silhouette.draw(mut g, row, col - 1, silhouette.hawk(posture, fade), style)
         return
     }
     let wings = if phase == sim.CROUCH {
-        "\\_/"
+        "=v=="
     } else if phase == sim.STRIKE {
-        " | "
+        " |v "
     } else if phase == sim.RETREAT {
-        "/v\\"
+        "\\v/ "
     } else {
-        "-v-"
+        "-v--"
     }
-    if fade < 5 { put_over(mut g, row - 2, col, "v", style) }
-    put_over(mut g, row - 1, col - 1, if fade >= 5 then "..." else wings, style)
-    if fade < 10 { put_over(mut g, row, col, "O", style) }
-    put_over(mut g, row + 1, col, if phase == sim.STRIKE then "|" else "v", style)
+    put_over(mut g, row, col - 1, if fade >= 5 then "...." else wings, style)
 }
 
 /// Separate hawk study keeps every posture and fade readable on both tiers.

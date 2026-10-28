@@ -1,0 +1,106 @@
+//! member: false
+
+use art
+use controls
+use cross
+use grid
+use hitcensus
+use sim
+use tier
+
+fn test_cb10_hawk_shadow_matches_its_unrotated_hit_body_on_both_tiers() {
+    for t in [tier.RICH, tier.PLAIN] {
+        for phase in [sim.HUNT, sim.CROUCH, sim.STRIKE, sim.RETREAT] {
+            var quarter = 0
+            while quarter < 4 {
+                var s = hitcensus.fixture(sim.HAWK)
+                s.foes[0].x = 10 * sim.FP
+                s.foes[0].y = 10 * sim.FP
+                s.foes[0].heading = quarter * 64
+                let b = sim.foe_body(s.foes[0])
+                assert(
+                    b.x0 == 9 && b.x1 == 12 && b.y0 == 10 && b.y1 == 10,
+                    "four-by-one, never rotated",
+                )
+                var g = grid.new(24, 80)
+                art.draw_hawk(mut g, t, 10, 10, phase, -1)
+                var painted = 0
+                var row = 0
+                while row < g.rows {
+                    var col = 0
+                    while col < g.cols {
+                        if grid.at(g, row, col).cp != 32 {
+                            assert(
+                                col >= b.x0 && col <= b.x1 && row == b.y0,
+                                "paint stays inside the hit body",
+                            )
+                            painted += 1
+                        }
+                        col += 1
+                    }
+                    row += 1
+                }
+                assert(painted >= 2, "a visible bird on both tiers, every posture")
+                print(
+                    "cb10 hawk-draw tier={t} phase={phase} quarter={quarter} body=4x1 painted={painted}",
+                )
+                quarter += 1
+            }
+        }
+    }
+}
+
+fn parry_area(kind: int) {
+    var s = hitcensus.fixture(kind)
+    s.foes[0].kind = sim.HAWK
+    s.foes[0].health = 8
+    s.foes[0].phase = sim.HUNT
+    s.foes[0].since = 0
+    s.action = sim.IDLE
+    s.tick = 0
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y
+    var keys = List[int]()
+    sim.step(mut s, keys)
+    let x = s.foes[0].x
+    let y = s.foes[0].y
+    var n = 0
+    while n < sim.HAWK_TELL - 1 {
+        sim.step(mut s, keys)
+        assert(
+            s.foes[0].phase == sim.CROUCH && s.foes[0].x == x && s.foes[0].y == y,
+            "stopped shadow tell",
+        )
+        n += 1
+    }
+    (mut keys).push(controls.KEY_PARRY)
+    sim.step(mut s, keys)
+    assert(
+        s.foes[0].health == 0 && s.health == 52 && s.drops.len == 1,
+        "real z at stoop kills without damage",
+    )
+    assert(sim.HAWK_RECOVERY >= 12, "a human-scale low bite window")
+    print(
+        "cb10 hawk-parry area={s.area} tell={sim.HAWK_TELL} recovery={sim.HAWK_RECOVERY} killed=true",
+    )
+}
+
+fn test_cb10_crags_hawk_stopped_tell_and_keyed_parry_kill() { parry_area(sim.LYNX) }
+
+fn test_cb10_end_hawk_stopped_tell_and_keyed_parry_kill() { parry_area(sim.ALPHA) }
+
+fn test_cb10_hawk_hitbox_audit_north_east_touching() {
+    assert(cross.hawk_rows(0, 4) == 0, "four touching aims, both low phases")
+}
+
+fn test_cb10_hawk_hitbox_audit_south_west_touching() {
+    assert(cross.hawk_rows(4, 8) == 0, "other touching aims, both low phases")
+}
+
+fn test_cb10_hawk_hitbox_audit_north_east_gap_one() {
+    assert(cross.hawk_rows(8, 12) == 0, "four gap-one aims, both low phases")
+}
+
+fn test_cb10_hawk_hitbox_audit_south_west_gap_one() {
+    assert(cross.hawk_rows(12, 16) == 0, "other gap-one aims, both low phases")
+}
