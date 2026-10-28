@@ -56,7 +56,7 @@ fn word(t: int) {
                 cell.cp == (if filled then (if t == tier.RICH then 9608 else 35) else 32),
                 "original seven-row word",
             )
-            if filled { assert(cell.fg == (if t == tier.RICH then 196 else 12), "red on black") }
+            if filled { assert(cell.fg == (if t == tier.RICH then 196 else 9), "red on black") }
             assert(cell.bg == 0, "fade finished before word")
             col += 1
         }

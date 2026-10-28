@@ -14,7 +14,7 @@ what PAX's console font draws today. The sheet's plain half is held to that by `
 After the thirty-tick death dissolve has finished, the only ink is a centred
 70-column, fourteen-row `FALLEN` letterform on black, doubling its original
 seven-row strokes so half-closed eyelids visibly cut into the word. The rich tier uses
-full blocks in red196; plain uses bold `#` in red12, with identical geometry.
+full blocks in red196; plain uses bold `#` in bright red9 (SGR91), with identical geometry.
 The word stays whole for twenty ticks, then the opening's exact rounded-eye
 mask and aperture frames run in reverse. Nothing is printed over the fade.
 `cb12-fallen-word`, `cb12-fallen-half` and `cb12-fallen-closed` pin both tiers;

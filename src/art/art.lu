@@ -1923,7 +1923,7 @@ pub fn death_frame(s: sim.Sim, t: int, mut g: grid.Grid) {
     let black = grid.cell(32, 0, 0, 0)
     let red = grid.cell(
         if t == tier.RICH then 9608 else 35,
-        if t == tier.RICH then 196 else 12,
+        if t == tier.RICH then 196 else 9,
         0,
         grid.ATTR_BOLD,
     )
