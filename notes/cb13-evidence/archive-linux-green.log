@@ -1,0 +1,16 @@
+cb13 deterministic-archive preflight start 2026-10-28T05:17:37Z
+Previous HEAD position was 2df46a33 Keep replay bytes independent of wall time
+HEAD is now at 9f7840da Wait for sound preparation before sampling witnesses
+build: target/native/cub
+gameplay: ghost trailer, display and absence rich ok
+gameplay: ghost trailer, display and absence plain ok
+pty: sound-live ok (linux x86_64, exit 0, 4034 bytes captured; children during the run []; 12 WAVs)
+pty: sound-oss ok (linux x86_64, exit 0, 3556 bytes captured)
+pty: sound-mute ok (linux x86_64, exit 0, 3556 bytes captured)
+pty: cb13-menu-typed-playback ok (linux x86_64, exit 0, 14199 bytes captured)
+cb10 macOS Ghostty injected kitty row tier=rich delay=0.25 rate=0.03 flags=11
+cb10 macOS Ghostty injected kitty row tier=rich delay=0.5 rate=0.06 flags=11
+cb10 macOS Ghostty injected kitty row tier=plain delay=0.25 rate=0.03 flags=11
+cb10 macOS Ghostty injected kitty row tier=plain delay=0.5 rate=0.06 flags=11
+pty: cb10-ghostty-repeat ok (linux x86_64, exit 0, 202726 bytes captured)
+CB13_LINUX_PREFLIGHT_EXIT 0 2026-10-28T05:17:57Z
