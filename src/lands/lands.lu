@@ -192,19 +192,20 @@ pub fn glow_x(seed: int, k: int, c: int) -> int {
     c + world.hash(seed, 412, k, 5) - 2
 }
 
+/// Whether local cell `(x, at)` is one of a cluster's three cells (`c`
+/// the tunnel's centre at `at`): a row guard, then one hash.
+pub fn glow_here(seed: int, x: int, at: int, c: int) -> bool {
+    if at < 12 || (at - 12) % 24 != 0 { return false }
+    let k = (at - 12) / 24
+    k < GLOWS && abs(x - glow_x(seed, k, c)) <= 1
+}
+
 /// The Underteeth's ground at local cell `(x, at)`: the tunnel's centre
 /// `c` and half width `half` there, `cr` the tunnel's centre at the
 /// chamber's row (0 when `at` lies in no chamber's rows).
 pub fn underteeth(seed: int, x: int, at: int, c: int, half: int, cr: int, carved: bool) -> int {
     // The clusters first: light on the tunnel's floor.
-    var k = 0
-    while k < GLOWS {
-        if at == glow_row(k) {
-            let gx = glow_x(seed, k, c)
-            if abs(x - gx) <= 1 && abs(x - c) <= half { return terrain.GLOW }
-        }
-        k += 1
-    }
+    if glow_here(seed, x, at, c) && abs(x - c) <= half { return terrain.GLOW }
     let ch = chamber_at(at)
     if ch >= 0 {
         let (cx, r) = chamber(seed, ch, cr)
