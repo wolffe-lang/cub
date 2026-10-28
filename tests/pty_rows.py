@@ -1650,6 +1650,7 @@ def _cb13_home(ctx, name):
     root = Path(ctx.ROOT) / 'target' / 'pty' / name
     root.mkdir(parents=True, exist_ok=True)
     home = Path(tempfile.mkdtemp(prefix='home-', dir=root))
+    home.chmod(0o755)
     env = ctx.env_for()
     env['HOME'] = str(home)
     return home, env
