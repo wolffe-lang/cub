@@ -1,0 +1,12 @@
+cb14 kasumi job bash /home/mfwolffe/lanes/cb14/job17.sh start 2026-10-28T12:59:48Z
+cb14 holds cores 12-15 2026-10-28T12:59:48Z
+cb14 source 5db48d71f2afff1ad7a33bf63b5a257a0dd95762
+build: target/native/cub
+check-linux 0 check-linux: green
+check-memory 0 memory gate: green, crash checkpoint and fresh seed; budget 4096 bytes/tick
+goldens native 0 goldens: art ok
+gameplay native 0 gameplay: green (0 skips)
+gameplay release 0 gameplay: green (0 skips)
+perf slack 1 0 perf-idle: latency median 13.6 ms p90 33.5 ms max 36.1 ms over 20 keys (bars median 40, p90 70 ms) ok
+CB14_LINUX_GATE_DONE 2026-10-28T13:39:33Z
+CB14_KASUMI_EXIT 0 2026-10-28T13:39:33Z

@@ -1,1 +1,4 @@
-wolf test: 471 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+# 5db48d71, the Mac (.lair/tools/test under heavy.sh, mac-gate.sh)
+wolf test: 509 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+# 5db48d71, kasumi (check-linux in the engine's container, job17c)
+wolf test: 509 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
