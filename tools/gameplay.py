@@ -113,7 +113,7 @@ def check(binary):
         _, skipped, _ = run(binary, 'opening-skip', tier)
         assert skipped[100]['scene'] == 1 and skipped[101]['scene'] == 0
         _, journey, enemies = run(binary, 'world-return', tier)
-        assert {s['area'] for s in journey.values()} == {0, 6, 1, 2}  # through Cinderwick (cb05)
+        assert {s['area'] for s in journey.values()} == {0, 6, 1, 7, 2}  # through Cinderwick (cb05) and the Stand (cb14)
         final = journey[max(journey)]
         assert final['area'] == 0 and final['shortcuts'] == 3 and final['deaths'] == 1 and not final['mark']
         assert any(s['area'] == 1 and s['mark_area'] == 2 and s['mark'] for s in journey.values()), 'no cross-area death'

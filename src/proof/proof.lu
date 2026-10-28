@@ -158,7 +158,11 @@ pub fn generate(dir: str) -> int {
         n += 1
     }
     if s.area != 1 || !s.mark || s.mark_area != 2 { eprint("proof: cross-area death"); return 1 }
-    if !walker.walk(mut s, mut r, mx, my) || s.area != 2 {
+    // Back up the ridge and under the pine to the meadow (cb14).
+    if !walker.walk(mut s, mut r, mx, my) ||
+        s.area != forest.STAND ||
+        !fight.walk_on(mut s, mut r, forest.LARKMEADOW) ||
+        s.area != 2 {
         eprint("proof: return to mark area")
         return 1
     }
@@ -733,6 +737,42 @@ pub fn areas(dir: str) -> int {
         while n < 120 { walker.press(mut s, mut r, walker.key(controls.KEY_DOWN)); n += 1 }
         snapshot_range(dir, name, r, s.tick, 40, from) else |_| { return 2 }
     }
+    0
+}
+
+/// The walk (cb14, the contract's item 5): from the Shingle's start to the
+/// Howe's stone mouth along the way on, every boss beaten and its shortcut
+/// open (the alpha fixture's journey at the hollow log), every gate opened
+/// as it comes (the thorns, the windthrown pine, the burnt oak); the tick
+/// of each area's entry printed, for the frames the note attaches.
+/// Written as `walk.pk` with a frame every 300 ticks.
+pub fn walk(dir: str) -> int {
+    fs.create_dir_all(dir) else |_| { return 2 }
+    var s0 = fight.journey_at(1, 80, 24, sim.ALPHA)
+    s0.last_den = 0
+    s0.lit_dens = 1
+    s0.gates = 0
+    let s1 = journey.decode(journey.encode(s0), 80, 24) else |e| {
+        eprint("proof: the walk's fixture is not a valid save: {e}")
+        return 1
+    }
+    var s = copy s1
+    var r = snapshot_replay(s1)
+    print("walk area {s.area} tick {s.tick}")
+    for next in [6, 1, 7, 2, 8, 3, 9, 4, 5, 11] {
+        if !fight.walk_on(mut s, mut r, next) {
+            eprint("proof: the walk failed on the way to area {next}, in area {s.area}")
+            return 1
+        }
+        print("walk area {s.area} tick {s.tick}")
+    }
+    let (gx, gy) = sim.gate_centre(s)
+    if !walker.walk(mut s, mut r, gx, gy - 4 * sim.FP) {
+        eprint("proof: the walk did not reach the stone mouth")
+        return 1
+    }
+    print("walk at the stone mouth tick {s.tick} gates {s.gates}")
+    snapshot_range(dir, "walk", r, s.tick, 300, 1) else |_| { return 2 }
     0
 }
 

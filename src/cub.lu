@@ -145,6 +145,7 @@ fn usage_text() -> str {
         "  --crossing-census / --hitbox-audit  Cinderwick crossed by a scripted cub; a bite from eight aims (cb05)\n" +
         "  --world-audit                     graph/density census over seeds 0..49\n" +
         "  --area-map SEED AREA FIELD        an area's map as text (cb14)\n" +
+        "  --make-walk DIR                   the walk from the Shingle to the stone mouth (cb14)\n" +
         "  --den-census                      shortest den paths and both faces of every thorn gate\n" +
         "  --make-den-proof DIR              regional rest, healing and checkpoint scripts\n" +
         "  --measure [SCRIPT...]             pace, wag, chase, path styles, body census (last flag)\n" +
@@ -1428,6 +1429,7 @@ fn main() -> int {
             args[3].to_int() else 80,
         )
     }
+    if args.len == 2 && args[0] == "--make-walk" { return proof.walk(args[1]) }
     if args.len == 6 && args[0] == "--route-view" {
         return pathaudit.view(
             args[1].to_int() else 0,
