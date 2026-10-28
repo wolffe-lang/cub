@@ -12,9 +12,10 @@ docs and goldens only: no engine, pin or CI change.
 
 Ledger: cb14 — five areas (the Stand, the Burn, the Mere, the Underteeth, the Howe; Gravehollow split off the Hush),
 alcoves with a `kind` slot from the Teeth on, arenas +50 %, CUB 6 with a slain mask an area and the gates word,
-`journey 5`; module; plant #75; final source FINAL_SOURCE; the walk on the Mac green (9076 ticks, the stone
-mouth opened); Mac build, checked tests and the full golden check green at the first attempt; Linux gate
-LINUX_STATE.
+`journey 5`; module; plant #75; final source `5db48d71` (on cub trunk `f20650d4`, cb10's, cb12's and cb11's merges
+under it); the walk on the Mac green (9369 ticks, the stone mouth opened); Mac build, checked tests (509) and the
+full golden check green at the first attempt; Linux gate green at `5db48d71` (check-linux, the memory gate, the
+native goldens, gameplay on both backends, perf at slack 1 inside the container).
 
 ## Prediction
 
@@ -36,12 +37,14 @@ what held:
    meadow on (the hawk's body is cb10's, merged under this lane), the Teeth's second and the Hush's landmark (the
    landmarks moved), and `stand`; the rest scenes, the thicket's and the meadow's landmarks, the yards, the town's
    lane and `crags`/`river` changed only in the snapshot header and were kept as committed (their goldens
-   byte-equal).
+   byte-equal). Over cb11's bite chain (the rebase onto `f20650d4`) the fights moved again: 33 cases regenerated
+   and the goldens rewritten at `aa5698f8` (the Evidence index's "Goldens").
 3. **Censuses** held: `--world-audit` 1300 rows, reached = required everywhere, `path_off` 0, nearest foe ≥ 30 (a
    den-less area reports 1000); den spacing least within an area 122, least onward 135 (the bar 110); bends 0
    reversals; spurs every end named; the foe census green (the old areas' counts unchanged, the new areas 4..6 —
    their alcove guards alone); the boss census every world won, `unwon:0` for all four, `arena_breaches 0`, the
-   boar's first-attempt share 98 (two worlds at two attempts), the lynx, the elk and the alpha 100. gen-bench:
+   boar's first-attempt share 98 (two worlds at two attempts), the lynx, the elk and the alpha 100 (over cb11's
+   bite chain all four at 100, the Linux gate's census). gen-bench:
    green on the release build (every area under 50 ms at field 200 on kasumi). What did not hold at first (§6 of the prediction, "the fighter's walk to the alpha"): the
    stone mouth stood at the area's centre column and in seed 6 the route passed it to one side — the fighter
    walked into the brush; a gate now stands on the route's centre at its rows (`forest.gate_x`), and the census
@@ -49,7 +52,8 @@ what held:
 4. **Render cost**: not measured on the Mac — the loaded-server condition (the-rules.md, the Mac leg) refused the
    first build at 7 GB free; the checked machine's cost was measured instead (below). The memory gate green on
    kasumi's release build: 316 bytes a tick over 519 ticks against the 4096 budget, the crash checkpoint and the
-   fresh seed both (`tools/check-memory`).
+   fresh seed both (`tools/check-memory`); at the final source, in the Linux gate, 425 and 310 bytes a tick over
+   520 and 515 ticks.
 5. **Arenas** held: 11/12 → 14, 14 → 18, 12 → 20, the shapes kept (`map_test`); the hit census and the hitbox
    audit green (their fights are not at a boss).
 6. The den-spacing bar held without a move (the kiln at row 112 is 135 from the last warm hollow along the way);
@@ -75,7 +79,7 @@ untouched); the save gained its field under schema 6 (cb13 and cb15 bump the sch
 lane implemented (`docs/DESIGN.md`). Never labelled a PR, merged, tagged, created or closed an issue, edited
 `~/.claude` or the planning repo, installed a package. No attribution or co-author trailers.
 
-The Mac held the worktree for git and the walk behind the shared `mkdir` lock (`/Users/mfwolffe/lanes/mac-build.lock`,
+The Mac held the worktree for git, the walk and the flank searches behind the shared `mkdir` lock (`/Users/mfwolffe/lanes/mac-build.lock`,
 the holder's pid checked, the 8 GiB `vm_stat` floor inside it: `/Users/mfwolffe/lanes/cb14/heavy.sh`); the
 maintainer's MLX server never touched. kasumi ran every census, the checked tests, the case generation, the
 goldens and the Linux gate on cores 12–15 under `/home/mfwolffe/lanes/kasumi-cores-12-15.lock` (a printing wait,
@@ -85,17 +89,17 @@ signalled; nothing of another lane moved or renamed.
 
 ## Inputs verified
 
-Base cub trunk `eb34a399` (cb09 + its note), rebased once onto `1497b5d3` (cb10's merge) at the orchestrator's
-word; the worktree `~/lanes/cb14/cub` on branch `cb14`. Engine `74b89744` as `lair.pin` names it (staged by
-`tools/fetch-lair` from the org's lair clone; `LAIR-REV` read), wolf 0.2.35 and lupin 0.1.56 with std `2386522e`
+Base cub trunk `eb34a399` (cb09 + its note), rebased once onto each merge the orchestrator announced: `1497b5d3`
+(cb10), `f6af855c` (cb12), `f20650d4` (cb11); the worktree `~/lanes/cb14/cub` on branch `cb14`. Engine
+`74b89744` as `lair.pin` names it (staged by `tools/fetch-lair` from the org's lair clone; `LAIR-REV` read), wolf 0.2.35 and lupin 0.1.56 with std `2386522e`
 staged by `.lair/tools/fetch-toolchain` (the digests verified by the fetcher on both hosts; kasumi's stage copied
 from cb09's, `STAMP` read). The contract, `the-rules.md`, the maintainer's notes (items 4, 10, 12),
 `the-proposals.md` §3 (and §4–§6 for the hooks), the bible §2, §16, §19 (and §1, §8, §9), `DESIGN.md`, `ART.md`,
 `GLYPHS.md`, `PALETTE.md`, `KEYS.md`, `REPLAY.md`, `SCORE.md`, the notes cb04, cb04a, cb04c, cb05, cb09 and
 `sprints/RULES.md` §1–§10 read before the first change; README read and refreshed in its own commit.
 
-Corrections for the planning repo: (1) the contract's "gm01's font rules (`tools/mkfont`, `font/extent.txt`, the
-560-glyph console)" name PAX's files on its unmerged `gm01` branch (pax#209), not cub's: cub's glyph list is
+Corrections for the planning repo and the hand-over: (1) the contract's "gm01's font rules (`tools/mkfont`,
+`font/extent.txt`, the 560-glyph console)" name PAX's files on its unmerged `gm01` branch (pax#209), not cub's: cub's glyph list is
 `docs/GLYPHS.md`, held to the code by `src/glyphs_test.lu`, and gm01's `font/extent.txt` draws every braille
 pattern and block element, so the four glyphs this lane added (`⠛`, `⡇`, `⢸`, `⣤`) are inside the console's extent
 and nothing is owed to PAX; (2) the proposals' "between the Hush and Gravehollow" assumed two areas where cb04
@@ -103,7 +107,13 @@ built one — R-cb14-3 splits them (the lane's recommendation, not a decision); 
 raft's landing: the Teeth has one den (the ledge cleft, row 18); the raft lands at the Teeth's far end (row 200
 east), the shortcut's point being the way back from the Mere's far shore; (4) the lore ids: cb15 holds 0..12 and
 this lane's lines start at 13, registered through cb15's nearby-landmark discovery path once cb15 has merged
-(the orchestrator's word of 2026-10-28; `lore.lu` carries the lines at stable ids until then).
+(the orchestrator's word of 2026-10-28; `lore.lu` carries the lines at stable ids until then); (5) the hand-over's
+`rsync -a kasumi:…/tests/goldens/ …` (bringing job18's regeneration back to the Mac) would have left the 228
+golden frames job18 removed in place on the Mac: the sync ran with `--delete` (its dry run listed exactly those
+228), and the Mac's `git status` set and a hash over every file in `tests/cases` and `tests/goldens` then matched
+kasumi's (`286ad08b…` on both); (6) the rebase onto cb11's merge resolved `tests/cases/whisper-flank.pk` to
+trunk's (cb11's own prefix-820 recipe) in `355e9b18` while keeping this lane's 808..815 goldens, so the witness
+was stale from there until `d2f2a6c7` found it again (the Evidence index's "Goldens").
 
 Rulings recommended and implemented, none decided (`docs/DESIGN.md`, "The map overhaul"):
 
@@ -129,14 +139,16 @@ mouth's rows 218..220 in the Howe; the glow-worm clusters `lands.glow_row/glow_x
 ## Evidence index
 
 Every census ran on kasumi's native build at `ec67e933` (the last code commit; the cases, the goldens, the note
-and this directory follow it) and sits under `notes/cb14-evidence/`; `tools/journey-length.py` is the before/after
+and this directory follow it) and sits under `notes/cb14-evidence/`; after cb11's merge the world audit, den
+spacing, the foe census, the bends and the spurs ran again at `aa5698f8` (job18), byte-equal to the files here,
+and the boss census again in the Linux gate at `5db48d71`; `tools/journey-length.py` is the before/after
 instrument (`cub --paths-audit | python3 -I tools/journey-length.py`), the before table from trunk `eb34a399` built
 with the same toolchain on kasumi.
 
-- **Checked tests** (`.lair/tools/test`, kasumi, and the Mac at 6d28238f: 482 passed): `wolf test: 482 passed; 0 failed; 0
-  rejected; 0 unsupported` (`checked-tests.txt`; 446 before cb10's and cb12's merges, which the branch was rebased
-  onto once each at the orchestrator's word). The new rows: `src/map_test.lu` (the
-  graph, the dens, the arenas' growth, the gates, the alcoves' guards and slots, the mouths, the stones' sinking,
+- **Checked tests** (`.lair/tools/test`, kasumi and the Mac at `5db48d71`): `wolf test: 509 passed; 0 failed; 0
+  rejected; 0 unsupported; 0 filtered out` on both (`checked-tests.txt`; 446 before cb10's and cb12's merges and
+  482 before cb11's, which the branch was rebased onto once each at the orchestrator's word). The new rows:
+  `src/map_test.lu` (the graph, the dens, the arenas' growth, the gates, the alcoves' guards and slots, the mouths, the stones' sinking,
   the ash, the mist, the spring, the reveal, the mouth bands), the schema-6 and thirteen-area rows in
   `src/areas_test.lu`, `src/refuge_test.lu`, `src/doorrest_test.lu`, `src/denmemory_test.lu`,
   `src/progression_test.lu`, `src/score_test.lu` and `src/forest_test.lu`, the vocabulary rows in
@@ -156,8 +168,11 @@ with the same toolchain on kasumi.
 - **Den spacing** (`census/den-spacing.txt`): green, least within an area 122, least onward 135; **the bends**
   (`census/bends-audit.txt`) green; **the spurs** (`census/spurs-audit.txt`) green, every spur ending at a cache,
   a landmark or a den; **the foe census** (`census/foe-census.txt`) green.
-- **The boss census** (`census/boss-census.txt`): four `fairness` lines, `unwon:0`, `arena_breaches 0`; the alpha's
-  fight walked from the cold den through the Howe and the stone mouth every attempt (`fight.walk_on`).
+- **The boss census** (`census/boss-census.txt`, the Linux gate's release run at `5db48d71`): four `fairness`
+  lines, `unwon:0`, `arena_breaches 0`, every boss won at the first attempt in all 100 worlds (before cb11's
+  merge the boar's share was 98); the alpha's fight walked from the cold den through the Howe and the stone mouth
+  every attempt (`fight.walk_on`); the walker's stderr diagnostics (a goal blocked mid-fight, replanned) 1 → 7
+  lines, no fight lost.
 - **The journey's length** (`journey-length-before.txt`, `-after.txt`): rows 1648 → 2608, spine cells 2732 → 4248,
   dens 9 → 12, bosses 4 → 4, the Underteeth 300 cells off the line.
 - **The other censuses** (`census/`): doorways `total 3584000 misses 0` (1792000 before), foes `frames 562600
@@ -183,29 +198,57 @@ with the same toolchain on kasumi.
   from the meadow on, the art study), 42 new (the six first screens, ten landmarks, twenty rest scenes, each on
   both tiers), 6 gone (`old-den`, `rest-old-den-*`); every other directory byte-equal (the opening, the title, the
   score, the aims, the postures, the HUD, the dens, the yards, the town, the Shingle, the thicket's and the
-  meadow's). The Mac's full golden check at 6d28238f: every case `ok` (first attempt). cb08's live flank
-  witness `whisper-flank` was found again over the grown bowl (its keys are the new lynx fight's through tick
-  807, every modifier and arrow released, down+left and Space at 808: the 1985th of a search over prefixes and
-  aims against `tests/pty_rows.py`'s own check, run on the Mac); its pty row `cb08-whisper-flank` ok on both
-  hosts, its goldens written on the Mac (frames 808..815, both tiers). `tools/gameplay.py`'s two-cell widening
+  meadow's). The Mac's full golden check at 6d28238f: every case `ok` (first attempt). After cb11's merge, job18
+  on kasumi (`aa5698f8`) regenerated every witness and wrote the goldens afresh again: 33 cases changed beyond
+  their header (the twelve boss cases, the four coast caches, `end`, `gravehollow`, `howe`, the hawk's two, the
+  Howe's six landmarks, Gravehollow's, the Teeth's second, the four world witnesses from the meadow on;
+  `42a55f06`) and 88 golden directories (44 cases on both tiers: 31 of those 33, the boar's and the elk's windups
+  byte-equal; `whisper-flank`; cb11's twelve `cb11-hand-*` cases, which replay on this lane's world;
+  `aecbaff8`), 228 frames gone with the moved ticks; brought back to the Mac byte-equal (correction 5). cb08's
+  live flank witness `whisper-flank` had to be found again over cb11's bite chain: a fresh bite is combo 1 (its
+  cone 11 left of the aim) and starts the tick after the press, so from where the fighter stands a bite either
+  turns into the lynx's centre or lunges off its body, and neither the lane's earlier search (prefixes and aims
+  over the lynx fight's keys: 3040 trials) nor cb08's own recipe at its stagger windows found one. cb08's recipe
+  widened (`flank/flank-search-moves.py`: the `boss-lynx-beaten` keys through each tick Whisper stands idle
+  within three cells of the lynx, every modifier and arrow released, one of eight directions held 4–16 ticks,
+  then an aim and Space, judged by `tests/pty_rows.py`'s own check) found it at the 7306th candidate: start 696,
+  up+right for 8 ticks, left and Space at 704, the bite started at 705 landing at 708 (the lynx 140 → 128), both
+  former centre-cone endpoints missing by at least 10100 (`d2f2a6c7`; every search's log in
+  `flank/flank-searches.txt`). Its pty row `pty: cb08-whisper-flank ok (darwin arm64, exit 0, 2185201 bytes
+  captured)` on the Mac and `ok (linux x86_64, …)` in the Linux gate, its goldens written on the Mac (frames
+  704..710, both tiers). The Mac's full golden check at `5db48d71`: 481 `ok`, 0 `DIFFERS`, at the first attempt.
+  `tools/gameplay.py`'s two-cell widening
   bar now reads the route's rows alone (path 0): from the Teeth on every area carries three branches of half
   width 3 by design, and the Hush's 160 rows gave them the median.
 - **The memory gate** (`tools/check-memory`, kasumi's release build): green, 316 bytes a tick over 519 ticks, the
-  crash checkpoint and the fresh seed, budget 4096.
-- **The plant**: PR #75 (`cb14-plant-disconnected`, `1bbd4979` on `cd757027`): a wall of stones across the
-  Howe's sixtieth row; `--world-audit` red by name at its first row `0 80 11 3 11 …` (reached 3 of 11),
-  `test_cb14_the_howe_s_spine_portals_and_mouths_are_open ... FAILED (trap(assert))` and the Howe's texture row
-  (`plant/plant-run.txt`). Never merged.
-- **The walk** (item 5): `walk/walk.pk` (9076 ticks, written on the Mac by `cub --make-walk`: the alpha fixture's
-  growth at the Shingle's start, every shortcut open, the gates shut) and `walk/walk.txt` with each area's entry
-  tick — Cinderwick 546, Bramblehold 1641, the Stand 2802, Larkmeadow 3474, the Burn 4368, the Teeth 5082, the
-  Mere 6080, the Shallows 6949, the Hush 7791, the Howe 8380, the stone mouth opened at 9076 — and the frame at
-  each entry on both tiers (`walk/entry-<area>-{rich,plain}.txt`).
-- **The Linux gate**: LINUX_LINE.
+  crash checkpoint and the fresh seed, budget 4096; at `5db48d71` in the Linux gate `memory gate: green, crash
+  checkpoint and fresh seed; budget 4096 bytes/tick`, 425 and 310 bytes a tick over 520 and 515 ticks.
+- **The plant**: PR #75 (`cb14-plant-disconnected`, `4c14bc6d` on `2b27378e`, rebased once from `1bbd4979` on
+  `cd757027`; not an ancestor of the branch): a wall of stones across the Howe's sixtieth row; `--world-audit`
+  red by name at its first row `0 80 11 3 11 5 1000 3 1 1 100 67 0` (reached 3 of 11),
+  `test_cb14_the_howe_s_spine_portals_and_mouths_are_open ... FAILED (trap(assert))` and the Howe's texture row,
+  `wolf test: 507 passed; 2 failed` (`plant/plant-run.txt`, kasumi at `4c14bc6d`). Never merged.
+- **The walk** (item 5): `walk/walk.pk` (9369 ticks, written on the Mac by `cub --make-walk` at `5db48d71`: the
+  alpha fixture's growth at the Shingle's start, every shortcut open, the gates shut) and `walk/walk.txt` with
+  each area's entry tick — Cinderwick 548, Bramblehold 1645, the Stand 2808, Larkmeadow 3480, the Burn 4378, the
+  Teeth 5092, the Mere 6122, the Shallows 6991, the Hush 7888, the Howe 8673, the stone mouth opened at 9369 (9076
+  before cb11's merge) — and the frame at each entry on both tiers (`walk/entry-<area>-{rich,plain}.txt`).
+- **The Linux gate** (kasumi cores 12–15, the engine's container, `5db48d71`, `gates/linux-gate.log`):
+  `check-linux 0 check-linux: green` (`check-fmt: canonical`, `wolf test: 509 passed; 0 failed; 0 rejected; 0
+  unsupported; 0 filtered out`, 481 goldens `ok` and 0 `DIFFERS`, 82 pty rows `ok` and 0 `FAILED`, among them
+  `pty: cb08-whisper-flank ok (linux x86_64, exit 0, 2185201 bytes captured)`); `check-memory 0 memory gate:
+  green, crash checkpoint and fresh seed; budget 4096 bytes/tick`; `goldens native 0 goldens: art ok` (481 `ok`,
+  0 `DIFFERS`); `gameplay native 0 gameplay: green (0 skips)`; `gameplay release 0 gameplay: green (0 skips)`;
+  `perf slack 1 0 perf-idle: latency median 13.6 ms p90 33.5 ms max 36.1 ms over 20 keys (bars median 40, p90 70
+  ms) ok`, run as `in-container env LAIR_PERF_SLACK=1 .lair/tools/perf` (`perf: host Linux x86_64, slack x1`);
+  `CB14_LINUX_GATE_DONE 2026-10-28T13:39:33Z`, `CB14_KASUMI_EXIT 0`.
 - **The Mac leg** (the-rules.md's loaded-server rule): the first build refused at 7 GB free; at 6d28238f the
   floor cleared (15.8 GB), the native build, the checked tests (482), the walk and the full golden check all green
-  under `/Users/mfwolffe/lanes/cb14/heavy.sh` at the first attempt (`logs/mac-gate-job.log`); the build and the
-  checked tests again at b48ee261 (`wolf fmt`), and the flank row at the final witness.
+  under `/Users/mfwolffe/lanes/cb14/heavy.sh` at the first attempt; the build and the checked tests again at
+  b48ee261 (`wolf fmt`). At `5db48d71` (`gates/mac-gate.log`): the floor waited 90 s and cleared at 10.8 GB, then
+  `build 0`, `walk 0` (the stone mouth at 9369), every entry frame `0`, `test 0` with `wolf test: 509 passed; 0
+  failed; 0 rejected; 0 unsupported; 0 filtered out`, `goldens 0` (481 `ok`, 0 `DIFFERS`) at the first of the
+  three attempts, `CB14_MAC_GATE_EXIT 0`.
 
 ## Done-when
 
@@ -217,8 +260,10 @@ with the same toolchain on kasumi.
 - [x] Arenas +50 % (14 / 14 / 18 / 20), the censuses re-run.
 - [x] `--world-audit` seeds 0..49 green over 1300 rows; every census extended and compared; the journey-length
       table before/after; replay determinism (the cases replay; the goldens written once).
-- [x] The memory gate green (316 bytes a tick against 4096).
+- [x] The memory gate green (316 bytes a tick against 4096; 425 and 310 at the final source).
 - [x] Goldens of each new area's first screen on both tiers.
 - [x] The walk from the Shingle to the Howe's stone mouth on the Mac, its entry frames in the evidence.
 - [x] The note (five sections, the ledger line, the hooks), the plant red by name, the evidence directory.
-- [ ] The full gauntlet: Linux LINUX_SHORT; Mac green (build, checked, walk, goldens at 6d28238f).
+- [x] The full gauntlet: Linux green at `5db48d71` (check-linux, check-memory, native goldens, gameplay on both
+      backends, perf at slack 1 inside the container); Mac green at `5db48d71` (build, checked 509, walk, the full
+      golden check at the first attempt).
