@@ -43,15 +43,25 @@ fn hand(ms: int, aim: int) {
 }
 
 fn test_cb11_hand_north_150ms_has_three_holds() { hand(150, 0) }
+
 fn test_cb11_hand_north_200ms_has_three_holds() { hand(200, 0) }
+
 fn test_cb11_hand_north_250ms_has_three_holds() { hand(250, 0) }
+
 fn test_cb11_hand_north_330ms_has_three_holds() { hand(330, 0) }
+
 fn test_cb11_hand_northeast() { hand(150, 32) }
+
 fn test_cb11_hand_east() { hand(150, 64) }
+
 fn test_cb11_hand_southeast() { hand(150, 96) }
+
 fn test_cb11_hand_south() { hand(150, 128) }
+
 fn test_cb11_hand_southwest() { hand(150, 160) }
+
 fn test_cb11_hand_west() { hand(150, 192) }
+
 fn test_cb11_hand_northwest() { hand(150, 224) }
 
 fn early(age: int) {
@@ -62,10 +72,15 @@ fn early(age: int) {
     wait(mut s, 11 - age)
     assert(s.action == sim.BITE && s.combo == 2, "age {age} queues strike two")
 }
+
 fn test_cb11_request_at_age_one() { early(1) }
+
 fn test_cb11_request_at_age_two() { early(2) }
+
 fn test_cb11_request_at_age_three() { early(3) }
+
 fn test_cb11_request_at_age_four() { early(4) }
+
 fn test_cb11_request_at_end_boundary() { early(11) }
 
 fn grace(gap: int) {
@@ -75,8 +90,11 @@ fn grace(gap: int) {
     sim.step(mut s, [controls.KEY_BITE])
     assert(s.combo == (if gap <= 6 then 2 else 1), "grace boundary {gap}")
 }
+
 fn test_cb11_grace_first_tick() { grace(1) }
+
 fn test_cb11_grace_last_tick() { grace(6) }
+
 fn test_cb11_grace_expired() { grace(7) }
 
 fn test_cb11_two_pending_requests_preserve_order_and_drop_overflow() {
@@ -140,14 +158,20 @@ fn legacy(interval: int, expected: int) {
     }
     assert(starts == expected, "legacy interval {interval}: expected {expected}, got {starts}")
 }
+
 fn test_cb11_legacy_30ms_repeat_does_not_chain() { legacy(1, 1) }
+
 fn test_cb11_legacy_60ms_repeat_does_not_chain() { legacy(2, 1) }
+
 fn test_cb11_legacy_100ms_fresh_presses_chain() { legacy(3, 3) }
 
 fn test_cb11_enhanced_repeat_is_not_a_bite_or_heavy_request() {
     for mods in [0, input.MOD_SHIFT] {
         var keys = List[int]()
-        controls.events([input.Event { key: input.char_key(32), mods: mods, kind: input.REPEAT }], mut keys)
+        controls.events(
+            [input.Event { key: input.char_key(32), mods: mods, kind: input.REPEAT }],
+            mut keys,
+        )
         for k in keys {
             assert(k != controls.KEY_BITE && k != controls.KEY_HEAVY, "repeat is not a press")
         }
