@@ -83,7 +83,7 @@ def check(binary):
     # File-level schema4 migration uses an independently recomputed old checksum.
     legacy = out / 'schema-4.save'
     payload = before.decode().split('check ')[0]
-    payload = re.sub(r'^(?:slain|name|played_ms) .*\n', '', payload, flags=re.M).replace('CUB 6\n', 'CUB 4\n', 1)
+    payload = re.sub(r'^(?:slain|name|played_ms|items) .*\n', '', payload, flags=re.M).replace('CUB 6\n', 'CUB 4\n', 1)
     h = 7
     for byte in payload.encode():
         h = (h * 31 + byte) % 1000000007
