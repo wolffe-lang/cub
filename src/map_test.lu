@@ -1,0 +1,493 @@
+//! member: false
+//!
+//! cb14, the map overhaul: thirteen areas on one line with the Underteeth
+//! hanging off it, the gates each area's way on is held by, the ground
+//! rules of the new areas (the ash drifts, the stepping stones, the
+//! spring, the flare, the lookout's reveal), the alcoves' bits and slots,
+//! the arenas grown by half, the save's sixth schema. Each test samples a
+//! few seeds at field 80 (the checked machine's budget); the fifty-seed,
+//! both-field censuses are the shipping binary's (`cub --world-audit`,
+//! `--den-spacing`, `--foe-census`, `--bends-audit`, `--spurs-audit`).
+
+use controls
+use forest
+use journey
+use lands
+use lore
+use sim
+use terrain
+
+fn abs(v: int) -> int {
+    if v < 0 then 0 - v else v
+}
+
+/// A cub standing still at local cell `(x, at)` of an area, the area's
+/// foes gone, the journey's gate open.
+fn standing(seed: int, area: int, x: int, at: int) -> sim.Sim {
+    var s = sim.new(seed, 80, 24)
+    s.gate_open = true
+    sim.enter_area(
+        mut s,
+        area,
+        x * sim.FP + sim.FP / 2,
+        (forest.origin(seed, area) + at) * sim.FP + sim.FP / 2,
+    )
+    (mut s.foes).reset()
+    s
+}
+
+fn local_row(s: sim.Sim) -> int {
+    sim.cell_y(s) - forest.origin(s.seed, s.area)
+}
+
+fn test_cb14_thirteen_areas_on_one_line_and_twenty_edges_agreeing() {
+    assert(forest.AREAS == 13 && forest.EDGES == 20, "the counts")
+    // The way on from the Shingle visits every area but the Underteeth in
+    // the proposals' order, one path edge between each pair.
+    let line = [0, 6, 1, 7, 2, 8, 3, 9, 4, 5, 11, 12]
+    var area = forest.SHINGLE
+    var k = 0
+    while k < 12 {
+        assert(area == line[k], "station {k} is area {area}")
+        var next = -1
+        var edge = 0
+        while edge < forest.EDGES {
+            if forest.path_edge(edge) && forest.other(area, edge) >= 0 && forest.exit_end(area, edge) {
+                assert(next < 0, "one way on from area {area}")
+                next = forest.other(area, edge)
+            }
+            edge += 1
+        }
+        if k == 11 {
+            assert(next < 0, "Gravehollow is the end")
+        } else {
+            area = next
+        }
+        k += 1
+    }
+    // Every edge joins two areas that agree on it; every shortcut has its
+    // own bit, the bits distinct and inside `SHORTCUTS_ALL`.
+    var bits = 0
+    var e = 0
+    while e < forest.EDGES {
+        var ends = 0
+        var a = 0
+        while a < forest.AREAS {
+            let b = forest.other(a, e)
+            if b >= 0 {
+                ends += 1
+                assert(forest.other(b, e) == a, "edge {e} agrees both ways")
+            }
+            a += 1
+        }
+        assert(ends == 2, "edge {e} has two ends")
+        let bit = forest.shortcut_bit(e)
+        if forest.path_edge(e) {
+            assert(bit == 0, "a path edge has no bit: {e}")
+        } else {
+            assert(bit > 0 && bits / bit % 2 == 0, "edge {e}'s bit {bit} is its own")
+            bits += bit
+        }
+        e += 1
+    }
+    assert(bits == forest.SHORTCUTS_ALL, "every shortcut bit: {bits}")
+    // The Underteeth hangs off the Teeth and opens into the Hush.
+    assert(
+        forest.other(forest.CRAGS, forest.EDGE_SETT) == forest.UNDERTEETH &&
+            forest.other(forest.UNDERTEETH, forest.EDGE_ROOTS) == forest.HUSH,
+        "the branch under the Teeth",
+    )
+}
+
+fn test_cb14_the_journey_grew_by_half_and_the_dens_fill_the_second_bank() {
+    // Cells of spine along the way on: cb05's seven areas 1648; after, the
+    // Hush cut to 160, Gravehollow 128 and four areas of 224 added.
+    let line = [0, 6, 1, 7, 2, 8, 3, 9, 4, 5, 11, 12]
+    var before = 160 + 240 + 288 + 288 + 224 + 224 + 224
+    var after = 0
+    for area in line { after += forest.length(area) }
+    assert(before == 1648 && after == 2608, "the line's length {after}")
+    assert(after * 2 >= before * 3, "half again as long")
+    assert(forest.length(forest.UNDERTEETH) == 192, "the branch's length")
+    // The four new dens take the save's reserved ids 12..15.
+    assert(
+        forest.den_exists(12) && forest.den_exists(13) && forest.den_exists(14) && forest.den_exists(15),
+        "the second bank filled",
+    )
+    assert(
+        forest.den_area(12) == forest.STAND &&
+            forest.den_area(13) == forest.BURN &&
+            forest.den_area(14) == forest.MERE &&
+            forest.den_area(15) == forest.UNDERTEETH,
+        "each in its area",
+    )
+    assert(
+        forest.den_count(forest.HOWE) == 0 && forest.den_count(forest.GRAVEHOLLOW) == 0,
+        "no den on the last walk (R-cb14-1 A)",
+    )
+    var seed = 0
+    while seed < 3 {
+        var den = 12
+        while den < 16 {
+            let (x, y) = forest.den_position(seed, den)
+            let area = forest.den_area(den)
+            assert(
+                !forest.blocked(seed, 80, area, (x - sim.FP / 2) / sim.FP, (y - sim.FP / 2) / sim.FP),
+                "den {den} on open ground seed {seed}",
+            )
+            den += 1
+        }
+        seed += 1
+    }
+}
+
+fn test_cb14_every_new_area_s_spine_portals_and_mouths_are_open() {
+    var seed = 0
+    while seed < 3 {
+        for area in [7, 8, 9, 10, 11, 12, 5] {
+            let o = forest.origin(seed, area)
+            var y = 0
+            while y <= forest.length(area) {
+                assert(
+                    !forest.blocked(seed, 80, area, forest.spine(seed, area, y), o + y),
+                    "clear spine seed {seed} area {area} row {y}",
+                )
+                y += 1
+            }
+            let seen = forest.flood(seed, 80, area)
+            var edge = 0
+            while edge < forest.EDGES {
+                if forest.other(area, edge) >= 0 {
+                    let (px, py) = forest.portal(seed, area, edge)
+                    assert(
+                        forest.reached(seen, 80, area, px / sim.FP, py / sim.FP - o),
+                        "portal {edge} reached seed {seed} area {area}",
+                    )
+                }
+                edge += 1
+            }
+            assert(forest.reachable(seed, 80, area), "every destination reached seed {seed} area {area}")
+            assert(forest.straight_run(seed, area) <= forest.STRAIGHT_MAX, "straight run area {area}")
+        }
+        // The sett's mouth in the Teeth and the roots' in the Hush.
+        let seen = forest.flood(seed, 80, forest.CRAGS)
+        let (sx, sy) = forest.portal(seed, forest.CRAGS, forest.EDGE_SETT)
+        assert(
+            forest.reached(seen, 80, forest.CRAGS, sx / sim.FP, sy / sim.FP - forest.origin(seed, forest.CRAGS)),
+            "the sett reached seed {seed}",
+        )
+        seed += 1
+    }
+}
+
+fn test_cb14_the_arenas_grew_by_half_and_kept_their_shapes() {
+    let (bx, by, br) = forest.arena(0, 80, forest.BRAMBLEHOLD)
+    assert(bx == forest.BOAR_X && by == forest.BOAR_ROW && br == 14, "the boar's clearing round")
+    let (_, _, lr) = forest.arena(0, 80, forest.CRAGS)
+    let (ex, ey, er) = forest.arena(0, 80, forest.RIVER)
+    let (_, _, ar) = forest.arena(0, 80, forest.GRAVEHOLLOW)
+    assert(lr == 14 && er == 18 && ar == 20, "the lynx's, the elk's, the alpha's")
+    assert(ex > forest.river_bank(0, 80, ey), "the ford still straddles the bank")
+    assert(forest.has_arena(forest.GRAVEHOLLOW) && !forest.has_arena(forest.HUSH), "the alpha's is Gravehollow")
+    assert(sim.boss_of(forest.GRAVEHOLLOW) == sim.ALPHA, "the alpha")
+    // The old den's bowl is open ground to its edge at both fields.
+    for field in [80, 200] {
+        let (cx, cy, r) = forest.arena(1, field, forest.GRAVEHOLLOW)
+        let o = forest.origin(1, forest.GRAVEHOLLOW)
+        var dy = 0 - r
+        while dy <= r {
+            var dx = 0 - r
+            while dx <= r {
+                if dx * dx + dy * dy <= r * r {
+                    assert(
+                        !forest.blocked(1, field, forest.GRAVEHOLLOW, cx + dx, o + cy + dy),
+                        "open bowl at {dx},{dy} field {field}",
+                    )
+                }
+                dx += 2
+            }
+            dy += 2
+        }
+    }
+}
+
+fn test_cb14_every_alcove_has_its_own_bit_and_a_named_slot() {
+    var seen = List[int]()
+    var area = 0
+    while area < forest.AREAS {
+        assert(
+            forest.cache_count(area) >= 2 || area == forest.SHINGLE,
+            "two alcoves at least in area {area}",
+        )
+        var cache = 0
+        while cache < forest.cache_count(area) {
+            let bit = forest.cache_bit(area, cache)
+            assert(bit >= 0 && bit < forest.CACHE_BITS, "bit {bit} in range")
+            for b in seen { assert(b != bit, "bit {bit} taken twice") }
+            (mut seen).push(bit)
+            let (kind, line) = sim.cache_reward(area, cache)
+            assert(kind >= 0 && kind < lore.KINDS, "a kind")
+            if kind == lore.LORE {
+                assert(line >= 0 && line < lore.COUNT && lore.line(line).len > 20, "a line")
+            } else {
+                assert(lore.pouch_line(kind, false).len > 10, "a pouch line")
+            }
+            cache += 1
+        }
+        area += 1
+    }
+    assert(seen.len == 42, "forty-two alcoves: {seen.len}")
+    var id = 0
+    while id < lore.COUNT {
+        assert(lore.line(id).len > 20, "line {id} written")
+        id += 1
+    }
+    // The new areas' foe tables are cb18's and empty; their guards stand.
+    for a in [7, 8, 9, 10, 11, 12] {
+        assert(sim.group_count(a) == 0, "no route groups in area {a}")
+        var guards = 0
+        for f in sim.area_foes(1, 80, a, 0) {
+            if !sim.is_boss(f.kind) {
+                assert(f.kind == sim.FOX && f.health == sim.ALCOVE_GUARD_HEALTH, "a guard")
+                guards += 1
+            }
+        }
+        assert(guards == (if a == 12 then 3 else 5), "the guards of area {a}: {guards}")
+    }
+}
+
+fn test_cb14_the_windthrown_pine_lets_only_a_sneaking_cub_under() {
+    let (lo, hi) = forest.gate_rows(forest.STAND)
+    var s = standing(1, forest.STAND, 0, lo - 4)
+    var down = List[int]()
+    (mut down).push(controls.KEY_DOWN)
+    var i = 0
+    while i < 60 { sim.step(mut s, down); i += 1 }
+    assert(local_row(s) < lo, "walking, the cub is held north of the pine: row {local_row(s)}")
+    var sneak = List[int]()
+    (mut sneak).push(controls.KEY_SNEAK_DOWN)
+    i = 0
+    while i < 160 { sim.step(mut s, sneak); i += 1 }
+    assert(local_row(s) > hi, "sneaking, the cub squeezes under: row {local_row(s)}")
+}
+
+fn test_cb14_the_burnt_oak_and_the_stone_mouth_open_to_a_lunge_and_save() {
+    for pair in [(forest.BURN, sim.GATE_OAK), (forest.HOWE, sim.GATE_MOUTH)] {
+        let (area, bit) = pair
+        let (lo, hi) = forest.gate_rows(area)
+        var s = standing(1, area, 0, lo - 4)
+        var down = List[int]()
+        (mut down).push(controls.KEY_DOWN)
+        var i = 0
+        while i < 40 { sim.step(mut s, down); i += 1 }
+        assert(local_row(s) < lo && s.gates / bit % 2 == 0, "shut: row {local_row(s)}")
+        // Face south and lunge at it.
+        var lunge = List[int]()
+        (mut lunge).push(controls.KEY_DOWN)
+        (mut lunge).push(controls.KEY_LUNGE)
+        sim.step(mut s, lunge)
+        var none = List[int]()
+        i = 0
+        while i < 30 { sim.step(mut s, none); i += 1 }
+        assert(s.gates / bit % 2 == 1, "the lunge opened gate {bit} of area {area}")
+        i = 0
+        while i < 60 { sim.step(mut s, down); i += 1 }
+        assert(local_row(s) > hi, "open, the cub walks through: row {local_row(s)}")
+        let text = journey.encode(s)
+        assert(text.contains("\ngates {s.gates}\n"), "the save carries the gates")
+        let back = journey.decode(text, 80, 24) else |e| { assert(false, "valid {e}"); return }
+        assert(back.gates == s.gates, "and gives them back")
+    }
+}
+
+fn test_cb14_the_sett_is_a_growth_gate_of_paw_two() {
+    let seed = 1
+    let (px, py) = forest.portal(seed, forest.CRAGS, forest.EDGE_SETT)
+    var s = standing(seed, forest.CRAGS, px / sim.FP + 5, py / sim.FP - forest.origin(seed, forest.CRAGS))
+    assert(s.paw == 1, "a fresh cub's paw")
+    assert(sim.blocked(s, px / sim.FP, py / sim.FP), "the squeeze holds a cub of paw one")
+    s.x = px
+    s.y = py
+    var rest = List[int]()
+    (mut rest).push(controls.KEY_REST)
+    sim.step(mut s, rest)
+    assert(s.area == forest.CRAGS && s.shortcuts / 128 % 2 == 0, "r at the sett does nothing yet")
+    s.paw = sim.UNDERTEETH_PAW
+    assert(!sim.blocked(s, px / sim.FP, py / sim.FP), "paw two fits")
+    sim.step(mut s, rest)
+    assert(
+        s.area == forest.UNDERTEETH && s.shortcuts / 128 % 2 == 1,
+        "r squeezes through and the way is open after: area {s.area}",
+    )
+    assert(sim.cross_edge(mut s, forest.EDGE_SETT) && s.area == forest.CRAGS, "and back")
+    // The roots at the far end open into the Hush from below.
+    let (rx, ry) = forest.portal(seed, forest.UNDERTEETH, forest.EDGE_ROOTS)
+    sim.enter_area(mut s, forest.UNDERTEETH, rx, ry)
+    (mut s.foes).reset()
+    sim.step(mut s, rest)
+    assert(s.area == forest.HUSH && s.shortcuts / 256 % 2 == 1, "the roots climbed: area {s.area}")
+    let text = journey.encode(s)
+    let back = journey.decode(text, 80, 24) else |e| { assert(false, "valid {e}"); return }
+    assert(back.shortcuts == s.shortcuts, "the bits saved")
+    // A journey through the sett without the paw for it is corrupt.
+    s.paw = 1
+    var bad = false
+    let _ = journey.decode(journey.encode(s), 80, 24) else |_| { bad = true; sim.new(1, 80, 24) }
+    assert(bad, "the sett's bit needs the paw")
+}
+
+/// A cell of the kind sought near the route of an area, local; -1 for none.
+fn find_kind(seed: int, area: int, want: int, from: int, to: int) -> (int, int) {
+    var at = from
+    while at <= to {
+        let c = forest.spine(seed, area, at)
+        var dx = -12
+        while dx <= 12 {
+            if forest.kind(seed, 80, area, c + dx, forest.origin(seed, area) + at) == want {
+                return (c + dx, at)
+            }
+            dx += 1
+        }
+        at += 1
+    }
+    (-1, -1)
+}
+
+fn test_cb14_an_ash_drift_halves_the_pace_and_hides_the_trail() {
+    let seed = 1
+    let (x, at) = find_kind(seed, forest.BURN, terrain.DRIFT, 10, 200)
+    assert(at >= 0, "a drift near the route")
+    var s = standing(seed, forest.BURN, x, at)
+    assert(sim.slowed(s, s.x, s.y), "the drift slows")
+    var keys = List[int]()
+    (mut keys).push(controls.KEY_LEFT)
+    var i = 0
+    while i < 6 {
+        sim.step(mut s, keys)
+        assert(s.speed <= sim.trot_at(1) / 2, "half pace in the ash: {s.speed}")
+        i += 1
+    }
+    // No trail while the cub's cell is a drift.
+    var t = standing(seed, forest.BURN, x, at)
+    i = 0
+    while i < 3 {
+        sim.step(mut t, keys)
+        if forest.kind(seed, 80, forest.BURN, sim.cell_x(t), sim.cell_y(t)) == terrain.DRIFT {
+            assert(t.trail.len == 0, "no trail laid in the ash")
+        }
+        i += 1
+    }
+    // An ember flares four ticks under the body.
+    let (ex, ey) = find_kind(seed, forest.BURN, terrain.EMBER, 10, 200)
+    assert(ey >= 0, "an ember near the route")
+    var u = standing(seed, forest.BURN, ex, ey)
+    var none = List[int]()
+    sim.step(mut u, none)
+    assert(sim.on_ember(u), "the body covers the ember")
+    assert(sim.flaring(u, u.flare_x, u.flare_y), "it flares")
+    i = 0
+    while i < sim.FLARE_TICKS + 2 { sim.step(mut u, none); i += 1 }
+    assert(sim.flaring(u, u.flare_x, u.flare_y), "and flares again while the cub stands on it")
+    sim.enter_area(mut u, forest.STAND, 0, (forest.origin(seed, forest.STAND) + 30) * sim.FP)
+    assert(!sim.flaring(u, u.flare_x, u.flare_y), "gone on leaving")
+}
+
+fn test_cb14_a_stepping_stone_sinks_a_beat_after_the_step_and_rises() {
+    let seed = 1
+    let area = forest.MERE
+    let l = forest.length(area)
+    var at = 0
+    while at <= l && !lands.stone_row(seed, l, at) { at += 1 }
+    assert(at < l, "a stone row")
+    let x = forest.spine(seed, area, at)
+    assert(forest.kind(seed, 80, area, x, forest.origin(seed, area) + at) == terrain.STONE, "a stone")
+    assert(!forest.on_path(seed, 80, area, x, forest.origin(seed, area) + at), "the stones are not path")
+    var s = standing(seed, area, x, at)
+    let seg = lands.stone_segment(at)
+    assert(sim.stone_age(s, seg) < 0, "untouched")
+    var none = List[int]()
+    sim.step(mut s, none)
+    assert(sim.stone_age(s, seg) == 0 && !sim.stone_sunk(s, seg), "the first step")
+    var i = 0
+    while i < sim.STONE_BEAT { sim.step(mut s, none); i += 1 }
+    assert(sim.stone_sunk(s, seg) && sim.slowed(s, s.x, s.y), "sunk after a beat")
+    let stamina = s.stamina
+    sim.step(mut s, none)
+    assert(s.stamina < stamina, "the cold drains")
+    while i < sim.STONE_RISE { sim.step(mut s, none); i += 1 }
+    assert(sim.stone_age(s, seg) < 0 || !sim.stone_sunk(s, seg), "risen again")
+    // Determinism: two cubs with the same keys agree tick for tick.
+    var a = standing(seed, area, x, at)
+    var b = standing(seed, area, x, at)
+    var keys = List[int]()
+    (mut keys).push(controls.KEY_DOWN)
+    i = 0
+    while i < 80 {
+        sim.step(mut a, keys)
+        sim.step(mut b, keys)
+        assert(a.x == b.x && a.y == b.y && a.stamina == b.stamina && a.stones.len == b.stones.len, "tick {i}")
+        i += 1
+    }
+    // The dry island holds its den on open ground among the water.
+    let (dx, dy) = forest.den_position(seed, 14)
+    assert(
+        forest.kind(seed, 80, area, (dx - sim.FP / 2) / sim.FP, (dy - sim.FP / 2) / sim.FP) == terrain.REEDS,
+        "the den on the island",
+    )
+}
+
+fn test_cb14_the_spring_refills_the_water_and_the_lookout_reveals() {
+    let seed = 1
+    let (sx, sy) = find_kind(seed, forest.UNDERTEETH, terrain.SPRING, 0, 100)
+    assert(sy >= 0, "the spring")
+    var s = standing(seed, forest.UNDERTEETH, sx, sy)
+    s.flask_max = 3
+    s.flasks = 0
+    var none = List[int]()
+    sim.step(mut s, none)
+    assert(s.flasks == 3, "refilled: {s.flasks}")
+    let (lx, ly) = forest.lookout(seed)
+    var u = standing(seed, forest.STAND, lx, ly)
+    sim.step(mut u, none)
+    assert(sim.revealing(u), "the reveal begins at the lookout")
+    var i = 0
+    while i < sim.REVEAL_TICKS { sim.step(mut u, none); i += 1 }
+    assert(!sim.revealing(u), "and ends after sixty ticks")
+    u.x = (lx - 9) * sim.FP + sim.FP / 2
+    sim.step(mut u, none)
+    assert(u.reveal_at < 0, "re-armed once the cub walks off")
+}
+
+fn test_cb14_schema_six_carries_thirteen_masks_and_five_migrates() {
+    var s = sim.new(3, 80, 24)
+    s.gate_open = true
+    s.gates = sim.GATE_OAK
+    s.shortcuts = 16 + 32
+    let text = journey.encode(s)
+    assert(text.starts_with("CUB 6\n") && text.contains("\ngates 1\n"), "schema six")
+    assert(journey.snapshot(s).len == journey.SNAPSHOT && journey.SNAPSHOT == 44, "the snapshot")
+    assert(journey.snapshot(s)[43] == 1, "the gates last")
+    let back = journey.decode(text, 80, 24) else |e| { assert(false, "valid {e}"); return }
+    assert(back.gates == 1 && back.shortcuts == 48, "round trip")
+    // A schema-five file: the same journey with seven masks and no gates.
+    var old = sim.new(3, 80, 24)
+    old.gate_open = true
+    let five = "CUB 5\nseed 3 difficulty 0\ngrowth 1 1 1 1 1\nwater 0 scent 0\nden 0 lit 1 shortcuts 0\ngate 1 story 0 deaths 0\nmark 0 0 0 0 0\ncache 0 pouch 0 0 opening 0\nfield 80\nbosses 0 end 0 played 0 lost 0\nlevel 1\nslain 0 0 0 0 0 0 0\n"
+    let migrated = journey.decode(five + "check {journey.checksum(five)}\n", 80, 24) else |e| {
+        assert(false, "schema five migrates: {e}")
+        return
+    }
+    let fresh = journey.encode(migrated)
+    assert(
+        fresh.starts_with("CUB 6\n") && fresh.contains("slain 0 0 0 0 0 0 0 0 0 0 0 0 0\ngates 0\n"),
+        "written as six with empty new masks",
+    )
+    // A journey-4 snapshot (37 values) is still read.
+    var v = journey.snapshot(s)
+    var short = List[int]()
+    var i = 0
+    while i < 37 { (mut short).push(if i < 30 then v[i] else 0); i += 1 }
+    let from = journey.from_snapshot(short, 80, 24) else |e| { assert(false, "journey 4 read: {e}"); return }
+    assert(from.seed == 3 && from.gates == 0, "the old snapshot")
+    assert(journey.JOURNEY == 5, "this build writes journey 5")
+}

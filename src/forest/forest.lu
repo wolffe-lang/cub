@@ -1258,6 +1258,9 @@ pub fn carved(seed: int, field: int, area: int, x: int, at: int) -> bool {
 fn carved_at(seed: int, field: int, area: int, x: int, at: int, c: int) -> bool {
     if area == BRAMBLEHOLD && in_clearing(seed, x, at) { return true }
     if thorn_collar(area, x, at) { return false }
+    // A gate's cells are the gate's, not path: they draw as the gate and
+    // the simulation holds them (cb14).
+    if gate_cell(seed, area, x, at) { return false }
     let hw = half(seed, area, at)
     // The Mere's stepping stones are the route over open water, but not
     // path: they sink, and draw as stone (the path audit holds the reeds).
@@ -1441,6 +1444,9 @@ pub fn gate_cell(seed: int, area: int, x: int, at: int) -> bool {
         return at >= lo && at <= hi && x >= -2 && x <= 2
     }
     if area == CRAGS {
+        // The row first (a hash): the mouth's run costs a curve.
+        let (m, _) = mouth(area, EDGE_SETT)
+        if abs(at - m) > 8 { return false }
         let (px, py) = portal(seed, area, EDGE_SETT)
         return abs(x - px / FP) <= 2 && abs(at - (py / FP - origin(seed, area))) <= 1
     }
@@ -1633,12 +1639,10 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
         }
         if x <= b + 3 { return path_kind(area) }
     }
-    if area < STAND && carved_at(seed, field, area, x, at, c) {
-        // The sett's squeeze (the Underteeth's mouth in the Teeth) is open
-        // ground on the route's branch, held shut by the simulation.
-        if area == CRAGS && gate_cell(seed, area, x, at) { return terrain.GATE }
-        return path_kind(area)
-    }
+    // The sett's squeeze (the Underteeth's mouth in the Teeth): open
+    // ground off the route's run, held shut by the simulation.
+    if area == CRAGS && gate_cell(seed, area, x, at) { return terrain.GATE }
+    if area < STAND && carved_at(seed, field, area, x, at, c) { return path_kind(area) }
     if area == SHINGLE && !near_route(seed, field, x, at) { return closed(seed, area, x, y) }
     if area >= STAND {
         // cb14's areas: carved cells are the area's path kind (the Mere's

@@ -112,7 +112,16 @@ pub fn generate(dir: str) -> int {
     snapshot(dir, "world-den", s, r) else |_| { return 2 }
     walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
     let (mx, my) = forest.portal(s.seed, 1, 1)
-    if !walker.walk(mut s, mut r, mx, my) || s.area != 2 { eprint("proof: meadow edge"); return 1 }
+    if !walker.walk(mut s, mut r, mx, my) || s.area != forest.STAND {
+        eprint("proof: the ridge's edge")
+        return 1
+    }
+    // The Stand (cb14): up the ridge, under the windthrown pine (a sneak),
+    // and into the meadow.
+    if !fight.walk_on(mut s, mut r, forest.LARKMEADOW) || s.area != 2 {
+        eprint("proof: meadow edge")
+        return 1
+    }
     snapshot(dir, "world-meadow", s, r) else |_| { return 2 }
     let hawk_x = s.foes[0].x
     let hawk_y = s.foes[0].y
