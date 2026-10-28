@@ -1,0 +1,155 @@
+//! member: false
+
+use controls
+use input
+use sim
+
+fn arena() -> sim.Sim {
+    var s = sim.new(7, 80, 24)
+    sim.combat_witness(mut s)
+    sim.step(mut s, [controls.KEY_EXACT])
+    s
+}
+
+fn wait(mut s: sim.Sim, ticks: int) {
+    var n = 0
+    while n < ticks { sim.step(mut s, List[int]()); n += 1 }
+}
+
+fn hand(ms: int, aim: int) {
+    var s = arena()
+    s.heading = aim
+    s.heading_target = aim
+    var holds = 0
+    var tick = 0
+    while tick < 44 {
+        let press = tick == 0 || tick == ms * 30 / 1000 || tick == 2 * ms * 30 / 1000
+        sim.step(mut s, if press then [controls.KEY_BITE] else List[int]())
+        if s.action == sim.BITE && s.tick - s.started == 3 {
+            holds += 1
+            assert(s.combo == holds, "strike {holds} must advance from its request")
+            let dx = s.x - s.action_x
+            let dy = s.y - s.action_y
+            let side = dx * sim.cos(aim) + dy * sim.sin(aim)
+            let forward = dx * sim.sin(aim) - dy * sim.cos(aim)
+            assert(forward > 0, "every held strike is forward")
+            if holds == 1 { assert(side < 0, "first left") }
+            if holds == 2 { assert(side > 0, "second right") }
+            if holds == 3 { assert(side == 0, "third straight") }
+        }
+        tick += 1
+    }
+    assert(holds == 3, "three hand presses at {ms}ms must yield three holds, got {holds}")
+}
+
+fn test_cb11_hand_north_150ms_has_three_holds() { hand(150, 0) }
+fn test_cb11_hand_north_200ms_has_three_holds() { hand(200, 0) }
+fn test_cb11_hand_north_250ms_has_three_holds() { hand(250, 0) }
+fn test_cb11_hand_north_330ms_has_three_holds() { hand(330, 0) }
+fn test_cb11_hand_northeast() { hand(150, 32) }
+fn test_cb11_hand_east() { hand(150, 64) }
+fn test_cb11_hand_southeast() { hand(150, 96) }
+fn test_cb11_hand_south() { hand(150, 128) }
+fn test_cb11_hand_southwest() { hand(150, 160) }
+fn test_cb11_hand_west() { hand(150, 192) }
+fn test_cb11_hand_northwest() { hand(150, 224) }
+
+fn early(age: int) {
+    var s = arena()
+    sim.step(mut s, [controls.KEY_BITE])
+    wait(mut s, age - 1)
+    sim.step(mut s, [controls.KEY_BITE])
+    wait(mut s, 11 - age)
+    assert(s.action == sim.BITE && s.combo == 2, "age {age} queues strike two")
+}
+fn test_cb11_request_at_age_one() { early(1) }
+fn test_cb11_request_at_age_two() { early(2) }
+fn test_cb11_request_at_age_three() { early(3) }
+fn test_cb11_request_at_age_four() { early(4) }
+fn test_cb11_request_at_end_boundary() { early(11) }
+
+fn grace(gap: int) {
+    var s = arena()
+    sim.step(mut s, [controls.KEY_BITE])
+    wait(mut s, 11 + gap - 1)
+    sim.step(mut s, [controls.KEY_BITE])
+    assert(s.combo == (if gap <= 6 then 2 else 1), "grace boundary {gap}")
+}
+fn test_cb11_grace_first_tick() { grace(1) }
+fn test_cb11_grace_last_tick() { grace(6) }
+fn test_cb11_grace_expired() { grace(7) }
+
+fn test_cb11_two_pending_requests_preserve_order_and_drop_overflow() {
+    var s = arena()
+    sim.step(mut s, [controls.KEY_BITE])
+    s.heading = 64
+    sim.step(mut s, [controls.KEY_BITE])
+    s.heading = 128
+    sim.step(mut s, [controls.KEY_BITE])
+    s.heading = 192
+    sim.step(mut s, [controls.KEY_BITE])
+    wait(mut s, 8)
+    assert(s.combo == 2 && s.attack_heading == 64, "first request's aim")
+    wait(mut s, 13)
+    assert(s.combo == 3 && s.attack_heading == 128, "second request's aim, not overflow aim")
+    wait(mut s, 25)
+    assert(s.action == sim.IDLE, "overflow must not queue a fourth strike")
+}
+
+fn test_cb11_same_tick_is_not_an_age_one_request() {
+    var s = arena()
+    sim.step(mut s, [controls.KEY_BITE, controls.KEY_BITE, controls.KEY_BITE])
+    wait(mut s, 12)
+    assert(s.action == sim.IDLE, "same-tick duplicates cannot queue")
+}
+
+fn test_cb11_unaffordable_queue_does_not_restart_later() {
+    var s = arena()
+    s.stamina = 12
+    sim.step(mut s, [controls.KEY_BITE])
+    sim.step(mut s, [controls.KEY_BITE])
+    sim.step(mut s, [controls.KEY_BITE])
+    wait(mut s, 12)
+    assert(s.action == sim.IDLE && s.combo == 0, "cannot pay strike two")
+    s.stamina = 70
+    wait(mut s, 20)
+    assert(s.action == sim.IDLE, "failed queue is discarded")
+}
+
+fn test_cb11_other_action_closes_the_grace() {
+    var s = arena()
+    sim.step(mut s, [controls.KEY_BITE])
+    wait(mut s, 11)
+    sim.step(mut s, [controls.KEY_PARRY])
+    wait(mut s, 15)
+    sim.step(mut s, [controls.KEY_BITE])
+    assert(s.combo == 1, "other action resets combo")
+}
+
+fn legacy(interval: int, expected: int) {
+    var s = sim.new(7, 80, 24)
+    sim.combat_witness(mut s)
+    var starts = 0
+    var last = -1
+    var tick = 0
+    while tick < 45 {
+        let press = tick == 0 || tick == interval || tick == interval * 2
+        sim.step(mut s, if press then [controls.KEY_BITE] else List[int]())
+        if s.action == sim.BITE && s.started != last { starts += 1; last = s.started }
+        tick += 1
+    }
+    assert(starts == expected, "legacy interval {interval}: expected {expected}, got {starts}")
+}
+fn test_cb11_legacy_30ms_repeat_does_not_chain() { legacy(1, 1) }
+fn test_cb11_legacy_60ms_repeat_does_not_chain() { legacy(2, 1) }
+fn test_cb11_legacy_100ms_fresh_presses_chain() { legacy(3, 3) }
+
+fn test_cb11_enhanced_repeat_is_not_a_bite_or_heavy_request() {
+    for mods in [0, input.MOD_SHIFT] {
+        var keys = List[int]()
+        controls.events([input.Event { key: input.char_key(32), mods: mods, kind: input.REPEAT }], mut keys)
+        for k in keys {
+            assert(k != controls.KEY_BITE && k != controls.KEY_HEAVY, "repeat is not a press")
+        }
+    }
+}

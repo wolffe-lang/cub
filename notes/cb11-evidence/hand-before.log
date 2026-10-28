@@ -1,0 +1,26 @@
+cb11 waits for Mac lock holder=81083 2026-10-28T02:11:55Z
+cb11 waits for Mac lock holder=81083 2026-10-28T02:12:25Z
+cb11 waits for Mac lock holder=81083 2026-10-28T02:12:55Z
+cb11 waits for Mac lock holder=83694 2026-10-28T02:13:25Z
+cb11 memory floor clear 12257820672 bytes 2026-10-28T02:13:55Z
+FAIL cb11-hand-n-150-rich: hold sequence [1, 2], expected [1, 2, 3]
+FAIL cb11-hand-n-150-plain: hold sequence [1, 2], expected [1, 2, 3]
+FAIL cb11-hand-n-200-rich: hold sequence [1, 2], expected [1, 2, 3]
+FAIL cb11-hand-n-200-plain: hold sequence [1, 2], expected [1, 2, 3]
+FAIL cb11-hand-n-250-rich: hold sequence [1, 2], expected [1, 2, 3]
+FAIL cb11-hand-n-250-plain: hold sequence [1, 2], expected [1, 2, 3]
+Traceback (most recent call last):
+  File "/Users/mfwolffe/lanes/cb11/cub/tools/combo-timing.py", line 137, in <module>
+    check(args.bin, args.out)
+  File "/Users/mfwolffe/lanes/cb11/cub/tools/combo-timing.py", line 119, in check
+    north_pixels(states, dest, tier)
+  File "/Users/mfwolffe/lanes/cb11/cub/tools/combo-timing.py", line 74, in north_pixels
+    samples[tick] = centroid(frame.with_suffix('.txt').read_text(),
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mfwolffe/.local/share/mise/installs/python/3.11.15/lib/python3.11/pathlib.py", line 1058, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mfwolffe/.local/share/mise/installs/python/3.11.15/lib/python3.11/pathlib.py", line 1044, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'notes/cb11-evidence/before/cb11-hand-n-330-rich/frame-0044.txt'

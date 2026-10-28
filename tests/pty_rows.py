@@ -1640,3 +1640,7 @@ def cb12_counter_input_once(binary, ctx):
 
 
 ROWS['cb12-counter-input-once'] = cb12_counter_input_once
+
+# Keep the hand-timing matrix independent of earlier scripted strike rows.
+import runpy
+ROWS.update(runpy.run_path(str(Path(__file__).with_name('combo_pty.py')))['rows'](globals()))
