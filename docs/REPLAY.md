@@ -8,6 +8,11 @@ previous37 followed by pine, ice, tuft, tuft-use count, seeded-area mask,
 lore count, ground count,32 padded lore-id-plus-one slots, then128 padded
 packed pickups. New saved slots37..203 are appended numeric events51..217;
 older `journey 3` and `journey 4` remain readable with empty new fields.
+Those recorded journey versions select the original six-row rest menu,
+including its Up-to-Confirm shortcut; journey5 selects seven rows with Lore.
+Only the replay reader sets this compatibility state from its recorded
+journey version. No player flag, save field or CLI option can enable it;
+ordinary new/resumed live games always use seven rows.
 The ordinary arrows, bite/Space, release/Esc, rest/r and inventory keys
 fully reproduce the paused overlay; no menu input is omitted or read
 from wall time. The six `pouch-*` cases disclose their initial item/lore

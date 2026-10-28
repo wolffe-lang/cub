@@ -25,7 +25,9 @@ one; Discard removes one. Ground order, positions and area discovery are
 saved. The pool is bounded to **128 pickups**; a full pool refuses Drop and
 a full-stack cache reward rather than destroying inventory. Lore appends
 stable ids once in discovery order, up to **32 lines**, and is read through
-the rest menu's Lore row. Menus freeze effect/attack/lifetime clocks and
+the rest menu's Lore row. Lore ids are append-only: existing coals/frame/stump
+lines are10/11/12 without wording changes; cb14 and cb16 append from13.
+Menus freeze effect/attack/lifetime clocks and
 clear held movement on exit; marrow never catches up for paused ticks.
 
 Foe drops are stable seed/area/spawn rolls: weasel yarrow10%, hawk yarrow15%,
