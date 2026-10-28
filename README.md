@@ -62,7 +62,7 @@ stamina sprint and chain attacks; a
 hawk's stopped pink shadow asks for a parry or an escape; a bite also
 kills it during its stoop and low recovery, on the shadow's four-cell body. Foes leave visible
 scent as a bright pulsing orb with seeded drifting motes; death scent uses
-the same light within the cub's nose range. Pickups are collected within
+the same light within the cub's nose range. Scent and meat pickups are collected within
 the cub's body plus a one-cell ring, with a short recovery burst. Landmarks
 and caches have original sprites instead of floating world names; their
 meanings are in `docs/ART.md`. Kills also leave small healing meat pickups.
