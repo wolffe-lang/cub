@@ -1,0 +1,40 @@
+cb15 waits for Mac build lock (holder 13029)
+cb15 waits for Mac build lock (holder 13029)
+cb15 waits for Mac build lock (holder 13029)
+cb15 waits for Mac build lock (holder 13029)
+cb15 waits for Mac build lock (holder 13029)
+cb15 waits for Mac build lock (holder 13029)
+cb15 waits for Mac build lock (holder 13029)
+cb15 waits for Mac build lock (holder 13029)
+cb15 waits for Mac build lock (holder 13029)
+cb15 waits for Mac build lock (holder 13029)
+cb15 waits for Mac build lock (holder 13029)
+cb15 waits for Mac build lock (holder 13029)
+cb15 waits for Mac build lock (holder 13029)
+cb15 waits for Mac build lock (holder 17266)
+cb15 waits for Mac build lock (holder 17266)
+cb15 waits for Mac build lock (holder 17266)
+cb15 waits for Mac build lock (holder 17266)
+cb15 waits for Mac build lock (holder 17266)
+cb15 waits for Mac build lock (holder 17266)
+cb15 waits for Mac build lock (holder 17266)
+cb15 waits for Mac build lock (holder 23612)
+test src/pouch_test.lu::test_cb15_yarrow_stops_bleeding_and_heals_ten_clamped ... ok
+test src/pouch_test.lu::test_cb15_marrow_heals_thirty_over_sixty_and_damage_interrupts ... ok
+test src/pouch_test.lu::test_cb15_bleeding_licks_after_twenty_still_ticks ... ok
+test src/pouch_test.lu::test_cb15_pine_clears_trail_and_hides_exactly_six_hundred_ticks ... ok
+test src/pouch_test.lu::test_cb15_ice_prefers_lock_then_nearest_in_front_and_lasts_ninety ... ok
+test src/pouch_test.lu::test_cb15_tuft_on_death_keeps_scent_without_a_mark_once ... FAILED (trap(assert))
+test src/pouch_test.lu::test_cb15_caps_and_full_pickup_refusal ... ok
+test src/pouch_test.lu::test_cb15_drop_repickup_and_discard_menu_paths_pause_the_forest ... ok
+test src/pouch_test.lu::test_cb15_menu_consume_and_aim_paths ... ok
+test src/pouch_test.lu::test_cb15_lore_appends_once_and_rest_lore_is_scrollable ... ok
+test src/pouch_test.lu::test_cb15_save_and_replay_snapshot_keep_pouch_lore_and_ground_items ... ok
+test src/pouch_test.lu::test_cb15_migrates_cub_five_counts_and_rejects_bad_new_state ... ok
+test src/pouch_test.lu::test_cb15_pine_makes_the_lynx_lose_the_cub ... ok
+test src/pouch_test.lu::test_cb15_menu_freezes_marrow_bleed_trail_and_absolute_expiries ... ok
+test src/pouch_test.lu::test_cb15_species_drop_rolls_are_stable_and_match_rates ... ok
+test src/pouch_test.lu::test_cb15_burn_hook_melts_carried_and_local_ice_only ... ok
+test src/pouch_test.lu::test_cb15_pickup_sprites_and_inventory_exist_on_both_tiers ... ok
+wolf test: 16 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out
+CB15_TUFT_PLANT_EXPECTED_RED exit=1
