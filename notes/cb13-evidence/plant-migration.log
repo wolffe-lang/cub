@@ -1,0 +1,2 @@
+test src/cb13_migration_test.lu::test_cb13_cub5_fixture_migrates_byte_for_byte_to_cub6 ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out
