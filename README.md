@@ -96,19 +96,25 @@ On macOS the music plays through `afplay`; on Linux through `paplay` where
 it is installed, else the game says so once and plays on in silence.
 `--mute`, `CUB_SOUND=0` or the `m` key turn it off.
 
-The journey saves under `~/.cub/save`; resume wakes at the last den with
-slain foes still gone, keeping growth, shortcuts, opened caches, pouch contents,
-the dropped mark, the bosses beaten, the end and the field the world was
-made for (the terminal's width when the journey began). `--save PATH`
-selects a separate journey. Unknown or corrupt files fail by name, never
-silently reset. This build writes schema5, migrates schema4 with an empty
-slain set, and refuses earlier schemas as `save_version`; use a new
-`--save PATH` to try it without replacing an older journey. A quit before a staged write's commit tick preserves the previous save;
-a stage already due on the quit tick is committed.
-Live deaths leave self-contained replay files under `~/.cub/ghosts/`
-(`--ghost-dir DIR` elsewhere), each the ghost the next game shows;
-difficulty selection comes later. Every tuning proposal is in
-`docs/DESIGN.md`.
+The title leads to the resting cub and fire, with Continue, New journey,
+Load, Playback when recordings exist, and Quit. Continue resumes the most
+recently played save; Load lists known journeys or accepts a typed path.
+New journeys live under `~/.cub/saves/`. `~/.cub/registry` keeps their absolute
+paths, names, seeds, difficulty, area, level and last-played time; `--save PATH`
+registers a file anywhere. The old `~/.cub/save` is imported as journey without
+deleting or rewriting it on import. Resume wakes at the last den with slain
+foes still gone, keeping growth, shortcuts, caches, pouch contents, the mark,
+bosses, end and original world field. Corrupt files fail by name, never reset.
+This build writes CUB 6, adding a name and elapsed `played_ms`; CUB 5 migrates
+with name journey and zero elapsed time, and CUB 4 with an empty slain set.
+Earlier schemas fail as `save_version`. A quit before a staged write's commit
+tick preserves the previous gameplay save; an already-due stage commits.
+Live sessions record under `~/.cub/replays/` unless `--record FILE` chooses
+another path. Deaths also leave self-contained archives under `~/.cub/ghosts/`
+(`--ghost-dir DIR` elsewhere). Playback lists both default directories, with
+date, length and ending, or accepts a typed path; Esc returns to the fire.
+The New journey prompts offer the seed and wolf, the playable difficulty in
+this build. Every tuning proposal is in `docs/DESIGN.md`.
 
 ## Where it runs
 
@@ -137,7 +143,9 @@ The terminal must be at least 80 columns by 24 rows; the field grows to fill a l
 | `q` / Ctrl+C | quit / interrupt; the terminal and negotiated keyboard mode are restored |
 | any decoded key during the opening | skip the scene without also making a move |
 | any ordinary key during the death card | skip after twenty ticks of the word; `q` skips too, Ctrl-C still interrupts |
-| any key on the title | begin; after ten idle seconds a demo plays behind the title |
+| any key on the title | open the fire menu; after ten idle seconds a demo plays behind the title |
+| arrows / Space at the fire | select / choose Continue, New journey, Load, Playback or Quit |
+| Enter / Backspace in a path or seed | accept / edit; Esc returns; q quits outside text entry |
 | `r` on the end card | keep playing as the wolf (`q` leaves) |
 
 On terminals supporting the negotiated keyboard protocol, arrows stay
@@ -169,7 +177,8 @@ target/cub --save journey      use a separate save file
 target/cub --record run.pk     record the run, including resumed state; --replay run.pk plays it back
 target/cub --mute              play without music (CUB_SOUND=0 does the same)
 target/cub --pace 105          try player movement at105 percent of default
-target/cub --no-title          skip the title; unseen journeys still play the opening
+target/cub --no-title          historical name: skip title and menu, straight into play
+target/cub --menu              skip the title, land on the fire menu
 target/cub --ghost-dir DIR     read and write the death archives there (default ~/.cub/ghosts)
 target/cub --den-census        flood fifty seeds for den distance and every thorn-gate face
 target/cub --den-spacing       the route walk between dens over fifty seeds (cb05, with --foe-census,
