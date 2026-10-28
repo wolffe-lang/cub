@@ -1,0 +1,14 @@
+# frames 50 every 50
+# counter-frames
+pk 1
+seed 7
+tier rich
+size 80x24
+t 0 scent 49
+t 0 rest
+t 21 right
+t 22 down
+t 22 right
+t 23 up
+t 24 up
+t 25 confirm

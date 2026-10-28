@@ -99,6 +99,8 @@ def main():
         start = time.monotonic()
         next_sample = 0
         tick = 0
+        fall_tick = None
+        skipped_fall = False
         pending = b''
         samples = []
         failure = None
@@ -123,6 +125,15 @@ def main():
                         matches = re.findall(rb'trace tick (\d+) ', line)
                         if matches:
                             tick = int(matches[-1])
+                            if re.search(rb' action 6 ', line):
+                                if fall_tick is None:
+                                    fall_tick = tick
+                                if tick - fall_tick >= 50 and not skipped_fall:
+                                    os.write(fd, b' ')
+                                    skipped_fall = True
+                            else:
+                                fall_tick = None
+                                skipped_fall = False
                 if elapsed >= next_sample:
                     next_sample = elapsed + a.sample_seconds
                     resident = rss_bytes(pid)

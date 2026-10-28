@@ -1540,3 +1540,49 @@ def cb10_ghostty_repeat(binary, ctx):
 
 
 ROWS['cb10-ghostty-repeat'] = cb10_ghostty_repeat
+
+
+def cb12_death_card(binary, ctx):
+    problems = []
+    for tier in ('rich', 'plain'):
+        for name in ('cb12-fallen-word', 'cb12-fallen-half', 'cb12-fallen-closed'):
+            def check(states, foes):
+                last = states[max(states)]
+                if last['action'] != 6 or last['mark_scent'] != 300 or last['deaths'] != 1:
+                    return 'death scene moved the mark or woke early'
+                return None
+            session, found = _agree(binary, ctx, name, _ticks_of(ctx, name), check, tier=tier)
+            problems.extend(found)
+    return session, problems
+
+
+def cb12_counter_frames(binary, ctx):
+    import re
+    import json
+    problems, measurements = [], []
+    case = Path(ctx.ROOT) / 'tests/cases/cb12-scent-burst.pk'
+    for tier in ('rich', 'plain'):
+        for cols, rows in ((80, 24), (200, 60)):
+            session = ctx.Session([binary, '--replay', str(case), '--ticks', '20', '--tier', tier,
+                                   '--size', str(cols) + 'x' + str(rows), '--mute', '--trace'], rows, cols, ctx.env_for())
+            session.finish(timeout=30)
+            ctx.common_checks(session, 0, problems)
+            flushed = [(int(t), int(v), int(us)) for t, v, us in re.findall(
+                rb'trace counter tick (\d+) value (\d+) flush_us (\d+)', session.err)]
+            if [v for _, v, _ in flushed] != list(range(1, 1001)):
+                problems.append('counter did not flush every integer on ' + tier + ' ' + str(cols))
+            costs = {}
+            for t, v, us in flushed:
+                costs[t] = costs.get(t, 0) + us
+            if set(costs) != set(range(1, 21)):
+                problems.append('counter did not finish on simulation tick twenty')
+            measurements.append({'tier': tier, 'size': [cols, rows], 'frames': len(flushed),
+                                 'max_batch_flush_us': max(costs.values(), default=0),
+                                 'over_33333_us': sum(v > 33333 for v in costs.values())})
+    dest = Path(ctx.ROOT) / 'target/pty/cb12-counter-cost.json'
+    dest.write_text(json.dumps(measurements, indent=2) + '\n')
+    return session, problems
+
+
+ROWS['cb12-death-card'] = cb12_death_card
+ROWS['cb12-counter-frames'] = cb12_counter_frames

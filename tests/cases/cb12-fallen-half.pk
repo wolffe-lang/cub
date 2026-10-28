@@ -1,0 +1,8 @@
+# frames 66 every 66
+# full-death
+pk 1
+seed 1
+tier rich
+size 80x24
+t 0 scent 300
+t 1 health -1000
