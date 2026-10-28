@@ -1,0 +1,56 @@
+cb15 baseline waits for cores4-7 2026-10-28T05:21:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:21:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:22:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:22:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:23:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:23:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:24:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:24:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:25:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:25:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:26:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:26:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:27:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:27:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:28:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:28:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:29:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:29:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:30:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:30:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:31:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:31:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:32:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:32:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:33:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:33:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:34:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:34:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:35:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:35:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:36:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:36:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:37:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:37:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:38:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:38:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:39:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:39:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:40:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:40:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:41:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:41:50Z
+cb15 baseline waits for cores4-7 2026-10-28T05:42:20Z
+cb15 baseline waits for cores4-7 2026-10-28T05:42:50Z
+Preparing worktree (detached HEAD 1497b5d3)
+HEAD is now at 1497b5d3 notes: cb10, materialised from cub#68 at the merge
+CB15_HIT_BASELINE_SOURCE 1497b5d36cedc343c1f0f04b569f13304a99db4e
+build: target/native/cub
+hit-census kind 2: 416/3744 pairs land
+hit-census kind 4: 920/5376 pairs land
+hit-census kind 5: 800/4992 pairs land
+hit-census kind 6: 1064/5856 pairs land
+hit-census kind 7: 920/5376 pairs land
+hit-census kind 8: 472/3936 pairs land
+79039792a9b1799bb1e0a0d66c1a5e99c7edad6632587d7dc74ca9ae4ed28deb  /home/mfwolffe/lanes/cb15/cb10-hit-baseline.csv
+CB15_BASELINE_EXIT 0 2026-10-28T05:43:27Z
