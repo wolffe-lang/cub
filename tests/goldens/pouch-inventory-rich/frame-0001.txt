@@ -1,0 +1,24 @@
+  ≈          ≈ ≈    ≈ ≈   ≈    ≈≈≈    ≈    The Shingle≈ ≈≈                     ≈
+ health  ██████        ≈       ≈  ≈       ≈        ≈        ≈      ≈≈           
+≈ ────────────────────────────────────────────────────────────────────────────  
+ s│  The pouch                                                               │  
+≈ │                                                                          │  
+≈W│  > Yarrow  2/5                                                           │≈≈
+  │      Stops bleeding; heals 10 now.                                       │≈≈
+ T│    Marrow  1/3                                                           │⠇⠖
+⠇⠇│      Heals 30 over 60 ticks; a hit interrupts.                           │  
+  │    Pine  1/3                                                             │ ․
+· │      Hides the trail for 600 ticks.                                      │ ~
+  │    A shard of ice  1/3                                                   │  
+  │      Aim within 6 cells; half speed, 90 ticks.                           │ ․
+  │    The mother's tuft  1/1                                                │  
+․ │      Passive: the next death keeps its scent.                            │· 
+  │                                                                          │  
+  │                                                                          │  
+ ·│  Arrows select   Space opens the item                                    │  
+  │                                                                          │  
+  │                                                                          │  
+  │  Esc / i closes; the forest waits                                        │ ░
+░ ────────────────────────────────────────────────────────────────────────────▖ 
+ ⠶⣶⠶┃⠶⣶⣮⣿⣮⣿⠶⣶⠶⣶⣮⣶⣮⣿⣮⣶⣮⣶⣮┃⠶⣶⠶⣿⠶⣿          ░⣿⠶┃┃⣿⣮⣿⣮⣶⣮┃⠶⣶┃⣿┃⣿⠶⣶⠶┃⣮⣶⠶⣿⣮┃⠶⣶scent ▌▌⣮
+ r rest at The hollow log⣿┃┃⣮⣶┃       ·   ⣮┃⠶⣿⣮⣿┃⣶⠶⣿┃⣿┃⣿⣮⣿┃⣶⣮⣶⣮⣶⠶┃⣮⣿⠶⣿⣮      ▙▌⣶

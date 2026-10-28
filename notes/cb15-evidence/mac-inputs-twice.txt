@@ -1,0 +1,12 @@
+Mac input pass 1
+74b89744e8f8a4ed01539b2fe814daf819b9abfc
+aarch64-apple-darwin wolf=240b84d079b1b9a0d88681ac08fca4816f84778e2d6c94c435ceb2dd6a5f042a lupin=9133bfdbb95f6a18745439bf0b2b5280860a5bfeaf9ae038ea120a72d58f7687 std=2386522eb059cca5a84108562c2c0a0e72345d34
+wolf 0.2.35 (wolfgang, pin cf0c13d)
+paired with lupin 0.1.56 (reference interpreter), pin 294d626
+lupin 0.1.56 (wolf-interp, reference interpreter at pin 294d626)
+Mac input pass 2
+74b89744e8f8a4ed01539b2fe814daf819b9abfc
+aarch64-apple-darwin wolf=240b84d079b1b9a0d88681ac08fca4816f84778e2d6c94c435ceb2dd6a5f042a lupin=9133bfdbb95f6a18745439bf0b2b5280860a5bfeaf9ae038ea120a72d58f7687 std=2386522eb059cca5a84108562c2c0a0e72345d34
+wolf 0.2.35 (wolfgang, pin cf0c13d)
+paired with lupin 0.1.56 (reference interpreter), pin 294d626
+lupin 0.1.56 (wolf-interp, reference interpreter at pin 294d626)

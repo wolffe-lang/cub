@@ -33,8 +33,8 @@ clear held movement on exit; marrow never catches up for paused ticks.
 Foe drops are stable seed/area/spawn rolls: weasel yarrow10%, hawk yarrow15%,
 fox marrow10%. The future boar-kin25% and otter20% use the same roll hook.
 Until the new areas land: seven seeded meadow sprigs (roughly36 cells apart),
-six Bramblehold marrow pickups by carcasses, five river shards and the first
-tuft at Ember's den. Stand/Burn/Mere/Howe placement uses `seed_alcove`; no
+six seeded Bramblehold marrow pickups, five river shards and the first
+tuft four cells east of the first Bramblehold den (the Ember approach). Stand/Burn/Mere/Howe placement uses `seed_alcove`; no
 forest generation or enemy damage envelope changes here.
 
 
