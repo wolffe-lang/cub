@@ -4382,7 +4382,7 @@ pub fn new_foe_size(kind: int) -> (int, int) {
 /// cannot be parried; the adder's twelve-tick line can be, for a kill.
 pub fn new_foe_move(kind: int) -> Move {
     match kind {
-        9 => mv(20, 3, 36, 8, 2, true, 0, false),
+        9 => mv(20, 3, 0, 8, 2, true, 0, false),
         10 => mv(12, 3, 36, 6, 3, true, 0, false),
         11 => mv(12, 2, 24, 0, 2, false, 0, false),
         12 => mv(8, 3, 42, 18, 3, false, 0, false),
