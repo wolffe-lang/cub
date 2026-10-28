@@ -4636,6 +4636,7 @@ fn inventory_close(mut s: Sim) {
     let elapsed = s.tick - s.pouch.paused_at
     s.started += elapsed
     s.rally_at += elapsed
+    if s.riposte > 0 { s.riposte += elapsed }
     s.entered += elapsed
     s.pickup_at += elapsed
     s.gate_hint_until += elapsed
@@ -4644,6 +4645,7 @@ fn inventory_close(mut s: Sim) {
     var i = 0
     while i < s.foes.len {
         s.foes[i].since += elapsed
+        s.foes[i].poise_at += elapsed
         s.foes[i].slow_lag += elapsed
         if s.foes[i].last_hit >= 0 { s.foes[i].last_hit += elapsed }
         if s.foes[i].died >= 0 { s.foes[i].died += elapsed }

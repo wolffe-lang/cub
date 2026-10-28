@@ -326,6 +326,22 @@ fn test_cb15_menu_freezes_marrow_bleed_trail_and_absolute_expiries() {
     assert(s.health == 50 && s.pouch.marrow_ticks == 0, "heal resumes without fast-forward")
 }
 
+fn test_cb15_inventory_preserves_riposte_and_foe_poise_windows() {
+    var s = quiet()
+    (mut s.foes).push(sim.make_ashen(s.x + 30 * sim.FP, s.y))
+    s.riposte = 50
+    s.riposte_foe = 0
+    s.foes[0].poise = 7
+    s.foes[0].poise_at = 0
+    press(mut s, controls.KEY_INVENTORY)
+    wait(mut s, 100)
+    press(mut s, controls.KEY_RELEASE)
+    assert(
+        s.riposte == 151 && s.foes[0].poise_at == 101 && s.foes[0].poise == 7,
+        "paused combat windows retain their remaining time",
+    )
+}
+
 fn test_cb15_inventory_also_pauses_offscreen_loot_expiry() {
     var s = quiet()
     (mut s.away_loot[1].drops).push(sim.Drop { x: 0, y: 0, value: 8, until: 90 })
