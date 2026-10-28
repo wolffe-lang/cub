@@ -38,14 +38,14 @@ fn test_cb04a_save_names_older_schema_and_checks_the_level() {
     var s = sim.new(7, 80, 24)
     s.heart = 40
     let text = journey.encode(s)
-    assert(text.starts_with("CUB 5\n") && text.contains("level 40\n"), "level saved explicitly")
+    assert(text.starts_with("CUB 6\n") && text.contains("level 40\n"), "level saved explicitly")
     let restored = journey.decode(text, 80, 24) else {
         assert(false, "schema four roundtrip")
         return
     }
     assert(sim.level(restored) == 40, "growth retained")
     var named = false
-    let _ = journey.decode(text.replace("CUB 5", "CUB 3"), 80, 24) else |e| {
+    let _ = journey.decode(text.replace("CUB 6", "CUB 3"), 80, 24) else |e| {
         named = "{e}" == "save_version"
         sim.new(1, 80, 24)
     }
