@@ -83,6 +83,14 @@ pub fn new() -> Pouch {
     }
 }
 
+/// Remove one from a named held stack; return its kind, or -1 without change.
+/// The Sim adapter routes the two legacy counts and three pouch counts here.
+pub fn take_one(mut held_count: int, kind: int) -> int {
+    if kind < 0 || kind >= KINDS || held_count <= 0 { return -1 }
+    held_count -= 1
+    kind
+}
+
 /// Stack limit for a valid kind: five sprigs, one tuft, three otherwise.
 pub fn cap(kind: int) -> int { if kind == YARROW then 5 else if kind == TUFT then 1 else 3 }
 
@@ -150,7 +158,8 @@ pub fn add_lore(mut p: Pouch, id: int) {
     (mut p.lore).push(id)
 }
 
-/// A full ground pool refuses a drop instead of silently destroying an item.
+/// Place one kind at (area, x, y) in cell coordinates, not Sim's fixed point.
+/// A full pool or invalid point/kind returns false without changing the pool.
 pub fn leave(mut p: Pouch, area: int, x: int, y: int, kind: int) -> bool {
     if p.pickups.len >= PICKUPS ||
         area < 0 ||
