@@ -1106,9 +1106,11 @@ pub fn jetty(seed: int, field: int, x: int, y: int) -> bool {
 /// in the crags the closed ground is stone.
 fn closed(seed: int, area: int, x: int, y: int) -> int {
     if area == CRAGS { return terrain.ROCK }
-    if area == UNDERTEETH { return terrain.CAVE }
-    if area == MERE { return terrain.WATER }
-    if area == STAND { return terrain.PINE }
+    if area >= STAND {
+        if area == UNDERTEETH { return terrain.CAVE }
+        if area == MERE { return terrain.WATER }
+        if area == STAND { return terrain.PINE }
+    }
     if world.hash(seed + area * 79, x, y, 100) < 16 then terrain.TRUNK else terrain.DARK
 }
 
@@ -1298,16 +1300,19 @@ pub fn carved(seed: int, field: int, area: int, x: int, at: int) -> bool {
 fn carved_at(seed: int, field: int, area: int, x: int, at: int, c: int) -> bool {
     if area == BRAMBLEHOLD && in_clearing(seed, x, at) { return true }
     if thorn_collar(area, x, at) { return false }
-    // A gate's cells are the gate's, not path: they draw as the gate and
-    // the simulation holds them (cb14); the Underteeth's glow-worm
-    // clusters on the tunnel's floor likewise draw as themselves.
-    if gate_cell(seed, area, x, at) { return false }
-    if area == UNDERTEETH && lands.glow_here(seed, x, at, c) { return false }
     let hw = half(seed, area, at)
-    // The Mere's stepping stones are the route over open water, but not
-    // path: they sink, and draw as stone (the path audit holds the reeds).
-    if area == MERE && lands.stone_row(seed, length(area), at) && x >= c - hw && x <= c + hw {
-        return false
+    if area >= STAND || area == CRAGS {
+        // A gate's cells are the gate's, not path: they draw as the gate
+        // and the simulation holds them (cb14); the Underteeth's glow-worm
+        // clusters on the tunnel's floor likewise draw as themselves; the
+        // Mere's stepping stones are the route over open water, but not
+        // path: they sink, and draw as stone (the path audit holds the
+        // reeds).
+        if gate_cell(seed, area, x, at) { return false }
+        if area == UNDERTEETH && lands.glow_here(seed, x, at, c) { return false }
+        if area == MERE && lands.stone_row(seed, length(area), at) && x >= c - hw && x <= c + hw {
+            return false
+        }
     }
     if x >= c - hw && x <= c + hw { return true }
     if area == TOWN { return false }
@@ -1348,11 +1353,15 @@ fn carved_at(seed: int, field: int, area: int, x: int, at: int, c: int) -> bool 
         if at >= by - 3 && at <= by + 3 { return true }
     }
     // cb14's mouths: a curved run from the route to each mouth at its own
-    // row, on the mouth's side alone (`later_mouths`: at most two an area,
-    // so a cell costs no more than two row guards).
-    let (first, second) = later_mouths(area)
-    if first >= 0 && mouth_run(seed, area, first, x, at, c) { return true }
-    if second >= 0 && mouth_run(seed, area, second, x, at, c) { return true }
+    // row, on the mouth's side alone (`mouth_bands`: at most two an area,
+    // each behind a row guard, so a cell off every band costs one call).
+    let (first, m1, second, m2) = mouth_bands(area)
+    if first >= 0 && at >= m1 - 8 && at <= m1 + 8 && mouth_run(seed, area, first, x, at, c) {
+        return true
+    }
+    if second >= 0 && at >= m2 - 8 && at <= m2 + 8 && mouth_run(seed, area, second, x, at, c) {
+        return true
+    }
     // The thorn wall sits at the end of a deliberate treeless branch.
     if area == SHINGLE && at >= 140 && at <= LENGTH {
         let exit_centre = if at < 150 then spine(seed, area, 140) * (150 - at) / 10 else 0
@@ -1870,6 +1879,20 @@ pub fn later_mouths(area: int) -> (int, int) {
     if area == MERE { return (EDGE_RAFT, -1) }
     if area == HUSH { return (EDGE_ROOTS, -1) }
     (-1, -1)
+}
+
+/// `later_mouths` with each mouth's row beside its edge, `(edge, row,
+/// edge, row)`: the row guard `carved_at` takes a cell before a run's
+/// curve is evaluated. Held to `mouth` by `map_test`.
+pub fn mouth_bands(area: int) -> (int, int, int, int) {
+    if area == CRAGS { return (EDGE_RAFT, 200, EDGE_SETT, 72) }
+    if area == STAND { return (EDGE_SCREE, 60, -1, 0) }
+    if area == BRAMBLEHOLD { return (EDGE_SCREE, 212, -1, 0) }
+    if area == BURN { return (EDGE_STREAMBED, 40, -1, 0) }
+    if area == LARKMEADOW { return (EDGE_STREAMBED, 250, -1, 0) }
+    if area == MERE { return (EDGE_RAFT, 190, -1, 0) }
+    if area == HUSH { return (EDGE_ROOTS, 40, -1, 0) }
+    (-1, 0, -1, 0)
 }
 
 /// Whether local cell `(x, at)` lies on the run from the route to a cb14

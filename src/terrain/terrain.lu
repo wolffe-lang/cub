@@ -106,16 +106,10 @@ pub const KINDS: int = 23
 /// Whether a kind is solid for the forest's flood and every actor (the
 /// gates apart: the simulation's rule).
 pub fn solid(k: int) -> bool {
-    k == TRUNK ||
-        k == DARK ||
-        k == WATER ||
-        k == ROCK ||
-        k == WALL ||
-        k == PINE ||
-        k == CHAR ||
-        k == CAVE ||
-        k == MOUND ||
-        k == MENHIR
+    // The five kinds of cb02 first: the old areas' cells never pay for
+    // cb14's.
+    if k < NEEDLES { return k == TRUNK || k == DARK || k == WATER || k == ROCK || k == WALL }
+    k == PINE || k == CHAR || k == CAVE || k == MOUND || k == MENHIR
 }
 
 /// The water's edge: the river occupies world rows below `bank(x)`; the

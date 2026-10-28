@@ -439,14 +439,16 @@ fn among(styles: List[grid.Cell], c: grid.Cell) -> bool {
 /// per foliage kind keep the forest's texture under the recolour.
 fn dusk_ink(area: int, t: int, k: int, foliage: int) -> int {
     let thicket = area == forest.BRAMBLEHOLD
-    if area == forest.CRAGS { return crag_ink(t, k, foliage) }
-    if area == forest.HUSH || area == forest.GRAVEHOLLOW { return night_ink(t, k, foliage) }
-    if area == forest.RIVER { return river_ink(t, k, foliage) }
-    if area == forest.TOWN { return town_ink(t, k, foliage) }
-    if area == forest.STAND { return stand_ink(t, k, foliage) }
-    if area == forest.BURN { return burn_ink(t, k, foliage) }
-    if area == forest.UNDERTEETH { return cave_ink(t, k, foliage) }
-    if area == forest.HOWE { return howe_ink(t, k, foliage) }
+    if !thicket && area != forest.LARKMEADOW {
+        if area == forest.CRAGS { return crag_ink(t, k, foliage) }
+        if area == forest.HUSH || area == forest.GRAVEHOLLOW { return night_ink(t, k, foliage) }
+        if area == forest.RIVER { return river_ink(t, k, foliage) }
+        if area == forest.TOWN { return town_ink(t, k, foliage) }
+        if area == forest.STAND { return stand_ink(t, k, foliage) }
+        if area == forest.BURN { return burn_ink(t, k, foliage) }
+        if area == forest.UNDERTEETH { return cave_ink(t, k, foliage) }
+        if area == forest.HOWE { return howe_ink(t, k, foliage) }
+    }
     // The burn's ash (cb05): grey in two tones over the area's floor.
     if k == terrain.ASH {
         return if t != tier.RICH then 8 else if foliage % 2 == 0 then 240 else 242
