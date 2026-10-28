@@ -10,12 +10,51 @@ grew by half; the whole forest holds under the world audit's 1300 rows, every ce
 6, the goldens for every new area's first screen on both tiers. Game code, game-owned tests, witnesses, censuses,
 docs and goldens only: no engine, pin or CI change.
 
+Ledger: cb14 — five areas (the Stand, the Burn, the Mere, the Underteeth, the Howe; Gravehollow split off the Hush),
+alcoves with a `kind` slot from the Teeth on, arenas +50 %, CUB 6 with a slain mask an area and the gates word,
+`journey 5`; module; plant PLANT_PR; final source FINAL_SOURCE; the walk on the Mac WALK_STATE; Linux gate LINUX_STATE.
+
 ## Prediction
 
 `9f0ac776` committed `notes/cb14-prediction.txt` before the first change, at trunk `eb34a399`. What it said and
 what held:
 
-PREDICTION_RESULTS
+1. **The graph** held: thirteen areas, the Hush keeping id 5 and the cold den, Gravehollow 12 split off it
+   (R-cb14-3), dens 12..15 the root hollow, the kiln, the dry island and the bone cache, none in the Howe or
+   Gravehollow (R-cb14-1), the lengths as written (224 / 192 / 160 / 128). The edge count was wrong: 20 edges, not
+   23 — the four re-pointed path edges (1, 4, 5, 6) plus five new path edges (10..14) and five new shortcuts
+   (15..19); the prediction counted the re-pointed edges twice. The journey's rows came out exactly as predicted:
+   1648 before, 2608 after (`notes/cb14-evidence/journey-length-{before,after}.txt`, seed 1 field 80, the route's
+   rows plus its lateral travel: 2732 → 4248 spine cells, 1.55×; the Underteeth 300 cells off the line, not 192 —
+   its tunnel wanders). Dens on the way on 9 → 12, bosses 4 → 4.
+2. **Save and replay** held: CUB 6 (a mask an area, `gates`), `journey 5` with 44 values, `journey 4` (37) and
+   `journey 3` (30) still read, every committed case replays. The count of moved goldens: GOLDENS_MOVED directories
+   changed, GOLDENS_NEW new (the prediction said about 40 and 14): the regenerated witnesses are the boss fights
+   (the arenas grew, the alpha's walk starts at the cold den), the coast caches and the world witnesses from the
+   meadow on (the hawk's body is cb10's, merged under this lane), the Teeth's second and the Hush's landmark (the
+   landmarks moved), and `stand`; the rest scenes, the thicket's and the meadow's landmarks, the yards, the town's
+   lane and `crags`/`river` changed only in the snapshot header and were kept as committed (their goldens
+   byte-equal).
+3. **Censuses** held: `--world-audit` 1300 rows, reached = required everywhere, `path_off` 0, nearest foe ≥ 30 (a
+   den-less area reports 1000); den spacing least within an area 122, least onward 135 (the bar 110); bends 0
+   reversals; spurs every end named; the foe census green (the old areas' counts unchanged, the new areas 4..6 —
+   their alcove guards alone); the boss census every world won, `unwon:0` for all four, `arena_breaches 0`, the
+   boar's first-attempt share 98 (two worlds at two attempts), the lynx, the elk and the alpha 100. gen-bench:
+   GEN_BENCH_RELEASE. What did not hold at first (§6 of the prediction, "the fighter's walk to the alpha"): the
+   stone mouth stood at the area's centre column and in seed 6 the route passed it to one side — the fighter
+   walked into the brush; a gate now stands on the route's centre at its rows (`forest.gate_x`), and the census
+   is 100/100.
+4. **Render cost**: not measured on the Mac — the loaded-server condition (the-rules.md, the Mac leg) refused the
+   build at 7 GB free; the checked machine's cost was measured instead (below). The memory gate: MEMORY_GATE.
+5. **Arenas** held: 11/12 → 14, 14 → 18, 12 → 20, the shapes kept (`map_test`); the hit census and the hitbox
+   audit green (their fights are not at a boss).
+6. The den-spacing bar held without a move (the kiln at row 112 is 135 from the last warm hollow along the way);
+   the Mere's goldens were written on kasumi and are checked by CI's macOS job (the Mac leg below).
+
+The checked machine's step budget, measured with a probe file (never committed) on the trunk base and on the
+branch: a Shingle `forest.kind` call fits ~2600 times a test on both; a Hush call fit >6000 times before and 4000
+after (its three alcove branches: `in_branch` costs four `spine` evaluations where a cell lies in a branch's row
+band), a Gravehollow night frame fit twice before and once after at 80×24 at the alpha's ring. Hence the rows below.
 
 ## Forbidden
 
@@ -32,24 +71,24 @@ untouched); the save gained its field under schema 6 (cb13 and cb15 bump the sch
 lane implemented (`docs/DESIGN.md`). Never labelled a PR, merged, tagged, created or closed an issue, edited
 `~/.claude` or the planning repo, installed a package. No attribution or co-author trailers.
 
-The Mac held the worktree for git, one native build at a time and the walk behind the shared `mkdir` lock
-(`/Users/mfwolffe/lanes/mac-build.lock`, the holder's pid checked, the 8 GiB `vm_stat` floor inside it:
-`/Users/mfwolffe/lanes/cb14/heavy.sh`); the maintainer's MLX server never touched. kasumi ran every census, the
-checked tests, the case generation, the goldens and the Linux gate on cores 12–15 under
-`/home/mfwolffe/lanes/kasumi-cores-12-15.lock` (a printing wait, never a kill), in the engine's container
-(`.lair/tools/in-container`, cb09's recipe adapted: `/home/mfwolffe/lanes/cb14/kasumi-run.sh`), everything under
-`/home/mfwolffe/lanes/cb14/`; no process group signalled; nothing of another lane moved or renamed.
+The Mac held the worktree for git and the walk behind the shared `mkdir` lock (`/Users/mfwolffe/lanes/mac-build.lock`,
+the holder's pid checked, the 8 GiB `vm_stat` floor inside it: `/Users/mfwolffe/lanes/cb14/heavy.sh`); the
+maintainer's MLX server never touched. kasumi ran every census, the checked tests, the case generation, the
+goldens and the Linux gate on cores 12–15 under `/home/mfwolffe/lanes/kasumi-cores-12-15.lock` (a printing wait,
+never a kill), in the engine's container (`.lair/tools/in-container`, cb09's recipe adapted:
+`/home/mfwolffe/lanes/cb14/kasumi-run.sh`), everything under `/home/mfwolffe/lanes/cb14/`; no process group
+signalled; nothing of another lane moved or renamed.
 
 ## Inputs verified
 
-Base cub trunk `eb34a399` (cb09 + its note); the worktree `~/lanes/cb14/cub` on branch `cb14`. Engine
-`74b89744` as `lair.pin` names it (staged by `tools/fetch-lair` from the org's lair clone; `LAIR-REV` read),
-wolf 0.2.35 and lupin 0.1.56 with std `2386522e` staged by `.lair/tools/fetch-toolchain` (the digests verified by
-the fetcher on both hosts; kasumi's stage copied from cb09's, `STAMP` read). The contract, `the-rules.md`, the
-maintainer's notes (items 4, 10, 12), `the-proposals.md` §3 (and §4–§6 for the hooks), the bible §2, §16, §19 (and
-§1, §8, §9), `DESIGN.md`, `ART.md`, `GLYPHS.md`, `PALETTE.md`, `KEYS.md`, `REPLAY.md`, `SCORE.md`, the notes cb04,
-cb04a, cb04c, cb05, cb09 and `sprints/RULES.md` §1–§10 read before the first change; README read and refreshed in
-its own commit.
+Base cub trunk `eb34a399` (cb09 + its note), rebased once onto `1497b5d3` (cb10's merge) at the orchestrator's
+word; the worktree `~/lanes/cb14/cub` on branch `cb14`. Engine `74b89744` as `lair.pin` names it (staged by
+`tools/fetch-lair` from the org's lair clone; `LAIR-REV` read), wolf 0.2.35 and lupin 0.1.56 with std `2386522e`
+staged by `.lair/tools/fetch-toolchain` (the digests verified by the fetcher on both hosts; kasumi's stage copied
+from cb09's, `STAMP` read). The contract, `the-rules.md`, the maintainer's notes (items 4, 10, 12),
+`the-proposals.md` §3 (and §4–§6 for the hooks), the bible §2, §16, §19 (and §1, §8, §9), `DESIGN.md`, `ART.md`,
+`GLYPHS.md`, `PALETTE.md`, `KEYS.md`, `REPLAY.md`, `SCORE.md`, the notes cb04, cb04a, cb04c, cb05, cb09 and
+`sprints/RULES.md` §1–§10 read before the first change; README read and refreshed in its own commit.
 
 Corrections for the planning repo: (1) the contract's "gm01's font rules (`tools/mkfont`, `font/extent.txt`, the
 560-glyph console)" name PAX's files on its unmerged `gm01` branch (pax#209), not cub's: cub's glyph list is
@@ -58,7 +97,9 @@ pattern and block element, so the four glyphs this lane added (`⠛`, `⡇`, `�
 and nothing is owed to PAX; (2) the proposals' "between the Hush and Gravehollow" assumed two areas where cb04
 built one — R-cb14-3 splits them (the lane's recommendation, not a decision); (3) "the Teeth's lower den" for the
 raft's landing: the Teeth has one den (the ledge cleft, row 18); the raft lands at the Teeth's far end (row 200
-east), the shortcut's point being the way back from the Mere's far shore.
+east), the shortcut's point being the way back from the Mere's far shore; (4) the lore ids: cb15 holds 0..12 and
+this lane's lines start at 13, registered through cb15's nearby-landmark discovery path once cb15 has merged
+(the orchestrator's word of 2026-10-28; `lore.lu` carries the lines at stable ids until then).
 
 Rulings recommended and implemented, none decided (`docs/DESIGN.md`, "The map overhaul"):
 
@@ -83,8 +124,72 @@ mouth's rows 218..220 in the Howe; the glow-worm clusters `lands.glow_row/glow_x
 
 ## Evidence index
 
-EVIDENCE
+Every census ran on kasumi's native build at `ec67e933` (the last code commit; the cases, the goldens, the note
+and this directory follow it) and sits under `notes/cb14-evidence/`; `tools/journey-length.py` is the before/after
+instrument (`cub --paths-audit | python3 -I tools/journey-length.py`), the before table from trunk `eb34a399` built
+with the same toolchain on kasumi.
+
+- **Checked tests** (`.lair/tools/test`, kasumi, the Mac's run MAC_CHECKED): `wolf test: 471 passed; 0 failed; 0
+  rejected; 0 unsupported` (`checked-tests.txt`); 446 before cb10's merge. The new rows: `src/map_test.lu` (the
+  graph, the dens, the arenas' growth, the gates, the alcoves' guards and slots, the mouths, the stones' sinking,
+  the ash, the mist, the spring, the reveal, the mouth bands), `src/lands_test.lu`, the schema-6 rows in
+  `src/journey_test.lu` and `src/areas_test.lu`, the vocabulary rows in `src/controls_test.lu`, `src/wide_test.lu`
+  for the extended censuses. Sampling on the checked machine, the flood on the native gate: the map rows
+  `test_cb14_the_<area>_s_spine_portals_and_mouths_are_open` walk seed 1's spine row by row (224 rows an area,
+  160 for the Hush, 128 for Gravehollow) and check every portal, den, alcove, landmark and arena centre for open
+  ground — one seed, every destination (a flood an area is over the budget); the fifty-seed, both-field flood is
+  `--world-audit`'s, run natively on kasumi and in the Linux gate. `texture_and_path_bars` samples one drawn row
+  an area and every fourth spine row at seed 0 (as cb04 did, two areas a test). The HUD's night fixture
+  (`combatproof.hud_fixture`) stands in Gravehollow ten rows below the alpha's ring, where no alcove branch lies
+  (the Hush's cells pay for three); the elk's health-bar row is one frame a test. The three row changes are named
+  here because the step budget, not the behaviour, forced them.
+- **The world audit** (`census/world-audit.txt`): 1300 rows, every one `reached == required`, `path_off 0`,
+  straight runs ≤ the bar, bank step ≤ 1, nearest foe ≥ 30 or 1000 (den-less). `--area-map SEED AREA FIELD`
+  (new) prints an area's map with every destination's cell, ground and flood answer — the instrument that found
+  the Howe's cut-off stones, the Gravehollow mark in the brush, the spring on the route.
+- **Den spacing** (`census/den-spacing.txt`): green, least within an area 122, least onward 135; **the bends**
+  (`census/bends-audit.txt`) green; **the spurs** (`census/spurs-audit.txt`) green, every spur ending at a cache,
+  a landmark or a den; **the foe census** (`census/foe-census.txt`) green.
+- **The boss census** (`census/boss-census.txt`): four `fairness` lines, `unwon:0`, `arena_breaches 0`; the alpha's
+  fight walked from the cold den through the Howe and the stone mouth every attempt (`fight.walk_on`).
+- **The journey's length** (`journey-length-before.txt`, `-after.txt`): rows 1648 → 2608, spine cells 2732 → 4248,
+  dens 9 → 12, bosses 4 → 4, the Underteeth 300 cells off the line.
+- **The other censuses** (`census/`): doorways `total 3584000 misses 0` (1792000 before), foes `frames 562600
+  omitted_frames 0` (331000 before; `tools/gameplay.py` carries both markers), den-census green (100 den paths),
+  den-memory 100 journeys 0 failures, hud-census 192 rows 0 stray (the night rows now Gravehollow's), crossing,
+  hitbox, look (338800 frames), motion (168000 rows; a gate's cell is no steady-probe ground), strike and hit
+  censuses green; gen-bench on kasumi's native build the Shingle at field 200 over 50 ms on the base and on the
+  branch alike (70 / 74 ms: the host), the new areas 10..29 ms; the release build's verdict GEN_BENCH_RELEASE.
+- **The first screens** (`frames/<area>-{rich,plain}.txt`, `first-screens.txt`): the Teeth, the Shallows, the
+  Hush, the Stand, the Burn, the Mere, the Underteeth, the Howe, Gravehollow, each from its den (or by the walk on)
+  120 ticks down the route, both tiers; the committed cases `tests/cases/{crags,river,hush,stand,burn,mere,
+  underteeth,howe,gravehollow}.pk` and their goldens.
+- **The witnesses** (`world-proof.txt`, `den-proof.txt`): `--make-world-proof`, `--make-den-proof`,
+  `--make-den-memory` and `--make-area-proof` (new) regenerated on kasumi; 26 cases changed beyond their header,
+  28 new (`stand`, `burn`, `mere`, `underteeth`, `howe`, `gravehollow`, `hush`, the new landmarks, the new rest
+  scenes), 3 gone (`old-den`, `rest-old-den-*`); the cases whose only change was the `journey 4 → 5` header were
+  kept as committed.
+- **Goldens**: GOLDENS_LINE.
+- **The memory gate**: MEMORY_GATE.
+- **The plant**: PR PLANT_PR (`cb14-plant-disconnected`, `102f9753` on `ec67e933`): a wall of stones across the
+  Howe's sixtieth row; `--world-audit` red by name at its first row `0 80 11 3 11 …` (reached 3 of 11) and
+  `test_cb14_the_howe_s_spine_portals_and_mouths_are_open ... FAILED (trap(assert))` (PLANT_LOG). Never merged.
+- **The walk** (item 5): WALK_LINE.
+- **The Linux gate**: LINUX_LINE.
+- **The Mac leg**: MAC_LINE.
 
 ## Done-when
 
-DONEWHEN
+- [x] Five areas on both tiers, each with its palette, terrain, sprites, gates, den (none for the Howe), shortcut,
+      lore and mechanic (ash hides the trail and halves the pace; the stones sink; the mist three cells; the spring
+      refills; the sett's growth gate; the lookout's reveal); Gravehollow split off the Hush.
+- [x] Branches and alcoves in every area from the Teeth on, 2–3 an area, seeded guard, a `kind` slot, visible as
+      a gap in the route's wall; forty alcove bits in the save.
+- [x] Arenas +50 % (14 / 14 / 18 / 20), the censuses re-run.
+- [x] `--world-audit` seeds 0..49 green over 1300 rows; every census extended and compared; the journey-length
+      table before/after; replay determinism (the cases replay; the goldens written once).
+- [ ] The memory gate: MEMORY_GATE_SHORT.
+- [x] Goldens of each new area's first screen on both tiers.
+- [ ] The walk from the Shingle to the Howe's stone mouth on the Mac: WALK_SHORT.
+- [x] The note (five sections, the ledger line, the hooks), the plant red by name, the evidence directory.
+- [ ] The full gauntlet: Linux LINUX_SHORT; Mac MAC_SHORT.
