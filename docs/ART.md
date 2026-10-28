@@ -1,5 +1,23 @@
 # The art study
 
+## The pouch and its finds (cb15)
+
+`pouch-inventory`, `pouch-aim`, `pouch-drop-repickup`, `pouch-consume`,
+`pouch-lore` and `pouch-pickups` are two-tier replay goldens. The pouch is
+a bone-coloured field overlay with five compact rows, effects directly
+under their names, and an action tooltip; it does not add a running-HUD
+strip. Its border uses existing box drawing (ASCII in plain). Lore wraps
+one discovered line at a time with a visible index.
+
+Ground finds glow in their own colours: yarrow green, marrow bone, pine
+dark green, ice blue-white and the tuft white. Each has a small original
+silhouette on both tiers: sprig, bone, bough, shard and strands of fur.
+Rich uses existing half/full blocks; plain uses shaped ASCII and only
+sixteen colours. No font or glyph repertoire change. Existing den scenes
+gain the Lore row; existing field frames change only where a new pickup
+is actually in view.
+
+
 What cub draws, on both tiers, and why. Every sprite here is a mock frame committed as a golden:
 `tests/goldens/art/sheet-rich.txt` and `sheet-plain.txt` (with their `.sty` style files) are the sheets
 `cub --art-study --dump DIR` writes, and the engine's `.lair/tools/goldens` keeps them current. Change a

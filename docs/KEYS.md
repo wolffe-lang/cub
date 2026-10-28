@@ -1,5 +1,25 @@
 # Terminal keys
 
+## Inventory and Lore (cb15)
+
+`i` opens the pouch over the field and pauses the forest. All four arrows
+move among held items; Space opens the selected item's tooltip. Arrows
+choose Consume, Drop or Discard; Space acts. Esc or `i` closes the whole
+pouch, clearing held movement. Ice Consume asks for a second Space to
+throw at a living lock, else the nearest foe in front, within six cells;
+without one the shard is kept. The tuft is passive, never eaten. Drop
+leaves a glowing pickup on the current cell: stand on it and press `r`
+to take it again. A full stack leaves it on the ground; a den's `r` still
+rests. Discard destroys one item. Negotiated repeat `i` does not toggle.
+
+At rest, Up/Down now wrap over the five stats, Confirm and Lore. Space or
+Enter on Lore opens discovered lines; Up/Down scroll, Esc / `i` / `r`
+returns to the ledger, and Esc / `r` there leaves rest. Every item/menu
+key is recorded using ordinary replay keys; `inventory` is appended id37.
+These are replay/decoder witnesses, not a claim of new physical-terminal
+measurements.
+
+
 Measured 2026-10-25 with the pinned engine's `.lair/tools/keyprobe` inside a
 macOS pseudo-terminal, TERM=xterm-256color. These bytes were injected into
 the pty, not typed in Terminal.app or iTerm2; those physical-terminal rows
@@ -16,7 +36,8 @@ remain unmeasured. The decoder selftest checks every split of each sequence.
 | Ctrl+arrow | legacy `1B 5B 31 3B 35` plus `A/B/C/D`; negotiated press/repeat/release | held sprint |
 | Tab | `09` | lock nearest, then cycle |
 | w | `77` | drink |
-| r | `72` | rest at a nearby den; interact with a shortcut or cache |
+| r | `72` | rest at a nearby den; interact with a shortcut or cache; pick up an item on the cub's cell |
+| i | `69` | open or close the paused inventory |
 | m | `6D` | the music off, on again (cb03; `--mute` and `CUB_SOUND=0` keep it off) |
 | Enter | `0D` | confirm pending growth when Confirm is selected at rest |
 | q | `71` | quit |

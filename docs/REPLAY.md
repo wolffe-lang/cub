@@ -1,5 +1,34 @@
 # cub's replay file
 
+## Pouch checkpoints (cb15, CUB 6 / journey 5)
+
+Key ids0..36 and numeric event ids0..50 are unchanged. `inventory` is
+appended key37. A new initial `journey 5` carries204 numeric slots: the
+previous37 followed by pine, ice, tuft, tuft-use count, seeded-area mask,
+lore count, ground count,32 padded lore-id-plus-one slots, then128 padded
+packed pickups. New saved slots37..203 are appended numeric events51..217;
+older `journey 3` and `journey 4` remain readable with empty new fields.
+The ordinary arrows, bite/Space, release/Esc, rest/r and inventory keys
+fully reproduce the paused overlay; no menu input is omitted or read
+from wall time. The six `pouch-*` cases disclose their initial item/lore
+fixtures. The drop case walks away from a den before dropping and using r.
+
+CUB 6 text appends `items pine ice tuft uses seeded lore-count ground-count`
+then the live lore values and packed pickups. Text omits snapshot padding.
+The fixed limits are **32 discovered lore lines** and **128 ground pickups**;
+invalid counts, padding, duplicate lore, item caps and packed area bounds
+are rejected before use. All dropped items and finite seeded discoveries
+survive reload, including the original cell and stable order. Timed effects
+and open menus are transient; resuming still wakes at the saved den.
+
+A packed pickup is `(((area*5+kind)*20001+x+10000)*200001+y+100000)+1`,
+with cell x in[-10000,10000], y in[-100000,100000], kind0..4 and a valid
+area. Zero denotes an unused snapshot slot. CUB 4 and5 validate their old
+canonical bytes/checksum before migration; old yarrow/marrow counts are
+clamped to the new5/3 caps. New saves enforce every cap. Tuft uses and
+ordered, de-duplicated lore are permanent journey state.
+
+
 The `.pk` format is the engine's (lair's `docs/REPLAY.md`: the header, `t TICK KEY`, `t TICK size WxH`,
 the numeric events, the `# score` comment). cub's words in it are its vocabulary (`src/controls/controls.lu`,
 `controls.vocab`):
