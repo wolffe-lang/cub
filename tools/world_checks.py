@@ -108,6 +108,25 @@ def check(binary):
     assert migrated.startswith(b'CUB 7\n') and b'\ngates 0\n' in migrated, 'schema5 migration lost validation/state'
     assert re.search(rb'^slain (.*)$', migrated, re.M)[1].split()[:7] == [m.encode() for m in masks], 'schema5 migration lost the old masks'
 
+    # cb14 over cb15: the CUB 6 save and the journey 5 recording a binary
+    # built at cub 60890a49 wrote (tests/saves/provenance.json) migrate on
+    # this build's next write to CUB 7, items, lore, name and time kept, the
+    # six new areas' masks empty, no gate opened; a resume keeps the bytes.
+    kept = b'\nslain 0 0 0 0 0 0 0 0 0 0 0 0 0\ngates 0\n'
+    trunk6 = out / 'cb15-v6.save'
+    trunk6.write_bytes((ROOT / 'tests/saves/cb15-v6.save').read_bytes())
+    run('migrate-cb15-v6', trunk6)
+    migrated = trunk6.read_bytes()
+    assert migrated.startswith(b'CUB 7\n') and kept + b'name birch_7\nplayed_ms 6974\nitems 1 1 1 0 127 2 0 1 2\n' in migrated, 'the trunk CUB 6 lost state on migration'
+    run('resume-cb15-v6', trunk6)
+    assert trunk6.read_bytes() == migrated, 'a CUB 7 resume changed the migrated bytes'
+    fresh = out / 'cb15-journey5.save'
+    fresh.unlink(missing_ok=True)
+    p = subprocess.run([str(binary), '--headless', '--script', str(ROOT / 'tests/saves/cb15-journey5.pk'), '--save', str(fresh),
+                        '--frames', '1', '--every', '1', '--dump', str(out / 'replay-cb15-journey5')], capture_output=True, text=True)
+    assert p.returncode == 0, ('the trunk journey 5 recording', p.returncode, p.stderr)
+    assert fresh.read_bytes().startswith(b'CUB 7\n') and kept in fresh.read_bytes() and b'\nitems 1 1 1 0 127 2 0 1 2\n' in fresh.read_bytes(), 'the trunk journey 5 snapshot lost state'
+
     memory = out / 'slain.save'
     memory.unlink(missing_ok=True)
     count = int(re.search(r'# frames (\d+)', (ROOT / 'tests/cases/den-memory.pk').read_text())[1])
