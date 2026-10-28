@@ -573,6 +573,7 @@ fn frame(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid, hud: bool, scent: i
     if s.gate_hint_until > s.tick {
         draw.put_text(mut g, s.rows - 2, 1, "the thorns need a lunge", ink(t, true))
     }
+    new_foe_palette(s, t, mut g)
 }
 
 /// The cub (or the wolf) as the frame draws it, nothing else: the roll's
@@ -1365,6 +1366,7 @@ pub fn draw_foe(
 ) {
     if sim.is_boss(kind) { draw_boss(mut g, t, row, col, kind, phase, heading, fade); return }
     if fade >= sim.FOE_FADE_TICKS { return }
+    if sim.is_new_foe(kind) { draw_new_foe(mut g, t, row, col, kind, phase, heading, fade); return }
     if kind == sim.HAWK { draw_hawk(mut g, t, row, col, phase, fade); return }
     let colour = if kind == sim.DEER {
         (if t == tier.RICH then 180 else 11)
@@ -3636,4 +3638,220 @@ fn draw_plain_head_swing(
         (if q % 2 == 0 then sr else 0)
     let c = (if q % 2 == 0 then -1 else if q == 1 then 3 else -2) + sc
     draw.put_text(mut g, row + r, col + c, if q % 2 == 0 then ".^^." else "^", ink(t, true))
+}
+
+/// Original north-facing pixel drawings for the six new foes. Other
+/// headings are exact quarter turns; their envelopes are sim.new_foe_size.
+pub fn new_foe_bitmap(kind: int, phase: int) -> silhouette.Bitmap {
+    let tell = phase == sim.CROUCH
+    if kind == sim.MARTEN {
+        return silhouette.parse(
+            [
+                "#  #",
+                "####",
+                " ## ",
+                " ## ",
+                "####",
+                " ## ",
+                " ## ",
+                " ## ",
+                " #  ",
+                " #  ",
+                "  # ",
+                if tell then "#  #" else "   #",
+            ],
+        )
+    }
+    if kind == sim.ASH_ADDER {
+        if phase == sim.STRIKE {
+            return silhouette.parse(
+                [
+                    "   ##   ",
+                    "   ##   ",
+                    "   #    ",
+                    "   #    ",
+                    "   #    ",
+                    "   #    ",
+                    "   #    ",
+                    "   #    ",
+                ],
+            )
+        }
+        if tell {
+            return silhouette.parse(
+                [
+                    "        ",
+                    "        ",
+                    "  ####  ",
+                    "  #  #  ",
+                    "  # ##  ",
+                    "  # #   ",
+                    "  ###   ",
+                    "        ",
+                ],
+            )
+        }
+        return silhouette.parse(
+            [
+                " ###### ",
+                " #    # ",
+                " # ## # ",
+                " # #  # ",
+                " # #### ",
+                " #      ",
+                " ###### ",
+                "        ",
+            ],
+        )
+    }
+    if kind == sim.CINDER_MOTHS {
+        return silhouette.parse(
+            [
+                " #   #  ",
+                "        ",
+                "   #    ",
+                "        ",
+                "#      #",
+                "        ",
+                if tell then " # # #  " else "        ",
+                "        ",
+            ],
+        )
+    }
+    if kind == sim.HERON {
+        return silhouette.parse(
+            [
+                if tell then "####" else " ###",
+                " #  ",
+                " #  ",
+                " #  ",
+                " #  ",
+                " #  ",
+                " ## ",
+                "####",
+                " ## ",
+                " #  ",
+                " #  ",
+                " #  ",
+            ],
+        )
+    }
+    if kind == sim.GLOW_WORMS {
+        return silhouette.parse(
+            ["        ", " ##     ", " ##  ## ", if tell then " ##  ## " else "     ## "],
+        )
+    }
+    silhouette.parse([" #  ", if tell then " ## " else " #  ", "    ", "    "])
+}
+
+/// The six foes, both tiers, from the same occupied cells and four-way
+/// rotations. Plain never hides cells or emits rich glyphs.
+pub fn draw_new_foe(
+    mut g: grid.Grid,
+    t: int,
+    row: int,
+    col: int,
+    kind: int,
+    phase: int,
+    heading: int,
+    fade: int,
+) {
+    if phase == sim.SNUFFED || fade >= sim.FOE_FADE_TICKS { return }
+    let colour = if kind == sim.MARTEN {
+        (if t == tier.RICH then 180 else 3)
+    } else if kind == sim.ASH_ADDER {
+        (if t == tier.RICH then 173 else 9)
+    } else if kind == sim.CINDER_MOTHS {
+        (if t == tier.RICH then 208 else 11)
+    } else if kind == sim.HERON {
+        (if t == tier.RICH then 250 else 7)
+    } else if kind == sim.GLOW_WORMS {
+        (if t == tier.RICH then 181 else 13)
+    } else {
+        (if t == tier.RICH then 117 else 14)
+    }
+    let style = grid.cell(
+        32,
+        colour,
+        grid.COLOR_DEFAULT,
+        if fade >= 0 then grid.ATTR_DIM else grid.ATTR_BOLD,
+    )
+    let bitmap = new_foe_bitmap(kind, phase)
+    let facing = sim.quarter(heading)
+    if t == tier.RICH {
+        silhouette.draw_at(mut g, row, col, bitmap, facing, style)
+        return
+    }
+    let b = silhouette.turned(bitmap, facing)
+    let (dr, dc) = silhouette.anchor(bitmap, facing)
+    var r = 0
+    while r < silhouette.rows(b) {
+        var c = 0
+        while c < silhouette.cols(b) {
+            if silhouette.cell_cp(b, r, c) != 32 {
+                var cell = copy style
+                cell.cp = if phase == sim.CROUCH {
+                    33
+                } else if kind == sim.MARTEN {
+                    109
+                } else if kind == sim.ASH_ADDER {
+                    115
+                } else if kind == sim.CINDER_MOTHS {
+                    46
+                } else if kind == sim.HERON {
+                    104
+                } else if kind == sim.GLOW_WORMS {
+                    111
+                } else {
+                    42
+                }
+                grid.put(mut g, row + dr + r, col + dc + c, cell)
+            }
+            c += 1
+        }
+        r += 1
+    }
+}
+
+/// Each foe's four facings, then its windup tell at the same facings;
+/// goldens of this sheet pin the shape, envelope and palette on both tiers.
+pub fn new_foe_sheet(t: int, kind: int) -> grid.Grid {
+    var g = grid.new(24, 80)
+    draw.put_text(mut g, 1, 2, "foe {kind}: north east south west; windup below", ink(t, true))
+    var q = 0
+    while q < 4 {
+        draw_new_foe(mut g, t, 7, 10 + q * 18, kind, sim.HUNT, q * 64, -1)
+        draw_new_foe(mut g, t, 16, 10 + q * 18, kind, sim.CROUCH, q * 64, -1)
+        q += 1
+    }
+    g
+}
+
+/// R-cb18-1 A: dim the palette, never the glyphs, on BOTH tiers.
+/// Bold must be removed or terminals commonly ignore the dim request.
+pub fn dim_moth_palette(s: sim.Sim, mut g: grid.Grid) {
+    if !sim.moths_near(s) { return }
+    var r = 0
+    while r < g.rows {
+        var c = 0
+        while c < g.cols {
+            var cell = grid.at(g, r, c)
+            cell.attrs = grid.ATTR_DIM
+            grid.put(mut g, r, c, cell)
+            c += 1
+        }
+        r += 1
+    }
+}
+
+/// Frame-end status presentation, independent of all overlays and menus.
+/// The dark-area id remains a hook until cb14's area table is merged.
+pub fn new_foe_palette(s: sim.Sim, t: int, mut g: grid.Grid) {
+    dim_moth_palette(s, mut g)
+    if s.tick < s.blind_until {
+        grid.fill(
+            mut g,
+            grid.cell(32, if t == tier.RICH then 15 else 7, if t == tier.RICH then 15 else 7, 0),
+        )
+    }
 }
