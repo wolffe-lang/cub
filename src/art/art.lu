@@ -384,7 +384,13 @@ pub fn path_styles(area: int, t: int) -> List[grid.Cell] {
     var out = List[grid.Cell]()
     var v = 0
     while v < sprites.VARIANT_COUNT {
-        (mut out).push(kind_cell(area, t, forest.path_kind(area), v, 0))
+        // Every foliage tone too (cb14: the Burn's ash path is two greys,
+        // as the burn's ash in the thicket and the meadow is).
+        var foliage = 0
+        while foliage < 4 {
+            (mut out).push(kind_cell(area, t, forest.path_kind(area), v, foliage))
+            foliage += 1
+        }
         v += 1
     }
     out

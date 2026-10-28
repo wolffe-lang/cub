@@ -1534,3 +1534,118 @@ press/repeat/release, modifier order, a four-second silent Ctrl hold and
 diagonal chords. Exact holds never use the 17-tick fallback timeout. No
 enhanced fault is reproduced by these injected fixtures; a physical
 Ghostty key capture remains needed if the report persists.
+
+## The map overhaul, 2026-10-28 (cb14, proposed)
+
+The maintainer's word on the second playtest (`the-maintainer-s-notes.md` items 4, 10 and 12): "We want more areas.
+The game is too short." / "Exploration is only rewarded in early levels. Only early levels have branch-off paths." /
+"Boss arenas are too small across the board." The orchestrator's proposals (`the-proposals.md` section 3) name the
+five areas, their lore, their sprites, their placement, the branches and the arenas; this section is what was built.
+Every value is proposed; every ruling is a recommendation the lane implemented, the maintainer's to change by a line.
+
+**R-cb14-1 (recommended A, implemented): the Howe has no den.** The last rest is the Hush's cold den (den 6); the
+Howe and Gravehollow are the walk to the end. **R-cb14-2 (recommended A, implemented): the Underteeth's squeeze
+is a growth gate of paw 2** (`sim.UNDERTEETH_PAW`). **R-cb14-3 (recommended A, implemented): the Hush and
+Gravehollow are two areas.** cb04 built one area (5, "Gravehollow") holding the deep wood, the cold den and the old
+den's arena; the proposals put the Howe "between the Hush and Gravehollow", which the bible's sections 2 and 16
+keep apart (the dark wood with the way to the old den; the old den itself). Area 5 keeps its id and the cold den
+and is the Hush (160 rows: the wood, its arena rows cut); Gravehollow is area 12 (128 rows: the stone mouth at its
+entry, the old den's bowl at row 89). B would put the Howe before area 5 unchanged, with the cold den right after
+the stone mouth, which is what the maintainer's "a den here makes the end easier" refuses. **R-cb14-4 (recommended
+A, implemented): the lookout's reveal is a schematic**, not a zoomed render: for sixty ticks the frame shows the
+whole of Thornmere as a climbing line of stations, the areas' names fading in four ticks apart where they lie, the
+Underteeth under the Teeth, the cub's area marked (B, a true pulled-back render of the terrain, is a renderer the
+engine lacks). **R-cb14-5 (recommended A, implemented): the alcove guards stand on top of R-cb05-4's band** in the
+Teeth, the Shallows and the Hush (`wide.FOES_LATE_MAX` 12 -> 14); the new areas hold their guards alone (3..6,
+`FOES_NEW_MIN/MAX`) until cb18 fills their tables.
+
+**The graph** (`forest.AREAS` 13, `EDGES` 20): Shingle - Cinderwick - Bramblehold - **the Stand** (7) - Larkmeadow -
+**the Burn** (8) - the Teeth - **the Mere** (9) - the Shallows - the Hush (5) - **the Howe** (11) - **Gravehollow** (12),
+with **the Underteeth** (10) a branch from the Teeth (edge 18, the sett at row 72 west of the route) out into the
+Hush (edge 19, the roots at row 40 west). Path edges 10..14 are the new areas' ways on; cb02's edge 1 now leads
+Bramblehold into the Stand, 4 Larkmeadow into the Burn, 5 the Teeth into the Mere. Shortcuts: the scree (edge 15,
+bit 16: from the Stand's west at row 60 down to Bramblehold's east at row 212, beside the split roots), the dry
+streambed (16, bit 32: the Burn's east at row 40 to Larkmeadow's east at row 250), the log raft (17, bit 64: the
+Mere's west at row 190 to the Teeth's east at row 200), the sett (18, bit 128), the roots (19, bit 256); each opens
+from the new area's side with `r`, then both ways (`SHORTCUTS_ALL` 511). cb02's hedge, ledge and shallows become
+chords that skip the Stand, the Burn and the Mere. A cb14 mouth carves its own curved run from the route
+(`forest.mouth_run`); cb02's row-22 band is untouched in its five areas.
+
+| area | length | den (row) | gate at its far end | shortcut back | alcoves (bits) |
+|---|---|---|---|---|---|
+| the Stand (7) | 224 | 12 the root hollow (96..99) | the windthrown pine: three rows, open only to a sneaking cub | the scree | 3 (34..36) |
+| the Burn (8) | 224 | 13 the kiln (112..115) | the burnt oak: a lunge within four cells pushes it over (`gates` bit 1) | the streambed | 3 (37..39) |
+| the Mere (9) | 224 | 14 the dry island (104..107) | none (the heron is cb18's) | the raft | 3 (40..42, over the water as reed causeways) |
+| the Underteeth (10) | 192 | 15 the bone cache (100..103) | the sett's squeeze into it: paw 2 | it is one (the Teeth <-> the Hush) | 3 (43..45) |
+| the Howe (11) | 224 | none | the stone mouth: a lunge opens it (`gates` bit 2; the sentries are cb18's) | none | 3 (46..48) |
+| Gravehollow (12) | 128 | none | the end | none | 2 (49, 50) |
+| the Hush (5) | 160 (was 224) | 6 the cold den | none | the roots, from below | 3 (31..33) |
+| the Teeth (3), the Shallows (4) | 224 | as cb04 | as cb04 | as cb04, and the sett / the raft | 3 each (25..30) |
+
+(The bit numbers are `forest.cache_bit`'s: the Teeth's 16..18, the Shallows' 19..21, the Hush's 22..24, the
+Stand's 25..27, the Burn's 28..30, the Mere's 31..33, the Underteeth's 34..36, the Howe's 37..39, Gravehollow's
+40, 41: `CACHE_BITS` 42.) Every alcove is a cb05 branch (the four shapes, a seeded order, the mouth rows scaled
+to the area's length: 60/136/232 of 288 are 46/105/180 of 224) ending in a hollow or a burrow with a guard a
+tier above the area's (from the Teeth on: foxes of health `sim.ALCOVE_GUARD_HEALTH` 36, a pair, a pair and
+one) and a slot (`lore.alcove_slot`): a lore line in the middle alcove of each area (`lore.ALCOVE_FIRST`..), a
+consumable's kind in the others (yarrow, marrow, pine, a shard of ice, the mother's tuft: `lore.PINE`, `SHARD`,
+`TUFT` are the kinds cb15 makes real; until then a dug slot of those kinds yields `sim.ALCOVE_SCENT` 30). The
+journey's `caches` word holds every bit (`journey.cache_limit`).
+
+**The ground** (`src/lands/lands.lu`; the kinds `terrain.NEEDLES`..`GATE`, 12..22):
+- *the Stand*: pines two cells tall in columns (`PINE`, 11 % of the floor, a wall where the stand's noise runs
+  over 150), a needle floor (`NEEDLES`), the route needles; the lookout a ledge eight cells east of the route at
+  row 200 (`forest.lookout`), the cutters' ruin beside it; the windthrown pine across rows 218..220.
+- *the Burn*: charred trunks (`CHAR`, 9 %; every third leaning), ash drifts two cells wide where the fire's noise
+  ran hot (`DRIFT`: half pace, no trail laid), embers under the ash (`EMBER`, 4 % of a drift: `EMBER_HURT` as
+  Cinderwick's, and a flare of four ticks underfoot), ash everywhere else; the burnt oak across rows 218..220.
+- *the Mere*: still water (`WATER`) with a reed causeway (`REEDS`) for the first and last sixty rows, four islands
+  threaded on the route (centre rows 72, 110, 150, 186; the dry island the widest, radius 11, its reach in
+  columns twice its rows) with a fringe of reeds round turf, and between them the route on stepping stones
+  (`STONE`, the route's width, four rows a stone): a stone sinks `sim.STONE_BEAT` 30 ticks after the cub first
+  steps on it and rises `STONE_RISE` 150 ticks after; a cub on a sunk stone is in the water (half pace, a point
+  of stamina a tick). The stones are not path (`forest.on_path` false; the path audit holds the reeds). The
+  branches over the water are reed causeways.
+- *the Underteeth*: a tunnel of half width 3..4 through wet stone (`CAVE`), six chambers off it (rows 24 + 32 k,
+  eight to twelve cells to alternating sides, radius 5..8, a neck to the tunnel), eight glow-worm clusters on the
+  tunnel's floor (`GLOW`, rows 12 + 24 k, three cells; light three cells round each: beyond three cells of the cub
+  and of every cluster the frame is dark), the spring in the second chamber (`SPRING`, three cells by two: a cub
+  standing in it has its water refilled), drips falling a cell a tick in one column of twelve. The floor's path
+  kind is gravel.
+- *the Howe*: turf, twelve barrows (`MOUND`, three cells wide, rows 16 + 16 k, 7..20 cells off the route to
+  alternating sides), five standing stones (`MENHIR`, two cells tall, rows 30 + 40 k, six to eight cells off the
+  route to alternating sides; each a landmark with an alpha's line, the mark on its face drawn when the cub is
+  within four cells), a few trees, the wood's dark where the noise runs over 170; the stone mouth across rows
+  218..220 with a wall of stone either side.
+- *Gravehollow*: the Hush's night wood, the old den's bowl forced open (radius 20).
+
+**The gates** (`terrain.GATE`, open ground to the forest and its flood, held by `sim.gate_shut`): the windthrown
+pine (the Stand, a sneak), the burnt oak (the Burn, `sim.GATE_OAK`), the sett (the Teeth, paw 2), the stone mouth
+(the Howe, `sim.GATE_MOUTH`). A lunge within four cells of the oak's or the mouth's middle, facing it, opens it for
+the journey (`sim.gates`); a bite there shows the hint. An open gate draws dim.
+
+**The arenas** (item 12): the boar's clearing 11 -> 14 (`forest.BOAR_RADIUS`), the lynx's bowl 12 -> 14
+(`LYNX_RADIUS`), the elk's ford 14 -> 18 (`ELK_RADIUS`), the old den's bowl 12 -> 20 (`ALPHA_RADIUS`); the shapes
+kept (the clearing round, the bowl with its three pillars, the ford astride the bank). The alpha's arena is
+Gravehollow's; its fight starts at the cold den as before and the fighter walks the way on through the Howe and
+opens the stone mouth with a lunge (`fight.walk_on`), every attempt, as a player does after a death.
+
+**The reveal** (the Stand's lookout): the cub within two cells of the lookout starts sixty ticks of the map
+(`sim.reveal_at`, `sim.revealing`); it re-arms when the cub is six cells off. Transient, never saved; the replay
+carries it through the keys.
+
+**Save schema 6** (`journey.lu`): schema 5's lines, the slain line with thirteen masks (`forest.AREAS`), then
+`gates N` (0..3) before the check; `shortcuts` 0..511 (bit 128 needs paw 2), `caches` under 2^42, `mark_area`
+0..12, `last_den` 0..7 and 11..15. A schema-5 file (seven masks, no gates) migrates with empty masks for the six
+new areas and no gate opened; schema 4 as before; 1..3 refused by name. The replay's snapshot is `journey 5`:
+`saved-0`..`saved-43` (the thirty values, the thirteen masks, the gates); a `journey 4` snapshot (37 values) and
+`journey 3` (30) are still read.
+
+**The score** (`score.area_part`): the new areas and Gravehollow are `none` (the silence) until cb17; the Hush
+keeps cb04's `old-den` slot. **The NPC anchors** (cb16) are the landmarks: the lookout and the ruin (the Hermit),
+the kiln (the Charcoal-burner), the causeway's post (the Ferryman), the sett (Dunmoss), Quill's perch as before.
+**The foe tables** (cb18): `sim.group_count` is 0 for the six areas; their alcove guards are foxes until then.
+
+**Measured** (fifty seeds, both fields; `notes/cb14-evidence/`): see the note's tables (the world audit's 1300
+rows, the den spacing, the foe census, the bends, the spurs, the journey's length before and after, the boss
+census, the generation and render costs).

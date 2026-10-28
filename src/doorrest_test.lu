@@ -57,11 +57,11 @@ fn test_cb04d_doorway_edge_crosses_and_arrival_does_not_bounce() {
     s.x = 4 * sim.FP
     s.y = (forest.length(1) - 1) * sim.FP
     s.body_facing = 0
-    assert(sim.transitions(mut s, 5 * sim.FP, s.y), "right edge of drawn shadow enters meadow")
-    assert(s.area == 2 && s.y == 3 * sim.FP, "unchanged arrival placement")
+    assert(sim.transitions(mut s, 5 * sim.FP, s.y), "right edge of drawn shadow enters the Stand")
+    assert(s.area == forest.STAND && s.y == 3 * sim.FP, "unchanged arrival placement")
     let x = s.x
     let y = s.y
-    assert(!sim.transitions(mut s, x, y) && s.area == 2, "no bounce on arrival")
+    assert(!sim.transitions(mut s, x, y) && s.area == forest.STAND, "no bounce on arrival")
     assert(s.edge_ready, "arrival centre rearms without leaving the body shadow")
     s.y -= 1
     assert(sim.transitions(mut s, x, y) && s.area == 1, "first return cell crosses immediately")

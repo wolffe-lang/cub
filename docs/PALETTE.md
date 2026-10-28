@@ -160,3 +160,20 @@ with the rally number below: no meaning relies on colour alone. Outlines
 and labels stay neutral250/plain7 on235/plain0. These status fills pass
 3:1 contrast on the rich HUD surface; grey is deliberately neutral, not
 a categorical-series hue. The water charge colour remains117/plain14.
+
+## The map overhaul (cb14, 2026-10-28, proposed)
+
+| role | rich | plain |
+|---|---:|---:|
+| the Stand: floor / needles / pines (two tones) / the crown / the windthrown pine | 236 / 130 / 29, 22 / 22 / 250 | 0 / 3 / 2 / 2 / 7 |
+| the Burn: floor / ash (two tones) / charred trunk / drift / the burnt oak; an ember / its flare / its ground | 232 / 240, 242 / 243 / 250 / 238; 208, 202 bold / 208 bold / 52 | 0 / 8 / 7 / 7 / 7; 9 bold / 9 bold / 0 |
+| the Mere: water / ripple / reeds / turf (two tones) on its ground / stones / mist ink on its ground | 17 / 24 / 178 / 100, 142 on 22 / 250 / 250 on 24 | 4 / 6 / 3 / 2 on 0 / 7 / 7 on 4 |
+| the Underteeth: floor / walls (two tones) / gravel marks / glow-worms / the spring on water / drips / the dark | 234 / 60, 97 / 102 / 213 bold / 117 on 24 / 117 / 232 | 0 / 5 / 8 / 13 bold / 14 on 4 / 14 / 0 |
+| the Howe: floor / turf (two tones) / barrows / standing stones / trunks / the stone mouth; canopy, light / deep | 235 / 65, 108 / 102 / 252 / 59 / 250; 23 / 17 | 0 / 2 / 8 / 15 / 3 / 7; 2 / 2 |
+| Gravehollow, the Hush | Gravehollow's night keyframe (cb04) | as cb04 |
+| the reveal: ground / names / the dim stations | 236 / 254 / 243 | 0 / 15 / 8 |
+| the rest scenes: the root hollow / the kiln / the dry island / the bone cache | 236 / 232 / 17 / 234 | 0 / 0 / 4 / 0 |
+
+The new areas' paths are needles (the Stand), ash (the Burn), reeds (the Mere's causeway), gravel (the
+Underteeth) and grass (the Howe, Gravehollow); `--world-audit`'s `path_off` holds every area to `art.path_styles`
+as before. The Mere's stones and every gate's cells are not path: they draw as themselves.

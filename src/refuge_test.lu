@@ -98,9 +98,17 @@ fn test_cb03a_clearings_seeds_40_49() { check_clearings(40) }
 fn test_cb03a_reserved_den_bits_are_not_valid_found_locations() {
     var s = sim.new(1, 80, 24)
     s.gate_open = true
-    // Bit 12 is reserved (cb05: 7 is the cold hearth now).
+    // cb14 filled ids 12..15 (the root hollow, the kiln, the dry island,
+    // the bone cache): bit 12 is a den now; a bit past the sixteen is
+    // still refused.
+    assert(forest.den_exists(12) && forest.den_exists(15), "the second bank filled")
     s.lit_dens = 4097
+    let _ = journey.decode(journey.encode(s), 80, 24) else |e| {
+        assert(false, "den 12 lit is a valid save now: {e}")
+        return
+    }
+    s.lit_dens = 65537
     var refused = false
     let _ = journey.decode(journey.encode(s), 80, 24) else { refused = true; sim.new(1, 80, 24) }
-    assert(refused, "reserved id12 must not enter a save before it exists")
+    assert(refused, "a bit past the sixteen dens must not enter a save")
 }

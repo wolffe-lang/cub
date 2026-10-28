@@ -74,7 +74,10 @@ fn test_cb05_two_dens_an_area_at_least_a_den_spacing_apart() {
     var area = 0
     while area < forest.AREAS {
         assert(forest.den_count(area) <= forest.DENS_PER_AREA, "at most two dens in area {area}")
-        assert(forest.den_count(area) >= 1, "a den in area {area}")
+        // cb14: the Howe and Gravehollow have none (R-cb14-1 A).
+        if area != forest.HOWE && area != forest.GRAVEHOLLOW {
+            assert(forest.den_count(area) >= 1, "a den in area {area}")
+        }
         area += 1
     }
     assert(
@@ -518,10 +521,13 @@ fn test_cb05_the_landmarks_stand_on_open_ground_within_sight_of_their_dens() {
             var k = 0
             while k < forest.landmark_count(area) {
                 let (kind, lx, ly) = forest.landmark(seed, 80, area, k)
-                assert(
-                    !forest.blocked(seed, 80, area, lx, forest.origin(seed, area) + ly),
-                    "landmark {k} of area {area} open, seed {seed}",
-                )
+                // cb14: a standing stone is its own solid terrain.
+                if kind != forest.LM_MENHIR {
+                    assert(
+                        !forest.blocked(seed, 80, area, lx, forest.origin(seed, area) + ly),
+                        "landmark {k} of area {area} open, seed {seed}",
+                    )
+                }
                 assert(ly == forest.landmark_row(seed, area, k), "the row guard agrees")
                 if kind == forest.LM_SPLIT_OAK ||
                     kind == forest.LM_CLEFT ||

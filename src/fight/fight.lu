@@ -79,11 +79,12 @@ pub fn walk_on(mut s: sim.Sim, mut r: replay.Replay, target: int) -> bool {
                 return false
             }
             var w = 0
-            while w < 240 && sim.cell_y(s) - o <= hi + 1 {
+            while w < 240 && s.area == forest.STAND && sim.cell_y(s) - o <= hi + 1 {
                 walker.press(mut s, mut r, walker.key(controls.KEY_SNEAK_DOWN))
                 w += 1
             }
-            if sim.cell_y(s) - o <= hi + 1 { return false }
+            if s.area == forest.STAND && sim.cell_y(s) - o <= hi + 1 { return false }
+            if s.area != forest.STAND { continue }
         }
         let bit = sim.gate_bit(s.area)
         if bit > 0 && s.gates / bit % 2 == 0 {

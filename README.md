@@ -10,7 +10,10 @@ The second game of the lair, the wolf games collection, on the collection's shar
 (`wolffe-lang/lair`, pinned in `lair.pin`); the first is `pack`.
 
 **What is in this build:** a seeded route from the Shingle through
-Cinderwick and Bramblehold to Larkmeadow and on, the wide forest of cb05: areas of 288, 240 and 224 cells
+Cinderwick and Bramblehold up the Stand's ridge to Larkmeadow, over the Burn to the Teeth, across the Mere
+to the Shallows, through the Hush and the Howe's barrows to Gravehollow, with the Underteeth under the Teeth
+(cb14: thirteen areas, every one with two or three branches to guarded alcoves, every boss arena half again
+as wide, the Stand's lookout showing the whole forest), the wide forest of cb05: areas of 288, 240 and 224 cells
 (the Shingle's 160 stays the tutorial), at most two dens an area and never under 110 route cells apart,
 each den drawn as the place its name promises and the retired dens standing as landmarks (the coal roots'
 stump-field, the low embers' ring of coals, the ash shelter's charred frame), cache branches in four smooth
@@ -43,9 +46,11 @@ lunge forward and to the right, then a leap two cells straight forward
 with the head shaking left and right twice, each strike held for ticks
 and eased back. An original score plays through the engine's mixer: a part for each
 area, a rest at the den, a sting at a fall, the title over the crossing, a sharp crack cue, and
-a theme for each boss (`docs/SCORE.md`). Seven areas: the Shingle, Cinderwick, Bramblehold,
-Larkmeadow, the Teeth, the Shallows and Gravehollow, each with its den and
-(the town and the old den apart) its shortcut back. Four bosses hold their ground in them: Old Snag the boar in
+a theme for each boss (`docs/SCORE.md`). Thirteen areas: the Shingle, Cinderwick, Bramblehold, the Stand,
+Larkmeadow, the Burn, the Teeth, the Mere, the Shallows, the Hush, the Howe and Gravehollow, with the
+Underteeth a branch under the Teeth; each but the Howe and Gravehollow has its den and (the town and the
+last two apart) a shortcut back; each way on past Bramblehold is held by a gate (a windthrown pine sneaked
+under, a burnt oak and a stone mouth a lunge opens, a badger's sett only a grown paw fits). Four bosses hold their ground in them: Old Snag the boar in
 his clearing, Whisper the lynx among the crags' pillars, Alder the elk at
 the ford, Ashgrim the shadow alpha at the old den; every attack is
 telegraphed long enough to parry, the one unparryable attack of each is
@@ -73,7 +78,7 @@ select, Space opens Consume / Drop / Discard, and Esc or `i` closes. Dropped
 items glow on their cell and can be taken again with `r`. Found lore is kept
 in discovery order and read from the rest menu's Lore row.
 Enter a den with `r` within three cells: a resting cub breathes beside an
-animated fire, with different surroundings in all seven regions. A larger
+animated fire, with different surroundings in all eleven dens' regions. A larger
 ledger sits one sixth of the screen width left of centre, vertically
 centred, with the cub and fire beside it. Up/Down select a stat,
 Right/Left stage or remove levels, and Enter/Space on Confirm spends the
@@ -112,10 +117,13 @@ registers a file anywhere. The old `~/.cub/save` is imported as journey without
 deleting or rewriting it on import. Resume wakes at the last den with slain
 foes still gone, keeping growth, shortcuts, caches, pouch contents, the mark,
 bosses, end and original world field. Corrupt files fail by name, never reset.
-This build writes CUB 6, adding a name and elapsed `played_ms`; CUB 5 migrates
-with name journey and zero elapsed time, and CUB 4 with an empty slain set.
-Earlier schemas fail as `save_version`. A quit before a staged write's commit
-tick preserves the previous gameplay save; an already-due stage commits.
+This build writes CUB 7: thirteen slain masks (one an area) and the gates
+(the burnt oak, the stone mouth), then a name and elapsed `played_ms`. CUB 6
+migrates with empty masks for the six new areas and no gate opened, keeping its
+items, lore, name and time; CUB 5 also with name journey and zero elapsed time,
+and CUB 4 with an empty slain set. Earlier schemas fail as `save_version`. A
+quit before a staged write's commit tick preserves the previous gameplay save;
+an already-due stage commits.
 Live sessions record under `~/.cub/replays/` unless `--record FILE` chooses
 another path. Deaths also leave self-contained archives under `~/.cub/ghosts/`
 (`--ghost-dir DIR` elsewhere). Playback lists both default directories, with
@@ -123,7 +131,8 @@ date, length and ending, or accepts a typed path; Esc returns to the fire.
 The New journey prompts offer the seed and wolf, the playable difficulty in
 this build. Every tuning proposal is in `docs/DESIGN.md`.
 Pouch stacks cap at5/3/3/3/1, with at most128 saved ground pickups and32
-discovered lore lines. The item extension follows name/played_ms in CUB 6;
+discovered lore lines (every id 0..31 now has a line: the next line needs a
+wider save). The item extension follows name/played_ms in CUB 7 and CUB 6;
 CUB 4/5 and earlier CUB 6 wrappers migrate with empty new item fields.
 
 

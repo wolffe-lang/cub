@@ -545,3 +545,45 @@ tell remains airborne; active/recovery birds take one bite. The art and
 contact rows cover every posture, both tiers and four headings. The
 hawk-sheet and frames containing hawks change intentionally with this
 alignment; other drawings are unchanged.
+
+## The map overhaul (cb14, 2026-10-28)
+
+**The Stand.** Pines are full braille columns (`⣿`) two cells tall in pine green (29 and 22 by parity; plain `|`
+in green), each with a `⣀` crown in the needle cell up-left of its top (plain `^`); the needle floor is rust 130
+on dark grey 236 with sparse `⠁` `⠂` marks (plain `.` in 3). The windthrown pine across the way on is a row of
+`⣀` in pale grey 250 (plain `=`), dim once the cub sneaks under it. The lookout is a railed ledge (`==   ==` over
+`|  .  |` over `|=====|`), the cutters' ruin four walls and no roof; the reveal is a frame of its own (dark grey
+236, the stations' names in 254, the climb between them dotted).
+
+**The Burn.** Black 232 under ash in two greys (240, 242; plain 8); charred trunks `⡇` standing and `⢸` `⠸`
+leaning (243; plain `!`, `/`, `\`); ash drifts `░` in 250 (plain `:`); an ember a `⣤` coal in 208/202 bold on dark
+red 52 (plain `*`), `⣿` for four ticks when stepped on (plain `@`); the burnt oak a row of `⡇` in 238 (plain `!`).
+The kiln is a dome of brick (`.---.` over `/#####\` over `|##_##|`); the streambed's mouth a dotted bed.
+
+**The Mere.** Ink blue 17 under everything on the water: the water's ripple `⣀` on every fourth row in 24, the
+rows moving a cell a second (plain `~` in 6 on 4); the reeds `⠇` `⠖` in reed gold 178 (plain `|` `!` in 3); the
+islands' turf 100/142 on dark green 22 (plain 2); the stepping stones `⣿` in 250 (plain `o`), dim while sinking
+and water while sunk; the mist `⠂` in 250 on cold 24 over every water or stone cell more than three cells from the
+cub (plain `.` in 7 on 4). The causeway's first post, the raft's mooring.
+
+**The Underteeth.** Violet-black 234; the walls `▓` and `▒` by parity in 60 and 97 (plain `#` `%` in magenta 5);
+the floor gravel's `·` marks in wet grey 102 (plain 8); glow-worm clusters `⠶` and `⠿` in pink 213 bold (plain
+`o` `O` in 13); the spring `⣀` and `≈` in 117 on water blue 24 (plain `~` in 14 on 4); a drip `⠂` in 117 falling
+a cell a tick (plain `'`); beyond three cells of the cub and of every cluster, dark 232. The sett is a hole under
+a bank; the bone heap bones in rows; the roots' climb.
+
+**The Howe.** Turf 65/108 on 235 (plain 2); barrows `⣠⣤⣄` in grey-green 102 (plain `/^\`); standing stones `⣿`
+two tall in white 252 (plain `I`), the `⠛` mark on the top cell when the cub is within four (plain `+`); the stone
+mouth a wall of stone with the gate's `▓` across it (plain `#`), dim once opened. The way-on props: the pines
+into the Stand, the charred trunks into the Burn, the water and a stone into the Mere, the dark brush into the
+Hush, the barrows into the Howe, the old den's arch into Gravehollow.
+
+**The dens.** The root hollow under the ridge (`\|/ \|/` over `(   )` over `/|\ /|\`), the kiln (`.-###-.` over
+`#(   )#` over `'-###-'`), the dry island among the water (`~~\_/~~` over `~(   )~` over `~~/_\~~`), the bone cache
+(`o o _ o` over `o(   )o` over ` o o o `); their rest scenes: pine columns and crowns, the kiln's brick dome and
+charred trunks beyond its mouth, the Mere's water either side of the island with its reeds and mist, the cavern's
+wet walls with the glow-worms' pink and bones in rows.
+
+The props atlas (`props-rich`/`props-plain`) grew from 24 drawings to 40 (eight rows of five, the opened forms on
+the ninth); `docs/GLYPHS.md` gained `⠛` U+281B, `⡇` U+2847, `⢸` U+28B8 and `⣤` U+28E4, all inside PAX's console
+extent (gm01's `font/extent.txt` draws every braille pattern and block element).

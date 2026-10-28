@@ -596,11 +596,43 @@ pub fn cache_position(seed: int, field: int, area: int, cache: int) -> (int, int
 /// bending toward the farther den, keeps the quiet radius from both), the
 /// seed moving each by up to four rows.
 pub fn cache_row(seed: int, area: int, cache: int) -> int {
-    // The rows scale with the area's length (cb14: 60 / 136 / 232 of 288
-    // are 46 / 105 / 180 of 224); Gravehollow's two keep clear of its arena.
-    let l = length(area)
-    (if cache == 0 then 60 * l / LENGTH_MAX else if cache == 1 then 136 * l / LENGTH_MAX else 232 * l / LENGTH_MAX) +
+    // From the Teeth on (cb14) each area's alcoves have their own rows and
+    // sides (`cache_mouth`), clear of its den, its mouths, its pockets,
+    // its arena and its landmarks by thirty cells and more.
+    if area >= CRAGS && area != TOWN {
+        let (row, _) = cache_mouth(area, cache)
+        return row + world.hash(seed, area, cache + 62, 5)
+    }
+    (if cache == 0 then 60 else if cache == 1 then 136 else 232) +
         world.hash(seed, area, cache + 62, 5)
+}
+
+/// The row and side (-1 west, 1 east) a cb14 alcove's branch leaves the
+/// route on, from the Teeth on: the Teeth 50 east (the shallows' mouth at
+/// 22 east is clear), 110 west (past the pocket at 60 and the sett at 72),
+/// 190 east (the raft's landing at 200 east is ten rows on); the Shallows
+/// east of the route (the Ashwater lies west) at 50, 110 and 190, its ford
+/// at 138..174 astride; the Hush 50 east (the roots' mouth at 40 west), 90
+/// west, 140 east (the pocket at 120 east is twenty rows back); the Stand
+/// 40 west, 150 east, 190 west (the lookout's ledge at 200 east); the Burn
+/// 50 west (the streambed's mouth at 40 east), 160 east, 200 west; the
+/// Mere 40 west (a causeway), 140 east (from the third island), 206 east
+/// (the raft's mouth at 190 west); the Underteeth 40 east, 140 west, 172
+/// east (between its chambers); the Howe 46 west, 105 east, 180 west
+/// (the standing stones alternate the other way); Gravehollow 26 west and
+/// 60 east, before its bowl.
+pub fn cache_mouth(area: int, cache: int) -> (int, int) {
+    if area == CRAGS { return if cache == 0 then (50, 1) else if cache == 1 then (110, -1) else (190, 1) }
+    if area == RIVER { return if cache == 0 then (50, 1) else if cache == 1 then (110, 1) else (190, 1) }
+    if area == HUSH { return if cache == 0 then (50, 1) else if cache == 1 then (90, -1) else (140, 1) }
+    if area == STAND { return if cache == 0 then (40, -1) else if cache == 1 then (150, 1) else (190, -1) }
+    if area == BURN { return if cache == 0 then (50, -1) else if cache == 1 then (160, 1) else (200, -1) }
+    if area == MERE { return if cache == 0 then (40, -1) else if cache == 1 then (140, 1) else (206, 1) }
+    if area == UNDERTEETH {
+        return if cache == 0 then (40, 1) else if cache == 1 then (140, -1) else (172, 1)
+    }
+    if area == HOWE { return if cache == 0 then (46, -1) else if cache == 1 then (105, 1) else (180, -1) }
+    if cache == 0 then (26, -1) else (60, 1)
 }
 
 /// A cache branch's geometry (cb05), computed once per query: its mouth
@@ -619,6 +651,7 @@ pub struct Branch {
     len: int,
     end_x: int,
     end_y: int,
+    stem: bool,
 }
 
 /// The side a cache branch leaves on: even caches west, odd east; in
@@ -628,10 +661,11 @@ pub fn branch_side(seed: int, area: int, cache: int) -> int {
     if area == BRAMBLEHOLD {
         return if spine(seed, area, cache_row(seed, area, cache)) > 0 then -1 else 1
     }
-    // The Shallows' branches leave east (the Ashwater lies west of the
-    // route); the Underteeth's alternate from the east.
-    if area == RIVER { return 1 }
-    if area == UNDERTEETH { return if cache % 2 == 0 then 1 else -1 }
+    // From the Teeth on each alcove's side is its own (cb14, `cache_mouth`).
+    if area >= CRAGS && area != TOWN {
+        let (_, side) = cache_mouth(area, cache)
+        return side
+    }
     if cache % 2 == 0 then -1 else 1
 }
 
@@ -738,6 +772,11 @@ pub fn branch_geom_at(seed: int, field: int, area: int, cache: int, m: int, x0: 
         len: 0,
         end_x: 0,
         end_y: 0,
+        // cb14: from the Teeth on an S carries a stem along the route's
+        // column from its start row to its mouth row, so the S joins the
+        // route where the route is (over the Mere's water or through the
+        // Underteeth's stone a gap would cut it off).
+        stem: area >= CRAGS && area != TOWN,
     }
     g.len = if shape == SHAPE_S {
         r
@@ -881,6 +920,9 @@ fn on_branch(g: Branch, x: int, at: int) -> bool {
     if side * (x - x0) < 0 - hw || side * (x - x0) > r + hw { return false }
     if (x - g.end_x) * (x - g.end_x) + (at - g.end_y) * (at - g.end_y) <= 16 { return true }
     if g.shape == SHAPE_S {
+        if g.stem && abs(x - x0) <= hw && (at - m) * g.amp <= 0 && abs(at - m) <= abs(g.amp) {
+            return true
+        }
         let u = side * (x - x0)
         if u < 0 || u > r { return false }
         return abs(at - (m + g.amp * (2 * ss(u * FP / r) - FP) / FP)) <= hw
@@ -1306,14 +1348,11 @@ fn carved_at(seed: int, field: int, area: int, x: int, at: int, c: int) -> bool 
         if at >= by - 3 && at <= by + 3 { return true }
     }
     // cb14's mouths: a curved run from the route to each mouth at its own
-    // row, on the mouth's side alone.
-    var edge = EDGE_STAND_OUT
-    while edge < EDGES {
-        if !path_edge(edge) && other(area, edge) >= 0 && mouth_run(seed, area, edge, x, at, c) {
-            return true
-        }
-        edge += 1
-    }
+    // row, on the mouth's side alone (`later_mouths`: at most two an area,
+    // so a cell costs no more than two row guards).
+    let (first, second) = later_mouths(area)
+    if first >= 0 && mouth_run(seed, area, first, x, at, c) { return true }
+    if second >= 0 && mouth_run(seed, area, second, x, at, c) { return true }
     // The thorn wall sits at the end of a deliberate treeless branch.
     if area == SHINGLE && at >= 140 && at <= LENGTH {
         let exit_centre = if at < 150 then spine(seed, area, 140) * (150 - at) / 10 else 0
@@ -1646,12 +1685,17 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
     if area == SHINGLE && !near_route(seed, field, x, at) { return closed(seed, area, x, y) }
     if area >= STAND {
         // cb14's areas: carved cells are the area's path kind (the Mere's
-        // stones apart: `lands.mere` says), the rest is `lands`'s.
+        // stones apart: `lands.mere` says), the rest is `lands`'s; a
+        // landmark's patch is cleared as in every area (the standing
+        // stones are their own terrain).
         let carved_here = carved_at(seed, field, area, x, at, c)
+        let cleared = area != HOWE && landmark_clear(seed, field, area, x, at)
         if area == MERE {
+            if cleared { return terrain.REEDS }
             return lands.mere(seed, length(area), x, at, c, half(seed, area, at), carved_here)
         }
         if gate_cell(seed, area, x, at) { return terrain.GATE }
+        if cleared { return path_kind(area) }
         if area == STAND {
             let (lo, hi) = gate_rows(area)
             if at >= lo && at <= hi { return terrain.PINE }
@@ -1785,6 +1829,20 @@ pub fn mouth(area: int, edge: int) -> (int, int) {
     if edge == EDGE_RAFT { return if area == MERE then (190, -32) else (200, 32) }
     if edge == EDGE_SETT { return if area == CRAGS then (72, -32) else (1, 0) }
     if area == UNDERTEETH then (length(UNDERTEETH) - 1, 0) else (40, -32)
+}
+
+/// The cb14 shortcut edges with a side mouth in an area (at most two),
+/// -1 for none: the scree in the Stand and Bramblehold, the streambed in
+/// the Burn and Larkmeadow, the raft in the Mere and the Teeth, the sett
+/// in the Teeth, the roots in the Hush (the Underteeth's two mouths are
+/// its ends, not side mouths).
+pub fn later_mouths(area: int) -> (int, int) {
+    if area == CRAGS { return (EDGE_RAFT, EDGE_SETT) }
+    if area == STAND || area == BRAMBLEHOLD { return (EDGE_SCREE, -1) }
+    if area == BURN || area == LARKMEADOW { return (EDGE_STREAMBED, -1) }
+    if area == MERE { return (EDGE_RAFT, -1) }
+    if area == HUSH { return (EDGE_ROOTS, -1) }
+    (-1, -1)
 }
 
 /// Whether local cell `(x, at)` lies on the run from the route to a cb14

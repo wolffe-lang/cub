@@ -198,7 +198,10 @@ parry, not a ground chase.
 
 ## cb04a: progression (schema4, `journey 3`)
 
-Current recordings use `journey 3` and thirty values, `saved-0` through
+Since cb14 a live recording begins with `journey 5` and `saved-0` through
+`saved-43`: the thirty values below, a slain mask an area (thirteen) and
+the gates word; `journey 4` (37 values, cb05's seven masks) and `journey 3`
+(30) are still read. Before cb14, recordings used `journey 3` and thirty values, `saved-0` through
 `saved-29`. Slot29 is the total level, checked against the five stats.
 Slot7 is discovered water capacity0/2/3, not an unconditional three.
 Older journey snapshots fail `save_version`; scripts without a snapshot
