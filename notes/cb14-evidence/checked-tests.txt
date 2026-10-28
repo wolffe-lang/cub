@@ -1,4 +1,6 @@
-# 5db48d71, the Mac (.lair/tools/test under heavy.sh, mac-gate.sh)
+# 079d3c5a, kasumi (.lair/tools/test in the engine's container, job20, after the rebase onto cb15)
+wolf test: 562 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+# 5db48d71 (before the rebase onto cb15), the Mac (.lair/tools/test under heavy.sh, mac-gate.sh)
 wolf test: 509 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
-# 5db48d71, kasumi (check-linux in the engine's container, job17c)
+# 5db48d71 (before the rebase onto cb15), kasumi (check-linux in the engine's container, job17c)
 wolf test: 509 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
