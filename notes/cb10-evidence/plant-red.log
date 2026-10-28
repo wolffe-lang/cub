@@ -1,0 +1,22 @@
+cb10 Mac floor clear 16460087296 bytes 2026-10-28T02:08:38Z
+cb10 legacy-repeat delay=250 rate=30 continuous=true
+test src/smallfault_test.lu::test_cb10_legacy_ctrl_arrow_default_repeat_never_loses_sprint ... ok
+cb10 legacy-repeat delay=500 rate=60 tick=13 held=false
+cb10 legacy-repeat delay=500 rate=60 tick=14 held=false
+cb10 legacy-repeat delay=500 rate=60 tick=15 held=false
+cb10 legacy-repeat delay=500 rate=60 continuous=false
+test src/smallfault_test.lu::test_cb10_legacy_ctrl_arrow_slow_repeat_never_loses_sprint ... FAILED (trap(assert))
+cb10 water round=0 tick=1 keys=[29] health=36 flasks=3->2 scent=20->20
+cb10 water round=0 tick=6 keys=[] kills=1 flasks=2
+cb10 water round=1 tick=1 keys=[29] health=27 flasks=2->1 scent=20->20
+cb10 water round=1 tick=6 keys=[] kills=2 flasks=1
+cb10 water round=2 tick=1 keys=[29] health=18 flasks=1->0 scent=20->20
+cb10 water round=2 tick=6 keys=[] kills=3 flasks=0
+cb10 water three-kill-no-drink kills=3 flasks=0 green=false
+test src/smallfault_test.lu::test_cb10_three_kills_and_fox_hits_never_drink ... FAILED (trap(assert))
+test src/smallfault_test.lu::test_cb10_low_hawk_is_a_one_bite_body ... FAILED (trap(assert))
+test src/smallfault_test.lu::test_cb10_enhanced_ctrl_release_remains_immediate ... ok
+test src/smallfault_test.lu::test_cb10_reader_modifier_and_legacy_arrows_never_alias_water ... ok
+wolf test: 3 passed; 3 failed; 0 rejected; 0 unsupported; 0 filtered out
+
+[exited with code 1]

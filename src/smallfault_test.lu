@@ -1,0 +1,62 @@
+//! member: false
+
+use controls
+use faultproof
+use hitcensus
+use input
+use sim
+
+fn test_cb10_legacy_ctrl_arrow_default_repeat_never_loses_sprint() {
+    assert(faultproof.repeat_row(250, 30), "default OS repeat remains held")
+}
+
+fn test_cb10_legacy_ctrl_arrow_slow_repeat_never_loses_sprint() {
+    assert(faultproof.repeat_row(500, 60), "500 ms delay, 60 ms repeats remain held")
+}
+
+fn test_cb10_three_kills_and_fox_hits_never_drink() {
+    assert(faultproof.water(), "three real bites, three fox hits, zero w: water unchanged")
+}
+
+fn test_cb10_low_hawk_is_a_one_bite_body() {
+    for phase in [sim.STRIKE, sim.RETREAT] {
+        var s = hitcensus.fixture(sim.HAWK)
+        s.foes[0].phase = phase
+        let fb = sim.foe_body(s.foes[0])
+        let x = s.foes[0].x / sim.FP
+        let y = fb.y1 + 2
+        assert(hitcensus.bite(mut s, x, y, 0), "low hawk takes the bite in phase {phase}")
+        s.foes[0].health = sim.foe_health(sim.HAWK)
+        s.foes[0].last_hit = -1
+        sim.strike_foes(mut s)
+        assert(s.foes[0].health == 0, "one starting bite kills the pink hawk")
+    }
+}
+
+fn test_cb10_enhanced_ctrl_release_remains_immediate() {
+    var s = sim.new(1, 80, 24)
+    (mut s.foes).reset()
+    var keys = List[int]()
+    (mut keys).push(controls.KEY_EXACT)
+    (mut keys).push(controls.KEY_CTRL_DOWN)
+    sim.step(mut s, keys)
+    assert(sim.sprint_held(s), "physical ctrl held")
+    (mut keys).reset()
+    (mut keys).push(controls.KEY_CTRL_UP)
+    sim.step(mut s, keys)
+    assert(!sim.sprint_held(s), "release never waits for legacy grace")
+}
+
+fn test_cb10_reader_modifier_and_legacy_arrows_never_alias_water() {
+    var d = input.new()
+    var keys = List[int]()
+    faultproof.legacy(mut d, 0, mut keys)
+    faultproof.legacy(mut d, 500, mut keys)
+    faultproof.legacy(mut d, 560, mut keys)
+    var raw = List[input.Event]()
+    for b in "\x1b[57442;1:3u \x1b[1;2D".bytes() {
+        input.feed_events(mut d, b, 600, mut raw)
+    }
+    controls.events(raw, mut keys)
+    for k in keys { assert(k != controls.KEY_WATER, "no ctrl/arrow/release alias to w") }
+}
