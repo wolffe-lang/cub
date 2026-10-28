@@ -698,29 +698,70 @@ pub fn census() -> int {
     status
 }
 
-/// One arena encounter, all motion and actions chosen by fight_keys.
-/// Resolution includes the intentionally nonlethal answers: passing the
-/// heron and snuffing the wisp. No position/health/phase is reassigned.
-pub fn new_foe_world(seed: int, cols: int, kind: int, mut r: replay.Replay) -> (int, int, int) {
-    var s = sim.new_foe_arena(seed, cols, if cols == 80 then 24 else 60, kind)
-    var st = fighter()
-    var tick = 0
-    while tick < FIGHT_TICKS && s.action != sim.FALL {
-        var keys = fight_keys(s, 0, mut st)
-        sim.step(mut s, keys)
-        for key in keys { replay.push_key(mut r, tick, key) }
-        if s.foes[0].health <= 0 || s.foes[0].phase == sim.SNUFFED {
-            return (1, tick + 1, s.health)
-        }
-        tick += 1
-    }
-    (0, tick, s.health)
+/// One arena outcome with the new foes' chase/contact audit alongside
+/// fairness. Floaters are intentionally nonsolid; only drawn ground
+/// bodies are forbidden to share cells with the cub.
+pub struct FoeOutcome {
+    resolved: int,
+    ticks: int,
+    health: int,
+    travel: int,
+    contacts: int,
+    overlaps: int,
+    unreachable: int,
+    dodges: int,
 }
 
-/// cb18's six foes, fifty seeds and both sizes, appended as a separate
-/// census so the inherited boss census remains directly comparable.
+/// One arena encounter, all motion and actions chosen by fight_keys.
+/// Passing the heron and snuffing the wisp are nonlethal resolutions.
+/// The initial fixture is the only assignment of position or health.
+pub fn new_foe_world(seed: int, cols: int, kind: int, mut r: replay.Replay) -> FoeOutcome {
+    var s = sim.new_foe_arena(seed, cols, if cols == 80 then 24 else 60, kind)
+    var st = fighter()
+    var o = FoeOutcome {
+        resolved: 0,
+        ticks: 0,
+        health: s.health,
+        travel: 0,
+        contacts: 0,
+        overlaps: 0,
+        unreachable: 0,
+        dodges: 0,
+    }
+    while o.ticks < FIGHT_TICKS && s.action != sim.FALL {
+        let ox = s.x
+        let oy = s.y
+        var keys = fight_keys(s, 0, mut st)
+        for key in keys {
+            replay.push_key(mut r, o.ticks, key)
+            if key == controls.KEY_DODGE { o.dodges += 1 }
+        }
+        sim.step(mut s, keys)
+        o.travel += sim.abs(s.x - ox) + sim.abs(s.y - oy)
+        let f = copy s.foes[0]
+        if sim.solid(f) {
+            if sim.overlap(sim.cub_body(s), sim.foe_body(f)) { o.overlaps += 1 }
+            if sim.body_gap(s, 0) == 0 {
+                o.contacts += 1
+                if !sim.in_reach(s, 0, 2) { o.unreachable += 1 }
+            }
+        }
+        o.ticks += 1
+        o.health = s.health
+        if f.health <= 0 || f.phase == sim.SNUFFED {
+            o.resolved = 1
+            return o
+        }
+    }
+    o
+}
+
+/// cb18's six foes, fifty seeds and both sizes; separate from the boss
+/// census so pre/post bleeding rows remain directly comparable.
 pub fn new_foe_census() -> int {
-    print("foe seed cols resolved ticks health recovery")
+    print(
+        "foe seed cols resolved ticks health recovery travel_fp contacts overlaps unreachable dodges",
+    )
     var status = 0
     var kind = sim.MARTEN
     while kind <= sim.WISP {
@@ -734,9 +775,11 @@ pub fn new_foe_census() -> int {
             for cols in [80, 200] {
                 region encounter {
                     var r = replay.new(seed, 1, cols, if cols == 80 then 24 else 60)
-                    let (won, ticks, health) = new_foe_world(seed, cols, kind, mut r)
-                    print("{kind} {seed} {cols} {won} {ticks} {health} {m.recovery}")
-                    if won == 0 { status = 1 }
+                    let o = new_foe_world(seed, cols, kind, mut r)
+                    print(
+                        "{kind} {seed} {cols} {o.resolved} {o.ticks} {o.health} {m.recovery} {o.travel} {o.contacts} {o.overlaps} {o.unreachable} {o.dodges}",
+                    )
+                    if o.resolved == 0 || o.overlaps != 0 || o.unreachable != 0 { status = 1 }
                 }
             }
             seed += 1

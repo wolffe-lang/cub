@@ -128,6 +128,8 @@ fn usage_text() -> str {
         "  cub --look-audit                  fifty-seed world sprite census\n" +
         "  cub --paths-audit / --doorways-audit / --foes-audit  route and clipping censuses\n" +
         "  cub --hit-census                  every boss/Ashen body-ring bite, as CSV\n" +
+        "  cub --new-foe-census              six foes, 50 seeds x 2 sizes, ordinary-key fairness/contact audit\n" +
+        "  cub --new-foe-proof DIR           record and replay six disclosed test-arena encounters\n" +
         "  cub --narrow-audit AREA LENGTH    diagonal single-file clearance, fifty seeds\n" +
         "  cub --probe-glyphs                measure the rich glyphs' widths here\n" +
         "  cub --selftest                    the decoder table and the diff property, on THIS binary\n\n" +
@@ -591,6 +593,20 @@ fn run_art_study(o: Options) -> int {
     headless.write_frame(o.dump, "coast-plain", art.coast_sheet(tier.PLAIN)) else |_| { return 2 }
     headless.write_frame(o.dump, "meadow-rich", art.meadow_sheet(tier.RICH)) else |_| { return 2 }
     headless.write_frame(o.dump, "meadow-plain", art.meadow_sheet(tier.PLAIN)) else |_| { return 2 }
+    var new_status = 0
+    while new_status < 4 {
+        headless.write_frame(
+            o.dump,
+            "foe-status-{new_status}-rich",
+            art.new_foe_status_sheet(tier.RICH, new_status),
+        ) else |_| { return 2 }
+        headless.write_frame(
+            o.dump,
+            "foe-status-{new_status}-plain",
+            art.new_foe_status_sheet(tier.PLAIN, new_status),
+        ) else |_| { return 2 }
+        new_status += 1
+    }
     var new_kind = sim.MARTEN
     while new_kind <= sim.WISP {
         headless.write_frame(

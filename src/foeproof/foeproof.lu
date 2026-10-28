@@ -33,7 +33,9 @@ pub fn generate(dir: str) -> int {
             var done = false
             while tick < fight.FIGHT_TICKS && s.action != sim.FALL && !done {
                 var keys = List[int]()
-                if kind == sim.MARTEN && !theft {
+                if kind == sim.GLOW_WORMS {
+                    if !flashed { (mut keys).push(controls.KEY_UP) }
+                } else if kind == sim.MARTEN && !theft {
                     // Deliberately let the visible landing connect before
                     // answering; no water or inventory key is generated.
                 } else {
@@ -52,14 +54,18 @@ pub fn generate(dir: str) -> int {
                 if sim.moths_near(s) { dim = true }
                 if s.blind_until > s.tick { flashed = true }
                 // A few complete frames, never just a detached sprite.
-                if tick == 0 || tick == 12 || tick == 24 || tick == 58 {
+                if tick == 0 || tick == 12 || tick == 24 || tick == 58 || s.blind_until > s.tick {
                     for t in [tier.RICH, tier.PLAIN] {
                         var g = grid.new(24, 80)
                         art.render(s, t, mut g)
                         headless.write_frame(dir, "foe-{kind}-{t}-{tick}", g) else { return 2 }
                     }
                 }
-                done = s.foes[0].health <= 0 || s.foes[0].phase == sim.SNUFFED
+                done = if kind == sim.GLOW_WORMS {
+                    flashed && s.tick >= s.blind_until
+                } else {
+                    s.foes[0].health <= 0 || s.foes[0].phase == sim.SNUFFED
+                }
                 tick += 1
             }
             var bytes = List[byte]()
@@ -81,6 +87,7 @@ pub fn generate(dir: str) -> int {
                 !parity ||
                 kind == sim.MARTEN && (!theft || !returned) ||
                 kind == sim.CINDER_MOTHS && !dim ||
+                kind == sim.GLOW_WORMS && !flashed ||
                 kind == sim.HERON && dodges == 0 {
                 return 1
             }
