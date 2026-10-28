@@ -1,0 +1,113 @@
+cb10 Mac floor clear 9735290880 bytes 2026-10-28T02:36:06Z
+cb10 hawk-draw tier=1 phase=0 quarter=0 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=0 quarter=1 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=0 quarter=2 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=0 quarter=3 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=1 quarter=0 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=1 quarter=1 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=1 quarter=2 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=1 quarter=3 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=2 quarter=0 body=4x1 painted=2
+cb10 hawk-draw tier=1 phase=2 quarter=1 body=4x1 painted=2
+cb10 hawk-draw tier=1 phase=2 quarter=2 body=4x1 painted=2
+cb10 hawk-draw tier=1 phase=2 quarter=3 body=4x1 painted=2
+cb10 hawk-draw tier=1 phase=3 quarter=0 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=3 quarter=1 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=3 quarter=2 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=3 quarter=3 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=0 quarter=0 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=0 quarter=1 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=0 quarter=2 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=0 quarter=3 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=1 quarter=0 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=1 quarter=1 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=1 quarter=2 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=1 quarter=3 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=2 quarter=0 body=4x1 painted=2
+cb10 hawk-draw tier=0 phase=2 quarter=1 body=4x1 painted=2
+cb10 hawk-draw tier=0 phase=2 quarter=2 body=4x1 painted=2
+cb10 hawk-draw tier=0 phase=2 quarter=3 body=4x1 painted=2
+cb10 hawk-draw tier=0 phase=3 quarter=0 body=4x1 painted=3
+cb10 hawk-draw tier=0 phase=3 quarter=1 body=4x1 painted=3
+cb10 hawk-draw tier=0 phase=3 quarter=2 body=4x1 painted=3
+cb10 hawk-draw tier=0 phase=3 quarter=3 body=4x1 painted=3
+test src/hawk_fault_test.lu::test_cb10_hawk_shadow_matches_its_unrotated_hit_body_on_both_tiers ... ok
+cb10 hawk-parry area=3 tell=18 recovery=36 killed=true
+test src/hawk_fault_test.lu::test_cb10_crags_hawk_stopped_tell_and_keyed_parry_kill ... ok
+cb10 hawk-parry area=5 tell=18 recovery=36 killed=true
+test src/hawk_fault_test.lu::test_cb10_end_hawk_stopped_tell_and_keyed_parry_kill ... ok
+hitbox hawk phase=2 aim=0 gap=0 quarter=0 one-bite=true
+hitbox hawk phase=3 aim=0 gap=0 quarter=0 one-bite=true
+hitbox hawk phase=2 aim=1 gap=0 quarter=1 one-bite=true
+hitbox hawk phase=3 aim=1 gap=0 quarter=1 one-bite=true
+hitbox hawk phase=2 aim=2 gap=0 quarter=2 one-bite=true
+hitbox hawk phase=3 aim=2 gap=0 quarter=2 one-bite=true
+hitbox hawk phase=2 aim=3 gap=0 quarter=3 one-bite=true
+hitbox hawk phase=3 aim=3 gap=0 quarter=3 one-bite=true
+test src/hawk_fault_test.lu::test_cb10_hawk_hitbox_audit_north_east_touching ... ok
+hitbox hawk phase=2 aim=4 gap=0 quarter=0 one-bite=true
+hitbox hawk phase=3 aim=4 gap=0 quarter=0 one-bite=true
+hitbox hawk phase=2 aim=5 gap=0 quarter=1 one-bite=true
+hitbox hawk phase=3 aim=5 gap=0 quarter=1 one-bite=true
+hitbox hawk phase=2 aim=6 gap=0 quarter=2 one-bite=true
+hitbox hawk phase=3 aim=6 gap=0 quarter=2 one-bite=true
+hitbox hawk phase=2 aim=7 gap=0 quarter=3 one-bite=true
+hitbox hawk phase=3 aim=7 gap=0 quarter=3 one-bite=true
+test src/hawk_fault_test.lu::test_cb10_hawk_hitbox_audit_south_west_touching ... ok
+hitbox hawk phase=2 aim=0 gap=1 quarter=0 one-bite=true
+hitbox hawk phase=3 aim=0 gap=1 quarter=0 one-bite=true
+hitbox hawk phase=2 aim=1 gap=1 quarter=1 one-bite=true
+hitbox hawk phase=3 aim=1 gap=1 quarter=1 one-bite=true
+hitbox hawk phase=2 aim=2 gap=1 quarter=2 one-bite=true
+hitbox hawk phase=3 aim=2 gap=1 quarter=2 one-bite=true
+hitbox hawk phase=2 aim=3 gap=1 quarter=3 one-bite=true
+hitbox hawk phase=3 aim=3 gap=1 quarter=3 one-bite=true
+test src/hawk_fault_test.lu::test_cb10_hawk_hitbox_audit_north_east_gap_one ... ok
+hitbox hawk phase=2 aim=4 gap=1 quarter=0 one-bite=true
+hitbox hawk phase=3 aim=4 gap=1 quarter=0 one-bite=true
+hitbox hawk phase=2 aim=5 gap=1 quarter=1 one-bite=true
+hitbox hawk phase=3 aim=5 gap=1 quarter=1 one-bite=true
+hitbox hawk phase=2 aim=6 gap=1 quarter=2 one-bite=true
+hitbox hawk phase=3 aim=6 gap=1 quarter=2 one-bite=true
+hitbox hawk phase=2 aim=7 gap=1 quarter=3 one-bite=true
+hitbox hawk phase=3 aim=7 gap=1 quarter=3 one-bite=true
+test src/hawk_fault_test.lu::test_cb10_hawk_hitbox_audit_south_west_gap_one ... ok
+cb10 legacy-repeat delay=250 rate=30 continuous=true
+test src/smallfault_test.lu::test_cb10_legacy_ctrl_arrow_default_repeat_never_loses_sprint ... ok
+cb10 legacy-repeat delay=500 rate=60 continuous=true
+test src/smallfault_test.lu::test_cb10_legacy_ctrl_arrow_slow_repeat_never_loses_sprint ... ok
+cb10 water round=0 tick=1 keys=[29] health=36 flasks=3->3 scent=20->15
+cb10 water round=0 tick=6 keys=[] kills=1 flasks=3
+cb10 water round=1 tick=7 keys=[29] health=27 flasks=3->3 scent=15->10
+cb10 water round=1 tick=12 keys=[] kills=2 flasks=3
+cb10 water round=2 tick=13 keys=[29] health=18 flasks=3->3 scent=10->5
+cb10 water round=2 tick=18 keys=[] kills=3 flasks=3
+cb10 water three-kill-no-drink kills=3 flasks=3 green=true
+test src/smallfault_test.lu::test_cb10_three_kills_and_fox_hits_never_drink ... ok
+test src/smallfault_test.lu::test_cb10_low_hawk_is_a_one_bite_body ... ok
+test src/smallfault_test.lu::test_cb10_enhanced_ctrl_release_remains_immediate ... ok
+test src/smallfault_test.lu::test_cb10_reader_modifier_and_legacy_arrows_never_alias_water ... ok
+test src/smallfault_test.lu::test_cb10_fox_scent_theft_never_underflows ... ok
+test src/smallfault_test.lu::test_cb10_a_kill_with_any_physical_key_held_preserves_water ... ok
+cb10 sprint paw=1 before=128 after=129 cells-per-second=3840/256->3870/256
+cb10 sprint paw=4 before=148 after=149 cells-per-second=4440/256->4470/256
+test src/smallfault_test.lu::test_cb10_legacy_ctrl_grace_expires_and_pace_is_one_unit_faster ... ok
+cb10 macOS Ghostty injected kitty bytes delay=250 rate=30 event-types=true continuous-moving-sprint=true
+test src/smallfault_test.lu::test_cb10_macos_ghostty_event_types_default_repeat_and_releases ... ok
+cb10 macOS Ghostty injected kitty bytes delay=500 rate=60 event-types=true continuous-moving-sprint=true
+test src/smallfault_test.lu::test_cb10_macos_ghostty_event_types_slow_repeat_and_releases ... ok
+cb10 macOS Ghostty injected kitty bytes delay=250 rate=30 event-types=false continuous-moving-sprint=true
+test src/smallfault_test.lu::test_cb10_macos_ghostty_press_only_default_repeat ... ok
+cb10 macOS Ghostty injected kitty bytes delay=500 rate=60 event-types=false continuous-moving-sprint=true
+test src/smallfault_test.lu::test_cb10_macos_ghostty_press_only_slow_repeat ... ok
+cb10 macOS Ghostty injected press-order=0 sprint=true green=true
+test src/smallfault_test.lu::test_cb10_macos_ghostty_arrow_repeating_before_ctrl ... ok
+cb10 macOS Ghostty injected press-order=1 sprint=true green=true
+test src/smallfault_test.lu::test_cb10_macos_ghostty_ctrl_held_four_seconds_before_arrow ... ok
+cb10 macOS Ghostty injected press-order=2 sprint=true green=true
+test src/smallfault_test.lu::test_cb10_macos_ghostty_diagonal_ctrl_sprint ... ok
+cb10 macOS Ghostty injected press-order=3 sprint=true green=true
+test src/smallfault_test.lu::test_cb10_macos_ghostty_ctrl_released_and_repressed_mid_run ... ok
+wolf test: 24 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+
+[exited with code 0]

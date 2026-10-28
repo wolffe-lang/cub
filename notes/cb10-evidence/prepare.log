@@ -1,0 +1,1632 @@
+cb10 Mac floor clear 10712825856 bytes 2026-10-28T02:25:39Z
+cb10 hawk-draw tier=1 phase=0 quarter=0 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=0 quarter=1 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=0 quarter=2 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=0 quarter=3 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=1 quarter=0 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=1 quarter=1 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=1 quarter=2 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=1 quarter=3 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=2 quarter=0 body=4x1 painted=2
+cb10 hawk-draw tier=1 phase=2 quarter=1 body=4x1 painted=2
+cb10 hawk-draw tier=1 phase=2 quarter=2 body=4x1 painted=2
+cb10 hawk-draw tier=1 phase=2 quarter=3 body=4x1 painted=2
+cb10 hawk-draw tier=1 phase=3 quarter=0 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=3 quarter=1 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=3 quarter=2 body=4x1 painted=4
+cb10 hawk-draw tier=1 phase=3 quarter=3 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=0 quarter=0 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=0 quarter=1 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=0 quarter=2 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=0 quarter=3 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=1 quarter=0 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=1 quarter=1 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=1 quarter=2 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=1 quarter=3 body=4x1 painted=4
+cb10 hawk-draw tier=0 phase=2 quarter=0 body=4x1 painted=2
+cb10 hawk-draw tier=0 phase=2 quarter=1 body=4x1 painted=2
+cb10 hawk-draw tier=0 phase=2 quarter=2 body=4x1 painted=2
+cb10 hawk-draw tier=0 phase=2 quarter=3 body=4x1 painted=2
+cb10 hawk-draw tier=0 phase=3 quarter=0 body=4x1 painted=3
+cb10 hawk-draw tier=0 phase=3 quarter=1 body=4x1 painted=3
+cb10 hawk-draw tier=0 phase=3 quarter=2 body=4x1 painted=3
+cb10 hawk-draw tier=0 phase=3 quarter=3 body=4x1 painted=3
+test src/hawk_fault_test.lu::test_cb10_hawk_shadow_matches_its_unrotated_hit_body_on_both_tiers ... ok
+cb10 hawk-parry area=3 tell=18 recovery=36 killed=true
+test src/hawk_fault_test.lu::test_cb10_crags_hawk_stopped_tell_and_keyed_parry_kill ... ok
+cb10 hawk-parry area=5 tell=18 recovery=36 killed=true
+test src/hawk_fault_test.lu::test_cb10_end_hawk_stopped_tell_and_keyed_parry_kill ... ok
+hitbox hawk phase=2 aim=0 gap=0 quarter=0 one-bite=true
+hitbox hawk phase=3 aim=0 gap=0 quarter=0 one-bite=true
+hitbox hawk phase=2 aim=1 gap=0 quarter=1 one-bite=true
+hitbox hawk phase=3 aim=1 gap=0 quarter=1 one-bite=true
+hitbox hawk phase=2 aim=2 gap=0 quarter=2 one-bite=true
+hitbox hawk phase=3 aim=2 gap=0 quarter=2 one-bite=true
+hitbox hawk phase=2 aim=3 gap=0 quarter=3 one-bite=true
+hitbox hawk phase=3 aim=3 gap=0 quarter=3 one-bite=true
+test src/hawk_fault_test.lu::test_cb10_hawk_hitbox_audit_north_east_touching ... ok
+hitbox hawk phase=2 aim=4 gap=0 quarter=0 one-bite=true
+hitbox hawk phase=3 aim=4 gap=0 quarter=0 one-bite=true
+hitbox hawk phase=2 aim=5 gap=0 quarter=1 one-bite=true
+hitbox hawk phase=3 aim=5 gap=0 quarter=1 one-bite=true
+hitbox hawk phase=2 aim=6 gap=0 quarter=2 one-bite=true
+hitbox hawk phase=3 aim=6 gap=0 quarter=2 one-bite=true
+hitbox hawk phase=2 aim=7 gap=0 quarter=3 one-bite=true
+hitbox hawk phase=3 aim=7 gap=0 quarter=3 one-bite=true
+test src/hawk_fault_test.lu::test_cb10_hawk_hitbox_audit_south_west_touching ... ok
+hitbox hawk phase=2 aim=0 gap=1 quarter=0 one-bite=true
+hitbox hawk phase=3 aim=0 gap=1 quarter=0 one-bite=true
+hitbox hawk phase=2 aim=1 gap=1 quarter=1 one-bite=true
+hitbox hawk phase=3 aim=1 gap=1 quarter=1 one-bite=true
+hitbox hawk phase=2 aim=2 gap=1 quarter=2 one-bite=true
+hitbox hawk phase=3 aim=2 gap=1 quarter=2 one-bite=true
+hitbox hawk phase=2 aim=3 gap=1 quarter=3 one-bite=true
+hitbox hawk phase=3 aim=3 gap=1 quarter=3 one-bite=true
+test src/hawk_fault_test.lu::test_cb10_hawk_hitbox_audit_north_east_gap_one ... ok
+hitbox hawk phase=2 aim=4 gap=1 quarter=0 one-bite=true
+hitbox hawk phase=3 aim=4 gap=1 quarter=0 one-bite=true
+hitbox hawk phase=2 aim=5 gap=1 quarter=1 one-bite=true
+hitbox hawk phase=3 aim=5 gap=1 quarter=1 one-bite=true
+hitbox hawk phase=2 aim=6 gap=1 quarter=2 one-bite=true
+hitbox hawk phase=3 aim=6 gap=1 quarter=2 one-bite=true
+hitbox hawk phase=2 aim=7 gap=1 quarter=3 one-bite=true
+hitbox hawk phase=3 aim=7 gap=1 quarter=3 one-bite=true
+test src/hawk_fault_test.lu::test_cb10_hawk_hitbox_audit_south_west_gap_one ... ok
+cb10 legacy-repeat delay=250 rate=30 continuous=true
+test src/smallfault_test.lu::test_cb10_legacy_ctrl_arrow_default_repeat_never_loses_sprint ... ok
+cb10 legacy-repeat delay=500 rate=60 continuous=true
+test src/smallfault_test.lu::test_cb10_legacy_ctrl_arrow_slow_repeat_never_loses_sprint ... ok
+cb10 water round=0 tick=1 keys=[29] health=36 flasks=3->3 scent=20->15
+cb10 water round=0 tick=6 keys=[] kills=1 flasks=3
+cb10 water round=1 tick=7 keys=[29] health=27 flasks=3->3 scent=15->10
+cb10 water round=1 tick=12 keys=[] kills=2 flasks=3
+cb10 water round=2 tick=13 keys=[29] health=18 flasks=3->3 scent=10->5
+cb10 water round=2 tick=18 keys=[] kills=3 flasks=3
+cb10 water three-kill-no-drink kills=3 flasks=3 green=true
+test src/smallfault_test.lu::test_cb10_three_kills_and_fox_hits_never_drink ... ok
+test src/smallfault_test.lu::test_cb10_low_hawk_is_a_one_bite_body ... ok
+test src/smallfault_test.lu::test_cb10_enhanced_ctrl_release_remains_immediate ... ok
+test src/smallfault_test.lu::test_cb10_reader_modifier_and_legacy_arrows_never_alias_water ... ok
+test src/smallfault_test.lu::test_cb10_fox_scent_theft_never_underflows ... ok
+test src/smallfault_test.lu::test_cb10_a_kill_with_any_physical_key_held_preserves_water ... ok
+cb10 sprint paw=1 before=128 after=129 cells-per-second=3840/256->3870/256
+cb10 sprint paw=4 before=148 after=149 cells-per-second=4440/256->4470/256
+test src/smallfault_test.lu::test_cb10_legacy_ctrl_grace_expires_and_pace_is_one_unit_faster ... ok
+cb10 macOS Ghostty injected kitty bytes delay=250 rate=30 event-types=true continuous-moving-sprint=true
+test src/smallfault_test.lu::test_cb10_macos_ghostty_event_types_default_repeat_and_releases ... ok
+cb10 macOS Ghostty injected kitty bytes delay=500 rate=60 event-types=true continuous-moving-sprint=true
+test src/smallfault_test.lu::test_cb10_macos_ghostty_event_types_slow_repeat_and_releases ... ok
+cb10 macOS Ghostty injected kitty bytes delay=250 rate=30 event-types=false continuous-moving-sprint=true
+test src/smallfault_test.lu::test_cb10_macos_ghostty_press_only_default_repeat ... ok
+cb10 macOS Ghostty injected kitty bytes delay=500 rate=60 event-types=false continuous-moving-sprint=true
+test src/smallfault_test.lu::test_cb10_macos_ghostty_press_only_slow_repeat ... ok
+wolf test: 20 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+build: target/native/cub
+build: target/release/cub
+cb10 legacy-repeat delay=250 rate=30 continuous=true
+cb10 legacy-repeat delay=500 rate=60 continuous=true
+cb10 water round=0 tick=1 keys=[29] health=36 flasks=3->3 scent=20->15
+cb10 water round=0 tick=6 keys=[] kills=1 flasks=3
+cb10 water round=1 tick=7 keys=[29] health=27 flasks=3->3 scent=15->10
+cb10 water round=1 tick=12 keys=[] kills=2 flasks=3
+cb10 water round=2 tick=13 keys=[29] health=18 flasks=3->3 scent=10->5
+cb10 water round=2 tick=18 keys=[] kills=3 flasks=3
+cb10 water three-kill-no-drink kills=3 flasks=3 green=true
+cb10 macOS Ghostty injected kitty bytes delay=250 rate=30 event-types=true continuous-moving-sprint=true
+cb10 macOS Ghostty injected kitty bytes delay=500 rate=60 event-types=true continuous-moving-sprint=true
+cb10 macOS Ghostty injected kitty bytes delay=250 rate=30 event-types=false continuous-moving-sprint=true
+cb10 macOS Ghostty injected kitty bytes delay=500 rate=60 event-types=false continuous-moving-sprint=true
+aim cub_x cub_y gap anchor_in_cone body_in_cone landed
+0 -1 43 0 true true true
+1 -5 42 0 true true true
+2 -5 38 0 true true true
+3 -5 36 0 true true true
+4 0 36 0 true true true
+5 5 36 0 true true true
+6 5 39 0 true true true
+7 4 43 0 true true true
+0 -1 43 1 true true true
+1 -6 43 1 true true true
+2 -6 38 1 true true true
+3 -6 35 1 true true true
+4 0 35 1 true true true
+5 6 35 1 true true true
+6 5 39 1 true true true
+7 5 44 1 true true true
+hitbox hawk phase=2 aim=0 gap=0 quarter=0 one-bite=true
+hitbox hawk phase=3 aim=0 gap=0 quarter=0 one-bite=true
+hitbox hawk phase=2 aim=1 gap=0 quarter=1 one-bite=true
+hitbox hawk phase=3 aim=1 gap=0 quarter=1 one-bite=true
+hitbox hawk phase=2 aim=2 gap=0 quarter=2 one-bite=true
+hitbox hawk phase=3 aim=2 gap=0 quarter=2 one-bite=true
+hitbox hawk phase=2 aim=3 gap=0 quarter=3 one-bite=true
+hitbox hawk phase=3 aim=3 gap=0 quarter=3 one-bite=true
+hitbox hawk phase=2 aim=4 gap=0 quarter=0 one-bite=true
+hitbox hawk phase=3 aim=4 gap=0 quarter=0 one-bite=true
+hitbox hawk phase=2 aim=5 gap=0 quarter=1 one-bite=true
+hitbox hawk phase=3 aim=5 gap=0 quarter=1 one-bite=true
+hitbox hawk phase=2 aim=6 gap=0 quarter=2 one-bite=true
+hitbox hawk phase=3 aim=6 gap=0 quarter=2 one-bite=true
+hitbox hawk phase=2 aim=7 gap=0 quarter=3 one-bite=true
+hitbox hawk phase=3 aim=7 gap=0 quarter=3 one-bite=true
+hitbox hawk phase=2 aim=0 gap=1 quarter=0 one-bite=true
+hitbox hawk phase=3 aim=0 gap=1 quarter=0 one-bite=true
+hitbox hawk phase=2 aim=1 gap=1 quarter=1 one-bite=true
+hitbox hawk phase=3 aim=1 gap=1 quarter=1 one-bite=true
+hitbox hawk phase=2 aim=2 gap=1 quarter=2 one-bite=true
+hitbox hawk phase=3 aim=2 gap=1 quarter=2 one-bite=true
+hitbox hawk phase=2 aim=3 gap=1 quarter=3 one-bite=true
+hitbox hawk phase=3 aim=3 gap=1 quarter=3 one-bite=true
+hitbox hawk phase=2 aim=4 gap=1 quarter=0 one-bite=true
+hitbox hawk phase=3 aim=4 gap=1 quarter=0 one-bite=true
+hitbox hawk phase=2 aim=5 gap=1 quarter=1 one-bite=true
+hitbox hawk phase=3 aim=5 gap=1 quarter=1 one-bite=true
+hitbox hawk phase=2 aim=6 gap=1 quarter=2 one-bite=true
+hitbox hawk phase=3 aim=6 gap=1 quarter=2 one-bite=true
+hitbox hawk phase=2 aim=7 gap=1 quarter=3 one-bite=true
+hitbox hawk phase=3 aim=7 gap=1 quarter=3 one-bite=true
+hitbox: green, a bite in reach lands from every aim, touching and a cell off
+kind gap direction hits pairs percent
+2 0 along 80 192 41.7
+2 0 away 0 680 0.0
+2 0 into 120 120 100.0
+2 1 along 64 288 22.2
+2 1 away 0 808 0.0
+2 1 into 152 152 100.0
+2 2 along 0 384 0.0
+2 2 away 0 936 0.0
+2 2 into 0 184 0.0
+4 0 along 176 328 53.7
+4 0 away 0 884 0.0
+4 0 into 324 324 100.0
+4 1 along 64 424 15.1
+4 1 away 0 1012 0.0
+4 1 into 356 356 100.0
+4 2 along 0 520 0.0
+4 2 away 0 1140 0.0
+4 2 into 0 388 0.0
+5 0 along 152 296 51.4
+5 0 away 0 836 0.0
+5 0 into 276 276 100.0
+5 1 along 64 392 16.3
+5 1 away 0 964 0.0
+5 1 into 308 308 100.0
+5 2 along 0 488 0.0
+5 2 away 0 1092 0.0
+5 2 into 0 340 0.0
+6 0 along 200 368 54.3
+6 0 away 0 944 0.0
+6 0 into 384 384 100.0
+6 1 along 64 464 13.8
+6 1 away 0 1072 0.0
+6 1 into 416 416 100.0
+6 2 along 0 560 0.0
+6 2 away 0 1200 0.0
+6 2 into 0 448 0.0
+7 0 along 176 328 53.7
+7 0 away 0 884 0.0
+7 0 into 324 324 100.0
+7 1 along 64 424 15.1
+7 1 away 0 1012 0.0
+7 1 into 356 356 100.0
+7 2 along 0 520 0.0
+7 2 away 0 1140 0.0
+7 2 into 0 388 0.0
+8 0 along 88 208 42.3
+8 0 away 0 704 0.0
+8 0 into 144 144 100.0
+8 1 along 64 304 21.1
+8 1 away 0 832 0.0
+8 1 into 176 176 100.0
+8 2 along 0 400 0.0
+8 2 away 0 960 0.0
+8 2 into 0 208 0.0
+inward-gap01 misses 0
+gameplay: complete hit rings, inward gap0/1 100%, away/gap2 zero
+goldens: aim-e-rich ok
+goldens: aim-e-plain ok
+goldens: aim-lock-rich ok
+goldens: aim-lock-plain ok
+goldens: aim-n-rich ok
+goldens: aim-n-plain ok
+goldens: aim-ne-rich ok
+goldens: aim-ne-plain ok
+goldens: aim-nw-rich ok
+goldens: aim-nw-plain ok
+goldens: aim-s-rich ok
+goldens: aim-s-plain ok
+goldens: aim-se-rich ok
+goldens: aim-se-plain ok
+goldens: aim-sw-rich ok
+goldens: aim-sw-plain ok
+goldens: aim-w-rich ok
+goldens: aim-w-plain ok
+goldens: ashen-parry-rich ok
+goldens: ashen-parry-plain ok
+goldens: bite-arc-rich ok
+goldens: bite-arc-plain ok
+goldens: bite-rich ok
+goldens: bite-plain ok
+goldens: boss-alpha-beaten-rich ok
+goldens: boss-alpha-beaten-plain ok
+goldens: boss-alpha-phase2-rich ok
+goldens: boss-alpha-phase2-plain ok
+goldens: boss-alpha-windup-rich ok
+goldens: boss-alpha-windup-plain ok
+goldens: boss-boar-beaten-rich DIFFERS (target/goldens/boss-boar-beaten-rich.diff)
+diff -r tests/goldens/boss-boar-beaten-rich/final.state target/goldens/boss-boar-beaten-rich/final.state
+1c1
+< tick 1134 resting 0 capacity 2 level 4 meat 0 area 1 den_id 2 shortcuts 3 caches 0 scene 0 drops 1 mark_area 0 x 4323 y 27138 heading 96 action 0 started 1085 health 56 stamina 80 flasks 1 scent 20 deaths 0 mark 0 mark_scent 0 gate 1 trail 50 lock -1 aim 96 combo 0 body 3 gait 1063 sprint 0 cone 96 bosses 1 end 0 arena 0 played 1134 lost 0
+---
+> tick 1134 resting 0 capacity 2 level 4 meat 0 area 1 den_id 2 shortcuts 3 caches 0 scene 0 drops 1 mark_area 0 x 4323 y 27138 heading 96 action 0 started 1085 health 56 stamina 80 flasks 2 scent 20 deaths 0 mark 0 mark_scent 0 gate 1 trail 50 lock -1 aim 96 combo 0 body 3 gait 1063 sprint 0 cone 96 bosses 1 end 0 arena 0 played 1134 lost 0
+diff -r tests/goldens/boss-boar-beaten-rich/final.txt target/goldens/boss-boar-beaten-rich/final.txt
+6c6
+< ⣮Water⠶1/2⠶⠖w⠖drink⣿⣮⣿⠶⣿⠶⣿⠶⣶⣮┃⣮┃⠶⣶┃┃⣮⣿┃⣿⠶⣿⣮⣶⠶⣶⠶⣿⠶⠖⠖⠶⠖⠶⠶⠶⠖⠶⠖⠶⠶⣿⣮⣿⠶⣶┃⣶┃⣿⠶┃⣮⣿⠶⣿⣮⣶⠶⣿
+---
+> ⣮Water⠶2/2⠶⠖w⠖drink⣿⣮⣿⠶⣿⠶⣿⠶⣶⣮┃⣮┃⠶⣶┃┃⣮⣿┃⣿⠶⣿⣮⣶⠶⣶⠶⣿⠶⠖⠖⠶⠖⠶⠶⠶⠖⠶⠖⠶⠶⣿⣮⣿⠶⣶┃⣶┃⣿⠶┃⣮⣿⠶⣿⣮⣶⠶⣿
+diff -r tests/goldens/boss-boar-beaten-rich/frame-1095.txt target/goldens/boss-boar-beaten-rich/frame-1095.txt
+6c6
+< ⣮Water⠶1/2⠶⠖w⠖drink⣿⣮⣿⠶⣿⠶⣿⠶⣶⣮┃⣮┃⠶⣶┃┃⣮⣿┃⣿⠶⣿⣮⣶⠶⣶⠶⣿⠶⠖⠖⠶⠖⠶⠶⠶⠖⠶⠖⠶⠶⣿⣮⣿⠶⣶┃⣶┃⣿⠶┃⣮⣿⠶⣿⣮⣶⠶⣿
+---
+> ⣮Water⠶2/2⠶⠖w⠖drink⣿⣮⣿⠶⣿⠶⣿⠶⣶⣮┃⣮┃⠶⣶┃┃⣮⣿┃⣿⠶⣿⣮⣶⠶⣶⠶⣿⠶⠖⠖⠶⠖⠶⠶⠶⠖⠶⠖⠶⠶⣿⣮⣿⠶⣶┃⣶┃⣿⠶┃⣮⣿⠶⣿⣮⣶⠶⣿
+diff -r tests/goldens/boss-boar-beaten-rich/frame-1110.txt target/goldens/boss-boar-beaten-rich/frame-1110.txt
+6c6
+< ⣮Water⠶1/2⠶⠖w⠖drink⣿⣮⣿⠶⣿⠶⣿⠶⣶⣮┃⣮┃⠶⣶┃┃⣮⣿┃⣿⠶⣿⣮⣶⠶⣶⠶⣿⠶⠖⠖⠶⠖⠶⠶⠶⠖⠶⠖⠶⠶⣿⣮⣿⠶⣶┃⣶┃⣿⠶┃⣮⣿⠶⣿⣮⣶⠶⣿
+---
+> ⣮Water⠶2/2⠶⠖w⠖drink⣿⣮⣿⠶⣿⠶⣿⠶⣶⣮┃⣮┃⠶⣶┃┃⣮⣿┃⣿⠶⣿⣮⣶⠶⣶⠶⣿⠶⠖⠖⠶⠖⠶⠶⠶⠖⠶⠖⠶⠶⣿⣮⣿⠶⣶┃⣶┃⣿⠶┃⣮⣿⠶⣿⣮⣶⠶⣿
+goldens: boss-boar-beaten-plain DIFFERS (target/goldens/boss-boar-beaten-plain.diff)
+diff -r tests/goldens/boss-boar-beaten-plain/final.state target/goldens/boss-boar-beaten-plain/final.state
+1c1
+< tick 1134 resting 0 capacity 2 level 4 meat 0 area 1 den_id 2 shortcuts 3 caches 0 scene 0 drops 1 mark_area 0 x 4323 y 27138 heading 96 action 0 started 1085 health 56 stamina 80 flasks 1 scent 20 deaths 0 mark 0 mark_scent 0 gate 1 trail 50 lock -1 aim 96 combo 0 body 3 gait 1063 sprint 0 cone 96 bosses 1 end 0 arena 0 played 1134 lost 0
+---
+> tick 1134 resting 0 capacity 2 level 4 meat 0 area 1 den_id 2 shortcuts 3 caches 0 scene 0 drops 1 mark_area 0 x 4323 y 27138 heading 96 action 0 started 1085 health 56 stamina 80 flasks 2 scent 20 deaths 0 mark 0 mark_scent 0 gate 1 trail 50 lock -1 aim 96 combo 0 body 3 gait 1063 sprint 0 cone 96 bosses 1 end 0 arena 0 played 1134 lost 0
+diff -r tests/goldens/boss-boar-beaten-plain/final.txt target/goldens/boss-boar-beaten-plain/final.txt
+6c6
+< *Water"1/2"'w'drink&*&;&;&;%*|*|;%||*&|&;&*%;%;&"''"'"""'"'""&*&;%|%|&;|*&;&*%;&
+---
+> *Water"2/2"'w'drink&*&;&;&;%*|*|;%||*&|&;&*%;%;&"''"'"""'"'""&*&;%|%|&;|*&;&*%;&
+diff -r tests/goldens/boss-boar-beaten-plain/frame-1095.txt target/goldens/boss-boar-beaten-plain/frame-1095.txt
+6c6
+< *Water"1/2"'w'drink&*&;&;&;%*|*|;%||*&|&;&*%;%;&"''"'"""'"'""&*&;%|%|&;|*&;&*%;&
+---
+> *Water"2/2"'w'drink&*&;&;&;%*|*|;%||*&|&;&*%;%;&"''"'"""'"'""&*&;%|%|&;|*&;&*%;&
+diff -r tests/goldens/boss-boar-beaten-plain/frame-1110.txt target/goldens/boss-boar-beaten-plain/frame-1110.txt
+6c6
+< *Water"1/2"'w'drink&*&;&;&;%*|*|;%||*&|&;&*%;%;&"''"'"""'"'""&*&;%|%|&;|*&;&*%;&
+---
+> *Water"2/2"'w'drink&*&;&;&;%*|*|;%||*&|&;&*%;%;&"''"'"""'"'""&*&;%|%|&;|*&;&*%;&
+goldens: boss-boar-phase2-rich ok
+goldens: boss-boar-phase2-plain ok
+goldens: boss-boar-windup-rich ok
+goldens: boss-boar-windup-plain ok
+goldens: boss-elk-beaten-rich DIFFERS (target/goldens/boss-elk-beaten-rich.diff)
+diff -r tests/goldens/boss-elk-beaten-rich/final.state target/goldens/boss-elk-beaten-rich/final.state
+3c3
+< foe 1 kind 2 health 8 phase 0 since 158 x -1858 y 10500 heading 0 gap 109 last_hit -1 attack 0 poise 0
+---
+> foe 1 kind 2 health 8 phase 0 since 158 x -1858 y 10500 heading 0 gap 111 last_hit -1 attack 0 poise 0
+7c7
+< foe 5 kind 2 health 8 phase 0 since 462 x -2114 y 27140 heading 0 gap 44 last_hit -1 attack 0 poise 0
+---
+> foe 5 kind 2 health 8 phase 0 since 462 x -2114 y 27140 heading 0 gap 46 last_hit -1 attack 0 poise 0
+9c9
+< foe 7 kind 2 health 8 phase 0 since 0 x 2750 y 48644 heading 0 gap 34 last_hit -1 attack 0 poise 0
+---
+> foe 7 kind 2 health 8 phase 0 since 0 x 2750 y 48644 heading 0 gap 35 last_hit -1 attack 0 poise 0
+goldens: boss-elk-beaten-plain DIFFERS (target/goldens/boss-elk-beaten-plain.diff)
+diff -r tests/goldens/boss-elk-beaten-plain/final.state target/goldens/boss-elk-beaten-plain/final.state
+3c3
+< foe 1 kind 2 health 8 phase 0 since 158 x -1858 y 10500 heading 0 gap 109 last_hit -1 attack 0 poise 0
+---
+> foe 1 kind 2 health 8 phase 0 since 158 x -1858 y 10500 heading 0 gap 111 last_hit -1 attack 0 poise 0
+7c7
+< foe 5 kind 2 health 8 phase 0 since 462 x -2114 y 27140 heading 0 gap 44 last_hit -1 attack 0 poise 0
+---
+> foe 5 kind 2 health 8 phase 0 since 462 x -2114 y 27140 heading 0 gap 46 last_hit -1 attack 0 poise 0
+9c9
+< foe 7 kind 2 health 8 phase 0 since 0 x 2750 y 48644 heading 0 gap 34 last_hit -1 attack 0 poise 0
+---
+> foe 7 kind 2 health 8 phase 0 since 0 x 2750 y 48644 heading 0 gap 35 last_hit -1 attack 0 poise 0
+goldens: boss-elk-phase2-rich DIFFERS (target/goldens/boss-elk-phase2-rich.diff)
+diff -r tests/goldens/boss-elk-phase2-rich/final.state target/goldens/boss-elk-phase2-rich/final.state
+3c3
+< foe 1 kind 2 health 8 phase 0 since 158 x -1878 y 11036 heading 0 gap 99 last_hit -1 attack 0 poise 0
+---
+> foe 1 kind 2 health 8 phase 0 since 158 x -1878 y 11036 heading 0 gap 101 last_hit -1 attack 0 poise 0
+7c7
+< foe 5 kind 2 health 8 phase 0 since 462 x -2134 y 27676 heading 0 gap 34 last_hit -1 attack 0 poise 0
+---
+> foe 5 kind 2 health 8 phase 0 since 462 x -2134 y 27676 heading 0 gap 36 last_hit -1 attack 0 poise 0
+9c9
+< foe 7 kind 2 health 8 phase 0 since 0 x 2730 y 49180 heading 0 gap 42 last_hit -1 attack 0 poise 0
+---
+> foe 7 kind 2 health 8 phase 0 since 0 x 2730 y 49180 heading 0 gap 43 last_hit -1 attack 0 poise 0
+goldens: boss-elk-phase2-plain DIFFERS (target/goldens/boss-elk-phase2-plain.diff)
+diff -r tests/goldens/boss-elk-phase2-plain/final.state target/goldens/boss-elk-phase2-plain/final.state
+3c3
+< foe 1 kind 2 health 8 phase 0 since 158 x -1878 y 11036 heading 0 gap 99 last_hit -1 attack 0 poise 0
+---
+> foe 1 kind 2 health 8 phase 0 since 158 x -1878 y 11036 heading 0 gap 101 last_hit -1 attack 0 poise 0
+7c7
+< foe 5 kind 2 health 8 phase 0 since 462 x -2134 y 27676 heading 0 gap 34 last_hit -1 attack 0 poise 0
+---
+> foe 5 kind 2 health 8 phase 0 since 462 x -2134 y 27676 heading 0 gap 36 last_hit -1 attack 0 poise 0
+9c9
+< foe 7 kind 2 health 8 phase 0 since 0 x 2730 y 49180 heading 0 gap 42 last_hit -1 attack 0 poise 0
+---
+> foe 7 kind 2 health 8 phase 0 since 0 x 2730 y 49180 heading 0 gap 43 last_hit -1 attack 0 poise 0
+goldens: boss-elk-windup-rich DIFFERS (target/goldens/boss-elk-windup-rich.diff)
+diff -r tests/goldens/boss-elk-windup-rich/final.state target/goldens/boss-elk-windup-rich/final.state
+3c3
+< foe 1 kind 2 health 8 phase 0 since 158 x -1792 y 10752 heading 0 gap 99 last_hit -1 attack 0 poise 0
+---
+> foe 1 kind 2 health 8 phase 0 since 158 x -1792 y 10752 heading 0 gap 101 last_hit -1 attack 0 poise 0
+7c7
+< foe 5 kind 2 health 8 phase 0 since 462 x -2048 y 27392 heading 0 gap 34 last_hit -1 attack 0 poise 0
+---
+> foe 5 kind 2 health 8 phase 0 since 462 x -2048 y 27392 heading 0 gap 36 last_hit -1 attack 0 poise 0
+9c9
+< foe 7 kind 2 health 8 phase 0 since 0 x 2816 y 48896 heading 0 gap 44 last_hit -1 attack 0 poise 0
+---
+> foe 7 kind 2 health 8 phase 0 since 0 x 2816 y 48896 heading 0 gap 45 last_hit -1 attack 0 poise 0
+goldens: boss-elk-windup-plain DIFFERS (target/goldens/boss-elk-windup-plain.diff)
+diff -r tests/goldens/boss-elk-windup-plain/final.state target/goldens/boss-elk-windup-plain/final.state
+3c3
+< foe 1 kind 2 health 8 phase 0 since 158 x -1792 y 10752 heading 0 gap 99 last_hit -1 attack 0 poise 0
+---
+> foe 1 kind 2 health 8 phase 0 since 158 x -1792 y 10752 heading 0 gap 101 last_hit -1 attack 0 poise 0
+7c7
+< foe 5 kind 2 health 8 phase 0 since 462 x -2048 y 27392 heading 0 gap 34 last_hit -1 attack 0 poise 0
+---
+> foe 5 kind 2 health 8 phase 0 since 462 x -2048 y 27392 heading 0 gap 36 last_hit -1 attack 0 poise 0
+9c9
+< foe 7 kind 2 health 8 phase 0 since 0 x 2816 y 48896 heading 0 gap 44 last_hit -1 attack 0 poise 0
+---
+> foe 7 kind 2 health 8 phase 0 since 0 x 2816 y 48896 heading 0 gap 45 last_hit -1 attack 0 poise 0
+goldens: boss-lynx-beaten-rich DIFFERS (target/goldens/boss-lynx-beaten-rich.diff)
+diff -r tests/goldens/boss-lynx-beaten-rich/final.state target/goldens/boss-lynx-beaten-rich/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 296 x 1680 y 19188 heading 0 gap 85 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 296 x 1680 y 19188 heading 0 gap 87 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 1168 y 53492 heading 0 gap 43 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 1168 y 53492 heading 0 gap 44 last_hit -1 attack 0 poise 0
+goldens: boss-lynx-beaten-plain DIFFERS (target/goldens/boss-lynx-beaten-plain.diff)
+diff -r tests/goldens/boss-lynx-beaten-plain/final.state target/goldens/boss-lynx-beaten-plain/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 296 x 1680 y 19188 heading 0 gap 85 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 296 x 1680 y 19188 heading 0 gap 87 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 1168 y 53492 heading 0 gap 43 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 1168 y 53492 heading 0 gap 44 last_hit -1 attack 0 poise 0
+goldens: boss-lynx-phase2-rich DIFFERS (target/goldens/boss-lynx-phase2-rich.diff)
+diff -r tests/goldens/boss-lynx-phase2-rich/final.state target/goldens/boss-lynx-phase2-rich/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 296 x 2034 y 18236 heading 0 gap 80 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 296 x 2034 y 18236 heading 0 gap 82 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 1522 y 52540 heading 0 gap 48 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 1522 y 52540 heading 0 gap 49 last_hit -1 attack 0 poise 0
+goldens: boss-lynx-phase2-plain DIFFERS (target/goldens/boss-lynx-phase2-plain.diff)
+diff -r tests/goldens/boss-lynx-phase2-plain/final.state target/goldens/boss-lynx-phase2-plain/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 296 x 2034 y 18236 heading 0 gap 80 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 296 x 2034 y 18236 heading 0 gap 82 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 1522 y 52540 heading 0 gap 48 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 1522 y 52540 heading 0 gap 49 last_hit -1 attack 0 poise 0
+goldens: boss-lynx-windup-rich DIFFERS (target/goldens/boss-lynx-windup-rich.diff)
+diff -r tests/goldens/boss-lynx-windup-rich/final.state target/goldens/boss-lynx-windup-rich/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 296 x 1488 y 19100 heading 0 gap 68 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 296 x 1488 y 19100 heading 0 gap 70 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 976 y 53404 heading 0 gap 60 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 976 y 53404 heading 0 gap 61 last_hit -1 attack 0 poise 0
+goldens: boss-lynx-windup-plain DIFFERS (target/goldens/boss-lynx-windup-plain.diff)
+diff -r tests/goldens/boss-lynx-windup-plain/final.state target/goldens/boss-lynx-windup-plain/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 296 x 1488 y 19100 heading 0 gap 68 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 296 x 1488 y 19100 heading 0 gap 70 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 976 y 53404 heading 0 gap 60 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 976 y 53404 heading 0 gap 61 last_hit -1 attack 0 poise 0
+goldens: coast-cache-0-rich ok
+goldens: coast-cache-0-plain ok
+goldens: coast-cache-1-rich ok
+goldens: coast-cache-1-plain ok
+goldens: coast-cache-2-rich ok
+goldens: coast-cache-2-plain ok
+goldens: coast-cache-3-rich ok
+goldens: coast-cache-3-plain ok
+goldens: crags-rich DIFFERS (target/goldens/crags-rich.diff)
+diff -r tests/goldens/crags-rich/final.state target/goldens/crags-rich/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 0 x 1818 y 19200 heading 0 gap 43 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 0 x 1818 y 19200 heading 0 gap 44 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 1306 y 53504 heading 0 gap 177 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 1306 y 53504 heading 0 gap 178 last_hit -1 attack 0 poise 0
+goldens: crags-plain DIFFERS (target/goldens/crags-plain.diff)
+diff -r tests/goldens/crags-plain/final.state target/goldens/crags-plain/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 0 x 1818 y 19200 heading 0 gap 43 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 0 x 1818 y 19200 heading 0 gap 44 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 1306 y 53504 heading 0 gap 177 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 1306 y 53504 heading 0 gap 178 last_hit -1 attack 0 poise 0
+goldens: death-recovery-rich ok
+goldens: death-recovery-plain ok
+goldens: demo-rich ok
+goldens: demo-plain ok
+goldens: den-after-cluster-rich DIFFERS (target/goldens/den-after-cluster-rich.diff)
+diff -r tests/goldens/den-after-cluster-rich/final.state target/goldens/den-after-cluster-rich/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -1536 y 10752 heading 0 gap 146 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -1536 y 10752 heading 0 gap 148 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1536 y 33792 heading 0 gap 56 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1536 y 33792 heading 0 gap 58 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3328 y 55552 heading 0 gap 21 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3328 y 55552 heading 0 gap 22 last_hit -1 attack 0 poise 0
+goldens: den-after-cluster-plain DIFFERS (target/goldens/den-after-cluster-plain.diff)
+diff -r tests/goldens/den-after-cluster-plain/final.state target/goldens/den-after-cluster-plain/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -1536 y 10752 heading 0 gap 146 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -1536 y 10752 heading 0 gap 148 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1536 y 33792 heading 0 gap 56 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1536 y 33792 heading 0 gap 58 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3328 y 55552 heading 0 gap 21 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3328 y 55552 heading 0 gap 22 last_hit -1 attack 0 poise 0
+goldens: den-bars-120x40-rich ok
+goldens: den-bars-120x40-plain ok
+goldens: den-bars-80x24-rich ok
+goldens: den-bars-80x24-plain ok
+goldens: den-checkpoint-rich ok
+goldens: den-checkpoint-plain ok
+goldens: den-memory-rich ok
+goldens: den-memory-plain ok
+goldens: diagonal-rich ok
+goldens: diagonal-plain ok
+goldens: dodge-rich ok
+goldens: dodge-plain ok
+goldens: ember-touch-rich ok
+goldens: ember-touch-plain ok
+goldens: end-rich ok
+goldens: end-plain ok
+goldens: forward-windup-rich ok
+goldens: forward-windup-plain ok
+goldens: fox-feint-rich DIFFERS (target/goldens/fox-feint-rich.diff)
+diff -r tests/goldens/fox-feint-rich/final.state target/goldens/fox-feint-rich/final.state
+1c1
+< tick 315 resting 0 capacity 2 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x -639 y 19422 heading 160 action 0 started 181 health 36 stamina 70 flasks 1 scent 16 deaths 0 mark 0 mark_scent 0 gate 0 trail 84 lock -1 aim 160 combo 0 body 5 gait 823 sprint 0 cone 160 bosses 0 end 0 arena 0 played 315 lost 0
+---
+> tick 315 resting 0 capacity 2 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x -639 y 19422 heading 160 action 0 started 181 health 36 stamina 70 flasks 2 scent 11 deaths 0 mark 0 mark_scent 0 gate 0 trail 84 lock -1 aim 160 combo 0 body 5 gait 823 sprint 0 cone 160 bosses 0 end 0 arena 0 played 315 lost 0
+diff -r tests/goldens/fox-feint-rich/final.sty target/goldens/fox-feint-rich/final.sty
+23c23
+< 22,234,0*3 94,234,0*1 22,234,0*4 94,234,0*1 22,234,0*2 94,234,0*1 22,234,0*7 94,234,0*3 22,234,0*3 94,234,0*1 28,234,0*1 94,234,0*1 28,234,0*1 22,234,0*1 28,234,0*1 22,234,0*1 28,234,0*1 22,234,0*1 28,234,0*1 22,234,0*1 94,234,0*1 247,240,0*11 28,234,0*1 22,234,0*1 28,234,0*1 22,234,0*1 28,234,0*1 94,234,0*1 28,234,0*1 22,234,0*1 28,234,0*1 22,234,0*1 94,234,0*1 22,234,0*6 94,234,0*1 22,234,0*3 250,234,0*5 22,234,0*1 221,234,0*1 22,234,0*1 221,234,0*2 22,234,0*1
+---
+> 22,234,0*3 94,234,0*1 22,234,0*4 94,234,0*1 22,234,0*2 94,234,0*1 22,234,0*7 94,234,0*3 22,234,0*3 94,234,0*1 28,234,0*1 94,234,0*1 28,234,0*1 22,234,0*1 28,234,0*1 22,234,0*1 28,234,0*1 22,234,0*1 28,234,0*1 22,234,0*1 94,234,0*1 247,240,0*11 28,234,0*1 22,234,0*1 28,234,0*1 22,234,0*1 28,234,0*1 94,234,0*1 28,234,0*1 22,234,0*1 28,234,0*1 22,234,0*1 94,234,0*1 22,234,0*6 94,234,0*1 22,234,0*3 250,234,0*5 22,234,0*1 221,234,0*1 22,234,0*1 221,234,0*1 22,234,0*2
+diff -r tests/goldens/fox-feint-rich/final.txt target/goldens/fox-feint-rich/final.txt
+6c6
+< ⣮Water⠶1/2⣮⣿w⣿drink⣿⠶⣶⠶⣿⠶⣶⣮⣿⣮⣿┃⣶⠶⣶⠶┃⠶┃⠶⣶⣮┃┃⣿⠶:   ․ · ․⠶⣶⠶⣶⣮⣿⣮⣿⠶⣿⠶⣶⣮⣿⠶⣶⣮⣶⠶┃⠶⣿⣮⣿⣮⣶
+---
+> ⣮Water⠶2/2⣮⣿w⣿drink⣿⠶⣶⠶⣿⠶⣶⣮⣿⣮⣿┃⣶⠶⣶⠶┃⠶┃⠶⣶⣮┃┃⣿⠶:   ․ · ․⠶⣶⠶⣶⣮⣿⣮⣿⠶⣿⠶⣶⣮⣿⠶⣶⣮⣶⠶┃⠶⣿⣮⣿⣮⣶
+22,24c22,24
+< ⣮┃⣮⣶⣮┃⣮⣿⣮⣶⠶⣿⣮⣿⣮⣶⣮⣶⠶⣶⣮⣶⠶⣿⣮⣶⠶⣿⣮⣿⠶⣶⣮⣿⠶⣿           ⣶⣮┃⣮┃⣮⣶┃⣶⣮⣶⣮⣶⠶┃⠶┃⣮⣶⠶┃⣮⣿⣮⣶⠶⣶⠶▗┃▖⠶┃
+< ⣿⣮⣶┃⣶⣮⣿⣮┃⠶⣿┃⣿⠶⣿⠶⣿⣮⣶┃┃┃⣿⠶⣿┃⣶┃⣿⠶⣿⣮⣶⠶⣿⠶┃     ░     ⣿⠶⣶⣮⣿┃⣶⣮⣶⠶┃⣮⣿⣮⣶⣮⣿┃⣶⣮⣿scent⣶▜⣶▙▖⣮
+< ⣮⣿⣮⣶⣮⣿┃⣿⠶⣶⠶⣿⠶⣿⠶⣶⣮⣶⣮⣶⣮⣿⠶⣿⣮⣶⣮⣿⠶⣿⠶⣿⠶⣿⠶⣶⣮ ․        ·⠶⣶⣮⣿⠶⣶⠶⣶⠶┃⠶⣶⠶⣿┃┃⠶⣿⠶┃┃⣿⠶⣶⣮┃⠶▟▖▙▌┃
+---
+goldens: fox-feint-plain DIFFERS (target/goldens/fox-feint-plain.diff)
+diff -r tests/goldens/fox-feint-plain/final.state target/goldens/fox-feint-plain/final.state
+1c1
+< tick 315 resting 0 capacity 2 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x -639 y 19422 heading 160 action 0 started 181 health 36 stamina 70 flasks 1 scent 16 deaths 0 mark 0 mark_scent 0 gate 0 trail 84 lock -1 aim 160 combo 0 body 5 gait 823 sprint 0 cone 160 bosses 0 end 0 arena 0 played 315 lost 0
+---
+> tick 315 resting 0 capacity 2 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x -639 y 19422 heading 160 action 0 started 181 health 36 stamina 70 flasks 2 scent 11 deaths 0 mark 0 mark_scent 0 gate 0 trail 84 lock -1 aim 160 combo 0 body 5 gait 823 sprint 0 cone 160 bosses 0 end 0 arena 0 played 315 lost 0
+diff -r tests/goldens/fox-feint-plain/final.sty target/goldens/fox-feint-plain/final.sty
+20,23c20,23
+< 2,0,0*15 3,0,0*1 2,0,0*1 3,0,0*1 2,0,0*10 3,0,0*1 2,0,0*7 7,8,0*11 2,0,0*4 3,0,0*1 2,0,0*3 3,0,0*1 2,0,0*2 3,0,0*1 2,0,0*7 3,0,0*1 2,0,0*6 11,0,1*1 3,0,0*1 2,0,0*1 11,0,1*1 2,0,0*2 3,0,0*1
+< 2,0,0*4 3,0,0*1 2,0,0*3 3,0,0*1 2,0,0*3 3,0,0*1 2,0,0*1 3,0,0*1 2,0,0*2 3,0,0*1 2,0,0*9 3,0,0*1 2,0,0*3 3,0,0*2 2,0,0*3 7,8,0*11 2,0,0*7 3,0,0*1 2,0,0*2 3,0,0*1 2,0,0*4 3,0,0*1 2,0,0*3 3,0,0*1 2,0,0*2 3,0,0*1 2,0,0*2 11,0,1*2 3,0,0*2 11,0,1*1 2,0,0*3
+< 2,0,0*1 3,0,0*1 2,0,0*3 3,0,0*1 2,0,0*19 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 7,8,0*11 2,0,1*1 2,0,0*1 3,0,0*1 2,0,0*1 3,0,0*1 2,0,0*1 2,0,1*1 3,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*3 3,0,0*1 2,0,0*1 3,0,0*1 2,0,0*2 7,0,0*5 2,0,0*2 11,0,1*1 2,0,0*2 11,0,1*3 3,0,0*1
+< 2,0,0*3 3,0,0*1 2,0,0*4 3,0,0*1 2,0,0*2 3,0,0*1 2,0,0*7 3,0,0*3 2,0,0*3 3,0,0*1 2,0,1*1 3,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 3,0,0*1 7,8,0*11 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 3,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 3,0,0*1 2,0,0*6 3,0,0*1 2,0,0*6 3,0,0*1 11,0,1*1 2,0,0*2 11,0,1*1 2,0,0*1 11,0,1*1 2,0,0*1
+---
+> 2,0,0*15 3,0,0*1 2,0,0*1 3,0,0*1 2,0,0*10 3,0,0*1 2,0,0*7 7,8,0*11 2,0,0*4 3,0,0*1 2,0,0*3 3,0,0*1 2,0,0*2 3,0,0*1 2,0,0*7 3,0,0*1 2,0,0*6 11,0,1*1 3,0,0*1 2,0,0*1 3,0,0*1 11,0,1*1 2,0,0*1 3,0,0*1
+> 2,0,0*4 3,0,0*1 2,0,0*3 3,0,0*1 2,0,0*3 3,0,0*1 2,0,0*1 3,0,0*1 2,0,0*2 3,0,0*1 2,0,0*9 3,0,0*1 2,0,0*3 3,0,0*2 2,0,0*3 7,8,0*11 2,0,0*7 3,0,0*1 2,0,0*2 3,0,0*1 2,0,0*4 3,0,0*1 2,0,0*3 3,0,0*1 2,0,0*2 3,0,0*1 2,0,0*2 11,0,1*2 3,0,0*2 11,0,1*2 2,0,0*2
+> 2,0,0*1 3,0,0*1 2,0,0*3 3,0,0*1 2,0,0*19 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 7,8,0*11 2,0,1*1 2,0,0*1 3,0,0*1 2,0,0*1 3,0,0*1 2,0,0*1 2,0,1*1 3,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*3 3,0,0*1 2,0,0*1 3,0,0*1 2,0,0*2 7,0,0*5 2,0,0*2 11,0,1*1 2,0,0*2 3,0,0*1 11,0,1*1 2,0,0*1 3,0,0*1
+> 2,0,0*3 3,0,0*1 2,0,0*4 3,0,0*1 2,0,0*2 3,0,0*1 2,0,0*7 3,0,0*3 2,0,0*3 3,0,0*1 2,0,1*1 3,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 3,0,0*1 7,8,0*11 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 3,0,0*1 2,0,1*1 2,0,0*1 2,0,1*1 2,0,0*1 3,0,0*1 2,0,0*6 3,0,0*1 2,0,0*6 3,0,0*1 11,0,1*1 2,0,0*3 11,0,1*1 2,0,0*2
+diff -r tests/goldens/fox-feint-plain/final.txt target/goldens/fox-feint-plain/final.txt
+6c6
+< *Water;1/2*&w&drink&;%;&;%*&*&|%;%;|;|;%*||&;:   , . ,;%;%*&*&;&;%*&;%*%;|;&*&*%
+---
+goldens: ghost-death-rich ok
+goldens: ghost-death-plain ok
+goldens: ghost-rich ok
+goldens: ghost-plain ok
+goldens: hawk-shadow-rich DIFFERS (target/goldens/hawk-shadow-rich.diff)
+diff -r tests/goldens/hawk-shadow-rich/final.state target/goldens/hawk-shadow-rich/final.state
+2c2
+< foe 0 kind 2 health 8 phase 1 since 3235 x -1422 y 8718 heading 0 gap -4 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 1 since 3235 x -1422 y 8718 heading 0 gap -2 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1474 y 34300 heading 0 gap 95 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1474 y 34300 heading 0 gap 96 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3390 y 56060 heading 0 gap 180 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3390 y 56060 heading 0 gap 181 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/hawk-shadow-rich/final.sty target/goldens/hawk-shadow-rich/final.sty
+11,12c11,12
+< 137,235,0*3 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*7 143,235,0*1 137,235,0*3 59,235,0*2 137,235,0*15 181,240,1*1 143,235,0*1 137,235,0*3 143,235,0*1 137,235,0*2 59,235,0*2 137,235,0*1 59,235,0*2 143,235,0*1 59,235,0*2 137,235,0*1 143,235,0*1 137,235,0*8 59,235,0*2 143,235,0*1 137,235,0*3 143,235,0*1 137,235,0*6 59,235,0*1
+< 137,235,0*8 59,235,0*4 143,235,0*1 137,235,0*2 143,235,0*2 137,235,0*1 143,235,0*2 137,235,0*2 59,235,0*4 137,235,0*5 143,235,0*1 137,235,0*7 181,235,1*1 180,240,0*1 180,235,0*1 181,235,1*1 137,235,0*5 59,235,0*1 137,235,0*2 59,235,0*1 137,235,0*2 59,235,0*1 143,235,0*1 137,235,0*9 59,235,0*4 143,235,0*1 137,235,0*2 143,235,0*3 137,235,0*3 59,235,0*2
+---
+> 137,235,0*3 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*7 143,235,0*1 137,235,0*3 59,235,0*2 137,235,0*15 137,240,0*1 143,235,0*1 137,235,0*3 143,235,0*1 137,235,0*2 59,235,0*2 137,235,0*1 59,235,0*2 143,235,0*1 59,235,0*2 137,235,0*1 143,235,0*1 137,235,0*8 59,235,0*2 143,235,0*1 137,235,0*3 143,235,0*1 137,235,0*6 59,235,0*1
+> 137,235,0*8 59,235,0*4 143,235,0*1 137,235,0*2 143,235,0*2 137,235,0*1 143,235,0*2 137,235,0*2 59,235,0*4 137,235,0*5 143,235,0*1 137,235,0*8 180,240,0*1 180,235,0*1 137,235,0*6 59,235,0*1 137,235,0*2 59,235,0*1 137,235,0*2 59,235,0*1 143,235,0*1 137,235,0*9 59,235,0*4 143,235,0*1 137,235,0*2 143,235,0*3 137,235,0*3 59,235,0*2
+goldens: hawk-shadow-plain DIFFERS (target/goldens/hawk-shadow-plain.diff)
+diff -r tests/goldens/hawk-shadow-plain/final.state target/goldens/hawk-shadow-plain/final.state
+2c2
+< foe 0 kind 2 health 8 phase 1 since 3235 x -1422 y 8718 heading 0 gap -4 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 1 since 3235 x -1422 y 8718 heading 0 gap -2 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1474 y 34300 heading 0 gap 95 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1474 y 34300 heading 0 gap 96 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3390 y 56060 heading 0 gap 180 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3390 y 56060 heading 0 gap 181 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/hawk-shadow-plain/final.sty target/goldens/hawk-shadow-plain/final.sty
+11c11
+< 3,0,0*23 8,0,0*2 3,0,0*15 13,8,1*1 3,0,0*7 8,0,0*2 3,0,0*1 8,0,0*2 3,0,0*1 8,0,0*2 3,0,0*10 8,0,0*2 3,0,0*11 8,0,0*1
+---
+> 3,0,0*23 8,0,0*2 3,0,0*15 3,8,0*1 3,0,0*7 8,0,0*2 3,0,0*1 8,0,0*2 3,0,0*1 8,0,0*2 3,0,0*10 8,0,0*2 3,0,0*11 8,0,0*1
+diff -r tests/goldens/hawk-shadow-plain/final.txt target/goldens/hawk-shadow-plain/final.txt
+11c11
+goldens: hawk-stoop-rich DIFFERS (target/goldens/hawk-stoop-rich.diff)
+diff -r tests/goldens/hawk-stoop-rich/final.state target/goldens/hawk-stoop-rich/final.state
+2c2
+< foe 0 kind 2 health 0 phase 2 since 3253 x -1422 y 8718 heading 0 gap -3 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 0 phase 2 since 3253 x -1422 y 8718 heading 0 gap -1 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1850 y 34196 heading 0 gap 94 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1850 y 34196 heading 0 gap 95 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3014 y 55956 heading 0 gap 179 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3014 y 55956 heading 0 gap 180 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/hawk-stoop-rich/final.sty target/goldens/hawk-stoop-rich/final.sty
+10,11c10,11
+< 137,235,0*3 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*7 143,235,0*1 137,235,0*3 59,235,0*2 137,235,0*13 60,235,0*1 137,235,0*1 181,240,0*1 229,235,0*1 60,235,0*1 137,235,0*2 143,235,0*1 137,235,0*2 59,235,0*2 137,235,0*1 59,235,0*2 143,235,0*1 59,235,0*2 137,235,0*1 143,235,0*1 137,235,0*8 59,235,0*2 143,235,0*1 137,235,0*3 143,235,0*1 137,235,0*6 59,235,0*1
+< 137,235,0*8 59,235,0*4 143,235,0*1 137,235,0*2 143,235,0*2 137,235,0*1 143,235,0*2 137,235,0*2 59,235,0*4 137,235,0*5 143,235,0*1 137,235,0*7 210,235,1*1 181,240,0*1 181,235,0*1 137,235,0*6 59,235,0*1 137,235,0*2 59,235,0*1 137,235,0*2 59,235,0*1 143,235,0*1 137,235,0*9 59,235,0*4 143,235,0*1 137,235,0*2 143,235,0*3 137,235,0*3 59,235,0*2
+---
+> 137,235,0*3 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*7 143,235,0*1 137,235,0*3 59,235,0*2 137,235,0*13 60,235,0*1 137,235,0*1 137,240,0*1 229,235,0*1 60,235,0*1 137,235,0*2 143,235,0*1 137,235,0*2 59,235,0*2 137,235,0*1 59,235,0*2 143,235,0*1 59,235,0*2 137,235,0*1 143,235,0*1 137,235,0*8 59,235,0*2 143,235,0*1 137,235,0*3 143,235,0*1 137,235,0*6 59,235,0*1
+> 137,235,0*8 59,235,0*4 143,235,0*1 137,235,0*2 143,235,0*2 137,235,0*1 143,235,0*2 137,235,0*2 59,235,0*4 137,235,0*5 143,235,0*1 137,235,0*7 210,235,1*1 137,240,0*1 231,235,1*1 137,235,0*6 59,235,0*1 137,235,0*2 59,235,0*1 137,235,0*2 59,235,0*1 143,235,0*1 137,235,0*9 59,235,0*4 143,235,0*1 137,235,0*2 143,235,0*3 137,235,0*3 59,235,0*2
+goldens: hawk-stoop-plain DIFFERS (target/goldens/hawk-stoop-plain.diff)
+diff -r tests/goldens/hawk-stoop-plain/final.state target/goldens/hawk-stoop-plain/final.state
+2c2
+< foe 0 kind 2 health 0 phase 2 since 3253 x -1422 y 8718 heading 0 gap -3 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 0 phase 2 since 3253 x -1422 y 8718 heading 0 gap -1 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1850 y 34196 heading 0 gap 94 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1850 y 34196 heading 0 gap 95 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3014 y 55956 heading 0 gap 179 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3014 y 55956 heading 0 gap 180 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/hawk-stoop-plain/final.sty target/goldens/hawk-stoop-plain/final.sty
+10,11c10,11
+< 3,0,0*23 8,0,0*2 3,0,0*13 5,0,0*1 3,0,0*1 13,8,0*1 14,0,0*1 5,0,0*1 3,0,0*5 8,0,0*2 3,0,0*1 8,0,0*2 3,0,0*1 8,0,0*2 3,0,0*10 8,0,0*2 3,0,0*11 8,0,0*1
+< 3,0,0*8 8,0,0*4 3,0,0*10 8,0,0*4 3,0,0*13 12,0,1*1 13,8,0*1 15,0,1*1 3,0,0*6 8,0,0*1 3,0,0*2 8,0,0*1 3,0,0*2 8,0,0*1 3,0,0*10 8,0,0*4 3,0,0*9 8,0,0*2
+---
+> 3,0,0*23 8,0,0*2 3,0,0*13 5,0,0*1 3,0,0*1 3,8,0*1 14,0,0*1 5,0,0*1 3,0,0*5 8,0,0*2 3,0,0*1 8,0,0*2 3,0,0*1 8,0,0*2 3,0,0*10 8,0,0*2 3,0,0*11 8,0,0*1
+> 3,0,0*8 8,0,0*4 3,0,0*10 8,0,0*4 3,0,0*13 12,0,1*1 3,8,0*1 15,0,1*1 3,0,0*6 8,0,0*1 3,0,0*2 8,0,0*1 3,0,0*2 8,0,0*1 3,0,0*10 8,0,0*4 3,0,0*9 8,0,0*2
+goldens: heavy-rich ok
+goldens: heavy-plain ok
+goldens: hud-after-c-120x40-rich ok
+goldens: hud-after-c-120x40-plain ok
+goldens: hud-after-c-80x24-rich ok
+goldens: hud-after-c-80x24-plain ok
+goldens: landmark-1-0-rich ok
+goldens: landmark-1-0-plain ok
+goldens: landmark-1-1-rich ok
+goldens: landmark-1-1-plain ok
+goldens: landmark-1-2-rich ok
+goldens: landmark-1-2-plain ok
+goldens: landmark-1-3-rich ok
+goldens: landmark-1-3-plain ok
+goldens: landmark-2-0-rich DIFFERS (target/goldens/landmark-2-0-rich.diff)
+diff -r tests/goldens/landmark-2-0-rich/final.state target/goldens/landmark-2-0-rich/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -1976 y 10488 heading 0 gap 4 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -1976 y 10488 heading 0 gap 5 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1096 y 33528 heading 0 gap 94 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1096 y 33528 heading 0 gap 95 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3768 y 55288 heading 0 gap 179 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3768 y 55288 heading 0 gap 180 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/landmark-2-0-rich/final.sty target/goldens/landmark-2-0-rich/final.sty
+19,22c19,22
+< 137,235,0*3 143,235,0*1 137,235,0*7 143,235,0*1 137,235,0*6 143,235,0*1 137,235,0*6 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*5 181,235,1*1 137,235,0*12 143,235,0*2 137,235,0*1 143,235,0*1 137,235,0*3 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*16 143,235,0*1 137,235,0*3 143,235,0*3
+< 137,235,0*6 143,235,0*2 137,235,0*3 143,235,0*1 137,235,0*8 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*8 181,235,1*4 137,235,0*8 143,235,0*1 137,235,0*9 143,235,0*2 137,235,0*4 143,235,0*1 137,235,0*16 143,235,0*1 137,235,0*2
+< 137,235,0*5 143,235,0*2 137,235,0*26 181,235,1*1 137,235,0*7 143,235,0*1 137,235,0*4 143,235,0*2 137,235,0*3 143,235,0*1 137,235,0*8 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*5 143,235,0*2 137,235,0*10
+< 137,235,0*16 143,235,0*1 137,235,0*4 143,235,0*1 137,235,0*4 143,235,0*1 137,235,0*6 181,235,1*1 137,235,0*2 180,235,1*4 137,235,0*6 143,235,0*1 137,235,0*5 143,235,0*1 137,235,0*12 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*6 143,235,0*1 137,235,0*1 221,235,0*2 137,235,0*1
+---
+goldens: landmark-2-0-plain DIFFERS (target/goldens/landmark-2-0-plain.diff)
+diff -r tests/goldens/landmark-2-0-plain/final.state target/goldens/landmark-2-0-plain/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -1976 y 10488 heading 0 gap 4 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -1976 y 10488 heading 0 gap 5 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1096 y 33528 heading 0 gap 94 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1096 y 33528 heading 0 gap 95 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3768 y 55288 heading 0 gap 179 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3768 y 55288 heading 0 gap 180 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/landmark-2-0-plain/final.sty target/goldens/landmark-2-0-plain/final.sty
+19,22c19,22
+< 3,0,0*33 13,0,1*1 3,0,0*46
+< 3,0,0*32 13,0,1*3 3,0,0*41 11,0,1*3 3,0,0*1
+< 3,0,0*33 13,0,1*1 3,0,0*42 11,0,1*1 3,0,0*1 11,0,1*1 3,0,0*1
+< 3,0,0*33 13,0,1*1 3,0,0*2 11,0,1*4 3,0,0*30 7,0,0*5 3,0,0*1 11,0,1*1 3,0,0*1 11,0,1*1 3,0,0*1
+---
+goldens: landmark-2-1-rich DIFFERS (target/goldens/landmark-2-1-rich.diff)
+diff -r tests/goldens/landmark-2-1-rich/final.state target/goldens/landmark-2-1-rich/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 206 x -1242 y 11170 heading 0 gap 51 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 206 x -1242 y 11170 heading 0 gap 53 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1830 y 34210 heading 0 gap 31 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1830 y 34210 heading 0 gap 32 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3034 y 55970 heading 0 gap 116 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3034 y 55970 heading 0 gap 117 last_hit -1 attack 0 poise 0
+goldens: landmark-2-1-plain DIFFERS (target/goldens/landmark-2-1-plain.diff)
+diff -r tests/goldens/landmark-2-1-plain/final.state target/goldens/landmark-2-1-plain/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 206 x -1242 y 11170 heading 0 gap 51 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 206 x -1242 y 11170 heading 0 gap 53 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1830 y 34210 heading 0 gap 31 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1830 y 34210 heading 0 gap 32 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3034 y 55970 heading 0 gap 116 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3034 y 55970 heading 0 gap 117 last_hit -1 attack 0 poise 0
+goldens: landmark-2-2-rich DIFFERS (target/goldens/landmark-2-2-rich.diff)
+diff -r tests/goldens/landmark-2-2-rich/final.state target/goldens/landmark-2-2-rich/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -1968 y 11026 heading 0 gap 93 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -1968 y 11026 heading 0 gap 95 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3760 y 55826 heading 0 gap 74 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3760 y 55826 heading 0 gap 75 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/landmark-2-2-rich/final.sty target/goldens/landmark-2-2-rich/final.sty
+4,7c4,7
+< 58,235,0*1 250,235,0*7 137,235,0*1 84,235,0*9 137,235,0*4 143,235,0*2 137,235,0*1 143,235,0*1 59,235,0*4 137,235,0*1 143,235,0*1 137,235,0*2 240,235,0*1 242,235,0*2 240,235,0*2 242,235,0*1 240,235,0*6 242,235,0*2 240,235,0*2 242,235,0*1 137,235,0*2 181,235,1*1 137,235,0*2 180,235,1*4 137,235,0*2 242,235,0*2 240,235,0*1 95,235,0*1 137,235,0*2 59,235,0*4 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*1 143,235,0*2
+< 58,235,0*1 240,235,0*1 242,235,0*2 137,235,0*3 143,235,0*2 137,235,0*8 143,235,0*1 137,235,0*3 143,235,0*1 137,235,0*12 240,235,0*1 242,235,0*3 240,235,0*1 242,235,0*1 240,235,0*2 242,235,0*2 240,235,0*2 242,235,0*1 240,235,0*1 242,235,0*3 137,235,0*1 181,235,1*4 180,235,1*4 137,235,0*2 240,235,0*1 242,235,0*1 240,235,0*1 137,235,0*1 143,235,0*1 137,235,0*7 143,235,0*3 137,235,0*3
+< 58,235,0*1 117,235,0*5 240,235,0*1 117,235,0*3 137,235,0*1 143,235,0*1 117,235,0*1 137,235,0*1 117,235,0*5 137,235,0*7 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*4 242,235,0*2 240,235,0*1 95,235,0*1 242,235,0*2 240,235,0*1 242,235,0*9 137,235,0*3 181,235,1*1 137,235,0*2 180,235,1*4 137,235,0*1 242,235,0*4 137,235,0*4 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1
+< 58,235,0*1 242,235,0*1 240,235,0*5 242,235,0*1 240,235,0*2 242,235,0*1 95,235,0*1 137,235,0*22 242,235,0*5 240,235,0*1 242,235,0*3 240,235,0*1 242,235,0*3 240,235,0*2 242,235,0*1 137,235,0*3 181,235,1*1 137,235,0*3 180,235,1*2 137,235,0*2 242,235,0*1 240,235,0*1 242,235,0*1 137,235,0*12 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*1
+---
+> 58,235,0*1 250,235,0*7 137,235,0*1 84,235,0*9 137,235,0*4 143,235,0*2 137,235,0*1 143,235,0*1 59,235,0*4 137,235,0*1 143,235,0*1 137,235,0*2 240,235,0*1 242,235,0*2 240,235,0*2 242,235,0*1 240,235,0*6 242,235,0*2 240,235,0*2 242,235,0*1 137,235,0*5 180,235,1*4 137,235,0*2 242,235,0*2 240,235,0*1 95,235,0*1 137,235,0*2 59,235,0*4 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*1 143,235,0*2
+> 58,235,0*1 240,235,0*1 242,235,0*2 137,235,0*3 143,235,0*2 137,235,0*8 143,235,0*1 137,235,0*3 143,235,0*1 137,235,0*12 240,235,0*1 242,235,0*3 240,235,0*1 242,235,0*1 240,235,0*2 242,235,0*2 240,235,0*2 242,235,0*1 240,235,0*1 242,235,0*3 137,235,0*5 180,235,1*4 137,235,0*2 240,235,0*1 242,235,0*1 240,235,0*1 137,235,0*1 143,235,0*1 137,235,0*7 143,235,0*3 137,235,0*3
+> 58,235,0*1 117,235,0*5 240,235,0*1 117,235,0*3 137,235,0*1 143,235,0*1 117,235,0*1 137,235,0*1 117,235,0*5 137,235,0*7 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*4 242,235,0*2 240,235,0*1 95,235,0*1 242,235,0*2 240,235,0*1 242,235,0*9 137,235,0*2 181,235,1*4 180,235,1*4 137,235,0*1 242,235,0*4 137,235,0*4 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1
+> 58,235,0*1 242,235,0*1 240,235,0*5 242,235,0*1 240,235,0*2 242,235,0*1 95,235,0*1 137,235,0*22 242,235,0*5 240,235,0*1 242,235,0*3 240,235,0*1 242,235,0*3 240,235,0*2 242,235,0*1 137,235,0*7 180,235,1*2 137,235,0*2 242,235,0*1 240,235,0*1 242,235,0*1 137,235,0*12 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*1
+goldens: landmark-2-2-plain DIFFERS (target/goldens/landmark-2-2-plain.diff)
+diff -r tests/goldens/landmark-2-2-plain/final.state target/goldens/landmark-2-2-plain/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -1968 y 11026 heading 0 gap 93 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -1968 y 11026 heading 0 gap 95 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3760 y 55826 heading 0 gap 74 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3760 y 55826 heading 0 gap 75 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/landmark-2-2-plain/final.sty target/goldens/landmark-2-2-plain/final.sty
+4,7c4,7
+< 2,0,0*1 7,0,0*7 3,0,0*1 10,0,0*9 3,0,0*8 8,0,0*4 3,0,0*4 8,0,0*17 3,0,0*2 13,0,1*1 3,0,0*2 11,0,1*4 3,0,0*2 8,0,0*3 3,0,0*3 8,0,0*4 3,0,0*8
+< 2,0,0*1 8,0,0*3 3,0,0*30 8,0,0*17 3,0,0*1 13,0,1*3 3,0,0*1 11,0,1*4 3,0,0*2 8,0,0*3 3,0,0*15
+< 2,0,0*1 14,0,0*5 8,0,0*1 14,0,0*3 3,0,0*2 14,0,0*1 3,0,0*1 14,0,0*5 3,0,0*15 8,0,0*3 3,0,0*1 8,0,0*12 3,0,0*3 13,0,1*1 3,0,0*2 11,0,1*4 3,0,0*1 8,0,0*4 3,0,0*15
+< 2,0,0*1 8,0,0*10 3,0,0*23 8,0,0*16 3,0,0*3 13,0,1*1 3,0,0*2 11,0,1*4 3,0,0*1 8,0,0*3 3,0,0*16
+---
+> 2,0,0*1 7,0,0*7 3,0,0*1 10,0,0*9 3,0,0*8 8,0,0*4 3,0,0*4 8,0,0*17 3,0,0*5 11,0,1*4 3,0,0*2 8,0,0*3 3,0,0*3 8,0,0*4 3,0,0*8
+> 2,0,0*1 8,0,0*3 3,0,0*30 8,0,0*17 3,0,0*5 11,0,1*4 3,0,0*2 8,0,0*3 3,0,0*15
+> 2,0,0*1 14,0,0*5 8,0,0*1 14,0,0*3 3,0,0*2 14,0,0*1 3,0,0*1 14,0,0*5 3,0,0*15 8,0,0*3 3,0,0*1 8,0,0*12 3,0,0*2 13,0,1*4 11,0,1*4 3,0,0*1 8,0,0*4 3,0,0*15
+> 2,0,0*1 8,0,0*10 3,0,0*23 8,0,0*16 3,0,0*6 11,0,1*4 3,0,0*1 8,0,0*3 3,0,0*16
+goldens: landmark-2-3-rich DIFFERS (target/goldens/landmark-2-3-rich.diff)
+diff -r tests/goldens/landmark-2-3-rich/final.state target/goldens/landmark-2-3-rich/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -1810 y 10320 heading 0 gap 168 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -1810 y 10320 heading 0 gap 170 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1262 y 33360 heading 0 gap 78 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1262 y 33360 heading 0 gap 80 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/landmark-2-3-rich/final.sty target/goldens/landmark-2-3-rich/final.sty
+14,17c14,17
+< 143,235,0*1 137,235,0*6 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1 181,235,1*1 137,235,0*20 59,235,0*1 137,235,0*2 180,235,0*4 137,235,0*1 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*9 143,235,0*1 137,235,0*7 59,235,0*1 137,235,0*2 143,235,0*1 137,235,0*9 143,235,0*1 137,235,0*1 58,235,0*1
+< 143,235,0*2 137,235,0*1 143,235,0*1 137,235,0*3 180,235,0*4 137,235,0*2 143,235,0*1 181,235,1*4 137,235,0*18 59,235,0*2 137,235,0*1 180,235,0*4 137,235,0*9 143,235,0*1 137,235,0*6 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*1 143,235,0*1 59,235,0*2 137,235,0*7 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1 143,235,0*1 58,235,0*1
+< 137,235,0*2 143,235,0*1 137,235,0*5 180,235,0*2 143,235,0*1 137,235,0*4 181,235,1*1 137,235,0*10 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*5 59,235,0*4 137,235,0*6 143,235,0*1 137,235,0*3 59,235,0*4 137,235,0*10 59,235,0*4 137,235,0*3 143,235,0*1 137,235,0*8 58,235,0*1
+< 143,235,0*1 137,235,0*11 143,235,0*3 181,235,1*1 137,235,0*2 180,235,1*4 137,235,0*4 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*15 143,235,0*1 137,235,0*10 143,235,0*1 137,235,0*3 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*6 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*4 58,235,0*1
+---
+> 143,235,0*1 137,235,0*6 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*22 59,235,0*1 137,235,0*2 180,235,0*4 137,235,0*1 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*9 143,235,0*1 137,235,0*7 59,235,0*1 137,235,0*2 143,235,0*1 137,235,0*9 143,235,0*1 137,235,0*1 58,235,0*1
+> 143,235,0*2 137,235,0*1 143,235,0*1 137,235,0*3 180,235,0*4 137,235,0*2 143,235,0*1 137,235,0*22 59,235,0*2 137,235,0*1 180,235,0*4 137,235,0*9 143,235,0*1 137,235,0*6 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*1 143,235,0*1 59,235,0*2 137,235,0*7 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1 143,235,0*1 58,235,0*1
+> 137,235,0*2 143,235,0*1 137,235,0*5 180,235,0*2 143,235,0*1 137,235,0*3 181,235,1*4 137,235,0*8 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*5 59,235,0*4 137,235,0*6 143,235,0*1 137,235,0*3 59,235,0*4 137,235,0*10 59,235,0*4 137,235,0*3 143,235,0*1 137,235,0*8 58,235,0*1
+> 143,235,0*1 137,235,0*11 143,235,0*3 137,235,0*3 180,235,1*4 137,235,0*4 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*15 143,235,0*1 137,235,0*10 143,235,0*1 137,235,0*3 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*6 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*4 58,235,0*1
+goldens: landmark-2-3-plain DIFFERS (target/goldens/landmark-2-3-plain.diff)
+diff -r tests/goldens/landmark-2-3-plain/final.state target/goldens/landmark-2-3-plain/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -1810 y 10320 heading 0 gap 168 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -1810 y 10320 heading 0 gap 170 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1262 y 33360 heading 0 gap 78 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1262 y 33360 heading 0 gap 80 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/landmark-2-3-plain/final.sty target/goldens/landmark-2-3-plain/final.sty
+14,17c14,17
+< 3,0,0*15 13,0,1*1 3,0,0*20 8,0,0*1 3,0,0*2 11,0,1*4 3,0,0*21 8,0,0*1 3,0,0*14 2,0,0*1
+< 3,0,0*7 7,0,0*4 3,0,0*3 13,0,1*3 3,0,0*19 8,0,0*2 3,0,0*1 11,0,1*4 3,0,0*21 8,0,0*2 3,0,0*13 2,0,0*1
+< 3,0,0*8 7,0,0*2 3,0,0*5 13,0,1*1 3,0,0*19 8,0,0*4 3,0,0*10 8,0,0*4 3,0,0*10 8,0,0*4 3,0,0*12 2,0,0*1
+< 3,0,0*15 13,0,1*1 3,0,0*2 11,0,1*4 3,0,0*57 2,0,0*1
+---
+> 3,0,0*36 8,0,0*1 3,0,0*2 11,0,1*4 3,0,0*21 8,0,0*1 3,0,0*14 2,0,0*1
+> 3,0,0*7 7,0,0*4 3,0,0*25 8,0,0*2 3,0,0*1 11,0,1*4 3,0,0*21 8,0,0*2 3,0,0*13 2,0,0*1
+> 3,0,0*8 7,0,0*2 3,0,0*4 13,0,1*4 3,0,0*17 8,0,0*4 3,0,0*10 8,0,0*4 3,0,0*10 8,0,0*4 3,0,0*12 2,0,0*1
+> 3,0,0*18 11,0,1*4 3,0,0*57 2,0,0*1
+goldens: landmark-3-0-rich DIFFERS (target/goldens/landmark-3-0-rich.diff)
+diff -r tests/goldens/landmark-3-0-rich/final.state target/goldens/landmark-3-0-rich/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 0 x 2292 y 18800 heading 0 gap 48 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 0 x 2292 y 18800 heading 0 gap 49 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 1780 y 53104 heading 0 gap 182 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 1780 y 53104 heading 0 gap 183 last_hit -1 attack 0 poise 0
+goldens: landmark-3-0-plain DIFFERS (target/goldens/landmark-3-0-plain.diff)
+diff -r tests/goldens/landmark-3-0-plain/final.state target/goldens/landmark-3-0-plain/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 0 x 2292 y 18800 heading 0 gap 48 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 0 x 2292 y 18800 heading 0 gap 49 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 1780 y 53104 heading 0 gap 182 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 1780 y 53104 heading 0 gap 183 last_hit -1 attack 0 poise 0
+goldens: landmark-3-1-rich DIFFERS (target/goldens/landmark-3-1-rich.diff)
+diff -r tests/goldens/landmark-3-1-rich/final.state target/goldens/landmark-3-1-rich/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 0 x 1754 y 19198 heading 0 gap 8 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 0 x 1754 y 19198 heading 0 gap 9 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 1242 y 53502 heading 0 gap 142 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 1242 y 53502 heading 0 gap 143 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/landmark-3-1-rich/final.sty target/goldens/landmark-3-1-rich/final.sty
+23,24c23,24
+< 243,236,0*1 180,240,1*43 181,240,1*1 180,240,1*24 250,240,0*5 180,240,1*1 221,240,0*4 180,240,1*1
+< 250,236,0*1 243,236,0*2 250,236,0*4 245,236,0*2 243,236,0*1 245,236,0*4 101,236,0*2 245,236,0*1 250,236,0*1 245,236,0*2 243,236,0*2 250,236,0*8 243,236,0*1 250,236,0*1 243,236,0*1 250,236,0*2 243,236,0*2 250,236,0*1 243,236,0*1 250,236,0*1 243,236,0*3 181,236,1*4 245,236,0*3 243,236,0*1 250,236,0*1 243,236,0*3 250,236,0*1 245,236,0*3 101,236,0*1 245,236,0*1 243,236,0*2 101,236,0*1 245,236,0*1 243,236,0*1 101,236,0*4 245,236,0*2 243,236,0*2 250,236,0*1 243,236,0*1 221,236,0*3 250,236,0*1
+---
+> 243,236,0*1 180,240,1*68 250,240,0*5 180,240,1*1 221,240,0*4 180,240,1*1
+> 250,236,0*1 243,236,0*2 250,236,0*4 245,236,0*2 243,236,0*1 245,236,0*4 101,236,0*2 245,236,0*1 250,236,0*1 245,236,0*2 243,236,0*2 250,236,0*8 243,236,0*1 250,236,0*1 243,236,0*1 250,236,0*2 243,236,0*2 250,236,0*1 243,236,0*1 250,236,0*1 243,236,0*3 245,236,0*7 243,236,0*1 250,236,0*1 243,236,0*3 250,236,0*1 245,236,0*3 101,236,0*1 245,236,0*1 243,236,0*2 101,236,0*1 245,236,0*1 243,236,0*1 101,236,0*4 245,236,0*2 243,236,0*2 250,236,0*1 243,236,0*1 221,236,0*3 250,236,0*1
+diff -r tests/goldens/landmark-3-1-rich/final.txt target/goldens/landmark-3-1-rich/final.txt
+23,24c23,24
+< ░A mark older than the burn, high on the barv, where only a big wolf scent ▙▌▌▌e
+< █░█░█░█  ░    ⠖⠶ ░  █░█░█░█░█░█░█░█░█░█░█░█⠑⢶⡶⠊   █░█░█░   ⠖ ░█⠶ ░⠖⠶⠖⠖  █░█░▌▙▌░
+goldens: landmark-3-1-plain DIFFERS (target/goldens/landmark-3-1-plain.diff)
+diff -r tests/goldens/landmark-3-1-plain/final.state target/goldens/landmark-3-1-plain/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 0 x 1754 y 19198 heading 0 gap 8 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 0 x 1754 y 19198 heading 0 gap 9 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 1242 y 53502 heading 0 gap 142 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 1242 y 53502 heading 0 gap 143 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/landmark-3-1-plain/final.sty target/goldens/landmark-3-1-plain/final.sty
+23,24c23,24
+< 7,0,0*1 11,8,1*43 13,8,1*1 11,8,1*35
+< 15,0,0*1 7,0,0*2 15,0,0*4 7,0,0*7 2,0,0*2 7,0,0*1 15,0,0*1 7,0,0*4 15,0,0*8 7,0,0*1 15,0,0*1 7,0,0*1 15,0,0*2 7,0,0*2 15,0,0*1 7,0,0*1 15,0,0*1 7,0,0*3 13,0,1*3 7,0,0*5 15,0,0*1 7,0,0*3 15,0,0*1 7,0,0*3 2,0,0*1 7,0,0*3 2,0,0*1 7,0,0*2 2,0,0*4 7,0,0*4 11,0,1*1 7,0,0*1 11,0,1*3 15,0,0*1
+---
+> 7,0,0*1 11,8,1*79
+> 15,0,0*1 7,0,0*2 15,0,0*4 7,0,0*7 2,0,0*2 7,0,0*1 15,0,0*1 7,0,0*4 15,0,0*8 7,0,0*1 15,0,0*1 7,0,0*1 15,0,0*2 7,0,0*2 15,0,0*1 7,0,0*1 15,0,0*1 7,0,0*11 15,0,0*1 7,0,0*3 15,0,0*1 7,0,0*3 2,0,0*1 7,0,0*3 2,0,0*1 7,0,0*2 2,0,0*4 7,0,0*4 11,0,1*1 7,0,0*1 11,0,1*3 15,0,0*1
+diff -r tests/goldens/landmark-3-1-plain/final.txt target/goldens/landmark-3-1-plain/final.txt
+23,24c23,24
+< OA mark older than the burn, high on the barv, where only a big wolf could#l#a#e
+< #O#O#O#  O    '" O  #O#O#O#O#O#O#O#O#O#O#O#-v-    #O#O#O   ' O#" O'"''  #O#O###O
+goldens: landmark-4-0-rich DIFFERS (target/goldens/landmark-4-0-rich.diff)
+diff -r tests/goldens/landmark-4-0-rich/final.state target/goldens/landmark-4-0-rich/final.state
+3c3
+< foe 1 kind 2 health 8 phase 0 since 0 x -1804 y 10864 heading 0 gap 29 last_hit -1 attack 0 poise 0
+---
+> foe 1 kind 2 health 8 phase 0 since 0 x -1804 y 10864 heading 0 gap 30 last_hit -1 attack 0 poise 0
+7c7
+< foe 5 kind 2 health 8 phase 0 since 0 x -2060 y 27504 heading 0 gap 94 last_hit -1 attack 0 poise 0
+---
+> foe 5 kind 2 health 8 phase 0 since 0 x -2060 y 27504 heading 0 gap 95 last_hit -1 attack 0 poise 0
+9c9
+< foe 7 kind 2 health 8 phase 0 since 0 x 2804 y 49008 heading 0 gap 178 last_hit -1 attack 0 poise 0
+---
+> foe 7 kind 2 health 8 phase 0 since 0 x 2804 y 49008 heading 0 gap 179 last_hit -1 attack 0 poise 0
+goldens: landmark-4-0-plain DIFFERS (target/goldens/landmark-4-0-plain.diff)
+diff -r tests/goldens/landmark-4-0-plain/final.state target/goldens/landmark-4-0-plain/final.state
+3c3
+< foe 1 kind 2 health 8 phase 0 since 0 x -1804 y 10864 heading 0 gap 29 last_hit -1 attack 0 poise 0
+---
+> foe 1 kind 2 health 8 phase 0 since 0 x -1804 y 10864 heading 0 gap 30 last_hit -1 attack 0 poise 0
+7c7
+< foe 5 kind 2 health 8 phase 0 since 0 x -2060 y 27504 heading 0 gap 94 last_hit -1 attack 0 poise 0
+---
+> foe 5 kind 2 health 8 phase 0 since 0 x -2060 y 27504 heading 0 gap 95 last_hit -1 attack 0 poise 0
+9c9
+< foe 7 kind 2 health 8 phase 0 since 0 x 2804 y 49008 heading 0 gap 178 last_hit -1 attack 0 poise 0
+---
+> foe 7 kind 2 health 8 phase 0 since 0 x 2804 y 49008 heading 0 gap 179 last_hit -1 attack 0 poise 0
+goldens: landmark-5-0-rich ok
+goldens: landmark-5-0-plain ok
+goldens: landmark-6-0-rich ok
+goldens: landmark-6-0-plain ok
+goldens: landmark-6-1-rich ok
+goldens: landmark-6-1-plain ok
+goldens: meadow-ford-rich DIFFERS (target/goldens/meadow-ford-rich.diff)
+diff -r tests/goldens/meadow-ford-rich/final.state target/goldens/meadow-ford-rich/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -1536 y 10240 heading 0 gap 162 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -1536 y 10240 heading 0 gap 164 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1536 y 33280 heading 0 gap 72 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1536 y 33280 heading 0 gap 74 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/meadow-ford-rich/final.sty target/goldens/meadow-ford-rich/final.sty
+20,23c20,23
+< 137,235,0*1 143,235,0*1 137,235,0*6 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*3 181,235,1*1 137,235,0*18 59,235,0*1 137,235,0*7 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*9 143,235,0*1 137,235,0*7 59,235,0*1 137,235,0*2 143,235,0*1 137,235,0*9 143,235,0*1 137,235,0*1
+< 137,235,0*1 143,235,0*2 137,235,0*1 143,235,0*1 137,235,0*3 180,235,0*4 137,235,0*2 143,235,0*1 137,235,0*2 181,235,1*4 137,235,0*16 59,235,0*2 137,235,0*4 143,235,0*1 137,235,0*9 143,235,0*1 137,235,0*6 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*1 143,235,0*1 59,235,0*2 137,235,0*7 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1 143,235,0*1
+< 137,235,0*3 143,235,0*1 137,235,0*5 180,235,0*2 143,235,0*1 137,235,0*6 181,235,1*1 137,235,0*8 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*5 59,235,0*4 137,235,0*6 143,235,0*1 137,235,0*3 59,235,0*4 137,235,0*10 59,235,0*4 137,235,0*3 143,235,0*1 137,235,0*5 221,235,0*2 137,235,0*1
+< 143,235,0*1 180,240,1*17 181,240,1*1 180,240,1*52 250,240,0*5 180,240,1*1 221,240,0*2 180,240,1*1
+---
+> 137,235,0*1 143,235,0*1 137,235,0*6 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*22 59,235,0*1 137,235,0*7 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*9 143,235,0*1 137,235,0*7 59,235,0*1 137,235,0*2 143,235,0*1 137,235,0*9 143,235,0*1 137,235,0*1
+> 137,235,0*1 143,235,0*2 137,235,0*1 143,235,0*1 137,235,0*3 180,235,0*4 137,235,0*2 143,235,0*1 137,235,0*22 59,235,0*2 137,235,0*4 143,235,0*1 137,235,0*9 143,235,0*1 137,235,0*6 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*1 143,235,0*1 59,235,0*2 137,235,0*7 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1 143,235,0*1
+> 137,235,0*3 143,235,0*1 137,235,0*5 180,235,0*2 143,235,0*1 137,235,0*5 181,235,1*4 137,235,0*6 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*5 59,235,0*4 137,235,0*6 143,235,0*1 137,235,0*3 59,235,0*4 137,235,0*10 59,235,0*4 137,235,0*3 143,235,0*1 137,235,0*5 221,235,0*2 137,235,0*1
+> 143,235,0*1 180,240,1*70 250,240,0*5 180,240,1*1 221,240,0*2 180,240,1*1
+goldens: meadow-ford-plain DIFFERS (target/goldens/meadow-ford-plain.diff)
+diff -r tests/goldens/meadow-ford-plain/final.state target/goldens/meadow-ford-plain/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -1536 y 10240 heading 0 gap 162 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -1536 y 10240 heading 0 gap 164 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1536 y 33280 heading 0 gap 72 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1536 y 33280 heading 0 gap 74 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/meadow-ford-plain/final.sty target/goldens/meadow-ford-plain/final.sty
+20,23c20,23
+< 3,0,0*18 13,0,1*1 3,0,0*18 8,0,0*1 3,0,0*27 8,0,0*1 3,0,0*10 11,0,1*3 3,0,0*1
+< 3,0,0*8 7,0,0*4 3,0,0*5 13,0,1*3 3,0,0*17 8,0,0*2 3,0,0*26 8,0,0*2 3,0,0*9 11,0,1*1 3,0,0*1 11,0,1*1 3,0,0*1
+< 3,0,0*9 7,0,0*2 3,0,0*7 13,0,1*1 3,0,0*17 8,0,0*4 3,0,0*10 8,0,0*4 3,0,0*10 8,0,0*4 3,0,0*2 7,0,0*5 3,0,0*1 11,0,1*1 3,0,0*1 11,0,1*1 3,0,0*1
+< 3,0,0*1 11,8,1*17 13,8,1*1 11,8,1*61
+---
+> 3,0,0*37 8,0,0*1 3,0,0*27 8,0,0*1 3,0,0*10 11,0,1*3 3,0,0*1
+> 3,0,0*8 7,0,0*4 3,0,0*25 8,0,0*2 3,0,0*26 8,0,0*2 3,0,0*9 11,0,1*1 3,0,0*1 11,0,1*1 3,0,0*1
+> 3,0,0*9 7,0,0*2 3,0,0*6 13,0,1*4 3,0,0*15 8,0,0*4 3,0,0*10 8,0,0*4 3,0,0*10 8,0,0*4 3,0,0*2 7,0,0*5 3,0,0*1 11,0,1*1 3,0,0*1 11,0,1*1 3,0,0*1
+> 3,0,0*1 11,8,1*79
+goldens: meadow-landmarks-rich DIFFERS (target/goldens/meadow-landmarks-rich.diff)
+diff -r tests/goldens/meadow-landmarks-rich/final.state target/goldens/meadow-landmarks-rich/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -1096 y 11016 heading 0 gap 30 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -1096 y 11016 heading 0 gap 31 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1976 y 34056 heading 0 gap 120 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1976 y 34056 heading 0 gap 121 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -2888 y 55816 heading 0 gap 205 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -2888 y 55816 heading 0 gap 206 last_hit -1 attack 0 poise 0
+goldens: meadow-landmarks-plain DIFFERS (target/goldens/meadow-landmarks-plain.diff)
+diff -r tests/goldens/meadow-landmarks-plain/final.state target/goldens/meadow-landmarks-plain/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -1096 y 11016 heading 0 gap 30 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -1096 y 11016 heading 0 gap 31 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1976 y 34056 heading 0 gap 120 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1976 y 34056 heading 0 gap 121 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -2888 y 55816 heading 0 gap 205 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -2888 y 55816 heading 0 gap 206 last_hit -1 attack 0 poise 0
+goldens: natural-death-rich DIFFERS (target/goldens/natural-death-rich.diff)
+diff -r tests/goldens/natural-death-rich/final.state target/goldens/natural-death-rich/final.state
+1c1
+< tick 481 resting 0 capacity 0 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x -444 y 24568 heading 128 action 6 started 481 health 0 stamina 70 flasks 0 scent 0 deaths 1 mark 1 mark_scent 16 gate 0 trail 56 lock -1 aim 160 combo 0 body 4 gait 352 sprint 0 cone 160 bosses 0 end 0 arena 0 played 481 lost 0
+---
+> tick 481 resting 0 capacity 0 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x -444 y 24568 heading 128 action 6 started 481 health 0 stamina 70 flasks 0 scent 0 deaths 1 mark 1 mark_scent 1 gate 0 trail 56 lock -1 aim 160 combo 0 body 4 gait 352 sprint 0 cone 160 bosses 0 end 0 arena 0 played 481 lost 0
+diff -r tests/goldens/natural-death-rich/final.sty target/goldens/natural-death-rich/final.sty
+13c13
+< 22,234,0*9 94,234,0*1 22,234,0*3 94,234,0*1 22,234,0*9 94,234,0*1 22,234,0*3 94,234,0*1 22,234,0*5 28,234,0*1 22,234,0*1 94,234,0*1 137,240,0*22 22,234,0*1 94,234,0*2 28,234,0*1 22,234,0*1 28,234,0*1 94,234,0*1 22,234,0*6 94,234,0*2 22,234,0*6 94,234,0*1
+---
+> 22,234,0*9 94,234,0*1 22,234,0*3 94,234,0*1 22,234,0*9 94,234,0*1 22,234,0*3 94,234,0*1 22,234,0*5 28,234,0*1 22,234,0*1 94,234,0*1 137,240,0*21 94,234,0*1 22,234,0*1 94,234,0*2 28,234,0*1 22,234,0*1 28,234,0*1 94,234,0*1 22,234,0*6 94,234,0*2 22,234,0*6 94,234,0*1
+diff -r tests/goldens/natural-death-rich/final.txt target/goldens/natural-death-rich/final.txt
+13c13
+< ⠶⣶⣮⣶⠶⣿⣮⣿⣮┃⣮⣿⣮┃⠶⣿⣮⣶⣮⣶⣮⣶⠶┃⣮⣿⠶┃⣮⣶⣮⣶⣮⣶⣮┃fallen - scent lost 16⣮┃┃⣶⣮⣿┃⣿⣮⣶⠶⣶⣮┃┃⣶⠶⣿⠶⣶⣮┃
+---
+> ⠶⣶⣮⣶⠶⣿⣮⣿⣮┃⣮⣿⣮┃⠶⣿⣮⣶⣮⣶⣮⣶⠶┃⣮⣿⠶┃⣮⣶⣮⣶⣮⣶⣮┃fallen - scent lost 1┃⣮┃┃⣶⣮⣿┃⣿⣮⣶⠶⣶⣮┃┃⣶⠶⣿⠶⣶⣮┃
+goldens: natural-death-plain DIFFERS (target/goldens/natural-death-plain.diff)
+diff -r tests/goldens/natural-death-plain/final.state target/goldens/natural-death-plain/final.state
+1c1
+< tick 481 resting 0 capacity 0 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x -444 y 24568 heading 128 action 6 started 481 health 0 stamina 70 flasks 0 scent 0 deaths 1 mark 1 mark_scent 16 gate 0 trail 56 lock -1 aim 160 combo 0 body 4 gait 352 sprint 0 cone 160 bosses 0 end 0 arena 0 played 481 lost 0
+---
+> tick 481 resting 0 capacity 0 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x -444 y 24568 heading 128 action 6 started 481 health 0 stamina 70 flasks 0 scent 0 deaths 1 mark 1 mark_scent 1 gate 0 trail 56 lock -1 aim 160 combo 0 body 4 gait 352 sprint 0 cone 160 bosses 0 end 0 arena 0 played 481 lost 0
+diff -r tests/goldens/natural-death-plain/final.sty target/goldens/natural-death-plain/final.sty
+13c13
+< 2,0,0*9 3,0,0*1 2,0,0*3 3,0,0*1 2,0,0*9 3,0,0*1 2,0,0*3 3,0,0*1 2,0,0*5 2,0,1*1 2,0,0*1 3,0,0*1 3,8,0*22 2,0,0*1 3,0,0*2 2,0,1*1 2,0,0*1 2,0,1*1 3,0,0*1 2,0,0*6 3,0,0*2 2,0,0*6 3,0,0*1
+---
+> 2,0,0*9 3,0,0*1 2,0,0*3 3,0,0*1 2,0,0*9 3,0,0*1 2,0,0*3 3,0,0*1 2,0,0*5 2,0,1*1 2,0,0*1 3,0,0*1 3,8,0*21 3,0,0*1 2,0,0*1 3,0,0*2 2,0,1*1 2,0,0*1 2,0,1*1 3,0,0*1 2,0,0*6 3,0,0*2 2,0,0*6 3,0,0*1
+diff -r tests/goldens/natural-death-plain/final.txt target/goldens/natural-death-plain/final.txt
+13c13
+< ;%*%;&*&*|*&*|;&*%*%*%;|*&;|*%*%*%*|fallen - scent lost 16*||%*&|&*%;%*||%;&;%*|
+---
+> ;%*%;&*&*|*&*|;&*%*%*%;|*&;|*%*%*%*|fallen - scent lost 1|*||%*&|&*%;%*||%;&;%*|
+goldens: old-den-rich DIFFERS (target/goldens/old-den-rich.diff)
+diff -r tests/goldens/old-den-rich/final.state target/goldens/old-den-rich/final.state
+1c1
+< tick 121 resting 0 capacity 3 level 20 meat 0 area 5 den_id 6 shortcuts 15 caches 0 scene 0 drops 0 mark_area 0 x -854 y 9935 heading 128 action 0 started 0 health 96 stamina 110 flasks 2 scent 0 deaths 0 mark 0 mark_scent 0 gate 1 trail 28 lock -1 aim 0 combo 0 body 4 gait 3 sprint 0 cone 0 bosses 7 end 0 arena 0 played 121 lost 0
+---
+> tick 121 resting 0 capacity 3 level 20 meat 0 area 5 den_id 6 shortcuts 15 caches 0 scene 0 drops 0 mark_area 0 x -854 y 9935 heading 128 action 0 started 0 health 96 stamina 110 flasks 3 scent 0 deaths 0 mark 0 mark_scent 0 gate 1 trail 28 lock -1 aim 0 combo 0 body 4 gait 3 sprint 0 cone 0 bosses 7 end 0 arena 0 played 121 lost 0
+diff -r tests/goldens/old-den-rich/final.txt target/goldens/old-den-rich/final.txt
+6c6
+< .Water⣮2/3⠖⣶w┃drink.⠖⣿:⠖⠖⠖.⠖⣮..⠖.:...⠖:⠖:⣿:⣶⣮⠖┃⠖.⣶..⣮┃⠖⣶⣮┃⠶⣶⠶⣶⠶⣶⣮⣶⣮┃⣮⣿┃┃⠶⣿⠶⣿⣮⣿⣮⣿
+---
+> .Water⣮3/3⠖⣶w┃drink.⠖⣿:⠖⠖⠖.⠖⣮..⠖.:...⠖:⠖:⣿:⣶⣮⠖┃⠖.⣶..⣮┃⠖⣶⣮┃⠶⣶⠶⣶⠶⣶⣮⣶⣮┃⣮⣿┃┃⠶⣿⠶⣿⣮⣿⣮⣿
+diff -r tests/goldens/old-den-rich/frame-0120.txt target/goldens/old-den-rich/frame-0120.txt
+6c6
+< .Water⣮2/3⠖⣶w┃drink.⠖⣿:⠖⠖⠖.⠖⣮..⠖.:...⠖:⠖:⣿:⣶⣮⠖┃⠖.⣶..⣮┃⠖⣶⣮┃⠶⣶⠶⣶⠶⣶⣮⣶⣮┃⣮⣿┃┃⠶⣿⠶⣿⣮⣿⣮⣿
+---
+> .Water⣮3/3⠖⣶w┃drink.⠖⣿:⠖⠖⠖.⠖⣮..⠖.:...⠖:⠖:⣿:⣶⣮⠖┃⠖.⣶..⣮┃⠖⣶⣮┃⠶⣶⠶⣶⠶⣶⣮⣶⣮┃⣮⣿┃┃⠶⣿⠶⣿⣮⣿⣮⣿
+goldens: old-den-plain DIFFERS (target/goldens/old-den-plain.diff)
+diff -r tests/goldens/old-den-plain/final.state target/goldens/old-den-plain/final.state
+1c1
+< tick 121 resting 0 capacity 3 level 20 meat 0 area 5 den_id 6 shortcuts 15 caches 0 scene 0 drops 0 mark_area 0 x -854 y 9935 heading 128 action 0 started 0 health 96 stamina 110 flasks 2 scent 0 deaths 0 mark 0 mark_scent 0 gate 1 trail 28 lock -1 aim 0 combo 0 body 4 gait 3 sprint 0 cone 0 bosses 7 end 0 arena 0 played 121 lost 0
+---
+> tick 121 resting 0 capacity 3 level 20 meat 0 area 5 den_id 6 shortcuts 15 caches 0 scene 0 drops 0 mark_area 0 x -854 y 9935 heading 128 action 0 started 0 health 96 stamina 110 flasks 3 scent 0 deaths 0 mark 0 mark_scent 0 gate 1 trail 28 lock -1 aim 0 combo 0 body 4 gait 3 sprint 0 cone 0 bosses 7 end 0 arena 0 played 121 lost 0
+diff -r tests/goldens/old-den-plain/final.txt target/goldens/old-den-plain/final.txt
+6c6
+< .Water*2/3'%w|drink.'&:'''.'*..'.:...':':&:%*'|'.%..*|'%*|;%;%;%*%*|*&||;&;&*&*&
+---
+> .Water*3/3'%w|drink.'&:'''.'*..'.:...':':&:%*'|'.%..*|'%*|;%;%;%*%*|*&||;&;&*&*&
+diff -r tests/goldens/old-den-plain/frame-0120.txt target/goldens/old-den-plain/frame-0120.txt
+6c6
+< .Water*2/3'%w|drink.'&:'''.'*..'.:...':':&:%*'|'.%..*|'%*|;%;%;%*%*|*&||;&;&*&*&
+---
+> .Water*3/3'%w|drink.'&:'''.'*..'.:...':':&:%*'|'.%..*|'%*|;%;%;%*%*|*&||;&;&*&*&
+goldens: opening-black-120x40-rich ok
+goldens: opening-black-120x40-plain ok
+goldens: opening-black-200x60-rich ok
+goldens: opening-black-200x60-plain ok
+goldens: opening-black-80x24-rich ok
+goldens: opening-black-80x24-plain ok
+goldens: opening-blink1-close-120x40-rich ok
+goldens: opening-blink1-close-120x40-plain ok
+goldens: opening-blink1-close-200x60-rich ok
+goldens: opening-blink1-close-200x60-plain ok
+goldens: opening-blink1-close-80x24-rich ok
+goldens: opening-blink1-close-80x24-plain ok
+goldens: opening-blink1-open-120x40-rich ok
+goldens: opening-blink1-open-120x40-plain ok
+goldens: opening-blink1-open-200x60-rich ok
+goldens: opening-blink1-open-200x60-plain ok
+goldens: opening-blink1-open-80x24-rich ok
+goldens: opening-blink1-open-80x24-plain ok
+goldens: opening-blink1-peak-120x40-rich ok
+goldens: opening-blink1-peak-120x40-plain ok
+goldens: opening-blink1-peak-200x60-rich ok
+goldens: opening-blink1-peak-200x60-plain ok
+goldens: opening-blink1-peak-80x24-rich ok
+goldens: opening-blink1-peak-80x24-plain ok
+goldens: opening-blink1-shut-120x40-rich ok
+goldens: opening-blink1-shut-120x40-plain ok
+goldens: opening-blink1-shut-200x60-rich ok
+goldens: opening-blink1-shut-200x60-plain ok
+goldens: opening-blink1-shut-80x24-rich ok
+goldens: opening-blink1-shut-80x24-plain ok
+goldens: opening-blink2-close-120x40-rich ok
+goldens: opening-blink2-close-120x40-plain ok
+goldens: opening-blink2-close-200x60-rich ok
+goldens: opening-blink2-close-200x60-plain ok
+goldens: opening-blink2-close-80x24-rich ok
+goldens: opening-blink2-close-80x24-plain ok
+goldens: opening-blink2-open-120x40-rich ok
+goldens: opening-blink2-open-120x40-plain ok
+goldens: opening-blink2-open-200x60-rich ok
+goldens: opening-blink2-open-200x60-plain ok
+goldens: opening-blink2-open-80x24-rich ok
+goldens: opening-blink2-open-80x24-plain ok
+goldens: opening-blink2-shut-120x40-rich ok
+goldens: opening-blink2-shut-120x40-plain ok
+goldens: opening-blink2-shut-200x60-rich ok
+goldens: opening-blink2-shut-200x60-plain ok
+goldens: opening-blink2-shut-80x24-rich ok
+goldens: opening-blink2-shut-80x24-plain ok
+goldens: opening-blink3-close-120x40-rich ok
+goldens: opening-blink3-close-120x40-plain ok
+goldens: opening-blink3-close-200x60-rich ok
+goldens: opening-blink3-close-200x60-plain ok
+goldens: opening-blink3-close-80x24-rich ok
+goldens: opening-blink3-close-80x24-plain ok
+goldens: opening-blink3-open-120x40-rich ok
+goldens: opening-blink3-open-120x40-plain ok
+goldens: opening-blink3-open-200x60-rich ok
+goldens: opening-blink3-open-200x60-plain ok
+goldens: opening-blink3-open-80x24-rich ok
+goldens: opening-blink3-open-80x24-plain ok
+goldens: opening-blink3-shut-120x40-rich ok
+goldens: opening-blink3-shut-120x40-plain ok
+goldens: opening-blink3-shut-200x60-rich ok
+goldens: opening-blink3-shut-200x60-plain ok
+goldens: opening-blink3-shut-80x24-rich ok
+goldens: opening-blink3-shut-80x24-plain ok
+goldens: opening-clear-120x40-rich ok
+goldens: opening-clear-120x40-plain ok
+goldens: opening-clear-200x60-rich ok
+goldens: opening-clear-200x60-plain ok
+goldens: opening-clear-80x24-rich ok
+goldens: opening-clear-80x24-plain ok
+goldens: opening-clear-open-120x40-rich ok
+goldens: opening-clear-open-120x40-plain ok
+goldens: opening-clear-open-200x60-rich ok
+goldens: opening-clear-open-200x60-plain ok
+goldens: opening-clear-open-80x24-rich ok
+goldens: opening-clear-open-80x24-plain ok
+goldens: opening-crack-120x40-rich ok
+goldens: opening-crack-120x40-plain ok
+goldens: opening-crack-200x60-rich ok
+goldens: opening-crack-200x60-plain ok
+goldens: opening-crack-80x24-rich ok
+goldens: opening-crack-80x24-plain ok
+goldens: opening-crossing-120x40-rich ok
+goldens: opening-crossing-120x40-plain ok
+goldens: opening-crossing-200x60-rich ok
+goldens: opening-crossing-200x60-plain ok
+goldens: opening-crossing-80x24-rich ok
+goldens: opening-crossing-80x24-plain ok
+goldens: opening-fall-120x40-rich ok
+goldens: opening-fall-120x40-plain ok
+goldens: opening-fall-200x60-rich ok
+goldens: opening-fall-200x60-plain ok
+goldens: opening-fall-80x24-rich ok
+goldens: opening-fall-80x24-plain ok
+goldens: opening-freeze-120x40-rich ok
+goldens: opening-freeze-120x40-plain ok
+goldens: opening-freeze-200x60-rich ok
+goldens: opening-freeze-200x60-plain ok
+goldens: opening-freeze-80x24-rich ok
+goldens: opening-freeze-80x24-plain ok
+goldens: opening-plate-120x40-rich ok
+goldens: opening-plate-120x40-plain ok
+goldens: opening-plate-200x60-rich ok
+goldens: opening-plate-200x60-plain ok
+goldens: opening-plate-80x24-rich ok
+goldens: opening-plate-80x24-plain ok
+goldens: opening-skip-rich ok
+goldens: opening-skip-plain ok
+goldens: opening-spread-120x40-rich ok
+goldens: opening-spread-120x40-plain ok
+goldens: opening-spread-200x60-rich ok
+goldens: opening-spread-200x60-plain ok
+goldens: opening-spread-80x24-rich ok
+goldens: opening-spread-80x24-plain ok
+goldens: opening-underwater-120x40-rich ok
+goldens: opening-underwater-120x40-plain ok
+goldens: opening-underwater-200x60-rich ok
+goldens: opening-underwater-200x60-plain ok
+goldens: opening-underwater-80x24-rich ok
+goldens: opening-underwater-80x24-plain ok
+goldens: opening-rich ok
+goldens: opening-plain ok
+goldens: parry-rich ok
+goldens: parry-plain ok
+goldens: posture-badly-rich ok
+goldens: posture-badly-plain ok
+goldens: posture-dying-rich ok
+goldens: posture-dying-plain ok
+goldens: posture-full-rich ok
+goldens: posture-full-plain ok
+goldens: posture-hurt-rich ok
+goldens: posture-hurt-plain ok
+goldens: resize-rich ok
+goldens: resize-plain ok
+goldens: rest-bramblehold-120x40-rich ok
+goldens: rest-bramblehold-120x40-plain ok
+goldens: rest-bramblehold-80x24-rich ok
+goldens: rest-bramblehold-80x24-plain ok
+goldens: rest-cinderwick-120x40-rich ok
+goldens: rest-cinderwick-120x40-plain ok
+goldens: rest-cinderwick-80x24-rich ok
+goldens: rest-cinderwick-80x24-plain ok
+goldens: rest-larkmeadow-120x40-rich DIFFERS (target/goldens/rest-larkmeadow-120x40-rich.diff)
+diff -r tests/goldens/rest-larkmeadow-120x40-rich/final.state target/goldens/rest-larkmeadow-120x40-rich/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -2048 y 11264 heading 0 gap 30 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -2048 y 11264 heading 0 gap 31 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x -256 y 33536 heading 0 gap 117 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x -256 y 33536 heading 0 gap 118 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -4352 y 56320 heading 0 gap 206 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -4352 y 56320 heading 0 gap 207 last_hit -1 attack 0 poise 0
+goldens: rest-larkmeadow-120x40-plain DIFFERS (target/goldens/rest-larkmeadow-120x40-plain.diff)
+diff -r tests/goldens/rest-larkmeadow-120x40-plain/final.state target/goldens/rest-larkmeadow-120x40-plain/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -2048 y 11264 heading 0 gap 30 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -2048 y 11264 heading 0 gap 31 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x -256 y 33536 heading 0 gap 117 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x -256 y 33536 heading 0 gap 118 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -4352 y 56320 heading 0 gap 206 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -4352 y 56320 heading 0 gap 207 last_hit -1 attack 0 poise 0
+goldens: rest-larkmeadow-80x24-rich DIFFERS (target/goldens/rest-larkmeadow-80x24-rich.diff)
+diff -r tests/goldens/rest-larkmeadow-80x24-rich/final.state target/goldens/rest-larkmeadow-80x24-rich/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -2048 y 11264 heading 0 gap 30 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -2048 y 11264 heading 0 gap 31 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x -256 y 33536 heading 0 gap 117 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x -256 y 33536 heading 0 gap 118 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -4352 y 56320 heading 0 gap 206 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -4352 y 56320 heading 0 gap 207 last_hit -1 attack 0 poise 0
+goldens: rest-larkmeadow-80x24-plain DIFFERS (target/goldens/rest-larkmeadow-80x24-plain.diff)
+diff -r tests/goldens/rest-larkmeadow-80x24-plain/final.state target/goldens/rest-larkmeadow-80x24-plain/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -2048 y 11264 heading 0 gap 30 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -2048 y 11264 heading 0 gap 31 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x -256 y 33536 heading 0 gap 117 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x -256 y 33536 heading 0 gap 118 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -4352 y 56320 heading 0 gap 206 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -4352 y 56320 heading 0 gap 207 last_hit -1 attack 0 poise 0
+goldens: rest-menu-empty-120x40-rich ok
+goldens: rest-menu-empty-120x40-plain ok
+goldens: rest-menu-empty-200x60-rich ok
+goldens: rest-menu-empty-200x60-plain ok
+goldens: rest-menu-empty-80x24-rich ok
+goldens: rest-menu-empty-80x24-plain ok
+goldens: rest-menu-pending-120x40-rich ok
+goldens: rest-menu-pending-120x40-plain ok
+goldens: rest-menu-pending-200x60-rich ok
+goldens: rest-menu-pending-200x60-plain ok
+goldens: rest-menu-pending-80x24-rich ok
+goldens: rest-menu-pending-80x24-plain ok
+goldens: rest-menu-refused-120x40-rich ok
+goldens: rest-menu-refused-120x40-plain ok
+goldens: rest-menu-refused-200x60-rich ok
+goldens: rest-menu-refused-200x60-plain ok
+goldens: rest-menu-refused-80x24-rich ok
+goldens: rest-menu-refused-80x24-plain ok
+goldens: rest-old-den-120x40-rich ok
+goldens: rest-old-den-120x40-plain ok
+goldens: rest-old-den-80x24-rich ok
+goldens: rest-old-den-80x24-plain ok
+goldens: rest-shallows-120x40-rich DIFFERS (target/goldens/rest-shallows-120x40-rich.diff)
+diff -r tests/goldens/rest-shallows-120x40-rich/final.state target/goldens/rest-shallows-120x40-rich/final.state
+3c3
+< foe 1 kind 2 health 8 phase 0 since 0 x -1280 y 11264 heading 0 gap 30 last_hit -1 attack 0 poise 0
+---
+> foe 1 kind 2 health 8 phase 0 since 0 x -1280 y 11264 heading 0 gap 31 last_hit -1 attack 0 poise 0
+7c7
+< foe 5 kind 2 health 8 phase 0 since 0 x -3328 y 26624 heading 0 gap 90 last_hit -1 attack 0 poise 0
+---
+> foe 5 kind 2 health 8 phase 0 since 0 x -3328 y 26624 heading 0 gap 91 last_hit -1 attack 0 poise 0
+9c9
+< foe 7 kind 2 health 8 phase 0 since 0 x 2560 y 48896 heading 0 gap 177 last_hit -1 attack 0 poise 0
+---
+> foe 7 kind 2 health 8 phase 0 since 0 x 2560 y 48896 heading 0 gap 178 last_hit -1 attack 0 poise 0
+goldens: rest-shallows-120x40-plain DIFFERS (target/goldens/rest-shallows-120x40-plain.diff)
+diff -r tests/goldens/rest-shallows-120x40-plain/final.state target/goldens/rest-shallows-120x40-plain/final.state
+3c3
+< foe 1 kind 2 health 8 phase 0 since 0 x -1280 y 11264 heading 0 gap 30 last_hit -1 attack 0 poise 0
+---
+> foe 1 kind 2 health 8 phase 0 since 0 x -1280 y 11264 heading 0 gap 31 last_hit -1 attack 0 poise 0
+7c7
+< foe 5 kind 2 health 8 phase 0 since 0 x -3328 y 26624 heading 0 gap 90 last_hit -1 attack 0 poise 0
+---
+> foe 5 kind 2 health 8 phase 0 since 0 x -3328 y 26624 heading 0 gap 91 last_hit -1 attack 0 poise 0
+9c9
+< foe 7 kind 2 health 8 phase 0 since 0 x 2560 y 48896 heading 0 gap 177 last_hit -1 attack 0 poise 0
+---
+> foe 7 kind 2 health 8 phase 0 since 0 x 2560 y 48896 heading 0 gap 178 last_hit -1 attack 0 poise 0
+goldens: rest-shallows-80x24-rich DIFFERS (target/goldens/rest-shallows-80x24-rich.diff)
+diff -r tests/goldens/rest-shallows-80x24-rich/final.state target/goldens/rest-shallows-80x24-rich/final.state
+3c3
+< foe 1 kind 2 health 8 phase 0 since 0 x -1280 y 11264 heading 0 gap 30 last_hit -1 attack 0 poise 0
+---
+> foe 1 kind 2 health 8 phase 0 since 0 x -1280 y 11264 heading 0 gap 31 last_hit -1 attack 0 poise 0
+7c7
+< foe 5 kind 2 health 8 phase 0 since 0 x -3328 y 26624 heading 0 gap 90 last_hit -1 attack 0 poise 0
+---
+> foe 5 kind 2 health 8 phase 0 since 0 x -3328 y 26624 heading 0 gap 91 last_hit -1 attack 0 poise 0
+9c9
+< foe 7 kind 2 health 8 phase 0 since 0 x 2560 y 48896 heading 0 gap 177 last_hit -1 attack 0 poise 0
+---
+> foe 7 kind 2 health 8 phase 0 since 0 x 2560 y 48896 heading 0 gap 178 last_hit -1 attack 0 poise 0
+goldens: rest-shallows-80x24-plain DIFFERS (target/goldens/rest-shallows-80x24-plain.diff)
+diff -r tests/goldens/rest-shallows-80x24-plain/final.state target/goldens/rest-shallows-80x24-plain/final.state
+3c3
+< foe 1 kind 2 health 8 phase 0 since 0 x -1280 y 11264 heading 0 gap 30 last_hit -1 attack 0 poise 0
+---
+> foe 1 kind 2 health 8 phase 0 since 0 x -1280 y 11264 heading 0 gap 31 last_hit -1 attack 0 poise 0
+7c7
+< foe 5 kind 2 health 8 phase 0 since 0 x -3328 y 26624 heading 0 gap 90 last_hit -1 attack 0 poise 0
+---
+> foe 5 kind 2 health 8 phase 0 since 0 x -3328 y 26624 heading 0 gap 91 last_hit -1 attack 0 poise 0
+9c9
+< foe 7 kind 2 health 8 phase 0 since 0 x 2560 y 48896 heading 0 gap 177 last_hit -1 attack 0 poise 0
+---
+> foe 7 kind 2 health 8 phase 0 since 0 x 2560 y 48896 heading 0 gap 178 last_hit -1 attack 0 poise 0
+goldens: rest-shingle-120x40-rich ok
+goldens: rest-shingle-120x40-plain ok
+goldens: rest-shingle-80x24-rich ok
+goldens: rest-shingle-80x24-plain ok
+goldens: rest-teeth-120x40-rich DIFFERS (target/goldens/rest-teeth-120x40-rich.diff)
+diff -r tests/goldens/rest-teeth-120x40-rich/final.state target/goldens/rest-teeth-120x40-rich/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 0 x 1536 y 18688 heading 0 gap 51 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 0 x 1536 y 18688 heading 0 gap 52 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 768 y 53248 heading 0 gap 186 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 768 y 53248 heading 0 gap 187 last_hit -1 attack 0 poise 0
+goldens: rest-teeth-120x40-plain DIFFERS (target/goldens/rest-teeth-120x40-plain.diff)
+diff -r tests/goldens/rest-teeth-120x40-plain/final.state target/goldens/rest-teeth-120x40-plain/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 0 x 1536 y 18688 heading 0 gap 51 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 0 x 1536 y 18688 heading 0 gap 52 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 768 y 53248 heading 0 gap 186 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 768 y 53248 heading 0 gap 187 last_hit -1 attack 0 poise 0
+goldens: rest-teeth-80x24-rich DIFFERS (target/goldens/rest-teeth-80x24-rich.diff)
+diff -r tests/goldens/rest-teeth-80x24-rich/final.state target/goldens/rest-teeth-80x24-rich/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 0 x 1536 y 18688 heading 0 gap 51 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 0 x 1536 y 18688 heading 0 gap 52 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 768 y 53248 heading 0 gap 186 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 768 y 53248 heading 0 gap 187 last_hit -1 attack 0 poise 0
+goldens: rest-teeth-80x24-plain DIFFERS (target/goldens/rest-teeth-80x24-plain.diff)
+diff -r tests/goldens/rest-teeth-80x24-plain/final.state target/goldens/rest-teeth-80x24-plain/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 0 x 1536 y 18688 heading 0 gap 51 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 0 x 1536 y 18688 heading 0 gap 52 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 768 y 53248 heading 0 gap 186 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 768 y 53248 heading 0 gap 187 last_hit -1 attack 0 poise 0
+goldens: rest-rich ok
+goldens: rest-plain ok
+goldens: river-rich DIFFERS (target/goldens/river-rich.diff)
+diff -r tests/goldens/river-rich/final.state target/goldens/river-rich/final.state
+3c3
+< foe 1 kind 2 health 8 phase 0 since 0 x -2278 y 11264 heading 0 gap 14 last_hit -1 attack 0 poise 0
+---
+> foe 1 kind 2 health 8 phase 0 since 0 x -2278 y 11264 heading 0 gap 15 last_hit -1 attack 0 poise 0
+7c7
+< foe 5 kind 2 health 8 phase 0 since 0 x -2534 y 27904 heading 0 gap 79 last_hit -1 attack 0 poise 0
+---
+> foe 5 kind 2 health 8 phase 0 since 0 x -2534 y 27904 heading 0 gap 80 last_hit -1 attack 0 poise 0
+9c9
+< foe 7 kind 2 health 8 phase 0 since 0 x 2330 y 49408 heading 0 gap 163 last_hit -1 attack 0 poise 0
+---
+> foe 7 kind 2 health 8 phase 0 since 0 x 2330 y 49408 heading 0 gap 164 last_hit -1 attack 0 poise 0
+goldens: river-plain DIFFERS (target/goldens/river-plain.diff)
+diff -r tests/goldens/river-plain/final.state target/goldens/river-plain/final.state
+3c3
+< foe 1 kind 2 health 8 phase 0 since 0 x -2278 y 11264 heading 0 gap 14 last_hit -1 attack 0 poise 0
+---
+> foe 1 kind 2 health 8 phase 0 since 0 x -2278 y 11264 heading 0 gap 15 last_hit -1 attack 0 poise 0
+7c7
+< foe 5 kind 2 health 8 phase 0 since 0 x -2534 y 27904 heading 0 gap 79 last_hit -1 attack 0 poise 0
+---
+> foe 5 kind 2 health 8 phase 0 since 0 x -2534 y 27904 heading 0 gap 80 last_hit -1 attack 0 poise 0
+9c9
+< foe 7 kind 2 health 8 phase 0 since 0 x 2330 y 49408 heading 0 gap 163 last_hit -1 attack 0 poise 0
+---
+> foe 7 kind 2 health 8 phase 0 since 0 x 2330 y 49408 heading 0 gap 164 last_hit -1 attack 0 poise 0
+goldens: saved-den-rich ok
+goldens: saved-den-plain ok
+goldens: scent-orb-120x40-rich ok
+goldens: scent-orb-120x40-plain ok
+goldens: scent-orb-80x24-rich ok
+goldens: scent-orb-80x24-plain ok
+goldens: scent-recover-120x40-rich ok
+goldens: scent-recover-120x40-plain ok
+goldens: scent-recover-80x24-rich ok
+goldens: scent-recover-80x24-plain ok
+goldens: scroll-rich ok
+goldens: scroll-plain ok
+goldens: sneak-rich ok
+goldens: sneak-plain ok
+goldens: spring-drink-rich ok
+goldens: spring-drink-plain ok
+goldens: spring-found-rich ok
+goldens: spring-found-plain ok
+goldens: sprint-120x40-rich DIFFERS (target/goldens/sprint-120x40-rich.diff)
+diff -r tests/goldens/sprint-120x40-rich/final.state target/goldens/sprint-120x40-rich/final.state
+1c1
+< tick 60 resting 0 capacity 0 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 2264 y 634 heading 64 action 0 started 25 health 52 stamina 52 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 64 combo 0 body 2 gait 1348 sprint 0 cone 64 bosses 0 end 0 arena 0 played 60 lost 0
+---
+> tick 60 resting 0 capacity 0 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 2272 y 634 heading 64 action 0 started 25 health 52 stamina 52 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 64 combo 0 body 2 gait 1356 sprint 0 cone 64 bosses 0 end 0 arena 0 played 60 lost 0
+goldens: sprint-120x40-plain DIFFERS (target/goldens/sprint-120x40-plain.diff)
+diff -r tests/goldens/sprint-120x40-plain/final.state target/goldens/sprint-120x40-plain/final.state
+1c1
+< tick 60 resting 0 capacity 0 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 2264 y 634 heading 64 action 0 started 25 health 52 stamina 52 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 64 combo 0 body 2 gait 1348 sprint 0 cone 64 bosses 0 end 0 arena 0 played 60 lost 0
+---
+> tick 60 resting 0 capacity 0 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 2272 y 634 heading 64 action 0 started 25 health 52 stamina 52 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 64 combo 0 body 2 gait 1356 sprint 0 cone 64 bosses 0 end 0 arena 0 played 60 lost 0
+goldens: sprint-80x24-rich DIFFERS (target/goldens/sprint-80x24-rich.diff)
+diff -r tests/goldens/sprint-80x24-rich/final.state target/goldens/sprint-80x24-rich/final.state
+1c1
+< tick 60 resting 0 capacity 0 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 2264 y 634 heading 64 action 0 started 25 health 52 stamina 52 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 64 combo 0 body 2 gait 1348 sprint 0 cone 64 bosses 0 end 0 arena 0 played 60 lost 0
+---
+> tick 60 resting 0 capacity 0 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 2272 y 634 heading 64 action 0 started 25 health 52 stamina 52 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 64 combo 0 body 2 gait 1356 sprint 0 cone 64 bosses 0 end 0 arena 0 played 60 lost 0
+goldens: sprint-80x24-plain DIFFERS (target/goldens/sprint-80x24-plain.diff)
+diff -r tests/goldens/sprint-80x24-plain/final.state target/goldens/sprint-80x24-plain/final.state
+1c1
+< tick 60 resting 0 capacity 0 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 2264 y 634 heading 64 action 0 started 25 health 52 stamina 52 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 64 combo 0 body 2 gait 1348 sprint 0 cone 64 bosses 0 end 0 arena 0 played 60 lost 0
+---
+> tick 60 resting 0 capacity 0 level 1 meat 0 area 0 den_id 0 shortcuts 0 caches 0 scene 0 drops 0 mark_area 0 x 2272 y 634 heading 64 action 0 started 25 health 52 stamina 52 flasks 0 scent 0 deaths 0 mark 0 mark_scent 0 gate 0 trail 8 lock -1 aim 64 combo 0 body 2 gait 1356 sprint 0 cone 64 bosses 0 end 0 arena 0 played 60 lost 0
+goldens: sprint-hit-rich ok
+goldens: sprint-hit-plain ok
+goldens: stand-rich ok
+goldens: stand-plain ok
+goldens: thorn-gate-rich ok
+goldens: thorn-gate-plain ok
+goldens: three-bites-rich ok
+goldens: three-bites-plain ok
+goldens: title-demo-rich ok
+goldens: title-demo-plain ok
+goldens: title-rich ok
+goldens: title-plain ok
+goldens: town-den-rich ok
+goldens: town-den-plain ok
+goldens: town-lane-120x40-rich ok
+goldens: town-lane-120x40-plain ok
+goldens: town-lane-80x24-rich ok
+goldens: town-lane-80x24-plain ok
+goldens: town-passage-rich ok
+goldens: town-passage-plain ok
+goldens: trail-fading-rich ok
+goldens: trail-fading-plain ok
+goldens: turn-east-rich ok
+goldens: turn-east-plain ok
+goldens: walk-north-rich ok
+goldens: walk-north-plain ok
+goldens: water-refill-rich ok
+goldens: water-refill-plain ok
+goldens: weasel-retreat-rich ok
+goldens: weasel-retreat-plain ok
+goldens: whisper-flank-rich DIFFERS (target/goldens/whisper-flank-rich.diff)
+diff -r tests/goldens/whisper-flank-rich/final.state target/goldens/whisper-flank-rich/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 296 x 2196 y 18374 heading 0 gap 78 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 296 x 2196 y 18374 heading 0 gap 80 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 1684 y 52678 heading 0 gap 47 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 1684 y 52678 heading 0 gap 48 last_hit -1 attack 0 poise 0
+goldens: whisper-flank-plain DIFFERS (target/goldens/whisper-flank-plain.diff)
+diff -r tests/goldens/whisper-flank-plain/final.state target/goldens/whisper-flank-plain/final.state
+5c5
+< foe 3 kind 2 health 8 phase 0 since 296 x 2196 y 18374 heading 0 gap 78 last_hit -1 attack 0 poise 0
+---
+> foe 3 kind 2 health 8 phase 0 since 296 x 2196 y 18374 heading 0 gap 80 last_hit -1 attack 0 poise 0
+10c10
+< foe 8 kind 2 health 8 phase 0 since 0 x 1684 y 52678 heading 0 gap 47 last_hit -1 attack 0 poise 0
+---
+> foe 8 kind 2 health 8 phase 0 since 0 x 1684 y 52678 heading 0 gap 48 last_hit -1 attack 0 poise 0
+goldens: wide-rich ok
+goldens: wide-plain ok
+goldens: world-den-rich ok
+goldens: world-den-plain ok
+goldens: world-gate-rich ok
+goldens: world-gate-plain ok
+goldens: world-hawk-rich DIFFERS (target/goldens/world-hawk-rich.diff)
+diff -r tests/goldens/world-hawk-rich/final.state target/goldens/world-hawk-rich/final.state
+2c2
+< foe 0 kind 2 health 0 phase 2 since 3253 x -1422 y 8718 heading 0 gap -3 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 0 phase 2 since 3253 x -1422 y 8718 heading 0 gap -1 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1850 y 34196 heading 0 gap 94 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1850 y 34196 heading 0 gap 95 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3014 y 55956 heading 0 gap 179 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3014 y 55956 heading 0 gap 180 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/world-hawk-rich/final.sty target/goldens/world-hawk-rich/final.sty
+10,11c10,11
+< 137,235,0*3 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*7 143,235,0*1 137,235,0*3 59,235,0*2 137,235,0*13 60,235,0*1 137,235,0*1 181,240,0*1 229,235,0*1 60,235,0*1 137,235,0*2 143,235,0*1 137,235,0*2 59,235,0*2 137,235,0*1 59,235,0*2 143,235,0*1 59,235,0*2 137,235,0*1 143,235,0*1 137,235,0*8 59,235,0*2 143,235,0*1 137,235,0*3 143,235,0*1 137,235,0*6 59,235,0*1
+< 137,235,0*8 59,235,0*4 143,235,0*1 137,235,0*2 143,235,0*2 137,235,0*1 143,235,0*2 137,235,0*2 59,235,0*4 137,235,0*5 143,235,0*1 137,235,0*7 210,235,1*1 181,240,0*1 181,235,0*1 137,235,0*6 59,235,0*1 137,235,0*2 59,235,0*1 137,235,0*2 59,235,0*1 143,235,0*1 137,235,0*9 59,235,0*4 143,235,0*1 137,235,0*2 143,235,0*3 137,235,0*3 59,235,0*2
+---
+> 137,235,0*3 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*2 143,235,0*1 137,235,0*1 143,235,0*1 137,235,0*7 143,235,0*1 137,235,0*3 59,235,0*2 137,235,0*13 60,235,0*1 137,235,0*1 137,240,0*1 229,235,0*1 60,235,0*1 137,235,0*2 143,235,0*1 137,235,0*2 59,235,0*2 137,235,0*1 59,235,0*2 143,235,0*1 59,235,0*2 137,235,0*1 143,235,0*1 137,235,0*8 59,235,0*2 143,235,0*1 137,235,0*3 143,235,0*1 137,235,0*6 59,235,0*1
+> 137,235,0*8 59,235,0*4 143,235,0*1 137,235,0*2 143,235,0*2 137,235,0*1 143,235,0*2 137,235,0*2 59,235,0*4 137,235,0*5 143,235,0*1 137,235,0*7 210,235,1*1 137,240,0*1 231,235,1*1 137,235,0*6 59,235,0*1 137,235,0*2 59,235,0*1 137,235,0*2 59,235,0*1 143,235,0*1 137,235,0*9 59,235,0*4 143,235,0*1 137,235,0*2 143,235,0*3 137,235,0*3 59,235,0*2
+goldens: world-hawk-plain DIFFERS (target/goldens/world-hawk-plain.diff)
+diff -r tests/goldens/world-hawk-plain/final.state target/goldens/world-hawk-plain/final.state
+2c2
+< foe 0 kind 2 health 0 phase 2 since 3253 x -1422 y 8718 heading 0 gap -3 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 0 phase 2 since 3253 x -1422 y 8718 heading 0 gap -1 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1850 y 34196 heading 0 gap 94 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1850 y 34196 heading 0 gap 95 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3014 y 55956 heading 0 gap 179 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3014 y 55956 heading 0 gap 180 last_hit -1 attack 0 poise 0
+diff -r tests/goldens/world-hawk-plain/final.sty target/goldens/world-hawk-plain/final.sty
+10,11c10,11
+< 3,0,0*23 8,0,0*2 3,0,0*13 5,0,0*1 3,0,0*1 13,8,0*1 14,0,0*1 5,0,0*1 3,0,0*5 8,0,0*2 3,0,0*1 8,0,0*2 3,0,0*1 8,0,0*2 3,0,0*10 8,0,0*2 3,0,0*11 8,0,0*1
+< 3,0,0*8 8,0,0*4 3,0,0*10 8,0,0*4 3,0,0*13 12,0,1*1 13,8,0*1 15,0,1*1 3,0,0*6 8,0,0*1 3,0,0*2 8,0,0*1 3,0,0*2 8,0,0*1 3,0,0*10 8,0,0*4 3,0,0*9 8,0,0*2
+---
+> 3,0,0*23 8,0,0*2 3,0,0*13 5,0,0*1 3,0,0*1 3,8,0*1 14,0,0*1 5,0,0*1 3,0,0*5 8,0,0*2 3,0,0*1 8,0,0*2 3,0,0*1 8,0,0*2 3,0,0*10 8,0,0*2 3,0,0*11 8,0,0*1
+> 3,0,0*8 8,0,0*4 3,0,0*10 8,0,0*4 3,0,0*13 12,0,1*1 3,8,0*1 15,0,1*1 3,0,0*6 8,0,0*1 3,0,0*2 8,0,0*1 3,0,0*2 8,0,0*1 3,0,0*10 8,0,0*4 3,0,0*9 8,0,0*2
+goldens: world-meadow-rich DIFFERS (target/goldens/world-meadow-rich.diff)
+diff -r tests/goldens/world-meadow-rich/final.state target/goldens/world-meadow-rich/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -1536 y 10752 heading 0 gap 35 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -1536 y 10752 heading 0 gap 36 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1536 y 33792 heading 0 gap 125 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1536 y 33792 heading 0 gap 126 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3328 y 55552 heading 0 gap 210 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3328 y 55552 heading 0 gap 211 last_hit -1 attack 0 poise 0
+goldens: world-meadow-plain DIFFERS (target/goldens/world-meadow-plain.diff)
+diff -r tests/goldens/world-meadow-plain/final.state target/goldens/world-meadow-plain/final.state
+2c2
+< foe 0 kind 2 health 8 phase 0 since 0 x -1536 y 10752 heading 0 gap 35 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 8 phase 0 since 0 x -1536 y 10752 heading 0 gap 36 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1536 y 33792 heading 0 gap 125 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1536 y 33792 heading 0 gap 126 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3328 y 55552 heading 0 gap 210 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3328 y 55552 heading 0 gap 211 last_hit -1 attack 0 poise 0
+goldens: world-open-rich ok
+goldens: world-open-plain ok
+goldens: world-recovered-rich DIFFERS (target/goldens/world-recovered-rich.diff)
+diff -r tests/goldens/world-recovered-rich/final.state target/goldens/world-recovered-rich/final.state
+2c2
+< foe 0 kind 2 health 0 phase 2 since 3754 x -1422 y 8638 heading 0 gap -2 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 0 phase 2 since 3754 x -1422 y 8638 heading 0 gap 0 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1820 y 33366 heading 0 gap 91 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1820 y 33366 heading 0 gap 92 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3044 y 55126 heading 0 gap 176 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3044 y 55126 heading 0 gap 177 last_hit -1 attack 0 poise 0
+goldens: world-recovered-plain DIFFERS (target/goldens/world-recovered-plain.diff)
+diff -r tests/goldens/world-recovered-plain/final.state target/goldens/world-recovered-plain/final.state
+2c2
+< foe 0 kind 2 health 0 phase 2 since 3754 x -1422 y 8638 heading 0 gap -2 last_hit -1 attack 0 poise 0
+---
+> foe 0 kind 2 health 0 phase 2 since 3754 x -1422 y 8638 heading 0 gap 0 last_hit -1 attack 0 poise 0
+6c6
+< foe 4 kind 2 health 8 phase 0 since 0 x 1820 y 33366 heading 0 gap 91 last_hit -1 attack 0 poise 0
+---
+> foe 4 kind 2 health 8 phase 0 since 0 x 1820 y 33366 heading 0 gap 92 last_hit -1 attack 0 poise 0
+8c8
+< foe 6 kind 2 health 8 phase 0 since 0 x -3044 y 55126 heading 0 gap 176 last_hit -1 attack 0 poise 0
+---
+> foe 6 kind 2 health 8 phase 0 since 0 x -3044 y 55126 heading 0 gap 177 last_hit -1 attack 0 poise 0
+goldens: world-return-rich ok
+goldens: world-return-plain ok
+goldens: world-thorns-rich ok
+goldens: world-thorns-plain ok
+goldens: yard-cache-rich ok
+goldens: yard-cache-plain ok
+diagonal-study: 410 states, 75 unique drawings, four facings, both fields and tiers
+goldens: art DIFFERS (target/goldens/art.diff)
+diff -r tests/goldens/art/hawk-plain.sty target/goldens/art/hawk-plain.sty
+6,9c6,9
+< 256,256,0*8 13,256,1*1 256,256,0*9 13,256,1*1 256,256,0*9 13,256,1*1 256,256,0*9 13,256,1*1 256,256,0*9 13,256,0*1 256,256,0*31
+< 256,256,0*7 13,256,1*3 256,256,0*7 13,256,1*3 256,256,0*8 13,256,1*1 256,256,0*8 13,256,1*3 256,256,0*7 13,256,0*3 256,256,0*7 13,256,0*3 256,256,0*7 13,256,0*3 256,256,0*10
+< 256,256,0*8 13,256,1*1 256,256,0*9 13,256,1*1 256,256,0*9 13,256,1*1 256,256,0*9 13,256,1*1 256,256,0*9 13,256,0*1 256,256,0*9 13,256,0*1 256,256,0*21
+< 256,256,0*8 13,256,1*1 256,256,0*9 13,256,1*1 256,256,0*9 13,256,1*1 256,256,0*9 13,256,1*1 256,256,0*9 13,256,0*1 256,256,0*9 13,256,0*1 256,256,0*9 13,256,0*1 256,256,0*11
+---
+> 256,256,0*80
+> 256,256,0*80
+> 256,256,0*7 13,256,1*4 256,256,0*6 13,256,1*4 256,256,0*7 13,256,1*2 256,256,0*7 13,256,1*3 256,256,0*7 13,256,0*4 256,256,0*6 13,256,0*4 256,256,0*6 13,256,0*4 256,256,0*9
+> 256,256,0*80
+diff -r tests/goldens/art/hawk-plain.txt target/goldens/art/hawk-plain.txt
+6,9c6,9
+<         v         v         v         v         v                               
+<        -v-       \_/        |        /v\       -v-       ...       ...          
+<         O         O         O         O         O         O                     
+<         v         v         |         v         v         v         v           
+---
+>                                                                                 
+>                                                                                 
+CB10_PREPARE_GOLDENS_STATUS 1
+
+[exited with code 0]
