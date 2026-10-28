@@ -2,7 +2,7 @@ pk 1
 seed 1
 tier rich
 size 80x24
-t 0 journey 4
+t 0 journey 5
 t 0 saved-0 1
 t 0 saved-1 0
 t 0 saved-2 3
@@ -40,6 +40,13 @@ t 0 saved-33 0
 t 0 saved-34 0
 t 0 saved-35 0
 t 0 saved-36 0
+t 0 saved-37 0
+t 0 saved-38 0
+t 0 saved-39 0
+t 0 saved-40 0
+t 0 saved-41 0
+t 0 saved-42 0
+t 0 saved-43 1
 t 0 release
 t 1 left
 t 2 left
@@ -269,20 +276,17 @@ t 199 right
 t 200 down
 t 200 right
 t 201 right
-t 202 down
 t 202 right
-t 203 down
-t 204 down
+t 203 right
+t 204 right
 t 205 right
 t 206 right
-t 207 down
 t 207 right
 t 208 down
+t 208 right
 t 209 down
-t 209 right
-t 210 right
+t 210 down
 t 211 down
-t 211 right
 t 212 down
 t 213 down
 t 214 down
@@ -304,9 +308,9 @@ t 229 down
 t 230 down
 t 231 down
 t 232 down
-t 232 left
-t 233 left
-t 234 left
+t 233 down
+t 234 down
+t 235 down
 t 235 left
 t 236 left
 t 237 left
@@ -316,14 +320,17 @@ t 240 left
 t 241 left
 t 242 left
 t 243 left
-t 244 down
 t 244 left
-t 245 down
-t 246 down
+t 245 left
+t 246 left
 t 247 down
+t 247 left
 t 248 down
 t 249 down
 t 250 down
 t 251 down
+t 252 down
+t 253 down
+t 254 down
 
-# frames 258 every 1 from 258
+# frames 261 every 1 from 261
