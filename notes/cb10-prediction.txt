@@ -1,0 +1,9 @@
+cb10 prediction before implementation, 2026-10-27
+
+1. Legacy Ctrl+arrow sprint expires during the OS initial repeat delay (250 ms or 500 ms); real reader rows will expose it, while negotiated release stays exact.
+2. Water loss accompanies fox hits rather than kills: sim has a fox-hit decrement in addition to KEY_WATER. A three-kill/no-drink fixture will print keys when the count falls and distinguish contact from kill.
+3. The pink floaters are likely scent pickups rather than foes; inspect their renderer and census. If confirmed, R-cb10-2 recommends a distinct pickup sprite rather than inventing hitboxes for loot.
+
+R-cb10-1: measure paw 1 and paw 4, recommend and implement the smallest integer sprint increment (+1 fixed-point pace unit) with unchanged drain.
+
+Owned shared sim hunks: sprint constants/sprint_held, flask path and foe records only; no cb11 bite-chain functions. Guides append cb10 headings only. One local planted row, draft plant PR never merged, complete final Mac and Linux gauntlets, five-section PR body, one audit.
