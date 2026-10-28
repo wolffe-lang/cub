@@ -511,12 +511,91 @@ def diagonal_censuses(binary):
     print('gameplay: every single-file edge crossed by both diagonal chords, fifty seeds and both fields')
 
 
+def validate_new_foe_rows(text):
+    lines = text.splitlines()
+    assert lines and lines[0] == ('foe seed cols resolved ticks health recovery '
+                                  'travel_fp contacts overlaps unreachable dodges'), 'new-foe census header'
+    seen = {}
+    for line in lines[1:]:
+        values = [int(v) for v in line.split()]
+        assert len(values) == 12, ('new-foe census columns', line)
+        kind, seed, cols, resolved, ticks, health, recovery, travel, contacts, overlaps, unreachable, dodges = values
+        key = kind, seed, cols
+        assert key not in seen, ('duplicate new-foe encounter', key)
+        assert resolved == 1 and 0 < ticks <= 2500 and health > 0, ('unresolved new foe', key, values)
+        assert recovery >= 12, ('no human-scale recovery', key, recovery)
+        assert travel >= 0 and contacts >= 0 and dodges >= 0, ('negative chase counts', key)
+        assert overlaps == 0 and unreachable == 0, ('new-foe body/contact fault', key, values)
+        assert kind != 12 or dodges > 0, ('heron was not answered with a dodge', key)
+        seen[key] = values
+    expected = {(kind, seed, cols) for kind in range(9, 15)
+                for seed in range(50) for cols in (80, 200)}
+    assert set(seen) == expected, ('incomplete new-foe fairness census', len(seen))
+    return seen
+
+
+def validate_new_foe_encounters(text):
+    pattern = (r'^encounter (\d+) ticks (\d+) done ([01]) parity ([01]) bites (\d+) '
+               r'dodges (\d+) theft ([01]) returned ([01]) dim ([01]) flash ([01]) '
+               r'health (\d+) foe_health (-?\d+) phase (\d+) died (-?\d+)$')
+    rows = {}
+    for line in text.splitlines():
+        match = re.fullmatch(pattern, line)
+        assert match, ('unrecognized new-foe encounter', line)
+        values = tuple(map(int, match.groups()))
+        kind, ticks, done, parity, bites, dodges, theft, returned, dim, flash, health, foe_health, phase, died = values
+        assert kind not in rows, ('duplicate new-foe replay', kind)
+        assert 0 < ticks <= 2500 and done == parity == 1 and health > 0, ('new-foe replay failed', values)
+        if kind == 9:
+            assert theft == returned == 1, 'marten theft was not returned'
+        elif kind == 11:
+            assert dim == 1, 'moths never dimmed the frame'
+        elif kind == 12:
+            assert dodges > 0 and foe_health == 0 and died < 0, 'heron must be passed, not killed'
+        elif kind == 13:
+            assert flash == 1 and foe_health == 0, 'glow contact never flashed'
+        elif kind == 14:
+            assert foe_health > 0 and phase == 8 and died < 0, 'wisp must be snuffed, not killed'
+        rows[kind] = values
+    assert set(rows) == set(range(9, 15)), 'incomplete six-foe replay set'
+    return rows
+
+
+def new_foes(binary):
+    import runpy
+    import shutil
+    name = Path(binary).parent.name
+    census = subprocess.run([str(binary), '--new-foe-census'], text=True,
+                            capture_output=True, check=True)
+    (OUT / (name + '-new-foe-census.txt')).write_text(census.stdout)
+    rows = validate_new_foe_rows(census.stdout)
+    hit = runpy.run_path(str(ROOT / 'tools/hit-census.py'))
+    hit['check_new'](binary, OUT)
+    dest = OUT / (name + '-new-foe-arenas')
+    if dest.exists():
+        shutil.rmtree(dest)
+    proof = subprocess.run([str(binary), '--new-foe-proof', str(dest)], text=True,
+                           capture_output=True, check=True)
+    (OUT / (name + '-new-foe-proof.log')).write_text(proof.stdout + proof.stderr)
+    validate_new_foe_encounters(proof.stdout)
+    golden = ROOT / 'tests/goldens/new-foe-arenas'
+    expected = {p.name: p.read_bytes() for p in golden.iterdir() if p.is_file()}
+    actual = {p.name: p.read_bytes() for p in dest.iterdir() if p.is_file()}
+    assert expected and actual.keys() == expected.keys(), ('new-foe golden keys changed',
+                                                          actual.keys() ^ expected.keys())
+    for key in expected:
+        assert actual[key] == expected[key], ('new-foe replay/golden differs', key)
+    print('gameplay: six foes', len(rows), 'arena resolutions, complete hit rings, '
+          'six replay outcomes and both-tier frames green')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--bin', required=True)
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     diagonal_censuses(Path(args.bin).resolve())
+    new_foes(Path(args.bin).resolve())
     den_memory(Path(args.bin).resolve())
     check(Path(args.bin).resolve())
     bodies(Path(args.bin).resolve())

@@ -15,6 +15,7 @@ import subprocess
 
 VECTORS = [(0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1)]
 PIXELS = {2: (8, 4), 4: (12, 24), 5: (10, 20), 6: (14, 28), 7: (12, 24), 8: (4, 12)}
+NEW_PIXELS = {9: (4, 12), 10: (8, 8), 11: (8, 8), 12: (4, 12), 13: (8, 4), 14: (4, 4)}
 
 
 def body(x, y, aim, old):
@@ -41,10 +42,11 @@ def direction(rect, face, foe, aim):
     return 'into' if into else 'away' if dx * ax + dy * ay < 0 else 'along'
 
 
-def audit(rows, old=False, enforce=False):
+def audit(rows, old=False, enforce=False, pixels=None):
+    pixels = PIXELS if pixels is None else pixels
     kinds = sorted({r['kind'] for r in rows})
     if enforce:
-        assert kinds == list(PIXELS), ('incomplete foe census', kinds)
+        assert kinds == list(pixels), ('incomplete foe census', kinds)
     bounds, expected = {}, set()
     for kind in kinds:
         for q in range(4):
@@ -52,7 +54,7 @@ def audit(rows, old=False, enforce=False):
             assert north, ('missing north ring', kind, q)
             fb = (min(r['x'] for r in north) + 5, min(r['y'] for r in north) + 5,
                   max(r['x'] for r in north) - 4, max(r['y'] for r in north) - 4)
-            pw, ph = PIXELS[kind]
+            pw, ph = pixels[kind]
             if q % 2 and kind != 2:
                 pw, ph = ph, pw
             assert (fb[2] - fb[0] + 1, fb[3] - fb[1] + 1) == ((pw + 1) // 2, (ph + 3) // 4)
@@ -106,6 +108,21 @@ def check(binary, out):
     (out / (name + '-hit-breakdown.txt')).write_text(table)
     print(table, end='')
     print('gameplay: complete hit rings, inward gap0/1 100%, away/gap2 zero')
+
+
+def check_new(binary, out):
+    """Separate appended rings preserve the inherited CSV byte-for-byte."""
+    out = Path(out)
+    out.mkdir(parents=True, exist_ok=True)
+    name = Path(binary).parent.name
+    result = subprocess.run([str(binary), '--new-foe-hit-census'],
+                            text=True, capture_output=True, check=True)
+    path = out / (name + '-new-foe-hit-census.csv')
+    path.write_text(result.stdout)
+    table = audit(read_rows(path), enforce=True, pixels=NEW_PIXELS)
+    (out / (name + '-new-foe-hit-breakdown.txt')).write_text(table)
+    print(table, end='')
+    print('gameplay: six-foe complete bite/snuff rings, inward gap0/1 100%, away/gap2 zero')
 
 
 if __name__ == '__main__':

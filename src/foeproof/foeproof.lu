@@ -81,7 +81,7 @@ pub fn generate(dir: str) -> int {
                 again.foes[0].phase == s.foes[0].phase &&
                 again.foes[0].health == s.foes[0].health
             print(
-                "encounter {kind} ticks {tick} done {if done then 1 else 0} parity {if parity then 1 else 0} bites {bites} dodges {dodges} theft {if theft then 1 else 0} returned {if returned then 1 else 0} dim {if dim then 1 else 0} flash {if flashed then 1 else 0} health {s.health}",
+                "encounter {kind} ticks {tick} done {if done then 1 else 0} parity {if parity then 1 else 0} bites {bites} dodges {dodges} theft {if theft then 1 else 0} returned {if returned then 1 else 0} dim {if dim then 1 else 0} flash {if flashed then 1 else 0} health {s.health} foe_health {s.foes[0].health} phase {s.foes[0].phase} died {s.foes[0].died}",
             )
             if !done ||
                 !parity ||
