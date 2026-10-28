@@ -1,0 +1,26 @@
+pk 1
+seed 7
+tier rich
+size 80x24
+# frames 10 every 1
+# disclosed lore checkpoint; rest row Lore, scroll, return, leave
+t 0 journey 5
+t 0 saved-0 7
+t 0 saved-2 1
+t 0 saved-3 1
+t 0 saved-4 1
+t 0 saved-5 1
+t 0 saved-6 1
+t 0 saved-10 1
+t 0 saved-24 80
+t 0 saved-29 1
+t 0 saved-41 127
+t 0 saved-42 2
+t 0 saved-44 1
+t 0 saved-45 2
+t 0 rest
+t 1 up
+t 2 bite
+t 3 down
+t 4 release
+t 5 release

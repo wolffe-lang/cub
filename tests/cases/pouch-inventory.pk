@@ -1,0 +1,26 @@
+pk 1
+seed 7
+tier rich
+size 80x24
+# frames 2 every 1
+# disclosed pouch checkpoint: all five item kinds, two discovered lore lines
+t 0 journey 5
+t 0 saved-0 7
+t 0 saved-2 1
+t 0 saved-3 1
+t 0 saved-4 1
+t 0 saved-5 1
+t 0 saved-6 1
+t 0 saved-10 1
+t 0 saved-21 2
+t 0 saved-22 1
+t 0 saved-24 80
+t 0 saved-29 1
+t 0 saved-37 1
+t 0 saved-38 1
+t 0 saved-39 1
+t 0 saved-41 127
+t 0 saved-42 2
+t 0 saved-44 1
+t 0 saved-45 2
+t 0 inventory
