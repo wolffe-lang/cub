@@ -1,6 +1,6 @@
 # cub's replay file
 
-## Pouch checkpoints (cb15, CUB 6 / journey 5)
+## Pouch checkpoints (cb15, CUB 6 / journey 5; cb14's CUB 7 / journey 6 below)
 
 Key ids0..36 and numeric event ids0..50 are unchanged. `inventory` is
 appended key37. A new initial `journey 5` carries204 numeric slots: the
@@ -200,10 +200,12 @@ parry, not a ground chase.
 
 ## cb04a: progression (schema4, `journey 3`)
 
-Since cb14 a live recording begins with `journey 5` and `saved-0` through
-`saved-43`: the thirty values below, a slain mask an area (thirteen) and
-the gates word; `journey 4` (37 values, cb05's seven masks) and `journey 3`
-(30) are still read. Before cb14, recordings used `journey 3` and thirty values, `saved-0` through
+Since cb14 a live recording begins with `journey 6` and `saved-0` through
+`saved-210`: the thirty values below, a slain mask an area (thirteen), the
+gates word and cb15's 167 pouch slots (`saved-204`..`saved-210` are the
+appended events 218..224); `journey 5` (cb15: 204 values, seven masks),
+`journey 4` (37 values, cb05's seven masks) and `journey 3` (30) are still
+read. Before cb14, recordings used `journey 3` and thirty values, `saved-0` through
 `saved-29`. Slot29 is the total level, checked against the five stats.
 Slot7 is discovered water capacity0/2/3, not an unconditional three.
 Older journey snapshots fail `save_version`; scripts without a snapshot

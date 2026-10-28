@@ -26,7 +26,9 @@ saved. The pool is bounded to **128 pickups**; a full pool refuses Drop and
 a full-stack cache reward rather than destroying inventory. Lore appends
 stable ids once in discovery order, up to **32 lines**, and is read through
 the rest menu's Lore row. Lore ids are append-only: existing coals/frame/stump
-lines are10/11/12 without wording changes; cb14 and cb16 append from13.
+lines are10/11/12 without wording changes; cb14's lines are 13..31 (the five
+areas', the Howe's five standing stones', the nine alcoves'), which fills the
+32 slots: the next line (cb16's) needs a wider save, a format bump.
 Menus freeze effect/attack/lifetime clocks and
 clear held movement on exit; marrow never catches up for paused ticks.
 The opening and closing ticks are both paused, including queued bite links,
@@ -1557,7 +1559,12 @@ whole of Thornmere as a climbing line of stations, the areas' names fading in fo
 Underteeth under the Teeth, the cub's area marked (B, a true pulled-back render of the terrain, is a renderer the
 engine lacks). **R-cb14-5 (recommended A, implemented): the alcove guards stand on top of R-cb05-4's band** in the
 Teeth, the Shallows and the Hush (`wide.FOES_LATE_MAX` 12 -> 14); the new areas hold their guards alone (3..6,
-`FOES_NEW_MIN/MAX`) until cb18 fills their tables.
+`FOES_NEW_MIN/MAX`) until cb18 fills their tables. **R-cb14-6 (recommended A, implemented at the rebase onto
+cb15): the alcoves' pine, shard and tuft are cb15's items**: a dug alcove gives `pouch.PINE`, `ICE` or `TUFT`
+through `sim.give_item`, or leaves it on the ground at the cache when the stack is full, as cb15 does for marrow
+and yarrow (B, the scent placeholder of 30 kept until a later lane, is the other choice; the maintainer's to
+overturn). The area and standing-stone lines are registered in the found-lore list by cb15's landmark path
+(`sim.hazards_step`, within four cells), the alcove lines by its dig path.
 
 **The graph** (`forest.AREAS` 13, `EDGES` 20): Shingle - Cinderwick - Bramblehold - **the Stand** (7) - Larkmeadow -
 **the Burn** (8) - the Teeth - **the Mere** (9) - the Shallows - the Hush (5) - **the Howe** (11) - **Gravehollow** (12),
@@ -1589,8 +1596,9 @@ to the area's length: 60/136/232 of 288 are 46/105/180 of 224) ending in a hollo
 tier above the area's (from the Teeth on: foxes of health `sim.ALCOVE_GUARD_HEALTH` 36, a pair, a pair and
 one) and a slot (`lore.alcove_slot`): a lore line in the middle alcove of each area (`lore.ALCOVE_FIRST`..), a
 consumable's kind in the others (yarrow, marrow, pine, a shard of ice, the mother's tuft: `lore.PINE`, `SHARD`,
-`TUFT` are the kinds cb15 makes real; until then a dug slot of those kinds yields `sim.ALCOVE_SCENT` 30). The
-journey's `caches` word holds every bit (`journey.cache_limit`).
+`TUFT` are cb15's pine, ice and tuft since its merge, given through `sim.give_item` or left at the cache when
+the stack is full: `sim.reward_item`, R-cb14-6). The journey's `caches` word holds every bit
+(`journey.cache_limit`).
 
 **The ground** (`src/lands/lands.lu`; the kinds `terrain.NEEDLES`..`GATE`, 12..22):
 - *the Stand*: pines two cells tall in columns (`PINE`, 11 % of the floor, a wall where the stand's noise runs
@@ -1634,12 +1642,15 @@ opens the stone mouth with a lunge (`fight.walk_on`), every attempt, as a player
 (`sim.reveal_at`, `sim.revealing`); it re-arms when the cub is six cells off. Transient, never saved; the replay
 carries it through the keys.
 
-**Save schema 6** (`journey.lu`): schema 5's lines, the slain line with thirteen masks (`forest.AREAS`), then
-`gates N` (0..3) before the check; `shortcuts` 0..511 (bit 128 needs paw 2), `caches` under 2^42, `mark_area`
-0..12, `last_den` 0..7 and 11..15. A schema-5 file (seven masks, no gates) migrates with empty masks for the six
-new areas and no gate opened; schema 4 as before; 1..3 refused by name. The replay's snapshot is `journey 5`:
-`saved-0`..`saved-43` (the thirty values, the thirteen masks, the gates); a `journey 4` snapshot (37 values) and
-`journey 3` (30) are still read.
+**Save schema 7** (`journey.lu`, over cb13's and cb15's schema 6): schema 5's lines, the slain line with thirteen
+masks (`forest.AREAS`), `gates N` (0..3), then cb13's `name` and `played_ms` and cb15's `items` line before the
+check, seventeen lines; `shortcuts` 0..511 (bit 128 needs paw 2), `caches` under 2^42, `mark_area` 0..12,
+`last_den` 0..7 and 11..15. A schema-6 file (seven masks, cb13's wrapper, cb15's items, `journey.AREAS_V5`)
+migrates with its items, lore, name and time kept, empty masks for the six new areas and no gate opened; a
+schema-5 file the same way with name `journey` and no time; schema 4 as before; 1..3 refused by name. The
+replay's snapshot is `journey 6`: `saved-0`..`saved-210` (the thirty values, the thirteen masks, the gates,
+cb15's 167 pouch slots; slots 204..210 are events 218..224, appended); a `journey 5` snapshot (cb15: 204 values,
+seven masks), `journey 4` (37) and `journey 3` (30) are still read.
 
 **The score** (`score.area_part`): the new areas and Gravehollow are `none` (the silence) until cb17; the Hush
 keeps cb04's `old-den` slot. **The NPC anchors** (cb16) are the landmarks: the lookout and the ruin (the Hermit),

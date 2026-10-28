@@ -135,7 +135,6 @@ discovered lore lines (every id 0..31 now has a line: the next line needs a
 wider save). The item extension follows name/played_ms in CUB 7 and CUB 6;
 CUB 4/5 and earlier CUB 6 wrappers migrate with empty new item fields.
 
-
 ## Where it runs
 
 | machine | tier | state |
