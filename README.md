@@ -66,6 +66,12 @@ the same light within the cub's nose range. Pickups are collected within
 the cub's body plus a one-cell ring, with a short recovery burst. Landmarks
 and caches have original sprites instead of floating world names; their
 meanings are in `docs/ART.md`. Kills also leave small healing meat pickups.
+Five consumables fit in the pouch: yarrow stops bleeding and heals, marrow
+heals slowly, pine hides the trail, ice slows an aimed foe, and the mother's
+tuft keeps scent through one death. `i` opens the paused inventory; arrows
+select, Space opens Consume / Drop / Discard, and Esc or `i` closes. Dropped
+items glow on their cell and can be taken again with `r`. Found lore is kept
+in discovery order and read from the rest menu's Lore row.
 Enter a den with `r` within three cells: a resting cub breathes beside an
 animated fire, with different surroundings in all seven regions. A larger
 ledger sits one sixth of the screen width left of centre, vertically
@@ -78,7 +84,8 @@ than disappearing when their centres lose sight. Slain foes stay gone across
 paths and shortcuts; only a den rest or death resets them throughout the
 forest. Living foes heal and return to their places on re-entry. Waiting
 scent and meat keep their original expiry when you leave and return;
-unclaimed loot is not carried through a save reload.
+unclaimed scent and meat are not carried through a save reload; consumable
+pickups are, including dropped items and finite seeded discoveries.
 Water must first be found at the Shingle spring (two mouthfuls), with a
 third found later; the counter below the bars shows the charges, and
 every rest refills them. Only drinking spends water; a fox's landed feint
@@ -101,8 +108,11 @@ slain foes still gone, keeping growth, shortcuts, opened caches, pouch contents,
 the dropped mark, the bosses beaten, the end and the field the world was
 made for (the terminal's width when the journey began). `--save PATH`
 selects a separate journey. Unknown or corrupt files fail by name, never
-silently reset. This build writes schema5, migrates schema4 with an empty
-slain set, and refuses earlier schemas as `save_version`; use a new
+silently reset. This build writes schema6, migrates schema4/5 (empty slain
+masks for schema4, empty new pouch/lore/ground data for both), and refuses
+earlier schemas as `save_version`. Pouch stacks cap at5/3/3/3/1, with at most
+128 ground pickups and32 discovered lore lines; the save validates both
+bounds. Use a new
 `--save PATH` to try it without replacing an older journey. A quit before a staged write's commit tick preserves the previous save;
 a stage already due on the quit tick is committed.
 Live deaths leave self-contained replay files under `~/.cub/ghosts/`
@@ -130,9 +140,10 @@ The terminal must be at least 80 columns by 24 rows; the field grows to fill a l
 | Ctrl+arrow | sprint while held, draining stamina |
 | Space / `x` / `s` / `z` / `c` | aimed bite/combo / forward lunge / heavy / parry / directional roll |
 | Tab / Esc | lock nearest then cycle / release lock or leave den |
-| `w` / `r` | drink / rest at a den, open a shortcut, or dig an unguarded cache |
+| `w` / `r` | drink / rest, open a shortcut or cache, or pick up an item on the current cell |
+| `i` | paused pouch: arrows select, Space opens/actions, Esc or i closes |
 | `m` | the music off, on again |
-| Up/Down, Left/Right at the den | select a stat or Confirm; stage/remove a level |
+| Up/Down, Left/Right at the den | select a stat, Confirm or Lore; stage/remove a level |
 | Enter/Space on Confirm | apply all staged levels; Esc discards |
 | `q` / Ctrl+C | quit / interrupt; the terminal and negotiated keyboard mode are restored |
 | any decoded key during the opening | skip the scene without also making a move |
@@ -197,6 +208,7 @@ as its own golden frame, without advancing the simulation again.
 
 `tools/check` runs the complete local gate: formatting, checked-machine
 tests, native and release builds, decoder selftest, both-tier replay goldens
+(including pickup sprites, inventory actions, drop/re-pickup, and scrollable lore)
 and posture sheets, every combo/roll frame, scaled bars and rally, the score's PCM goldens and loop seams on both backends
 (`tools/score-check`), shipping-binary gameplay and persistence assertions,
 pty restoration and replay agreement, death-word/half-closed/closed-eye goldens,
