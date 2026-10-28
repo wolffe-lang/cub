@@ -225,6 +225,7 @@ ROWS.update({'pending-save': pending_save, 'save-failure': save_failure,
 
 
 def _sound_session(binary, ctx, args, env_extra=None, keys=b'q', settle=1.2):
+    import time
     root = Path(ctx.ROOT) / 'target/pty/sound'
     root.mkdir(parents=True, exist_ok=True)
     env = ctx.env_for()
@@ -234,6 +235,11 @@ def _sound_session(binary, ctx, args, env_extra=None, keys=b'q', settle=1.2):
     sound_dir = root / 'wavs'
     s = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)),
                      '--sound-dir', str(sound_dir), '--tier', 'plain', '--no-title'] + args, 24, 80, env)
+    # WAV preparation and the backend probe precede alternate-screen entry.
+    # Native preparation can outlast the constructor's fixed settling time.
+    deadline = time.monotonic() + 15
+    while b'\x1b[?1049h' not in s.out and not s.eof and time.monotonic() < deadline:
+        s.pump(.02)
     s.pump(settle)
     players = subprocess.run(['ps', '-axo', 'ppid=,comm='], capture_output=True, text=True).stdout
     mine = [l for l in players.splitlines() if l.split()[0] == str(s.job)]

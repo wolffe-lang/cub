@@ -101,10 +101,13 @@ class SoundRowsSkipStartupMenu(unittest.TestCase):
             def __init__(self, argv, height, width, env):
                 self.argv = argv
                 self.job = 1234567
+                self.out = b''
+                self.eof = False
                 self.typed = []
 
             def pump(self, seconds):
-                pass
+                if seconds > 0:
+                    self.out = b'\x1b[?1049h'
 
             def type(self, data):
                 self.typed.append(data)
@@ -121,6 +124,8 @@ class SoundRowsSkipStartupMenu(unittest.TestCase):
         self.assertEqual(session.argv.count('--no-title'), 1,
                          'sound rows must reach run_live, not quit from the fire menu')
         self.assertEqual(session.typed, [b'q'])
+        self.assertIn(b'\x1b[?1049h', session.out,
+                      'sample WAVs only after the preparation/terminal boundary')
 
 
 if __name__ == '__main__':
