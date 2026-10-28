@@ -1,27 +1,60 @@
 //! member: false
 
 use art
+use counter
 use grid
+use inventory
 use pouch
 use sim
 use tier
+
+fn covered(row: int, col: int) -> bool {
+    // Independently sampled minimum-terminal panel, not inventory.covers.
+    row >= 2 && row < 22 && col >= 2 && col < 78
+}
 
 fn check_layer(t: int, lore_open: bool) {
     var s = sim.new(7, 80, 24)
     (mut s.foes).reset()
     s.scent = 1000
+    s.scent_count = counter.new(1000)
     s.den = lore_open
     s.pouch.open = !lore_open
     s.pouch.lore_open = lore_open
     let _ = sim.give_item(mut s, pouch.YARROW)
     sim.remember_lore(mut s, 1)
-    let extra = art.extra_none()
-    var underlay = grid.new(24, 80)
-    art.counter_underlay(s, extra, t, mut underlay)
-    var shown = grid.new(24, 80)
-    art.render_count_with(s, extra, t, 9, mut shown)
     var expected = grid.new(24, 80)
-    art.render_count_with(s, extra, t, 1000, mut expected)
+    art.render_count_with(s, art.extra_none(), t, 1000, mut expected)
+    // As counterpaint_test does, use a synthetic underlay. Its backgrounds
+    // match the ordinary frame; only one expensive world render is needed.
+    var underlay = grid.new(24, 80)
+    var row = 0
+    while row < 24 {
+        var col = 0
+        while col < 80 {
+            grid.put(mut underlay, row, col, grid.cell(46, 7, grid.at(expected, row, col).bg, 0))
+            col += 1
+        }
+        row += 1
+    }
+    if lore_open {
+        inventory.lore_menu(s, t, mut underlay)
+    } else {
+        inventory.render(s, t, mut underlay)
+    }
+    row = 2
+    while row < 22 {
+        var col = 2
+        while col < 78 {
+            assert(
+                grid.same(grid.at(underlay, row, col), grid.at(expected, row, col)),
+                "ordinary compositor keeps the opaque menu above the HUD",
+            )
+            col += 1
+        }
+        row += 1
+    }
+    var shown = copy underlay
     let dialect = if t == tier.RICH then grid.COLORS_256 else grid.COLORS_16
     var pen = grid.pen_new()
     var bytes = List[byte]()
@@ -31,15 +64,27 @@ fn check_layer(t: int, lore_open: bool) {
     (mut bytes).reset()
     art.counter_partial(s, t, 9, 1000, underlay, mut shown, mut pen, mut bytes, dialect)
     grid.model_feed(mut model, bytes)
-    assert(grid.model_equals(model, expected), "partial counter bytes preserve the overlaid menu")
-    var i = 0
-    while i < shown.cells.len {
-        assert(
-            grid.same(shown.cells[i], expected.cells[i]),
-            "partial and ordinary compositors agree",
-        )
-        i += 1
+    row = 2
+    while row < 22 {
+        var col = 2
+        while col < 78 {
+            assert(
+                grid.same(grid.at(shown, row, col), grid.at(expected, row, col)),
+                "partial repaint preserves every overlaid menu cell",
+            )
+            col += 1
+        }
+        row += 1
     }
+    for c in art.hud_plan(s, t) {
+        if c.row >= art.scent_row(s, t) && !covered(c.row, c.col) {
+            assert(
+                grid.same(grid.at(shown, c.row, c.col), grid.at(expected, c.row, c.col)),
+                "uncovered counter cells still equal the ordinary compositor",
+            )
+        }
+    }
+    assert(grid.model_equals(model, shown), "partial bytes match the complete front buffer")
     assert(s.scent == 1000 && s.tick == 0, "composition changes neither currency nor time")
 }
 
