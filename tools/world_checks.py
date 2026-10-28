@@ -47,7 +47,7 @@ def check(binary):
     frames = int(re.search(r'# frames (\d+)', (ROOT / 'tests/cases/world-den.pk').read_text())[1])
     run('write-den', save, frames, 'world-den')
     before = save.read_bytes()
-    assert before.startswith(b'CUB 6\n') and len(before) < 512
+    assert before.startswith(b'CUB 7\n') and len(before) < 512
     run('resume-den', save)
     assert save.read_bytes() == before, 'write/resume changed persistent state'
     words = (out / 'resume-den/final.state').read_text().splitlines()[0].split()
@@ -69,10 +69,10 @@ def check(binary):
     assert pending.read_bytes() == b'another writer owns this stage'
     pending.unlink()
     for name, data, diagnostic in [
-        ('unknown', before.replace(b'CUB 6', b'CUB 9', 1), 'save_version'),
-        ('schema-1', before.replace(b'CUB 6', b'CUB 1', 1), 'save_version'),
-        ('schema-2', before.replace(b'CUB 6', b'CUB 2', 1), 'save_version'),
-        ('schema-3', before.replace(b'CUB 6', b'CUB 3', 1), 'save_version'),
+        ('unknown', before.replace(b'CUB 7', b'CUB 9', 1), 'save_version'),
+        ('schema-1', before.replace(b'CUB 7', b'CUB 1', 1), 'save_version'),
+        ('schema-2', before.replace(b'CUB 7', b'CUB 2', 1), 'save_version'),
+        ('schema-3', before.replace(b'CUB 7', b'CUB 3', 1), 'save_version'),
         ('corrupt', before[:-5], 'save_corrupt'),
         ('extra', before + b'junk\n', 'save_corrupt'),
     ]:

@@ -207,7 +207,7 @@ def resumed_record(binary, ctx):
     session.finish()
     problems = []
     ctx.common_checks(session, 0, problems)
-    if 'journey 5' not in record.read_text():
+    if 'journey 6' not in record.read_text():
         problems.append('resumed recording lacks initial journey')
     cap = root / 'capture.bin'
     cap.write_bytes(session.out)
@@ -1710,7 +1710,7 @@ def cb13_menu_new_and_continue(binary, ctx):
     session.finish()
     ctx.common_checks(session, 0, problems)
     saves = list((home / '.cub/saves').glob('*.save'))
-    if len(saves) != 1 or not saves[0].read_text().startswith('CUB 6\nseed 19 difficulty 0\n'):
+    if len(saves) != 1 or not saves[0].read_text().startswith('CUB 7\nseed 19 difficulty 0\n'):
         problems.append('new seed/difficulty journey was not created in saves/')
         return session, problems
     if 'played_ms 0\n' in saves[0].read_text():
@@ -1744,7 +1744,7 @@ def cb13_menu_typed_save(binary, ctx):
     index = home / '.cub/registry'
     if not index.is_file() or str(path) + '\tjourney\t7\t0\t0\t1\t' not in index.read_text():
         problems.append('typed absolute save path with spaces was not registered')
-    if not path.read_text().startswith('CUB 6\n'):
+    if not path.read_text().startswith('CUB 7\n'):
         problems.append('loaded CUB 5 was not migrated on its next write')
     return session, problems
 

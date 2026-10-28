@@ -435,7 +435,7 @@ fn test_cb04_schema_3_carries_the_bosses_and_refuses_schema_2() {
         "the snapshot",
     )
     var old = false
-    let _ = journey.decode(text.replace("CUB 6", "CUB 2"), 80, 24) else |e| {
+    let _ = journey.decode(text.replace("CUB 7", "CUB 2"), 80, 24) else |e| {
         old = "{e}" == "save_version"
         sim.new(1, 80, 24)
     }

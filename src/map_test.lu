@@ -570,17 +570,18 @@ fn test_cb14_the_spring_refills_the_water_and_the_lookout_reveals() {
     assert(u.reveal_at < 0, "re-armed once the cub walks off")
 }
 
-fn test_cb14_schema_six_carries_thirteen_masks_and_five_migrates() {
+fn test_cb14_schema_seven_carries_thirteen_masks_and_older_schemas_migrate() {
     var s = sim.new(3, 80, 24)
     s.gate_open = true
     s.gates = sim.GATE_OAK
     s.shortcuts = 16 + 32
     let text = journey.encode(s)
-    assert(text.starts_with("CUB 6\n") && text.contains("\ngates 1\n"), "schema six")
-    assert(journey.snapshot(s).len == journey.SNAPSHOT && journey.SNAPSHOT == 44, "the snapshot")
-    assert(journey.snapshot(s)[43] == 1, "the gates last")
+    assert(text.starts_with("CUB 7\n") && text.contains("\ngates 1\nname journey\n"), "schema seven")
+    assert(journey.snapshot(s).len == journey.SNAPSHOT && journey.SNAPSHOT == 211, "the snapshot")
+    assert(journey.snapshot(s)[43] == 1, "the gates after the thirteen masks")
     let back = journey.decode(text, 80, 24) else |e| { assert(false, "valid {e}"); return }
     assert(back.gates == 1 && back.shortcuts == 48, "round trip")
+    assert(journey.encode(back) == text, "byte-exact")
     // A schema-five file: the same journey with seven masks and no gates.
     var old = sim.new(3, 80, 24)
     old.gate_open = true
@@ -591,19 +592,31 @@ fn test_cb14_schema_six_carries_thirteen_masks_and_five_migrates() {
     }
     let fresh = journey.encode(migrated)
     assert(
-        fresh.starts_with("CUB 6\n") &&
+        fresh.starts_with("CUB 7\n") &&
             fresh.contains("slain 0 0 0 0 0 0 0 0 0 0 0 0 0\ngates 0\n"),
-        "written as six with empty new masks",
+        "written as seven with empty new masks",
     )
-    // A journey-4 snapshot (37 values) is still read.
-    var v = journey.snapshot(s)
-    var short = List[int]()
+    // A journey-5 snapshot (cb15: 204 values, seven masks and the pouch's
+    // 167 slots) and a journey-4 snapshot (37 values) are still read.
+    let v = journey.snapshot(s)
+    var five_values = List[int]()
     var i = 0
+    while i < 37 { (mut five_values).push(if i < 30 then v[i] else 0); i += 1 }
+    i = 44
+    while i < v.len { (mut five_values).push(v[i]); i += 1 }
+    assert(five_values.len == journey.SNAPSHOT_V5, "a journey 5 shape")
+    let from_five = journey.from_snapshot(five_values, 80, 24) else |e| {
+        assert(false, "journey 5 read: {e}")
+        return
+    }
+    assert(from_five.seed == 3 && from_five.gates == 0, "the cb15 snapshot")
+    var short = List[int]()
+    i = 0
     while i < 37 { (mut short).push(if i < 30 then v[i] else 0); i += 1 }
     let from = journey.from_snapshot(short, 80, 24) else |e| {
         assert(false, "journey 4 read: {e}")
         return
     }
     assert(from.seed == 3 && from.gates == 0, "the old snapshot")
-    assert(journey.JOURNEY == 5, "this build writes journey 5")
+    assert(journey.JOURNEY == 6, "this build writes journey 6")
 }
