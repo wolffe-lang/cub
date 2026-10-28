@@ -227,6 +227,7 @@ target/cub --den-spacing       the route walk between dens over fifty seeds (cb0
                                --bends-audit, --spurs-audit and --gen-bench)
 target/cub --boss-census       fight every boss in fifty seeds at both sizes; a fairness line a boss
 target/cub --new-foe-census    six new foes in fifty seeds at both sizes, with chase/contact measurements
+target/cub --new-foe-hit-census  the six new foes' complete bite/snuff rings, kept separate from inherited rows
 target/cub --new-foe-proof DIR  record and independently replay the six disclosed test-arena encounters
 target/cub --fight-trace 7 1   narrate one scripted fight (the alpha, seed 1; a third number picks 80 or 200 columns)
 target/cub --strike-census     every strike at every aim on both tiers, the drawn body against standing
