@@ -1,0 +1,115 @@
+//! The pouch is a field overlay, not the den ledger. Bone text on forest dark;
+//! each item has a shaped, coloured pickup on both tiers. No new glyphs.
+use draw
+use grid
+use lore
+use pouch
+use sim
+use tier
+
+fn bone(t: int) -> int { if t == tier.PLAIN then 15 else 230 }
+fn ground(t: int) -> int { if t == tier.PLAIN then 0 else 232 }
+fn colour(t: int, kind: int, tick: int) -> int {
+    if t == tier.PLAIN { return match kind { 0 => 10, 1 => 11, 2 => 2, 3 => 14, _ => 15 } }
+    let bright = tick / 12 % 2 == 0
+    match kind { 0 => if bright then 157 else 108, 1 => if bright then 230 else 180,
+        2 => if bright then 114 else 65, 3 => if bright then 159 else 74, _ => if bright then 255 else 250 }
+}
+
+/// Five small original silhouettes: sprig, bone, pine bough, ice and fur.
+pub fn pickup(mut g: grid.Grid, t: int, row: int, col: int, kind: int, tick: int) {
+    let style = grid.cell(32, colour(t, kind, tick), ground(t), grid.ATTR_BOLD)
+    if t == tier.PLAIN {
+        let upper = match kind { 0 => "\\|/", 1 => "o=o", 2 => "/^\\", 3 => "/\\", _ => "///" }
+        let lower = match kind { 0 => " | ", 1 => "o=o", 2 => " | ", 3 => "\\/", _ => "\\\\," }
+        draw.put_text(mut g, row - 1, col - 1, upper, style)
+        draw.put_text(mut g, row, col - 1, lower, style)
+    } else {
+        let upper = match kind { 0 => 0x2584, 1 => 0x2588, 2 => 0x2580, 3 => 0x2584, _ => 0x2580 }
+        let lower = match kind { 0 => 0x2580, 1 => 0x2584, 2 => 0x2584, 3 => 0x2580, _ => 0x2584 }
+        grid.put(mut g, row - 1, col - 1, grid.cell(upper, style.fg, style.bg, style.attrs))
+        grid.put(mut g, row, col, grid.cell(lower, style.fg, style.bg, style.attrs))
+        if kind != pouch.ICE {
+            grid.put(mut g, row - 1, col + 1, grid.cell(upper, style.fg, style.bg, style.attrs))
+        }
+        if kind == pouch.YARROW || kind == pouch.PINE {
+            grid.put(mut g, row, col, grid.cell(124, style.fg, style.bg, style.attrs))
+        }
+    }
+}
+
+fn width(s: sim.Sim) -> int { if s.cols > 94 then 90 else s.cols - 4 }
+fn panel(s: sim.Sim, t: int, mut g: grid.Grid, title: str) {
+    let w = width(s)
+    let left = (s.cols - w) / 2
+    let top = (s.rows - 20) / 2
+    let style = grid.cell(32, bone(t), ground(t), 0)
+    draw.frame(mut g, top, left, 20, w,
+        grid.cell(if t == tier.PLAIN then 45 else 0x2500, bone(t), ground(t), 0),
+        grid.cell(if t == tier.PLAIN then 45 else 0x2500, bone(t), ground(t), 0),
+        grid.cell(if t == tier.PLAIN then 124 else 0x2502, bone(t), ground(t), 0), style)
+    draw.put_text(mut g, top + 1, left + 3, title, grid.cell(32, bone(t), ground(t), grid.ATTR_BOLD))
+}
+
+/// Draw the list and its action tooltip above the unchanged field HUD.
+pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
+    panel(s, t, mut g, "The pouch")
+    let left = (s.cols - width(s)) / 2 + 3
+    let top = (s.rows - 20) / 2
+    let style = grid.cell(32, bone(t), ground(t), 0)
+    var kind = 0
+    var row = top + 3
+    while kind < pouch.KINDS {
+        let n = sim.item_count(s, kind)
+        if n > 0 {
+            draw.put_text(mut g, row, left, if s.pouch.row == kind then ">" else " ", style)
+            draw.put_text(mut g, row, left + 2, "{pouch.name(kind)}  {n}/{pouch.cap(kind)}", style)
+            draw.put_text(mut g, row + 1, left + 4, pouch.effect(kind), style)
+            row += 2
+        }
+        kind += 1
+    }
+    if row == top + 3 { draw.put_text(mut g, row, left, "Empty. Find a pickup and press r on its cell.", style) }
+    if s.pouch.aiming {
+        draw.put_text(mut g, top + 14, left, "Aim: the locked foe, else nearest in front.", style)
+        draw.put_text(mut g, top + 15, left, if sim.ice_target(s) < 0 then "No foe within 6 cells; ice is kept." else "Space throws the shard.", style)
+    } else if s.pouch.tooltip {
+        var choice = 0
+        while choice < 3 {
+            let label = match choice { 0 => if s.pouch.row == pouch.TUFT then "Consume (passive; kept)" else "Consume", 1 => "Drop", _ => "Discard" }
+            draw.put_text(mut g, top + 14 + choice, left,
+                (if s.pouch.choice == choice then "> " else "  ") + label, style)
+            choice += 1
+        }
+    } else {
+        draw.put_text(mut g, top + 15, left, "Arrows select   Space opens the item", style)
+    }
+    draw.put_text(mut g, top + 18, left, "Esc / i closes; the forest waits", style)
+}
+
+/// One discovered line at a time; arrows scroll through discovery order.
+pub fn lore_menu(s: sim.Sim, t: int, mut g: grid.Grid) {
+    panel(s, t, mut g, "What the forest said")
+    let left = (s.cols - width(s)) / 2 + 3
+    let top = (s.rows - 20) / 2
+    let style = grid.cell(32, bone(t), ground(t), 0)
+    if s.pouch.lore.len == 0 {
+        draw.put_text(mut g, top + 4, left, "No lines found. Read marks and open hollows.", style)
+    } else {
+        draw.put_text(mut g, top + 3, left, "{s.pouch.lore_row + 1} / {s.pouch.lore.len}", style)
+        let text = lore.line(s.pouch.lore[s.pouch.lore_row])
+        var line = ""
+        var row = top + 5
+        for word in text.words() {
+            if line.len + word.len + 1 > width(s) - 8 {
+                draw.put_text(mut g, row, left, line, style)
+                row += 1
+                line = ""
+            }
+            if line.len > 0 { line += " " }
+            line += word
+        }
+        draw.put_text(mut g, row, left, line, style)
+    }
+    draw.put_text(mut g, top + 18, left, "Up/Down scroll   Esc / i returns", style)
+}
