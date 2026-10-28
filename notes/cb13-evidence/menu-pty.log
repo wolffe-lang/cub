@@ -1,0 +1,8 @@
+pty: cb13-menu-navigation ok (darwin arm64, exit 0, 14542 bytes captured)
+pty: cb13-menu-new-and-continue ok (darwin arm64, exit 0, 9939 bytes captured)
+pty: cb13-menu-typed-save ok (darwin arm64, exit 0, 7006 bytes captured)
+pty: cb13-menu-typed-playback ok (darwin arm64, exit 0, 14191 bytes captured)
+pty: cb13-registry-files ok (darwin arm64, exit 0, 6428 bytes captured)
+pty: title ok (darwin arm64, exit 0, 3556 bytes captured)
+pty: title-demo ok (darwin arm64, exit 0, 43329 bytes captured)
+pty: opening-quit-due ok (darwin arm64, exit 0, 7170 bytes captured; 4 adjacent skip/quit pairs; fresh HOME and explicit path; relaunch checked)
