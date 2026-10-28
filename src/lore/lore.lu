@@ -115,23 +115,30 @@ fn later_line(id: int) -> str {
             "The Ashwater is grey because of this. The fire came from the Stand side, in a dry year, with people in it.",
         15 =>
             "The ice that took you came from here. The Mere does not freeze; it only looks as if it does.",
-        16 => "The pack buried nothing. What is here was carried in by the badgers, one bone a winter.",
+        16 =>
+            "The pack buried nothing. What is here was carried in by the badgers, one bone a winter.",
         17 => "Every alpha before Ashgrim lies under a mound. Ashgrim is the one with no mound.",
         18 =>
             "The oldest mark, cut deep: Harrow, who found the Shingle and named the river for its ash. Under the mound.",
-        19 => "Tarn, who held the Teeth against the lynxes nine winters and lost the tenth. Under the mound.",
+        19 =>
+            "Tarn, who held the Teeth against the lynxes nine winters and lost the tenth. Under the mound.",
         20 => "Sorrel, who led the pack over the ice the first time, and back. Under the mound.",
-        21 => "Greyback, who hunted the Hush and came out of it. The only one who did. Under the mound.",
-        22 => "Ashgrim's mark, cut by his own teeth. No mound. The stone is for the pack to read, not for him.",
-        23 => "A lynx's larder in the cleft: hare bones, picked clean, and one wolf tooth it did not pick.",
+        21 =>
+            "Greyback, who hunted the Hush and came out of it. The only one who did. Under the mound.",
+        22 =>
+            "Ashgrim's mark, cut by his own teeth. No mound. The stone is for the pack to read, not for him.",
+        23 =>
+            "A lynx's larder in the cleft: hare bones, picked clean, and one wolf tooth it did not pick.",
         24 =>
             "An otter's holt under the bank. Fish scales, and the elk's hoofprint pressed deep, as if it stood here a long time.",
         25 => "A hollow the shadows walk round. Something was buried here once and dug up again.",
         26 =>
             "A cutter's cache in a root hollow: an axe head gone to rust, and the needles over it twenty winters deep.",
         27 => "A kiln mouth full of ash. Whoever tended it tended it to the end.",
-        28 => "A heron's roost on the last dry stone. Fish bones, and one feather as grey as the mist.",
-        29 => "A badger's bone cache: a winter's worth, laid in rows. One of the skulls is a wolf's.",
+        28 =>
+            "A heron's roost on the last dry stone. Fish bones, and one feather as grey as the mist.",
+        29 =>
+            "A badger's bone cache: a winter's worth, laid in rows. One of the skulls is a wolf's.",
         30 =>
             "A barrow's side, fallen in. Under the turf a wolf's ribs, and over them a mark the pack still uses.",
         _ => "Roots over an old bed. The scent on it is Ashgrim's, and it is not old at all.",

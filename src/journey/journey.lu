@@ -196,10 +196,7 @@ fn decode_seven(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     while index < 13 { core += lines[index] + "\n"; index += 1 }
     let inner = core + lines[15] + "\n"
     let s = decode_core(inner + "check {checksum(inner)}\n", cols, rows)?
-    let canonical = core +
-        "name {meta.name}\nplayed_ms {meta.played_ms}\n" +
-        lines[15] +
-        "\n"
+    let canonical = core + "name {meta.name}\nplayed_ms {meta.played_ms}\n" + lines[15] + "\n"
     if canonical + "check {checksum(canonical)}\n" != text { return save_corrupt }
     s
 }

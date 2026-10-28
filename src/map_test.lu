@@ -576,7 +576,10 @@ fn test_cb14_schema_seven_carries_thirteen_masks_and_older_schemas_migrate() {
     s.gates = sim.GATE_OAK
     s.shortcuts = 16 + 32
     let text = journey.encode(s)
-    assert(text.starts_with("CUB 7\n") && text.contains("\ngates 1\nname journey\n"), "schema seven")
+    assert(
+        text.starts_with("CUB 7\n") && text.contains("\ngates 1\nname journey\n"),
+        "schema seven",
+    )
     assert(journey.snapshot(s).len == journey.SNAPSHOT && journey.SNAPSHOT == 211, "the snapshot")
     assert(journey.snapshot(s)[43] == 1, "the gates after the thirteen masks")
     let back = journey.decode(text, 80, 24) else |e| { assert(false, "valid {e}"); return }

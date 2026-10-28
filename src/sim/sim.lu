@@ -3645,13 +3645,7 @@ fn cache_key(mut s: Sim) {
             // when its stack is full (cb15); cb14's alcoves' pine, shard and
             // tuft are cb15's items since its merge (R-cb14-6 A).
             if item >= 0 && !give_item(mut s, item) {
-                let _ = pouch.leave(
-                    mut s.pouch,
-                    s.area,
-                    floor_div(x, FP),
-                    floor_div(y, FP),
-                    item,
-                )
+                let _ = pouch.leave(mut s.pouch, s.area, floor_div(x, FP), floor_div(y, FP), item)
             }
             if reward == lore.LORE {
                 remember_lore(mut s, line)

@@ -39,7 +39,10 @@ fn test_cb14_cb15s_provisional_pickups_stand_on_open_ground_in_the_new_map() {
             s.pouch.seeded = 0
             wait(mut s, 1)
             let want = if area == forest.RIVER then 5 else 7
-            assert(s.pouch.pickups.len == want, "seed {seed} area {area}: {s.pouch.pickups.len} placed")
+            assert(
+                s.pouch.pickups.len == want,
+                "seed {seed} area {area}: {s.pouch.pickups.len} placed",
+            )
             for p in s.pouch.pickups {
                 assert(
                     p.area == area && !forest.blocked(s.seed, s.field, area, p.x, p.y),
@@ -89,7 +92,10 @@ fn test_cb14_an_alcoves_pine_shard_and_tuft_are_cb15s_items() {
 
 fn test_cb14_lines_are_registered_through_cb15s_paths_and_fill_the_slots() {
     assert(
-        lore.STAND_LINE == 13 && lore.MENHIR_FIRST == 18 && lore.ALCOVE_FIRST == 23 && lore.COUNT == 32,
+        lore.STAND_LINE == 13 &&
+            lore.MENHIR_FIRST == 18 &&
+            lore.ALCOVE_FIRST == 23 &&
+            lore.COUNT == 32,
         "cb14's ids append at 13 after cb15's 10..12",
     )
     // The ids fill the pouch's lore slots exactly: a further line needs a

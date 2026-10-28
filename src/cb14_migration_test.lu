@@ -75,7 +75,10 @@ fn test_cb14_the_trunk_writers_cub6_migrates_to_cub7_with_items_lore_name_and_ti
     }
     let written = journey.encode_named(s, meta)
     assert(written == seven(text), "the exact CUB 7 bytes")
-    let back = journey.decode(written, 120, 40) else |e| { assert(false, "CUB 7 reads: {e}"); return }
+    let back = journey.decode(written, 120, 40) else |e| {
+        assert(false, "CUB 7 reads: {e}")
+        return
+    }
     let again = journey.metadata(written) else |_| { assert(false, "CUB 7 metadata"); return }
     assert(journey.encode_named(back, again) == written, "CUB 7 round-trips byte-exact")
 }
@@ -83,7 +86,10 @@ fn test_cb14_the_trunk_writers_cub6_migrates_to_cub7_with_items_lore_name_and_ti
 fn test_cb14_the_trunk_writers_journey5_snapshot_reads_into_journey6() {
     let v = saved_values("tests/saves/cb15-journey5.pk", journey.SNAPSHOT_V5)
     assert(v.len == journey.SNAPSHOT_V5 && v[0] == 7, "the trunk writer's 204 slots")
-    let s = journey.from_snapshot(v, 80, 24) else |e| { assert(false, "journey 5 reads: {e}"); return }
+    let s = journey.from_snapshot(v, 80, 24) else |e| {
+        assert(false, "journey 5 reads: {e}")
+        return
+    }
     assert(
         s.pouch.pine == 1 && s.pouch.ice == 1 && s.pouch.tuft == 1 && s.pouch.lore.len == 2,
         "the items and the lore",
@@ -107,7 +113,10 @@ fn test_cb14_the_older_fixtures_still_read() {
         assert(text.starts_with("CUB 5\n"), "{name} is a CUB 5")
         let s = journey.decode(text, 80, 24) else |e| { assert(false, "{name} reads: {e}"); return }
         let written = journey.encode(s)
-        assert(written.starts_with("CUB 7\n") && written.contains("\ngates 0\n"), "{name} writes CUB 7")
+        assert(
+            written.starts_with("CUB 7\n") && written.contains("\ngates 0\n"),
+            "{name} writes CUB 7",
+        )
         var area = 7
         while area < forest.AREAS {
             assert(sim.slain_mask(s, area) == 0, "{name}: area {area}'s mask empty")
@@ -115,17 +124,26 @@ fn test_cb14_the_older_fixtures_still_read() {
         }
     }
     let four = saved_values("tests/cases/ember-touch.pk", journey.SNAPSHOT_V4)
-    let s4 = journey.from_snapshot(four, 80, 24) else |e| { assert(false, "journey 4 reads: {e}"); return }
+    let s4 = journey.from_snapshot(four, 80, 24) else |e| {
+        assert(false, "journey 4 reads: {e}")
+        return
+    }
     assert(journey.snapshot(s4).len == journey.SNAPSHOT && s4.gates == 0, "a journey 4 case")
     let three = saved_values("tests/cases/den-after-cluster.pk", 30)
-    let s3 = journey.from_snapshot(three, 80, 24) else |e| { assert(false, "journey 3 reads: {e}"); return }
+    let s3 = journey.from_snapshot(three, 80, 24) else |e| {
+        assert(false, "journey 3 reads: {e}")
+        return
+    }
     assert(journey.snapshot(s3).len == journey.SNAPSHOT, "a journey 3 case")
 }
 
 fn test_cb14_a_rechecksummed_cub7_with_bad_masks_or_gates_is_refused() {
     let good = journey.payload(sim.new(7, 80, 24))
     let thirteen = "slain 0 0 0 0 0 0 0 0 0 0 0 0 0\n"
-    assert(good.starts_with("CUB 7\n") && good.contains(thirteen + "gates 0\nname journey\n"), "the shape")
+    assert(
+        good.starts_with("CUB 7\n") && good.contains(thirteen + "gates 0\nname journey\n"),
+        "the shape",
+    )
     for body in [
         good.replace("gates 0\n", ""),
         good.replace("gates 0\n", "gates 4\n"),
