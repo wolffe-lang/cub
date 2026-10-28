@@ -1750,3 +1750,36 @@ boss can be led to one; the rule waits for a lane that moves either.
 given 2, the mouthful 4, the story 8, Quill's tuft sold 16); the sett's shortcut open without the dig, the mouthful
 before Ember's second line, the story before the Hermit's first or Quill's tuft before his first are corrupt. The
 replay's `journey 7` carries 239 values: journey 6's 211 with the lore slots widened by 16 and the NPCs' 12 last.
+## Six foes (cb18)
+
+The new kinds are append-only after the Ashen: marten9, ash adder10,
+cinder moths11, heron12, glow-worm13 and wisp14. Existing pink floating
+foes remain hawks: their low bite windows and parry kill are unchanged.
+
+| foe | health | tell / active / recovery ticks | scent | answer |
+|---|---:|---|---:|---|
+| marten |16|20 /3 /36|15|bite at landing/recovery; perched on a trunk it is not biteable|
+| ash adder |16|12 /3 /36|18|parry the committed range3 line for a kill, or bite the coil's recovery|
+| cinder moths |5 live moths|12 /2 /24|4 each|one bite removes two; proximity within6 cells dims the entire palette|
+| heron |72|8 /3 /42|60|dodge the downward range3 spear, then pass its stone or use three lunges in recovery|
+| glow-worm |8|12 /2 /24|6|one starting bite; touch consumes one, flashes six white frames, scatters its neighbours|
+| wisp |unkillable|12 /1 /24|0|bite snuffs it300 ticks; otherwise its brightening drift leads toward an assigned sentry post|
+
+The adder's burn deals one health each tick for40 ticks, including during a
+roll. Drinking or standing in water extinguishes it before its next tick;
+licking does not. The status is transient and den reset extinguishes it.
+The bleeding and yarrow hooks are activated with the pouch API integration;
+its named pending rows are not reported as passed before then.
+
+The heron's spear cannot be parried. It stays at its post facing down and
+leaves without a kill reward when the cub is three cells past it. The adder
+and heron use narrow committed lines, not a centre-facing attack cone.
+Martens use ordinary terrain/body clearance, never a boss arena boundary.
+
+`--new-foe-census` runs the real-key fighter in a disclosed test arena for
+50 seeds at80 and200 columns, with contact/overlap/unreachable/chase travel
+and dodge counts. Passing the heron and snuffing the wisp are successful
+nonkill resolutions. Recovery below12 ticks is explicitly red even if an
+instrument can win faster than a human. `--new-foe-proof DIR` records keys,
+replays them independently from the initial arena and compares outcomes.
+New-area placements stay hooks until the forest integration.

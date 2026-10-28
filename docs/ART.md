@@ -614,3 +614,30 @@ scent carried and the last purchase's answer under it. The goldens `npc-talk`, `
 on both tiers. `docs/GLYPHS.md` gained four braille patterns the raven, the badger and the ashen draw: `⡝` U+285D,
 `⡹` U+2879, `⣎` U+28CE and `⣜` U+28DC. cb02's Ember prop (`props.EMBER`, a fox's head at Bramblehold (-10, 24)) is
 no longer drawn there: Ember herself stands near it; Quill's perch says nothing of its own now (he speaks).
+
+## Six foes (cb18)
+
+All six creatures have original north-facing pixel drawings, exact quarter
+turns for the other three facings, and the same occupied cells on the plain
+tier. The plain glyphs are ASCII; no glyph disappears because a screen is dim.
+
+The marten is long and low, with a tail flick. During its twenty-tick tell,
+sparse falling needles shower above the landing body. The adder's coil
+contracts for its twelve-tick tell and becomes a narrow head-first line.
+Five isolated orange moth points orbit an ember; bites visibly remove two
+points at a time. A tall pale heron has a two-cell neck and one supporting
+leg. Pink glow-worms drift slowly and scatter away from a touched neighbour.
+The wisp is a cold-blue point that brightens before moving, then disappears
+for300 ticks when bitten, without a corpse or scent.
+
+Moth proximity requests the terminal palette's dim attribute on every cell,
+clearing bold. This is the same request on rich and plain, not third-glyph
+blanking. A glow-worm contact produces six complete white frames on either
+tier. In the new cave, the cub sees three cells without worms; live worms
+carry three-cell light pools, and their death extinguishes that light.
+
+The standard art study includes `foe-9` through `foe-14` on both tiers:
+four facings in the first row, four tells below. `foe-status-0` through
+`foe-status-3` are full-frame moth dim, white flash, live cave light and
+extinguished cave light. The latter two deliberately exercise the pending
+new-area lighting hook on the disclosed test arena.

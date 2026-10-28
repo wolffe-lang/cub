@@ -327,3 +327,22 @@ wares, Esc), `npc-trade` (the same walk with a disclosed 100-scent fixture:
 pine 50 and yarrow 20 bought) and `npc-toll` (the Ferryman's post from the
 dry island with a disclosed 70-scent fixture: sixty paid, ninety ticks on
 the water, the far causeway). Every key is the walker's or pressed by name.
+## New-foe test arenas (cb18)
+
+`cub --new-foe-proof DIR` writes six `foe-N.pk` records and complete frame
+captures on both tiers. These are explicitly staged test arenas, not
+production journeys: the command selects each kind and initial arena, then
+all movement and attacks are ordinary keys. Each record is parsed through
+the existing pk1 vocabulary and replayed from that same initial fixture;
+position, health, scent and foe outcome must match the recorded run.
+
+The marten fixture starts with20 scent until the pouch integration and
+waits for an actual theft before answering. The moth fixture must observe
+dimming; the heron fixture must use a dodge and pass; the glow-worm fixture
+walks into contact and retains every white frame; the wisp fixture snuffs
+rather than kills. The separate600-world arena census uses the real-key
+fighter, not fixture assignments after the starting state.
+
+No replay word, numeric event id or save schema changes for these arena
+commands. They do not enter the live menu/save/overlay routing. Ordinary
+old journeys keep their hawks; no old floating foe is silently retyped.
