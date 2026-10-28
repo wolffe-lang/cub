@@ -146,8 +146,11 @@ direction at the press, or facing with no arrows. Ctrl+arrows sprint;
 Space during sprint snaps forward. The roll travels10 cells at paw1,
 growing to13 at paw10, with an eight-frame tuck and turn and a recovery.
 
-Press Space during recovery to chain left, right, then a committed forward
-leap; the third recovery is longest. `x` still uses facing, with two
+Press Space during a bite or within six ticks after it to chain left,
+right, then a committed forward leap; two pending presses fit, and the
+third recovery is longest. Negotiated Space repeats never chain. Legacy
+bytes use a short-gap repeat filter, with the initial-repeat limitation
+explained in `docs/KEYS.md`. `x` still uses facing, with two
 backward windup steps. Negotiated Shift+Space is heavy; `s` works on every
 terminal. Without protocol support, movement and Ctrl+arrow sprint use
 inferred repeat lifetimes, not true key release. Ctrl+arrow covers initial
@@ -198,7 +201,9 @@ and posture sheets, every combo/roll frame, scaled bars and rally, the score's P
 (`tools/score-check`), shipping-binary gameplay and persistence assertions,
 pty restoration and replay agreement, death-word/half-closed/closed-eye goldens,
 every integer of gains and spending with replay-deterministic batches, the real
-terminal's1000-frame count at both sizes and tiers, exact held-key and eight-direction chord rows, regional rest scenes at80×24 and120×40,
+terminal's1000-frame count at both sizes and tiers, exact held-key and eight-direction chord rows,
+hand-timed bite requests in all eight facings, Ghostty-compatible Space
+press/release/repeat sequences and the legacy repeat fallback, regional rest scenes at80×24 and120×40,
 found-water/drink/refill and last-den respawn, and performance. Both platform gates
 also bound resident growth to 4096 bytes per actual tick over a resumed checkpoint
 and fresh seed (`sh tools/check-memory target/release/cub`). Frame scratch is
