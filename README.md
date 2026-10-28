@@ -57,7 +57,8 @@ Original log and flotsam
 sprites mark the coast; gangly trees, stones, bones, stumps, crows, cairns,
 scent grass and a ford fill the meadow. Bite, forward lunge, parry, dodge,
 stamina sprint and chain attacks; a
-hawk's connected wings and body ask for a parry or an escape. Foes leave visible
+hawk's stopped pink shadow asks for a parry or an escape; a bite also
+kills it during its stoop and low recovery, on the shadow's four-cell body. Foes leave visible
 scent as a bright pulsing orb with seeded drifting motes; death scent uses
 the same light within the cub's nose range. Pickups are collected within
 the cub's body plus a one-cell ring, with a short recovery burst. Landmarks
@@ -78,7 +79,8 @@ scent and meat keep their original expiry when you leave and return;
 unclaimed loot is not carried through a save reload.
 Water must first be found at the Shingle spring (two mouthfuls), with a
 third found later; the counter below the bars shows the charges, and
-every rest refills them. Death leaves a recoverable mark, even across area edges; a
+every rest refills them. Only drinking spends water; a fox's landed feint
+steals up to five carried scent instead. Death leaves a recoverable mark, even across area edges; a
 second death replaces it. The thirty-second opening shows pale cracked ice at Moonford, the cub freezing
 as the pack walks on, a fall into deep water, and three waking blinks onto
 the actual Shingle spawn. The same in-game wolf silhouettes cross between
@@ -141,7 +143,10 @@ Press Space during recovery to chain left, right, then a committed forward
 leap; the third recovery is longest. `x` still uses facing, with two
 backward windup steps. Negotiated Shift+Space is heavy; `s` works on every
 terminal. Without protocol support, movement and Ctrl+arrow sprint use
-inferred repeat lifetimes, not true key release. See `docs/KEYS.md`.
+inferred repeat lifetimes, not true key release. Ctrl+arrow covers initial
+repeat delays through 500 ms; its grace is 567 ms. Exact releases remain
+immediate. See `docs/KEYS.md` for the macOS Ghostty protocol fixtures and
+the Mission Control shortcut caveat.
 
 ## Build and run
 
@@ -165,7 +170,8 @@ target/cub --strike-census     every strike at every aim on both tiers, the draw
 target/cub --hud-census        every painted HUD cell held to the bars, the labels and the digits
 target/cub --encounter-census  one posted Ashen against a fresh cub, Book-II and no-parry play, ten seeds at both fields
 target/cub --crossing-trace 1 80  one crossing of Cinderwick narrated while a foe is within two cells
-target/cub --hit-census        every boss/Ashen body-ring bite: positions, aims and hits as CSV
+target/cub --hit-census        low-hawk and boss/Ashen body-ring bites: positions, aims and hits as CSV
+target/cub --small-faults      reader repeat/press-order rows and the three-kill/no-drink fixture
 target/cub --narrow-audit 6 240  walk Cinderwick's single-file edges with diagonal chords
 ```
 
