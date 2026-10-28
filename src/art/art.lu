@@ -467,6 +467,79 @@ pub fn render_count_with(s: sim.Sim, extra: Extra, t: int, scent: int, mut g: gr
     region frame_scratch { frame(s, extra, t, mut g, true, scent) }
 }
 
+/// Current tick's world and other HUD cells, without the scent corner.
+/// Cached once per batch so intermediate integers never redraw terrain.
+pub fn counter_underlay(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid) {
+    render_count_with(s, extra, t, -1, mut g)
+}
+
+/// Rewrite only the old/new counter rectangle using the engine's public
+/// CUP/SGR/UTF-8 builders. `shown` and `pen` remain the terminal's exact
+/// model for the final ordinary full-frame diff. All temporary storage
+/// is bounded by the counter rectangle and reclaimed after this integer.
+pub fn counter_partial(
+    s: sim.Sim,
+    t: int,
+    old: int,
+    value: int,
+    underlay: grid.Grid,
+    mut shown: grid.Grid,
+    mut pen: grid.Pen,
+    mut out: List[byte],
+    dialect: int,
+) {
+    region counter_scratch {
+        let top = scent_row(s, t)
+        let before = scent_column(s.cols, t, old) - 6
+        let after = scent_column(s.cols, t, value) - 6
+        let raw_left = if before < after then before else after
+        let left = if raw_left < 0 then 0 else raw_left
+        var patch = grid.new(s.rows - top, s.cols - 1 - left)
+        var row = 0
+        while row < patch.rows {
+            var col = 0
+            while col < patch.cols {
+                grid.put(mut patch, row, col, grid.at(underlay, top + row, left + col))
+                col += 1
+            }
+            row += 1
+        }
+        for c in hud_plan_value(s, t, false, SCENT_LABEL_ALWAYS, value) {
+            if c.row >= top && c.row < s.rows && c.col >= left && c.col < s.cols - 1 {
+                grid.put(
+                    mut patch,
+                    c.row - top,
+                    c.col - left,
+                    grid.cell(c.cp, c.fg, grid.at(underlay, c.row, c.col).bg, c.attrs),
+                )
+            }
+        }
+        row = 0
+        while row < patch.rows {
+            var col = 0
+            while col < patch.cols {
+                let cell = grid.at(patch, row, col)
+                let r = top + row
+                let c = left + col
+                if !grid.same(grid.at(shown, r, c), cell) {
+                    if pen.row != r || pen.col != c { grid.push_cup(mut out, r, c) }
+                    if !pen.styled || !grid.same_style(pen.style, cell) {
+                        grid.push_sgr(mut out, cell, dialect)
+                        pen.style = copy cell
+                        pen.styled = true
+                    }
+                    grid.push_utf8(mut out, cell.cp)
+                    pen.row = r
+                    pen.col = c + 1
+                    grid.put(mut shown, r, c, cell)
+                }
+                col += 1
+            }
+            row += 1
+        }
+    }
+}
+
 fn frame(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid, hud: bool, scent: int) {
     assert(g.rows == s.rows && g.cols == s.cols, "art.render: the grid is the simulation's size")
     if s.action == sim.FALL && s.tick - s.started >= sim.DEATH_FADE {
@@ -1670,6 +1743,8 @@ fn hud_plan_value(
         bar += 1
     }
     if water { text_cells(mut cells, HUD_WATER_ROW, 1, water_text(s), if rich then 117 else 14, 0) }
+    // The live batch's cached underlay omits only the big corner number.
+    if value < 0 { return cells }
     // Scent: the big number in the bottom right corner, its small label
     // on the number's middle row to its left.
     let top = scent_row(s, t)

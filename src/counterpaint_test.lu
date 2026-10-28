@@ -1,0 +1,48 @@
+//! member: false
+
+use art
+use grid
+use sim
+use tier
+
+fn repaint(t: int) {
+    // A small synthetic map keeps the terminal parser inside the checked
+    // step budget. The pty row proves real80x24/200x60 world-frame parity.
+    var s = sim.new(1, 32, 12)
+    s.scent = 1001
+    let background = grid.cell(46, 7, 4, 0)
+    var underlay = grid.new(12, 32)
+    grid.fill(mut underlay, background)
+    var shown = grid.new(12, 32)
+    grid.fill(mut shown, background)
+    var model = grid.model_new(12, 32)
+    var pen = grid.pen_new()
+    var bytes = List[byte]()
+    let dialect = if t == tier.RICH then grid.COLORS_256 else grid.COLORS_16
+    grid.diff(grid.new(12, 32), shown, true, mut pen, mut bytes, dialect)
+    art.counter_partial(s, t, 0, 1000, underlay, mut shown, mut pen, mut bytes, dialect)
+    grid.model_feed(mut model, bytes)
+    (mut bytes).reset()
+    // Shrink, then grow leftwards: old label/digits restore the map, not blanks.
+    art.counter_partial(s, t, 1000, 999, underlay, mut shown, mut pen, mut bytes, dialect)
+    art.counter_partial(s, t, 999, 1001, underlay, mut shown, mut pen, mut bytes, dialect)
+    grid.model_feed(mut model, bytes)
+    var expected = grid.new(12, 32)
+    grid.fill(mut expected, background)
+    for c in art.hud_plan(s, t) {
+        if c.row >= art.scent_row(s, t) {
+            grid.put(mut expected, c.row, c.col, grid.cell(c.cp, c.fg, 4, c.attrs))
+        }
+    }
+    assert(grid.model_equals(model, expected), "partial CUP/SGR bytes equal the HUD plan")
+    var i = 0
+    while i < shown.cells.len {
+        assert(grid.same(shown.cells[i], expected.cells[i]), "front buffer models the terminal")
+        i += 1
+    }
+    assert(bytes.len < 3000, "partial repaint is bounded by the counter, not the field")
+}
+
+fn test_cb12_partial_repaint_rich_matches_terminal_and_full_frame() { repaint(tier.RICH) }
+
+fn test_cb12_partial_repaint_plain_matches_terminal_and_full_frame() { repaint(tier.PLAIN) }

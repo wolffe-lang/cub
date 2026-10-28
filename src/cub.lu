@@ -765,6 +765,7 @@ fn run_live(o: Options, args: List[str]) -> int {
     var save_error = false
     var front = grid.new(rows, cols)
     var back = grid.new(rows, cols)
+    var counter_bg = grid.new(rows, cols)
     var pen = grid.pen_new()
     var out = List[byte]()
     var keys = List[int]()
@@ -836,6 +837,7 @@ fn run_live(o: Options, args: List[str]) -> int {
                     sim.resize(mut s, cols, rows)
                     front = grid.new(rows, cols)
                     back = grid.new(rows, cols)
+                    counter_bg = grid.new(rows, cols)
                     pen = grid.pen_new()
                     full = true
                     replay.push_size(mut rec, s.tick, cols, rows)
@@ -876,6 +878,7 @@ fn run_live(o: Options, args: List[str]) -> int {
                     sim.resize(mut s, rc, rr)
                     front = grid.new(rr, rc)
                     back = grid.new(rr, rc)
+                    counter_bg = grid.new(rr, rc)
                     pen = grid.pen_new()
                     full = true
                 }
@@ -989,40 +992,66 @@ fn run_live(o: Options, args: List[str]) -> int {
                 ended = "--ticks"
                 quit = true
             }
-            // Every integer of every due tick reaches the terminal. No extra
-            // simulation, score, save, ghost or replay step belongs to a batch.
+            // Intermediate integers repaint only the corner. The last integer
+            // is the ordinary full frame; world/score/save/replay still step once.
+            let batch = if s.scene == 0 && s.action != sim.FALL {
+                counter.length(s.scent_count)
+            } else {
+                0
+            }
+            let batch0 = if o.trace && batch > 0 then clock.now_ns() else 0
+            if batch > 1 { art.counter_underlay(s, extra, rp.tier, mut counter_bg) }
             var index = 0
-            while index < counter.length(s.scent_count) {
+            var old = s.scent_count.from
+            while index < batch {
                 let r0 = clock.now_ns()
-                art.render_count_with(
-                    s,
-                    extra,
-                    rp.tier,
-                    counter.value(s.scent_count, index),
-                    mut back,
-                )
-                grid.diff(front, back, full, mut pen, mut out, dialect)
+                let value = counter.value(s.scent_count, index)
+                let last = index + 1 == batch
+                if last {
+                    art.render_with(s, extra, rp.tier, mut back)
+                    grid.diff(front, back, full, mut pen, mut out, dialect)
+                } else {
+                    art.counter_partial(
+                        s,
+                        rp.tier,
+                        old,
+                        value,
+                        counter_bg,
+                        mut front,
+                        mut pen,
+                        mut out,
+                        dialect,
+                    )
+                }
                 let cost = clock.now_ns() - r0
                 render_ns += cost
                 if cost > render_max_ns { render_max_ns = cost }
                 term.write(out) else |_| { ended = "a failed write"; quit = true }
                 if o.trace {
                     eprint(
-                        "trace counter tick {s.tick} value {counter.value(s.scent_count, index)} flush_us {(clock.now_ns() - r0) / 1000}",
+                        "trace counter tick {s.tick} value {value} flush_us {(clock.now_ns() - r0) / 1000}",
                     )
                 }
                 (mut out).reset()
-                let tmp = front
-                front = back
-                back = tmp
-                full = false
+                if last {
+                    let tmp = front
+                    front = back
+                    back = tmp
+                    full = false
+                }
                 frames += 1
+                old = value
                 index += 1
+            }
+            if o.trace && batch > 0 {
+                eprint(
+                    "trace counter-batch tick {s.tick} frames {batch} wall_us {(clock.now_ns() - batch0) / 1000}",
+                )
             }
             n += 1
         }
         if due > 0 { (mut keys).reset() }
-        if due > 0 && counter.length(s.scent_count) == 0 {
+        if due > 0 && (counter.length(s.scent_count) == 0 || s.scene != 0 || s.action == sim.FALL) {
             let r0 = clock.now_ns()
             art.render_with(s, extra, rp.tier, mut back)
             grid.diff(front, back, full, mut pen, mut out, dialect)

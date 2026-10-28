@@ -1563,7 +1563,11 @@ def cb12_counter_frames(binary, ctx):
     case = Path(ctx.ROOT) / 'tests/cases/cb12-scent-burst.pk'
     for tier in ('rich', 'plain'):
         for cols, rows in ((80, 24), (200, 60)):
-            session = ctx.Session([binary, '--replay', str(case), '--ticks', '20', '--tier', tier,
+            dest = Path(ctx.ROOT) / 'target/pty' / ('cb12-counter-' + tier + '-' + str(cols))
+            dest.mkdir(parents=True, exist_ok=True)
+            sized_case = dest / 'burst.pk'
+            sized_case.write_text(case.read_text().replace('size 80x24', 'size ' + str(cols) + 'x' + str(rows)))
+            session = ctx.Session([binary, '--replay', str(sized_case), '--ticks', '20', '--tier', tier,
                                    '--size', str(cols) + 'x' + str(rows), '--mute', '--trace'], rows, cols, ctx.env_for())
             session.finish(timeout=30)
             ctx.common_checks(session, 0, problems)
@@ -1571,14 +1575,31 @@ def cb12_counter_frames(binary, ctx):
                 rb'trace counter tick (\d+) value (\d+) flush_us (\d+)', session.err)]
             if [v for _, v, _ in flushed] != list(range(1, 1001)):
                 problems.append('counter did not flush every integer on ' + tier + ' ' + str(cols))
-            costs = {}
-            for t, v, us in flushed:
-                costs[t] = costs.get(t, 0) + us
-            if set(costs) != set(range(1, 21)):
+            batches = [(int(t), int(n), int(us)) for t, n, us in re.findall(
+                rb'trace counter-batch tick (\d+) frames (\d+) wall_us (\d+)', session.err)]
+            costs = {t: us for t, n, us in batches}
+            if set(costs) != set(range(1, 21)) or any(n != 50 for _, n, _ in batches):
                 problems.append('counter did not finish on simulation tick twenty')
+            maximum = max(costs.values(), default=0)
+            if maximum > 33333:
+                problems.append('partial counter repaint exceeded the tick budget')
+            ended = re.search(rb'; (\d+) ticks, .*? (\d+) dropped,', session.err)
+            if not ended or tuple(map(int, ended.groups())) != (20, 0):
+                problems.append('counter caused late/catch-up frames instead of twenty ordinary ticks')
             measurements.append({'tier': tier, 'size': [cols, rows], 'frames': len(flushed),
-                                 'max_batch_flush_us': max(costs.values(), default=0),
-                                 'over_33333_us': sum(v > 33333 for v in costs.values())})
+                                 'max_batch_wall_us': maximum,
+                                 'over_33333_us': sum(v > 33333 for v in costs.values()),
+                                 'ticks': int(ended[1]) if ended else -1,
+                                 'dropped': int(ended[2]) if ended else -1})
+            cap = dest / 'capture.bin'
+            cap.write_bytes(session.out)
+            applied = subprocess.run([binary, '--apply', str(cap), '--size', str(cols) + 'x' + str(rows)],
+                                     check=True, capture_output=True, text=True)
+            subprocess.run([binary, '--headless', '--replay', str(sized_case), '--frames', '20', '--every', '20',
+                            '--tier', tier, '--dump', str(dest)], check=True, capture_output=True)
+            text, style, _ = applied.stdout.split('--\n')
+            if text != (dest / 'final.txt').read_text() or style != (dest / 'final.sty').read_text():
+                problems.append('final full frame diverged after partial counter repaint')
     dest = Path(ctx.ROOT) / 'target/pty/cb12-counter-cost.json'
     dest.write_text(json.dumps(measurements, indent=2) + '\n')
     return session, problems
