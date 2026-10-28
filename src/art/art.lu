@@ -1591,7 +1591,11 @@ pub fn draw_foes(s: sim.Sim, t: int, mut g: grid.Grid) {
         if fade < gone {
             let r = sim.floor_div(f.y, sim.FP) - sim.camera_y(s) + sim.screen_row(s)
             let c = sim.floor_div(f.x, sim.FP) - sim.camera_x(s) + sim.screen_col(s)
-            draw_foe(mut g, t, r, c, f.kind, f.phase, f.heading, fade)
+            if f.kind == sim.CINDER_MOTHS {
+                draw_new_foe_count(mut g, t, r, c, f.kind, f.phase, f.heading, fade, f.health)
+            } else {
+                draw_foe(mut g, t, r, c, f.kind, f.phase, f.heading, fade)
+            }
             if s.locked == i { draw.put_text(mut g, r + 2, c, "[]", ink(t, true)) }
         }
         i += 1
@@ -4164,8 +4168,33 @@ fn draw_plain_head_swing(
 /// Original north-facing pixel drawings for the six new foes. Other
 /// headings are exact quarter turns; their envelopes are sim.new_foe_size.
 pub fn new_foe_bitmap(kind: int, phase: int) -> silhouette.Bitmap {
+    new_foe_bitmap_count(kind, phase, 5)
+}
+
+/// Moth health is its live count: a bite visibly removes two of five.
+/// Every other kind shares its ordinary posture drawing.
+pub fn new_foe_bitmap_count(kind: int, phase: int, count: int) -> silhouette.Bitmap {
     let tell = phase == sim.CROUCH
     if kind == sim.MARTEN {
+        if tell {
+            // Needles fall above the landing body for twenty ticks.
+            return silhouette.parse(
+                [
+                    " #  ",
+                    "    ",
+                    "   #",
+                    "    ",
+                    "  # ",
+                    "    ",
+                    "#   ",
+                    "    ",
+                    " ## ",
+                    "####",
+                    " ## ",
+                    "#  #",
+                ],
+            )
+        }
         return silhouette.parse(
             [
                 "#  #",
@@ -4228,13 +4257,13 @@ pub fn new_foe_bitmap(kind: int, phase: int) -> silhouette.Bitmap {
     if kind == sim.CINDER_MOTHS {
         return silhouette.parse(
             [
-                " #   #  ",
+                if count >= 2 then " #   #  " else if count == 1 then " #      " else "        ",
                 "        ",
-                "   #    ",
+                if count >= 3 then "   #    " else "        ",
                 "        ",
-                "#      #",
+                if count >= 5 then "#      #" else if count >= 4 then "#       " else "        ",
                 "        ",
-                if tell then " # # #  " else "        ",
+                "        ",
                 "        ",
             ],
         )
@@ -4277,6 +4306,22 @@ pub fn draw_new_foe(
     heading: int,
     fade: int,
 ) {
+    draw_new_foe_count(mut g, t, row, col, kind, phase, heading, fade, 5)
+}
+
+/// Live count variant used by the five-moth swarm; the regular drawing
+/// API and golden sheets show all five before the first bite.
+pub fn draw_new_foe_count(
+    mut g: grid.Grid,
+    t: int,
+    row: int,
+    col: int,
+    kind: int,
+    phase: int,
+    heading: int,
+    fade: int,
+    count: int,
+) {
     if phase == sim.SNUFFED || fade >= sim.FOE_FADE_TICKS { return }
     let colour = if kind == sim.MARTEN {
         (if t == tier.RICH then 180 else 3)
@@ -4297,7 +4342,7 @@ pub fn draw_new_foe(
         grid.COLOR_DEFAULT,
         if fade >= 0 then grid.ATTR_DIM else grid.ATTR_BOLD,
     )
-    let bitmap = new_foe_bitmap(kind, phase)
+    let bitmap = new_foe_bitmap_count(kind, phase, count)
     let facing = sim.quarter(heading)
     if t == tier.RICH {
         silhouette.draw_at(mut g, row, col, bitmap, facing, style)
@@ -4368,6 +4413,7 @@ pub fn dim_moth_palette(s: sim.Sim, mut g: grid.Grid) {
 /// Frame-end status presentation, independent of all overlays and menus.
 /// The dark-area id remains a hook until cb14's area table is merged.
 pub fn new_foe_palette(s: sim.Sim, t: int, mut g: grid.Grid) {
+    dim_glow_cave(s, sim.glow_dark_area(s.area), mut g)
     dim_moth_palette(s, mut g)
     if s.tick < s.blind_until {
         grid.fill(
@@ -4375,4 +4421,42 @@ pub fn new_foe_palette(s: sim.Sim, t: int, mut g: grid.Grid) {
             grid.cell(32, if t == tier.RICH then 15 else 7, if t == tier.RICH then 15 else 7, 0),
         )
     }
+}
+
+/// The Underteeth light path is independently testable on an arena while
+/// its world-area hook awaits cb14. The cub sees three cells without a
+/// worm; surviving worms carry their own moving three-cell light pools.
+pub fn dim_glow_cave(s: sim.Sim, dark: bool, mut g: grid.Grid) {
+    if !dark { return }
+    var r = 0
+    while r < g.rows {
+        var c = 0
+        while c < g.cols {
+            let (x, y) = sim.world_cell(s, r, c)
+            if !sim.near(s.x, s.y, x * sim.FP, y * sim.FP, 3 * sim.FP) &&
+                !sim.glow_lights(s, x * sim.FP, y * sim.FP) {
+                var cell = grid.at(g, r, c)
+                cell.attrs = grid.ATTR_DIM
+                grid.put(mut g, r, c, cell)
+            }
+            c += 1
+        }
+        r += 1
+    }
+}
+
+/// Full-frame status goldens at both tiers: moth palette, six-frame flash,
+/// and the cave's live/dead light. The last two deliberately exercise the
+/// pending area hook on the disclosed arena, never on an old live area.
+pub fn new_foe_status_sheet(t: int, status: int) -> grid.Grid {
+    var s = sim.new_foe_arena(1, 80, 24, if status == 0 then sim.CINDER_MOTHS else sim.GLOW_WORMS)
+    s.foes[0].phase = sim.CROUCH
+    s.foes[0].x = s.x + 4 * sim.FP
+    s.foes[0].y = s.y
+    if status == 1 { s.blind_until = 6 }
+    if status == 3 { s.foes[0].health = 0; s.foes[0].died = -1 }
+    var g = grid.new(24, 80)
+    render(s, t, mut g)
+    if status >= 2 { dim_glow_cave(s, true, mut g) }
+    g
 }

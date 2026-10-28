@@ -125,3 +125,28 @@ fn test_cb18_snuffed_wisp_returns_at_three_hundred_not_before() {
         "300 tick return, not a respawned kill",
     )
 }
+
+fn test_cb18_moth_bitmap_loses_two_visible_moths_per_bite() {
+    for count in [5, 3, 1, 0] {
+        let b = art.new_foe_bitmap_count(sim.CINDER_MOTHS, sim.CROUCH, count)
+        var lit = 0
+        for pixel in b.px { lit += pixel }
+        assert(lit == count, "the live count is drawn, not a permanent five-moth sprite")
+    }
+}
+
+fn test_cb18_glow_worms_carry_light_and_their_death_darkens_the_cave() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.GLOW_WORMS)
+    let (x, y) = sim.world_cell(s, 12, 55)
+    s.foes[0].x = x * sim.FP
+    s.foes[0].y = y * sim.FP
+    var g = grid.new(24, 80)
+    art.dim_glow_cave(s, true, mut g)
+    assert(grid.at(g, 12, 55).attrs == 0, "live worm carries light beyond cub sight")
+    assert(grid.at(g, 12, 40).attrs == 0, "cub still sees three cells without a worm")
+    assert(grid.at(g, 0, 0).attrs == grid.ATTR_DIM, "unlit cave is dim, not erased")
+    s.foes[0].health = 0
+    grid.clear(mut g)
+    art.dim_glow_cave(s, true, mut g)
+    assert(grid.at(g, 12, 55).attrs == grid.ATTR_DIM, "killing a worm extinguishes its light")
+}
