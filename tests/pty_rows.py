@@ -689,7 +689,8 @@ def doorway_edge(binary, ctx):
         session.finish()
         ctx.common_checks(session, 0, problems)
         states = trace_states(session)
-        changes = [(a, b) for a, b in zip(states, states[1:]) if a['area'] == 2 and b['area'] == 1]
+        # North of the meadow lies the Stand since cb14 (area 7), not the thicket.
+        changes = [(a, b) for a, b in zip(states, states[1:]) if a['area'] == 2 and b['area'] == 7]
         if not changes:
             problems.append(tier + ': northward edge approach did not leave meadow')
         elif not any(a['x'] >= 3 * 256 and a['y'] > 2 * 256 for a, _ in changes):
@@ -724,7 +725,8 @@ def doorway_return(binary, ctx):
         arrived = False
         for _ in range(60):
             session.type(b'\x1b[D', settle=.06)
-            if any(v['area'] == 1 for v in trace_states(session)):
+            # The far-end arrival in the Stand (cb14: area 7 north of the meadow).
+            if any(v['area'] == 7 for v in trace_states(session)):
                 arrived = True
                 break
         mark = len(trace_states(session))
