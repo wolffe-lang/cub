@@ -1,0 +1,62 @@
+//! member: false
+
+use art
+use controls
+use grid
+use sim
+use tier
+
+fn test_cb12_death_waits_for_fade_and_twenty_tick_word_before_skip() {
+    var s = sim.new(1, 80, 24)
+    s.scent = 300
+    sim.hurt(mut s, 999)
+    assert(s.mark_scent == 300 && s.scent == 0 && s.deaths == 1, "mark immediate")
+    var tick = 0
+    while tick < 49 { sim.step(mut s, [controls.KEY_BITE]); tick += 1 }
+    assert(s.action == sim.FALL && s.health == 0, "early keys cannot skip")
+    sim.step(mut s, [controls.KEY_BITE])
+    assert(s.action == sim.IDLE && s.health > 0, "skip at tick fifty is consumed")
+    assert(s.mark && s.mark_scent == 300 && s.deaths == 1, "mark unchanged by scene")
+}
+
+fn test_cb12_death_eyes_reverse_every_opening_frame_and_hold_closed() {
+    var tick = 0
+    while tick < sim.DEATH_EYES {
+        assert(art.death_aperture(50 + tick) == art.opening_aperture(840 - tick), "same eye frame and timing")
+        tick += 1
+    }
+    assert(art.death_aperture(65) == 50, "half closed")
+    assert(art.death_aperture(380) == 0, "closed before wake")
+    var s = sim.new(1, 80, 24)
+    sim.hurt(mut s, 999)
+    // No expensive live-world ticks: this scene advances with empty keys only.
+    s.tick = sim.DEATH_TICKS - 2
+    sim.step(mut s, List[int]())
+    assert(s.action == sim.FALL, "closed frame is retained")
+    sim.step(mut s, List[int]())
+    assert(s.action == sim.IDLE, "automatic wake after closed frame")
+}
+
+fn word(t: int) {
+    var s = sim.new(1, 80, 24)
+    sim.hurt(mut s, 999)
+    s.tick = 30
+    var g = grid.new(24, 80)
+    art.render(s, t, mut g)
+    var row = 0
+    while row < 7 {
+        var col = 0
+        while col < 35 {
+            let cell = grid.at(g, 9 + row, 22 + col)
+            let filled = art.fallen_row(row).bytes()[col] == 35 as byte
+            assert(cell.cp == (if filled then (if t == tier.RICH then 9608 else 35) else 32), "original seven-row word")
+            if filled { assert(cell.fg == (if t == tier.RICH then 196 else 12), "red on black") }
+            assert(cell.bg == 0, "fade finished before word")
+            col += 1
+        }
+        row += 1
+    }
+}
+
+fn test_cb12_fallen_word_plain() { word(tier.PLAIN) }
+fn test_cb12_fallen_word_rich() { word(tier.RICH) }

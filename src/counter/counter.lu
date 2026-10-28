@@ -1,0 +1,48 @@
+//! counter — integer presentation batches, independent of wall time and currency.
+
+/// Maximum simulation ticks for one uninterrupted count.
+pub const TICKS: int = 20
+
+/// Transient display state and the current tick's contiguous integer batch.
+pub struct Count {
+    origin: int,
+    target: int,
+    shown: int,
+    age: int,
+    ticks: int,
+    from: int,
+}
+
+/// Start settled at the exact loaded or initial currency.
+pub fn new(value: int) -> Count {
+    Count { origin: value, target: value, shown: value, age: 0, ticks: 0, from: value }
+}
+
+fn distance(a: int, b: int) -> int { if a > b then a - b else b - a }
+
+/// Retarget from the last drawn integer, never from an unseen old target.
+/// Each tick owns a contiguous batch; its final integer is the tick's HUD.
+pub fn step(mut c: Count, value: int) {
+    if value != c.target {
+        c.origin = c.shown
+        c.target = value
+        c.age = 0
+        let n = distance(c.origin, value)
+        c.ticks = if n < TICKS then n else TICKS
+    }
+    c.from = c.shown
+    if c.age < c.ticks {
+        c.age += 1
+        let n = distance(c.origin, c.target) * c.age / c.ticks
+        c.shown = c.origin + (if c.target >= c.origin then n else -n)
+    }
+}
+
+/// Number of distinct integers to render on this tick, not elapsed ticks.
+pub fn length(c: Count) -> int { distance(c.from, c.shown) }
+
+/// Integer at zero-based index; traps outside this tick's batch.
+pub fn value(c: Count, index: int) -> int {
+    assert(index >= 0 && index < length(c), "counter batch index")
+    c.from + (if c.shown > c.from then index + 1 else -index - 1)
+}

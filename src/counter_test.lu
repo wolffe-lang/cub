@@ -1,6 +1,7 @@
 //! member: false
 
 use art
+use counter
 use digits
 use sim
 use tier
@@ -14,4 +15,65 @@ fn test_cb12_gain_300_renders_first_batch_not_target() {
         "gain 300 must render the first fifteen integers, not jump to 300",
     )
     assert(s.scent == 300, "presentation never delays the sim's currency")
+}
+
+fn schedule(gain: int, down: bool) {
+    let start = if down then gain else 0
+    let target = if down then 0 else gain
+    var c = counter.new(start)
+    var visited = start
+    var tick = 0
+    while tick < 20 && visited != target {
+        counter.step(mut c, target)
+        var i = 0
+        while i < counter.length(c) {
+            visited += if down then -1 else 1
+            assert(counter.value(c, i) == visited, "every integer, in order, once")
+            assert(visited >= 0 && visited <= gain, "never past the target")
+            i += 1
+        }
+        assert(c.shown == visited, "the tick's last frame is exact")
+        tick += 1
+    }
+    assert(visited == target && c.shown == target, "the last tick is exactly the target")
+    assert(tick == (if gain < 20 then gain else 20), "bounded by twenty ticks")
+    counter.step(mut c, target)
+    assert(counter.length(c) == 0, "settled: no duplicate frames")
+}
+
+fn test_cb12_every_integer_for_1_8_30_300_1000_in_both_directions() {
+    for gain in [1, 8, 30, 300, 1000] {
+        schedule(gain, false)
+        schedule(gain, true)
+    }
+}
+
+fn test_cb12_retarget_continues_from_last_rendered_integer() {
+    var c = counter.new(0)
+    counter.step(mut c, 300)
+    assert(c.shown == 15, "first tick")
+    counter.step(mut c, 1000)
+    assert(c.from == 15 && counter.value(c, 0) == 16, "gain during count, no jump")
+    let shown = c.shown
+    counter.step(mut c, 8)
+    assert(c.from == shown && counter.value(c, 0) == shown - 1, "reverse from the drawn integer")
+    var ticks = 1
+    while ticks < 20 { counter.step(mut c, 8); ticks += 1 }
+    assert(c.shown == 8, "retarget finishes exactly")
+}
+
+fn test_cb12_count_is_a_function_of_ticks_and_values_not_render_calls() {
+    var a = counter.new(40)
+    var b = counter.new(40)
+    for target in [48, 48, 300, 300, 8, 8, 8, 8, 1000] {
+        counter.step(mut a, target)
+        counter.step(mut b, target)
+        var i = 0
+        while i < counter.length(a) {
+            assert(counter.value(a, i) == counter.value(b, i), "same replay batch")
+            assert(counter.value(a, i) == counter.value(a, i), "render is read-only")
+            i += 1
+        }
+        assert(a.shown == b.shown && a.from == b.from, "same tick state")
+    }
 }

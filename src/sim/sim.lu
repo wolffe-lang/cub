@@ -14,6 +14,7 @@
 //! heart, wind, fang, paw and nose at 1; the fight, den and scent loop follows below.
 
 use controls
+use counter
 use forest
 use meadow
 use input
@@ -336,6 +337,7 @@ pub struct Sim {
     riposte_foe: int,
     flasks: int,
     scent: int,
+    scent_count: counter.Count,
     den: bool,
     rest_row: int,
     rest_pending: List[int],
@@ -448,6 +450,7 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         riposte_foe: -1,
         flasks: 0,
         scent: 0,
+        scent_count: counter.new(0),
         den: false,
         rest_row: 0,
         rest_pending: List[int](),
@@ -1585,9 +1588,29 @@ fn trail_step(mut s: Sim, ox: int, oy: int) {
     }
 }
 
+/// Presentation only: direct fixtures not stepped yet show their exact value.
+pub fn displayed_scent(s: Sim) -> int {
+    if s.scent_count.target == s.scent then s.scent_count.shown else s.scent
+}
+
+/// The unchanged fade, the word's minimum hold, then the opening's 330
+/// eyelid ticks (510..840) in reverse and one fully closed frame.
+pub const DEATH_FADE: int = 30
+/// Ticks the full word must show before any key may skip.
+pub const DEATH_HOLD: int = 20
+/// Opening eyelid frames reversed, including the fully closed frame.
+pub const DEATH_EYES: int = 331
+/// Automatic den wake follows the last closed frame.
+pub const DEATH_TICKS: int = DEATH_FADE + DEATH_HOLD + DEATH_EYES
+
 /// Tick order is part of the replay contract: input, movement, action,
-/// foe attack, trail, recovery. Actions use half-open tick intervals.
+/// foe attack, trail, recovery; presentation observes the completed tick.
 pub fn step(mut s: Sim, keys: List[int]) {
+    step_tick(mut s, keys)
+    counter.step(mut s.scent_count, s.scent)
+}
+
+fn step_tick(mut s: Sim, keys: List[int]) {
     s.tick += 1
     s.cue = 0
     for k in keys { if k == controls.KEY_EXACT { s.key_state = input.state_new(true) } }
@@ -1598,7 +1621,10 @@ pub fn step(mut s: Sim, keys: List[int]) {
         return
     }
     if s.action == FALL {
-        if s.tick - s.started >= 30 {
+        let age = s.tick - s.started
+        var pressed = false
+        for k in keys { if k > 0 && k < controls.KEY_EXACT { pressed = true } }
+        if age >= DEATH_TICKS || age >= DEATH_FADE + DEATH_HOLD && pressed {
             wake(mut s)
             s.entered = s.tick
         }
@@ -3057,6 +3083,7 @@ fn hawk_step(mut s: Sim, i: int) {
 
 /// Resume and death share the same den and reset rules.
 pub fn wake(mut s: Sim) {
+    s.scent_count = counter.new(s.scent)
     // A journey whose last den was retired (cb05) wakes at the nearest
     // kept den of that area, and lights it.
     if forest.den_retired(s.last_den) {
