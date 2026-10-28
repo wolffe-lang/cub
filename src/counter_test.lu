@@ -1,0 +1,17 @@
+//! member: false
+
+use art
+use digits
+use sim
+use tier
+
+fn test_cb12_gain_300_renders_first_batch_not_target() {
+    var s = sim.new(1, 80, 24)
+    s.scent = 300
+    sim.step(mut s, List[int]())
+    assert(
+        art.scent_col(s, tier.PLAIN) == 79 - digits.plain_width(15),
+        "gain 300 must render the first fifteen integers, not jump to 300",
+    )
+    assert(s.scent == 300, "presentation never delays the sim's currency")
+}
