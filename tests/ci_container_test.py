@@ -131,7 +131,7 @@ class ContainerCacheTests(unittest.TestCase):
         self.assertIn('${{ runner.arch }}', linux)
         self.assertIn('cache-primary-key', linux)
         self.assertNotIn('restore-keys:', linux)
-        self.assertIn('timeout-minutes: 40', linux)
+        self.assertIn('timeout-minutes: 60', linux)
 
     def test_performance_leg_reuses_the_same_exact_image_cache(self):
         workflow = (ROOT / '.github/workflows/ci.yml').read_text()
