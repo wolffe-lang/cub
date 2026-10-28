@@ -120,7 +120,59 @@ pub fn area_map(seed: int, area: int, field: int) -> int {
         print(line)
         at += 1
     }
+    // Every destination by name with its ground and the flood's answer:
+    // what `--world-audit`'s `reached` column counts.
+    let seen = forest.flood(seed, field, area)
+    den = 0
+    while den < forest.DEN_LIMIT {
+        if forest.den_area(den) == area {
+            let (x, y) = den_cell(seed, area, den)
+            destination("den {den}", seed, field, area, x, y, seen)
+        }
+        den += 1
+    }
+    edge = 0
+    while edge < forest.EDGES {
+        if forest.other(area, edge) >= 0 {
+            let (x, y) = forest.portal(seed, area, edge)
+            destination("portal {edge}", seed, field, area, x / forest.FP, y / forest.FP - o, seen)
+        }
+        edge += 1
+    }
+    cache = 0
+    while cache < forest.cache_count(area) {
+        let (x, y) = forest.cache_position(seed, field, area, cache)
+        destination(
+            "cache {cache}",
+            seed,
+            field,
+            area,
+            (x - forest.FP / 2) / forest.FP,
+            (y - forest.FP / 2) / forest.FP - o,
+            seen,
+        )
+        cache += 1
+    }
+    k = 0
+    while k < forest.landmark_count(area) {
+        let (_, lx, ly) = forest.landmark(seed, field, area, k)
+        destination("landmark {k}", seed, field, area, lx, ly, seen)
+        k += 1
+    }
+    if forest.has_arena(area) {
+        let (cx, cy, _) = forest.arena(seed, field, area)
+        destination("arena", seed, field, area, cx, cy, seen)
+    }
     0
+}
+
+/// One destination's line: its local cell, open or BLOCKED, reached or
+/// UNREACHED by the flood.
+fn destination(what: str, seed: int, field: int, area: int, x: int, at: int, seen: List[int]) {
+    let o = forest.origin(seed, area)
+    let ground = if forest.blocked(seed, field, area, x, o + at) then "BLOCKED" else "open"
+    let flood = if forest.reached(seen, field, area, x, at) then "reached" else "UNREACHED"
+    print("{what} at {x},{at} {ground} {flood}")
 }
 
 fn mark(mut marks: List[int], w: int, top: int, l: int, x: int, at: int, ch: int) {
