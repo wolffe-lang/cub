@@ -37,8 +37,126 @@ pub const FOES_BIG_MAX: int = 18
 /// The foes a later area starts with.
 pub const FOES_LATE_MIN: int = 8
 
+/// ... and at most (cb14: twelve and the alcove guards, R-cb14-5).
+pub const FOES_LATE_MAX: int = 14
+
+/// The foes one of cb14's areas starts with until cb18 fills its table:
+/// its alcove guards (two pairs and one; Gravehollow's a pair and one).
+pub const FOES_NEW_MIN: int = 3
+
 /// ... and at most.
-pub const FOES_LATE_MAX: int = 12
+pub const FOES_NEW_MAX: int = 6
+
+/// An area's map as text (cb14's instrument): one character a cell over
+/// the whole width and length at a field, the route and every carved
+/// cell `.`, the dens `D`, the caches `C`, the portals `P`, the landmarks
+/// `L`, the arena's centre `A`, the foes `f` (a boss `B`), and the kinds
+/// by letter otherwise. Exit 2 on an unknown area.
+pub fn area_map(seed: int, area: int, field: int) -> int {
+    if area < 0 || area >= forest.AREAS { return 2 }
+    let w = forest.bound(field, area)
+    let o = forest.origin(seed, area)
+    let top = if area == forest.SHINGLE then forest.COAST_TOP else 0
+    let l = forest.length(area)
+    let width = w * 2 + 1
+    var marks = List[int]()
+    var i = 0
+    while i < width * (l - top + 1) { (mut marks).push(0); i += 1 }
+    var den = 0
+    while den < forest.DEN_LIMIT {
+        if forest.den_area(den) == area {
+            let (x, y) = den_cell(seed, area, den)
+            mark(mut marks, w, top, l, x, y, 68)
+        }
+        den += 1
+    }
+    var edge = 0
+    while edge < forest.EDGES {
+        if forest.other(area, edge) >= 0 {
+            let (x, y) = forest.portal(seed, area, edge)
+            mark(mut marks, w, top, l, x / forest.FP, y / forest.FP - o, 80)
+        }
+        edge += 1
+    }
+    var cache = 0
+    while cache < forest.cache_count(area) {
+        let (x, y) = forest.cache_position(seed, field, area, cache)
+        mark(mut marks, w, top, l, (x - forest.FP / 2) / forest.FP, (y - forest.FP / 2) / forest.FP - o, 67)
+        cache += 1
+    }
+    var k = 0
+    while k < forest.landmark_count(area) {
+        let (_, lx, ly) = forest.landmark(seed, field, area, k)
+        mark(mut marks, w, top, l, lx, ly, 76)
+        k += 1
+    }
+    if forest.has_arena(area) {
+        let (cx, cy, _) = forest.arena(seed, field, area)
+        mark(mut marks, w, top, l, cx, cy, 65)
+    }
+    for f in sim.area_foes(seed, field, area, 0) {
+        let fx = sim.floor_div(f.x, forest.FP)
+        let fy = sim.floor_div(f.y, forest.FP) - o
+        mark(mut marks, w, top, l, fx, fy, if sim.is_boss(f.kind) then 66 else 102)
+    }
+    print("area {area} {forest.name(area)} seed {seed} field {field} width {width} rows {top}..{l}")
+    var at = top
+    while at <= l {
+        var line = ""
+        var x = 0 - w
+        while x <= w {
+            let m = marks[(at - top) * width + x + w]
+            let kind = forest.kind(seed, field, area, x, o + at)
+            let ch = if m != 0 {
+                m
+            } else if forest.on_path(seed, field, area, x, o + at) && !terrain.solid(kind) {
+                46
+            } else {
+                kind_letter(kind)
+            }
+            line = line + "{ch as byte as str}"
+            x += 1
+        }
+        print(line)
+        at += 1
+    }
+    0
+}
+
+fn mark(mut marks: List[int], w: int, top: int, l: int, x: int, at: int, ch: int) {
+    if x < 0 - w || x > w || at < top || at > l { return }
+    marks[(at - top) * (w * 2 + 1) + x + w] = ch
+}
+
+/// A terrain kind's letter on the map.
+fn kind_letter(k: int) -> int {
+    match k {
+        0 => 32,  // gravel
+        1 => 44,  // grass ,
+        2 => 124,  // trunk |
+        3 => 59,  // canopy ;
+        4 => 35,  // dark #
+        5 => 126,  // water ~
+        6 => 39,  // reeds '
+        7 => 79,  // rock O
+        8 => 61,  // shallows =
+        9 => 58,  // ash :
+        10 => 87,  // wall W
+        11 => 42,  // ember *
+        12 => 32,  // needles
+        13 => 73,  // pine I
+        14 => 33,  // char !
+        15 => 37,  // drift %
+        16 => 111,  // stone o
+        17 => 35,  // cave #
+        18 => 64,  // glow @
+        19 => 83,  // spring S
+        20 => 94,  // mound ^
+        21 => 77,  // menhir M
+        22 => 71,  // gate G
+        _ => 63,
+    }
+}
 
 /// Cardinal tile distances from local cell `(sx, sy)` over an area's real
 /// tiles, one a cell, -1 unreached (`forest.flood`'s walk with a count).
@@ -174,26 +292,38 @@ pub fn den_spacing() -> int {
                         if d > within_max { within_max = d }
                         k += 1
                     }
-                    // Onward: the last den to the exit, the next area's entry
-                    // to its first den.
+                    // Onward: the last den to the exit, then through any
+                    // area without a den (cb14: the Howe, Gravehollow) to
+                    // the next den along the way on; 0 when none follows.
                     var onward = 0
                     let next = next_area(area)
                     if next >= 0 && dens.len > 0 {
                         let (lx, ly) = den_cell(seed, area, dens[dens.len - 1])
                         let (ex, ey) = exit_cell(seed, area)
                         let dist = distances(seed, field, area, lx, ly)
-                        let to_exit = at_cell(dist, field, area, ex, ey)
-                        let nd = dens_of(seed, next)
-                        let (fx, fy) = den_cell(seed, next, nd[0])
-                        let entry = distances(seed, field, next, 0, 1)
-                        let from_entry = at_cell(entry, field, next, fx, fy)
-                        if to_exit < 0 || from_entry < 0 {
-                            print(
-                                "den-spacing: onward walk unreached seed {seed} field {field} area {area}",
-                            )
-                            return 1
+                        var walk = at_cell(dist, field, area, ex, ey)
+                        var ahead = next
+                        while ahead >= 0 && dens_of(seed, ahead).len == 0 && walk >= 0 {
+                            let (ax, ay) = exit_cell(seed, ahead)
+                            let through = at_cell(distances(seed, field, ahead, 0, 1), field, ahead, ax, ay)
+                            walk = if through < 0 || next_area(ahead) < 0 then -2 else walk + through
+                            ahead = next_area(ahead)
                         }
-                        onward = to_exit + from_entry
+                        if walk == -2 {
+                            onward = 0
+                        } else {
+                            let nd = dens_of(seed, ahead)
+                            let (fx, fy) = den_cell(seed, ahead, nd[0])
+                            let entry = distances(seed, field, ahead, 0, 1)
+                            let from_entry = at_cell(entry, field, ahead, fx, fy)
+                            if walk < 0 || from_entry < 0 {
+                                print(
+                                    "den-spacing: onward walk unreached seed {seed} field {field} area {area}",
+                                )
+                                return 1
+                            }
+                            onward = walk + from_entry
+                        }
                     }
                     // Shortcuts: the den nearest each mouth, both sides.
                     var shortcut_min = 0
@@ -248,6 +378,40 @@ pub fn den_spacing() -> int {
                     }
                     if within_min > 0 && within_min < worst_within { worst_within = within_min }
                     if onward > 0 && onward < worst_onward { worst_onward = onward }
+                    // The Underteeth hangs off the chain (the sett from the
+                    // Teeth, the roots out into the Hush): measured after
+                    // the Teeth, its den against the ledge cleft through
+                    // the sett and against the cold den through the roots.
+                    if area == forest.CRAGS {
+                        let u = forest.UNDERTEETH
+                        let ud = dens_of(seed, u)
+                        let (ux, uy) = den_cell(seed, u, ud[0])
+                        let (sx, sy) = forest.portal(seed, u, forest.EDGE_SETT)
+                        let (rx, ry) = forest.portal(seed, u, forest.EDGE_ROOTS)
+                        let inside = distances(seed, field, u, ux, uy)
+                        let to_sett = at_cell(inside, field, u, sx / forest.FP, sy / forest.FP - forest.origin(seed, u))
+                        let to_roots = at_cell(inside, field, u, rx / forest.FP, ry / forest.FP - forest.origin(seed, u))
+                        let (cx, cy) = den_cell(seed, area, dens[0])
+                        let (mx, my) = forest.portal(seed, area, forest.EDGE_SETT)
+                        let teeth = at_cell(distances(seed, field, area, cx, cy), field, area, mx / forest.FP, my / forest.FP - forest.origin(seed, area))
+                        let hd = dens_of(seed, forest.HUSH)
+                        let (hx, hy) = den_cell(seed, forest.HUSH, hd[0])
+                        let (nx, ny) = forest.portal(seed, forest.HUSH, forest.EDGE_ROOTS)
+                        let hush = at_cell(distances(seed, field, forest.HUSH, hx, hy), field, forest.HUSH, nx / forest.FP, ny / forest.FP - forest.origin(seed, forest.HUSH))
+                        if to_sett < 0 || to_roots < 0 || teeth < 0 || hush < 0 {
+                            print("den-spacing: the Underteeth unreached seed {seed} field {field}")
+                            return 1
+                        }
+                        let in_ = teeth + to_sett
+                        let out = to_roots + hush
+                        print("{seed} {field} {u} {ud.len} 0 0 {out} {in_}")
+                        if in_ < forest.DEN_SPACING || out < forest.DEN_SPACING {
+                            print("den-spacing: RED seed {seed} field {field} area {u}")
+                            return 1
+                        }
+                        if in_ < worst_onward { worst_onward = in_ }
+                        if out < worst_onward { worst_onward = out }
+                    }
                     area = next
                 }
             }
@@ -285,8 +449,12 @@ pub fn foe_census() -> int {
                 let big = area == forest.TOWN ||
                     area == forest.BRAMBLEHOLD ||
                     area == forest.LARKMEADOW
-                let lo = if big then FOES_BIG_MIN else FOES_LATE_MIN
-                let hi = if big then FOES_BIG_MAX else FOES_LATE_MAX
+                // cb14: the Teeth, the Shallows and the Hush carry their
+                // alcove guards on top of R-cb05-4's band (R-cb14-5); the
+                // new areas hold their guards alone until cb18's foes.
+                let fresh = area >= forest.STAND
+                let lo = if big then FOES_BIG_MIN else if fresh then FOES_NEW_MIN else FOES_LATE_MIN
+                let hi = if big then FOES_BIG_MAX else if fresh then FOES_NEW_MAX else FOES_LATE_MAX
                 if area != forest.SHINGLE && (n < lo || n > hi) {
                     print("foe-census: RED area {area} has {n} foes")
                     return 1

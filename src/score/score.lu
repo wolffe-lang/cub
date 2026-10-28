@@ -54,6 +54,8 @@ pub fn silence_text() -> str {
 /// river and the old den are named slots for cb04's areas, silent until
 /// their parts exist (`docs/SCORE.md`).
 pub fn area_part(area: int) -> str {
+    // cb14's five areas and the split Gravehollow are `none` until cb17
+    // writes their parts; the Hush keeps cb04's `old-den` slot (silent).
     match area {
         0 => "shingle",
         1 => "bramblehold",
@@ -62,7 +64,7 @@ pub fn area_part(area: int) -> str {
         4 => "river",
         5 => "old-den",
         6 => "cinderwick",
-        _ => "",
+        _ => "none",
     }
 }
 
