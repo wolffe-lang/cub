@@ -1,4 +1,4 @@
-O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     ::O#O#O#O# |O    '  ,|     '.  |      
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O    :::O#O#O#O# |O    '  ,|     '.  |      
 #healthO#========O#O#O#O#O#O#O#O#O#O#O     ::O#O#O#O#  ' "   ","  #  O.   :  O#O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O     ::O#O#O#  ,#     " ."  ' ."  ,  ' | 
 #stamina#=========#O#O#O#O#O#O#O#O#O#O#O    : ,O#O#O       :#  ".O '    '"     O
@@ -9,7 +9,7 @@ O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O :.   .O#O#,"  '   | O'''"'   '    ':
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#.. .:::::   ,   O   O#: O | "  . .     |   #
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#" .,::           #  "#O'    |   O|"|   :" "  
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O'[##]:             :    "   ""      #   .  " 
-#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#" ::..,'      ..          ::O ." :': "  :#O '
+#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#" ::.,.'      ..          ::O ." :': "  :#O '
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#   ####     .    #'   O  # '  O   ',O.   #,'
 #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#####O#O#.         "|     #'|O   .'O  ' #O
 O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O.vv.#O#O      .  O   O '. , :' ," '''"#O#
