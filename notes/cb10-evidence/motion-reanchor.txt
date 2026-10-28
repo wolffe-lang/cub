@@ -1,0 +1,13 @@
+cb10 motion-census correction, after full gate 2
+
+The Linux correctness, native/release gameplay, memory and performance stages at 29019ffa passed. The additional --motion-census then exited 1 on its first reed sprint sample:
+pace seed=0 field=80 area=0 tier=0 terrain=6 heading=0 gait=2 ticks=60 dx=0 dy=-3552 blocked=4 glyph=33
+motion-census: blocked steady probe
+
+This is the simulated cub colliding with adjacent water, not a stalled subprocess. The instrument assumed every paw1 stride fit within the half-cell from its midpoint anchor. R-cb10-1 increases sprint from128 to129 fixed-point units, so the north step from fraction128 enters the water by one unit; the probe brakes and records four blocked updates.
+
+Fix only the instrument: retain the genuine sample cell, every terrain class and sixty integrator ticks, but bias its subcell reanchor against travel by max(0,cap-128), plus one unit on positive axes. A complete stride then stays within that actual sampled cell. Fractional residues remain integrated; no collision, speed, terrain or gameplay rule changes. Refuse a future cap >=256 explicitly because a one-cell steady sample cannot hold such a stride.
+
+The new checked-machine real reed/water boundary test failed before the repair (dy=-3552, blocked4), then passed at fields80 and200 (dy=-7740=60*129, blocked0). Receipts: motion-probe-red.log and motion-probe-green.log. The full census is rerun at the new head.
+
+Mac gate2 was stopped per R-orch: parent46534 and its observed descendants were individually terminated by pid; the lock was released only while owned by46541/cb10. No process groups were used. The bounded Mac relaunch runs build, checked tier, targeted rows and one full golden attempt; memory pressure no longer triggers another unbounded complete-check loop. The CI macOS full-tier job is the ruled substitute if that last local golden attempt refuses the floor.

@@ -68,8 +68,16 @@ pub fn sample(seed: int, field: int, area: int, x: int, y: int, h: int, gait: in
         sim.trot_at(1)
     }
     s.speed = if sim.in_shallows(s, s.x, s.y) && gait != 1 then cap / 2 else cap
-    if sim.sin(h) > 0 { s.x -= 1 }
-    if sim.cos(h) < 0 { s.y -= 1 }
+    // A sprint may exceed half a cell (129 units since cb10). Bias the
+    // reanchor against travel so one whole stride stays in this genuine
+    // sample cell, even where the next cell is water. Keep fractional
+    // integration intact and never omit narrow terrain classes.
+    assert(cap < sim.FP, "steady probe needs a stride shorter than one cell")
+    let margin = if cap > sim.FP / 2 then cap - sim.FP / 2 else 0
+    if sim.sin(h) > 0 { s.x -= margin + 1 }
+    if sim.sin(h) < 0 { s.x += margin }
+    if sim.cos(h) < 0 { s.y -= margin + 1 }
+    if sim.cos(h) > 0 { s.y += margin }
     let ox = s.x
     let oy = s.y
     var dx = 0
@@ -126,9 +134,8 @@ fn terrain_rows(seed: int, field: int, area: int, t: int) -> int {
     var count = 0
     for cell_sample in terrain_samples(seed, field, area) {
         let (kind, x, y) = cell_sample
-        // At paw1 even sprint moves less than half a cell: from the
-        // centre this probe stays inside this actual terrain cell.
-        // Do not exclude one-cell reed bands beside blocked water.
+        // The directed subcell reanchor keeps every paw1 gait inside
+        // this genuine cell, including one-cell reed bands beside water.
         let cell = art.ground_at(seed, field, area, t, x, y)
         var h = 0
         while h < sim.TURN {

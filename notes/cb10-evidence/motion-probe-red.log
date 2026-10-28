@@ -1,0 +1,4 @@
+test src/motion_census_test.lu::test_cb04b_motion_census_includes_town_ash_and_embers_without_enum_indexing ... ok
+cb10 reed-edge field=80 dx=0 dy=-3552 blocked=4
+test src/motion_census_test.lu::test_cb10_steady_sprint_probe_stays_in_real_reeds_beside_water ... FAILED (trap(assert))
+wolf test: 1 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out

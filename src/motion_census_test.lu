@@ -2,6 +2,7 @@
 
 use forest
 use motionproof
+use sim
 use terrain
 use town
 
@@ -33,5 +34,17 @@ fn test_cb04b_motion_census_includes_town_ash_and_embers_without_enum_indexing()
             assert(matches == 1, "one sample per present kind")
         }
         assert(ash && ember, "the new town terrains must not be skipped")
+    }
+}
+
+fn test_cb10_steady_sprint_probe_stays_in_real_reeds_beside_water() {
+    let y = terrain.bank(0, 0) - 1
+    for field in [80, 200] {
+        assert(forest.kind(0, field, forest.SHINGLE, 0, y) == terrain.REEDS, "real reed cell")
+        assert(forest.blocked(0, field, forest.SHINGLE, 0, y - 1), "water immediately north")
+        let (dx, dy, blocked) = motionproof.sample(0, field, forest.SHINGLE, 0, y, 0, 2)
+        print("cb10 reed-edge field={field} dx={dx} dy={dy} blocked={blocked}")
+        assert(blocked == 0, "steady terrain probe must not cross into adjacent water")
+        assert(dx == 0 && dy == 0 - sim.sprint_at(1) * 60, "sixty full sprint strides")
     }
 }
