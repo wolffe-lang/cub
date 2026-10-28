@@ -555,7 +555,7 @@ def validate_new_foe_encounters(text):
         elif kind == 13:
             assert flash == 1 and foe_health == 0, 'glow contact never flashed'
         elif kind == 14:
-            assert foe_health > 0 and phase == 8 and died < 0, 'wisp must be snuffed, not killed'
+            assert foe_health > 0 and phase == 10 and died < 0, 'wisp must be snuffed, not killed'
         rows[kind] = values
     assert set(rows) == set(range(9, 15)), 'incomplete six-foe replay set'
     return rows

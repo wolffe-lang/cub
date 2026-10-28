@@ -1,6 +1,7 @@
 //! member: false
 
 use sim
+use hitcensus
 
 fn test_cb18_each_new_foe_has_a_readable_tell_and_recovery() {
     var kind = sim.MARTEN
@@ -233,5 +234,18 @@ fn test_cb18_pre_pouch_scent_hook_is_bounded_and_returns_without_extra_meat() {
     assert(
         s.drops[0].x == s.foes[0].home_x && s.drops[0].y == s.foes[0].home_y,
         "the stolen payload drops at the trunk foot, not at the cub",
+    )
+}
+
+fn test_cb18_legacy_alpha_dodge_is_not_mistaken_for_a_snuffed_wisp() {
+    var s = hitcensus.fixture(sim.ALPHA)
+    s.foes[0].phase = sim.FOE_DODGE
+    let fb = sim.foe_body(s.foes[0])
+    let cb = sim.cub_body_at(s, 0, 0, 0)
+    let x = sim.floor_div(s.foes[0].x, sim.FP)
+    let y = fb.y1 + 1 - cb.y0
+    assert(
+        hitcensus.bite(mut s, x, y, 0),
+        "the alpha's existing dodge is evasive motion, not new wisp immunity",
     )
 }

@@ -1591,7 +1591,7 @@ pub fn strike_foes(mut s: Sim) {
             (f.kind != HAWK || f.phase == STRIKE || f.phase == RETREAT) &&
             f.last_hit != s.started &&
             !(f.kind == MARTEN && f.phase == PERCHED) &&
-            f.phase != SNUFFED &&
+            !(f.kind == WISP && f.phase == SNUFFED) &&
             strike_reaches(s, i, reach) {
             if is_new_foe(f.kind) {
                 new_foe_bitten(mut s, i)
@@ -5617,10 +5617,10 @@ pub const GLOW_WORMS: int = 13
 pub const WISP: int = 14
 
 /// A marten up a trunk cannot be bitten.
-pub const PERCHED: int = 7
+pub const PERCHED: int = 9
 
 /// A bitten wisp stays alive but absent for three hundred ticks.
-pub const SNUFFED: int = 8
+pub const SNUFFED: int = 10
 
 /// Whether a kind belongs to cb18's six.
 pub fn is_new_foe(kind: int) -> bool { kind >= MARTEN && kind <= WISP }

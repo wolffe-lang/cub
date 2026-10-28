@@ -30,7 +30,7 @@ def encounter_fixture():
         f'encounter {kind} ticks 100 done 1 parity 1 bites 2 dodges {2 if kind == 12 else 0} '
         f'theft {int(kind == 9)} returned {int(kind == 9)} dim {int(kind == 11)} '
         f'flash {int(kind == 13)} health 40 foe_health {int(kind == 14)} '
-        f'phase {8 if kind == 14 else 3} died {-1 if kind in (12, 14) else 99}'
+        f'phase {10 if kind == 14 else 3} died {-1 if kind in (12, 14) else 99}'
         for kind in range(9, 15))
 
 
