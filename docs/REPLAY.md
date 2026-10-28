@@ -177,7 +177,9 @@ east-facing ghost from silently becoming north-east.
 `--make-world-proof DIR` also writes the boss scripts (`boss-<name>-windup`, `-phase2`, `-beaten`: the
 scripted fighter's real keys from the boss's den, cut at its first windup, its second phase and the win),
 `end` (the alpha beaten, the three frames, the card, `r`), `ghost-death` and `ghost` (a walk, a fall, and
-the walk past its archive in `tests/ghosts/`), `crags`, `river`, `old-den` and `demo`. `--boss-census`
+the walk past its archive in `tests/ghosts/`), the areas' first screens (`crags`, `river`, `hush`, and
+cb14's `stand`, `burn`, `mere`, `underteeth`, `howe`, `gravehollow`; `--make-area-proof DIR` writes these
+alone), the landmarks (`landmark-<area>-<k>`) and `demo`. `--boss-census`
 fights every boss in fifty seeds at both sizes and prints a `fairness` line a boss (exit 1 on a world
 unwon within five lives, a parryable telegraph under the parry window or a boss tick outside its arena);
 `--fight-trace KIND SEED` narrates one fight a tick.

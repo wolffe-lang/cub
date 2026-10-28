@@ -419,8 +419,9 @@ marks in Gravehollow. Sea colour is visual atmosphere, not a new sound loop.
 The same cub and fire sit in all six. The left-centred ledger holds the stat choices, their effects, scent, pending
 cost and save state; the cub and fire sit to its right.
 
-`rest-{shingle,bramblehold,larkmeadow,teeth,shallows,old-den}-{80x24,120x40}`
-are the twelve case names, each rendered rich/plain. Seven-tick samples pin
+`rest-{shingle,bramblehold,larkmeadow,teeth,shallows,hush,cinderwick,stand,burn,mere,underteeth}-{80x24,120x40}`
+are the case names (cb14: one an area with a den, the Hush's cold den where cb04's old den was, the four
+new dens after it), each rendered rich/plain. Seven-tick samples pin
 fire animation as well as the thirty-sixth tick's inhale. The rich glyph
 repertoire adds the side-view quadrants and vertical half blocks.
 
