@@ -439,10 +439,10 @@ def paths_doors_rest(binary):
                     turns += bool(sign and direction != sign and row['at'] - last_at <= 3)
                     sign, last_at = direction, row['at']
         assert turns * 40 <= samples, ('jaggedness exceeds 0.25 reversals per ten samples', area)
-    # Seven areas, ten edges and the longer routes (cb05; the town 240 rows
-    # since item 8): 1792000 doorway rows (eight facings) and 331000 foe frames, every one checked.
-    for flag, marker in (('--doorways-audit', 'total 1792000 misses 0'),
-                         ('--foes-audit', 'frames 331000 omitted_frames 0')):
+    # Thirteen areas, twenty edges and the longer routes (cb14; cb05's seven areas and ten edges gave
+    # 1792000 and 331000): 3584000 doorway rows (eight facings) and 562600 foe frames, every one checked.
+    for flag, marker in (('--doorways-audit', 'total 3584000 misses 0'),
+                         ('--foes-audit', 'frames 562600 omitted_frames 0')):
         p = subprocess.run([str(binary), flag], capture_output=True, text=True, check=True)
         (OUT / (Path(binary).parent.name + flag + '.txt')).write_text(p.stdout)
         assert marker in p.stdout, (flag, 'incomplete census')
