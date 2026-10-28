@@ -1,0 +1,533 @@
+cb15 Linux source 9d3c020a74d7b8bd76fc81d3ea91d515074c7bd0 start 2026-10-28T04:36:26Z
+ci-stage python-tests START utc=2026-10-28T04:36:26Z
+ci-container source=build image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=13
+.ci-container source=local image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=13
+..........ci-container source=cache image=localhost/pack-ci:5603d1bfddd3b39c archive_bytes=12
+............................
+----------------------------------------------------------------------
+Ran 39 tests in 0.057s
+
+OK
+prepare-pty: retained previous engine fixture in /work/target/pty-fixture-tests/tmp76efz9tr/engine-previous-v7h39pxw
+prepare-pty: engine fixture already fresh
+ci-stage python-tests END utc=2026-10-28T04:36:26Z elapsed_seconds=0 status=0
+ci-stage pty-fixtures START utc=2026-10-28T04:36:26Z
+prepare-pty: engine fixture already fresh
+ci-stage pty-fixtures END utc=2026-10-28T04:36:26Z elapsed_seconds=0 status=0
+ci-stage engine-check START utc=2026-10-28T04:36:26Z
+check-fmt: canonical
+test src/areas_test.lu::test_cb04_the_graph_has_six_areas_and_nine_edges ... ok
+test src/areas_test.lu::test_cb04_every_area_reaches_its_dens_portals_and_arena ... ok
+test src/areas_test.lu::test_cb04_arenas_are_open_ground_seed_0 ... ok
+test src/areas_test.lu::test_cb04_arenas_are_open_ground_seed_1 ... ok
+test src/areas_test.lu::test_cb04_the_shallows_are_waded_at_half_pace ... ok
+test src/areas_test.lu::test_cb04_the_new_areas_keep_the_texture_and_path_bars ... ok
+test src/areas_test.lu::test_cb04_the_boar_clearing_is_a_branch_off_the_thicket ... ok
+test src/areas_test.lu::test_cb04_schema_3_carries_the_bosses_and_refuses_schema_2 ... ok
+test src/areas_test.lu::test_cb04_played_and_lost_are_counted_at_rests_and_deaths ... ok
+test src/art_test.lu::test_render_is_pure ... ok
+test src/art_test.lu::test_the_cub_is_at_the_centre_on_both_tiers ... ok
+test src/art_test.lu::test_the_cub_turns_on_the_screen ... ok
+test src/art_test.lu::test_the_sheet ... ok
+test src/art_test.lu::test_combat_posture_0 ... ok
+test src/art_test.lu::test_combat_posture_1 ... ok
+test src/art_test.lu::test_combat_posture_2 ... ok
+test src/art_test.lu::test_combat_posture_3 ... ok
+test src/art_test.lu::test_combat_posture_4 ... ok
+test src/art_test.lu::test_combat_posture_5 ... ok
+test src/art_test.lu::test_combat_posture_6 ... ok
+test src/art_test.lu::test_cb01b_sideways_silhouette_keeps_body_cells ... ok
+test src/art_test.lu::test_cb01b_each_foe_has_head_body_tail_tell_and_fade_on_both_tiers ... ok
+test src/art_test.lu::test_cb01b_scent_hud_updates_on_kill_death_and_recovery ... ok
+test src/bosses_test.lu::test_cb04_every_telegraph_is_at_least_the_parry_window ... ok
+test src/bosses_test.lu::test_cb04_a_boss_never_leaves_its_arena ... ok
+test src/bosses_test.lu::test_cb04_the_boar_gore_is_parried_and_the_charge_dodged ... ok
+test src/bosses_test.lu::test_cb04_a_lunge_into_the_charge_staggers_the_boar_and_bites_never_do ... ok
+test src/bosses_test.lu::test_cb04_half_health_is_the_second_phase ... ok
+test src/bosses_test.lu::test_cb04_a_beaten_boss_stays_beaten_and_opens_its_shortcut ... ok
+test src/bosses_test.lu::test_cb04_the_alpha_turns_a_bite_and_hops_a_lunge ... ok
+test src/bosses_test.lu::test_cb04_the_health_bar_shows_while_the_boss_is_engaged ... ok
+test src/bosses_test.lu::test_cb04_the_health_bar_follows_the_cub_to_the_arena_mouth ... ok
+test src/bosses_test.lu::test_cb04_bosses_are_the_drawings_and_never_overlap_the_cub ... ok
+test src/clock/clock_test.lu::test_no_tick_before_its_time ... ok
+test src/clock/clock_test.lu::test_one_tick_on_time ... ok
+test src/clock/clock_test.lu::test_late_frames_drop_renders_not_ticks ... ok
+test src/clock/clock_test.lu::test_ms_until_rounds_up ... ok
+test src/clock/clock_test.lu::test_thirty_ticks_a_second ... ok
+test src/coast_test.lu::test_cb02a_forest_fill_is_visible_beyond_area_bounds ... ok
+test src/coast_test.lu::test_cb02a_bank_has_no_sawtooth_steps ... ok
+test src/coast_test.lu::test_cb02a_each_branch_ends_in_an_alcove ... ok
+test src/coast_test.lu::test_cb02a_jetties_never_cut_den_from_thorn_route ... ok
+test src/coast_test.lu::test_cb02a_coast_sheet_keeps_plain_tier_and_sprite_footprints ... ok
+test src/coast_test.lu::test_cb02a_rich_props_emit_scalar_glyphs_not_utf8_bytes ... ok
+test src/coast_test.lu::test_cb02a_branches_join_the_shore_without_an_origin_seam ... ok
+test src/coast_test.lu::test_cb02a_guard_does_not_hide_the_treasure_sprite ... ok
+test src/combat_test.lu::test_parry_window_edges ... ok
+test src/combat_test.lu::test_parry_riposte_doubles_next_bite_not_the_parry ... ok
+test src/combat_test.lu::test_bite_windup_active_recovery_and_one_hit ... ok
+test src/combat_test.lu::test_bite_chain_waits_for_recovery ... ok
+test src/combat_test.lu::test_roll_edges_and_long_travel ... ok
+test src/combat_test.lu::test_dodge_avoids_a_bite_not_a_body ... ok
+test src/combat_test.lu::test_exhaustion_blocks_heavy_moves_until_recovered ... ok
+test src/combat_test.lu::test_water_heals_forty_over_last_fifteen_ticks_and_interrupts ... ok
+test src/combat_test.lu::test_den_rest_and_growth ... FAILED (trap(assert))
+test src/combat_test.lu::test_second_death_replaces_mark ... ok
+test src/combat_test.lu::test_trail_expires_and_sneak_lays_none ... ok
+test src/combat_test.lu::test_fox_feint_is_harmless_then_steals_water ... ok
+test src/combat_test.lu::test_weasel_readable_tell_and_retreat ... ok
+test src/combat_test.lu::test_sight_cone_and_scent_are_independent ... ok
+test src/combat_test.lu::test_lock_release_and_sixty_unseen_ticks ... ok
+test src/combat_test.lu::test_lunge_breaks_gate_and_rest_keeps_it_open ... ok
+test src/combat_test.lu::test_ordinary_motion_cannot_cross_a_foe_body ... ok
+test src/combat_test.lu::test_sight_is_occluded_by_closed_thorns ... ok
+test src/combat_test.lu::test_foe_windup_turns_without_pivoting ... ok
+test src/combat_test.lu::test_lunge_staggers_a_surviving_foe_and_hits_once ... ok
+test src/combat_test.lu::test_first_lock_uses_geometric_nearest_then_cycles ... ok
+combo-offset aim=0 hit=1 tier=0 dx=-256 dy=-256
+combo-offset aim=0 hit=1 tier=1 dx=-256 dy=-256
+combo-offset aim=0 hit=2 tier=0 dx=256 dy=-256
+combo-offset aim=0 hit=2 tier=1 dx=256 dy=-256
+combo-offset aim=0 hit=3 tier=0 dx=0 dy=-512
+combo-offset aim=0 hit=3 tier=1 dx=0 dy=-512
+test src/combo_draw_test.lu::test_cb04b_drawn_combo_north ... ok
+combo-offset aim=32 hit=1 tier=0 dx=0 dy=-512
+combo-offset aim=32 hit=1 tier=1 dx=0 dy=-384
+combo-offset aim=32 hit=2 tier=0 dx=512 dy=0
+combo-offset aim=32 hit=2 tier=1 dx=384 dy=0
+combo-offset aim=32 hit=3 tier=0 dx=512 dy=-512
+combo-offset aim=32 hit=3 tier=1 dx=384 dy=-384
+test src/combo_draw_test.lu::test_cb04b_drawn_combo_northeast ... ok
+combo-offset aim=64 hit=1 tier=0 dx=256 dy=-256
+combo-offset aim=64 hit=1 tier=1 dx=256 dy=-256
+combo-offset aim=64 hit=2 tier=0 dx=256 dy=256
+combo-offset aim=64 hit=2 tier=1 dx=256 dy=256
+combo-offset aim=64 hit=3 tier=0 dx=512 dy=0
+combo-offset aim=64 hit=3 tier=1 dx=512 dy=0
+test src/combo_draw_test.lu::test_cb04b_drawn_combo_east ... ok
+combo-offset aim=96 hit=1 tier=0 dx=512 dy=0
+combo-offset aim=96 hit=1 tier=1 dx=384 dy=0
+combo-offset aim=96 hit=2 tier=0 dx=0 dy=512
+combo-offset aim=96 hit=2 tier=1 dx=0 dy=384
+combo-offset aim=96 hit=3 tier=0 dx=512 dy=512
+combo-offset aim=96 hit=3 tier=1 dx=384 dy=384
+test src/combo_draw_test.lu::test_cb04b_drawn_combo_southeast ... ok
+combo-offset aim=128 hit=1 tier=0 dx=256 dy=256
+combo-offset aim=128 hit=1 tier=1 dx=256 dy=256
+combo-offset aim=128 hit=2 tier=0 dx=-256 dy=256
+combo-offset aim=128 hit=2 tier=1 dx=-256 dy=256
+combo-offset aim=128 hit=3 tier=0 dx=0 dy=512
+combo-offset aim=128 hit=3 tier=1 dx=0 dy=512
+test src/combo_draw_test.lu::test_cb04b_drawn_combo_south ... ok
+combo-offset aim=160 hit=1 tier=0 dx=0 dy=512
+combo-offset aim=160 hit=1 tier=1 dx=0 dy=384
+combo-offset aim=160 hit=2 tier=0 dx=-512 dy=0
+combo-offset aim=160 hit=2 tier=1 dx=-384 dy=0
+combo-offset aim=160 hit=3 tier=0 dx=-512 dy=512
+combo-offset aim=160 hit=3 tier=1 dx=-384 dy=384
+test src/combo_draw_test.lu::test_cb04b_drawn_combo_southwest ... ok
+combo-offset aim=192 hit=1 tier=0 dx=-256 dy=256
+combo-offset aim=192 hit=1 tier=1 dx=-256 dy=256
+combo-offset aim=192 hit=2 tier=0 dx=-256 dy=-256
+combo-offset aim=192 hit=2 tier=1 dx=-256 dy=-256
+combo-offset aim=192 hit=3 tier=0 dx=-512 dy=0
+combo-offset aim=192 hit=3 tier=1 dx=-512 dy=0
+test src/combo_draw_test.lu::test_cb04b_drawn_combo_west ... ok
+combo-offset aim=224 hit=1 tier=0 dx=-512 dy=0
+combo-offset aim=224 hit=1 tier=1 dx=-384 dy=0
+combo-offset aim=224 hit=2 tier=0 dx=0 dy=-512
+combo-offset aim=224 hit=2 tier=1 dx=0 dy=-384
+combo-offset aim=224 hit=3 tier=0 dx=-512 dy=-512
+combo-offset aim=224 hit=3 tier=1 dx=-384 dy=-384
+test src/combo_draw_test.lu::test_cb04b_drawn_combo_northwest ... ok
+test src/combo_draw_test.lu::test_cb04b_bars_grow_and_show_rally_on_both_tiers ... ok
+test src/combo_draw_test.lu::test_cb04b_bar_cells_represent_ten_points_not_a_rescaled_fraction ... ok
+0 -1 43 0 true true true
+1 -5 42 0 true true true
+2 -5 38 0 true true true
+3 -5 36 0 true true true
+4 0 36 0 true true true
+5 5 36 0 true true true
+6 5 39 0 true true true
+7 4 43 0 true true true
+test src/contact_audit_test.lu::test_cb04b_contact_audit_touching_stands_commit_aim_and_land ... ok
+0 -1 43 1 true true true
+1 -6 43 1 true true true
+2 -6 38 1 true true true
+3 -6 35 1 true true true
+4 0 35 1 true true true
+5 6 35 1 true true true
+6 5 39 1 true true true
+7 5 44 1 true true true
+test src/contact_audit_test.lu::test_cb04b_contact_audit_gap_one_stands_commit_aim_and_land ... ok
+test src/controls_test.lu::test_arrows_walk_and_shift_arrows_sneak ... ok
+test src/controls_test.lu::test_the_moves_and_the_quit ... ok
+test src/controls_test.lu::test_key_names_round_trip ... ok
+test src/controls_test.lu::test_cb15_pouch_snapshot_slots_are_appended_after_existing_numeric_events ... ok
+test src/controls_test.lu::test_cb04b_input_events_do_not_overlap_schema_five_snapshot_slots ... ok
+test src/defensive_fixture_test.lu::test_cb04b_defensive_parry_fixture_actually_staggers ... ok
+test src/defensive_fixture_test.lu::test_cb04b_defensive_unanswered_strike_fixture_actually_hits ... ok
+test src/den_integration_test.lu::test_cb04a_water_survives_the_hud_clear_on_both_tiers ... ok
+test src/den_integration_test.lu::test_cb04a_rich_nose_hides_beyond_reach ... ok
+test src/den_integration_test.lu::test_cb04a_plain_nose_hides_beyond_reach ... ok
+test src/den_integration_test.lu::test_cb04a_rich_nose_reveals_inside_reach ... ok
+test src/den_integration_test.lu::test_cb04a_plain_nose_reveals_inside_reach ... ok
+test src/den_integration_test.lu::test_cb04a_rich_nose_includes_exact_radius ... ok
+test src/den_integration_test.lu::test_cb04a_plain_nose_includes_exact_radius ... ok
+test src/den_integration_test.lu::test_cb04a_healing_uses_the_shared_ring_and_visual_burst ... ok
+test src/den_test.lu::test_cb04a_bramblehold_den_is_down_a_winding_leg ... ok
+test src/den_test.lu::test_cb04a_den_enters_at_three_cells_and_pauses_world ... ok
+test src/den_test.lu::test_cb04a_death_wakes_at_rested_den_two_not_the_start ... ok
+test src/denmemory_test.lu::test_cb04f_wounded_survivors_heal_and_home_on_reentry ... ok
+test src/denmemory_test.lu::test_cb04f_rest_and_death_reset_every_area_but_not_bosses ... ok
+test src/denmemory_test.lu::test_cb04f_loot_survives_travel_without_duplicate_collection_or_fresh_expiry ... ok
+test src/denmemory_test.lu::test_cb04f_save_and_snapshot_keep_slain_with_stable_boss_independent_ordinals ... ok
+test src/denmemory_test.lu::test_cb04f_schema4_migrates_canonically_with_empty_slain_masks ... ok
+test src/denworld_test.lu::test_cb04f_slain_survive_path_and_log ... ok
+test src/denworld_test.lu::test_cb04f_ledger_centre_at_three_sizes ... ok
+test src/denworld_test.lu::test_cb04f_narrow_ledger_does_not_slice_scene_labels ... ok
+test src/diagonalroll_test.lu::test_cb08_unlocked_roll_body_uses_all_eight_latched_facings ... ok
+test src/diagonalroll_test.lu::test_cb08_locked_roll_body_tracks_all_eight_target_facings ... ok
+test src/diagonals_test.lu::test_cb08_attack_and_movement_keep_all_eight_facings ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_body_is_not_a_rotated_cardinal_rectangle ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_pose_draws_inside_its_own_body_on_both_tiers ... ok
+test src/diagonals_test.lu::test_cb08_diagonals_are_one_drawing_turned_pixel_for_pixel ... ok
+test src/diagonals_test.lu::test_cb08_diagonal_postures_are_visible_not_parameter_noops ... ok
+test src/diagonalwalk_test.lu::test_cb08_horizontal_arrival_clears_the_source_before_a_sideways_walk ... ok
+test src/diagonalwalk_test.lu::test_cb08_walker_parries_the_imminent_ashen_not_the_first_ordinal ... ok
+test src/diagonalwalk_test.lu::test_cb08_walker_locks_the_foe_its_jaw_stance_was_planned_for ... ok
+test src/diagonalwalk_test.lu::test_cb08_walker_hands_back_a_beaten_stop_target_without_more_keys ... ok
+test src/doorrest_test.lu::test_cb04d_foe_inside_view_is_not_culled_by_anchor_sight ... ok
+test src/doorrest_test.lu::test_cb04d_doorway_edge_crosses_and_arrival_does_not_bounce ... ok
+test src/doorrest_test.lu::test_cb04d_foe_is_clipped_at_each_view_edge_not_dropped_whole ... ok
+test src/doorrest_test.lu::test_cb04d_shadow_to_shadow_motion_leaves_an_arrival_without_bouncing ... ok
+test src/elk_counter_test.lu::test_cb04b_elk_counter_turns_before_committing_forward_lunge ... ok
+test src/feel_test.lu::test_cb01b_eight_aims_commit_before_turning ... ok
+test src/feel_test.lu::test_cb01b_aim_window_event_order_duplicates_and_fallback ... ok
+test src/feel_test.lu::test_cb04b_held_arrow_overrides_lock_aim ... ok
+test src/feel_test.lu::test_cb04b_first_bite_moves_the_body_and_settles_its_lean ... ok
+test src/feel_test.lu::test_cb01b_lunge_triangle_and_collision_clip ... ok
+test src/feel_test.lu::test_cb01b_combo_cycles_and_lapsed_window_resets ... ok
+test src/feel_test.lu::test_cb01b_combo_arcs_lean_and_finish_without_extra_damage ... ok
+test src/feel_test.lu::test_cb01b_heavy_backsteps_leap_burst_and_recovery ... ok
+test src/feel_test.lu::test_cb01b_heavy_cost_damage_stagger_and_refusal ... ok
+test src/feel_test.lu::test_cb01b_lunge_breaks_nearest_thorn_at_the_gate_face ... ok
+test src/forest_test.lu::test_cb02_seeded_centres_are_walkable_and_meander ... ok
+test src/forest_test.lu::test_cb02_shortcut_round_trips ... ok
+test src/forest_test.lu::test_cb02_death_and_mark_cross_area ... ok
+test src/forest_test.lu::test_cb02_hawk_stopping_shadow_and_parry ... ok
+test src/forest_test.lu::test_cb02_hawk_airborne_and_committed_strike ... ok
+test src/gait_test.lu::test_cb02c_the_coast_path_is_the_shore_gravel ... ok
+test src/gait_test.lu::test_cb02c_branch_0_draws_the_path_colours ... ok
+test src/gait_test.lu::test_cb02c_branch_1_draws_the_path_colours ... ok
+test src/gait_test.lu::test_cb02c_branch_2_draws_the_path_colours ... ok
+test src/gait_test.lu::test_cb02c_branch_3_draws_the_path_colours ... ok
+test src/gait_test.lu::test_cb02c_wide_branches_draw_the_path_colours ... ok
+test src/gait_test.lu::test_cb02c_the_log_branch_and_the_shore_are_the_path ... ok
+test src/gait_test.lu::test_cb02c_the_forest_is_not_the_path ... ok
+test src/gait_test.lu::test_cb02c_the_pace_scales_through_walk_percent ... ok
+test src/gait_test.lu::test_cb02c_the_fox_keeps_up_on_the_straight_and_loses_in_the_turns ... ok
+test src/gait_test.lu::test_cb02c_the_tail_wags_on_the_gait_not_the_tick ... ok
+test src/gait_test.lu::test_cb02c_the_tail_holds_still_between_its_frames ... ok
+test src/gait_test.lu::test_cb02c_the_frame_draws_the_gait ... ok
+test src/gait_test.lu::test_cb02c_the_bodies_are_the_drawings ... ok
+test src/gait_test.lu::test_cb02c_a_swarm_from_behind_never_overlaps_and_is_fought ... ok
+test src/gait_test.lu::test_cb02c_the_census_sees_an_overlap ... ok
+test src/gait_test.lu::test_cb02c_a_foe_walking_in_stops_on_the_ring_in_reach ... ok
+test src/gait_test.lu::test_cb02c_a_turn_never_swings_the_cub_into_a_foe ... ok
+test src/gait_test.lu::test_cb02c_two_foes_never_share_a_cell ... ok
+test src/gate_art_test.lu::test_cb02_thorn_pair_is_not_a_wall_or_label ... ok
+test src/gate_test.lu::test_cb02_lunge_hits_whole_rightmost_thorn_cell ... ok
+test src/gate_test.lu::test_cb02_bite_names_the_lunge_at_thorns ... ok
+test src/gate_test.lu::test_cb04a_every_thorn_gate_exists_on_every_seed_and_both_sides ... ok
+test src/ghost_test.lu::test_cb04_trailer_is_the_last_ticks_in_order ... ok
+test src/ghost_test.lu::test_cb04_reader_rebuilds_the_frames ... ok
+test src/ghost_test.lu::test_cb04_a_short_life_trails_from_its_first_tick ... ok
+test src/ghost_test.lu::test_cb04_no_trailer_is_no_ghost ... ok
+test src/ghost_test.lu::test_cb04_the_set_keeps_the_newest_five ... ok
+test src/ghost_test.lu::test_cb08_legacy_ghost_quarters_and_new_eighths_keep_their_direction ... ok
+test src/glyphs_test.lu::test_glyphs_doc_matches_the_tier ... ok
+test src/glyphs_test.lu::test_plain_tier_needs_no_row ... ok
+test src/grid/grid_test.lu::test_empty_diff_writes_nothing ... ok
+test src/grid/grid_test.lu::test_one_cell_diff ... ok
+test src/grid/grid_test.lu::test_full_repaint_is_contiguous ... ok
+test src/grid/grid_test.lu::test_style_run_sets_sgr_once ... ok
+test src/grid/grid_test.lu::test_rgb_dialect ... ok
+test src/grid/grid_test.lu::test_sixteen_dialect_bright ... ok
+test src/grid/grid_test.lu::test_utf8_lengths ... ok
+test src/grid/grid_test.lu::test_property_apply_diff_equals_next ... ok
+test src/grid/grid_test.lu::test_property_holds_in_the_rgb_dialect ... ok
+test src/grid/grid_test.lu::test_model_wraps_and_scrolls ... ok
+test src/grid/grid_test.lu::test_model_private_modes ... ok
+test src/grid/grid_test.lu::test_model_malformed_utf8 ... ok
+test src/grid/grid_test.lu::test_dump_text_and_styles ... ok
+test src/grid/grid_test.lu::test_plain_ok ... ok
+test src/grid/grid_test.lu::test_bounds_are_soft ... ok
+test src/grid/model_test.lu::test_model_keyboard_query_every_split ... ok
+test src/grid/model_test.lu::test_model_keyboard_push_every_split ... ok
+test src/grid/model_test.lu::test_model_keyboard_pop_every_split ... ok
+test src/grid/model_test.lu::test_model_keyboard_set_every_split ... ok
+test src/grid/model_test.lu::test_model_unknown_private_mode_every_split ... ok
+test src/grid/model_test.lu::test_model_unknown_push_sgr_every_split ... ok
+test src/grid/model_test.lu::test_model_unknown_keyboard_forms_every_split ... ok
+test src/grove_test.lu::test_cb02b_forest_texture_everywhere ... ok
+test src/grove_test.lu::test_cb02b_coast_reaches_a_screen_past_the_view ... ok
+test src/grove_test.lu::test_cb02b_four_branches_leave_the_coast ... ok
+test src/grove_test.lu::test_cb02b_the_field_is_saved_and_never_moves ... ok
+test src/grove_test.lu::test_cb02b_inland_paths_end_inside_the_field_seed_0 ... ok
+test src/grove_test.lu::test_cb02b_inland_paths_end_inside_the_field_seed_1 ... ok
+test src/grove_test.lu::test_cb02b_inland_paths_end_inside_the_field_seed_2 ... ok
+test src/grove_test.lu::test_cb02b_inland_paths_end_inside_the_field_seed_3 ... ok
+test src/grove_test.lu::test_cb02b_inland_paths_end_inside_the_field_seed_4 ... ok
+test src/grove_test.lu::test_cb02b_cub_east_is_the_north_cub_turned ... ok
+test src/healing_test.lu::test_cb04a_springs_are_found_once_and_rest_refills_found_capacity ... ok
+test src/healing_test.lu::test_cb04a_meat_heals_immediately_once_clamped_and_expires ... ok
+test src/healing_test.lu::test_cb04a_damage_interrupts_a_partly_drunk_mouthful ... ok
+test src/healing_test.lu::test_cb04a_only_discoverable_water_capacities_are_valid_saves ... ok
+test src/held_test.lu::test_cb04b_release_resumes_held_direction ... ok
+test src/held_test.lu::test_cb04b_event_release_never_attacks_and_ctrl_is_independent ... ok
+test src/held_test.lu::test_cb04b_bite_aim_latches_each_held_diagonal ... ok
+test src/held_test.lu::test_cb04b_exact_arrow_remains_held_across_a_doorway ... ok
+test src/held_test.lu::test_cb04b_ctrl_release_before_space_ends_the_sprint_snap ... ok
+test src/held_test.lu::test_cb04b_enhanced_control_c_interrupts_but_release_does_not ... ok
+test src/hitboxes_test.lu::test_cb08_whisper_flank_bite_is_not_refused_for_its_centre ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_whisper_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_boar_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_elk_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_bite_circles_the_staggered_alpha_on_all_eight_sides ... ok
+test src/hitboxes_test.lu::test_cb08_whisper_flank_all_attacks_and_combos_land_once ... ok
+test src/hitboxes_test.lu::test_cb08_ordinary_ground_foes_share_the_same_jaw_rule ... ok
+test src/hitboxes_test.lu::test_cb08_alpha_guard_and_hawk_exclusion_survive_flank_reach ... ok
+test src/hitboxes_test.lu::test_cb08_boar_charge_hits_the_diagonal_edge_not_only_its_centre ... ok
+test src/hitboxes_test.lu::test_cb08_half_cell_right_of_south_needs_the_cardinal_aim ... ok
+test src/hud_test.lu::test_cb07_hud_paints_only_bars_labels_and_digits_plain ... ok
+test src/hud_test.lu::test_cb07_hud_paints_only_bars_labels_and_digits_rich_at_night ... ok
+test src/hud_test.lu::test_cb07_the_fills_and_rails_are_gone ... ok
+test src/hud_test.lu::test_cb07_every_hud_cell_keeps_the_maps_background_plain ... ok
+test src/hud_test.lu::test_cb07_every_hud_cell_keeps_the_maps_background_rich_at_night ... ok
+test src/hud_test.lu::test_cb07_bars_grow_with_the_stats_and_show_the_rally_in_grey ... ok
+test src/hud_test.lu::test_cb07_scent_is_a_big_number_in_the_bottom_right_corner ... ok
+test src/hud_test.lu::test_cb07_the_digit_font_draws_ten_distinct_digits_on_both_tiers ... ok
+test src/hud_test.lu::test_cb07_the_numbers_stay_in_the_debug_line_and_leave_the_frame ... ok
+test src/hud_test.lu::test_cb07_the_water_line_sits_under_the_bars_flush_on_the_map ... ok
+test src/hud_test.lu::test_cb07_the_three_rulings_switch_on_one_line_each ... ok
+test src/inferred_stop_test.lu::test_cb04b_inferred_release_stops_after_last_repeat_within_eleven_ticks ... ok
+test src/input/input_test.lu::test_csi_arrows ... ok
+test src/input/input_test.lu::test_ss3_arrows ... ok
+test src/input/input_test.lu::test_shift_arrows_are_their_own_keys ... ok
+test src/input/input_test.lu::test_other_modifiers_are_the_bare_arrow ... ok
+test src/input/input_test.lu::test_plain_keys ... ok
+test src/input/input_test.lu::test_lone_esc_waits_for_the_timeout ... ok
+test src/input/input_test.lu::test_esc_then_bracket_late_is_still_a_sequence ... ok
+test src/input/input_test.lu::test_esc_then_plain_byte_is_esc_and_the_byte ... ok
+test src/input/input_test.lu::test_ignored_forms ... ok
+test src/input/input_test.lu::test_unknown_bytes_are_dropped_and_counted ... ok
+test src/input/input_test.lu::test_two_sequences_in_one_read ... ok
+test src/input/input_test.lu::test_a_tap_holds_for_the_tap_ticks ... ok
+test src/input/input_test.lu::test_a_repeat_run_releases_one_interval_after_the_last_press ... ok
+test src/input/input_test.lu::test_kitty_printable_low_matrix ... ok
+test src/input/input_test.lu::test_kitty_printable_high_matrix ... ok
+test src/input/input_test.lu::test_kitty_special_matrix ... ok
+test src/input/input_test.lu::test_kitty_functional_matrix ... ok
+test src/input/input_test.lu::test_kitty_defaults_optional_fields_and_refusals ... ok
+test src/input/input_test.lu::test_exact_down_resumes_after_left_tap ... ok
+test src/input/input_test.lu::test_exact_diagonal_and_ctrl_across_arrows ... ok
+test src/input/input_test.lu::test_registered_key_and_inferred_equivalence ... ok
+test src/journey_test.lu::test_cb02_save_canonical_round_trip_at_last_den ... ok
+test src/journey_test.lu::test_cb02_save_rejects_unknown_corrupt_and_inconsistent_data ... ok
+test src/journey_test.lu::test_cb02_all_dens_restore_with_growth_and_water ... ok
+test src/look_test.lu::test_cb04c_world_words_are_not_sprites ... ok
+HUD after c tier 1: row3 column22 codepoint 10495
+HUD after c tier 0: row3 column22 codepoint 38
+test src/look_test.lu::test_cb04c_stamina_edge_is_reserved_after_c ... ok
+test src/meadow_test.lu::test_cb03a_landmark_rules_and_original_atlas ... ok
+test src/meadow_test.lu::test_cb03a_creek_never_closes_the_route_ford ... ok
+test src/meadow_test.lu::test_cb03a_deer_flee_is_bounded_and_the_turn_is_a_free_hit ... ok
+test src/memory_test.lu::test_cb09_checkpoint_comparison_checks_every_saved_word ... ok
+test src/memory_test.lu::test_cb09_checkpoint_buffer_reuses_capacity_and_matches_encoding ... ok
+test src/memory_test.lu::test_cb09_render_releases_frame_scratch ... ok
+test src/motion_census_test.lu::test_cb04b_motion_census_includes_town_ash_and_embers_without_enum_indexing ... ok
+test src/motionproof_test.lu::test_cb04b_census_arrows_cover_all_eight_headings ... ok
+test src/motionproof_test.lu::test_cb04b_census_samples_actual_steady_motion ... ok
+test src/opening_test.lu::test_cb06_shots_and_whole_scene_skip ... ok
+test src/opening_test.lu::test_cb06_sky_ice_water_are_disjoint_cell_styles ... ok
+test src/opening_test.lu::test_cb06_first_blink_never_opens_fully ... ok
+test src/opening_test.lu::test_cb06_crack_frame_has_the_cue ... ok
+test src/opening_test.lu::test_cb06_clear_view_is_the_actual_spawn ... ok
+test src/opening_test.lu::test_cb06_cub_freezes_while_the_pack_walks ... ok
+test src/opening_test.lu::test_cb06_rendered_wolves_contrast_with_ice_and_water ... ok
+test src/opening_test.lu::test_cb06_both_shingle_banks_24_plain ... ok
+test src/opening_test.lu::test_cb06_both_shingle_banks_24_rich ... ok
+test src/opening_test.lu::test_cb06_both_shingle_banks_40_plain ... ok
+test src/opening_test.lu::test_cb06_both_shingle_banks_40_rich ... ok
+test src/opening_test.lu::test_cb06_both_shingle_banks_60_plain ... ok
+test src/opening_test.lu::test_cb06_both_shingle_banks_60_rich ... ok
+test src/opening_test.lu::test_cb06_opening_wolves_are_the_game_silhouettes ... ok
+test src/pickup_test.lu::test_cb04c_pickup_ring_every_edge_and_outside ... ok
+test src/pickup_test.lu::test_cb04c_mark_recovers_once_at_contact_ring_with_burst ... ok
+test src/pickup_test.lu::test_cb04c_other_area_mark_and_second_death ... ok
+test src/pickup_test.lu::test_cb04c_drop_collection_uses_body_ring ... ok
+test src/pickup_test.lu::test_cb04c_rich_orb_requires_a_death ... ok
+test src/pickup_test.lu::test_cb04c_rich_orb_shows_across_screen ... ok
+test src/pickup_test.lu::test_cb04c_rich_orb_refuses_other_area ... ok
+test src/pickup_test.lu::test_cb04c_plain_orb_requires_a_death ... ok
+test src/pickup_test.lu::test_cb04c_plain_orb_shows_across_screen ... ok
+test src/pickup_test.lu::test_cb04c_plain_orb_refuses_other_area ... ok
+test src/pickup_test.lu::test_cb04c_orb_particles_are_seeded_periodic_bounded ... ok
+test src/pickup_test.lu::test_cb04c_orb_and_burst_are_bounded_and_plain ... ok
+test src/pickup_test.lu::test_cb04c_healing_sprites_are_bright_animated_and_plain ... ok
+test src/posture_test.lu::test_cb03_the_health_bands ... ok
+test src/posture_test.lu::test_cb03_the_hurt_frames_are_the_one_drawing_changed ... ok
+test src/posture_test.lu::test_cb03_the_breath ... ok
+test src/posture_test.lu::test_cb03a_outlined_bars_are_always_present_and_labelled ... ok
+test src/posture_test.lu::test_cb03a_health_changes_the_cub_and_its_bar ... ok
+test src/posture_test.lu::test_cb03_the_death_card_and_the_den_name_the_numbers ... ok
+test src/posture_test.lu::test_cb03_the_sheet_holds_the_bands_and_the_breath ... ok
+test src/posture_test.lu::test_cb03_the_gait_scales_with_the_dial ... ok
+test src/pouch_test.lu::test_cb15_yarrow_stops_bleeding_and_heals_ten_clamped ... ok
+test src/pouch_test.lu::test_cb15_marrow_heals_thirty_over_sixty_and_damage_interrupts ... ok
+test src/pouch_test.lu::test_cb15_bleeding_licks_after_twenty_still_ticks ... ok
+test src/pouch_test.lu::test_cb15_pine_clears_trail_and_hides_exactly_six_hundred_ticks ... ok
+test src/pouch_test.lu::test_cb15_ice_prefers_lock_then_nearest_in_front_and_lasts_ninety ... ok
+test src/pouch_test.lu::test_cb15_tuft_on_death_keeps_scent_without_a_mark_once ... ok
+test src/pouch_test.lu::test_cb15_caps_and_full_pickup_refusal ... ok
+test src/pouch_test.lu::test_cb15_provisional_tuft_is_at_the_first_den_not_the_checkpoint_den ... ok
+test src/pouch_test.lu::test_cb15_r_at_a_den_recovers_a_dropped_item_and_still_rests ... ok
+test src/pouch_test.lu::test_cb15_drop_repickup_and_discard_menu_paths_pause_the_forest ... ok
+test src/pouch_test.lu::test_cb15_menu_consume_and_aim_paths ... ok
+test src/pouch_test.lu::test_cb15_a_found_frame_appends_its_existing_words_without_r ... ok
+test src/pouch_test.lu::test_cb15_lore_appends_once_and_rest_lore_is_scrollable ... ok
+test src/pouch_test.lu::test_cb15_save_and_replay_snapshot_keep_pouch_lore_and_ground_items ... ok
+test src/pouch_test.lu::test_cb15_migrates_cub_five_counts_and_rejects_bad_new_state ... ok
+test src/pouch_test.lu::test_cb15_pine_makes_the_lynx_lose_the_cub ... ok
+test src/pouch_test.lu::test_cb15_menu_freezes_marrow_bleed_trail_and_absolute_expiries ... ok
+test src/pouch_test.lu::test_cb15_inventory_also_pauses_offscreen_loot_expiry ... ok
+test src/pouch_test.lu::test_cb15_ground_pool_refuses_a_drop_without_losing_inventory ... ok
+test src/pouch_test.lu::test_cb15_ice_slows_the_airborne_orbit_without_changing_its_tell ... ok
+test src/pouch_test.lu::test_cb15_species_drop_rolls_are_stable_and_match_rates ... ok
+test src/pouch_test.lu::test_cb15_burn_hook_melts_carried_and_local_ice_only ... ok
+test src/pouch_test.lu::test_cb15_pickup_sprites_and_inventory_exist_on_both_tiers ... ok
+test src/progression_test.lu::test_cb04a_level_cost_matches_the_published_cubic_scaled_by_twenty ... ok
+test src/progression_test.lu::test_cb04a_level_is_shared_and_stats_have_soft_and_hard_caps ... ok
+test src/progression_test.lu::test_cb04a_save_names_older_schema_and_checks_the_level ... ok
+test src/progression_test.lu::test_cb04a_snapshot_checks_stat_bounds_before_summing_the_level ... ok
+test src/refuge_test.lu::test_cb03a_fifty_seed_den_census_rejects_an_empty_area ... ok
+test src/refuge_test.lu::test_cb03a_each_new_den_rests_and_roundtrips_schema_three ... ok
+test src/refuge_test.lu::test_cb03a_clearings_seeds_0_9 ... ok
+test src/refuge_test.lu::test_cb03a_clearings_seeds_10_19 ... ok
+test src/refuge_test.lu::test_cb03a_clearings_seeds_20_29 ... ok
+test src/refuge_test.lu::test_cb03a_clearings_seeds_30_39 ... ok
+test src/refuge_test.lu::test_cb03a_clearings_seeds_40_49 ... ok
+test src/refuge_test.lu::test_cb03a_reserved_den_bits_are_not_valid_found_locations ... ok
+test src/replay/replay_test.lu::test_vocabulary ... ok
+test src/replay/replay_test.lu::test_parse_sample ... ok
+test src/replay/replay_test.lu::test_round_trip ... ok
+test src/replay/replay_test.lu::test_refusals ... ok
+test src/replay/replay_test.lu::test_parse_size ... ok
+test src/replay/replay_test.lu::test_start_is_read_written_and_defaults_to_zero ... ok
+test src/replay/replay_test.lu::test_the_score_comment_is_written_read_and_optional ... ok
+test src/restmenu_test.lu::test_cb04d_confirm_spends_each_intervening_level_cost ... ok
+test src/restmenu_test.lu::test_cb04d_rest_lower_wrap_discard_and_numeric_keys ... ok
+test src/restmenu_test.lu::test_cb04d_panel_colours_and_complete_cub_fire_fit ... ok
+test src/restmenu_test.lu::test_cb04d_empty_pending_needs_zero_scent ... ok
+test src/restscene_test.lu::test_cb04a_rest_regions_are_distinct_and_both_tiers_fit ... ok
+test src/restscene_test.lu::test_cb04a_firelight_falls_off_and_breath_lifts_the_shoulder ... ok
+test src/rollrally_test.lu::test_cb04b_roll_latches_held_direction_all_eight ... ok
+test src/rollrally_test.lu::test_cb04b_roll_iframe_last_tick_misses_then_hit_lands ... ok
+test src/rollrally_test.lu::test_cb04b_roll_chord_survives_thirty_ticks_and_no_arrow_uses_facing ... ok
+test src/rollrally_test.lu::test_cb04b_rally_expires_at_window_end ... ok
+test src/rollrally_test.lu::test_cb04b_rally_falls_linearly_and_never_exceeds_missing_health ... ok
+test src/rollrally_test.lu::test_cb04b_roll_slides_along_water_wall_without_tunnelling ... ok
+test src/rollrally_test.lu::test_cb04b_roll_lock_keeps_facing_target_and_body_blocks_travel ... ok
+test src/rollrally_test.lu::test_cb04b_roll_ignores_a_direction_change_until_recovery_ends ... ok
+test src/rollrally_test.lu::test_cb04b_roll_accepts_an_action_after_exactly_fourteen_ticks ... ok
+test src/score_test.lu::test_cb03_every_part_parses_at_its_written_length ... ok
+test src/score_test.lu::test_cb03_the_binary_carries_the_committed_parts ... ok
+test src/score_test.lu::test_cb03_each_part_names_its_cue_fade ... ok
+test src/score_test.lu::test_cb03_the_areas_and_bosses_have_their_parts_and_slots ... ok
+test src/score_test.lu::test_cb03_want_decides_in_order ... ok
+test src/score_test.lu::test_cb03_an_area_loop_restarts_at_its_length ... ok
+test src/score_test.lu::test_cb03_an_area_change_crossfades ... ok
+test src/score_test.lu::test_cb03_a_boss_theme_ducks_the_area_loop ... ok
+test src/score_test.lu::test_cb03_the_death_sting_stops_the_loop_and_is_never_cut ... ok
+test src/score_test.lu::test_cb03_the_den_rests_and_the_loop_resumes ... ok
+test src/score_test.lu::test_cb03_the_title_plays_over_the_opening ... ok
+test src/score_test.lu::test_cb03_a_slot_without_a_part_is_the_silence ... ok
+test src/score_test.lu::test_cb03_the_replay_scenes_cover_the_schedule ... ok
+test src/sim_test.lu::test_two_runs_are_one ... ok
+test src/sim_test.lu::test_trigonometry ... ok
+test src/sim_test.lu::test_heading_of_the_held_keys ... ok
+test src/sim_test.lu::test_turn_rate_bounds_the_heading_change ... ok
+test src/sim_test.lu::test_speed_never_jumps_and_the_sneak_is_half ... ok
+test src/sim_test.lu::test_a_tap_holds_for_the_tap_ticks ... ok
+test src/sim_test.lu::test_the_water_stops_the_cub ... ok
+test src/sim_test.lu::test_the_camera_keeps_the_cub_at_the_centre ... ok
+test src/sim_test.lu::test_the_stats_give_the_bars ... ok
+test src/sim_test.lu::test_cb01b_speed_scaling_keeps_the_weasel_bars ... ok
+test src/spawn_clearance_test.lu::test_cb04d_rounded_switchback_spawns_keep_thirty_cells_from_dens ... ok
+test src/sprint_test.lu::test_cb03a_combo_cones_slant_left_right_forward ... ok
+test src/sprint_test.lu::test_cb03a_x_uses_facing_and_two_backward_steps ... ok
+test src/sprint_test.lu::test_cb03a_sprint_charges_twelve_per_second_and_stops_empty ... ok
+test src/sprint_test.lu::test_cb03a_tap_dodges_and_sprint_bite_costs_more_than_lunge ... ok
+test src/sprint_test.lu::test_cb03a_every_combo_hits_dead_ahead_contact_cardinals ... ok
+test src/sprint_test.lu::test_cb03a_every_combo_hits_dead_ahead_contact_diagonals ... ok
+test src/sprint_test.lu::test_cb03a_snapping_head_checks_the_landing_body_not_the_start ... ok
+test src/sprites_test.lu::test_plain_tier_keeps_its_promise ... ok
+test src/sprites_test.lu::test_rich_tier_colours_are_indices ... ok
+test src/sprites_test.lu::test_the_cub_is_one_silhouette_turned_to_face_the_way ... ok
+test src/sprites_test.lu::test_water_and_floor_backgrounds_differ_from_the_gravel ... ok
+test src/strike_test.lu::test_cb07_hit_one_lunges_a_cell_forward_left_held_four_ticks_plain ... ok
+test src/strike_test.lu::test_cb07_hit_one_lunges_a_cell_forward_left_held_four_ticks_rich ... ok
+test src/strike_test.lu::test_cb07_hit_two_lunges_a_cell_forward_right_held_four_ticks_plain ... ok
+test src/strike_test.lu::test_cb07_hit_two_lunges_a_cell_forward_right_held_four_ticks_rich ... ok
+test src/strike_test.lu::test_cb07_hit_three_leaps_two_cells_forward_held_six_ticks_plain ... ok
+test src/strike_test.lu::test_cb07_hit_three_leaps_two_cells_forward_held_six_ticks_rich ... ok
+test src/strike_test.lu::test_cb07_hit_three_shakes_its_head_two_full_swings_each_side_two_ticks_plain ... ok
+test src/strike_test.lu::test_cb07_hit_three_shakes_its_head_two_full_swings_each_side_two_ticks_rich ... ok
+test src/strike_test.lu::test_cb07_hit_one_eases_back_to_the_commitment_point_plain ... ok
+test src/strike_test.lu::test_cb07_hit_two_eases_back_to_the_commitment_point_plain ... ok
+test src/strike_test.lu::test_cb07_hit_three_eases_back_to_the_commitment_point_plain ... ok
+test src/strike_test.lu::test_cb07_hit_one_eases_back_to_the_commitment_point_rich ... ok
+test src/strike_test.lu::test_cb07_hit_two_eases_back_to_the_commitment_point_rich ... ok
+test src/strike_test.lu::test_cb07_hit_three_eases_back_to_the_commitment_point_rich ... ok
+test src/strike_test.lu::test_cb07_no_row_of_hit_one_breaks_the_contract_east_rich ... ok
+test src/strike_test.lu::test_cb07_no_row_of_hit_two_breaks_the_contract_east_rich ... ok
+test src/strike_test.lu::test_cb07_no_row_of_hit_three_breaks_the_contract_east_rich ... ok
+test src/strike_test.lu::test_cb07_strike_offsets_are_whole_cells_at_the_peak_and_zero_at_the_end ... ok
+test src/strike_test.lu::test_cb07_costs_durations_and_the_active_window_are_cb04bs ... ok
+test src/terrain_test.lu::test_noise2_bounds_and_determinism ... ok
+test src/terrain_test.lu::test_noise2_is_smooth ... ok
+test src/terrain_test.lu::test_the_bank_wanders_within_its_swing ... ok
+test src/terrain_test.lu::test_the_bands_lie_in_order ... ok
+test src/terrain_test.lu::test_the_start_is_open_ground ... ok
+test src/terrain_test.lu::test_woods_cover_0 ... ok
+test src/terrain_test.lu::test_woods_cover_1 ... ok
+test src/terrain_test.lu::test_woods_cover_2 ... ok
+test src/terrain_test.lu::test_woods_cover_3 ... ok
+test src/wide_test.lu::test_cb05_two_dens_an_area_at_least_a_den_spacing_apart ... ok
+test src/wide_test.lu::test_cb05_the_retired_dens_are_landmarks_and_their_journeys_wake_at_a_kept_den ... ok
+test src/wide_test.lu::test_cb05_sixteen_cache_bits_and_the_town_graph ... ok
+test src/wide_test.lu::test_cb05_no_branch_or_route_reverses_within_eight_cells ... ok
+test src/wide_test.lu::test_cb05_every_branch_centreline_is_carved_and_open ... ok
+test src/wide_test.lu::test_cb05_an_ashen_never_chases_past_the_towns_edge ... ok
+test src/wide_test.lu::test_cb05_the_ashen_winds_up_slowly_is_parried_long_and_bitten_from_behind ... ok
+test src/wide_test.lu::test_cb05_an_ember_burns_a_little_and_a_dug_cache_says_its_line ... ok
+test src/wide_test.lu::test_cb05_the_towns_yards_and_hearth_are_reached_through_their_passages ... ok
+test src/wide_test.lu::test_cb05_the_landmarks_stand_on_open_ground_within_sight_of_their_dens ... ok
+test src/wide_test.lu::test_cb05_two_ashen_pursue_and_a_third_keeps_its_post ... ok
+test src/wide_test.lu::test_cb05_an_ashen_hears_ten_cells_and_two_sneaking ... ok
+test src/wide_test.lu::test_cb05_the_town_is_a_rectangle_across_the_field ... ok
+test src/world/world_test.lu::test_deterministic ... ok
+test src/world/world_test.lu::test_seeds_differ ... ok
+test src/world/world_test.lu::test_noise_bounds_and_continuity ... ok
+test src/world/world_test.lu::test_forest_density_rises ... ok
+test src/world/world_test.lu::test_clearing_reads_and_a_stand_is_the_woods_with_more_trunks ... ok
+test src/world/world_test.lu::test_density_bands_are_ordered ... ok
+test src/world/world_test.lu::test_hash_range ... ok
+test src/world_rules_test.lu::test_cb02_scent_pickup_expires_and_never_double_collects ... ok
+test src/world_rules_test.lu::test_cb02_hawk_shadow_does_not_pin_a_dodge ... ok
+test src/world_rules_test.lu::test_cb02_cache_is_guarded_finite_and_persisted ... ok
+test src/world_rules_test.lu::test_cb02_opening_is_timed_skippable_and_pure_on_both_tiers ... ok
+test src/world_rules_test.lu::test_cb02_spawned_bodies_stand_on_passable_ground ... ok
+wolf test: 445 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out
+ci-stage engine-check END utc=2026-10-28T04:40:58Z elapsed_seconds=272 status=1
+CB15_LINUX_FINAL_EXIT 1 2026-10-28T04:40:58Z
