@@ -1,0 +1,52 @@
+//! member: false
+
+use art
+use grid
+use pouch
+use sim
+use tier
+
+fn check_layer(t: int, lore_open: bool) {
+    var s = sim.new(7, 80, 24)
+    (mut s.foes).reset()
+    s.scent = 1000
+    s.den = lore_open
+    s.pouch.open = !lore_open
+    s.pouch.lore_open = lore_open
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    sim.remember_lore(mut s, 1)
+    let extra = art.extra_none()
+    var underlay = grid.new(24, 80)
+    art.counter_underlay(s, extra, t, mut underlay)
+    var shown = grid.new(24, 80)
+    art.render_count_with(s, extra, t, 9, mut shown)
+    var expected = grid.new(24, 80)
+    art.render_count_with(s, extra, t, 1000, mut expected)
+    let dialect = if t == tier.RICH then grid.COLORS_256 else grid.COLORS_16
+    var pen = grid.pen_new()
+    var bytes = List[byte]()
+    var model = grid.model_new(24, 80)
+    grid.diff(grid.new(24, 80), shown, true, mut pen, mut bytes, dialect)
+    grid.model_feed(mut model, bytes)
+    (mut bytes).reset()
+    art.counter_partial(s, t, 9, 1000, underlay, mut shown, mut pen, mut bytes, dialect)
+    grid.model_feed(mut model, bytes)
+    assert(grid.model_equals(model, expected), "partial counter bytes preserve the overlaid menu")
+    var i = 0
+    while i < shown.cells.len {
+        assert(
+            grid.same(shown.cells[i], expected.cells[i]),
+            "partial and ordinary compositors agree",
+        )
+        i += 1
+    }
+    assert(s.scent == 1000 && s.tick == 0, "composition changes neither currency nor time")
+}
+
+fn test_cb15_inventory_masks_partial_scent_repaint_plain() { check_layer(tier.PLAIN, false) }
+
+fn test_cb15_inventory_masks_partial_scent_repaint_rich() { check_layer(tier.RICH, false) }
+
+fn test_cb15_lore_masks_partial_scent_repaint_plain() { check_layer(tier.PLAIN, true) }
+
+fn test_cb15_lore_masks_partial_scent_repaint_rich() { check_layer(tier.RICH, true) }
