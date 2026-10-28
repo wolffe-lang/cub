@@ -86,6 +86,15 @@ pub fn pickup(mut g: grid.Grid, t: int, row: int, col: int, kind: int, tick: int
 
 fn width(s: sim.Sim) -> int { if s.cols > 94 then 90 else s.cols - 4 }
 
+/// Whether the opaque inventory or Lore panel covers a screen cell.
+pub fn covers(s: sim.Sim, row: int, col: int) -> bool {
+    if !s.pouch.open && !s.pouch.lore_open { return false }
+    let w = width(s)
+    let left = (s.cols - w) / 2
+    let top = (s.rows - 20) / 2
+    row >= top && row < top + 20 && col >= left && col < left + w
+}
+
 fn panel(s: sim.Sim, t: int, mut g: grid.Grid, title: str) {
     let w = width(s)
     let left = (s.cols - w) / 2
