@@ -4255,6 +4255,33 @@ pub fn new_foe_bitmap_count(kind: int, phase: int, count: int) -> silhouette.Bit
         )
     }
     if kind == sim.CINDER_MOTHS {
+        if tell {
+            // The ember contracts to a flare before the five points rise.
+            return silhouette.parse(
+                [
+                    "        ",
+                    "        ",
+                    if count >= 2 {
+                        "   ##   "
+                    } else if count == 1 {
+                        "   #    "
+                    } else {
+                        "        "
+                    },
+                    if count >= 4 {
+                        "   ##   "
+                    } else if count >= 3 {
+                        "   #    "
+                    } else {
+                        "        "
+                    },
+                    if count >= 5 then "   #    " else "        ",
+                    "        ",
+                    "        ",
+                    "        ",
+                ],
+            )
+        }
         return silhouette.parse(
             [
                 if count >= 2 then " #   #  " else if count == 1 then " #      " else "        ",
