@@ -259,11 +259,13 @@ four rotated facings and an ASCII plain-tier form. Existing pink floaters
 remain hawks, with their stopped-shadow tell and low bite windows.
 
 The six are first exercised in disclosed test arenas. The arena census
-uses ordinary player keys over50 seeds at both sizes, and records chase
+uses ordinary player keys over 50 seeds at both sizes, and records chase
 travel, contacts, overlaps and dodge counts. Their new-area placement and
 pouch/bleeding integration follow the connected-forest and pouch APIs.
 The art study also pins moth dimming, the six-frame contact flash and
-live/extinguished cave light on both tiers.
+live/extinguished cave light on both tiers. Both shipping-binary gameplay
+gates run the complete 600-world arena census, independent new hit rings,
+replayed encounter outcomes and their both-tier frame goldens.
 
 ## Tests
 
