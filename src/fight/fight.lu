@@ -50,6 +50,62 @@ pub fn den_of(kind: int) -> int {
     }
 }
 
+/// The area a boss's arena lies in (cb14: the alpha's is Gravehollow,
+/// two areas on from the cold den; the fighter walks the way there).
+pub fn area_of(kind: int) -> int {
+    match kind {
+        4 => forest.BRAMBLEHOLD,
+        5 => forest.CRAGS,
+        6 => forest.RIVER,
+        _ => forest.GRAVEHOLLOW,
+    }
+}
+
+/// Walk the way on from the area the cub stands in to `target` (cb14): to
+/// each area's far portal and through it, a shut gate on the way (the
+/// burnt oak, the stone mouth) opened by a lunge from three cells north of
+/// it. False when a walk fails or a gate stays shut; every key is recorded
+/// into `r` as the fighter's are.
+pub fn walk_on(mut s: sim.Sim, mut r: replay.Replay, target: int) -> bool {
+    var guard = 0
+    while s.area != target && guard < 4 {
+        guard += 1
+        let bit = sim.gate_bit(s.area)
+        if bit > 0 && s.gates / bit % 2 == 0 {
+            let (gx, gy) = sim.gate_centre(s)
+            if !walker.walk(mut s, mut r, gx, gy - 3 * sim.FP) { return false }
+            var keys = walker.key(controls.KEY_LUNGE)
+            walker.aim(mut keys, 0, sim.FP)
+            walker.press(mut s, mut r, keys)
+            var w = 0
+            while w < 40 && (s.action != sim.IDLE || w < 2) {
+                walker.press(mut s, mut r, walker.key(controls.KEY_NONE))
+                w += 1
+            }
+            if s.gates / bit % 2 == 0 { return false }
+        }
+        var found = -1
+        var edge = 0
+        while edge < forest.EDGES {
+            if forest.path_edge(edge) && forest.other(s.area, edge) >= 0 && forest.exit_end(s.area, edge) {
+                found = edge
+            }
+            edge += 1
+        }
+        if found < 0 { return false }
+        let (px, py) = forest.portal(s.seed, s.area, found)
+        let from = s.area
+        if !walker.walk(mut s, mut r, px, py - 2 * sim.FP) { return false }
+        var w = 0
+        while w < 60 && s.area == from {
+            walker.press(mut s, mut r, walker.key(controls.KEY_DOWN))
+            w += 1
+        }
+        if s.area == from { return false }
+    }
+    s.area == target
+}
+
 /// A journey at the boss's den with the growth the bible expects there,
 /// every earlier boss beaten and its shortcut open, every den to there
 /// lit: the snapshot a witness and the census start from. Validated by
@@ -80,6 +136,9 @@ pub fn journey_at(seed: int, cols: int, rows: int, kind: int) -> sim.Sim {
         k += 1
     }
     if s.shortcuts % 2 == 0 && kind > sim.BOAR { s.shortcuts += 1 }
+    // cb14: a journey past Larkmeadow pushed the burnt oak over on its
+    // way through the Burn; the stone mouth is the alpha fight's to open.
+    s.gates = if kind > sim.BOAR then sim.GATE_OAK else 0
     let text = journey.encode(s)
     journey.decode(text, cols, rows) else |e| {
         assert(false, "fight.journey_at: the fixture is not a valid save: {e}")
@@ -366,6 +425,13 @@ pub fn fight_world_narrated(
     while attempt < MAX_ATTEMPTS {
         attempt += 1
         if s.den { walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE)) }
+        // The alpha's den is two areas back (cb14): the Hush's cold den,
+        // the Howe, the stone mouth. Walked every attempt, as a player
+        // walks it after every death.
+        if s.area != area_of(kind) && !walk_on(mut s, mut r, area_of(kind)) {
+            if narrate { print("t {s.tick} the walk to the arena failed in area {s.area}") }
+            return out
+        }
         let (mx, my) = mouth(s, kind)
         // Hand off on the first tell, even if it starts before the mouth.
         // The generic walker must not fight a boss instead of this fighter.

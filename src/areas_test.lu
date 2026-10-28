@@ -16,18 +16,27 @@ use tier
 
 fn test_cb04_the_graph_has_six_areas_and_nine_edges() {
     // cb05: seven areas (Cinderwick threaded between the Shingle and
-    // Bramblehold), eight dens in the first bank, ten edges.
-    assert(forest.AREAS == 7 && forest.DENS == 8 && forest.EDGES == 10, "the counts")
+    // Bramblehold), eight dens in the first bank, ten edges. cb14: thirteen
+    // areas (the Stand, the Burn, the Mere, the Underteeth, the Howe and
+    // Gravehollow split off the Hush), twenty edges.
+    assert(forest.AREAS == 13 && forest.DENS == 8 && forest.EDGES == 20, "the counts")
     assert(forest.other(forest.SHINGLE, 0) == forest.TOWN, "the thorn gate opens on the town")
     assert(forest.other(forest.TOWN, 9) == forest.BRAMBLEHOLD, "the town leads to the thicket")
     assert(forest.other(forest.BRAMBLEHOLD, 2) == forest.SHINGLE, "the log still runs to the bank")
-    // The way on: Shingle, Bramblehold, Larkmeadow, the Teeth, the
-    // Shallows, Gravehollow, one path edge between each pair.
-    assert(forest.other(forest.LARKMEADOW, 4) == forest.CRAGS, "the meadow leads to the crags")
-    assert(forest.other(forest.CRAGS, 5) == forest.RIVER, "the crags lead to the river")
-    assert(forest.other(forest.RIVER, 6) == forest.HUSH, "the river leads to the old den")
+    // The way on: Shingle, Bramblehold, the Stand, Larkmeadow, the Burn, the
+    // Teeth, the Mere, the Shallows, the Hush, the Howe, Gravehollow, one
+    // path edge between each pair (cb14).
+    assert(forest.other(forest.LARKMEADOW, 4) == forest.BURN, "the meadow leads to the burn")
+    assert(forest.other(forest.CRAGS, 5) == forest.MERE, "the crags lead to the mere")
+    assert(forest.other(forest.RIVER, 6) == forest.HUSH, "the river leads to the hush")
     assert(
         forest.other(forest.HUSH, 6) == forest.RIVER && forest.other(forest.HUSH, 5) < 0,
+        "the hush's way back",
+    )
+    assert(
+        forest.other(forest.HUSH, forest.EDGE_HOWE_IN) == forest.HOWE &&
+            forest.other(forest.HOWE, forest.EDGE_MOUTH) == forest.GRAVEHOLLOW &&
+            forest.other(forest.GRAVEHOLLOW, forest.EDGE_MOUTH) == forest.HOWE,
         "the end",
     )
     // The shortcuts home: the ledge (crags to the meadow), the shallows
@@ -128,20 +137,24 @@ fn test_cb04_every_area_reaches_its_dens_portals_and_arena() {
         seed += 1
     }
     assert(
-        forest.required(forest.CRAGS) == 8,
-        "the crags: a den, four portals, the arena, the cleft and a scent mark",
+        forest.required(forest.CRAGS) == 12,
+        "the crags: a den, five portals, three alcoves, the arena, the cleft and a scent mark",
     )
     assert(
-        forest.required(forest.RIVER) == 6,
-        "the river: a den, three portals, the arena, the willow",
+        forest.required(forest.RIVER) == 9,
+        "the river: a den, three portals, three alcoves, the arena, the willow",
     )
     assert(
-        forest.required(forest.HUSH) == 4,
-        "the old den: a den, a portal, the arena, a scent mark",
+        forest.required(forest.HUSH) == 8,
+        "the hush: a den, three portals, three alcoves, a scent mark",
     )
     assert(
-        forest.required(forest.LARKMEADOW) == 13,
-        "the meadow has two dens, four portals, three caches and four landmarks",
+        forest.required(forest.GRAVEHOLLOW) == 5,
+        "gravehollow: a portal, two alcoves, the arena, a scent mark",
+    )
+    assert(
+        forest.required(forest.LARKMEADOW) == 14,
+        "the meadow has two dens, five portals, three caches and four landmarks",
     )
     assert(
         forest.required(forest.TOWN) == 9,
@@ -333,7 +346,7 @@ fn test_cb04_the_boar_clearing_is_a_branch_off_the_thicket() {
     while seed < 8 {
         let field = 80
         let (cx, cy, r) = forest.arena(seed, field, forest.BRAMBLEHOLD)
-        assert(cx == forest.BOAR_X && cy == forest.BOAR_ROW && r == 11, "the clearing")
+        assert(cx == forest.BOAR_X && cy == forest.BOAR_ROW && r == forest.BOAR_RADIUS, "the clearing")
         var x = forest.spine(seed, forest.BRAMBLEHOLD, cy)
         while x <= cx {
             assert(
@@ -370,7 +383,7 @@ fn test_cb04_schema_3_carries_the_bosses_and_refuses_schema_2() {
     s.mark_y = my
     s.mark_scent = 9
     let text = journey.encode(s)
-    assert(text.starts_with("CUB 6\n") && text.len < 512, "schema 3, short")
+    assert(text.starts_with("CUB 7\n") && text.len < 512, "schema 7, short")
     assert(text.contains("\nbosses 15 end 1 played 123456 lost 77\n"), "the new line")
     let back = journey.decode(text, 80, 24) else |e| { assert(false, "valid save {e}"); return }
     assert(

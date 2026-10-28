@@ -21,12 +21,13 @@ def check(binary):
     audit = subprocess.run([str(binary), '--world-audit'], capture_output=True, text=True, check=True)
     (out / 'reachability.txt').write_text(audit.stdout)
     rows = [list(map(int, row.split())) for row in audit.stdout.splitlines()[1:]]
-    assert len(rows) == 700 and {(r[0], r[1], r[2]) for r in rows} == {(s, f, a) for s in range(50) for f in (80, 200) for a in range(7)}
+    assert len(rows) == 1300 and {(r[0], r[1], r[2]) for r in rows} == {(s, f, a) for s in range(50) for f in (80, 200) for a in range(13)}
     # reached == required; straight <= 12; nearest foe >= 30; the caches per
-    # area (three inland, four in the town, none in the last three; cb05); bank step <= 1; flat run <= 2; textured share >= 90 %; walk <= 200;
+    # area (three inland and from the Teeth on, four on the coast and in the town, two in
+    # Gravehollow; cb05, cb14); bank step <= 1; flat run <= 2; textured share >= 90 %; walk <= 200;
     # every path cell in its area's one path style (cb02c).
     assert all(len(r) == 13 for r in rows), 'world audit row has the wrong columns'
-    assert all(r[3] == r[4] and r[5] <= 12 and r[6] >= 30 and r[7] == {0: 4, 1: 3, 2: 3, 6: 4}.get(r[2], 0) and r[8] <= 1
+    assert all(r[3] == r[4] and r[5] <= 12 and r[6] >= 30 and r[7] == {0: 4, 6: 4, 12: 2}.get(r[2], 3) and r[8] <= 1
                and r[9] <= 2 and r[10] >= 90 and r[11] <= 200 and r[12] == 0 for r in rows), 'world audit row out of bounds'
     wide(binary, out)
 
@@ -83,13 +84,29 @@ def check(binary):
     # File-level schema4 migration uses an independently recomputed old checksum.
     legacy = out / 'schema-4.save'
     payload = before.decode().split('check ')[0]
-    payload = re.sub(r'^(?:slain|name|played_ms|items) .*\n', '', payload, flags=re.M).replace('CUB 6\n', 'CUB 4\n', 1)
+    payload = re.sub(r'^(?:slain|gates|name|played_ms|items) .*\n', '', payload, flags=re.M).replace('CUB 7\n', 'CUB 4\n', 1)
     h = 7
     for byte in payload.encode():
         h = (h * 31 + byte) % 1000000007
     legacy.write_text(payload + 'check ' + str(h) + '\n')
     run('migrate-schema-4', legacy)
-    assert legacy.read_bytes().startswith(b'CUB 6\n') and b'slain 0 0 0 0 0 0 0\n' in legacy.read_bytes(), 'schema4 migration lost validation/state'
+    assert legacy.read_bytes().startswith(b'CUB 7\n') and b'slain 0 0 0 0 0 0 0 0 0 0 0 0 0\ngates 0\n' in legacy.read_bytes(), 'schema4 migration lost validation/state'
+
+    # A schema-5 file (cb05's seven masks, no gates word, no wrapper) migrates
+    # the same way (cb14): its masks kept, the six new areas' empty, no gate.
+    legacy5 = out / 'schema-5.save'
+    payload = before.decode().split('check ')[0]
+    masks = re.search(r'^slain (.*)$', payload, re.M)[1].split()[:7]
+    payload = re.sub(r'^slain .*\n', 'slain ' + ' '.join(masks) + '\n', payload, flags=re.M)
+    payload = re.sub(r'^(?:gates|name|played_ms|items) .*\n', '', payload, flags=re.M).replace('CUB 7\n', 'CUB 5\n', 1)
+    h = 7
+    for byte in payload.encode():
+        h = (h * 31 + byte) % 1000000007
+    legacy5.write_text(payload + 'check ' + str(h) + '\n')
+    run('migrate-schema-5', legacy5)
+    migrated = legacy5.read_bytes()
+    assert migrated.startswith(b'CUB 7\n') and b'\ngates 0\n' in migrated, 'schema5 migration lost validation/state'
+    assert re.search(rb'^slain (.*)$', migrated, re.M)[1].split()[:7] == [m.encode() for m in masks], 'schema5 migration lost the old masks'
 
     memory = out / 'slain.save'
     memory.unlink(missing_ok=True)

@@ -185,7 +185,7 @@ BOSSES = {4: 'boar', 5: 'lynx', 6: 'elk', 7: 'alpha'}
 BOSS_HEALTH = {4: 240, 5: 140, 6: 400, 7: 300}
 BOSS_BIT = {4: 1, 5: 2, 6: 4, 7: 8}
 BOSS_SHORTCUT = {4: 1, 5: 4, 6: 8, 7: 0}
-BOSS_AREA = {4: 1, 5: 3, 6: 4, 7: 5}
+BOSS_AREA = {4: 1, 5: 3, 6: 4, 7: 12}
 # Parryable attacks by boss (sim.boss_move); the howl (alpha 2) does no damage.
 PARRYABLE = {4: {0}, 5: {0, 1}, 6: {0, 2}, 7: {0}}
 PARRY_WINDOW = 9
@@ -246,8 +246,12 @@ def bosses(binary):
         card = next(t for t, s in states.items() if s['scene'] == 3)
         assert final['end'] == 1 and final['bosses'] == 15, final
         assert final['scene'] == 0 and max(states) > card, 'r did not keep the game playing'
-        # Foe kinds: 1 fox, 2 hawk, 5 lynx, 6 elk, 7 alpha.
-        for name, area, kinds in (('crags', 3, {1, 5}), ('river', 4, {2, 6}), ('old-den', 5, {1, 7})):
+        # Foe kinds: 1 fox, 2 hawk, 5 lynx, 6 elk, 7 alpha. cb14: the Hush is
+        # area 5 (its foxes), Gravehollow 12 (the alpha), and the five new
+        # areas hold their fox guards until cb18's foes.
+        for name, area, kinds in (('crags', 3, {1, 5}), ('river', 4, {2, 6}), ('hush', 5, {1}),
+                                  ('gravehollow', 12, {1, 7}), ('stand', 7, {1}), ('burn', 8, {1}),
+                                  ('mere', 9, {1}), ('underteeth', 10, {1}), ('howe', 11, {1})):
             _, states, foes = run(binary, name, tier)
             final = states[max(states)]
             assert final['area'] == area, (name, final['area'])

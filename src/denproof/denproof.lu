@@ -130,6 +130,23 @@ pub fn generate(dir: str) -> int {
     fs.create_dir_all(dir) else { return 2 }
     var area = 0
     while area < forest.AREAS {
+        // The den each area rests at (cb14: the root hollow, the kiln, the
+        // dry island, the bone cache; the Howe and Gravehollow have none).
+        let den_here = match area {
+            0 => 0,
+            1 => 1,
+            2 => 3,
+            3 => 4,
+            4 => 5,
+            5 => 6,
+            6 => 7,
+            7 => 12,
+            8 => 13,
+            9 => 14,
+            10 => 15,
+            _ => -1,
+        }
+        if den_here < 0 { area += 1; continue }
         var size = 0
         while size < 2 {
             region scene {
@@ -137,7 +154,7 @@ pub fn generate(dir: str) -> int {
                 let rows = if size == 0 then 24 else 40
                 var s = sim.new(7, cols, rows)
                 s.gate_open = true
-                s.last_den = if area < 2 then area else if area == 6 then 7 else area + 1
+                s.last_den = den_here
                 s.lit_dens = sim.light_den(1, s.last_den)
                 s.opening_seen = true
                 s.flask_max = 2
@@ -152,8 +169,12 @@ pub fn generate(dir: str) -> int {
                     2 => "larkmeadow",
                     3 => "teeth",
                     4 => "shallows",
-                    5 => "old-den",
-                    _ => "cinderwick",
+                    5 => "hush",
+                    6 => "cinderwick",
+                    7 => "stand",
+                    8 => "burn",
+                    9 => "mere",
+                    _ => "underteeth",
                 }
                 write_case(dir, "rest-{name}-{cols}x{rows}", s, r, 7) else { return 2 }
             }

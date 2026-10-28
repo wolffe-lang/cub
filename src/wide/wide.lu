@@ -114,7 +114,7 @@ pub fn area_map(seed: int, area: int, field: int) -> int {
             } else {
                 kind_letter(kind)
             }
-            line = line + "{ch as byte as str}"
+            line += ch as char
             x += 1
         }
         print(line)

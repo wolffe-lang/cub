@@ -36,7 +36,7 @@ fn arena_with(kind: int, seed: int) -> sim.Sim {
     } else if kind == sim.ELK {
         forest.RIVER
     } else {
-        forest.HUSH
+        forest.GRAVEHOLLOW
     }
     var s = sim.new(seed, 80, 24)
     s.heart = 6

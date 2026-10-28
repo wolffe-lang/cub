@@ -255,9 +255,12 @@ pub fn lanes(dir: str) -> int {
 /// bosses before it beaten), validated by the save's own decoder.
 fn den_journey(seed: int, den: int) -> sim.Sim {
     let area = forest.den_area(den)
-    let kind = if area == forest.CRAGS {
+    // The growth and the bosses beaten by the den (cb14: the Stand's and
+    // the Burn's dens lie past the boar, the Mere's and the Underteeth's
+    // past the lynx).
+    let kind = if area == forest.CRAGS || area == forest.STAND || area == forest.BURN {
         sim.LYNX
-    } else if area == forest.RIVER {
+    } else if area == forest.RIVER || area == forest.MERE || area == forest.UNDERTEETH {
         sim.ELK
     } else if area == forest.HUSH {
         sim.ALPHA
@@ -269,6 +272,8 @@ fn den_journey(seed: int, den: int) -> sim.Sim {
     var s = fight.journey_at(seed, 80, 24, kind)
     s.last_den = den
     s.lit_dens = sim.light_den(s.lit_dens, den)
+    // The bone cache lies through the sett: its journey squeezed through.
+    if den == 15 { s.shortcuts += forest.shortcut_bit(forest.EDGE_SETT) }
     let text = journey.encode(s)
     journey.decode(text, 80, 24) else |e| {
         assert(false, "proof.den_journey: den {den} is not a valid save: {e}")
@@ -681,23 +686,43 @@ pub fn ghosts(dir: str) -> int {
 /// The new areas' witnesses (cb04): from each area's den, a walk down the
 /// route for a hundred and twenty ticks, frames every forty.
 pub fn areas(dir: str) -> int {
-    var kind = sim.LYNX
-    while kind <= sim.ALPHA {
-        let name = if kind == sim.LYNX {
-            "crags"
-        } else if kind == sim.ELK {
-            "river"
-        } else {
-            "old-den"
-        }
-        let s0 = fight.journey_at(1, 80, 24, kind)
+    // The first screens: from each area's den (cb14: the Hush's cold den,
+    // the root hollow, the kiln, the dry island, the bone cache) a release
+    // and a hundred and twenty steps down the route; the Howe and
+    // Gravehollow, which have no den, from the cold den by the fighter's
+    // walk on, the last hundred and twenty steps shown.
+    for pair in [
+        ("crags", 4),
+        ("river", 5),
+        ("hush", 6),
+        ("stand", 12),
+        ("burn", 13),
+        ("mere", 14),
+        ("underteeth", 15),
+    ] {
+        let (name, den) = pair
+        let s0 = den_journey(1, den)
         var s = copy s0
         var r = snapshot_replay(s0)
         walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
         var n = 0
         while n < 120 { walker.press(mut s, mut r, walker.key(controls.KEY_DOWN)); n += 1 }
         snapshot_range(dir, name, r, s.tick, 40, 1) else |_| { return 2 }
-        kind += 1
+    }
+    for pair in [("howe", forest.HOWE), ("gravehollow", forest.GRAVEHOLLOW)] {
+        let (name, area) = pair
+        let s0 = fight.journey_at(1, 80, 24, sim.ALPHA)
+        var s = copy s0
+        var r = snapshot_replay(s0)
+        walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
+        if !fight.walk_on(mut s, mut r, area) {
+            eprint("proof: the walk to {name} failed in area {s.area}")
+            return 1
+        }
+        let from = s.tick
+        var n = 0
+        while n < 120 { walker.press(mut s, mut r, walker.key(controls.KEY_DOWN)); n += 1 }
+        snapshot_range(dir, name, r, s.tick, 40, from) else |_| { return 2 }
     }
     0
 }
