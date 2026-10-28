@@ -27,7 +27,41 @@ pub error CommitErrors = {save_io, save_committed_unsynced}
 /// Schema five adds an ordinary-foe slain mask an area (seven since cb05;
 /// `forest.AREAS`). Schema four migrates
 /// with empty masks; earlier shapes remain named save_version failures.
-pub const VERSION: int = 5
+pub const VERSION: int = 6
+
+/// Metadata belongs to the save wrapper, not deterministic simulation state.
+pub struct Metadata { name: str, played_ms: int }
+
+/// Portable display names are filename tokens, never paths or whitespace.
+pub fn valid_name(name: str) -> bool {
+    if name.len == 0 || name.len > 64 { return false }
+    for b in name.bytes() {
+        let n = b as int
+        if !(n >= 65 && n <= 90 || n >= 97 && n <= 122 || n >= 48 && n <= 57 || n == 45 || n == 95) { return false }
+    }
+    true
+}
+
+/// Legacy saves migrate with these defaults; decode validates the full shape.
+pub fn metadata(text: str) -> Metadata ! DecodeErrors {
+    var result = Metadata { name: "journey", played_ms: 0 }
+    if !text.starts_with("CUB 6\n") { return result }
+    for line in text.lines() {
+        if line.starts_with("name ") { result.name = line[5..line.len] }
+        if line.starts_with("played_ms ") { result.played_ms = line[10..line.len].to_int() else |_| { return save_corrupt } }
+    }
+    if !valid_name(result.name) || result.played_ms < 0 || result.played_ms > 1000000000000 { return save_corrupt }
+    result
+}
+
+/// Preserve wrapper fields when resuming a path.
+pub fn load_metadata(path: str) -> Metadata ! LoadErrors {
+    let text = fs.read_text(path) else |e| match e {
+        not_found => { return Metadata { name: "journey", played_ms: 0 } },
+        denied => { return save_io }, io => { return save_io }, utf8 => { return save_corrupt },
+    }
+    metadata(text)?
+}
 
 /// The values a replay's initial journey snapshot carries (`saved-0` to
 /// Thirty values and a slain mask an area (`forest.AREAS`, seven since cb05;
@@ -42,11 +76,11 @@ pub const JOURNEY: int = 4
 pub const FIELD_MAX: int = 10000
 
 /// Canonical persistent state; health resets at the last den, slain foes do not.
-pub fn payload(s: sim.Sim) -> str { payload_version(s, VERSION) }
+pub fn payload(s: sim.Sim) -> str { payload_version(s, VERSION) + "name journey\nplayed_ms 0\n" }
 
 fn payload_version(s: sim.Sim, version: int) -> str {
     var masks = ""
-    if version == 5 {
+    if version >= 5 {
         masks = "slain"
         var area = 0
         while area < forest.AREAS { masks += " {sim.slain_mask(s, area)}"; area += 1 }
@@ -75,8 +109,11 @@ pub fn checksum(text: str) -> int {
 }
 
 /// Byte-identical encoding for the same persistent journey.
-pub fn encode(s: sim.Sim) -> str {
-    let text = payload(s)
+pub fn encode(s: sim.Sim) -> str { encode_named(s, Metadata { name: "journey", played_ms: 0 }) }
+
+/// Canonical CUB 6 wrapper around the unchanged CUB 5 simulation payload.
+pub fn encode_named(s: sim.Sim, meta: Metadata) -> str {
+    let text = payload_version(s, VERSION) + "name {meta.name}\nplayed_ms {meta.played_ms}\n"
     text + "check {checksum(text)}\n"
 }
 
@@ -84,6 +121,20 @@ pub fn encode(s: sim.Sim) -> str {
 /// Only default wolf difficulty is playable in this build.
 pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     if text.len > 1024 { return save_corrupt }
+    if text.starts_with("CUB 6\n") {
+        let meta = metadata(text)?
+        var legacy = "CUB 5\n"
+        var index = 0
+        for line in text.lines() {
+            if index > 0 && index < 12 { legacy += line + "\n" }
+            index += 1
+        }
+        if index != 15 { return save_corrupt }
+        let s = decode(legacy + "check {checksum(legacy)}\n", cols, rows)?
+        let canonical = legacy.replace("CUB 5\n", "CUB 6\n") + "name {meta.name}\nplayed_ms {meta.played_ms}\n"
+        if canonical + "check {checksum(canonical)}\n" != text { return save_corrupt }
+        return s
+    }
     var words = List[str]()
     for word in text.words() { (mut words).push(word) }
     if words.len < 2 || words[0] != "CUB" { return save_corrupt }
@@ -238,7 +289,7 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
         ) {
         return save_corrupt
     }
-    if version == 5 {
+    if version >= 5 {
         var area = 0
         while area < forest.AREAS {
             let mask = words[54 + area].to_int() else |_| { return save_corrupt }
@@ -276,7 +327,12 @@ pub fn load(path: str, seed: int, cols: int, rows: int) -> sim.Sim ! LoadErrors 
 /// replacement. A stale/concurrent stage is a named failure, never truncated.
 /// `cut` is the explicit fault witness: stop after half the bytes.
 pub fn prepare(path: str, s: sim.Sim, cut: bool) -> () ! PrepareErrors {
-    let text = encode(s)
+    prepare_named(path, s, Metadata { name: "journey", played_ms: 0 }, cut)?
+}
+
+/// Same durable staging with the menu's independent metadata.
+pub fn prepare_named(path: str, s: sim.Sim, meta: Metadata, cut: bool) -> () ! PrepareErrors {
+    let text = encode_named(s, meta)
     let _ = decode(text, s.cols, s.rows)?
     let parent = fs.parent(path) else "."
     fs.create_dir_all(parent) else |_| { return save_io }

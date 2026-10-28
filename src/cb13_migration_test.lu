@@ -1,0 +1,14 @@
+//! member: false
+use journey
+use std.fs
+
+fn test_cb13_cub5_fixture_migrates_byte_for_byte_to_cub6() {
+    let text = fs.read_text("tests/saves/cb13-v5.save") else |_| { assert(false, "fixture missing"); return }
+    let s = journey.decode(text, 80, 24) else |e| { assert(false, "CUB 5 fixture {e}"); return }
+    let cut = text.find("check ") else 0
+    let payload = text[0..cut].replace("CUB 5\n", "CUB 6\n") + "name journey\nplayed_ms 0\n"
+    let expected = payload + "check {journey.checksum(payload)}\n"
+    assert(journey.encode(s) == expected, "exact migrated bytes, not merely semantic equality")
+    let resumed = journey.decode(expected, 120, 40) else |_| { assert(false, "new schema round trip"); return }
+    assert(journey.encode(resumed) == expected, "migration fixed point")
+}
