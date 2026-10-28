@@ -3185,6 +3185,22 @@ fn hazards_step(mut s: Sim) {
                     lore.ASH_SHELTER
                 } else if kind == forest.LM_STUMPS {
                     lore.COAL_ROOTS
+                } else if kind == forest.LM_LOOKOUT {
+                    // cb14's places register their areas' lines here, the
+                    // path cb15 opened (ids from 13): the lookout, the kiln,
+                    // the causeway's post, the bone heap, the stone mouth,
+                    // and each of the Howe's standing stones (`lm` 0..4).
+                    lore.STAND_LINE
+                } else if kind == forest.LM_KILN {
+                    lore.BURN_LINE
+                } else if kind == forest.LM_POST {
+                    lore.MERE_LINE
+                } else if kind == forest.LM_BONES {
+                    lore.UNDERTEETH_LINE
+                } else if kind == forest.LM_MOUTH {
+                    lore.HOWE_LINE
+                } else if kind == forest.LM_MENHIR {
+                    lore.MENHIR_FIRST + lm
                 } else if kind != forest.LM_SCENT {
                     -1
                 } else if s.area == forest.TOWN {
