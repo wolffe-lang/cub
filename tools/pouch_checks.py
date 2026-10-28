@@ -36,6 +36,9 @@ def check(binary):
         return saved(save), state, (dest / 'final.txt').read_text(), save
 
     for tier in ('rich', 'plain'):
+        _, legacy, legacy_frame, _ = run('rest', 45, tier, 'legacy-rest')
+        assert legacy['level'] == 3 and legacy['health'] == 64 and legacy['scent'] == 0, 'journey3 six-row menu changed'
+        assert '  Lore' not in legacy_frame, 'old replay gained the new menu row'
         pouch, state, frame, _ = run('pouch-inventory', 2, tier, 'list')
         assert 'The pouch' in frame and "The mother's tuft" in frame and pouch['yarrow'] == 2
         assert state['health'] == 52 and state['action'] == 0, 'menu advanced combat'
