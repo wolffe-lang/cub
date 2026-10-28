@@ -73,11 +73,9 @@ pub fn terrain_row(s: sim.Sim, t: int, row: int, mut g: grid.Grid) {
 fn lands_cell(s: sim.Sim, t: int, x: int, y: int, k: int, cell0: grid.Cell) -> grid.Cell {
     var cell = cell0
     let rich = t == tier.RICH
-    let at = y - forest.origin(s.seed, s.area)
-    let dx = abs_of(x - sim.cell_x(s))
-    let dy = abs_of(y - sim.cell_y(s))
-    let off = if dx > dy then dx else dy
     if s.area == forest.MERE {
+        let at = y - forest.origin(s.seed, s.area)
+        let off = reach(s, x, y)
         if k == terrain.STONE {
             let age = sim.stone_age(s, sim.stone_segment_at(s, y))
             if age >= sim.STONE_BEAT && age < sim.STONE_RISE {
@@ -99,6 +97,8 @@ fn lands_cell(s: sim.Sim, t: int, x: int, y: int, k: int, cell0: grid.Cell) -> g
         return cell
     }
     if s.area == forest.UNDERTEETH {
+        let at = y - forest.origin(s.seed, s.area)
+        let off = reach(s, x, y)
         if off > 3 && !glow_lit(s, x, at) {
             return grid.cell(32, if rich then 232 else 0, if rich then 232 else 0, 0)
         }
@@ -136,7 +136,11 @@ fn lands_cell(s: sim.Sim, t: int, x: int, y: int, k: int, cell0: grid.Cell) -> g
         return cell
     }
     if s.area == forest.HOWE {
-        if k == terrain.MENHIR && off <= 4 && at < forest.length(s.area) - 8 && (at + 1) % 40 == 30 {
+        let at = y - forest.origin(s.seed, s.area)
+        if k == terrain.MENHIR &&
+            reach(s, x, y) <= 4 &&
+            at < forest.length(s.area) - 8 &&
+            (at + 1) % 40 == 30 {
             // The top cell of a standing stone (its row is one above
             // `menhir_row`), read when the cub is within four cells.
             cell.cp = if rich then 0x281B else 43
@@ -148,6 +152,14 @@ fn lands_cell(s: sim.Sim, t: int, x: int, y: int, k: int, cell0: grid.Cell) -> g
         cell.attrs = grid.ATTR_DIM
     }
     cell
+}
+
+/// The cub's reach to world cell `(x, y)`: the larger of the two axis
+/// distances, in cells.
+fn reach(s: sim.Sim, x: int, y: int) -> int {
+    let dx = abs_of(x - sim.cell_x(s))
+    let dy = abs_of(y - sim.cell_y(s))
+    if dx > dy then dx else dy
 }
 
 /// Whether local cell `(x, at)` of the Underteeth lies within three cells
