@@ -1,5 +1,41 @@
 # Design constants
 
+## The pouch (cb15, 2026-10-28)
+
+The second playtest's consumable design supplies these numbers. `i` pauses
+combat and opens the pouch over the field; no new running-HUD strip is drawn.
+
+| item | cap | effect |
+|---|---|---|
+| yarrow | 5 | stop bleeding; heal 10 immediately, clamped |
+| marrow | 3 | heal 30 in 60 simulation ticks, one health every second tick; damage cancels the remainder |
+| pine | 3 | remove the existing trail; lay none for 600 ticks; the lynx disengages |
+| a shard of ice | 3 | living locked foe, else nearest foe in the forward ninety-degree cone, within 6 cells; movement halved for 90 ticks |
+| the mother's tuft | 1 | passive: consume once on death, retain carried scent, clear the replaced mark; save its use count |
+
+Bleeding has a bounded sixty-tick state, one damage per tick; twenty still
+idle ticks lick it away. Yarrow cures it immediately. No actor applies it yet;
+the foes pass wires attacks to `sim.bleed`. Water and invulnerability retain
+their existing rules. A blocked ice throw and Consume on the passive tuft
+keep the item. The Burn calls `sim.melt_ice` on entry when its area lands.
+
+Ground pickups occupy cells, are collected with `r` on their exact cell,
+and never intercept a den's `r`. A full stack keeps the pickup. Drop leaves
+one; Discard removes one. Ground order, positions and area discovery are
+saved. The pool is bounded to **128 pickups**; a full pool refuses Drop and
+a full-stack cache reward rather than destroying inventory. Lore appends
+stable ids once in discovery order, up to **32 lines**, and is read through
+the rest menu's Lore row. Menus freeze effect/attack/lifetime clocks and
+clear held movement on exit; marrow never catches up for paused ticks.
+
+Foe drops are stable seed/area/spawn rolls: weasel yarrow10%, hawk yarrow15%,
+fox marrow10%. The future boar-kin25% and otter20% use the same roll hook.
+Until the new areas land: seven seeded meadow sprigs (roughly36 cells apart),
+six Bramblehold marrow pickups by carcasses, five river shards and the first
+tuft at Ember's den. Stand/Burn/Mere/Howe placement uses `seed_alcove`; no
+forest generation or enemy damage envelope changes here.
+
+
 Tuning values in `src/sim/sim.lu`, `src/terrain/terrain.lu` and `src/forest/forest.lu` are mirrored
 here with the date they were set and their source; named constants hold the gameplay bars. The design bible (`sprints/lair/cub/design.md` in the planning
 repo) is the oracle; a number is **proposed** until the maintainer's play says otherwise (R-CB-7), and new proposals here are submitted for review; the private bible is not edited by this lane.
