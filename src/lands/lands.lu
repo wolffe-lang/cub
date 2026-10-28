@@ -253,7 +253,8 @@ pub fn mound_x(seed: int, k: int, c: int) -> int {
 /// barrows (three cells wide), the standing stones (`menhir` says which
 /// cells), a few trees and the wood's dark patches at the edges.
 pub fn howe(seed: int, x: int, at: int, y: int, c: int, menhir: bool, carved: bool) -> int {
-    if carved { return terrain.GRASS }
+    // The track between the barrows is worn to the gravel.
+    if carved { return terrain.GRAVEL }
     if menhir { return terrain.MENHIR }
     var k = 0
     while k < MOUNDS {

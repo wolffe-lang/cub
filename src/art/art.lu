@@ -566,6 +566,7 @@ fn cave_ink(t: int, k: int, foliage: int) -> int {
 /// the edges.
 fn howe_ink(t: int, k: int, foliage: int) -> int {
     if t != tier.RICH {
+        if k == terrain.GRAVEL { return 3 }
         if k == terrain.GRASS { return 2 }
         if k == terrain.MOUND { return 8 }
         if k == terrain.MENHIR { return 15 }
@@ -573,6 +574,7 @@ fn howe_ink(t: int, k: int, foliage: int) -> int {
         if k == terrain.GATE { return 7 }
         return 2
     }
+    if k == terrain.GRAVEL { return 101 }
     if k == terrain.GRASS { return if foliage % 2 == 0 then 65 else 108 }
     if k == terrain.MOUND { return 102 }
     if k == terrain.MENHIR { return 252 }

@@ -1149,7 +1149,12 @@ pub fn near_route(seed: int, field: int, x: int, at: int) -> bool {
 /// a path cell may draw in, and `--world-audit`'s `path_off` holds every
 /// area to it.
 pub fn path_kind(area: int) -> int {
-    if area == SHINGLE || area == CRAGS || area == RIVER || area == TOWN || area == UNDERTEETH {
+    if area == SHINGLE ||
+        area == CRAGS ||
+        area == RIVER ||
+        area == TOWN ||
+        area == UNDERTEETH ||
+        area == HOWE {
         terrain.GRAVEL
     } else if area == STAND {
         terrain.NEEDLES
@@ -1439,12 +1444,35 @@ pub fn menhir_row(k: int) -> int {
     30 + 40 * k
 }
 
+/// A standing stone's side of the route: west for the even stones, east
+/// for the odd.
+pub fn menhir_side(k: int) -> int {
+    if k % 2 == 0 then -1 else 1
+}
+
 /// A standing stone's local cell: beside the route, alternating sides,
 /// six to eight cells off it.
 pub fn menhir(seed: int, k: int) -> (int, int) {
     let row = menhir_row(k)
-    let side = if k % 2 == 0 then -1 else 1
-    (spine(seed, HOWE, row) + side * (6 + world.hash(seed, 310, k, 3)), row)
+    (spine(seed, HOWE, row) + menhir_side(k) * (6 + world.hash(seed, 310, k, 3)), row)
+}
+
+/// Whether local cell `(x, at)` lies on a standing stone's approach: the
+/// open turf between the stone and the route on its two rows, so the
+/// stone's face is reached from the route whatever the brush does.
+pub fn menhir_approach(seed: int, x: int, at: int) -> bool {
+    var k = 0
+    while k < 5 {
+        let row = menhir_row(k)
+        if at == row || at == row - 1 {
+            let (mx, _) = menhir(seed, k)
+            let c = spine(seed, HOWE, row)
+            let side = menhir_side(k)
+            if side * (x - mx) < 0 && side * (x - c) >= 0 { return true }
+        }
+        k += 1
+    }
+    false
 }
 
 /// Whether local cell `(x, at)` is one of a standing stone's two cells
@@ -1543,8 +1571,9 @@ pub fn landmark(seed: int, field: int, area: int, k: int) -> (int, int, int) {
     }
     if area == HOWE {
         if k < 5 {
+            // The stone's approach: the cell beside it on the route's side.
             let (mx, my) = menhir(seed, k)
-            return (LM_MENHIR, mx, my)
+            return (LM_MENHIR, mx - menhir_side(k), my)
         }
         let (lo, _) = gate_rows(area)
         return (LM_MOUTH, 0, lo - 2)
@@ -1707,8 +1736,11 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
             return lands.underteeth(seed, x, at, c, half(seed, area, at), cr, carved_here)
         }
         if area == HOWE {
+            // The stone mouth: a wall of standing stones about the gate,
+            // the deep brush closing the rest of the row.
             let (lo, hi) = gate_rows(area)
-            if at >= lo && at <= hi { return terrain.MENHIR }
+            if at >= lo && at <= hi { return if abs(x) <= 8 then terrain.MENHIR else terrain.DARK }
+            if menhir_approach(seed, x, at) { return terrain.GRASS }
             return lands.howe(seed, x, at, y, c, on_menhir(seed, x, at), carved_here)
         }
         return lands.gravehollow(seed, x, y, carved_here)
