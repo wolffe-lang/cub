@@ -146,10 +146,12 @@ fn test_cb15_pouch_snapshot_slots_are_appended_after_existing_numeric_events() {
 fn test_cb04b_input_events_do_not_overlap_schema_five_snapshot_slots() {
     let v = controls.vocab()
     var part = 0
-    while part < 37 {
+    while part < 44 {
         assert(v.args[controls.saved_event(part)] == "saved-{part}", "snapshot slot {part}")
         part += 1
     }
+    // cb14's seven slots follow the witness flag: nothing older moves.
+    assert(controls.saved_event(37) == 51 && controls.saved_event(43) == 57, "cb14's slots appended")
     assert(
         controls.EV_PACE == 49 && v.args[controls.EV_PACE] == "pace",
         "pace appended after masks",
