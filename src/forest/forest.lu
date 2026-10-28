@@ -1740,7 +1740,7 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
             // the deep brush closing the rest of the row.
             let (lo, hi) = gate_rows(area)
             if at >= lo && at <= hi { return if abs(x) <= 8 then terrain.MENHIR else terrain.DARK }
-            if menhir_approach(seed, x, at) { return terrain.GRASS }
+            if menhir_approach(seed, x, at) && !carved_here { return terrain.GRASS }
             return lands.howe(seed, x, at, y, c, on_menhir(seed, x, at), carved_here)
         }
         return lands.gravehollow(seed, x, y, carved_here)
