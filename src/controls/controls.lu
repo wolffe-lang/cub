@@ -93,7 +93,10 @@ pub const KEY_NOSE: int = 23
 pub const KEY_HEAVY: int = 24
 
 /// Number of replay key identifiers.
-pub const KEY_COUNT: int = 37
+pub const KEY_COUNT: int = 38
+
+/// i opens the paused pouch; appended without changing prior key ids.
+pub const KEY_INVENTORY: int = 37
 
 /// What a character means, or `KEY_NONE`.
 fn char_key(b: int) -> int {
@@ -116,6 +119,7 @@ fn char_key(b: int) -> int {
     if b == 119 || b == 87 {
         return KEY_WATER
     }
+    if b == 105 || b == 73 { return KEY_INVENTORY }
     if b == 109 || b == 77 { return KEY_MUTE }
     if b == 114 || b == 82 {
         return KEY_REST
@@ -242,7 +246,7 @@ pub const EV_GHOST_AREA: int = 40
 pub const EV_GHOST_DEATH: int = 41
 
 /// The number of numeric events.
-pub const EV_COUNT: int = 51
+pub const EV_COUNT: int = 218
 
 /// Explicit disclosed empty-arena setup for live input witnesses.
 pub const EV_COMBAT_WITNESS: int = 50
@@ -254,7 +258,7 @@ pub const EV_PACE: int = 49
 /// events by index (`EV_*`).
 pub fn vocab() -> replay.Vocab {
     var names = List[str]()
-    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt release heart wind fang paw nose heavy skip mute confirm exact ctrl-down ctrl-up shift-down shift-up up-release down-release left-release right-release".
+    for w in "none up down left right sneak-up sneak-down sneak-left sneak-right bite lunge parry dodge lock water rest quit interrupt release heart wind fang paw nose heavy skip mute confirm exact ctrl-down ctrl-up shift-down shift-up up-release down-release left-release right-release inventory".
         words() {
         (mut names).push(w)
     }
@@ -274,6 +278,8 @@ pub fn vocab() -> replay.Vocab {
     while part < 37 { (mut args).push("saved-{part}"); part += 1 }
     (mut args).push("pace")
     (mut args).push("combat-witness")
+    part = 37
+    while part < 204 { (mut args).push("saved-{part}"); part += 1 }
     replay.vocab(take names, take args)
 }
 
@@ -289,7 +295,9 @@ pub const KEY_CONFIRM: int = 27
 
 /// Snapshot event slots 30..36 are appended, never renumbering older events
 /// (30..35 cb04f's six slain masks, 36 the seventh area's, cb05).
-pub fn saved_event(part: int) -> int { if part < 30 then EV_SAVED + part else 42 + part - 30 }
+pub fn saved_event(part: int) -> int {
+    if part < 30 then EV_SAVED + part else if part < 37 then 42 + part - 30 else 51 + part - 37
+}
 
 /// Negotiated input mode, recorded before the first live tick.
 pub const KEY_EXACT: int = 28

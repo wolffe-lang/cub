@@ -18,6 +18,7 @@ use forest
 use meadow
 use input
 use lore
+use pouch
 use silhouette
 use terrain
 use town
@@ -368,6 +369,7 @@ pub struct Sim {
     caches: int,
     yarrow: int,
     marrow: int,
+    pouch: pouch.Pouch,
     opening_seen: bool,
     scene: int,
     scene_started: int,
@@ -480,6 +482,7 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         caches: 0,
         yarrow: 0,
         marrow: 0,
+        pouch: pouch.new(),
         opening_seen: false,
         scene: 0,
         scene_started: 0,
@@ -868,6 +871,7 @@ pub struct Foe {
     /// An Ashen on the cub's trail (cb05, R-cb05-5): at most `ASHEN_PURSUERS`
     /// at once; cleared when it is parried, loses the cub or dies.
     chasing: bool,
+    slow_until: int,
 }
 
 /// Damage of an unmodified bite at this fang level.
@@ -917,6 +921,7 @@ pub fn spawn_foes(seed: int) -> List[Foe] {
             poise_at: 0,
             engaged: false,
             chasing: false,
+            slow_until: 0,
         })
         i += 1
     }
@@ -1005,7 +1010,8 @@ pub fn invulnerable(s: Sim) -> bool {
 
 /// Apply damage unless protected; zero health replaces the scent mark.
 pub fn hurt(mut s: Sim, damage: int) {
-    if s.action == FALL || s.den || invulnerable(s) { return }
+    if s.action == FALL || s.den || invulnerable(s) || damage <= 0 { return }
+    s.pouch.marrow_ticks = 0
     let lost = if damage > s.health then s.health else damage
     s.rally_pool = rally_available(s) + lost
     s.rally_spent = 0
@@ -1023,12 +1029,19 @@ pub fn hurt(mut s: Sim, damage: int) {
         // Replace, never accumulate: a second death destroys the first mark;
         // the scent it held is lost for good (R-CB-1), and counted (cb04).
         if s.mark { s.lost += s.mark_scent }
-        s.mark = true
-        s.mark_area = s.area
-        s.mark_x = s.x
-        s.mark_y = s.y
-        s.mark_scent = s.scent
-        s.scent = 0
+        if s.pouch.tuft > 0 {
+            s.pouch.tuft -= 1
+            s.pouch.uses += 1
+            s.mark = false
+            s.mark_scent = 0
+        } else {
+            s.mark = true
+            s.mark_area = s.area
+            s.mark_x = s.x
+            s.mark_y = s.y
+            s.mark_scent = s.scent
+            s.scent = 0
+        }
         s.locked = -1
         s.speed = 0
     }
@@ -1037,6 +1050,9 @@ pub fn hurt(mut s: Sim, damage: int) {
 fn reset_world(mut s: Sim) {
     s.health = health_max(s.heart)
     s.rally_pool = 0
+    s.pouch.bleeding = 0
+    s.pouch.still = 0
+    s.pouch.marrow_ticks = 0
     s.stamina = stamina_max(s.wind)
     s.flasks = s.flask_max
     s.action = IDLE
@@ -1131,6 +1147,16 @@ fn start_action(mut s: Sim, action: int, cost: int) {
 
 fn action_keys(mut s: Sim, keys: List[int]) {
     for k in keys {
+        if s.pouch.open { inventory_key(mut s, k); continue }
+        if s.pouch.lore_open { lore_key(mut s, k); continue }
+        if k == controls.KEY_INVENTORY {
+            s.pouch.open = true
+            s.pouch.paused_at = s.tick
+            s.pouch.row = first_item(s)
+            s.pouch.tooltip = false
+            s.pouch.aiming = false
+            continue
+        }
         if input_key(mut s, k) { continue }
         // Rest consumes these inputs; no held motion leaks out of the menu.
         if s.den { rest_key(mut s, k); continue }
@@ -1165,7 +1191,9 @@ fn action_keys(mut s: Sim, keys: List[int]) {
             rest_reset(mut s)
         }
         if s.den { continue }
-        if k == controls.KEY_REST && !at_den(s) { cache_key(mut s); shortcut_key(mut s) }
+        if k == controls.KEY_REST && !at_den(s) {
+            if !pickup_item(mut s) { cache_key(mut s); shortcut_key(mut s) }
+        }
         if k == controls.KEY_BITE {
             if s.action == BITE &&
                 s.tick - s.started >= 5 &&
@@ -1257,6 +1285,7 @@ pub fn strike_foes(mut s: Sim) {
             s.foes[i].last_hit = s.started
             if s.foes[i].health <= 0 {
                 s.foes[i].died = s.tick
+                foe_item_drop(mut s, i, f.kind, f.x, f.y)
                 if is_boss(f.kind) {
                     beat_boss(mut s, f.kind, f.x, f.y)
                 } else {
@@ -1345,8 +1374,9 @@ fn move_foe(mut s: Sim, i: int, away: bool) {
     // keeps its old heading this tick when it has no room.
     turn_foe(mut s, i, heading)
     let g = copy s.foes[i]
-    let nx = g.x + speed * sin(g.heading) / FP
-    let ny = g.y - speed * cos(g.heading) / FP
+    let travel = foe_speed(s, i, speed)
+    let nx = g.x + travel * sin(g.heading) / FP
+    let ny = g.y - travel * cos(g.heading) / FP
     // Then the step: one into the terrain or into a body is not taken
     // (the mover yields, pushed back along its own motion).
     let stops = blocked(s, floor_div(nx, FP), floor_div(ny, FP)) ||
@@ -1558,6 +1588,7 @@ fn action_step(mut s: Sim, _want: int) {
 }
 
 fn trail_step(mut s: Sim, ox: int, oy: int) {
+    if s.pouch.hidden > s.tick { return }
     var kept = List[Trail]()
     for tr in s.trail { if tr.until > s.tick { (mut kept).push(tr) } }
     s.trail = kept
@@ -1603,8 +1634,11 @@ pub fn step(mut s: Sim, keys: List[int]) {
         s.action = IDLE
         s.sprinting = false
     }
+    let was_menu = s.pouch.open || s.pouch.lore_open
     action_keys(mut s, keys)
-    if s.den { return }
+    if s.den || was_menu || s.pouch.open || s.pouch.lore_open { return }
+    seed_items(mut s)
+    consumables_step(mut s)
     if s.locked >= 0 {
         let f = copy s.foes[s.locked]
         if f.health <= 0 {
@@ -2708,8 +2742,9 @@ fn ashen_move(mut s: Sim, i: int, tx: int, ty: int) {
     turn_foe(mut s, i, (f.heading + turn + TURN) % TURN)
     let g = copy s.foes[i]
     let speed = toward(g.speed, ASHEN_V, ACCEL)
-    let nx = g.x + speed * sin(g.heading) / FP
-    let ny = g.y - speed * cos(g.heading) / FP
+    let travel = foe_speed(s, i, speed)
+    let nx = g.x + travel * sin(g.heading) / FP
+    let ny = g.y - travel * cos(g.heading) / FP
     let cx = floor_div(nx, FP)
     let cy = floor_div(ny, FP)
     let out = !forest.in_town(s.seed, s.field, cx, cy - forest.origin(s.seed, s.area))
@@ -2805,6 +2840,16 @@ fn ashen_step(mut s: Sim, i: int) {
 /// The world's hazards (cb05): an ember underfoot burns a little every
 /// `EMBER_TICKS`; a found lore line lapses.
 fn hazards_step(mut s: Sim) {
+    var lm = 0
+    while lm < forest.landmark_count(s.area) {
+        let (kind, x, y) = forest.landmark(s.seed, s.field, s.area, lm)
+        if kind == forest.LM_SCENT && near(s.x, s.y, x * FP + FP / 2,
+            (forest.origin(s.seed, s.area) + y) * FP + FP / 2, 4 * FP) {
+            remember_lore(mut s, if s.area == forest.TOWN then lore.MARK_TOWN else
+                if lm % 2 == 0 then lore.MARK_UP else lore.MARK_OLDER)
+        }
+        lm += 1
+    }
     if s.lore >= 0 && s.tick >= s.lore_until { s.lore = -1 }
     if s.tick % EMBER_TICKS == 0 && on_ember(s) { hurt(mut s, EMBER_HURT) }
 }
@@ -2856,6 +2901,7 @@ fn make_foe(kind: int, x: int, y: int) -> Foe {
         poise_at: 0,
         engaged: false,
         chasing: false,
+        slow_until: 0,
     }
 }
 
@@ -3032,6 +3078,7 @@ fn hawk_step(mut s: Sim, i: int) {
             if parrying(s) {
                 s.foes[i].health = 0
                 s.foes[i].died = s.tick
+                foe_item_drop(mut s, i, f.kind, f.target_x, f.target_y)
                 leave_drop(mut s, f.target_x, f.target_y, 12)
             } else {
                 hurt(mut s, HAWK_DAMAGE)
@@ -3193,9 +3240,10 @@ fn cache_key(mut s: Sim) {
             pickup_flash(mut s, x, y)
             s.caches += cache_mask(s.area, cache)
             let (reward, line) = cache_reward(s.area, cache)
-            if reward == lore.MARROW { s.marrow += 1 }
-            if reward == lore.YARROW { s.yarrow += 1 }
+            if reward == lore.MARROW { let _ = give_item(mut s, pouch.MARROW) }
+            if reward == lore.YARROW { let _ = give_item(mut s, pouch.YARROW) }
             if reward == lore.LORE {
+                remember_lore(mut s, line)
                 s.lore = line
                 s.lore_until = s.tick + lore.LINE_TICKS
             }
@@ -3519,8 +3567,9 @@ fn boss_run(mut s: Sim, i: int, tx: int, ty: int, v: int) {
     boss_turn_toward(mut s, i, h)
     let g = copy s.foes[i]
     let speed = toward(g.speed, v, if v < g.speed then BRAKE else ACCEL)
-    let nx = g.x + speed * sin(g.heading) / FP
-    let ny = g.y - speed * cos(g.heading) / FP
+    let travel = foe_speed(s, i, speed)
+    let nx = g.x + travel * sin(g.heading) / FP
+    let ny = g.y - travel * cos(g.heading) / FP
     if boss_may_stand(s, i, nx, ny, g.heading) {
         s.foes[i].x = nx
         s.foes[i].y = ny
@@ -3618,6 +3667,13 @@ fn boss_hit(mut s: Sim, i: int, m: Move) {
 /// One tick of boss `i`.
 fn boss_step(mut s: Sim, i: int) {
     let f = copy s.foes[i]
+    if f.kind == LYNX && trail_hidden(s) {
+        s.foes[i].phase = HUNT
+        s.foes[i].engaged = false
+        s.foes[i].speed = 0
+        s.boss = -1
+        return
+    }
     let age = s.tick - f.since
     let p2 = phase_two(f)
     let m = boss_move(f.kind, f.attack, p2)
@@ -3681,8 +3737,9 @@ fn boss_step(mut s: Sim, i: int) {
             // The run along the committed line: a step that would enter the
             // cub's body is the hit (bodies never overlap); a step the
             // arena, the ground or another body refuses ends the run.
-            let nx = f.x + m.travel * sin(f.heading) / FP
-            let ny = f.y - m.travel * cos(f.heading) / FP
+            let travel = foe_speed(s, i, m.travel)
+            let nx = f.x + travel * sin(f.heading) / FP
+            let ny = f.y - travel * cos(f.heading) / FP
             let b = foe_body_at(f, nx, ny, f.heading)
             var stop = false
             if !f.hit && s.action != FALL && overlap(b, cub_body(s)) {
@@ -3744,8 +3801,9 @@ fn boss_step(mut s: Sim, i: int) {
         // Three cells across the cub's aim over six ticks, invulnerable.
         let h = (f.attack + TURN) % TURN
         let distance = (age + 1) * 3 * FP / HOP_TICKS - age * 3 * FP / HOP_TICKS
-        let nx = f.x + distance * sin(h) / FP
-        let ny = f.y - distance * cos(h) / FP
+        let travel = foe_speed(s, i, distance)
+        let nx = f.x + travel * sin(h) / FP
+        let ny = f.y - travel * cos(h) / FP
         if boss_may_stand(s, i, nx, ny, f.heading) { s.foes[i].x = nx; s.foes[i].y = ny }
         if age + 1 >= HOP_TICKS {
             s.foes[i].phase = HUNT
@@ -3981,8 +4039,13 @@ pub fn rest_key(mut s: Sim, key: int) {
         s.den = false
         return
     }
-    if key == controls.KEY_UP { s.rest_row = (s.rest_row + 5) % 6 }
-    if key == controls.KEY_DOWN { s.rest_row = (s.rest_row + 1) % 6 }
+    if key == controls.KEY_UP { s.rest_row = (s.rest_row + 6) % 7 }
+    if key == controls.KEY_DOWN { s.rest_row = (s.rest_row + 1) % 7 }
+    if s.rest_row == 6 && (key == controls.KEY_CONFIRM || key == controls.KEY_BITE) {
+        s.pouch.lore_open = true
+        s.pouch.lore_row = 0
+        return
+    }
     if s.rest_row < 5 && key == controls.KEY_LEFT {
         if s.rest_pending[s.rest_row] > 0 { s.rest_pending[s.rest_row] -= 1 }
         s.rest_refused = 0
@@ -4179,6 +4242,260 @@ fn combo_motion(mut s: Sim) {
 /// During a bite the camera stays at the commitment point, so body movement
 /// reads on screen instead of being cancelled by the following camera.
 pub fn camera_x(s: Sim) -> int { if s.action == BITE then floor_div(s.action_x, FP) else cell_x(s) }
+
+/// Stable item-count interface for trade and future forest alcoves.
+pub fn item_count(s: Sim, kind: int) -> int {
+    match kind { 0 => s.yarrow, 1 => s.marrow, 2 => s.pouch.pine, 3 => s.pouch.ice, _ => s.pouch.tuft }
+}
+fn item_set(mut s: Sim, kind: int, n: int) {
+    match kind { 0 => { s.yarrow = n }, 1 => { s.marrow = n },
+        2 => { s.pouch.pine = n }, 3 => { s.pouch.ice = n }, _ => { s.pouch.tuft = n } }
+}
+/// Refuse a full stack; callers do not charge or remove its world pickup.
+pub fn give_item(mut s: Sim, kind: int) -> bool {
+    if kind < 0 || kind >= pouch.KINDS || item_count(s, kind) >= pouch.cap(kind) { return false }
+    item_set(mut s, kind, item_count(s, kind) + 1)
+    true
+}
+fn first_item(s: Sim) -> int {
+    var k = 0
+    while k < pouch.KINDS { if item_count(s, k) > 0 { return k }; k += 1 }
+    -1
+}
+fn next_item(s: Sim, from: int, direction: int) -> int {
+    var k = if from < 0 then 0 else from
+    var n = 0
+    while n < pouch.KINDS {
+        k = (k + direction + pouch.KINDS) % pouch.KINDS
+        if item_count(s, k) > 0 { return k }
+        n += 1
+    }
+    -1
+}
+/// Nearest foe in the forward ninety-degree cone, unless a living lock exists.
+pub fn ice_target(s: Sim) -> int {
+    if s.locked >= 0 && s.locked < s.foes.len && s.foes[s.locked].health > 0 {
+        let f = copy s.foes[s.locked]
+        return if near(s.x, s.y, f.x, f.y, 6 * FP) then s.locked else -1
+    }
+    var best = -1
+    var distance = 36 * FP * FP + 1
+    var i = 0
+    for f in s.foes {
+        let dx = f.x - s.x
+        let dy = f.y - s.y
+        let d = dx * dx + dy * dy
+        if f.health > 0 && d < distance && d <= 36 * FP * FP &&
+            in_front(s.x, s.y, s.heading, f.x, f.y) {
+            best = i
+            distance = d
+        }
+        i += 1
+    }
+    best
+}
+/// Apply an active item only when it can act. The tuft cannot be eaten.
+pub fn consume_item(mut s: Sim, kind: int) -> bool {
+    if kind < 0 || kind >= pouch.TUFT || item_count(s, kind) <= 0 { return false }
+    if kind == pouch.ICE {
+        let target = ice_target(s)
+        if target < 0 { return false }
+        s.foes[target].slow_until = item_tick(s) + 90
+    } else if kind == pouch.YARROW {
+        s.pouch.bleeding = 0
+        s.health += 10
+        if s.health > health_max(s.heart) { s.health = health_max(s.heart) }
+    } else if kind == pouch.MARROW {
+        s.pouch.marrow_ticks = 60
+        s.pouch.marrow_phase = 0
+    } else {
+        s.pouch.hidden = item_tick(s) + 600
+        (mut s.trail).reset()
+        var i = 0
+        while i < s.foes.len {
+            if s.foes[i].kind == LYNX {
+                s.foes[i].phase = HUNT
+                s.foes[i].engaged = false
+                s.foes[i].speed = 0
+                s.foes[i].target_x = s.foes[i].home_x
+                s.foes[i].target_y = s.foes[i].home_y
+            }
+            i += 1
+        }
+    }
+    item_set(mut s, kind, item_count(s, kind) - 1)
+    true
+}
+/// The future Burn entry calls this hook; no forest ownership is needed.
+pub fn melt_ice(mut s: Sim) {
+    s.pouch.ice = 0
+    var i = s.pouch.pickups.len - 1
+    while i >= 0 {
+        if s.pouch.pickups[i].kind == pouch.ICE && s.pouch.pickups[i].area == s.area {
+            pouch.remove(mut s.pouch, i)
+        }
+        i -= 1
+    }
+}
+/// Public hook for the lost shades' tracking rule and the Burn's ash.
+pub fn trail_hidden(s: Sim) -> bool { s.pouch.hidden > item_tick(s) }
+fn item_tick(s: Sim) -> int { if s.pouch.open then s.pouch.paused_at else s.tick }
+/// Movement alone is halved; telegraphs and recovery retain their tick lengths.
+pub fn foe_speed(s: Sim, i: int, speed: int) -> int {
+    if s.foes[i].slow_until > item_tick(s) then speed / 2 else speed
+}
+/// A successful bleeding attack starts sixty health ticks; licking is stillness.
+pub fn bleed(mut s: Sim) { s.pouch.bleeding = 60; s.pouch.still = 0 }
+fn consumables_step(mut s: Sim) {
+    if s.pouch.marrow_ticks > 0 {
+        s.pouch.marrow_ticks -= 1
+        s.pouch.marrow_phase += 1
+        if s.pouch.marrow_phase % 2 == 0 && s.health < health_max(s.heart) { s.health += 1 }
+    }
+    if s.pouch.bleeding > 0 {
+        s.pouch.still = if s.speed == 0 && s.action == IDLE then s.pouch.still + 1 else 0
+        if s.pouch.still >= 20 { s.pouch.bleeding = 0 } else {
+            s.pouch.bleeding -= 1
+            hurt(mut s, 1)
+        }
+    }
+}
+/// Item drops are global-area records and remain there across travel and reload.
+pub fn drop_item(mut s: Sim, kind: int) -> bool {
+    if kind < 0 || kind >= pouch.KINDS || item_count(s, kind) <= 0 { return false }
+    if !pouch.leave(mut s.pouch, s.area, cell_x(s), cell_y(s), kind) { return false }
+    item_set(mut s, kind, item_count(s, kind) - 1)
+    true
+}
+/// Standing on a pickup means the cub's anchor cell, not its broad sprite.
+pub fn pickup_item(mut s: Sim) -> bool {
+    var i = 0
+    while i < s.pouch.pickups.len {
+        let p = copy s.pouch.pickups[i]
+        if p.area == s.area && p.x == cell_x(s) && p.y == cell_y(s) {
+            if give_item(mut s, p.kind) {
+                pouch.remove(mut s.pouch, i)
+                pickup_flash(mut s, p.x * FP, p.y * FP)
+            }
+            return true
+        }
+        i += 1
+    }
+    false
+}
+/// Deterministic species rolls: boar's kin and otters gain hooks with cb18.
+pub fn foe_item_drop(mut s: Sim, spawn_id: int, kind: int, x: int, y: int) {
+    let item = if kind == WEASEL || kind == HAWK then pouch.YARROW else pouch.MARROW
+    let rate = if kind == WEASEL then 10 else if kind == HAWK then 15 else if kind == FOX then 10 else 0
+    if pouch.drops(s.seed, s.area, spawn_id, rate) {
+        let _ = pouch.leave(mut s.pouch, s.area, floor_div(x, FP), floor_div(y, FP), item)
+    }
+}
+/// Before cb14, seed current meadow verges, Bramblehold carcasses, river banks
+/// and Ember's den. Future areas call seed_alcove with their assigned kind.
+pub fn seed_alcove(mut s: Sim, area: int, x: int, y: int, kind: int) -> bool {
+    pouch.leave(mut s.pouch, area, x, y, kind)
+}
+fn seed_items(mut s: Sim) {
+    let mask = pouch.bit(s.area)
+    if s.pouch.seeded / mask % 2 == 1 { return }
+    s.pouch.seeded += mask
+    let kind = if s.area == forest.LARKMEADOW then pouch.YARROW else
+        if s.area == forest.BRAMBLEHOLD then pouch.MARROW else pouch.ICE
+    let count = if s.area == forest.LARKMEADOW then 7 else
+        if s.area == forest.BRAMBLEHOLD then 6 else if s.area == forest.RIVER then 5 else 0
+    var i = 0
+    while i < count {
+        let row = 24 + i * (if kind == pouch.YARROW then 36 else 30) + pouch.roll(s.seed, s.area, i) % 7
+        let x = forest.spine(s.seed, s.area, row) + (if i % 2 == 0 then 2 else -2)
+        let y = forest.origin(s.seed, s.area) + row
+        if !forest.blocked(s.seed, s.field, s.area, x, y) {
+            let _ = seed_alcove(mut s, s.area, x, y, kind)
+        }
+        i += 1
+    }
+    if s.area == forest.BRAMBLEHOLD {
+        let (x, y) = forest.den_position(s.seed, 2)
+        let _ = seed_alcove(mut s, s.area, floor_div(x, FP) + 2, floor_div(y, FP), pouch.TUFT)
+    }
+}
+fn clear_menu_holds(mut s: Sim) {
+    input.clear(mut s.key_state)
+    var i = 0
+    while i < s.holds.len { s.holds[i] = input.hold_new(); i += 1 }
+    s.sprint_hold = input.hold_new()
+    s.speed = 0
+    s.sprinting = false
+}
+fn inventory_close(mut s: Sim) {
+    let elapsed = s.tick - s.pouch.paused_at
+    s.started += elapsed
+    s.rally_at += elapsed
+    s.entered += elapsed
+    s.pickup_at += elapsed
+    s.gate_hint_until += elapsed
+    s.lore_until += elapsed
+    if s.pouch.hidden > 0 { s.pouch.hidden += elapsed }
+    var i = 0
+    while i < s.foes.len {
+        s.foes[i].since += elapsed
+        if s.foes[i].last_hit >= 0 { s.foes[i].last_hit += elapsed }
+        if s.foes[i].died >= 0 { s.foes[i].died += elapsed }
+        if s.foes[i].slow_until > 0 { s.foes[i].slow_until += elapsed }
+        i += 1
+    }
+    i = 0
+    while i < s.trail.len { s.trail[i].until += elapsed; i += 1 }
+    i = 0
+    while i < s.drops.len { s.drops[i].until += elapsed; i += 1 }
+    i = 0
+    while i < s.meat.len { s.meat[i].until += elapsed; i += 1 }
+    s.pouch.open = false
+    s.pouch.aiming = false
+    clear_menu_holds(mut s)
+}
+fn inventory_key(mut s: Sim, key: int) {
+    if key == controls.KEY_RELEASE || key == controls.KEY_INVENTORY { inventory_close(mut s); return }
+    if s.pouch.aiming {
+        if key == controls.KEY_BITE && consume_item(mut s, pouch.ICE) {
+            s.pouch.aiming = false
+            s.pouch.tooltip = false
+            s.pouch.row = first_item(s)
+        }
+        return
+    }
+    if s.pouch.tooltip {
+        if key == controls.KEY_UP || key == controls.KEY_LEFT { s.pouch.choice = (s.pouch.choice + 2) % 3 }
+        if key == controls.KEY_DOWN || key == controls.KEY_RIGHT { s.pouch.choice = (s.pouch.choice + 1) % 3 }
+        if key == controls.KEY_BITE {
+            let kind = s.pouch.row
+            if s.pouch.choice == 0 && kind == pouch.ICE { s.pouch.aiming = true; return }
+            if s.pouch.choice == 0 { let _ = consume_item(mut s, kind) }
+            if s.pouch.choice == 1 { let _ = drop_item(mut s, kind) }
+            if s.pouch.choice == 2 { item_set(mut s, kind, item_count(s, kind) - 1) }
+            s.pouch.tooltip = false
+            s.pouch.row = first_item(s)
+        }
+        return
+    }
+    if key == controls.KEY_UP || key == controls.KEY_LEFT { s.pouch.row = next_item(s, s.pouch.row, -1) }
+    if key == controls.KEY_DOWN || key == controls.KEY_RIGHT { s.pouch.row = next_item(s, s.pouch.row, 1) }
+    if key == controls.KEY_BITE && s.pouch.row >= 0 {
+        s.pouch.tooltip = true
+        s.pouch.choice = 0
+    }
+}
+/// Appends a stable lore id exactly once, preserving discovery order.
+pub fn remember_lore(mut s: Sim, id: int) { pouch.add_lore(mut s.pouch, id) }
+fn lore_key(mut s: Sim, key: int) {
+    if key == controls.KEY_RELEASE || key == controls.KEY_INVENTORY || key == controls.KEY_REST {
+        s.pouch.lore_open = false
+        clear_menu_holds(mut s)
+    }
+    if key == controls.KEY_UP && s.pouch.lore_row > 0 { s.pouch.lore_row -= 1 }
+    if key == controls.KEY_DOWN && s.pouch.lore_row + 1 < s.pouch.lore.len { s.pouch.lore_row += 1 }
+}
+
 
 /// The matching camera row.
 pub fn camera_y(s: Sim) -> int { if s.action == BITE then floor_div(s.action_y, FP) else cell_y(s) }

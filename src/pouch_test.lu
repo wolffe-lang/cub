@@ -1,0 +1,269 @@
+//! member: false
+use controls
+use forest
+use journey
+use pouch
+use sim
+use inventory
+use grid
+use tier
+
+fn press(mut s: sim.Sim, key: int) {
+    var keys = List[int]()
+    (mut keys).push(key)
+    sim.step(mut s, keys)
+}
+fn wait(mut s: sim.Sim, ticks: int) {
+    var keys = List[int]()
+    var n = 0
+    while n < ticks { sim.step(mut s, keys); n += 1 }
+}
+fn quiet() -> sim.Sim {
+    var s = sim.new(7, 80, 24)
+    (mut s.foes).reset()
+    s.pouch.seeded = pouch.bit(forest.AREAS) - 1
+    s
+}
+fn test_cb15_yarrow_stops_bleeding_and_heals_ten_clamped() {
+    var s = quiet()
+    s.health = 20
+    sim.bleed(mut s)
+    assert(sim.give_item(mut s, pouch.YARROW), "give yarrow")
+    assert(sim.consume_item(mut s, pouch.YARROW), "consume")
+    assert(s.health == 30 && s.pouch.bleeding == 0 && s.yarrow == 0, "ten and no bleed")
+    s.health = 50
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    let _ = sim.consume_item(mut s, pouch.YARROW)
+    assert(s.health == 52, "clamp")
+}
+fn test_cb15_marrow_heals_thirty_over_sixty_and_damage_interrupts() {
+    var s = quiet()
+    s.health = 10
+    let _ = sim.give_item(mut s, pouch.MARROW)
+    let _ = sim.consume_item(mut s, pouch.MARROW)
+    wait(mut s, 59)
+    assert(s.health == 39 && s.pouch.marrow_ticks == 1, "29 instalments")
+    wait(mut s, 1)
+    assert(s.health == 40 && s.pouch.marrow_ticks == 0, "thirtieth at tick60")
+    s.health = 10
+    let _ = sim.give_item(mut s, pouch.MARROW)
+    let _ = sim.consume_item(mut s, pouch.MARROW)
+    wait(mut s, 20)
+    sim.hurt(mut s, 3)
+    wait(mut s, 60)
+    assert(s.health == 17 && s.marrow == 0, "cancel without refund")
+}
+fn test_cb15_bleeding_licks_after_twenty_still_ticks() {
+    var s = quiet()
+    sim.bleed(mut s)
+    wait(mut s, 19)
+    assert(s.health == 33 && s.pouch.bleeding > 0, "nineteen health ticks")
+    wait(mut s, 1)
+    assert(s.health == 33 && s.pouch.bleeding == 0, "lick cures before twentieth damage")
+}
+fn test_cb15_pine_clears_trail_and_hides_exactly_six_hundred_ticks() {
+    var s = quiet()
+    (mut s.trail).push(sim.Trail { x: s.x, y: s.y, until: 100 })
+    let _ = sim.give_item(mut s, pouch.PINE)
+    assert(sim.consume_item(mut s, pouch.PINE), "pine")
+    assert(s.trail.len == 0 && sim.trail_hidden(s), "old trail gone")
+    s.tick = 599
+    assert(sim.trail_hidden(s), "last hidden tick")
+    s.tick = 600
+    assert(!sim.trail_hidden(s), "exclusive expiry")
+}
+fn test_cb15_ice_prefers_lock_then_nearest_in_front_and_lasts_ninety() {
+    var s = quiet()
+    (mut s.foes).push(sim.make_ashen(s.x, s.y - 3 * sim.FP))
+    (mut s.foes).push(sim.make_ashen(s.x, s.y - 5 * sim.FP))
+    let _ = sim.give_item(mut s, pouch.ICE)
+    s.locked = 1
+    assert(sim.ice_target(s) == 1, "lock wins")
+    assert(sim.consume_item(mut s, pouch.ICE), "throw")
+    assert(sim.foe_speed(s, 1, 40) == 20 && s.foes[1].slow_until == 90, "half speed")
+    s.tick = 90
+    assert(sim.foe_speed(s, 1, 40) == 40, "expiry")
+    s.locked = -1
+    assert(sim.ice_target(s) == 0, "nearest front")
+    s.heading = 128
+    let _ = sim.give_item(mut s, pouch.ICE)
+    assert(!sim.consume_item(mut s, pouch.ICE) && s.pouch.ice == 1, "no target no spend")
+}
+fn test_cb15_tuft_on_death_keeps_scent_without_a_mark_once() {
+    var s = quiet()
+    s.scent = 77
+    let _ = sim.give_item(mut s, pouch.TUFT)
+    sim.hurt(mut s, 100)
+    assert(s.scent == 77 && !s.mark && s.mark_scent == 0, "tuft retains scent with no mark")
+    assert(s.pouch.tuft == 0 && s.pouch.uses == 1 && s.deaths == 1, "one passive use")
+    sim.wake(mut s)
+    sim.hurt(mut s, 100)
+    assert(s.scent == 0 && s.mark && s.mark_scent == 77 && s.pouch.uses == 1, "second death ordinary")
+}
+fn test_cb15_caps_and_full_pickup_refusal() {
+    var s = quiet()
+    var k = 0
+    while k < pouch.KINDS {
+        var n = 0
+        while n < pouch.cap(k) { assert(sim.give_item(mut s, k), "below cap"); n += 1 }
+        assert(!sim.give_item(mut s, k) && sim.item_count(s, k) == pouch.cap(k), "cap")
+        k += 1
+    }
+    let _ = pouch.leave(mut s.pouch, s.area, sim.cell_x(s), sim.cell_y(s), pouch.YARROW)
+    assert(sim.pickup_item(mut s) && s.pouch.pickups.len == 1, "full stack leaves ground item")
+}
+fn test_cb15_drop_repickup_and_discard_menu_paths_pause_the_forest() {
+    var s = quiet()
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    let x = s.x
+    let health = s.health
+    press(mut s, controls.KEY_INVENTORY)
+    press(mut s, controls.KEY_BITE)
+    press(mut s, controls.KEY_DOWN)
+    press(mut s, controls.KEY_BITE)
+    assert(s.yarrow == 0 && s.pouch.pickups.len == 1, "menu drop")
+    wait(mut s, 10)
+    assert(s.x == x && s.health == health, "paused")
+    press(mut s, controls.KEY_INVENTORY)
+    assert(!s.pouch.open, "i closes")
+    assert(sim.pickup_item(mut s) && s.yarrow == 1 && s.pouch.pickups.len == 0, "repickup")
+    press(mut s, controls.KEY_INVENTORY)
+    press(mut s, controls.KEY_BITE)
+    press(mut s, controls.KEY_DOWN)
+    press(mut s, controls.KEY_DOWN)
+    press(mut s, controls.KEY_BITE)
+    assert(s.yarrow == 0 && s.pouch.pickups.len == 0, "discard destroys")
+    press(mut s, controls.KEY_RELEASE)
+    assert(!s.pouch.open && sim.held_direction(s) < 0, "Esc closes and clears holds")
+}
+fn test_cb15_menu_consume_and_aim_paths() {
+    var s = quiet()
+    s.health = 20
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    press(mut s, controls.KEY_INVENTORY)
+    press(mut s, controls.KEY_BITE)
+    press(mut s, controls.KEY_BITE)
+    assert(s.health == 30 && s.yarrow == 0, "consume path")
+    press(mut s, controls.KEY_RELEASE)
+    let _ = sim.give_item(mut s, pouch.ICE)
+    (mut s.foes).push(sim.make_ashen(s.x, s.y - 4 * sim.FP))
+    press(mut s, controls.KEY_INVENTORY)
+    press(mut s, controls.KEY_BITE)
+    press(mut s, controls.KEY_BITE)
+    assert(s.pouch.aiming && s.pouch.ice == 1, "ask for aim")
+    press(mut s, controls.KEY_BITE)
+    assert(!s.pouch.aiming && s.pouch.ice == 0, "throw path")
+    press(mut s, controls.KEY_RELEASE)
+    assert(s.foes[0].slow_until == s.tick + 90, "ninety world ticks after unpause")
+}
+fn test_cb15_lore_appends_once_and_rest_lore_is_scrollable() {
+    var s = quiet()
+    sim.remember_lore(mut s, 2)
+    sim.remember_lore(mut s, 1)
+    sim.remember_lore(mut s, 2)
+    assert(s.pouch.lore.len == 2 && s.pouch.lore[0] == 2 && s.pouch.lore[1] == 1, "discovery order")
+    s.den = true
+    sim.rest_reset(mut s)
+    s.rest_row = 6
+    press(mut s, controls.KEY_BITE)
+    assert(s.pouch.lore_open, "Lore row")
+    press(mut s, controls.KEY_DOWN)
+    assert(s.pouch.lore_row == 1, "scroll")
+    press(mut s, controls.KEY_RELEASE)
+    assert(s.den && !s.pouch.lore_open, "return to den")
+}
+fn test_cb15_save_and_replay_snapshot_keep_pouch_lore_and_ground_items() {
+    var s = quiet()
+    let _ = sim.give_item(mut s, pouch.TUFT)
+    let _ = sim.give_item(mut s, pouch.PINE)
+    sim.remember_lore(mut s, 2)
+    let _ = pouch.leave(mut s.pouch, 0, 3, 12, pouch.ICE)
+    s.pouch.uses = 2
+    let text = journey.encode(s)
+    let restored = journey.decode(text, 80, 24) else { assert(false, "save"); return }
+    assert(journey.encode(restored) == text, "canonical round trip")
+    assert(restored.pouch.tuft == 1 && restored.pouch.uses == 2 && restored.pouch.lore[0] == 2, "persistent items")
+    assert(pouch.pack(restored.pouch.pickups[0]) == pouch.pack(s.pouch.pickups[0]), "persistent drop")
+    let replayed = journey.from_snapshot(journey.snapshot(s), 80, 24) else { assert(false, "snapshot"); return }
+    assert(journey.encode(replayed) == text, "same replay initial world")
+}
+fn test_cb15_migrates_cub_five_counts_and_rejects_bad_new_state() {
+    let payload = "CUB 5\nseed 7 difficulty 0\ngrowth 1 1 1 1 1\nwater 0 scent 0\nden 0 lit 1 shortcuts 0\ngate 0 story 0 deaths 0\nmark 0 0 0 0 0\ncache 0 pouch 6 6 opening 0\nfield 80\nbosses 0 end 0 played 0 lost 0\nlevel 1\nslain 0 0 0 0 0 0 0\n"
+    let migrated = journey.decode(payload + "check {journey.checksum(payload)}\n", 80, 24) else |e| {
+        assert(false, "CUB5 migration {e}"); return
+    }
+    assert(migrated.yarrow == 5 && migrated.marrow == 3 && migrated.pouch.uses == 0 &&
+        migrated.pouch.lore.len == 0 && migrated.pouch.pickups.len == 0, "cap old counts, new fields empty")
+    var bad = quiet()
+    bad.pouch.tuft = 2
+    var rejected = false
+    let _ = journey.decode(journey.encode(bad), 80, 24) else |_| { rejected = true; quiet() }
+    assert(rejected, "new tuft cap validated")
+}
+fn test_cb15_pine_makes_the_lynx_lose_the_cub() {
+    var s = quiet()
+    s.area = forest.CRAGS
+    let (x, y, _) = forest.arena(s.seed, s.field, s.area)
+    s.x = x * sim.FP
+    s.y = (forest.origin(s.seed, s.area) + y) * sim.FP
+    s.foes = sim.area_foes(s.seed, s.field, s.area, 0)
+    let _ = sim.give_item(mut s, pouch.PINE)
+    let _ = sim.consume_item(mut s, pouch.PINE)
+    wait(mut s, 1)
+    for f in s.foes {
+        if f.kind == sim.LYNX { assert(!f.engaged && f.speed == 0 && f.phase == sim.HUNT, "lynx loses scent") }
+    }
+    assert(s.boss == -1, "no engaged lynx theme")
+}
+fn test_cb15_menu_freezes_marrow_bleed_trail_and_absolute_expiries() {
+    var s = quiet()
+    s.health = 20
+    let _ = sim.give_item(mut s, pouch.MARROW)
+    let _ = sim.consume_item(mut s, pouch.MARROW)
+    let _ = sim.give_item(mut s, pouch.PINE)
+    press(mut s, controls.KEY_INVENTORY)
+    let health = s.health
+    wait(mut s, 100)
+    assert(s.health == health && s.pouch.marrow_ticks == 60, "menu consumes no world tick")
+    let _ = sim.consume_item(mut s, pouch.PINE)
+    wait(mut s, 20)
+    press(mut s, controls.KEY_RELEASE)
+    assert(s.pouch.hidden == s.tick + 600, "new pine starts at the paused world time")
+    wait(mut s, 60)
+    assert(s.health == 50 && s.pouch.marrow_ticks == 0, "heal resumes without fast-forward")
+}
+fn test_cb15_species_drop_rolls_are_stable_and_match_rates() {
+    var rate = 10
+    while rate <= 25 {
+        var count = 0
+        var seed = 0
+        while seed < 100 { if pouch.drops(seed, 2, 7, rate) { count += 1 }; seed += 1 }
+        assert(count == rate, "each percentile occurs once in one hundred seeds")
+        rate += 5
+    }
+}
+fn test_cb15_burn_hook_melts_carried_and_local_ice_only() {
+    var s = quiet()
+    let _ = sim.give_item(mut s, pouch.ICE)
+    let _ = pouch.leave(mut s.pouch, 0, 0, 0, pouch.ICE)
+    let _ = pouch.leave(mut s.pouch, 1, 0, 0, pouch.ICE)
+    sim.melt_ice(mut s)
+    assert(s.pouch.ice == 0 && s.pouch.pickups.len == 1 && s.pouch.pickups[0].area == 1, "Burn hook")
+}
+fn test_cb15_pickup_sprites_and_inventory_exist_on_both_tiers() {
+    var s = quiet()
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    var t = tier.PLAIN
+    while t <= tier.RICH {
+        var g = grid.new(24, 80)
+        inventory.render(s, t, mut g)
+        assert(grid.at(g, 3, 5).cp == 84, "The pouch title")
+        var k = 0
+        while k < pouch.KINDS {
+            inventory.pickup(mut g, t, 12, 10 + 8 * k, k, 0)
+            assert(grid.at(g, 11, 9 + 8 * k).cp != 32, "shaped pickup")
+            k += 1
+        }
+        t += 1
+    }
+}
