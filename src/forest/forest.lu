@@ -1589,7 +1589,9 @@ pub fn landmark(seed: int, field: int, area: int, k: int) -> (int, int, int) {
     }
     if area == GRAVEHOLLOW {
         let (cx, cy, r) = arena(seed, field, area)
-        return (LM_SCENT, cx, cy - r - 3)
+        // On the route three rows short of the ring: the brush round the
+        // clearing is deep, a patch beside the route would be cut off.
+        return (LM_SCENT, spine(seed, area, cy - r - 3), cy - r - 3)
     }
     let (sx, sy) = town.scent_mark(seed, k)
     (LM_SCENT, sx, sy)
