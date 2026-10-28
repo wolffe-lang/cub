@@ -46,7 +46,7 @@ def check(binary):
     frames = int(re.search(r'# frames (\d+)', (ROOT / 'tests/cases/world-den.pk').read_text())[1])
     run('write-den', save, frames, 'world-den')
     before = save.read_bytes()
-    assert before.startswith(b'CUB 5\n') and len(before) < 512
+    assert before.startswith(b'CUB 6\n') and len(before) < 512
     run('resume-den', save)
     assert save.read_bytes() == before, 'write/resume changed persistent state'
     words = (out / 'resume-den/final.state').read_text().splitlines()[0].split()
@@ -68,10 +68,10 @@ def check(binary):
     assert pending.read_bytes() == b'another writer owns this stage'
     pending.unlink()
     for name, data, diagnostic in [
-        ('unknown', before.replace(b'CUB 5', b'CUB 9', 1), 'save_version'),
-        ('schema-1', before.replace(b'CUB 5', b'CUB 1', 1), 'save_version'),
-        ('schema-2', before.replace(b'CUB 5', b'CUB 2', 1), 'save_version'),
-        ('schema-3', before.replace(b'CUB 5', b'CUB 3', 1), 'save_version'),
+        ('unknown', before.replace(b'CUB 6', b'CUB 9', 1), 'save_version'),
+        ('schema-1', before.replace(b'CUB 6', b'CUB 1', 1), 'save_version'),
+        ('schema-2', before.replace(b'CUB 6', b'CUB 2', 1), 'save_version'),
+        ('schema-3', before.replace(b'CUB 6', b'CUB 3', 1), 'save_version'),
         ('corrupt', before[:-5], 'save_corrupt'),
         ('extra', before + b'junk\n', 'save_corrupt'),
     ]:
@@ -83,13 +83,13 @@ def check(binary):
     # File-level schema4 migration uses an independently recomputed old checksum.
     legacy = out / 'schema-4.save'
     payload = before.decode().split('check ')[0]
-    payload = re.sub(r'^slain .*\n', '', payload, flags=re.M).replace('CUB 5\n', 'CUB 4\n', 1)
+    payload = re.sub(r'^(slain|items) .*\n', '', payload, flags=re.M).replace('CUB 6\n', 'CUB 4\n', 1)
     h = 7
     for byte in payload.encode():
         h = (h * 31 + byte) % 1000000007
     legacy.write_text(payload + 'check ' + str(h) + '\n')
     run('migrate-schema-4', legacy)
-    assert legacy.read_bytes().startswith(b'CUB 5\n') and b'slain 0 0 0 0 0 0 0\n' in legacy.read_bytes(), 'schema4 migration lost validation/state'
+    assert legacy.read_bytes().startswith(b'CUB 6\n') and b'slain 0 0 0 0 0 0 0\n' in legacy.read_bytes(), 'schema4 migration lost validation/state'
 
     memory = out / 'slain.save'
     memory.unlink(missing_ok=True)
