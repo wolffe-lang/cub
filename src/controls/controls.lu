@@ -340,7 +340,7 @@ pub fn events(raw: List[input.Event], mut keys: List[int]) {
         if k >= KEY_UP && k <= KEY_RIGHT && e.mods & input.MOD_SHIFT != 0 { k += 4 }
         if k == KEY_BITE && e.mods & input.MOD_SHIFT != 0 { k = KEY_HEAVY }
         // A held c never becomes a sprint or automatically queues a roll.
-        if k == KEY_DODGE && e.kind == input.REPEAT { continue }
+        if (k == KEY_DODGE || k == KEY_INVENTORY) && e.kind == input.REPEAT { continue }
         if k != KEY_NONE { (mut keys).push(k) }
     }
 }
