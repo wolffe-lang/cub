@@ -1,0 +1,3 @@
+cb18 waits for Mac build lock 2026-10-28T16:44:24Z
+test src/newfoes_test.lu::test_cb18_first_tab_skips_the_snuffed_wisp_and_locks_its_sentry ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 518 filtered out

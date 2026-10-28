@@ -1,0 +1,2 @@
+test src/newfoes_test.lu::test_cb18_moths_lose_two_per_bite_and_drop_four_each ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 525 filtered out

@@ -1,0 +1,163 @@
+test src/newfoes_art_test.lu::test_cb18_marten_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_adder_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_moths_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_heron_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_glow_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_wisp_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_moth_dimming_keeps_every_glyph_and_uses_dim_on_both_tiers ... ok
+test src/newfoes_art_test.lu::test_cb18_glow_contact_flashes_exactly_six_frames_and_scatters_the_cluster ... ok
+test src/newfoes_art_test.lu::test_cb18_snuffed_wisp_returns_at_three_hundred_not_before ... ok
+test src/newfoes_art_test.lu::test_cb18_moth_bitmap_loses_two_visible_moths_per_bite ... ok
+test src/newfoes_art_test.lu::test_cb18_glow_worms_carry_light_and_their_death_darkens_the_cave ... ok
+test src/newfoes_art_test.lu::test_cb18_one_glow_contact_does_not_consume_all_three_before_they_scatter ... ok
+test src/newfoes_test.lu::test_cb18_each_new_foe_has_a_readable_tell_and_recovery ... ok
+test src/newfoes_test.lu::test_cb18_wisp_bite_snuffs_without_killing_or_scent ... ok
+test src/newfoes_test.lu::test_cb18_moths_lose_two_per_bite_and_drop_four_each ... ok
+test src/newfoes_test.lu::test_cb18_burn_has_forty_ticks_and_does_not_lick_out ... ok
+test src/newfoes_test.lu::test_cb18_water_cures_burn_before_the_next_damage_tick ... ok
+test src/newfoes_test.lu::test_cb18_heron_parry_never_turns_the_spear ... ok
+test src/newfoes_test.lu::test_cb18_marten_movement_has_no_invisible_boss_arena_boundary ... ok
+test src/newfoes_test.lu::test_cb18_burn_damage_continues_during_dodge_iframes ... ok
+test src/newfoes_test.lu::test_cb18_adder_line_misses_a_body_off_the_committed_ray ... ok
+test src/newfoes_test.lu::test_cb18_every_new_foe_retains_its_actual_recovery_phase ... ok
+test src/newfoes_test.lu::test_cb18_adder_parry_kills_and_only_a_landed_strike_burns ... ok
+test src/newfoes_test.lu::test_cb18_heron_dodge_answers_the_unparryable_spear ... ok
+test src/newfoes_test.lu::test_cb18_pre_pouch_scent_hook_is_bounded_and_returns_without_extra_meat ... ok
+test src/newfoes_test.lu::test_cb18_legacy_alpha_dodge_is_not_mistaken_for_a_snuffed_wisp ... ok
+test src/newfoes_test.lu::test_cb18_moths_circle_the_cub_not_their_old_ember ... ok
+wolf test: 27 passed; 0 failed; 0 rejected; 0 unsupported; 485 filtered out
+build: target/native/cub
+build: target/release/cub
+encounter 9 ticks 74 done 1 parity 1 bites 2 dodges 0 theft 1 returned 1 dim 0 flash 0 health 75 foe_health 0 phase 3 died 74
+encounter 10 ticks 14 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 0 health 76 foe_health 0 phase 2 died 14
+encounter 11 ticks 49 done 1 parity 1 bites 1 dodges 0 theft 0 returned 0 dim 1 flash 0 health 76 foe_health 0 phase 1 died 49
+encounter 12 ticks 62 done 1 parity 1 bites 2 dodges 2 theft 0 returned 0 dim 0 flash 0 health 76 foe_health 0 phase 1 died -1
+encounter 13 ticks 17 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 1 health 76 foe_health 0 phase 1 died 11
+encounter 14 ticks 11 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 0 health 76 foe_health 1 phase 10 died -1
+encounter 9 ticks 74 done 1 parity 1 bites 2 dodges 0 theft 1 returned 1 dim 0 flash 0 health 75 foe_health 0 phase 3 died 74
+encounter 10 ticks 14 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 0 health 76 foe_health 0 phase 2 died 14
+encounter 11 ticks 49 done 1 parity 1 bites 1 dodges 0 theft 0 returned 0 dim 1 flash 0 health 76 foe_health 0 phase 1 died 49
+encounter 12 ticks 62 done 1 parity 1 bites 2 dodges 2 theft 0 returned 0 dim 0 flash 0 health 76 foe_health 0 phase 1 died -1
+encounter 13 ticks 17 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 1 health 76 foe_health 0 phase 1 died 11
+encounter 14 ticks 11 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 0 health 76 foe_health 1 phase 10 died -1
+CB18_MOTH_ORBIT_GOLDENS changed 5 added 0 removed 0
+diagonal-study: 410 states, 75 unique drawings, four facings, both fields and tiers
+kind gap direction hits pairs percent
+9 0 along 88 208 42.3
+9 0 away 0 704 0.0
+9 0 into 144 144 100.0
+9 1 along 64 304 21.1
+9 1 away 0 832 0.0
+9 1 into 176 176 100.0
+9 2 along 0 400 0.0
+9 2 away 0 960 0.0
+9 2 into 0 208 0.0
+10 0 along 96 208 46.2
+10 0 away 0 704 0.0
+10 0 into 144 144 100.0
+10 1 along 64 304 21.1
+10 1 away 0 832 0.0
+10 1 into 176 176 100.0
+10 2 along 0 400 0.0
+10 2 away 0 960 0.0
+10 2 into 0 208 0.0
+11 0 along 96 208 46.2
+11 0 away 0 704 0.0
+11 0 into 144 144 100.0
+11 1 along 64 304 21.1
+11 1 away 0 832 0.0
+11 1 into 176 176 100.0
+11 2 along 0 400 0.0
+11 2 away 0 960 0.0
+11 2 into 0 208 0.0
+12 0 along 88 208 42.3
+12 0 away 0 704 0.0
+12 0 into 144 144 100.0
+12 1 along 64 304 21.1
+12 1 away 0 832 0.0
+12 1 into 176 176 100.0
+12 2 along 0 400 0.0
+12 2 away 0 960 0.0
+12 2 into 0 208 0.0
+13 0 along 72 184 39.1
+13 0 away 0 668 0.0
+13 0 into 108 108 100.0
+13 1 along 64 280 22.9
+13 1 away 0 796 0.0
+13 1 into 140 140 100.0
+13 2 along 0 376 0.0
+13 2 away 0 924 0.0
+13 2 into 0 172 0.0
+14 0 along 48 160 30.0
+14 0 away 0 632 0.0
+14 0 into 72 72 100.0
+14 1 along 64 256 25.0
+14 1 away 0 760 0.0
+14 1 into 104 104 100.0
+14 2 along 0 352 0.0
+14 2 away 0 888 0.0
+14 2 into 0 136 0.0
+inward-gap01 misses 0
+gameplay: six-foe complete bite/snuff rings, inward gap0/1 100%, away/gap2 zero
+gameplay: six foes 600 arena resolutions, complete hit rings, six replay outcomes and both-tier frames green
+CB18_INHERITED_HIT_CENSUS_BYTE_EQUAL native
+kind gap direction hits pairs percent
+9 0 along 88 208 42.3
+9 0 away 0 704 0.0
+9 0 into 144 144 100.0
+9 1 along 64 304 21.1
+9 1 away 0 832 0.0
+9 1 into 176 176 100.0
+9 2 along 0 400 0.0
+9 2 away 0 960 0.0
+9 2 into 0 208 0.0
+10 0 along 96 208 46.2
+10 0 away 0 704 0.0
+10 0 into 144 144 100.0
+10 1 along 64 304 21.1
+10 1 away 0 832 0.0
+10 1 into 176 176 100.0
+10 2 along 0 400 0.0
+10 2 away 0 960 0.0
+10 2 into 0 208 0.0
+11 0 along 96 208 46.2
+11 0 away 0 704 0.0
+11 0 into 144 144 100.0
+11 1 along 64 304 21.1
+11 1 away 0 832 0.0
+11 1 into 176 176 100.0
+11 2 along 0 400 0.0
+11 2 away 0 960 0.0
+11 2 into 0 208 0.0
+12 0 along 88 208 42.3
+12 0 away 0 704 0.0
+12 0 into 144 144 100.0
+12 1 along 64 304 21.1
+12 1 away 0 832 0.0
+12 1 into 176 176 100.0
+12 2 along 0 400 0.0
+12 2 away 0 960 0.0
+12 2 into 0 208 0.0
+13 0 along 72 184 39.1
+13 0 away 0 668 0.0
+13 0 into 108 108 100.0
+13 1 along 64 280 22.9
+13 1 away 0 796 0.0
+13 1 into 140 140 100.0
+13 2 along 0 376 0.0
+13 2 away 0 924 0.0
+13 2 into 0 172 0.0
+14 0 along 48 160 30.0
+14 0 away 0 632 0.0
+14 0 into 72 72 100.0
+14 1 along 64 256 25.0
+14 1 away 0 760 0.0
+14 1 into 104 104 100.0
+14 2 along 0 352 0.0
+14 2 away 0 888 0.0
+14 2 into 0 136 0.0
+inward-gap01 misses 0
+gameplay: six-foe complete bite/snuff rings, inward gap0/1 100%, away/gap2 zero
+gameplay: six foes 600 arena resolutions, complete hit rings, six replay outcomes and both-tier frames green
+CB18_INHERITED_HIT_CENSUS_BYTE_EQUAL release
+rendered-glyphs art_frames 1112 golden_frames 3356 nonbyte_codepoints 235 unlisted 0

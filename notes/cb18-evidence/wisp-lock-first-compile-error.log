@@ -1,0 +1,25 @@
+cb18 waits for Mac build lock 2026-10-28T16:40:06Z
+error[E0301]: module `controls` has no item named `KEY_TAB`
+   --> src/newfoes_test.lu:277:31
+    |
+277 |     sim.step(mut s, [controls.KEY_TAB])
+    |                               ^^^^^^^ not found in the module
+    |
+help: did you mean `KEY_PAW`?
+    |
+277 |     sim.step(mut s, [controls.KEY_PAW])
+    |
+
+error[E0301]: module `controls` has no item named `KEY_TAB`
+   --> src/newfoes_test.lu:281:31
+    |
+281 |     sim.step(mut s, [controls.KEY_TAB])
+    |                               ^^^^^^^ not found in the module
+    |
+help: did you mean `KEY_PAW`?
+    |
+281 |     sim.step(mut s, [controls.KEY_PAW])
+    |
+
+test src/newfoes_test.lu ... REJECTED (does not compile)
+wolf test: 0 passed; 0 failed; 1 rejected; 0 unsupported; 503 filtered out

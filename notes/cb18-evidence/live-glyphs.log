@@ -1,0 +1,7 @@
+test src/newfoes_art_test.lu::test_cb18_marten_all_live_glyphs_declared ... ok
+test src/newfoes_art_test.lu::test_cb18_adder_all_live_glyphs_declared ... ok
+test src/newfoes_art_test.lu::test_cb18_moths_all_live_glyphs_declared ... ok
+test src/newfoes_art_test.lu::test_cb18_heron_all_live_glyphs_declared ... ok
+test src/newfoes_art_test.lu::test_cb18_glow_all_live_glyphs_declared ... ok
+test src/newfoes_art_test.lu::test_cb18_wisp_all_live_glyphs_declared ... ok
+wolf test: 6 passed; 0 failed; 0 rejected; 0 unsupported; 512 filtered out

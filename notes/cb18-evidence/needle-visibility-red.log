@@ -1,0 +1,2 @@
+test src/newfoes_art_test.lu::test_cb18_marten_needles_remain_visible_over_the_cub ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 521 filtered out

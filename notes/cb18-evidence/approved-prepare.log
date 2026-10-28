@@ -1,0 +1,47 @@
+cb18 waits for Mac build lock 2026-10-28T12:37:42Z
+cb18 waits for Mac build lock 2026-10-28T12:38:12Z
+test src/newfoes_art_test.lu::test_cb18_marten_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_adder_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_moths_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_heron_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_glow_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_wisp_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_moth_dimming_keeps_every_glyph_and_uses_dim_on_both_tiers ... ok
+test src/newfoes_art_test.lu::test_cb18_glow_contact_flashes_exactly_six_frames_and_scatters_the_cluster ... ok
+test src/newfoes_art_test.lu::test_cb18_snuffed_wisp_returns_at_three_hundred_not_before ... ok
+test src/newfoes_art_test.lu::test_cb18_moth_bitmap_loses_two_visible_moths_per_bite ... ok
+test src/newfoes_art_test.lu::test_cb18_glow_worms_carry_light_and_their_death_darkens_the_cave ... ok
+test src/newfoes_art_test.lu::test_cb18_one_glow_contact_does_not_consume_all_three_before_they_scatter ... ok
+test src/newfoes_test.lu::test_cb18_each_new_foe_has_a_readable_tell_and_recovery ... ok
+test src/newfoes_test.lu::test_cb18_wisp_bite_snuffs_without_killing_or_scent ... ok
+test src/newfoes_test.lu::test_cb18_moths_lose_two_per_bite_and_drop_four_each ... ok
+test src/newfoes_test.lu::test_cb18_burn_has_forty_ticks_and_does_not_lick_out ... ok
+test src/newfoes_test.lu::test_cb18_water_cures_burn_before_the_next_damage_tick ... ok
+test src/newfoes_test.lu::test_cb18_heron_parry_never_turns_the_spear ... ok
+test src/newfoes_test.lu::test_cb18_marten_movement_has_no_invisible_boss_arena_boundary ... ok
+test src/newfoes_test.lu::test_cb18_burn_damage_continues_during_dodge_iframes ... ok
+test src/newfoes_test.lu::test_cb18_adder_line_misses_a_body_off_the_committed_ray ... ok
+test src/newfoes_test.lu::test_cb18_every_new_foe_retains_its_actual_recovery_phase ... ok
+test src/newfoes_test.lu::test_cb18_adder_parry_kills_and_only_a_landed_strike_burns ... ok
+test src/newfoes_test.lu::test_cb18_heron_dodge_answers_the_unparryable_spear ... ok
+test src/newfoes_test.lu::test_cb18_pre_pouch_scent_hook_is_bounded_and_returns_without_extra_meat ... ok
+wolf test: 25 passed; 0 failed; 0 rejected; 0 unsupported; 485 filtered out
+test src/glyphs_test.lu::test_glyphs_doc_matches_the_tier ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 509 filtered out
+build: target/native/cub
+build: target/release/cub
+encounter 9 ticks 74 done 1 parity 1 bites 2 dodges 0 theft 1 returned 1 dim 0 flash 0 health 75 foe_health 0 phase 3 died 74
+encounter 10 ticks 14 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 0 health 76 foe_health 0 phase 2 died 14
+encounter 11 ticks 42 done 1 parity 1 bites 2 dodges 0 theft 0 returned 0 dim 1 flash 0 health 76 foe_health 0 phase 1 died 42
+encounter 12 ticks 62 done 1 parity 1 bites 2 dodges 2 theft 0 returned 0 dim 0 flash 0 health 76 foe_health 0 phase 1 died -1
+encounter 13 ticks 17 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 1 health 76 foe_health 0 phase 1 died 11
+encounter 14 ticks 11 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 0 health 76 foe_health 1 phase 8 died -1
+encounter 9 ticks 74 done 1 parity 1 bites 2 dodges 0 theft 1 returned 1 dim 0 flash 0 health 75 foe_health 0 phase 3 died 74
+encounter 10 ticks 14 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 0 health 76 foe_health 0 phase 2 died 14
+encounter 11 ticks 42 done 1 parity 1 bites 2 dodges 0 theft 0 returned 0 dim 1 flash 0 health 76 foe_health 0 phase 1 died 42
+encounter 12 ticks 62 done 1 parity 1 bites 2 dodges 2 theft 0 returned 0 dim 0 flash 0 health 76 foe_health 0 phase 1 died -1
+encounter 13 ticks 17 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 1 health 76 foe_health 0 phase 1 died 11
+encounter 14 ticks 11 done 1 parity 1 bites 0 dodges 0 theft 0 returned 0 dim 0 flash 0 health 76 foe_health 1 phase 8 died -1
+diagonal-study: 410 states, 75 unique drawings, four facings, both fields and tiers
+diagonal-study: 410 states, 75 unique drawings, four facings, both fields and tiers
+CB18_NEW_GOLDENS_PREPARED arena_files 90 art_files 40 inherited_art_byte_equal 2185

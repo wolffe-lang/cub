@@ -1,0 +1,6 @@
+test src/newfoes_art_test.lu::test_cb18_marten_four_way_envelopes ... ok
+test src/newfoes_art_test.lu::test_cb18_marten_all_live_glyphs_declared ... ok
+test src/newfoes_test.lu::test_cb18_marten_movement_has_no_invisible_boss_arena_boundary ... ok
+test src/newfoes_test.lu::test_cb18_marten_cannot_be_bitten_during_the_trunk_needles ... FAILED (trap(assert))
+test src/newfoes_test.lu::test_cb18_marten_landing_under_the_cub_keeps_ground_bodies_disjoint ... FAILED (trap(assert))
+wolf test: 3 passed; 2 failed; 0 rejected; 0 unsupported; 516 filtered out

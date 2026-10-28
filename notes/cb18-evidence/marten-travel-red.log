@@ -1,0 +1,2 @@
+test src/newfoes_test.lu::test_cb18_marten_movement_has_no_invisible_boss_arena_boundary ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 520 filtered out

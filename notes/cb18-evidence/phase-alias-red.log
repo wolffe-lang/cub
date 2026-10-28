@@ -1,0 +1,4 @@
+cb18 waits for 8 GiB memory floor: 8576647168 bytes 2026-10-28T12:57:12Z
+cb18 waits for 8 GiB memory floor: 8537571328 bytes 2026-10-28T12:57:42Z
+test src/newfoes_test.lu::test_cb18_legacy_alpha_dodge_is_not_mistaken_for_a_snuffed_wisp ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 510 filtered out
