@@ -1149,6 +1149,9 @@ fn action_keys(mut s: Sim, keys: List[int]) {
                 sync_holds(mut s)
             } else if s.holds[i].last != s.tick {
                 input.hold_press(mut s.holds[i], s.tick)
+                // The same legacy Ctrl-arrow is both movement and sprint.
+                // Cover its slow first repeat on both holds, not just Ctrl.
+                if s.sprint_hold.last == s.tick { s.holds[i].until = s.tick + SPRINT_GRACE }
             }
             s.aim_serial += 1
             s.aim_order[i] = s.aim_serial
@@ -1222,7 +1225,7 @@ pub fn strike_foes(mut s: Sim) {
     while i < s.foes.len {
         let f = copy s.foes[i]
         if f.health > 0 &&
-            f.kind != HAWK &&
+            (f.kind != HAWK || f.phase == STRIKE || f.phase == RETREAT) &&
             f.last_hit != s.started &&
             strike_reaches(s, i, reach) {
             var damage = bite_damage(s.fang)
@@ -1266,6 +1269,8 @@ pub fn strike_foes(mut s: Sim) {
                         f.y,
                         if f.kind == FOX {
                             20
+                        } else if f.kind == HAWK {
+                            12
                         } else if f.kind == DEER {
                             5
                         } else if f.kind == ASHEN {
@@ -1501,7 +1506,9 @@ fn foes_step(mut s: Sim) {
                 s.riposte_foe = i
             } else if !invulnerable(s) {
                 hurt(mut s, if f.kind == FOX then 16 else 10)
-                if f.kind == FOX && s.flasks > 0 { s.flasks -= 1 }
+                // Only w spends water. Ember's feint instead steals a small
+                // amount of carried scent (R-cb10-3 A), never below zero.
+                if f.kind == FOX { s.scent -= if s.scent < 5 then s.scent else 5 }
             }
         }
         i += 1
@@ -1808,6 +1815,8 @@ pub fn cub_body(s: Sim) -> Body {
 
 /// A foe's body at `(x, y)` with `heading`.
 pub fn foe_body_at(f: Foe, x: int, y: int, heading: int) -> Body {
+    // The hawk is an unrotated four-cell shadow, not a ground mammal.
+    if f.kind == HAWK { return rect(8, 4, 0, floor_div(x, FP), floor_div(y, FP)) }
     let (w, h) = silhouette.foe_size(f.kind)
     rect(w, h, quarter(heading), floor_div(x, FP), floor_div(y, FP))
 }
@@ -3835,10 +3844,18 @@ pub const SCENE_END: int = 3
 pub const SCENE_TITLE: int = 2
 
 /// Sprint cap at a paw level, always above the meadow's 86 FP/tick flee.
-pub fn sprint_at(paw: int) -> int { trot_at(paw) * 8 / 5 }
+pub fn sprint_at(paw: int) -> int { trot_at(paw) * 8 / 5 + 1 }
 
-/// Repeat-inferred c hold; the first press still performs an immediate dodge.
-pub fn sprint_held(s: Sim) -> bool { input.held(s.sprint_hold, s.tick) }
+/// Legacy Ctrl arrows cannot report release. Cover the slow 500 ms first
+/// repeat plus two 30 Hz ticks; every Ctrl arrow refreshes the last tick.
+/// Negotiated Control keeps its exact down/up lifetime unchanged.
+pub const SPRINT_GRACE: int = 17
+
+/// Sprint modifier state, exact on negotiated terminals, inferred otherwise.
+pub fn sprint_held(s: Sim) -> bool {
+    if input.exact(s.key_state) { return input.held(s.sprint_hold, s.tick) }
+    s.sprint_hold.last >= 0 && s.tick - s.sprint_hold.last < SPRINT_GRACE
+}
 
 /// Sprint stamina per thirty moving ticks, charged with an integer accumulator.
 pub const SPRINT_PER_SECOND: int = 12

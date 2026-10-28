@@ -211,17 +211,21 @@ fn test_trail_expires_and_sneak_lays_none() {
     assert(s.trail.len == 0, "all old scent fades")
 }
 
-fn test_fox_feint_is_harmless_then_steals_water() {
+fn test_fox_feint_is_harmless_then_steals_scent() {
     var s = arena()
     s.foes[0].kind = sim.FOX
+    s.scent = 12
     sim.step(mut s, keys(0))
     assert(s.foes[0].phase == sim.FEINT, "first tell is false")
     ticks(mut s, 16)
     assert(s.foes[0].phase == sim.CROUCH && s.health == 52, "second tell is real")
     ticks(mut s, 12)
-    assert(s.health == 36 && s.flasks == 2, "real strike steals one mouthful")
+    assert(
+        s.health == 36 && s.flasks == 3 && s.scent == 7,
+        "real strike steals five scent, never water",
+    )
     ticks(mut s, 2)
-    assert(s.health == 36 && s.flasks == 2, "one hit per attack")
+    assert(s.health == 36 && s.flasks == 3 && s.scent == 7, "one hit per attack")
 }
 
 fn test_weasel_readable_tell_and_retreat() {
