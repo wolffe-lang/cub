@@ -1,0 +1,17 @@
+cb18 — prediction before implementation, base f20650d4
+
+Six new foe kinds, separate from HAWK, will have four-way bodies and sprites,
+readable tells and bounded active windows with at least twelve ticks of recovery.
+The arena real-key fighter should resolve all 600 seed/size encounters (50 seeds,
+fields 80 and 200) by kill, heron pass, or wisp snuff. The plant will deliberately
+remove one foe's recovery and fail the named fairness row; it lives off the line.
+The marten's tell is twenty ticks; the adder's twelve; the heron's eight and its
+spear is unparryable. Moths use palette dim (R-cb18-1 A), never missing glyphs.
+Burn applies one health per tick for forty ticks, cured by water or yarrow.
+Bleed and pouch-theft rows remain pending by cb15 API name until its announced
+merge, then run with the boss/fairness census compared to the pre-wire baseline.
+New-area spawn tables remain hooks until cb14's announced merge. Existing hawks
+keep their current low bite windows: cb10 introduced no glow-worm hook.
+Approved shared surfaces are foe/status hooks in sim, the six drawings and moth
+dim path in art, additive arena CLI/fixture in cub, appended fight/hitcensus rows,
+and appended docs. No forest/save/menu/inventory function is owned here.
