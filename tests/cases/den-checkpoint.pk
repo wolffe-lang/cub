@@ -89,5 +89,6 @@ t 59 down
 t 60 down
 t 61 scent 37
 t 61 health -10000
+t 110 skip
 
-# frames 91 every 91
+# frames 111 every 111
