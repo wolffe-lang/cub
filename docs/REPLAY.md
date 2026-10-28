@@ -50,6 +50,30 @@ The `heavy` event names the `s` fallback attack (2026-10-25). Space remains
 combo key. Recent arrows and lock are sampled in event order, so records
 retain the order of same-tick movement and attack events.
 
+## Death and counter presentation (cb12)
+
+No replay word, id, journey field or save field changes. The fatal tick still
+writes the mark and the death archive immediately. The post-fade `FALLEN` card
+and reversed opening eyes are a deterministic part of the fall state; skip keys
+are ordinary recorded keys, consumed after the twenty-tick word hold. Without
+a skip wake moves from death age30 to381. Old files parse unchanged but use the
+new scene timing, as they do for the cb06 opening. Production `--replay` follows
+only recorded keys, including the full card when no skip was recorded.
+
+Headless `--script` is a fixture harness: by default it injects an ordinary skip
+at the first allowed tick. `--full-death` or `# full-death` retains the full card
+for scene goldens. Walkers record the same skip explicitly, so their generated
+replays agree live and headless. This fixture convenience never alters a loaded
+production `--replay`. The memory probe types a real Space after a traced fall's
+minimum hold; the ordinary live recorder owns that event.
+
+The HUD count is computed once from each completed sim tick's exact scent, not
+from wall time or the number of render calls. Its integer batches do not alter
+replay time, simulation currency, score, saves or death trailers. `# counter-frames`
+is a fixture-only output request: each integer gets `count-TICK-INDEX-VALUE.txt`
+and `.sty`, in addition to the normal sampled/final frames. The compatibility
+row compares every batch byte-for-byte with a `--replay` run sampled differently.
+
 ## Connected-journey events (schema 1)
 
 `opening 1` starts the timed Moonford opening (900 ticks since cb06). `skip` is any decoded

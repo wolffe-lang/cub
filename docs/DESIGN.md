@@ -6,6 +6,36 @@ repo) is the oracle; a number is **proposed** until the maintainer's play says o
 
 The connected Shingle, Bramblehold and Larkmeadow share one fight, rest, death and persistent-journey loop.
 
+## Death card and scent count (cb12, 2026-10-27)
+
+Death still writes the scent mark and archive at the fatal tick. Only the wake moves:
+`DEATH_FADE=30` ticks dissolve to black, then the original seven-row red `FALLEN`
+letterform, doubled to70×14 cells so closing eyes visibly crop it, holds
+for `DEATH_HOLD=20` ticks. Any ordinary key from age50 skips, consumed without a
+move; `q` skips too, while Ctrl-C remains an interrupt. The opening's rounded eyelids
+and `opening_aperture(840..510)` run backwards, one original frame per tick. The
+fully closed frame is age380; without a skip the den wake is age381 (`DEATH_TICKS`).
+Older death-card descriptions below are superseded by this sequence.
+
+The HUD counter is presentation, not currency. `counter.Count` visits a contiguous
+integer batch per simulation tick, using `floor(distance * age / min(distance,20))`.
+A gain of8 takes8 ticks;300 takes20 ticks with15 rendered integers a tick. Spending
+uses the same schedule downwards; a mid-count change retargets from the last rendered
+integer. The big number remains visible at rest; the allocation ledger keeps its
+exact currency and pending cost. The sim, saves, score and replay see the exact new
+scent immediately. Display state is not saved; loading starts settled at the saved
+value. Neither rendering frequency nor wall time advances it (R-cb12-1 A).
+
+Every live batch is flushed integer by integer, including catch-up ticks, without
+extra simulation, score, save, archive or replay steps and without intentional
+sleep. Terminal throughput can still exceed a tick's wall-time budget; the
+`cb12-counter-frames` pty row measures it at both sizes/tiers in
+`target/pty/cb12-counter-cost.json`, including1000 distinct flushed numbers.
+Headless script fixtures and walkers press the ordinary skip after the minimum
+hold; `--full-death` or a `# full-death` script comment keeps the full card. Actual
+live play and `--replay` retain recorded key timing. `# counter-frames` enumerates
+every integer's frame in a headless fixture for the two-tier goldens.
+
 ## The cub's stats (`src/sim/sim.lu`; the bible's section 3)
 
 | constant | value | meaning | set |

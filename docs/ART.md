@@ -9,6 +9,24 @@ The rule for the tiers (pack's campaign R-PK-4, the lair's): one cell model, two
 may use any code point in `docs/GLYPHS.md`; the plain tier uses code points 0-255 and the sixteen colours,
 what PAX's console font draws today. The sheet's plain half is held to that by `sprites_test` and `art_test`.
 
+## FALLEN and the counting corner (cb12)
+
+After the thirty-tick death dissolve has finished, the only ink is a centred
+70-column, fourteen-row `FALLEN` letterform on black, doubling its original
+seven-row strokes so half-closed eyelids visibly cut into the word. The rich tier uses
+full blocks in red196; plain uses bold `#` in red12, with identical geometry.
+The word stays whole for twenty ticks, then the opening's exact rounded-eye
+mask and aperture frames run in reverse. Nothing is printed over the fade.
+`cb12-fallen-word`, `cb12-fallen-half` and `cb12-fallen-closed` pin both tiers;
+the half frame is death age65, the final closed frame age380.
+
+The corner's existing original digit font, colour, alignment and background
+are unchanged. A tick can draw several successive numbers: every integer is
+flushed before the next, with no extra world tick. The same big corner number
+is visible on the rest scene while the ledger continues to show exact totals.
+`cb12-scent-gain` and `cb12-scent-spend` enumerate every integer's frame on both
+tiers; changing render sampling cannot change their batches.
+
 ## The viewpoint
 
 Top down, the camera on the cub (ruling #130, R-CB-3): the cub is always the centre cell and the world

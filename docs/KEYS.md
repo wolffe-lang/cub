@@ -85,6 +85,14 @@ scene. `m` is the music's switch, recorded as `mute` and inert in the simulation
 play. The new pty save rows use `q` and the engine's typed byte `03` while
 a real save stage exists; neither row sends a signal from a script.
 
+## Death card (cb12)
+
+The death dissolve lasts30 ticks; only then does `FALLEN` appear. After the word
+has shown for20 ticks, any ordinary key skips the reversed closing-eye animation.
+The key is consumed, not also a move. `q` likewise skips the card rather than
+quitting; Ctrl-C remains an immediate interrupt. Earlier keys do not skip. With
+no key the eyes finish closing before the cub wakes at its last den.
+
 ## The title and the end (cb04, 2026-10-26)
 
 The game opens on the title: any decoded key begins (the opening for a new journey, the forest for a
