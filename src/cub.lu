@@ -1745,10 +1745,24 @@ fn replay_initial(r: replay.Replay, fallback: sim.Sim) -> sim.Sim ! {
 } {
     let version = replay.args_at(r, 0, controls.EV_JOURNEY)
     if version == 0 { return copy fallback }
-    if version != journey.JOURNEY && version != 3 && version != 4 { return save_version }
+    // `journey 6` (cb14: 211 values), `journey 5` (cb15: 204), `journey 4`
+    // (cb05: 37) and `journey 3` (30) are all read: a committed case keeps
+    // replaying.
+    if version != journey.JOURNEY && version != 5 && version != 4 && version != 3 {
+        return save_version
+    }
+    let count = if version == 3 {
+        30
+    } else if version == 4 {
+        journey.SNAPSHOT_V4
+    } else if version == 5 {
+        journey.SNAPSHOT_V5
+    } else {
+        journey.SNAPSHOT
+    }
     var values = List[int]()
     var i = 0
-    while i < (if version == 3 then 30 else if version == 4 then 37 else journey.SNAPSHOT) {
+    while i < count {
         (mut values).push(replay.args_at(r, 0, controls.saved_event(i)))
         i += 1
     }
