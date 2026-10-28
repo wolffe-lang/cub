@@ -4618,8 +4618,8 @@ fn seed_items(mut s: Sim) {
         i += 1
     }
     if s.area == forest.BRAMBLEHOLD {
-        let (x, y) = forest.den_position(s.seed, 2)
-        let _ = seed_alcove(mut s, s.area, floor_div(x, FP) + 2, floor_div(y, FP), pouch.TUFT)
+        let (x, y) = forest.den_position(s.seed, 1)
+        let _ = seed_alcove(mut s, s.area, floor_div(x, FP) + 4, floor_div(y, FP), pouch.TUFT)
     }
 }
 
