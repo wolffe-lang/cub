@@ -120,7 +120,9 @@ pub fn terrain_window(seed: int, field: int, area: int, first: int, last: int) -
                 let (previous, _, _) = prior
                 if previous == kind { seen = true }
             }
-            if !seen && !forest.blocked(seed, field, area, x, y) {
+            // A gate's cell is the simulation's to hold (cb14), not ground
+            // a steady probe stands on.
+            if !seen && kind != terrain.GATE && !forest.blocked(seed, field, area, x, y) {
                 (mut samples).push((kind, x, y))
             }
             x += 1
