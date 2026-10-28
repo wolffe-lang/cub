@@ -3,7 +3,8 @@
 //! cub smells and sees. A cache that holds a lore line shows it on the
 //! bottom row for `LINE_TICKS` when it is dug; a landmark's line shows
 //! while the cub stands near it. The ids are stable: a replay that dug a
-//! cache shows the same words.
+//! cache shows the same words. Ids are append-only: cb15 registers the
+//! existing coals/frame/stump words at10/11/12; cb14 and cb16 start at13.
 
 /// How long a found line stays on the bottom row.
 pub const LINE_TICKS: int = 240
@@ -38,8 +39,17 @@ pub const MARK_OLDER: int = 8
 /// An old scent mark in the town: the Ashen pass it.
 pub const MARK_TOWN: int = 9
 
-/// The number of lines.
-pub const COUNT: int = 10
+/// The existing ring of warm coals, registered without changing its words.
+pub const LOW_EMBERS: int = 10
+
+/// The existing charred frame, now kept in the found-lore list.
+pub const ASH_SHELTER: int = 11
+
+/// The existing black stump field at the fire's edge.
+pub const COAL_ROOTS: int = 12
+
+/// The number of lines; future ids append at13.
+pub const COUNT: int = 13
 
 /// The line itself.
 pub fn line(id: int) -> str {
@@ -59,6 +69,12 @@ pub fn line(id: int) -> str {
         7 =>
             "An old scent mark on a stump: a wolf, going up. Not the pack's. The forest remembers it.",
         8 => "A mark older than the burn, high on the bark, where only a big wolf could leave it.",
+        10 =>
+            "A ring of coals, still warm in the grass. The low embers: the fire slept here a night.",
+        11 =>
+            "The charred frame of a hut on the meadow's edge. The ash shelter: someone waited here, and the fire found them.",
+        12 =>
+            "A field of black stumps at the thicket's edge. The coal roots: this is where the fire came in.",
         _ =>
             "A wolf's mark on the hearthstone, under the soot. The Ashen walk round it; even they will not cross it.",
     }
