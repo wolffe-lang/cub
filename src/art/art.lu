@@ -14,6 +14,7 @@ use ghost
 use grid
 use glow
 use lore
+use inventory
 use meadow
 use props
 use restscene
@@ -553,6 +554,8 @@ fn frame(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid, hud: bool, scent: i
         restscene.render(s, t, mut g)
         den_menu(s, t, mut g)
         if hud { draw_scent_number(s, t, scent, mut g) }
+        if s.pouch.lore_open { inventory.lore_menu(s, t, mut g) }
+        if s.pouch.open { inventory.render(s, t, mut g) }
         return
     }
     var row = 0
@@ -573,6 +576,7 @@ fn frame(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid, hud: bool, scent: i
     if s.gate_hint_until > s.tick {
         draw.put_text(mut g, s.rows - 2, 1, "the thorns need a lunge", ink(t, true))
     }
+    if s.pouch.open { inventory.render(s, t, mut g) }
 }
 
 /// The cub (or the wolf) as the frame draws it, nothing else: the roll's
@@ -907,6 +911,12 @@ fn world_prop(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, kind: int, o
 }
 
 fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
+    for p in s.pouch.pickups {
+        if p.area == s.area {
+            inventory.pickup(mut g, t, p.y - sim.camera_y(s) + sim.screen_row(s),
+                p.x - sim.camera_x(s) + sim.screen_col(s), p.kind, s.tick)
+        }
+    }
     for meat in s.meat {
         draw_meat(
             mut g,
