@@ -17,7 +17,8 @@ pub fn fixture(kind: int) -> sim.Sim {
     } else if kind == sim.ELK {
         forest.RIVER
     } else {
-        forest.HUSH
+        // cb14: the alpha's clearing is Gravehollow's, split off the Hush.
+        forest.GRAVEHOLLOW
     }
     let (x, y, _) = forest.arena(1, s.field, area)
     let cy = y + forest.origin(1, area)
