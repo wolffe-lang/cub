@@ -233,7 +233,7 @@ def _sound_session(binary, ctx, args, env_extra=None, keys=b'q', settle=1.2):
         env.update(env_extra)
     sound_dir = root / 'wavs'
     s = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)),
-                     '--sound-dir', str(sound_dir), '--tier', 'plain'] + args, 24, 80, env)
+                     '--sound-dir', str(sound_dir), '--tier', 'plain', '--no-title'] + args, 24, 80, env)
     s.pump(settle)
     players = subprocess.run(['ps', '-axo', 'ppid=,comm='], capture_output=True, text=True).stdout
     mine = [l for l in players.splitlines() if l.split()[0] == str(s.job)]

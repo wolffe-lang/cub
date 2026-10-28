@@ -95,5 +95,33 @@ class OpeningSkipSynchronization(unittest.TestCase):
         self.assertFalse(self.check_transition([(.02, 13, 0, 0, 0), (.04, 14, 0, 0, 0)]))
 
 
+class SoundRowsSkipStartupMenu(unittest.TestCase):
+    def test_sound_helper_enters_play_before_typing_quit(self):
+        class Session:
+            def __init__(self, argv, height, width, env):
+                self.argv = argv
+                self.job = 1234567
+                self.typed = []
+
+            def pump(self, seconds):
+                pass
+
+            def type(self, data):
+                self.typed.append(data)
+
+            def finish(self):
+                pass
+
+        scratch = ROOT / 'target/sound-entry-tests'
+        scratch.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=scratch) as directory:
+            ctx = SimpleNamespace(ROOT=directory, env_for=lambda: {}, Session=Session)
+            with mock.patch.object(rows.subprocess, 'run', return_value=SimpleNamespace(stdout='')):
+                session, _, _, _, _ = rows._sound_session('/unused', ctx, ['--mute'], settle=0)
+        self.assertEqual(session.argv.count('--no-title'), 1,
+                         'sound rows must reach run_live, not quit from the fire menu')
+        self.assertEqual(session.typed, [b'q'])
+
+
 if __name__ == '__main__':
     unittest.main()
