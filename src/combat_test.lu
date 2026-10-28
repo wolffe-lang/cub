@@ -181,15 +181,16 @@ fn test_second_death_replaces_mark() {
     s.scent = 28
     sim.hurt(mut s, 100)
     assert(s.mark && s.mark_scent == 28 && s.scent == 0, "first death drops scent")
-    ticks(mut s, 29)
-    assert(s.action == sim.FALL, "fade not done early")
-    ticks(mut s, 1)
-    assert(s.action == sim.IDLE && s.health == 52 && s.flasks == 3, "wake after thirty")
+    ticks(mut s, sim.DEATH_FADE + sim.DEATH_HOLD - 1)
+    assert(s.action == sim.FALL, "word hold not done early")
+    sim.step(mut s, [controls.KEY_SKIP])
+    assert(s.action == sim.IDLE && s.health == 52 && s.flasks == 3, "wake on skip after word hold")
     s.x += 2 * sim.FP
     s.scent = 8
     sim.hurt(mut s, 100)
     assert(s.mark_scent == 8 && s.mark_x == s.x && s.deaths == 2, "second death replaces mark")
-    ticks(mut s, 30)
+    ticks(mut s, sim.DEATH_FADE + sim.DEATH_HOLD - 1)
+    sim.step(mut s, [controls.KEY_SKIP])
     s.x = s.mark_x
     s.y = s.mark_y
     sim.step(mut s, keys(0))

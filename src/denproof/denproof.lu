@@ -212,7 +212,10 @@ pub fn generate(dir: str) -> int {
     let death_x = s.x
     let death_y = s.y
     n = 0
-    while n < 30 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
+    while s.action == sim.FALL && n < sim.DEATH_FADE + sim.DEATH_HOLD + 1 {
+        walker.press(mut s, mut r, walker.key(0))
+        n += 1
+    }
     if s.area != 1 ||
         s.x != x ||
         s.y != y ||

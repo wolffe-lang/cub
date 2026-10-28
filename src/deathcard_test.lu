@@ -22,7 +22,10 @@ fn test_cb12_death_waits_for_fade_and_twenty_tick_word_before_skip() {
 fn test_cb12_death_eyes_reverse_every_opening_frame_and_hold_closed() {
     var tick = 0
     while tick < sim.DEATH_EYES {
-        assert(art.death_aperture(50 + tick) == art.opening_aperture(840 - tick), "same eye frame and timing")
+        assert(
+            art.death_aperture(50 + tick) == art.opening_aperture(840 - tick),
+            "same eye frame and timing",
+        )
         tick += 1
     }
     assert(art.death_aperture(65) == 50, "half closed")
@@ -44,12 +47,15 @@ fn word(t: int) {
     var g = grid.new(24, 80)
     art.render(s, t, mut g)
     var row = 0
-    while row < 7 {
+    while row < 14 {
         var col = 0
-        while col < 35 {
-            let cell = grid.at(g, 9 + row, 22 + col)
-            let filled = art.fallen_row(row).bytes()[col] == 35 as byte
-            assert(cell.cp == (if filled then (if t == tier.RICH then 9608 else 35) else 32), "original seven-row word")
+        while col < 70 {
+            let cell = grid.at(g, 5 + row, 5 + col)
+            let filled = art.fallen_row(row / 2).bytes()[col / 2] == 35 as byte
+            assert(
+                cell.cp == (if filled then (if t == tier.RICH then 9608 else 35) else 32),
+                "original seven-row word",
+            )
             if filled { assert(cell.fg == (if t == tier.RICH then 196 else 12), "red on black") }
             assert(cell.bg == 0, "fade finished before word")
             col += 1
@@ -59,4 +65,5 @@ fn word(t: int) {
 }
 
 fn test_cb12_fallen_word_plain() { word(tier.PLAIN) }
+
 fn test_cb12_fallen_word_rich() { word(tier.RICH) }

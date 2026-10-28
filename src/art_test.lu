@@ -294,7 +294,8 @@ fn test_cb01b_scent_hud_updates_on_kill_death_and_recovery() {
         t += 1
     }
     n = 0
-    while n < 30 { sim.step(mut s, none_keys()); n += 1 }
+    while n < sim.DEATH_FADE + sim.DEATH_HOLD - 1 { sim.step(mut s, none_keys()); n += 1 }
+    sim.step(mut s, one(controls.KEY_SKIP))
     s.x = s.mark_x
     s.y = s.mark_y
     sim.step(mut s, none_keys())

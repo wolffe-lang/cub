@@ -13,6 +13,11 @@ use sim
 
 /// Press `keys` this tick: recorded in `r`, applied to `s`.
 pub fn press(mut s: sim.Sim, mut r: replay.Replay, keys: List[int]) {
+    if s.action == sim.FALL && s.tick + 1 - s.started >= sim.DEATH_FADE + sim.DEATH_HOLD {
+        replay.push_key(mut r, s.tick, controls.KEY_SKIP)
+        sim.step(mut s, [controls.KEY_SKIP])
+        return
+    }
     for key in keys { replay.push_key(mut r, s.tick, key) }
     sim.step(mut s, keys)
 }

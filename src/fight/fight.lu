@@ -455,9 +455,12 @@ pub fn fight_world_narrated(
             }
             return out
         }
-        // The fall and the wake at the den (thirty ticks), then again.
+        // The fade and minimum word hold, then the walker's recorded skip.
         var w = 0
-        while s.action == sim.FALL && w < 40 { walker.press(mut s, mut r, walker.key(0)); w += 1 }
+        while s.action == sim.FALL && w < sim.DEATH_FADE + sim.DEATH_HOLD + 1 {
+            walker.press(mut s, mut r, walker.key(0))
+            w += 1
+        }
         if s.action == sim.FALL { return out }
     }
     out

@@ -1618,7 +1618,13 @@ pub fn hud_plan_with(s: sim.Sim, t: int, water: bool, label_always: bool) -> Lis
     hud_plan_value(s, t, water, label_always, sim.displayed_scent(s))
 }
 
-fn hud_plan_value(s: sim.Sim, t: int, water: bool, label_always: bool, value: int) -> List[HudCell] {
+fn hud_plan_value(
+    s: sim.Sim,
+    t: int,
+    water: bool,
+    label_always: bool,
+    value: int,
+) -> List[HudCell] {
     let rich = t == tier.RICH
     var cells = List[HudCell]()
     let label = if rich then 250 else 7
@@ -1715,7 +1721,12 @@ fn draw_hud(s: sim.Sim, t: int, scent: int, mut g: grid.Grid) {
 fn draw_scent_number(s: sim.Sim, t: int, scent: int, mut g: grid.Grid) {
     for c in hud_plan_value(s, t, false, SCENT_LABEL_ALWAYS, scent) {
         if c.row >= scent_row(s, t) && c.row < g.rows && c.col >= 0 && c.col < g.cols {
-            grid.put(mut g, c.row, c.col, grid.cell(c.cp, c.fg, grid.at(g, c.row, c.col).bg, c.attrs))
+            grid.put(
+                mut g,
+                c.row,
+                c.col,
+                grid.cell(c.cp, c.fg, grid.at(g, c.row, c.col).bg, c.attrs),
+            )
         }
     }
 }
@@ -1910,17 +1921,22 @@ fn eyelid_closed(s: sim.Sim, row: int, col: int, aperture: int) -> bool {
 /// Red FALLEN on black after the fade, under the reversed opening eyelids.
 pub fn death_frame(s: sim.Sim, t: int, mut g: grid.Grid) {
     let black = grid.cell(32, 0, 0, 0)
-    let red = grid.cell(if t == tier.RICH then 9608 else 35, if t == tier.RICH then 196 else 12, 0, grid.ATTR_BOLD)
+    let red = grid.cell(
+        if t == tier.RICH then 9608 else 35,
+        if t == tier.RICH then 196 else 12,
+        0,
+        grid.ATTR_BOLD,
+    )
     let aperture = death_aperture(s.tick - s.started)
     var row = 0
     while row < s.rows {
         var col = 0
         while col < s.cols {
-            let y = row - (s.rows / 2 - 3)
-            let x = col - (s.cols - 35) / 2
+            let y = row - (s.rows / 2 - 7)
+            let x = col - (s.cols - 70) / 2
             var cell = copy black
-            if y >= 0 && y < 7 && x >= 0 && x < 35 {
-                if fallen_row(y).bytes()[x] == 35 as byte { cell = copy red }
+            if y >= 0 && y < 14 && x >= 0 && x < 70 {
+                if fallen_row(y / 2).bytes()[x / 2] == 35 as byte { cell = copy red }
             }
             if eyelid_closed(s, row, col, aperture) { cell = copy black }
             grid.put(mut g, row, col, cell)

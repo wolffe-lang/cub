@@ -1596,10 +1596,13 @@ pub fn displayed_scent(s: Sim) -> int {
 /// The unchanged fade, the word's minimum hold, then the opening's 330
 /// eyelid ticks (510..840) in reverse and one fully closed frame.
 pub const DEATH_FADE: int = 30
+
 /// Ticks the full word must show before any key may skip.
 pub const DEATH_HOLD: int = 20
+
 /// Opening eyelid frames reversed, including the fully closed frame.
 pub const DEATH_EYES: int = 331
+
 /// Automatic den wake follows the last closed frame.
 pub const DEATH_TICKS: int = DEATH_FADE + DEATH_HOLD + DEATH_EYES
 

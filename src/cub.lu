@@ -60,6 +60,7 @@ use walker
 /// What the command line asked for.
 struct Options {
     headless: bool,
+    full_death: bool,
     seed: int,
     script: str,
     frames: int,
@@ -105,7 +106,8 @@ fn usage_text() -> str {
         "  cub [--seed N] [--tier rich|plain] [--record FILE]\n" +
         "  cub --replay FILE                 reproduce a recorded run\n" +
         "  cub --headless --seed N [--script FILE] --frames N [--every K] [--from T]\n" +
-        "      --tier T --size WxH --dump DIR\n" +
+        "      --tier T --size WxH --dump DIR [--full-death]\n" +
+        "  --full-death                    keep the full death card in headless script fixtures\n" +
         "  cub --apply CAPTURE --size WxH    a captured byte stream as a frame\n" +
         "  cub --art-study --dump DIR        the sprite sheets, both tiers\n" +
         "  cub --strike-census              every strike at every aim, both tiers: the drawn body against standing\n" +
@@ -155,6 +157,7 @@ fn usage_text() -> str {
 fn options_default() -> Options {
     Options {
         headless: false,
+        full_death: false,
         seed: 1,
         script: "",
         frames: 60,
@@ -245,6 +248,8 @@ fn parse_args(args: List[str]) -> Options ! {usage, parse} {
             if o.save_delay < 1 || o.save_delay > 300 { return usage }
         } else if a == "--headless" {
             o.headless = true
+        } else if a == "--full-death" {
+            o.full_death = true
         } else if a == "--bench" {
             o.bench = true
         } else if more && a == "--ghost-dir" {
@@ -410,7 +415,8 @@ fn run_headless(o: Options, args: List[str]) -> int {
     var keys = List[int]()
     var k = 0
     var archived = s.deaths
-    let count_frames = script_counter_frames(o)
+    let count_frames = script_has(o, "# counter-frames")
+    let full_death = o.full_death || script_has(o, "# full-death") || o.script == ""
     while k < o.frames {
         (mut keys).reset()
         let (c, rows, health) = replay.at(r, k, mut keys)
@@ -420,6 +426,11 @@ fn run_headless(o: Options, args: List[str]) -> int {
         }
         replay_numbers(mut s, health, replay.args_at(r, k, controls.EV_SCENT))
         replay_events(mut s, r, k)
+        if !full_death &&
+            s.action == sim.FALL &&
+            s.tick + 1 - s.started >= sim.DEATH_FADE + sim.DEATH_HOLD {
+            (mut keys).push(controls.KEY_SKIP)
+        }
         sim.step(mut s, keys)
         ghost.record(mut history, s.tick, frame_of(s))
         demo_step(mut extra, s, demo_r, mut demo_tick)
@@ -436,7 +447,11 @@ fn run_headless(o: Options, args: List[str]) -> int {
             while index < counter.length(s.scent_count) {
                 let value = counter.value(s.scent_count, index)
                 art.render_count_with(s, extra, r.tier, value, mut g)
-                headless.write_frame(o.dump, "count-{headless.pad4(k + 1)}-{headless.pad4(index)}-{value}", g) else |_| {
+                headless.write_frame(
+                    o.dump,
+                    "count-{headless.pad4(k + 1)}-{headless.pad4(index)}-{value}",
+                    g,
+                ) else |_| {
                     eprint("cub: cannot write counter frame into {o.dump}")
                     return 2
                 }
@@ -870,7 +885,8 @@ fn run_live(o: Options, args: List[str]) -> int {
                 }
                 if n == 0 {
                     for k in keys {
-                        if k == controls.KEY_QUIT || k == controls.KEY_INTERRUPT {
+                        if k == controls.KEY_QUIT && s.action != sim.FALL ||
+                            k == controls.KEY_INTERRUPT {
                             ended = if k == controls.KEY_QUIT {
                                 "the quit key"
                             } else {
@@ -882,7 +898,8 @@ fn run_live(o: Options, args: List[str]) -> int {
                 }
             } else if n == 0 {
                 for k in keys {
-                    if k == controls.KEY_QUIT || k == controls.KEY_INTERRUPT {
+                    if k == controls.KEY_QUIT && s.action != sim.FALL ||
+                        k == controls.KEY_INTERRUPT {
                         ended = if k == controls.KEY_QUIT {
                             "the quit key"
                         } else {
@@ -978,12 +995,23 @@ fn run_live(o: Options, args: List[str]) -> int {
             var index = 0
             while index < counter.length(s.scent_count) {
                 let r0 = clock.now_ns()
-                art.render_count_with(s, extra, rp.tier, counter.value(s.scent_count, index), mut back)
+                art.render_count_with(
+                    s,
+                    extra,
+                    rp.tier,
+                    counter.value(s.scent_count, index),
+                    mut back,
+                )
                 grid.diff(front, back, full, mut pen, mut out, dialect)
                 let cost = clock.now_ns() - r0
                 render_ns += cost
                 if cost > render_max_ns { render_max_ns = cost }
                 term.write(out) else |_| { ended = "a failed write"; quit = true }
+                if o.trace {
+                    eprint(
+                        "trace counter tick {s.tick} value {counter.value(s.scent_count, index)} flush_us {(clock.now_ns() - r0) / 1000}",
+                    )
+                }
                 (mut out).reset()
                 let tmp = front
                 front = back
@@ -1258,11 +1286,11 @@ fn demo_step(mut extra: art.Extra, s: sim.Sim, r: replay.Replay, mut demo_tick: 
     demo_tick += 1
 }
 
-fn script_counter_frames(o: Options) -> bool {
+fn script_has(o: Options, marker: str) -> bool {
     let path = if o.script != "" then o.script else o.replay_path
     if path == "" { return false }
     let text = fs.read_text(path) else |_| { return false }
-    for raw in text.lines() { if raw.trim() == "# counter-frames" { return true } }
+    for raw in text.lines() { if raw.trim() == marker { return true } }
     false
 }
 

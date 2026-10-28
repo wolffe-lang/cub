@@ -144,7 +144,10 @@ pub fn generate(dir: str) -> int {
     sim.hurt(mut s, 1000)
     walker.press(mut s, mut r, walker.key(0))
     n = 0
-    while n < 30 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
+    while s.action == sim.FALL && n < sim.DEATH_FADE + sim.DEATH_HOLD + 1 {
+        walker.press(mut s, mut r, walker.key(0))
+        n += 1
+    }
     if s.area != 1 || !s.mark || s.mark_area != 2 { eprint("proof: cross-area death"); return 1 }
     if !walker.walk(mut s, mut r, mx, my) || s.area != 2 {
         eprint("proof: return to mark area")
