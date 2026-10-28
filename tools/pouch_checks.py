@@ -36,8 +36,10 @@ def check(binary):
         return saved(save), state, (dest / 'final.txt').read_text(), save
 
     for tier in ('rich', 'plain'):
-        _, checkpoint, _, _ = run('den-checkpoint', 91, tier, 'legacy-checkpoint')
-        assert checkpoint['deaths'] == 1 and checkpoint['mark'] == 1 and checkpoint['den_id'] == 2, 'tuft placement stole the unprotected checkpoint witness'
+        checkpoint_frames = int(re.search(r'# frames (\d+)', (ROOT / 'tests/cases/den-checkpoint.pk').read_text())[1])
+        _, checkpoint, _, _ = run('den-checkpoint', checkpoint_frames, tier, 'legacy-checkpoint')
+        assert (checkpoint['deaths'] == 1 and checkpoint['mark'] == 1 and checkpoint['den_id'] == 2
+                and checkpoint['health'] == 52 and checkpoint['action'] == 0), 'tuft placement stole the unprotected wake-at-den witness'
         _, legacy, legacy_frame, _ = run('rest', 45, tier, 'legacy-rest')
         assert legacy['level'] == 3 and legacy['health'] == 64 and legacy['scent'] == 0, 'journey3 six-row menu changed'
         assert '  Lore' not in legacy_frame, 'old replay gained the new menu row'
