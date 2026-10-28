@@ -19,7 +19,9 @@ from wall time. The six `pouch-*` cases disclose their initial item/lore
 fixtures. The drop case walks away from a den before dropping and using r.
 
 CUB 6 text appends `items pine ice tuft uses seeded lore-count ground-count`
-then the live lore values and packed pickups. Text omits snapshot padding.
+after `name` and `played_ms`, then the live lore values and packed pickups.
+Original CUB6 wrappers without `items` migrate with an empty extension;
+metadata stays outside deterministic numeric snapshots. Text omits padding.
 The fixed limits are **32 discovered lore lines** and **128 ground pickups**;
 invalid counts, padding, duplicate lore, item caps and packed area bounds
 are rejected before use. All dropped items and finite seeded discoveries
