@@ -283,3 +283,13 @@ Control's move-a-space shortcuts by default. If enabled, those keystrokes
 may never reach Ghostty; check System Settings > Keyboard > Keyboard
 Shortcuts > Mission Control. This is a candidate, not a verified diagnosis
 of the reported play session.
+
+## The map overhaul (cb14)
+
+No new key. The existing keys reach the new ground: Shift+arrows (sneak) is
+the only way under the Stand's windthrown pine; `x` (lunge) within four
+cells of the burnt oak or the stone mouth, facing it, pushes it open; `r`
+at a cb14 mouth (the scree, the dry streambed, the raft, the sett, the
+roots) opens it from its own side and crosses it, as the log and the hedge
+are opened; `r` at an alcove's hollow or burrow digs it as a cache. The
+sett's squeeze needs paw 2 and says so on the bottom row.
