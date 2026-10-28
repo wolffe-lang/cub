@@ -35,6 +35,7 @@ use diagonalstudy
 use denproof
 use doorproof
 use fight
+use foeproof
 use faultproof
 use ghost
 use grid
@@ -536,6 +537,20 @@ fn run_art_study(o: Options) -> int {
     headless.write_frame(o.dump, "coast-plain", art.coast_sheet(tier.PLAIN)) else |_| { return 2 }
     headless.write_frame(o.dump, "meadow-rich", art.meadow_sheet(tier.RICH)) else |_| { return 2 }
     headless.write_frame(o.dump, "meadow-plain", art.meadow_sheet(tier.PLAIN)) else |_| { return 2 }
+    var new_kind = sim.MARTEN
+    while new_kind <= sim.WISP {
+        headless.write_frame(
+            o.dump,
+            "foe-{new_kind}-rich",
+            art.new_foe_sheet(tier.RICH, new_kind),
+        ) else |_| { return 2 }
+        headless.write_frame(
+            o.dump,
+            "foe-{new_kind}-plain",
+            art.new_foe_sheet(tier.PLAIN, new_kind),
+        ) else |_| { return 2 }
+        new_kind += 1
+    }
     headless.write_frame(o.dump, "hawk-rich", art.hawk_sheet(tier.RICH)) else |_| { return 2 }
     headless.write_frame(o.dump, "hawk-plain", art.hawk_sheet(tier.PLAIN)) else |_| { return 2 }
     headless.write_frame(o.dump, "boss-rich", art.boss_sheet(tier.RICH)) else |_| { return 2 }
@@ -1109,6 +1124,8 @@ fn main() -> int {
     if args.len == 4 && args[0] == "--allocation-probe" {
         return memprobe.census(args[1].to_int() else 0, args[2], args[3])
     }
+    if args.len > 0 && args[0] == "--new-foe-census" { return fight.new_foe_census() }
+    if args.len == 2 && args[0] == "--new-foe-proof" { return foeproof.generate(args[1]) }
     if args.len > 0 && args[0] == "--doorways-audit" { return doorproof.census() }
     if args.len > 0 && args[0] == "--den-spacing" { return wide.den_spacing() }
     if args.len > 0 && args[0] == "--foe-census" { return wide.foe_census() }

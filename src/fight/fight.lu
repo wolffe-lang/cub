@@ -176,7 +176,11 @@ pub fn fight_keys(s: sim.Sim, i: int, mut st: Fighter) -> List[int] {
     var keys = List[int]()
     if s.action == sim.FALL || s.den { return keys }
     let f = copy s.foes[i]
-    let m = sim.boss_move(f.kind, f.attack, sim.phase_two(f))
+    let m = if sim.is_new_foe(f.kind) {
+        sim.new_foe_move(f.kind)
+    } else {
+        sim.boss_move(f.kind, f.attack, sim.phase_two(f))
+    }
     let gap = sim.body_gap(s, i)
     let age = s.tick - f.since
     let idle = s.action == sim.IDLE
@@ -604,6 +608,54 @@ pub fn census() -> int {
         print(
             "fairness {name_of(kind)} attempts{h} unwon:{histogram[0]} hits {hits[0]} {hits[1]} {hits[2]} unparryable_hits {unparryable} tells {tells[0]} {tells[1]} {tells[2]} parry_window {sim.PARRY_WINDOW} arena_breaches {breaches}",
         )
+        kind += 1
+    }
+    status
+}
+
+/// One arena encounter, all motion and actions chosen by fight_keys.
+/// Resolution includes the intentionally nonlethal answers: passing the
+/// heron and snuffing the wisp. No position/health/phase is reassigned.
+pub fn new_foe_world(seed: int, cols: int, kind: int, mut r: replay.Replay) -> (int, int, int) {
+    var s = sim.new_foe_arena(seed, cols, if cols == 80 then 24 else 60, kind)
+    var st = fighter()
+    var tick = 0
+    while tick < FIGHT_TICKS && s.action != sim.FALL {
+        var keys = fight_keys(s, 0, mut st)
+        sim.step(mut s, keys)
+        for key in keys { replay.push_key(mut r, tick, key) }
+        if s.foes[0].health <= 0 || s.foes[0].phase == sim.SNUFFED {
+            return (1, tick + 1, s.health)
+        }
+        tick += 1
+    }
+    (0, tick, s.health)
+}
+
+/// cb18's six foes, fifty seeds and both sizes, appended as a separate
+/// census so the inherited boss census remains directly comparable.
+pub fn new_foe_census() -> int {
+    print("foe seed cols resolved ticks health recovery")
+    var status = 0
+    var kind = sim.MARTEN
+    while kind <= sim.WISP {
+        let m = sim.new_foe_move(kind)
+        if m.recovery < 12 {
+            print("fairness_recovery_{kind} RED: no human-scale recovery")
+            status = 1
+        }
+        var seed = 0
+        while seed < 50 {
+            for cols in [80, 200] {
+                region encounter {
+                    var r = replay.new(seed, 1, cols, if cols == 80 then 24 else 60)
+                    let (won, ticks, health) = new_foe_world(seed, cols, kind, mut r)
+                    print("{kind} {seed} {cols} {won} {ticks} {health} {m.recovery}")
+                    if won == 0 { status = 1 }
+                }
+            }
+            seed += 1
+        }
         kind += 1
     }
     status
