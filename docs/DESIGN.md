@@ -1771,6 +1771,14 @@ licking does not. The status is transient and den reset extinguishes it.
 The bleeding and yarrow hooks are activated with the pouch API integration;
 its named pending rows are not reported as passed before then.
 
+The marten remains overhead and unbiteable throughout the falling needles,
+not a ground blocker until landing. Its drop advances 128 FP (half a cell)
+per active tick; the fighter reads that same travel descriptor and never
+tries to lunge into its still-overhead windup. Landing uses ordinary body
+clearance; if no legal ground body fits, it stays on the trunk rather than
+appearing inside the cub. Damaging moth bites keep normal counter-hit
+rally; snuffing an undamaged wisp gives neither rally nor scent.
+
 The heron's spear cannot be parried. It stays at its post facing down and
 leaves without a kill reward when the cub is three cells past it. The adder
 and heron use narrow committed lines, not a centre-facing attack cone.

@@ -346,3 +346,9 @@ fighter, not fixture assignments after the starting state.
 No replay word, numeric event id or save schema changes for these arena
 commands. They do not enter the live menu/save/overlay routing. Ordinary
 old journeys keep their hawks; no old floating foe is silently retyped.
+
+Each record also has a final rich/plain frame of the actual resolved
+encounter, so the absent snuffed wisp and passed heron are pinned visually,
+not inferred only from an earlier windup frame. The final diagnostics
+separate health, phase and death tick: a passed heron is not a kill and a
+snuffed wisp remains alive.
