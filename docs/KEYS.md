@@ -91,11 +91,22 @@ feeds Ghostty-compatible sequences through the real reader, checks the
 flags request, and compares live strike numbers with replay. Its gating
 cadence is paced by observed trace ticks: hand presses use cumulative30Hz
 quantization, nominal30/60-ms repeats use1/2 ticks, and delayed repeats start
-after8/15 ticks for nominal250/500ms. Each input-bearing tick is acknowledged;
-requested and delivered gaps are printed and must agree. A misdelivery is
-an explicit harness failure, never a silently relaxed combo expectation.
+after8/15 ticks for nominal250/500ms. Each input-bearing tick is acknowledged.
+Nominal, requested and actually consumed ticks are printed; lateness is not
+an error. An independent oracle predicts the starts from consumed event
+ticks/kinds, the two-request cap, inclusive end, six-tick grace, repeat rule
+and stamina (70 initially, costs12/14/18, two restored per idle tick). The
+simulation must match that prediction, not the cadence the harness hoped
+to deliver. An input never consumed still fails. Deterministic three-press
+replays continue to require exactly1/2/3 and every corresponding hold.
 These are injected protocol fixtures, not a physical Ghostty capture or a
 measurement of the user's repeat preference.
+
+The proof-only `--observer-stall-ms 80` option on `tests/combo_pty.py` pauses
+the observer before each write to demonstrate real late consumption. It is
+off in default ROWS and must produce at least one printed late delivery;
+it changes no simulation state or game timing. For example:
+`python3 -I tests/combo_pty.py --observer-stall-ms 80 --bin target/release/cub`.
 
 The wall-clock variant is measurement only, outside the default gate rows:
 `python3 -I tests/combo_pty.py --measure-wall-clock --bin target/native/cub`.
