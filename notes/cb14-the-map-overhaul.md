@@ -132,9 +132,10 @@ with the same toolchain on kasumi.
 - **Checked tests** (`.lair/tools/test`, kasumi, the Mac's run MAC_CHECKED): `wolf test: 471 passed; 0 failed; 0
   rejected; 0 unsupported` (`checked-tests.txt`); 446 before cb10's merge. The new rows: `src/map_test.lu` (the
   graph, the dens, the arenas' growth, the gates, the alcoves' guards and slots, the mouths, the stones' sinking,
-  the ash, the mist, the spring, the reveal, the mouth bands), `src/lands_test.lu`, the schema-6 rows in
-  `src/journey_test.lu` and `src/areas_test.lu`, the vocabulary rows in `src/controls_test.lu`, `src/wide_test.lu`
-  for the extended censuses. Sampling on the checked machine, the flood on the native gate: the map rows
+  the ash, the mist, the spring, the reveal, the mouth bands), the schema-6 and thirteen-area rows in
+  `src/areas_test.lu`, `src/refuge_test.lu`, `src/doorrest_test.lu`, `src/denmemory_test.lu`,
+  `src/progression_test.lu`, `src/score_test.lu` and `src/forest_test.lu`, the vocabulary rows in
+  `src/controls_test.lu`, `src/wide_test.lu` for the extended censuses. Sampling on the checked machine, the flood on the native gate: the map rows
   `test_cb14_the_<area>_s_spine_portals_and_mouths_are_open` walk seed 1's spine row by row (224 rows an area,
   160 for the Hush, 128 for Gravehollow) and check every portal, den, alcove, landmark and arena centre for open
   ground — one seed, every destination (a flood an area is over the budget); the fifty-seed, both-field flood is
