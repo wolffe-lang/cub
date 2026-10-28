@@ -9,8 +9,9 @@ pouch, clearing held movement. Ice Consume asks for a second Space to
 throw at a living lock, else the nearest foe in front, within six cells;
 without one the shard is kept. The tuft is passive, never eaten. Drop
 leaves a glowing pickup on the current cell: stand on it and press `r`
-to take it again. A full stack leaves it on the ground; a den's `r` still
-rests. Discard destroys one item. Negotiated repeat `i` does not toggle.
+to take it again. A full stack leaves it on the ground; at a den the same
+`r` first takes one available item on the exact cell, then still rests.
+Discard destroys one item. Negotiated repeat `i` does not toggle.
 
 At rest, Up/Down now wrap over the five stats, Confirm and Lore. Space or
 Enter on Lore opens discovered lines; Up/Down scroll, Esc / `i` / `r`
