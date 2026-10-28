@@ -1,0 +1,127 @@
+//! member: false
+
+use art
+use grid
+use sim
+use tier
+
+fn sprite_envelopes(kind: int) {
+    for t in [tier.RICH, tier.PLAIN] {
+        for phase in [sim.HUNT, sim.CROUCH, sim.STRIKE, sim.RETREAT] {
+            var quarter = 0
+            while quarter < 4 {
+                var f = sim.make_new_foe(kind, 10 * sim.FP, 6 * sim.FP)
+                f.heading = quarter * 64
+                let body = sim.foe_body(f)
+                var g = grid.new(12, 20)
+                art.draw_new_foe(mut g, t, 6, 10, kind, phase, quarter * 64, -1)
+                var painted = 0
+                var r = 0
+                while r < g.rows {
+                    var c = 0
+                    while c < g.cols {
+                        if grid.at(g, r, c).cp != 32 {
+                            assert(
+                                c >= body.x0 && c <= body.x1 && r >= body.y0 && r <= body.y1,
+                                "the drawing and the hit body agree in every quarter",
+                            )
+                            painted += 1
+                        }
+                        c += 1
+                    }
+                    r += 1
+                }
+                assert(painted > 0, "visible foe and visible tell")
+                assert(t != tier.PLAIN || grid.plain_ok(g), "plain repertoire")
+                quarter += 1
+            }
+        }
+    }
+}
+
+fn test_cb18_marten_four_way_envelopes() { sprite_envelopes(sim.MARTEN) }
+
+fn test_cb18_adder_four_way_envelopes() { sprite_envelopes(sim.ASH_ADDER) }
+
+fn test_cb18_moths_four_way_envelopes() { sprite_envelopes(sim.CINDER_MOTHS) }
+
+fn test_cb18_heron_four_way_envelopes() { sprite_envelopes(sim.HERON) }
+
+fn test_cb18_glow_four_way_envelopes() { sprite_envelopes(sim.GLOW_WORMS) }
+
+fn test_cb18_wisp_four_way_envelopes() { sprite_envelopes(sim.WISP) }
+
+fn test_cb18_moth_dimming_keeps_every_glyph_and_uses_dim_on_both_tiers() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.CINDER_MOTHS)
+    s.foes[0].phase = sim.CROUCH
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y - 2 * sim.FP
+    for t in [tier.RICH, tier.PLAIN] {
+        var g = grid.new(24, 80)
+        art.render(s, t, mut g)
+        let dimmed = copy g
+        s.foes[0].phase = sim.HUNT
+        art.render(s, t, mut g)
+        var r = 0
+        while r < g.rows {
+            var c = 0
+            while c < g.cols {
+                // The foe's own tell changes its glyph: compare distant
+                // forest and HUD, not the differently posed moth body.
+                if r < 5 || r > 18 {
+                    assert(
+                        grid.at(g, r, c).cp == grid.at(dimmed, r, c).cp,
+                        "no third-glyph blanking",
+                    )
+                }
+                assert(grid.at(dimmed, r, c).attrs == grid.ATTR_DIM, "palette dim, no bold")
+                c += 1
+            }
+            r += 1
+        }
+        s.foes[0].phase = sim.CROUCH
+    }
+}
+
+fn test_cb18_glow_contact_flashes_exactly_six_frames_and_scatters_the_cluster() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.GLOW_WORMS)
+    (mut s.foes).push(sim.make_new_foe(sim.GLOW_WORMS, s.x + 4 * sim.FP, s.y))
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y
+    sim.new_foe_step(mut s, 0)
+    assert(s.foes[0].health == 0 && s.blind_until == 6, "touch flashes and consumes exactly one")
+    assert(s.foes[1].health > 0 && s.foes[1].phase == sim.RETREAT, "others scatter, not vanish")
+    for t in [tier.RICH, tier.PLAIN] {
+        var age = 0
+        while age < 7 {
+            s.tick = age
+            var g = grid.new(4, 8)
+            art.new_foe_palette(s, t, mut g)
+            if age < 6 {
+                assert(
+                    grid.at(g, 0, 0).cp == 32 &&
+                        grid.at(g, 0, 0).bg == (if t == tier.RICH then 15 else 7),
+                    "six white frames",
+                )
+            } else {
+                assert(grid.at(g, 0, 0).bg == grid.COLOR_DEFAULT, "seventh frame sees again")
+            }
+            age += 1
+        }
+    }
+}
+
+fn test_cb18_snuffed_wisp_returns_at_three_hundred_not_before() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.WISP)
+    s.foes[0].phase = sim.SNUFFED
+    s.foes[0].since = 20
+    s.tick = 319
+    sim.new_foe_step(mut s, 0)
+    assert(s.foes[0].phase == sim.SNUFFED, "299 ticks is too soon")
+    s.tick = 320
+    sim.new_foe_step(mut s, 0)
+    assert(
+        s.foes[0].phase == sim.HUNT && s.foes[0].health > 0,
+        "300 tick return, not a respawned kill",
+    )
+}
