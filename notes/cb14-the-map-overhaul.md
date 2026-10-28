@@ -183,7 +183,13 @@ with the same toolchain on kasumi.
   from the meadow on, the art study), 42 new (the six first screens, ten landmarks, twenty rest scenes, each on
   both tiers), 6 gone (`old-den`, `rest-old-den-*`); every other directory byte-equal (the opening, the title, the
   score, the aims, the postures, the HUD, the dens, the yards, the town, the Shingle, the thicket's and the
-  meadow's). The Mac's full golden check at 6d28238f: every case `ok` (first attempt).
+  meadow's). The Mac's full golden check at 6d28238f: every case `ok` (first attempt). cb08's live flank
+  witness `whisper-flank` was found again over the grown bowl (its keys are the new lynx fight's through tick
+  807, every modifier and arrow released, down+left and Space at 808: the 1985th of a search over prefixes and
+  aims against `tests/pty_rows.py`'s own check, run on the Mac); its pty row `cb08-whisper-flank` ok on both
+  hosts, its goldens written on the Mac (frames 808..815, both tiers). `tools/gameplay.py`'s two-cell widening
+  bar now reads the route's rows alone (path 0): from the Teeth on every area carries three branches of half
+  width 3 by design, and the Hush's 160 rows gave them the median.
 - **The memory gate** (`tools/check-memory`, kasumi's release build): green, 316 bytes a tick over 519 ticks, the
   crash checkpoint and the fresh seed, budget 4096.
 - **The plant**: PR #75 (`cb14-plant-disconnected`, `1bbd4979` on `cd757027`): a wall of stones across the
@@ -198,7 +204,8 @@ with the same toolchain on kasumi.
 - **The Linux gate**: LINUX_LINE.
 - **The Mac leg** (the-rules.md's loaded-server rule): the first build refused at 7 GB free; at 6d28238f the
   floor cleared (15.8 GB), the native build, the checked tests (482), the walk and the full golden check all green
-  under `/Users/mfwolffe/lanes/cb14/heavy.sh` at the first attempt (`logs/mac-gate-job.log`); MAC_RECHECK.
+  under `/Users/mfwolffe/lanes/cb14/heavy.sh` at the first attempt (`logs/mac-gate-job.log`); the build and the
+  checked tests again at b48ee261 (`wolf fmt`), and the flank row at the final witness.
 
 ## Done-when
 
