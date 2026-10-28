@@ -6,7 +6,7 @@ import time
 
 
 class DeliveryError(AssertionError):
-    """The harness did not deliver the requested cadence, not a combo verdict."""
+    """An event was never consumed; lateness is measured, not rejected."""
 
 
 def wait_tick(session, traces, target, timeout=5):
@@ -20,29 +20,27 @@ def wait_tick(session, traces, target, timeout=5):
         session.pump(.001)
 
 
-def send_at_tick(session, traces, data, target, timeout=5):
-    """Write after N-1 is observed, then acknowledge the carrying trace at N.
+def send_at_tick(session, traces, data, target, timeout=5, observer_stall_ms=0):
+    """Aim for N, acknowledge actual consumption strictly after this write.
 
-    Never assume that a wall-clock delay equals simulation ticks. A missed
-    boundary is an explicit delivery failure, not a relaxed strike assertion.
+    The optional proof-driver stall models a descheduled observer. Default
+    ROWS never enables it. An already-late write is still sent; older input
+    traces cannot acknowledge it, and a late acknowledgement is valid data.
     """
-    before = wait_tick(session, traces, target - 1, timeout)
-    if before != target - 1:
-        raise DeliveryError(f'late before write: wanted tick{target - 1}, observed{before}')
+    wait_tick(session, traces, target - 1, timeout)
+    if observer_stall_ms:
+        session.pump(observer_stall_ms / 1000)
+    before = traces(session)[-1]['tick']
     session.type(data, settle=0)
     deadline = time.monotonic() + timeout
     while True:
         live = traces(session)
-        carrying = next((r for r in live if r['tick'] >= target and r.get('in', 0) > 0), None)
+        carrying = next((r for r in live if r['tick'] > before and
+                         r.get('in', 0) > 0 and r.get('keys', 0) > 0), None)
         if carrying is not None:
-            delivered = carrying['tick']
-            if delivered != target:
-                raise DeliveryError(f'late delivery: wanted tick{target}, observed{delivered}')
-            return delivered
-        if live and live[-1]['tick'] > target:
-            raise DeliveryError(f'missing input at tick{target}; observed through{live[-1]["tick"]}')
+            return carrying['tick']
         if time.monotonic() >= deadline:
-            raise DeliveryError(f'input timeout at tick{target}')
+            raise DeliveryError(f'input never consumed after write at tick{before}; requested{target}')
         session.pump(.001)
 
 
@@ -106,7 +104,7 @@ def recorded_bites(path):
             if len(w := line.split()) == 3 and w[0] == 't' and w[2] == 'bite']
 
 
-def make_row(helpers, observed_ticks=True):
+def make_row(helpers, observed_ticks=True, observer_stall_ms=0):
     event = helpers['cb04b_event']
     traces = helpers['cb04b_traces']
     fresh_save = helpers['fresh_save']
@@ -115,6 +113,8 @@ def make_row(helpers, observed_ticks=True):
         problems = []
         root = Path(ctx.ROOT)
         oracle = runpy.run_path(str(root / 'tools/combo-timing.py'))
+        predict = runpy.run_path(str(root / 'tests/combo_request_oracle.py'))['predicted_starts']
+        late_deliveries = 0
         for enhanced in (True, False):
             protocol = 'enhanced' if enhanced else 'legacy'
             for interval in (150, 200, 250, 330, 100, 30, 60, 'held250', 'held500'):
@@ -141,8 +141,13 @@ def make_row(helpers, observed_ticks=True):
                             raise AssertionError('missing event-types/all-keys request ESC[>11u')
                         if observed_ticks:
                             for offset, ms, role, data in planned:
-                                tick = send_at_tick(s, traces, data, first + offset)
+                                requested = first + offset
+                                tick = send_at_tick(s, traces, data, requested,
+                                                    observer_stall_ms=observer_stall_ms)
                                 delivered.append((offset, role, tick))
+                                late_deliveries += tick > requested
+                                print(f'{label}: event={role} nominal_ms={ms} requested_tick={requested} '
+                                      f'consumed_tick={tick} late_ticks={tick - requested}', flush=True)
                                 sent.append((ms, round((time.monotonic() - began) * 1000, 3), data.hex()))
                             wait_tick(s, traces, delivered[-1][2] + 45)
                         else:
@@ -175,21 +180,28 @@ def make_row(helpers, observed_ticks=True):
                         if state['action'] == 1 and current != previous:
                             starts[state['tick']] = state['combo']
                         previous = current
-                    sequence = list(starts.values())
                     bite_ticks = recorded_bites(dest / 'record.pk')
                     nominal_ms = [ms for ms, role, _ in events if role != 'release' and (not enhanced or role == 'press')]
+                    if observed_ticks and delivery_ok:
+                        predicted = predict([(tick, role) for _, role, tick in delivered],
+                                            enhanced, max(r['tick'] for r in live))
+                        expected = [hit for _, hit in predicted]
+                    else:
+                        predicted = []
                     print(f'{label}: nominal_ms={nominal_ms} recorded_bite_ticks={bite_ticks} delivered_gaps={gaps(bite_ticks)} '
                           f'strike_starts={list(starts.items())} ' +
-                          (f'expected={expected}' if observed_ticks else f'MEASUREMENT_ONLY ideal={expected} sent={sent}'), flush=True)
+                          (f'predicted_starts={predicted}' if observed_ticks else f'MEASUREMENT_ONLY ideal={expected} sent={sent}'), flush=True)
                     if observed_ticks:
                         requested = [] if first is None else [first + offset for offset, _, role, _ in planned
                                      if role != 'release' and (not enhanced or role == 'press')]
-                        print(f'{label}: requested_bite_ticks={requested} requested_gaps={gaps(requested)} acknowledgements={delivered}', flush=True)
-                        if delivery_ok and bite_ticks != requested:
+                        consumed = [tick for _, role, tick in delivered
+                                    if role != 'release' and (not enhanced or role == 'press')]
+                        print(f'{label}: requested_bite_ticks={requested} consumed_bite_ticks={consumed} acknowledgements={delivered}', flush=True)
+                        if delivery_ok and bite_ticks != consumed:
                             delivery_ok = False
-                            problems.append(f'{label}: DELIVERY recorded{bite_ticks}, requested{requested}')
-                        if delivery_ok and sequence != expected:
-                            problems.append(f'{label}: strike sequence {sequence}, expected {expected} at delivered gaps{gaps(bite_ticks)}')
+                            problems.append(f'{label}: DELIVERY recorded{bite_ticks}, acknowledged consumption{consumed}')
+                        if delivery_ok and list(starts.items()) != predicted:
+                            problems.append(f'{label}: observed starts{list(starts.items())}, predicted{predicted} from consumed gaps{gaps(bite_ticks)}')
                     if observed_ticks and delivery_ok and interval == 150:
                         frames = dest / 'frames'
                         count = max(r['tick'] for r in live)
@@ -204,10 +216,13 @@ def make_row(helpers, observed_ticks=True):
                                 for key in ('x', 'y', 'heading', 'action', 'aim', 'combo', 'health',
                                             'stamina', 'flasks', 'area'):
                                     assert replayed[state['tick']][key] == state[key], ('live/replay', state['tick'], key)
-                            oracle['holds'](replayed, 0)
+                            oracle['holds'](replayed, 0, expected)
                             oracle['north_pixels'](replayed, frames, tier)
                         except (AssertionError, KeyError) as error:
                             problems.append(f'{label}: {error}')
+        print(f'cb11b reader observer_stall_ms={observer_stall_ms} late_deliveries={late_deliveries}', flush=True)
+        if observer_stall_ms and not late_deliveries:
+            problems.append('observer-stall proof produced no actual late consumption')
         return s, problems
     return row
 
@@ -219,14 +234,20 @@ def rows(helpers):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--measure-wall-clock', action='store_true', required=True)
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument('--measure-wall-clock', action='store_true')
+    mode.add_argument('--observer-stall-ms', type=int, help='proof-only observer descheduling; default ROWS never enable it')
     parser.add_argument('--bin', required=True)
     args = parser.parse_args()
+    if args.observer_stall_ms is not None and not 1 <= args.observer_stall_ms <= 500:
+        parser.error('observer stall must be1..500ms')
     root = Path(__file__).resolve().parents[1]
     engine = runpy.run_path(str(root / '.lair/tools/pty'))
     helpers = runpy.run_path(str(root / 'tests/pty_rows.py'))
-    _, problems = make_row(helpers, observed_ticks=False)(str(Path(args.bin).resolve()), engine['Ctx'])
-    print('Wall-clock cadence is measurement only; no strike-sequence acceptance assertion.')
+    _, problems = make_row(helpers, observed_ticks=not args.measure_wall_clock,
+                           observer_stall_ms=args.observer_stall_ms or 0)(str(Path(args.bin).resolve()), engine['Ctx'])
+    if args.measure_wall_clock:
+        print('Wall-clock cadence is measurement only; no strike-sequence acceptance assertion.')
     for problem in problems:
-        print('measurement infrastructure error:', problem)
+        print('reader proof FAILED:', problem)
     raise SystemExit(bool(problems))

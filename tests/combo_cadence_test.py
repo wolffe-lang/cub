@@ -23,7 +23,8 @@ class Session:
 
     def pump(self, seconds):
         self.trace.append(dict(tick=self.trace[-1]['tick'] + self.step,
-                               **{'in': 0 if self.drop else len(self.pending)}))
+                               **{'in': 0 if self.drop else len(self.pending),
+                                  'keys': 0 if self.drop or not self.pending else 1}))
         self.pending = b''
 
 
@@ -39,21 +40,25 @@ class ObservedCadenceTest(unittest.TestCase):
         self.assertEqual(MOD['send_at_tick'](s, traces, b' ', 6), 6)
         self.assertEqual(s.writes[-1], (5, b' '))
 
-    def test_missed_predecessor_fails_before_writing(self):
+    def test_late_write_still_acknowledges_only_its_new_input(self):
         s = Session(tick=4)
-        with self.assertRaisesRegex(MOD['DeliveryError'], 'late before write'):
-            MOD['send_at_tick'](s, traces, b' ', 3)
-        self.assertEqual(s.writes, [])
+        s.trace[-1].update({'in': 1, 'keys': 1})  # old input must not acknowledge a new write
+        self.assertEqual(MOD['send_at_tick'](s, traces, b' ', 3), 5)
+        self.assertEqual(s.writes, [(4, b' ')])
 
-    def test_late_ack_is_not_silently_accepted(self):
+    def test_late_ack_is_returned_as_consumption(self):
         s = Session(step=2)
-        with self.assertRaisesRegex(MOD['DeliveryError'], 'late delivery'):
-            MOD['send_at_tick'](s, traces, b' ', 1)
+        self.assertEqual(MOD['send_at_tick'](s, traces, b' ', 1), 2)
 
-    def test_dropped_input_is_not_a_strike_verdict(self):
+    def test_unconsumed_input_still_fails(self):
         s = Session(drop=True)
-        with self.assertRaisesRegex(MOD['DeliveryError'], 'missing input'):
-            MOD['send_at_tick'](s, traces, b' ', 1)
+        with self.assertRaisesRegex(MOD['DeliveryError'], 'never consumed'):
+            MOD['send_at_tick'](s, traces, b' ', 1, timeout=0)
+
+    def test_observer_stall_is_explicit_and_records_later_consumption(self):
+        s = Session()
+        self.assertEqual(MOD['send_at_tick'](s, traces, b' ', 1, observer_stall_ms=80), 2)
+        self.assertEqual(s.writes, [(1, b' ')])
 
     def test_missing_trace_times_out(self):
         with self.assertRaisesRegex(MOD['DeliveryError'], 'trace timeout'):

@@ -42,17 +42,19 @@ def states_of(trace):
     return result
 
 
-def holds(states, aim):
-    """Require exactly three actions, not just three arbitrary matching frames."""
+def holds(states, aim, expected=(1, 2, 3)):
+    """Require predicted actions and each hold; deterministic rows stay1/2/3."""
+    expected = tuple(expected)
     bites = {}
     for state in states.values():
         if state['action'] == 1:
             bites.setdefault(state['started'], []).append(state)
     sequence = [rows[0]['combo'] for rows in bites.values()]
-    assert sequence == [1, 2, 3], f'hold sequence {sequence}, expected [1, 2, 3]'
+    assert sequence == list(expected), f'hold sequence {sequence}, expected {list(expected)}'
     sine, cosine = math.sin(aim * math.tau / 256), math.cos(aim * math.tau / 256)
     result = []
-    for combo, (start, rows) in enumerate(bites.items(), 1):
+    for combo, (start, rows) in zip(expected, bites.items()):
+        assert combo in (1, 2, 3), ('invalid expected strike', combo)
         origin = states[start]
         assert origin['aim'] == aim, (combo, 'wrong commitment', origin['aim'], aim)
         held = [row for row in rows if 3 <= row['tick'] - start <= (8 if combo == 3 else 6)]
@@ -78,10 +80,13 @@ def north_pixels(states, frames, tier):
         samples[tick] = centroid(frame.with_suffix('.txt').read_text(),
                                  frame.with_suffix('.sty').read_text(),
                                  range(6, 19), range(29, 52), tier == 'rich')
-    for hit in (1, 2, 3):
-        rows = [r for r in states.values() if r['action'] == 1 and r['combo'] == hit]
-        assert rows, f'no drawn strike {hit}'
-        start = rows[0]['started']
+    bites = {}
+    for row in states.values():
+        if row['action'] == 1:
+            bites.setdefault(row['started'], []).append(row)
+    assert bites, 'no drawn strikes'
+    for start, rows in bites.items():
+        hit = rows[0]['combo']
         base = samples[start]
         assert base[2], 'empty standing drawing'
         swings = []

@@ -52,6 +52,23 @@ class ComboOracleTest(unittest.TestCase):
             with self.assertRaises(AssertionError, msg=field):
                 ORACLE['holds'](states, 0)
 
+    def test_reader_can_require_two_first_strikes_after_real_grace_lapses(self):
+        states = {}
+        for tick in range(1, 40):
+            row = dict(tick=tick, action=0, started=0, combo=0, aim=0, x=0, y=0)
+            for start in (3, 25):
+                if 0 <= tick - start < 11:
+                    row.update(action=1, started=start, combo=1)
+                    if 3 <= tick - start <= 6:
+                        row.update(x=-256, y=-256)
+            states[tick] = row
+        self.assertEqual(ORACLE['holds'](states, 0, [1, 1]), [(1, 6, 1.0, 1.0), (1, 28, 1.0, 1.0)])
+        with self.assertRaises(AssertionError):
+            ORACLE['holds'](states, 0)  # deterministic three-press contract is unchanged
+        states[28]['x'] = 256
+        with self.assertRaises(AssertionError):
+            ORACLE['holds'](states, 0, [1, 1])
+
     def test_backward_third_and_sideways_third_fail(self):
         for field, value in (('x', 256), ('y', 256)):
             states = north()
