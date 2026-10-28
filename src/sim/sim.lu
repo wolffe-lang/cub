@@ -5814,6 +5814,7 @@ fn scatter_glow_worms(mut s: Sim, from: int) {
             let f = copy s.foes[j]
             s.foes[j].phase = RETREAT
             s.foes[j].since = s.tick
+            s.foes[j].attack = 1
             let h = heading_to(s.x, s.y, f.x, f.y)
             s.foes[j].target_x = f.x + 4 * sin(h)
             s.foes[j].target_y = f.y - 4 * cos(h)
@@ -5857,7 +5858,11 @@ pub fn new_foe_step(mut s: Sim, i: int) {
         return
     }
     if f.kind == GLOW_WORMS {
-        if gap(foe_body(f), cub_body(s)) <= 0 {
+        // The other worms get the six blind ticks to scatter out of
+        // contact; otherwise one touch would consume an entire cluster
+        // in this same foe loop before any sibling could move away.
+        let scattering = f.phase == RETREAT && f.attack == 1
+        if gap(foe_body(f), cub_body(s)) <= 0 && !(scattering && age < 6) {
             s.blind_until = s.tick + 6
             s.foes[i].health = 0
             s.foes[i].died = s.tick
@@ -5865,8 +5870,12 @@ pub fn new_foe_step(mut s: Sim, i: int) {
             return
         }
         if f.phase == RETREAT {
-            drift_foe(mut s, i, f.target_x, f.target_y, 36)
-            if age >= m.recovery { s.foes[i].phase = HUNT; s.foes[i].since = s.tick }
+            drift_foe(mut s, i, f.target_x, f.target_y, if scattering then 96 else 36)
+            if age >= m.recovery {
+                s.foes[i].phase = HUNT
+                s.foes[i].since = s.tick
+                s.foes[i].attack = 0
+            }
         } else if near(f.x, f.y, s.x, s.y, 9 * FP) {
             drift_foe(mut s, i, s.x, s.y, 12)
             if f.phase == HUNT { s.foes[i].phase = CROUCH; s.foes[i].since = s.tick }

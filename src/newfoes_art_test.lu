@@ -150,3 +150,23 @@ fn test_cb18_glow_worms_carry_light_and_their_death_darkens_the_cave() {
     art.dim_glow_cave(s, true, mut g)
     assert(grid.at(g, 12, 55).attrs == grid.ATTR_DIM, "killing a worm extinguishes its light")
 }
+
+fn test_cb18_one_glow_contact_does_not_consume_all_three_before_they_scatter() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.GLOW_WORMS)
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y
+    let x = s.x
+    let y = s.y
+    (mut s.foes).push(sim.make_new_foe(sim.GLOW_WORMS, x + 4 * sim.FP, y))
+    (mut s.foes).push(sim.make_new_foe(sim.GLOW_WORMS, x - 4 * sim.FP, y))
+    sim.step(mut s, List[int]())
+    assert(
+        s.foes[0].health == 0 && s.foes[1].health > 0 && s.foes[2].health > 0,
+        "only the touched worm flashes; the others survive the same shipping tick",
+    )
+    assert(
+        s.foes[1].x > x + 4 * sim.FP && s.foes[2].x < x - 4 * sim.FP,
+        "both siblings actually scatter, not merely acquire a phase flag",
+    )
+    assert(s.blind_until == 7, "one six-frame flash, not a chain of same-tick contacts")
+}
