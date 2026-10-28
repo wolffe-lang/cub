@@ -46,6 +46,19 @@ class ConsumedRequestsTest(unittest.TestCase):
         self.assertEqual(predict(events + [(75, 'press')], False, 100), expected + [(75, 1)])
         self.assertEqual(predict(presses(1, 2, 3), True, 100, stamina=12), [(1, 1)])
 
+    def test_each_bite_cost_has_an_independent_threshold(self):
+        events = presses(1, 2, 3)
+        for stamina, expected in ((11, []), (12, [(1, 1)]),
+                                  (25, [(1, 1)]), (26, [(1, 1), (12, 2)]),
+                                  (43, [(1, 1), (12, 2)]),
+                                  (44, [(1, 1), (12, 2), (25, 3)])):
+            # A single press pins cost12; the queued pair pins14 and18.
+            data = presses(1) if stamina <= 12 else events
+            self.assertEqual(predict(data, True, 60, stamina=stamina), expected)
+
+    def test_idle_recovery_is_two_after_input_not_before_it(self):
+        self.assertEqual(predict(presses(1, 6, 7), True, 40, stamina=0), [(7, 1)])
+
     def test_policy_mutation_controls_disagree(self):
         got = predict(presses(1, 12, 25), True, 70)
         for wrong in ([(1, 1), (25, 1)], [(1, 1), (12, 1), (23, 1)], [(1, 1), (13, 2), (26, 3)]):
