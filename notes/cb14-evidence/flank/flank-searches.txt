@@ -1,0 +1,71 @@
+== mac-flank-search.log
+cb14 Mac floor clear 14137262080 bytes 2026-10-28T12:33:02Z
+no flank found in 3040 trials
+CB14_FLANK_SEARCH_EXIT 1
+== mac-flank-stagger.log
+cb14 waits for the Mac build lock pid=26333 lane=cb18 2026-10-28T12:38:51Z
+cb14 waits for the Mac build lock pid=26333 lane=cb18 2026-10-28T12:39:21Z
+cb14 Mac floor clear 9711845376 bytes 2026-10-28T12:39:51Z
+flank search 16/544; prefix 771
+flank search 32/544; prefix 771
+flank search 48/544; prefix 771
+flank search 64/544; prefix 771
+flank search 80/544; prefix 771
+flank search 96/544; prefix 771
+flank search 112/544; prefix 771
+flank search 128/544; prefix 771
+flank search 144/544; prefix 840
+flank search 160/544; prefix 840
+flank search 176/544; prefix 840
+flank search 192/544; prefix 840
+flank search 208/544; prefix 840
+flank search 224/544; prefix 840
+flank search 240/544; prefix 840
+flank search 256/544; prefix 840
+flank search 272/544; prefix 840
+FLANK NOT FOUND in bounded real-key candidates
+CB14_FLANK_STAGGER_EXIT 1
+== mac-flank-beaten.log
+cb14 Mac floor clear 9109536768 bytes 2026-10-28T12:44:05Z
+flank search 200 trials; prefix 644
+flank search 400 trials; prefix 669
+flank search 600 trials; prefix 694
+flank search 800 trials; prefix 719
+flank search 1000 trials; prefix 744
+flank search 1200 trials; prefix 769
+flank search 1400 trials; prefix 794
+flank search 1600 trials; prefix 819
+flank search 1800 trials; prefix 844
+flank search 2000 trials; prefix 869
+flank search 2200 trials; prefix 894
+flank search 2400 trials; prefix 919
+flank search 2600 trials; prefix 944
+flank search 2800 trials; prefix 969
+no flank found in 2976 trials
+CB14_FLANK_BEATEN_EXIT 1
+== mac-flank-moves.log
+cb14 waits for 8 GiB 6947651584 bytes 2026-10-28T12:51:27Z
+cb14 Mac floor clear 9189949440 bytes 2026-10-28T12:51:57Z
+starts 57: 627 696 697 698 710 724 725 743 755 771 783 797 798 799 800 801 802 803 804 805 806 807 808 809 810 811 823 824 840 841 853 854 855 856 857 858 859 860 861 862 863 864 865 866 867 868 869 870 871 872 873 874 875 928 929 930 942
+candidates 15048
+flank search 400/15048
+flank search 800/15048
+flank search 1200/15048
+flank search 1600/15048
+flank search 2000/15048
+flank search 2400/15048
+flank search 2800/15048
+flank search 3200/15048
+flank search 3600/15048
+flank search 4000/15048
+flank search 4400/15048
+flank search 4800/15048
+flank search 5200/15048
+flank search 5600/15048
+flank search 6000/15048
+flank search 6400/15048
+flank search 6800/15048
+flank search 7200/15048
+FLANK FOUND start 696 move up+right ticks 8 aim left result (708, 705, 245, 140, 128, 10100) trials 7306
+== mac-flank-pty.log
+pty: cb08-whisper-flank ok (darwin arm64, exit 0, 2185201 bytes captured)
