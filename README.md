@@ -32,7 +32,9 @@ nothing else: a red health bar and a green stamina bar flush on the
 forest at top-left, growing with the stats, their one-word labels beside
 them and the water charges in a line under them; the scent the cub carries
 as one big number in the bottom right corner, drawn in an original
-block-glyph digit font (`#` cells on the plain tier). Posture is a second
+block-glyph digit font (`#` cells on the plain tier). Gains and spending count
+through every integer in at most twenty simulation ticks, retargeting without a
+jump; currency changes immediately, even while the number is counting. Posture is a second
 channel: the ears go back, the tail drops and the trot shortens as it is
 hurt, and its breath shows its stamina. A timely counterattack can regain
 recently lost health, shown in grey on the bar. The three-Space combo is
@@ -81,7 +83,11 @@ Water must first be found at the Shingle spring (two mouthfuls), with a
 third found later; the counter below the bars shows the charges, and
 every rest refills them. Only drinking spends water; a fox's landed feint
 steals up to five carried scent instead. Death leaves a recoverable mark, even across area edges; a
-second death replaces it. The thirty-second opening shows pale cracked ice at Moonford, the cub freezing
+second death replaces it. After the thirty-tick fade to black, a fourteen-row red
+`FALLEN` appears, followed by the opening's blinking eyes in reverse. Any key
+skips once the word has shown for twenty ticks; without a skip the eyes close
+before the cub wakes at its den. The mark and ghost are written at the fall,
+not after the card. The thirty-second opening shows pale cracked ice at Moonford, the cub freezing
 as the pack walks on, a fall into deep water, and three waking blinks onto
 the actual Shingle spawn. The same in-game wolf silhouettes cross between
 two banks of Shingle-grey gravel and thick forest, drawn by the world
@@ -130,6 +136,7 @@ The terminal must be at least 80 columns by 24 rows; the field grows to fill a l
 | Enter/Space on Confirm | apply all staged levels; Esc discards |
 | `q` / Ctrl+C | quit / interrupt; the terminal and negotiated keyboard mode are restored |
 | any decoded key during the opening | skip the scene without also making a move |
+| any ordinary key during the death card | skip after twenty ticks of the word; `q` skips too, Ctrl-C still interrupts |
 | any key on the title | begin; after ten idle seconds a demo plays behind the title |
 | `r` on the end card | keep playing as the wolf (`q` leaves) |
 
@@ -178,6 +185,10 @@ target/cub --narrow-audit 6 240  walk Cinderwick's single-file edges with diagon
 `cub --help` lists the rest: the headless mode that writes frames for the goldens, `--trace` (one line a
 tick on standard error), `--apply`, the glyph probe, the selftest, `--bench` for render/diff timings, and
 the score's paths (`--score-list`, `--score-render`, `--score-wav`, `--score-replay`).
+Headless `--script` fixtures skip death cards after their minimum word hold;
+`--full-death` keeps the full scene. Live play and production `--replay` keep
+recorded key timing. A script's `# counter-frames` comment emits every integer
+as its own golden frame, without advancing the simulation again.
 
 ## Tests
 
@@ -185,7 +196,9 @@ the score's paths (`--score-list`, `--score-render`, `--score-wav`, `--score-rep
 tests, native and release builds, decoder selftest, both-tier replay goldens
 and posture sheets, every combo/roll frame, scaled bars and rally, the score's PCM goldens and loop seams on both backends
 (`tools/score-check`), shipping-binary gameplay and persistence assertions,
-pty restoration and replay agreement, exact held-key and eight-direction chord rows, regional rest scenes at80×24 and120×40,
+pty restoration and replay agreement, death-word/half-closed/closed-eye goldens,
+every integer of gains and spending with replay-deterministic batches, the real
+terminal's1000-frame count at both sizes and tiers, exact held-key and eight-direction chord rows, regional rest scenes at80×24 and120×40,
 found-water/drink/refill and last-den respawn, and performance. Both platform gates
 also bound resident growth to 4096 bytes per actual tick over a resumed checkpoint
 and fresh seed (`sh tools/check-memory target/release/cub`). Frame scratch is
