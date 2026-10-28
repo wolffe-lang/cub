@@ -1,4 +1,5 @@
 //! member: false
+
 use journey
 use registry
 use sim
@@ -10,9 +11,17 @@ fn test_cb13_named_wrapper_preserves_name_time_and_refuses_corruption() {
     let _ = journey.decode(text, 80, 24) else |_| { assert(false, "named save"); return }
     let read = journey.metadata(text) else |_| { assert(false, "metadata"); return }
     assert(read.name == m.name && read.played_ms == m.played_ms, "metadata round trip")
-    for bad in [text.replace("played_ms 123456", "played_ms -1"), text.replace("winter-7", "../bad"), text + "junk\n", text.replace("name winter-7\n", "")] {
+    for bad in [
+        text.replace("played_ms 123456", "played_ms -1"),
+        text.replace("winter-7", "../bad"),
+        text + "junk\n",
+        text.replace("name winter-7\n", ""),
+    ] {
         var refused = false
-        let _ = journey.decode(bad, 80, 24) else |e| { refused = "{e}" == "save_corrupt"; sim.new(7, 80, 24) }
+        let _ = journey.decode(bad, 80, 24) else |e| {
+            refused = "{e}" == "save_corrupt"
+            sim.new(7, 80, 24)
+        }
         assert(refused, "corrupt metadata refused by name")
     }
     assert(journey.JOURNEY == 4 && journey.snapshot(s).len == 37, "no numeric replay schema change")
@@ -23,16 +32,32 @@ fn test_cb13_registry_round_trip_recent_and_named_missing() {
     let entries = registry.decode(text) else |_| { assert(false, "valid registry"); return }
     assert(registry.encode(entries) == text, "registry bytes round trip, including path spaces")
     let recent = registry.recent(entries) else |_| { assert(false, "recent"); return }
-    assert(recent.path == "/fixture/with space/b.save", "Continue follows last-played time, not file order")
+    assert(
+        recent.path == "/fixture/with space/b.save",
+        "Continue follows last-played time, not file order",
+    )
     var missing = false
-    let _ = registry.recent(List[registry.Entry]()) else |e| { missing = "{e}" == "registry_missing"; entries[0] }
+    let _ = registry.recent(List[registry.Entry]()) else |e| {
+        missing = "{e}" == "registry_missing"
+        entries[0]
+    }
     assert(missing, "absent row refused by name")
 }
 
 fn test_cb13_registry_malformed_line_is_refused_by_name() {
-    for text in ["absent\n", "relative\twinter\t7\t0\t1\t4\t100\n", "/a\t../bad\t7\t0\t1\t4\t100\n", "/a\twinter\t7\t0\t1\t4\t-1\n", "/a\twinter\t7\t0\t1\t4\t100", "/a\twinter\t7\t0\t1\t4\t100\n/a\twinter\t7\t0\t1\t4\t100\n"] {
+    for text in [
+        "absent\n",
+        "relative\twinter\t7\t0\t1\t4\t100\n",
+        "/a\t../bad\t7\t0\t1\t4\t100\n",
+        "/a\twinter\t7\t0\t1\t4\t-1\n",
+        "/a\twinter\t7\t0\t1\t4\t100",
+        "/a\twinter\t7\t0\t1\t4\t100\n/a\twinter\t7\t0\t1\t4\t100\n",
+    ] {
         var refused = false
-        let _ = registry.decode(text) else |e| { refused = "{e}" == "registry_line"; List[registry.Entry]() }
+        let _ = registry.decode(text) else |e| {
+            refused = "{e}" == "registry_line"
+            List[registry.Entry]()
+        }
         assert(refused, "malformed or duplicate row cannot disappear silently")
     }
 }

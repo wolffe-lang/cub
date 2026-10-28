@@ -1,4 +1,5 @@
 //! Strict, durable save index. Paths are absolute; tabs/newlines are forbidden.
+
 use forest
 use journey
 use sim
@@ -7,9 +8,27 @@ use std.fs
 use std.time
 
 /// A known save; last_played is UTC Unix milliseconds, not elapsed play time.
-pub struct Entry { path: str, name: str, seed: int, difficulty: int, area: int, level: int, last_played: int }
+pub struct Entry {
+    path: str,
+    name: str,
+    seed: int,
+    difficulty: int,
+    area: int,
+    level: int,
+    last_played: int,
+}
+
 /// Index failures remain distinct from a missing selected save.
-pub error Errors = {registry_io, registry_busy, registry_line, registry_missing, save_corrupt, save_version, save_difficulty, save_io}
+pub error Errors = {
+    registry_io,
+    registry_busy,
+    registry_line,
+    registry_missing,
+    save_corrupt,
+    save_version,
+    save_difficulty,
+    save_io,
+}
 
 /// The user data directory; tests always supply a private HOME.
 pub fn root() -> str { (env.get("HOME") else ".") + "/.cub" }
@@ -23,7 +42,9 @@ fn safe_path(path: str) -> bool {
 /// Exact tab-separated codec, with no ambiguous whitespace splitting.
 pub fn encode(entries: List[Entry]) -> str {
     var text = ""
-    for e in entries { text += "{e.path}\t{e.name}\t{e.seed}\t{e.difficulty}\t{e.area}\t{e.level}\t{e.last_played}\n" }
+    for e in entries {
+        text += "{e.path}\t{e.name}\t{e.seed}\t{e.difficulty}\t{e.area}\t{e.level}\t{e.last_played}\n"
+    }
     text
 }
 
@@ -38,9 +59,26 @@ pub fn decode(text: str) -> List[Entry] ! {registry_line} {
         let area = f[4].to_int() else |_| { return registry_line }
         let level = f[5].to_int() else |_| { return registry_line }
         let last_played = f[6].to_int() else |_| { return registry_line }
-        if seed < -1000000000 || seed > 1000000000 || difficulty != 0 || area < 0 || area >= forest.AREAS || level < 1 || level > 196 || last_played < 0 { return registry_line }
+        if seed < -1000000000 ||
+            seed > 1000000000 ||
+            difficulty != 0 ||
+            area < 0 ||
+            area >= forest.AREAS ||
+            level < 1 ||
+            level > 196 ||
+            last_played < 0 {
+            return registry_line
+        }
         for e in entries { if e.path == f[0] { return registry_line } }
-        (mut entries).push(Entry { path: f[0], name: f[1], seed: seed, difficulty: difficulty, area: area, level: level, last_played: last_played })
+        (mut entries).push(Entry {
+            path: f[0],
+            name: f[1],
+            seed: seed,
+            difficulty: difficulty,
+            area: area,
+            level: level,
+            last_played: last_played,
+        })
     }
     if encode(entries) != text { return registry_line }
     entries
@@ -50,7 +88,9 @@ pub fn decode(text: str) -> List[Entry] ! {registry_line} {
 pub fn load(path: str) -> List[Entry] ! Errors {
     let text = fs.read_text(path) else |e| match e {
         not_found => { return List[Entry]() },
-        denied => { return registry_io }, io => { return registry_io }, utf8 => { return registry_line },
+        denied => { return registry_io },
+        io => { return registry_io },
+        utf8 => { return registry_line },
     }
     decode(text)?
 }
@@ -58,14 +98,19 @@ pub fn load(path: str) -> List[Entry] ! Errors {
 /// Pick the newest save; stable path ordering breaks equal-time ties.
 pub fn recent(entries: List[Entry]) -> Entry ! {registry_missing} {
     if entries.len == 0 { return registry_missing }
-    var best = entries[0]
-    for e in entries { if e.last_played > best.last_played || e.last_played == best.last_played && e.path < best.path { best = e } }
+    var best = copy entries[0]
+    for e in entries {
+        if e.last_played > best.last_played ||
+            e.last_played == best.last_played && e.path < best.path {
+            best = copy e
+        }
+    }
     best
 }
 
 /// Selecting an absent registry row or a deleted save is never a fresh game.
 pub fn find(entries: List[Entry], path: str) -> Entry ! {registry_missing} {
-    for e in entries { if e.path == path && fs.is_file(path) { return e } }
+    for e in entries { if e.path == path && fs.is_file(path) { return copy e } }
     registry_missing
 }
 
@@ -77,10 +122,21 @@ pub fn write(path: str, entries: List[Entry]) -> () ! Errors {
     fs.create_dir_all(parent) else |_| { return registry_io }
     let temp = path + ".pending"
     var f = fs.create_new(temp) else |e| match e {
-        exists => { return registry_busy }, not_found => { return registry_io }, denied => { return registry_io }, io => { return registry_io },
+        exists => { return registry_busy },
+        not_found => { return registry_io },
+        denied => { return registry_io },
+        io => { return registry_io },
     }
-    fs.write(mut f, text) else |_| { fs.close(take f) else |_| {}; fs.remove(temp) else |_| {}; return registry_io }
-    fs.sync(mut f) else |_| { fs.close(take f) else |_| {}; fs.remove(temp) else |_| {}; return registry_io }
+    fs.write(mut f, text) else |_| {
+        fs.close(take f) else |_| {}
+        fs.remove(temp) else |_| {}
+        return registry_io
+    }
+    fs.sync(mut f) else |_| {
+        fs.close(take f) else |_| {}
+        fs.remove(temp) else |_| {}
+        return registry_io
+    }
     fs.close(take f) else |_| { fs.remove(temp) else |_| {}; return registry_io }
     fs.move_file(temp, path) else |_| { fs.remove(temp) else |_| {}; return registry_io }
     fs.sync_dir(parent) else |_| { return registry_io }
@@ -95,16 +151,23 @@ pub fn register(index: str, path: str, stamp: int) -> () ! Errors {
     fs.create_dir_all(parent) else |_| { return registry_io }
     let lock = index + ".lock"
     let f = fs.create_new(lock) else |e| match e {
-        exists => { return registry_busy }, not_found => { return registry_io }, denied => { return registry_io }, io => { return registry_io },
+        exists => { return registry_busy },
+        not_found => { return registry_io },
+        denied => { return registry_io },
+        io => { return registry_io },
     }
     fs.close(take f) else |_| { fs.remove(lock) else |_| {}; return registry_io }
     update(index, absolute, s, meta.name, stamp) else |e| {
         fs.remove(lock) else |_| {}
         match e {
-            registry_busy => { return registry_busy }, registry_line => { return registry_line },
-            registry_missing => { return registry_missing }, save_corrupt => { return save_corrupt },
-            save_version => { return save_version }, save_difficulty => { return save_difficulty },
-            save_io => { return save_io }, registry_io => { return registry_io },
+            registry_busy => { return registry_busy },
+            registry_line => { return registry_line },
+            registry_missing => { return registry_missing },
+            save_corrupt => { return save_corrupt },
+            save_version => { return save_version },
+            save_difficulty => { return save_difficulty },
+            save_io => { return save_io },
+            registry_io => { return registry_io },
         }
     }
     fs.remove(lock) else |_| { return registry_io }
@@ -114,7 +177,15 @@ fn update(index: str, path: str, s: sim.Sim, name: str, stamp: int) -> () ! Erro
     var entries = load(index)?
     var next = List[Entry]()
     for e in entries { if e.path != path { (mut next).push(e) } }
-    (mut next).push(Entry { path: path, name: name, seed: s.seed, difficulty: s.difficulty, area: s.area, level: sim.level(s), last_played: stamp })
+    (mut next).push(Entry {
+        path: path,
+        name: name,
+        seed: s.seed,
+        difficulty: s.difficulty,
+        area: s.area,
+        level: sim.level(s),
+        last_played: stamp,
+    })
     write(index, next)?
 }
 
