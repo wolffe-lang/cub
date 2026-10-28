@@ -880,6 +880,7 @@ fn frame(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid, hud: bool, scent: i
     draw_ghosts(s, extra.ghosts, t, mut g)
     draw_world_marks(s, t, mut g)
     draw_actor(s, t, mut g)
+    draw_new_foe_foreground_tells(s, t, mut g)
     draw_posture(s, t, mut g)
     if hud { draw_hud(s, t, scent, mut g) }
     draw_boss_bar(s, t, mut g)
@@ -4476,6 +4477,16 @@ pub fn dim_glow_cave(s: sim.Sim, dark: bool, mut g: grid.Grid) {
 /// and the cave's live/dead light. The last two deliberately exercise the
 /// pending area hook on the disclosed arena, never on an old live area.
 pub fn new_foe_status_sheet(t: int, status: int) -> grid.Grid {
+    if status >= 4 {
+        var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+        s.foes[0].x = s.x
+        s.foes[0].y = s.y
+        s.foes[0].phase = sim.CROUCH
+        if status == 5 { s.den = true }
+        var g = grid.new(24, 80)
+        render(s, t, mut g)
+        return g
+    }
     var s = sim.new_foe_arena(1, 80, 24, if status == 0 then sim.CINDER_MOTHS else sim.GLOW_WORMS)
     s.foes[0].phase = sim.CROUCH
     s.foes[0].x = s.x + 4 * sim.FP
@@ -4486,4 +4497,47 @@ pub fn new_foe_status_sheet(t: int, status: int) -> grid.Grid {
     render(s, t, mut g)
     if status >= 2 { dim_glow_cave(s, true, mut g) }
     g
+}
+
+/// Foreground warning pixels only: a cub standing below the trunk must
+/// still see the marten's needles. frame calls this after draw_actor and
+/// before every HUD, overlay, dialogue and menu layer; menus returning
+/// before the world path never call it. Other kinds/postures draw nothing.
+pub fn draw_new_foe_foreground_tells(s: sim.Sim, t: int, mut g: grid.Grid) {
+    for f in s.foes {
+        if f.kind != sim.MARTEN || f.health <= 0 || f.phase != sim.CROUCH { continue }
+        var b = new_foe_bitmap_count(sim.MARTEN, sim.CROUCH, 5)
+        // Only the upper two cell rows are needles. Never repaint the
+        // marten's body through the cub, HUD or an overlay.
+        var i = 8 * b.w
+        while i < b.px.len { b.px[i] = 0; i += 1 }
+        let row = sim.floor_div(f.y, sim.FP) - sim.camera_y(s) + sim.screen_row(s)
+        let col = sim.floor_div(f.x, sim.FP) - sim.camera_x(s) + sim.screen_col(s)
+        let q = sim.quarter(f.heading)
+        let style = grid.cell(
+            32,
+            if t == tier.RICH then 180 else 3,
+            grid.COLOR_DEFAULT,
+            grid.ATTR_BOLD,
+        )
+        if t == tier.RICH {
+            silhouette.draw_at(mut g, row, col, b, q, style)
+        } else {
+            let rotated = silhouette.turned(b, q)
+            let (dr, dc) = silhouette.anchor(b, q)
+            var r = 0
+            while r < silhouette.rows(rotated) {
+                var c = 0
+                while c < silhouette.cols(rotated) {
+                    if silhouette.cell_cp(rotated, r, c) != 32 {
+                        var cell = copy style
+                        cell.cp = 46
+                        grid.put(mut g, row + dr + r, col + dc + c, cell)
+                    }
+                    c += 1
+                }
+                r += 1
+            }
+        }
+    }
 }

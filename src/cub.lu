@@ -595,7 +595,7 @@ fn run_art_study(o: Options) -> int {
     headless.write_frame(o.dump, "meadow-rich", art.meadow_sheet(tier.RICH)) else |_| { return 2 }
     headless.write_frame(o.dump, "meadow-plain", art.meadow_sheet(tier.PLAIN)) else |_| { return 2 }
     var new_status = 0
-    while new_status < 4 {
+    while new_status < 6 {
         headless.write_frame(
             o.dump,
             "foe-status-{new_status}-rich",

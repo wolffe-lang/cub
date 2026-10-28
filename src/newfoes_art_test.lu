@@ -3,6 +3,8 @@
 use art
 use grid
 use sim
+use sprites
+use silhouette
 use tier
 
 fn sprite_envelopes(kind: int) {
@@ -170,3 +172,225 @@ fn test_cb18_one_glow_contact_does_not_consume_all_three_before_they_scatter() {
     )
     assert(s.blind_until == 7, "one six-frame flash, not a chain of same-tick contacts")
 }
+
+fn declared_new_glyphs(kind: int) {
+    let allowed = sprites.rich_code_points()
+    let counts = if kind == sim.CINDER_MOTHS then [1, 3, 5] else [5]
+    for count in counts {
+        for phase in [sim.HUNT, sim.CROUCH, sim.STRIKE, sim.RETREAT] {
+            var q = 0
+            while q < 4 {
+                let b = silhouette.turned(art.new_foe_bitmap_count(kind, phase, count), q)
+                var r = 0
+                while r < silhouette.rows(b) {
+                    var c = 0
+                    while c < silhouette.cols(b) {
+                        let cp = silhouette.cell_cp(b, r, c)
+                        if cp > 255 {
+                            var found = false
+                            for declared in allowed { if cp == declared { found = true } }
+                            if !found {
+                                print(
+                                    "cb18 missing glyph kind={kind} count={count} phase={phase} quarter={q} cp={cp}",
+                                )
+                            }
+                            assert(
+                                found,
+                                "every live-count and active/recovery glyph belongs to the declared font extent",
+                            )
+                        }
+                        c += 1
+                    }
+                    r += 1
+                }
+                q += 1
+            }
+        }
+    }
+}
+
+fn test_cb18_marten_all_live_glyphs_declared() { declared_new_glyphs(sim.MARTEN) }
+
+fn test_cb18_adder_all_live_glyphs_declared() { declared_new_glyphs(sim.ASH_ADDER) }
+
+fn test_cb18_moths_all_live_glyphs_declared() { declared_new_glyphs(sim.CINDER_MOTHS) }
+
+fn test_cb18_heron_all_live_glyphs_declared() { declared_new_glyphs(sim.HERON) }
+
+fn test_cb18_glow_all_live_glyphs_declared() { declared_new_glyphs(sim.GLOW_WORMS) }
+
+fn test_cb18_wisp_all_live_glyphs_declared() { declared_new_glyphs(sim.WISP) }
+
+fn test_cb18_marten_needles_remain_visible_over_the_cub() {
+    let needles = silhouette.parse(
+        [
+            " #  ",
+            "    ",
+            "   #",
+            "    ",
+            "  # ",
+            "    ",
+            "#   ",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+        ],
+    )
+    for t in [tier.RICH, tier.PLAIN] {
+        var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+        s.foes[0].x = s.x
+        s.foes[0].y = s.y
+        s.foes[0].phase = sim.CROUCH
+        var g = grid.new(24, 80)
+        art.render(s, t, mut g)
+        let (dr, dc) = silhouette.anchor(needles, 0)
+        let row = sim.floor_div(s.y, sim.FP) - sim.camera_y(s) + sim.screen_row(s)
+        let col = sim.floor_div(s.x, sim.FP) - sim.camera_x(s) + sim.screen_col(s)
+        var r = 0
+        var visible = 0
+        while r < silhouette.rows(needles) {
+            var c = 0
+            while c < silhouette.cols(needles) {
+                let cp = silhouette.cell_cp(needles, r, c)
+                if cp != 32 {
+                    let cell = grid.at(g, row + dr + r, col + dc + c)
+                    assert(
+                        cell.cp == (if t == tier.RICH then cp else 46) &&
+                            cell.fg == (if t == tier.RICH then 180 else 3),
+                        "the cub's fur cannot cover its twenty-tick falling-needles warning",
+                    )
+                    visible += 1
+                }
+                c += 1
+            }
+            r += 1
+        }
+        assert(visible == 4, "four visible needle cells on each tier")
+    }
+}
+
+fn test_cb18_snuffed_wisp_is_visually_absent_on_both_tiers() {
+    for t in [tier.RICH, tier.PLAIN] {
+        var s = sim.new_foe_arena(1, 80, 24, sim.WISP)
+        s.foes[0].phase = sim.SNUFFED
+        var hidden = grid.new(24, 80)
+        art.render(s, t, mut hidden)
+        (mut s.foes).reset()
+        var empty = grid.new(24, 80)
+        art.render(s, t, mut empty)
+        var r = 0
+        while r < hidden.rows {
+            var c = 0
+            while c < hidden.cols {
+                assert(
+                    grid.same(grid.at(hidden, r, c), grid.at(empty, r, c)),
+                    "a snuffed wisp leaves no body, glyph or targeting marker",
+                )
+                c += 1
+            }
+            r += 1
+        }
+    }
+}
+
+fn tell_changes(s: sim.Sim, g: grid.Grid, base: grid.Cell) -> int {
+    let f = copy s.foes[0]
+    let row = sim.floor_div(f.y, sim.FP) - sim.camera_y(s) + sim.screen_row(s)
+    let col = sim.floor_div(f.x, sim.FP) - sim.camera_x(s) + sim.screen_col(s)
+    var changed = 0
+    var r = row - 4
+    while r <= row + 4 {
+        var c = col - 8
+        while c <= col + 8 {
+            if !grid.same(grid.at(g, r, c), base) { changed += 1 }
+            c += 1
+        }
+        r += 1
+    }
+    changed
+}
+
+fn test_cb18_foreground_needles_cover_exactly_twenty_crouch_ticks() {
+    for t in [tier.RICH, tier.PLAIN] {
+        var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+        s.foes[0].x = s.x
+        s.foes[0].y = s.y
+        s.foes[0].target_x = s.x
+        s.foes[0].target_y = s.y
+        s.foes[0].phase = sim.CROUCH
+        let base = grid.cell(126, 5, 0, grid.ATTR_DIM)
+        var g = grid.new(24, 80)
+        var age = 0
+        while age <= 20 {
+            s.tick = age
+            sim.new_foe_step(mut s, 0)
+            grid.fill(mut g, base)
+            art.draw_new_foe_foreground_tells(s, t, mut g)
+            assert(
+                tell_changes(s, g, base) == (if age < 20 then 4 else 0),
+                "twenty needle frames, then no foreground pixels at landing",
+            )
+            age += 1
+        }
+    }
+}
+
+fn test_cb18_foreground_needles_draw_nothing_for_other_kinds_or_phases() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y
+    let base = grid.cell(126, 5, 0, grid.ATTR_DIM)
+    var g = grid.new(24, 80)
+    for t in [tier.RICH, tier.PLAIN] {
+        var kind = sim.WEASEL
+        while kind <= sim.WISP {
+            if kind != sim.MARTEN {
+                s.foes[0].kind = kind
+                s.foes[0].phase = sim.CROUCH
+                grid.fill(mut g, base)
+                art.draw_new_foe_foreground_tells(s, t, mut g)
+                assert(tell_changes(s, g, base) == 0, "no other kind paints foreground needles")
+            }
+            kind += 1
+        }
+        s.foes[0].kind = sim.MARTEN
+        for phase in [sim.HUNT, sim.STRIKE, sim.RETREAT, sim.STAGGER, sim.PERCHED, sim.SNUFFED] {
+            s.foes[0].phase = phase
+            grid.fill(mut g, base)
+            art.draw_new_foe_foreground_tells(s, t, mut g)
+            assert(tell_changes(s, g, base) == 0, "CROUCH is the only needle posture")
+        }
+    }
+}
+
+fn test_cb18_rest_menu_covers_the_foreground_needles() {
+    for t in [tier.RICH, tier.PLAIN] {
+        var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+        s.foes[0].x = s.x
+        s.foes[0].y = s.y
+        s.foes[0].phase = sim.CROUCH
+        s.den = true
+        var menu = grid.new(24, 80)
+        art.render(s, t, mut menu)
+        (mut s.foes).reset()
+        var empty = grid.new(24, 80)
+        art.render(s, t, mut empty)
+        var r = 0
+        while r < menu.rows {
+            var c = 0
+            while c < menu.cols {
+                assert(
+                    grid.same(grid.at(menu, r, c), grid.at(empty, r, c)),
+                    "the menu covers the warning, never the other way around",
+                )
+                c += 1
+            }
+            r += 1
+        }
+    }
+}
+
+// Pending after cb15's announced merge: its inventory overlay gets the
+// same under-trunk visibility/coverage row, not only this rest-menu control.
