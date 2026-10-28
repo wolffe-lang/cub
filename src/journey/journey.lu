@@ -74,9 +74,8 @@ pub fn load_metadata(path: str) -> Metadata ! LoadErrors {
     metadata(text)?
 }
 
-/// Thirty values and one slain mask an area (`forest.AREAS`, seven since cb05).
-/// The literal is needed by the checked machine at comptime: saved-0 through
-/// saved-36, named by the unchanged journey 4 event.
+/// Thirty-seven legacy values plus167 bounded item/lore/ground slots.
+/// Metadata stays outside deterministic numeric replay snapshots.
 pub const SNAPSHOT: int = 204
 
 /// The replay's journey event version this build writes and reads.
@@ -171,7 +170,9 @@ fn decode_core(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     if words[1] != "4" && words[1] != "5" && words[1] != "6" { return save_version }
     let version = words[1].to_int() else |_| { return save_corrupt }
     let count = if version == 4 then 55 else 56 + forest.AREAS
-    if version < 6 && words.len != count || version == 6 && words.len < count + 8 { return save_corrupt }
+    if version < 6 && words.len != count || version == 6 && words.len < count + 8 {
+        return save_corrupt
+    }
     var values = List[int]()
     var i = 0
     while i < words.len {
@@ -342,20 +343,39 @@ fn decode_core(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
         }
         let lines = items[5]
         let ground = items[6]
-        if lines < 0 || lines > pouch.LORE_SLOTS || ground < 0 || ground > pouch.PICKUPS ||
-            words.len != count + 8 + lines + ground { return save_corrupt }
+        if lines < 0 ||
+            lines > pouch.LORE_SLOTS ||
+            ground < 0 ||
+            ground > pouch.PICKUPS ||
+            words.len != count + 8 + lines + ground {
+            return save_corrupt
+        }
         item = 0
         while item < pouch.LORE_SLOTS {
-            (mut items).push(if item < lines then (words[start + 7 + item].to_int() else |_| { return save_corrupt }) else 0)
+            (mut items).push(
+                if item < lines {
+                    words[start + 7 + item].to_int() else |_| { return save_corrupt }
+                } else {
+                    0
+                },
+            )
             item += 1
         }
         item = 0
         while item < pouch.PICKUPS {
-            (mut items).push(if item < ground then (words[start + 7 + lines + item].to_int() else |_| { return save_corrupt }) else 0)
+            (mut items).push(
+                if item < ground {
+                    words[start + 7 + lines + item].to_int() else |_| { return save_corrupt }
+                } else {
+                    0
+                },
+            )
             item += 1
         }
         s.pouch = pouch.from_values(items, 0, forest.AREAS) else |_| { return save_corrupt }
-        if s.yarrow > pouch.cap(pouch.YARROW) || s.marrow > pouch.cap(pouch.MARROW) { return save_corrupt }
+        if s.yarrow > pouch.cap(pouch.YARROW) || s.marrow > pouch.cap(pouch.MARROW) {
+            return save_corrupt
+        }
     }
     let canonical = payload_version(s, version)
     if canonical + "check {checksum(canonical)}\n" != text { return save_corrupt }

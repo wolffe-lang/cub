@@ -407,19 +407,38 @@ pub fn menu(s: sim.Sim, t: int, mut g: grid.Grid) {
         mut g,
         top + 17,
         col,
-        if s.rest_row == 6 then "> Lore" else "  Lore",
-        grid.cell(32, if s.rest_row == 6 then gold else bone, bg, grid.ATTR_BOLD),
+        if s.pouch.legacy_rest {
+            if s.rest_refused > 0 {
+                "Not enough scent; raise refused"
+            } else {
+                "Up/Down select   Left/Right change"
+            }
+        } else if s.rest_row == 6 then "> Lore" else "  Lore",
+        grid.cell(
+            32,
+            if s.pouch.legacy_rest {
+                (if s.rest_refused > 0 then red else bone)
+            } else if s.rest_row == 6 {
+                gold
+            } else {
+                bone
+            },
+            bg,
+            if s.pouch.legacy_rest then 0 else grid.ATTR_BOLD,
+        ),
     )
     draw.put_text(
         mut g,
         top + 18,
         col,
-        if s.rest_refused > 0 {
+        if s.pouch.legacy_rest {
+            "Enter/Space confirm   Esc discard"
+        } else if s.rest_refused > 0 {
             "Not enough scent; raise refused"
         } else {
             "Arrows change   Enter/Space acts"
         },
-        grid.cell(32, if s.rest_refused > 0 then red else bone, bg, 0),
+        grid.cell(32, if !s.pouch.legacy_rest && s.rest_refused > 0 then red else bone, bg, 0),
     )
     draw.put_text(
         mut g,

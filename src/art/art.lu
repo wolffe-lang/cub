@@ -913,8 +913,14 @@ fn world_prop(s: sim.Sim, t: int, mut g: grid.Grid, x: int, y: int, kind: int, o
 fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
     for p in s.pouch.pickups {
         if p.area == s.area {
-            inventory.pickup(mut g, t, p.y - sim.camera_y(s) + sim.screen_row(s),
-                p.x - sim.camera_x(s) + sim.screen_col(s), p.kind, s.tick)
+            inventory.pickup(
+                mut g,
+                t,
+                p.y - sim.camera_y(s) + sim.screen_row(s),
+                p.x - sim.camera_x(s) + sim.screen_col(s),
+                p.kind,
+                s.tick,
+            )
         }
     }
     for meat in s.meat {
@@ -1546,13 +1552,13 @@ fn landmark_line(area: int, kind: int, k: int) -> str {
         return "Quill: A cub, walking the burn alone. Bring me scent when you have some; I know what the ash remembers."
     }
     if kind == forest.LM_COALS {
-        return "A ring of coals, still warm in the grass. The low embers: the fire slept here a night."
+        return lore.line(lore.LOW_EMBERS)
     }
     if kind == forest.LM_FRAME {
-        return "The charred frame of a hut on the meadow's edge. The ash shelter: someone waited here, and the fire found them."
+        return lore.line(lore.ASH_SHELTER)
     }
     if kind == forest.LM_STUMPS {
-        return "A field of black stumps at the thicket's edge. The coal roots: this is where the fire came in."
+        return lore.line(lore.COAL_ROOTS)
     }
     ""
 }

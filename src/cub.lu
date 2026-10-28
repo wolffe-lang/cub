@@ -1740,7 +1740,9 @@ fn replay_initial(r: replay.Replay, fallback: sim.Sim) -> sim.Sim ! {
         (mut values).push(replay.args_at(r, 0, controls.saved_event(i)))
         i += 1
     }
-    let initial = journey.from_snapshot(values, r.cols, r.rows)?
+    var initial = journey.from_snapshot(values, r.cols, r.rows)?
+    // Menu semantics belong to the recording, never to a save or CLI option.
+    initial.pouch.legacy_rest = version == 3 || version == 4
     if initial.seed != r.seed { return save_corrupt }
     initial
 }
