@@ -1,0 +1,13 @@
+walk area 0 tick 0
+walk area 6 tick 546
+walk area 1 tick 1641
+walk area 7 tick 2802
+walk area 2 tick 3474
+walk area 8 tick 4368
+walk area 3 tick 5082
+walk area 9 tick 6080
+walk area 4 tick 6949
+walk area 5 tick 7791
+walk area 11 tick 8380
+walk at the stone mouth tick 9076 gates 1
+witness walk frames 9076 every 300 from 1
