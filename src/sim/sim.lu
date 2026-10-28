@@ -1050,7 +1050,10 @@ pub fn gate_shut(s: Sim, x: int, y: int) -> bool {
 pub fn gate_centre(s: Sim) -> (int, int) {
     if s.area != forest.BURN && s.area != forest.HOWE { return (0, 0) }
     let (lo, hi) = forest.gate_rows(s.area)
-    (FP / 2, (forest.origin(s.seed, s.area) + (lo + hi) / 2) * FP + FP / 2)
+    (
+        forest.gate_x(s.seed, s.area) * FP + FP / 2,
+        (forest.origin(s.seed, s.area) + (lo + hi) / 2) * FP + FP / 2,
+    )
 }
 
 /// The gate bit a lunge sets in the area, 0 for none.

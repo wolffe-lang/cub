@@ -1514,14 +1514,24 @@ pub fn gate_rows(area: int) -> (int, int) {
     (length(area) - 6, length(area) - 4)
 }
 
+/// A gate's centre column (the Stand's, the Burn's, the Howe's): the
+/// route's centre at the gate's first row, so the gate stands on the way
+/// on whatever the route does there.
+pub fn gate_x(seed: int, area: int) -> int {
+    let (lo, _) = gate_rows(area)
+    spine(seed, area, lo)
+}
+
 /// Whether local cell `(x, at)` is a gate cell of the area (cb14): the
 /// Stand's windthrown pine (a squeeze three cells wide), the Burn's burnt
 /// oak, the Howe's stone mouth, across the route at the far end; the sett
 /// at the Teeth's mouth of the Underteeth.
 pub fn gate_cell(seed: int, area: int, x: int, at: int) -> bool {
     if area == STAND || area == BURN || area == HOWE {
+        // The rows first: the gate's column costs the route's centre.
         let (lo, hi) = gate_rows(area)
-        return at >= lo && at <= hi && x >= -2 && x <= 2
+        if at < lo || at > hi { return false }
+        return abs(x - gate_x(seed, area)) <= 2
     }
     if area == CRAGS {
         // The row first (a hash): the mouth's run costs a curve.
@@ -1594,7 +1604,7 @@ pub fn landmark(seed: int, field: int, area: int, k: int) -> (int, int, int) {
             return (LM_MENHIR, mx - menhir_side(k), my)
         }
         let (lo, _) = gate_rows(area)
-        return (LM_MOUTH, 0, lo - 2)
+        return (LM_MOUTH, gate_x(seed, area), lo - 2)
     }
     if area == GRAVEHOLLOW {
         let (cx, cy, r) = arena(seed, field, area)
@@ -1759,7 +1769,9 @@ pub fn kind(seed: int, field: int, area: int, x: int, y: int) -> int {
             // The stone mouth: a wall of standing stones about the gate,
             // the deep brush closing the rest of the row.
             let (lo, hi) = gate_rows(area)
-            if at >= lo && at <= hi { return if abs(x) <= 8 then terrain.MENHIR else terrain.DARK }
+            if at >= lo && at <= hi {
+                return if abs(x - gate_x(seed, area)) <= 8 then terrain.MENHIR else terrain.DARK
+            }
             if menhir_approach(seed, x, at) && !carved_here { return terrain.GRASS }
             return lands.howe(seed, x, at, y, c, on_menhir(seed, x, at), carved_here)
         }

@@ -75,7 +75,8 @@ pub fn walk_on(mut s: sim.Sim, mut r: replay.Replay, target: int) -> bool {
             // sneak under it (the only way through).
             let (lo, hi) = forest.gate_rows(forest.STAND)
             let o = forest.origin(s.seed, forest.STAND)
-            if !walker.walk(mut s, mut r, sim.FP / 2, (o + lo - 3) * sim.FP + sim.FP / 2) {
+            let gx = forest.gate_x(s.seed, forest.STAND) * sim.FP + sim.FP / 2
+            if !walker.walk(mut s, mut r, gx, (o + lo - 3) * sim.FP + sim.FP / 2) {
                 return false
             }
             var w = 0
