@@ -452,6 +452,12 @@ pub fn rich_code_points() -> List[int] {
         for used in cps { if used == cp { present = true } }
         if !present { (mut cps).push(cp) }
     }
+    // cb18's six original foes: measured from their four-way art sheets.
+    for cp in [0x285e, 0x28a9, 0x28c3] {
+        var present = false
+        for used in cps { if used == cp { present = true } }
+        if !present { (mut cps).push(cp) }
+    }
     (mut cps).push(CP_EYE)
     for cp in [9472, 9474, 9484, 9488, 9492, 9496, 9500, 9508] { (mut cps).push(cp) }
     // The den's quadrant-sampled side view and animated fire, and the

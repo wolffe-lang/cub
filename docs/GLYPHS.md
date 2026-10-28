@@ -153,6 +153,7 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+285B | ⡛ | BRAILLE PATTERN DOTS-12457 | Braille Patterns | E2 A1 9B | a silhouette cell (braille of its lit pixels) |
 | U+285C | ⡜ | BRAILLE PATTERN DOTS-3457 | Braille Patterns | E2 A1 9C | a silhouette cell (braille of its lit pixels) |
 | U+285D | ⡝ | BRAILLE PATTERN DOTS-13457 | Braille Patterns | E2 A1 9D | an NPC's cell (braille of its lit pixels; cb16) |
+| U+285E | ⡞ | BRAILLE PATTERN DOTS-23457 | Braille Patterns | E2 A1 9E | the six foes, four-way silhouettes (cb18) |
 | U+285F | ⡟ | BRAILLE PATTERN DOTS-123457 | Braille Patterns | E2 A1 9F | a silhouette cell (braille of its lit pixels) |
 | U+2860 | ⡠ | BRAILLE PATTERN DOTS-67 | Braille Patterns | E2 A1 A0 | a silhouette cell (braille of its lit pixels) |
 | U+2861 | ⡡ | BRAILLE PATTERN DOTS-167 | Braille Patterns | E2 A1 A1 | a silhouette cell (braille of its lit pixels) |
@@ -222,6 +223,7 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+28A6 | ⢦ | BRAILLE PATTERN DOTS-2368 | Braille Patterns | E2 A2 A6 | a silhouette cell (braille of its lit pixels) |
 | U+28A7 | ⢧ | BRAILLE PATTERN DOTS-12368 | Braille Patterns | E2 A2 A7 | a silhouette cell (braille of its lit pixels) |
 | U+28A8 | ⢨ | BRAILLE PATTERN DOTS-468 | Braille Patterns | E2 A2 A8 | a silhouette cell (braille of its lit pixels) |
+| U+28A9 | ⢩ | BRAILLE PATTERN DOTS-1468 | Braille Patterns | E2 A2 A9 | the six foes, four-way silhouettes (cb18) |
 | U+28AA | ⢪ | BRAILLE PATTERN DOTS-2468 | Braille Patterns | E2 A2 AA | a silhouette cell (braille of its lit pixels) |
 | U+28AB | ⢫ | BRAILLE PATTERN DOTS-12468 | Braille Patterns | E2 A2 AB | a silhouette cell (braille of its lit pixels) |
 | U+28AC | ⢬ | BRAILLE PATTERN DOTS-3468 | Braille Patterns | E2 A2 AC | a silhouette cell (braille of its lit pixels) |
@@ -246,6 +248,7 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+28BF | ⢿ | BRAILLE PATTERN DOTS-1234568 | Braille Patterns | E2 A2 BF | a silhouette cell (braille of its lit pixels) |
 | U+28C0 | ⣀ | BRAILLE PATTERN DOTS-78 | Braille Patterns | E2 A3 80 | a silhouette cell (braille of its lit pixels) |
 | U+28C2 | ⣂ | BRAILLE PATTERN DOTS-278 | Braille Patterns | E2 A3 82 | a silhouette cell (braille of its lit pixels) |
+| U+28C3 | ⣃ | BRAILLE PATTERN DOTS-1278 | Braille Patterns | E2 A3 83 | the six foes, four-way silhouettes (cb18) |
 | U+28C4 | ⣄ | BRAILLE PATTERN DOTS-378 | Braille Patterns | E2 A3 84 | a silhouette cell (braille of its lit pixels) |
 | U+28C5 | ⣅ | BRAILLE PATTERN DOTS-1378 | Braille Patterns | E2 A3 85 | a silhouette cell (braille of its lit pixels) |
 | U+28C6 | ⣆ | BRAILLE PATTERN DOTS-2378 | Braille Patterns | E2 A3 86 | a silhouette cell (braille of its lit pixels) |
