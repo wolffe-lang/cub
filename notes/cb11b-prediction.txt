@@ -1,0 +1,29 @@
+cb11b directive and prediction, before implementation
+
+Basef20650d4. Follow-up to hosted macOS run40688342154: cb11's exact
+delivery assertion rejected lateness rather than checking the game's
+response to the actual consumed cadence. The new oracle must not read the
+observed strike sequence as its expectation.
+
+Plan:
+1. Acknowledge each newly consumed event after the actual pre-write trace
+   tick, even when the requested tick is already past; time out only when
+   consumption is absent. Preserve nominal/requested/consumed diagnostics.
+2. Independently predict action starts from consumed event ticks/kinds:
+   inclusive bite end, two requests, six-tick grace, enhanced repeat/release
+   rejection, legacy <=2-tick suppression, stamina70/costs12,14,18/idle regen2.
+   Reader visual checks follow that predicted sequence; deterministic replay
+   tests retain their fixed1/2/3 requirement. Test both correct and mutated
+   predictions, stale acknowledgements, missing consumption and late streams.
+3. Prove actual lateness on Mac with an explicitly requested80ms observer
+   stall in the proof driver, off in default ROWS. The coordinator approved
+   this stall alone and explicitly ruled out the proposed parallel build.
+   No gameplay, engine, timing threshold or real fixture state changes.
+4. Off-line draft plant restores fail-on-late behavior under that same stall,
+   red by name. Full local gate, module PR, one final CI read, one audit;
+   coordinator owns full-matrix and hosted macOS verification.
+
+Prediction: under the stall the old reader is red on late delivery; the
+new reader prints late requested/consumed pairs and passes only when the
+simulation matches the independent consumed-tick oracle, including any
+extra legacy strikes, resets after grace and stamina-refused links.
