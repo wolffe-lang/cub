@@ -1,0 +1,17 @@
+# frames 44 every 44
+# cb11: three hand presses; arena is an explicit fixture
+pk 1
+seed 7
+tier rich
+size 80x24
+t 0 combat-witness 1
+t 0 exact
+t 2 left
+t 2 bite
+t 2 left-release
+t 6 left
+t 6 bite
+t 6 left-release
+t 11 left
+t 11 bite
+t 11 left-release

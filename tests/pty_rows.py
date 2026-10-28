@@ -1503,3 +1503,7 @@ def cb08_whisper_flank(binary, ctx):
 
 
 ROWS['cb08-whisper-flank'] = cb08_whisper_flank
+
+# Keep the hand-timing matrix independent of earlier scripted strike rows.
+import runpy
+ROWS.update(runpy.run_path(str(Path(__file__).with_name('combo_pty.py')))['rows'](globals()))
