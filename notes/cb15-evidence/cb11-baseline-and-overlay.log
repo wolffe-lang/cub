@@ -1,0 +1,36 @@
+Previous HEAD position was f6af855c notes: cb12, materialised from cub#74 at the merge
+HEAD is now at f20650d4 notes: cb11, materialised from cub#71 at the merge
+CB15_CB11_BASELINE_SOURCE f20650d4eaaea7baba989ee8f9c1b001b08bf30e
+build: target/native/cub
+hit-census kind 2: 416/3744 pairs land
+hit-census kind 4: 920/5376 pairs land
+hit-census kind 5: 800/4992 pairs land
+hit-census kind 6: 1064/5856 pairs land
+hit-census kind 7: 920/5376 pairs land
+hit-census kind 8: 472/3936 pairs land
+79039792a9b1799bb1e0a0d66c1a5e99c7edad6632587d7dc74ca9ae4ed28deb  /home/mfwolffe/lanes/cb15/cb11-hit-baseline.csv
+From /home/mfwolffe/lanes/cb15/bounded-overlay-red.bundle
+ * branch              cb15-plant-overlay -> FETCH_HEAD
+Warning: you are leaving 20 commits behind, not connected to
+any of your branches:
+
+  0971f485 Expose overlay occlusion during partial scent repaint
+  8ee12a76 Preserve riposte and poise deadlines while the pouch is open
+  7bfeedd4 Restore rest control hints and update resumed replay witness
+  0d43081d Account for Lore in the direct den-growth witness
+ ... and 16 more.
+
+If you want to keep them by creating a new branch, this may be a good time
+to do so with:
+
+ git branch <new-branch-name> 0971f485
+
+HEAD is now at 7aab8d59 Plant partial counter repaint through the overlay
+CB15_BOUNDED_OVERLAY_RED_SOURCE 7aab8d593c70e6e711d5b57fc05f82f393959779
+test src/pouch_counter_test.lu::test_cb15_inventory_masks_partial_scent_repaint_plain ... FAILED (trap(assert))
+test src/pouch_counter_test.lu::test_cb15_inventory_masks_partial_scent_repaint_rich ... FAILED (trap(assert))
+test src/pouch_counter_test.lu::test_cb15_lore_masks_partial_scent_repaint_plain ... FAILED (trap(assert))
+test src/pouch_counter_test.lu::test_cb15_lore_masks_partial_scent_repaint_rich ... FAILED (trap(assert))
+wolf test: 0 passed; 4 failed; 0 rejected; 0 unsupported; 0 filtered out
+CB15_FOUR_BOUNDED_OVERLAY_ASSERTIONS_RED
+CB15_BOUNDED_OVERLAY_RED_EXIT 0 2026-10-28T08:13:30Z

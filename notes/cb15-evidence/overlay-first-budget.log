@@ -1,0 +1,5 @@
+test src/pouch_counter_test.lu::test_cb15_inventory_masks_partial_scent_repaint_plain ... unsupported (step budget exhausted)
+test src/pouch_counter_test.lu::test_cb15_inventory_masks_partial_scent_repaint_rich ... unsupported (step budget exhausted)
+test src/pouch_counter_test.lu::test_cb15_lore_masks_partial_scent_repaint_plain ... FAILED (trap(assert))
+test src/pouch_counter_test.lu::test_cb15_lore_masks_partial_scent_repaint_rich ... FAILED (trap(assert))
+wolf test: 0 passed; 2 failed; 0 rejected; 2 unsupported; 0 filtered out

@@ -1,82 +1,109 @@
-Existing changed files 1652
+base f20650d4
+Existing changed files 2264
 New files 172
-directory existing-changed new-files
-art 1424 0
-boss-boar-beaten-plain 8 0
-boss-boar-beaten-rich 8 0
-boss-boar-phase2-plain 4 0
-boss-boar-phase2-rich 4 0
-boss-boar-windup-plain 6 0
-boss-boar-windup-rich 6 0
-boss-elk-beaten-plain 8 0
-boss-elk-beaten-rich 8 0
-boss-elk-phase2-plain 4 0
-boss-elk-phase2-rich 4 0
-boss-elk-windup-plain 6 0
-boss-elk-windup-rich 6 0
-den-bars-120x40-plain 4 0
-den-bars-120x40-rich 4 0
-den-bars-80x24-plain 4 0
-den-bars-80x24-rich 4 0
-hawk-shadow-plain 8 0
-hawk-shadow-rich 8 0
-hawk-stoop-plain 6 0
-hawk-stoop-rich 6 0
-landmark-1-0-plain 2 0
-landmark-1-0-rich 2 0
-landmark-1-1-plain 2 0
-landmark-1-2-plain 2 0
-landmark-1-2-rich 2 0
-landmark-2-0-plain 2 0
-landmark-2-0-rich 2 0
-landmark-2-1-plain 2 0
-landmark-2-1-rich 2 0
-landmark-2-2-plain 2 0
-landmark-2-2-rich 2 0
-landmark-2-3-plain 2 0
-landmark-2-3-rich 2 0
-landmark-3-1-plain 2 0
-meadow-ford-plain 6 0
-meadow-ford-rich 6 0
-pouch-aim-plain 0 13
-pouch-aim-rich 0 13
-pouch-consume-plain 0 17
-pouch-consume-rich 0 17
-pouch-drop-repickup-plain 0 25
-pouch-drop-repickup-rich 0 25
-pouch-inventory-plain 0 5
-pouch-inventory-rich 0 5
-pouch-lore-plain 0 21
-pouch-lore-rich 0 21
-pouch-pickups-plain 0 5
-pouch-pickups-rich 0 5
-rest-menu-empty-120x40-plain 2 0
-rest-menu-empty-120x40-rich 2 0
-rest-menu-empty-200x60-plain 2 0
-rest-menu-empty-200x60-rich 2 0
-rest-menu-empty-80x24-plain 2 0
-rest-menu-empty-80x24-rich 2 0
-rest-menu-pending-120x40-plain 2 0
-rest-menu-pending-120x40-rich 2 0
-rest-menu-pending-200x60-plain 2 0
-rest-menu-pending-200x60-rich 2 0
-rest-menu-pending-80x24-plain 2 0
-rest-menu-pending-80x24-rich 2 0
-rest-menu-refused-120x40-plain 2 0
-rest-menu-refused-120x40-rich 2 0
-rest-menu-refused-200x60-plain 2 0
-rest-menu-refused-200x60-rich 2 0
-rest-menu-refused-80x24-plain 2 0
-rest-menu-refused-80x24-rich 2 0
-river-plain 8 0
-river-rich 8 0
-town-den-plain 2 0
-town-den-rich 2 0
-water-refill-plain 2 0
-water-refill-rich 2 0
-world-den-plain 2 0
-world-den-rich 2 0
-world-hawk-plain 2 0
-world-hawk-rich 2 0
-world-recovered-plain 2 0
-world-recovered-rich 2 0
+Removed files 0
+directory existing-changed new-files removed
+art 1424 0 0
+boss-boar-beaten-plain 8 0 0
+boss-boar-beaten-rich 8 0 0
+boss-boar-phase2-plain 4 0 0
+boss-boar-phase2-rich 4 0 0
+boss-boar-windup-plain 6 0 0
+boss-boar-windup-rich 6 0 0
+boss-elk-beaten-plain 8 0 0
+boss-elk-beaten-rich 8 0 0
+boss-elk-phase2-plain 4 0 0
+boss-elk-phase2-rich 4 0 0
+boss-elk-windup-plain 6 0 0
+boss-elk-windup-rich 6 0 0
+cb11-hand-e-150-plain 2 0 0
+cb11-hand-e-150-rich 2 0 0
+cb11-hand-n-150-plain 88 0 0
+cb11-hand-n-150-rich 88 0 0
+cb11-hand-n-200-plain 2 0 0
+cb11-hand-n-200-rich 2 0 0
+cb11-hand-n-250-plain 2 0 0
+cb11-hand-n-250-rich 2 0 0
+cb11-hand-n-330-plain 2 0 0
+cb11-hand-n-330-rich 2 0 0
+cb11-hand-n-367-plain 2 0 0
+cb11-hand-n-367-rich 2 0 0
+cb11-hand-ne-150-plain 2 0 0
+cb11-hand-ne-150-rich 2 0 0
+cb11-hand-nw-150-plain 2 0 0
+cb11-hand-nw-150-rich 2 0 0
+cb11-hand-s-150-plain 2 0 0
+cb11-hand-s-150-rich 2 0 0
+cb11-hand-se-150-plain 2 0 0
+cb11-hand-se-150-rich 2 0 0
+cb11-hand-sw-150-plain 2 0 0
+cb11-hand-sw-150-rich 2 0 0
+cb11-hand-w-150-plain 2 0 0
+cb11-hand-w-150-rich 2 0 0
+cb12-scent-spend-plain 198 0 0
+cb12-scent-spend-rich 198 0 0
+den-bars-120x40-plain 4 0 0
+den-bars-120x40-rich 4 0 0
+den-bars-80x24-plain 4 0 0
+den-bars-80x24-rich 4 0 0
+hawk-shadow-plain 8 0 0
+hawk-shadow-rich 8 0 0
+hawk-stoop-plain 6 0 0
+hawk-stoop-rich 4 0 0
+landmark-1-0-plain 2 0 0
+landmark-1-0-rich 2 0 0
+landmark-1-1-plain 2 0 0
+landmark-1-2-plain 2 0 0
+landmark-1-2-rich 2 0 0
+landmark-2-0-plain 2 0 0
+landmark-2-0-rich 2 0 0
+landmark-2-1-plain 2 0 0
+landmark-2-1-rich 2 0 0
+landmark-2-2-plain 2 0 0
+landmark-2-2-rich 2 0 0
+landmark-2-3-plain 2 0 0
+landmark-2-3-rich 2 0 0
+landmark-3-1-plain 2 0 0
+meadow-ford-plain 6 0 0
+meadow-ford-rich 6 0 0
+pouch-aim-plain 0 13 0
+pouch-aim-rich 0 13 0
+pouch-consume-plain 0 17 0
+pouch-consume-rich 0 17 0
+pouch-drop-repickup-plain 0 25 0
+pouch-drop-repickup-rich 0 25 0
+pouch-inventory-plain 0 5 0
+pouch-inventory-rich 0 5 0
+pouch-lore-plain 0 21 0
+pouch-lore-rich 0 21 0
+pouch-pickups-plain 0 5 0
+pouch-pickups-rich 0 5 0
+rest-menu-empty-120x40-plain 2 0 0
+rest-menu-empty-120x40-rich 2 0 0
+rest-menu-empty-200x60-plain 2 0 0
+rest-menu-empty-200x60-rich 2 0 0
+rest-menu-empty-80x24-plain 2 0 0
+rest-menu-empty-80x24-rich 2 0 0
+rest-menu-pending-120x40-plain 2 0 0
+rest-menu-pending-120x40-rich 2 0 0
+rest-menu-pending-200x60-plain 2 0 0
+rest-menu-pending-200x60-rich 2 0 0
+rest-menu-pending-80x24-plain 2 0 0
+rest-menu-pending-80x24-rich 2 0 0
+rest-menu-refused-120x40-plain 2 0 0
+rest-menu-refused-120x40-rich 2 0 0
+rest-menu-refused-200x60-plain 2 0 0
+rest-menu-refused-200x60-rich 2 0 0
+rest-menu-refused-80x24-plain 2 0 0
+rest-menu-refused-80x24-rich 2 0 0
+river-plain 8 0 0
+river-rich 8 0 0
+town-den-plain 2 0 0
+town-den-rich 2 0 0
+water-refill-plain 2 0 0
+water-refill-rich 2 0 0
+world-den-plain 2 0 0
+world-den-rich 2 0 0
+world-hawk-plain 2 0 0
+world-recovered-plain 2 0 0
+world-recovered-rich 2 0 0

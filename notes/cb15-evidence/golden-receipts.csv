@@ -1,80 +1,105 @@
 directory,old_git_tree_sha,new_git_tree_sha,reason
-art,8daaafe74db3c2c1aca92176f0037f0a14f8756e,3374bab177162bc1c0e70fcb21994c72fb3537ec,seeded and deterministic foe-drop pickups now draw in field studies
-boss-boar-beaten-plain,3796fde1629a378d12ee1bab4602fb8d8a153769,8899234d38d45d0c45a578af26437e513bf70f4b,seeded and deterministic foe-drop pickups now draw
-boss-boar-beaten-rich,9c3675c6f25c848a23a38907cb60eef5eea60384,a976518786279328898434a7a5e81efaea01735e,seeded and deterministic foe-drop pickups now draw
-boss-boar-phase2-plain,613cab6c36254117fe0709f25701d5b498455dd5,b94ecda537540df0d015f53219fc1c78e3d89771,seeded and deterministic foe-drop pickups now draw
-boss-boar-phase2-rich,0c4eed7afcd09547c646fe3c522a866969acd88b,9aecf7b71b031c81a7dd2695f38c7ae5681be374,seeded and deterministic foe-drop pickups now draw
+art,9997da9b4f1c6ecb7184ee92652052e602387a67,2cfd1e873347da47db38bf88dfdb81a8604fc962,seeded and deterministic foe-drop pickups now draw in field studies
+boss-boar-beaten-plain,66e8d7d7d540a8c581031769df10f9d0d0f3f8c2,ee6dfd889aca6e979362594a5e6f21602f3d405e,seeded and deterministic foe-drop pickups now draw
+boss-boar-beaten-rich,488db47c30db60e8ac0b72d74a9dde67954d040d,6872143e6197a5828ef84e4ba1bf00a70bcd6cf6,seeded and deterministic foe-drop pickups now draw
+boss-boar-phase2-plain,435c41071ccd57a340c11b153745e2f58324d005,a7697addfe3339a3f94781d467ca9f45bea09adf,seeded and deterministic foe-drop pickups now draw
+boss-boar-phase2-rich,b74df14cd24431bc9327b9e6b08f24a0ae51dc1d,7b42f979af1abe0c64b96ca5f77ec9a2c37ca31f,seeded and deterministic foe-drop pickups now draw
 boss-boar-windup-plain,dd31aa3bb6e2d2efbc57559cda13ef9eef839571,0da18dfbbdfdf2890484ea803af4b1ab47bbba60,seeded and deterministic foe-drop pickups now draw
 boss-boar-windup-rich,af83477507c91fa07b48e197903f176a967cce57,d8ad8c6f961c893d80a2263eb8150115a168ef50,seeded and deterministic foe-drop pickups now draw
-boss-elk-beaten-plain,5dfc1e0ee1fdfc6a8c207b5afdb3023ec0be9dd1,023bedf072f469e81d2aca7785bba51f1d8ad1dc,seeded and deterministic foe-drop pickups now draw
-boss-elk-beaten-rich,b5d795b6b9e9f10e86866debab0ddd97250b64ea,3f749e9caf92401f420bc9cc093111d0dcbd5f48,seeded and deterministic foe-drop pickups now draw
-boss-elk-phase2-plain,2571dad0915b9f429fdaddacd53d1d0486b687ba,1f0e08cae376790f30af7960e64e3441dfe27634,seeded and deterministic foe-drop pickups now draw
-boss-elk-phase2-rich,b6251ce45a053bd58187e24b218836213282315e,97a9d6069f848860ce1e05d7a07b7ff6fcd572e7,seeded and deterministic foe-drop pickups now draw
-boss-elk-windup-plain,d2dbc1d26a7f94c3c743348a915e0d0f132de96f,89b247a41ee34008244da4e725c06e7188cfce67,seeded and deterministic foe-drop pickups now draw
-boss-elk-windup-rich,7e8401fd5ebc7c56120ac4e949f58ea5bc0a34c7,6b4f95578c38deaf7f5a5d5a608d0d44f3d3c9fe,seeded and deterministic foe-drop pickups now draw
-den-bars-120x40-plain,0e6cee8fe43f4de05db897ebbc8c9217180b3f14,2a87452eda79ede1122e0dc33fa4ff09d09ce931,new seven-row Lore ledger and hints; item pickups where visible
-den-bars-120x40-rich,05a22485812a604f21660b3def0f3d934af77444,12276652ac307df1ed05ad48f8b7aa2a03650532,new seven-row Lore ledger and hints; item pickups where visible
-den-bars-80x24-plain,920896fcc39395bfc7920c307fe42a74d7f6d67e,07f47bdcb485021946d4853c8ad7f6c10cc2cfdd,new seven-row Lore ledger and hints; item pickups where visible
-den-bars-80x24-rich,c3cb4d87e0dcbc18e4cbd2381792d944c35e6fba,7356178dd4316d0d0f1e69660dd45a30a37bb2ae,new seven-row Lore ledger and hints; item pickups where visible
-hawk-shadow-plain,64d44248f025130d615c8e78e29846d32ef34b43,a52f49f5041a96dfb039ea54dc3f034a43dfedb0,seeded and deterministic foe-drop pickups now draw
-hawk-shadow-rich,4312565a469761bc5ad3117c83c05469b37d8736,2c3e30dc738f4f93b376c47cd52145dadfae2a02,seeded and deterministic foe-drop pickups now draw
-hawk-stoop-plain,27e2e9bcf3b0af63340ddc9ee4375d960d8c7b00,08be681cc476c4ed58f5e1d85e01be72df3133a3,seeded and deterministic foe-drop pickups now draw
-hawk-stoop-rich,8ff0e20965c3eb293220b1f9926efef280700e9d,0e9679189ef6c12c3473528be41db6473ab617ab,seeded and deterministic foe-drop pickups now draw
+boss-elk-beaten-plain,de806d4d47ad6f2eb73d6d238446434d90259a7a,eaa87881fb5720b6eecd997c1afa85cd0945727e,seeded and deterministic foe-drop pickups now draw
+boss-elk-beaten-rich,d8abeccaad7b017e6dbb4cbf57d80d6ded684182,a90b319d8043db871e29e86121ac2119ee96d2af,seeded and deterministic foe-drop pickups now draw
+boss-elk-phase2-plain,68dd71e630dfa7c7c5296b524b6b52cf86b3281c,59d7cb16f79c0e4c061848b6933d5916a30b2dae,seeded and deterministic foe-drop pickups now draw
+boss-elk-phase2-rich,37c458ca1f9472ec7f26dd5fad9c5f7321bc63fe,3250ae1438351196c9a01e97cb619adc2bae19f5,seeded and deterministic foe-drop pickups now draw
+boss-elk-windup-plain,909a659b70db3743f9154c1384671ca96e1e9f85,77c995f96d37c767a0a8dab43e5e4eac36dcf183,seeded and deterministic foe-drop pickups now draw
+boss-elk-windup-rich,5fb7a92b15ab0bc6c3bb50908c6fab5ea48bf1bf,75f24e1070498aad15634a09502f09e48899e517,seeded and deterministic foe-drop pickups now draw
+cb11-hand-e-150-plain,c682de19084adeaa04b47a698307350a228da5a2,b203eef0ff246e9b227004993e334ab9c23221c0,seeded and deterministic foe-drop pickups now draw
+cb11-hand-e-150-rich,f478e34414497d9be33388f6b4eeaee47775c29d,2a037805407dd8b7020e04ad1d2213a59e48ee2f,seeded and deterministic foe-drop pickups now draw
+cb11-hand-n-150-plain,3ba42d01e28f84cb13ae244c6545b19fbc034bdb,a3ddbd0e8083547c10b7e788236dbf141f6b51c0,seeded and deterministic foe-drop pickups now draw
+cb11-hand-n-150-rich,06ef9e5cb4138a4ab6ab67799bd367b68b9afda3,a8137e19436419b7781d35cf9e3f0e3f046c8ed8,seeded and deterministic foe-drop pickups now draw
+cb11-hand-n-200-plain,ebf75124296e071750ef28b1dfb5cf63ec9c9754,ffee39af824dbe1c570f072477356661d7d367fc,seeded and deterministic foe-drop pickups now draw
+cb11-hand-n-200-rich,bd9dc39ef5f63e9bdcc0a4dd33caadcd2337256a,f8b4ac376a084f812ac086fb2f30f2954238c56e,seeded and deterministic foe-drop pickups now draw
+cb11-hand-n-250-plain,ebf75124296e071750ef28b1dfb5cf63ec9c9754,ffee39af824dbe1c570f072477356661d7d367fc,seeded and deterministic foe-drop pickups now draw
+cb11-hand-n-250-rich,bd9dc39ef5f63e9bdcc0a4dd33caadcd2337256a,f8b4ac376a084f812ac086fb2f30f2954238c56e,seeded and deterministic foe-drop pickups now draw
+cb11-hand-n-330-plain,ebf75124296e071750ef28b1dfb5cf63ec9c9754,ffee39af824dbe1c570f072477356661d7d367fc,seeded and deterministic foe-drop pickups now draw
+cb11-hand-n-330-rich,bd9dc39ef5f63e9bdcc0a4dd33caadcd2337256a,f8b4ac376a084f812ac086fb2f30f2954238c56e,seeded and deterministic foe-drop pickups now draw
+cb11-hand-n-367-plain,ebf75124296e071750ef28b1dfb5cf63ec9c9754,ffee39af824dbe1c570f072477356661d7d367fc,seeded and deterministic foe-drop pickups now draw
+cb11-hand-n-367-rich,bd9dc39ef5f63e9bdcc0a4dd33caadcd2337256a,f8b4ac376a084f812ac086fb2f30f2954238c56e,seeded and deterministic foe-drop pickups now draw
+cb11-hand-ne-150-plain,30692c60097a4752e281f3b6d5a1af9775d37b49,16a116a1ee48dbbfc1e692cb758e9e0072fe4d1f,seeded and deterministic foe-drop pickups now draw
+cb11-hand-ne-150-rich,4749334447a4e4b3006bb357eaf6c440de4ae038,f993a6072fb1615a33c837f05c6fc5cbed1a2986,seeded and deterministic foe-drop pickups now draw
+cb11-hand-nw-150-plain,d25c09976b2869d62061ddfb14b243b3576d991c,e5ad1b14320350af66792c1d43d56cdf17946ffc,seeded and deterministic foe-drop pickups now draw
+cb11-hand-nw-150-rich,87370b6ac12b90bf66590bca6a72bbede334cf81,3d7453d658863a398ec4c51e315f85910ce7ca69,seeded and deterministic foe-drop pickups now draw
+cb11-hand-s-150-plain,0345c5df4003bb1b9ca319841cbdf45172c02131,6ed485922cda7239f6b904e179e96703f6821b3b,seeded and deterministic foe-drop pickups now draw
+cb11-hand-s-150-rich,93c1a05e21b90d6339b37e7fa0057099652ac910,6b8523758017ce027d420f48ba6f4572d5e2a888,seeded and deterministic foe-drop pickups now draw
+cb11-hand-se-150-plain,e5a7d686bc9d6fda8fb47654461361a162d18092,dcb787b438b9c86ef4fbe48e19e5a121aca08585,seeded and deterministic foe-drop pickups now draw
+cb11-hand-se-150-rich,42765b60ca69f01bae557078f7e3933e766cded7,a05da6131d400ade3080f80a1c11cb5ca8cb376a,seeded and deterministic foe-drop pickups now draw
+cb11-hand-sw-150-plain,5325c5481dd598a6c54c50fc14909a89bf956f2b,735ee801233216e4761e6015a1af698f9a368a36,seeded and deterministic foe-drop pickups now draw
+cb11-hand-sw-150-rich,d6bfc7b9328b4a5c11e60ed3f50ed6131f2604a2,155c2facd6b176b510d81cf13fb73e84f6248cf6,seeded and deterministic foe-drop pickups now draw
+cb11-hand-w-150-plain,faa8a76da933edb2c6fedd57f33c6e50d6adb198,62987a67ef7849f1504268791433459fd86e6997,seeded and deterministic foe-drop pickups now draw
+cb11-hand-w-150-rich,24d3a2784103340a59525f11f50ca3e369f4f9c7,3ea9774f88117c663a00b5f41da7bfc2b29d2e38,seeded and deterministic foe-drop pickups now draw
+cb12-scent-spend-plain,0ed2c516011624a45ebc97cf285105626c01ddf3,ac09870eed0c3fc25070993527fd8ab5e20f3141,new seven-row Lore ledger and hints; item pickups where visible
+cb12-scent-spend-rich,aed8cec5fcf2ab76370efa6bac6560a9b61c07c4,22206ab89adf2bb411de00b3307b2f65fc5c1903,new seven-row Lore ledger and hints; item pickups where visible
+den-bars-120x40-plain,53a0020b99b004c1770253d22877388757f114fd,3c4de08d5b2539461b7ee3a9eebc942842be849e,new seven-row Lore ledger and hints; item pickups where visible
+den-bars-120x40-rich,6967dd4c75a51e38fdc55eee0f69167f6a1fab5d,de381e9f52d23d76fef2b927d6f68d84bf7bc8f4,new seven-row Lore ledger and hints; item pickups where visible
+den-bars-80x24-plain,71eedc12743f56701e1f20cba461d7e9d633904a,3a552a3773b5ed10eb908c7da3c2af066d8d32f3,new seven-row Lore ledger and hints; item pickups where visible
+den-bars-80x24-rich,bd45f30b82d38f8c92638607c9e7a320bc3182e5,59e7569d90158ab63b8525f673401a63a5bc5217,new seven-row Lore ledger and hints; item pickups where visible
+hawk-shadow-plain,f627f8665e6d87427977250883af0e6557cd4575,e2c79878c7fa0546c4a6f45276849380393ee59b,seeded and deterministic foe-drop pickups now draw
+hawk-shadow-rich,7caeb3f6b8cae36a6cd365187e2f838ec7b9c511,4f8fed62d0bdb638352c89bbc92c8696791855ae,seeded and deterministic foe-drop pickups now draw
+hawk-stoop-plain,e037e6ae163c8c1d6000c90c86a92b2489890cdb,140ea57bf09a68ce977482f25ba257c8822849ba,seeded and deterministic foe-drop pickups now draw
+hawk-stoop-rich,1cfd3db9152bc52b98f267d2c204ee3deca7d75d,56cc34044f359cfa7c6e61aa0c8ee95ced796f4a,seeded and deterministic foe-drop pickups now draw
 landmark-1-0-plain,60bc5b23efbfdc6dee6ec1ed5de2cfefc9e3010e,fe74cc9c17f43687ae5753098ed5a1c1d9d60dbf,seeded and deterministic foe-drop pickups now draw
 landmark-1-0-rich,d9b63cca8f1ec430bde28393263830fb543199f5,39018455d4be53360a572fcedee4dd6c3b785a9f,seeded and deterministic foe-drop pickups now draw
 landmark-1-1-plain,1ed2f92eabf84573c88025a206c5d2726b09954b,bc339aef84189cbd798a09c705875081cde813ef,seeded and deterministic foe-drop pickups now draw
 landmark-1-2-plain,9df6b75ac653dd06dad048694dd68d7dc837bde8,ce05b22d656fe2eb68b9b78a83764e3186c7d6fc,seeded and deterministic foe-drop pickups now draw
 landmark-1-2-rich,0dd470d1771618787d51c6035d05a38479241bc2,d2d3174bd3df0ab3e6ec660ad22673a8833f6196,seeded and deterministic foe-drop pickups now draw
-landmark-2-0-plain,cfb97e7e4d3e389841b0415d88b8c719495c2f62,c1eec0d2f89e89340b8a0ad40e357a9dafc6d5a5,seeded and deterministic foe-drop pickups now draw
-landmark-2-0-rich,5c65b8ee490e0182dea0fab9026b57fb1440cef2,14f7a99d51e7e7e0b7986d20c1374a0ccb9d1ebf,seeded and deterministic foe-drop pickups now draw
-landmark-2-1-plain,48cd6820d9de3ad76f567d3ce37c7a22532c3810,4f58fc87b8a0faf33d1fceeb953707c9520338ab,seeded and deterministic foe-drop pickups now draw
-landmark-2-1-rich,b5a1753dd915ee5abae618313b37bf989d4aeea4,f38f960191e14a8513006955d596a854224f7c6a,seeded and deterministic foe-drop pickups now draw
-landmark-2-2-plain,1f0ae40784b1396539a4eaaf561c1f1e26fb5125,4bb08c83fa4a8c11d174f77cbd1bf96c9c0a3155,seeded and deterministic foe-drop pickups now draw
-landmark-2-2-rich,e1f6b9518330d274c9c06caf98e1f4816a15d1c8,4f1f8e0395c4f6f78e984068e400ea3d80648cbc,seeded and deterministic foe-drop pickups now draw
-landmark-2-3-plain,ad66efa0e807ce2b7d850ffdcb1bba2a92bb82c2,e2b671bdbddf55d9be2e06efc373e128169bf48e,seeded and deterministic foe-drop pickups now draw
-landmark-2-3-rich,f98d734134fcbed529465e67d957db886b8d24fe,342512df5cf1c84c8223fcc4a19edfcc16f44a96,seeded and deterministic foe-drop pickups now draw
-landmark-3-1-plain,a552a935acf2a141e2d7957b65943c720e76b58b,ab7170debe520d10865c4bc68f1cf8b63fd22018,seeded and deterministic foe-drop pickups now draw
-meadow-ford-plain,f963a90f757550ad03b5b3e3204cb01c0189817b,5b583cfa578f616f5bc41e296823e3290b2106d4,seeded and deterministic foe-drop pickups now draw
-meadow-ford-rich,b64b76dbe781061e9ae7dec5fc6037fc92af2001,248acf8383ad2f5bebc286d3a77ca388f3160c82,seeded and deterministic foe-drop pickups now draw
-pouch-aim-plain,absent,b152a8bd516a549020b518b318f45e11a35f27e3,"new both-tier inventory, pickup, or menu-path replay witness"
-pouch-aim-rich,absent,d693e58153299d77871fda569851430d4279842e,"new both-tier inventory, pickup, or menu-path replay witness"
-pouch-consume-plain,absent,2a05d7e9df877f34e71460aa180f60fb212ba10d,"new both-tier inventory, pickup, or menu-path replay witness"
-pouch-consume-rich,absent,d87d37a91b2e792621312c149c217c02a53cfa9a,"new both-tier inventory, pickup, or menu-path replay witness"
-pouch-drop-repickup-plain,absent,00baa80c9ac114d454e09f7173aa31231a1aa7bc,"new both-tier inventory, pickup, or menu-path replay witness"
-pouch-drop-repickup-rich,absent,1b61ab6372a35e64bd899a1eea756ba64395aed2,"new both-tier inventory, pickup, or menu-path replay witness"
+landmark-2-0-plain,8742a8476a456c68991300dee2ec019b8c342ddc,0ce4d52eca454e1661eb53ca704080065206a4b5,seeded and deterministic foe-drop pickups now draw
+landmark-2-0-rich,e08bea82390c114843921980afc853ccc137f4fd,a1ecc1480900eb88378f780845b2f2f2b99bd62d,seeded and deterministic foe-drop pickups now draw
+landmark-2-1-plain,12255c9a13625357440b7e6b7aaae32577d6811e,4d7249313486936889b4213599299e8ef4e925af,seeded and deterministic foe-drop pickups now draw
+landmark-2-1-rich,10d709cae64cfe99554df26ccb7e4d698bf34949,7600c8514e30871c72b3996d8af5abaf8840a16a,seeded and deterministic foe-drop pickups now draw
+landmark-2-2-plain,0ad02ffe543ca37ce4961ac03798d9500fdea11b,3a08c714f28b4c179db37e1776cedf38752f24a3,seeded and deterministic foe-drop pickups now draw
+landmark-2-2-rich,f3eb5ee94259e74f5a67a4ad0eab4449b85cd408,6c84fe7ed08f21a886de1065e17d7faf27d20f02,seeded and deterministic foe-drop pickups now draw
+landmark-2-3-plain,60272ac2195923280b52585fe6c5185c90cb2eef,c342449682b791d51fb5fac284d9966add8fba9c,seeded and deterministic foe-drop pickups now draw
+landmark-2-3-rich,0f878cddcf76ad14a38d2095fd8c6400c7d4d1f3,f37e2f1e167fbe99ee3a51d0a2c4ade0cfc65821,seeded and deterministic foe-drop pickups now draw
+landmark-3-1-plain,068b08b162d87236eb0d1ae64fdf36ca8a7ba1ee,e4ed8519f8ed7096fe4fd985abf5115223815e45,seeded and deterministic foe-drop pickups now draw
+meadow-ford-plain,413fc8a87ff34e89eafea0184c2b098c76858bb1,7d396247d7d06ad8cccbd7da3229001e197fa743,seeded and deterministic foe-drop pickups now draw
+meadow-ford-rich,882d4d9b5f6b94ae434edd44895f486f3a264d3f,7ba6e2cc0489a375d92b1b0373a16ec88208c49e,seeded and deterministic foe-drop pickups now draw
+pouch-aim-plain,absent,2d801e6f57f7eceb445ef365074362c3c90852de,"new both-tier inventory, pickup, or menu-path replay witness"
+pouch-aim-rich,absent,1750fd4cb75b4688b204ce6df9e010225540e10b,"new both-tier inventory, pickup, or menu-path replay witness"
+pouch-consume-plain,absent,063aee05d31ecf7e13e06400328a13e0b049bf1e,"new both-tier inventory, pickup, or menu-path replay witness"
+pouch-consume-rich,absent,e93134070b4094de2f31c367b09b3700fcd9dd5d,"new both-tier inventory, pickup, or menu-path replay witness"
+pouch-drop-repickup-plain,absent,d9c45a06521cfcae234f9fc7fba5828e24bb9c35,"new both-tier inventory, pickup, or menu-path replay witness"
+pouch-drop-repickup-rich,absent,e19c2e3dccef2af36138d035f49a51026e8a0128,"new both-tier inventory, pickup, or menu-path replay witness"
 pouch-inventory-plain,absent,9506ae3db7eddbbb28f2f78691b12f79fb1be938,"new both-tier inventory, pickup, or menu-path replay witness"
 pouch-inventory-rich,absent,0662df2bae47f88d718a3bcb94c5c141af2c2525,"new both-tier inventory, pickup, or menu-path replay witness"
-pouch-lore-plain,absent,ceb973b1af1c5e682dc340560aa363604d859a74,"new both-tier inventory, pickup, or menu-path replay witness"
-pouch-lore-rich,absent,d3e9353c2e67be2a3e604f722d29ff851dace33c,"new both-tier inventory, pickup, or menu-path replay witness"
+pouch-lore-plain,absent,1e4038dc2962b50be7efe03e072246062eccb325,"new both-tier inventory, pickup, or menu-path replay witness"
+pouch-lore-rich,absent,d8f695d100dbac6f57366e3fc2ff5ab3806872d9,"new both-tier inventory, pickup, or menu-path replay witness"
 pouch-pickups-plain,absent,1cf510c4a8322169de62a2a2017852f1ce77ede6,"new both-tier inventory, pickup, or menu-path replay witness"
 pouch-pickups-rich,absent,6d8fb34f591256364545604eb371b0f09d0e3a65,"new both-tier inventory, pickup, or menu-path replay witness"
-rest-menu-empty-120x40-plain,6b81f51c52c30cb7db91cd0d4c18d5d488da1a68,85070a52e94d0f2506df5fb0fc422cff5c525602,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-empty-120x40-rich,1a37be34bb6a473f4176f42a2bcf9950e5660a57,80bb02cabd33fa828a6d94670c8825c3db2debe7,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-empty-200x60-plain,9f97665fc0d7e38807160c04f6cd418afb18feb0,f52b13073afcf3ad526d16500fc660cfcd834f56,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-empty-200x60-rich,baf7ee5529590ed603e832f6d635e18020d25ed8,8151b5474fe0bc75d4bfeeadb2acc04c15ffd826,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-empty-80x24-plain,7a0c5aebfd3b35b40403c3ad811ac6255fdbc0cf,6fd1723ab701dcb868eaaaadcd7a964c5e374400,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-empty-80x24-rich,7ebcd260091fc7d035c33d86ff44197f1641748d,de3f6cff28f7ae090a3262e3834c3d53af39fc0a,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-pending-120x40-plain,8d25fcb925eb227586653159b90c9d0b767fb62c,5855e8ec94d5f7093238ca2addae34da95b89673,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-pending-120x40-rich,40964f7230d07940a98a934bfee609f24458303a,bd76ee561425ec302c34bd2a65898d400c169e84,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-pending-200x60-plain,f06345f25ae1e6dd0e0c572db8f00e653d746cc2,331c9c87a5b60da4ce2850857780595fbe0e5e1e,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-pending-200x60-rich,fcbc593f59c3a1a694bd7a590be5588d83a300ee,dd1817036aa755ed7995b48f848c64cec9b8af33,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-pending-80x24-plain,56e1ca3fc1dd73e4165c04b7f2a8415c1f2ba947,e5bb97498cd8038cb54bc81a6c3928231c06e137,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-pending-80x24-rich,2725e8e4ab6e94c2ebe2915e867c1df5e2c3fffd,16e25eb5ff86f507ec7fb2a548c46cec64120f2c,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-refused-120x40-plain,525afa5c30ad7ee8aebaa3c811be4d5bd82eb7ab,6225e77b343a9000d6cbdfaf7b9bd24e06d76daf,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-refused-120x40-rich,4e0b989b0a249838c4ca4c1dcd0640c0d6f80a4f,ae6bbff8877fed55c5a60858e1b06d413e2fd7d8,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-refused-200x60-plain,7cb5739a7a36cd07d300c992a0e150917c5b4cbe,efcae61bde546bb11aad41528717a21860b2b359,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-refused-200x60-rich,8c320fb92f9280e216ec128efc50c5a999ed9f62,e1a61f7f72dae4c45c29f5f729121b2d3db56914,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-refused-80x24-plain,30b36eabd98aa98162eb408c0b62b239d118d2a6,a2086e2ab3fed0c76ac894e5fb1178c70abcc4f2,new seven-row Lore ledger and hints; item pickups where visible
-rest-menu-refused-80x24-rich,03202f64c21d62dc552529ac59077dcfe33c39f2,523e1db58593153ced47918b648cf3495736c176,new seven-row Lore ledger and hints; item pickups where visible
-river-plain,80db0d887a06917a0458761f0d28e6e4c5229c05,ac385d6dd6eb584516ab521bfdfa1c9ff44c1774,seeded and deterministic foe-drop pickups now draw
-river-rich,f896a09ef743620415030367705ccac5905a670f,aa62a74aa84510b7e0b621407419d00824cb923f,seeded and deterministic foe-drop pickups now draw
-town-den-plain,43b6c446b3a4ccb91317539c24d50dd1ca2c27c4,6ecd99548063edcd1667cae7ecc737db210e192f,new seven-row Lore ledger and hints; item pickups where visible
-town-den-rich,b2edfba51e2ff89997e1c1716c7e3ca7a5a139a3,3e654aaa0579f0341a14422fb6abc4644a32f7d4,new seven-row Lore ledger and hints; item pickups where visible
-water-refill-plain,265fc6270681300eb468741e3e8cc28e55e80365,32dcaffb4a4d18037afa738388cdec893679dcc6,new seven-row Lore ledger and hints; item pickups where visible
-water-refill-rich,02977ca72267c8095d43e1aa43c63832f0b652f5,6a4f14258850d0882bcdcf4f75f083582cfc37da,new seven-row Lore ledger and hints; item pickups where visible
-world-den-plain,a86508ce4b3383e19a1f15043f7ce81b54d59abe,ee9ecd9037316abcfafbcb642a37a2254d535a0d,new seven-row Lore ledger and hints; item pickups where visible
-world-den-rich,b842ffa033e3cb173550533cc95badf568465cc1,124726d2aec0fb8b85cf68210b6bbcb2b2b83e28,new seven-row Lore ledger and hints; item pickups where visible
-world-hawk-plain,98c2a2ade965594efa2228a10508fdb5f29fd24f,2422e12c2db82821040da809e688f279a6122349,seeded and deterministic foe-drop pickups now draw
-world-hawk-rich,3af60959d7cb395b74ded02963344f24657ab3df,5abeb9f3d95a6e7dcb9cd40afdf49b1e9b2bdaf8,seeded and deterministic foe-drop pickups now draw
-world-recovered-plain,cc9fbe8c4192a9a60aa50d3be53f112685d7d06b,99bf21ca4f6d7e451bd2514eaed3767915c82884,seeded and deterministic foe-drop pickups now draw
-world-recovered-rich,b50dd4767bf356a929d8cfe2ef32225f5ad003af,757dd2d33f2cebd93f5d9136081f9adf64f781fd,seeded and deterministic foe-drop pickups now draw
+rest-menu-empty-120x40-plain,b9bd92360a991b182e29e64d7038124ea18d0155,2740b9c11a72828f4b0e32402b587426f89fb33d,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-empty-120x40-rich,93a92ac417edaeb0f625b1b464b32c7411536203,84715b1e0f0b4feeb25ce99beecaafe203081743,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-empty-200x60-plain,662b662ccdcf6b369b009ab96e1dd0342065890f,bb3da386d7e6d797a1c71d8842b48947e67ce5aa,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-empty-200x60-rich,252e6824b38feb9a4701a9c33a9c3e022bc4da1f,d3bc8f0459203dac1127a5cecb79eb0123a75119,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-empty-80x24-plain,f192342cc362b340fb6b6b8cc68a9c2d889da3d9,6a1d0eedbb1c7be53c7fe460a290f73b9eefb1ee,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-empty-80x24-rich,84b827bfd0d027d6c477df58056f5635c913b6f2,f00b434be1424d234d8b1726730c32882cbac9c8,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-pending-120x40-plain,ee21dd3bd871a11b96093d684e0929edbe8e22dc,68790176de74e8459504e0375688bfe6d934cd76,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-pending-120x40-rich,9fddff46c0382bb631c7168fa4e556e566281ff7,26b204ff33ca83c6d72c7b6b40aedbe037cc271f,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-pending-200x60-plain,6cac5d781fb2415910479e0f0053f9b7cb6b6543,1dcb4aaa3d42a726cf5519dddbc46e95e1dfeb45,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-pending-200x60-rich,6d5aeae0a37d59801142da5a70554426dcc42c11,5ce1c03fee88a755045839c5cb0d99eb5e16812a,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-pending-80x24-plain,d2093567f39d6b1a8ae487eddab1efb2101ebb0a,eb2ca70b25c655d3712412a524c1c8c69027ccd4,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-pending-80x24-rich,2561fbfb8bd67a2506748e3fff662949931b29b3,a9465c09a28b5d4204b48916fe5b4d02ef9f4209,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-refused-120x40-plain,0873ecf1ac8b28de67d31ab7b56862f88f041e88,61e795ff9c662e32104e85b82c8634fb2a4b51cd,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-refused-120x40-rich,3c03140ae545c1d2f4f01521021fa11d90016b29,900dcad1b31204509aaa6f40ac0d2543e050a372,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-refused-200x60-plain,e38ede23ae5ac86c1bf1d4fd2728f0ef73875671,d67ff052e4d1783de1e123fdb52c6969b4f98c0d,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-refused-200x60-rich,156d3f7bbc45bbd42e818d78abd65a6fde85e0e9,8bb461f03a15e01d2a9c80039424bf62284f3ec7,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-refused-80x24-plain,a1ae6035e6817f609c8594cd6d814f3e1723835c,2d22bd91b817184769065a4411131046147c35d8,new seven-row Lore ledger and hints; item pickups where visible
+rest-menu-refused-80x24-rich,1a436263ef309a078ad108fdc9b07bc9ec577ddf,ca0331f539cf5930a07f3fa3419ebd5501b64f5f,new seven-row Lore ledger and hints; item pickups where visible
+river-plain,33c4a9ee079f3219ed6113123cd6ea4ecb567ed0,d0f11b9b117ee3a1f4e717f8e8f1c6b4af6db857,seeded and deterministic foe-drop pickups now draw
+river-rich,533cfdde71873a5a2a1ec9be4f69c6ceca9b49f5,785d4f892388ce0a66fbe5849a429b691e1e31d8,seeded and deterministic foe-drop pickups now draw
+town-den-plain,bcc48314aabf5428b468d95e4adf541adc677c85,e5b285dabf13c175c653651fcea464bba5964dd4,new seven-row Lore ledger and hints; item pickups where visible
+town-den-rich,b3876b21dedaaa8a21c56edc9d71725b41051403,a6eda9bf4362f2de82744df8dbb9cd666f220d8c,new seven-row Lore ledger and hints; item pickups where visible
+water-refill-plain,7b3e52eae671c788f9c9f688003ecb9b3700555c,ef49a6fb1c269cf47f2b21c1fd400d34d41a3070,new seven-row Lore ledger and hints; item pickups where visible
+water-refill-rich,e1c15670562a0ad77e1eaf0650a9032b17078c4c,3e6e7665c75d8dea1cfffdc16c7e65a3db9d0f1e,new seven-row Lore ledger and hints; item pickups where visible
+world-den-plain,aca0b926238d20f51472c299aba5c4b82c6e36e1,a4c4c426e45aac60395841623602add6c8513ae0,new seven-row Lore ledger and hints; item pickups where visible
+world-den-rich,3925d05d81e0894a569d9a74b8625e6cf1409356,a66a3d62dfeb69f8e0ead2e4bcef2198f8f61eab,new seven-row Lore ledger and hints; item pickups where visible
+world-hawk-plain,ff2a43dd0e04ff3e2f7f1e17e3df954f73092510,dbab3d1ae0cfb287cdb5141ff236070e41645d5b,seeded and deterministic foe-drop pickups now draw
+world-recovered-plain,ed220be57140dd1e0bc9d89127cc6d5e482f0012,9412dbdb3d557ac00d1b8d99898c6aab267039d0,seeded and deterministic foe-drop pickups now draw
+world-recovered-rich,33629558751971ba16a4a4803e1afb26d7d2b92e,1ffab98129aa23c3d0c4a797267b2e7eae287d29,seeded and deterministic foe-drop pickups now draw
