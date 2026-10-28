@@ -1,6 +1,8 @@
 //! member: false
 
 use art
+use controls
+use journey
 use counter
 use digits
 use sim
@@ -60,6 +62,36 @@ fn test_cb12_retarget_continues_from_last_rendered_integer() {
     var ticks = 1
     while ticks < 20 { counter.step(mut c, 8); ticks += 1 }
     assert(c.shown == 8, "retarget finishes exactly")
+}
+
+fn test_cb12_den_spending_and_save_use_exact_currency_during_count() {
+    var s = sim.new(7, 80, 24)
+    s.den = true
+    s.scent = 49
+    s.scent_count = counter.new(49)
+    for key in [
+        controls.KEY_RIGHT,
+        controls.KEY_DOWN,
+        controls.KEY_RIGHT,
+        controls.KEY_UP,
+        controls.KEY_UP,
+        controls.KEY_CONFIRM,
+    ] {
+        sim.step(mut s, [key])
+    }
+    assert(s.scent == 0 && s.heart == 2 && s.wind == 2, "sim spends immediately")
+    assert(
+        s.scent_count.from == 49 && sim.displayed_scent(s) == 47,
+        "den count starts from old value",
+    )
+    let loaded = journey.decode(journey.encode(s), 80, 24) else {
+        assert(false, "save decodes")
+        return
+    }
+    assert(
+        loaded.scent == 0 && sim.displayed_scent(loaded) == 0,
+        "save stores currency, never animation",
+    )
 }
 
 fn test_cb12_count_is_a_function_of_ticks_and_values_not_render_calls() {
