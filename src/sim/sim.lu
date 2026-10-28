@@ -4656,6 +4656,20 @@ fn inventory_close(mut s: Sim) {
     while i < s.drops.len { s.drops[i].until += elapsed; i += 1 }
     i = 0
     while i < s.meat.len { s.meat[i].until += elapsed; i += 1 }
+    var area = 0
+    while area < s.away_loot.len {
+        i = 0
+        while i < s.away_loot[area].drops.len {
+            s.away_loot[area].drops[i].until += elapsed
+            i += 1
+        }
+        i = 0
+        while i < s.away_loot[area].meat.len {
+            s.away_loot[area].meat[i].until += elapsed
+            i += 1
+        }
+        area += 1
+    }
     s.pouch.open = false
     s.pouch.aiming = false
     clear_menu_holds(mut s)

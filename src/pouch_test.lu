@@ -326,6 +326,19 @@ fn test_cb15_menu_freezes_marrow_bleed_trail_and_absolute_expiries() {
     assert(s.health == 50 && s.pouch.marrow_ticks == 0, "heal resumes without fast-forward")
 }
 
+fn test_cb15_inventory_also_pauses_offscreen_loot_expiry() {
+    var s = quiet()
+    (mut s.away_loot[1].drops).push(sim.Drop { x: 0, y: 0, value: 8, until: 90 })
+    (mut s.away_loot[1].meat).push(sim.Meat { x: 0, y: 0, until: 300 })
+    press(mut s, controls.KEY_INVENTORY)
+    wait(mut s, 100)
+    press(mut s, controls.KEY_RELEASE)
+    assert(
+        s.away_loot[1].drops[0].until == 191 && s.away_loot[1].meat[0].until == 401,
+        "all cached loot deadlines shift by the101 paused ticks",
+    )
+}
+
 fn test_cb15_ground_pool_refuses_a_drop_without_losing_inventory() {
     var s = quiet()
     var n = 0
