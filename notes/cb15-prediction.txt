@@ -1,0 +1,33 @@
+cb15 prediction, before implementation, base eb34a399
+
+The current yarrow/marrow cache counts have no consumable effect or inventory.
+I expect the tuft-on-death test on the base to fail: hurt currently always
+replaces the mark and empties carried scent. The fixed test must preserve all
+carried scent, consume exactly one tuft, increment its saved use count and make
+no new mark. A prior mark will be cleared, preventing duplicate recovery.
+
+Implement the five items at the proposal's exact caps 5/3/3/3/1 and numbers:
+yarrow stops bleeding and heals 10; marrow heals 30 over 60 simulation ticks,
+interrupted by damage; pine hides trail and breaks shade/lynx tracking for 600
+ticks; ice targets a locked foe else the nearest in the forward cone within
+6 cells, at half speed for 90 ticks; tuft is passive. Inventory/Lore pause world
+updates while replay ticks continue, matching rest; closing clears held input.
+No strip is added to the HUD. Both tiers receive original pickup sprites and
+overlay rows. Deterministic kill rolls depend on seed/area/foe identity, never
+wall time; finite seeded pickups and dropped pickups are saved to prevent a
+reload duplicating or losing world items. Burn melting is an explicit hook.
+
+Save becomes CUB 6 provisionally; cb13 owns that number/name/played_ms and I
+append my fields after its merge. Existing yarrow/marrow migrate with caps.
+Lore is an ordered de-duplicated list of stable numeric line ids.
+Replay key ids remain stable; inventory is appended. Snapshot version extends
+without changing old ids; old saves migrate, old supported snapshots remain
+readable. Goldens should change only for explicitly named pickup/inventory/
+Lore cases and snapshot-field observations; hit census stays byte-equal.
+Memory remains bounded: finite world pickup slots and no per-tick allocation
+for the new effects/menus. One final complete gauntlet on the final code head.
+
+Approved shared seams, 2026-10-28 UTC: sim by local function hunks; append-only
+controls; journey extension; cub overlay entry; art pickup/overlay routing;
+restscene Lore row. Merge order cb10/cb11/cb12/cb13/cb15/cb14, one rebase per
+announced merge. R-cb15-1 A and R-cb15-2 A confirmed by coordinator.
