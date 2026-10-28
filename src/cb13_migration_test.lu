@@ -1,6 +1,8 @@
 //! member: false
 
 use journey
+use sim
+use pouch
 use std.fs
 
 fn test_cb13_cub5_fixture_migrates_byte_for_byte_to_cub6() {
@@ -10,7 +12,8 @@ fn test_cb13_cub5_fixture_migrates_byte_for_byte_to_cub6() {
     }
     let s = journey.decode(text, 80, 24) else |e| { assert(false, "CUB 5 fixture {e}"); return }
     let cut = text.find("check ") else 0
-    let payload = text[0..cut].replace("CUB 5\n", "CUB 6\n") + "name journey\nplayed_ms 0\n"
+    let payload = text[0..cut].replace("CUB 5\n", "CUB 6\n") +
+        "name journey\nplayed_ms 0\nitems 0 0 0 0 0 0 0\n"
     let expected = payload + "check {journey.checksum(payload)}\n"
     assert(journey.encode(s) == expected, "exact migrated bytes, not merely semantic equality")
     let resumed = journey.decode(expected, 120, 40) else |_| {
@@ -18,4 +21,66 @@ fn test_cb13_cub5_fixture_migrates_byte_for_byte_to_cub6() {
         return
     }
     assert(journey.encode(resumed) == expected, "migration fixed point")
+}
+
+fn test_cb15_cb13_named_wrapper_round_trips_items_and_metadata() {
+    var s = sim.new(7, 80, 24)
+    let _ = sim.give_item(mut s, pouch.TUFT)
+    let _ = sim.give_item(mut s, pouch.PINE)
+    sim.remember_lore(mut s, 2)
+    let _ = pouch.leave(mut s.pouch, 0, 3, 12, pouch.ICE)
+    s.pouch.uses = 4
+    let meta = journey.Metadata { name: "birch_7", played_ms: 123456 }
+    let text = journey.encode_named(s, meta)
+    let resumed = journey.decode(text, 120, 40) else |_| { assert(false, "named items"); return }
+    let restored = journey.metadata(text) else |_| { assert(false, "metadata"); return }
+    assert(restored.name == meta.name && restored.played_ms == meta.played_ms, "wrapper survives")
+    assert(journey.encode_named(resumed, restored) == text, "all wrapper and item bytes survive")
+    assert(
+        resumed.pouch.tuft == 1 && resumed.pouch.uses == 4 && resumed.pouch.lore[0] == 2,
+        "items survive",
+    )
+    let before = journey.snapshot(s)
+    let after = journey.snapshot(resumed)
+    var i = 0
+    while i < before.len {
+        assert(before[i] == after[i], "metadata stays outside replay state")
+        i += 1
+    }
+}
+
+fn test_cb15_cb13_original_cub6_wrapper_migrates_with_empty_items() {
+    let text = fs.read_text("tests/saves/cb13-v5.save") else |_| {
+        assert(false, "fixture")
+        return
+    }
+    let cut = text.find("check ") else 0
+    let payload = text[0..cut].replace("CUB 5\n", "CUB 6\n") + "name birch_7\nplayed_ms 123456\n"
+    let old = payload + "check {journey.checksum(payload)}\n"
+    let s = journey.decode(old, 80, 24) else |_| { assert(false, "original CUB6"); return }
+    let meta = journey.metadata(old) else |_| { assert(false, "old metadata"); return }
+    let extended = payload + "items 0 0 0 0 0 0 0\n"
+    assert(
+        journey.encode_named(s, meta) == extended + "check {journey.checksum(extended)}\n",
+        "exact extension migration",
+    )
+}
+
+fn test_cb15_named_wrapper_rejects_rechecksummed_bad_extensions() {
+    let good = journey.payload(sim.new(7, 80, 24))
+    for body in [
+        good.replace("items 0 0 0 0 0 0 0\n", "items 4 0 0 0 0 0 0\n"),
+        good.replace("items 0 0 0 0 0 0 0\n", "items 0 0 0 0 0 1 0\n"),
+        good.replace("items 0 0 0 0 0 0 0\n", "items 0 0 0 0 0 0 0 1\n"),
+        good.replace("played_ms 0\n", "played_ms 00\n"),
+        good.replace("name journey\n", "name ../journey\n"),
+        good.replace("items 0 0 0 0 0 0 0\n", "items 0 0 0 0 0 0 0\nitems 0 0 0 0 0 0 0\n"),
+    ] {
+        var rejected = false
+        let _ = journey.decode(body + "check {journey.checksum(body)}\n", 80, 24) else |_| {
+            rejected = true
+            sim.new(7, 80, 24)
+        }
+        assert(rejected, "rechecksummed malformed wrapper rejected")
+    }
 }

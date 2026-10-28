@@ -25,9 +25,9 @@ pub error PrepareErrors = {
 /// Named failures for CommitErrors.
 pub error CommitErrors = {save_io, save_committed_unsynced}
 
-/// Schema six wraps schema five's ordinary-foe masks with name and played_ms.
-/// Schema five migrates with default metadata; schema four also gets empty
-/// masks. Earlier shapes remain named save_version failures.
+/// Schema six wraps schema five's ordinary-foe masks with name and played_ms,
+/// followed by bounded items, lore and ground pickups. Original CUB6 wrappers
+/// migrate with an empty extension; CUB5 also defaults metadata and CUB4 masks.
 pub const VERSION: int = 6
 
 /// Metadata belongs to the save wrapper, not deterministic simulation state.
@@ -134,9 +134,11 @@ pub fn checksum(text: str) -> int {
 /// Byte-identical encoding for the same persistent journey.
 pub fn encode(s: sim.Sim) -> str { encode_named(s, Metadata { name: "journey", played_ms: 0 }) }
 
-/// Canonical CUB 6 wrapper around the unchanged CUB 5 simulation payload.
+/// Canonical CUB6 wrapper with metadata before the persistent item extension.
 pub fn encode_named(s: sim.Sim, meta: Metadata) -> str {
-    let text = payload_core(s, VERSION) + "name {meta.name}\nplayed_ms {meta.played_ms}\n" + items_payload(s)
+    let text = payload_core(s, VERSION) +
+        "name {meta.name}\nplayed_ms {meta.played_ms}\n" +
+        items_payload(s)
     text + "check {checksum(text)}\n"
 }
 
@@ -156,7 +158,8 @@ pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     while index < 12 { core += lines[index] + "\n"; index += 1 }
     let inner = if extended then core + lines[14] + "\n" else core.replace("CUB 6\n", "CUB 5\n")
     let s = decode_core(inner + "check {checksum(inner)}\n", cols, rows)?
-    let canonical = core + "name {meta.name}\nplayed_ms {meta.played_ms}\n" +
+    let canonical = core +
+        "name {meta.name}\nplayed_ms {meta.played_ms}\n" +
         (if extended then lines[14] + "\n" else "")
     if canonical + "check {checksum(canonical)}\n" != text { return save_corrupt }
     s
