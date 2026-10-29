@@ -4,3 +4,4 @@ foe 1 kind 1 health 36 phase 0 since 0 x -7808 y 10112 heading 0 gap 27 last_hit
 foe 2 kind 1 health 36 phase 0 since 0 x 8064 y 41856 heading 0 gap 147 last_hit -1 attack 0 poise 0
 foe 3 kind 1 health 36 phase 0 since 0 x 9088 y 41088 heading 0 gap 144 last_hit -1 attack 0 poise 0
 foe 4 kind 1 health 36 phase 0 since 0 x 8320 y 49792 heading 0 gap 178 last_hit -1 attack 0 poise 0
+foe 5 kind 12 health 72 phase 0 since 0 x 2944 y 50816 heading 0 gap 182 last_hit -1 attack 1 poise 0
