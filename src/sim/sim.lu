@@ -4169,7 +4169,10 @@ fn boss_hit(mut s: Sim, i: int, m: Move) {
         s.riposte_foe = i
         return
     }
-    if !invulnerable(s) { hurt(mut s, m.damage) }
+    if !invulnerable(s) {
+        hurt(mut s, m.damage)
+        if s.foes[i].kind == LYNX && s.foes[i].attack == 0 && m.damage > 0 { bleed(mut s) }
+    }
 }
 
 /// One tick of boss `i`.
