@@ -4439,11 +4439,11 @@ pub fn dim_moth_palette(s: sim.Sim, mut g: grid.Grid) {
 }
 
 /// Frame-end status presentation, independent of all overlays and menus.
-/// The dark-area id remains a hook until cb14's area table is merged.
+/// The dark-area rule is limited to the Underteeth; UI layers follow it.
 pub fn new_foe_palette(s: sim.Sim, t: int, mut g: grid.Grid) {
     dim_glow_cave(s, sim.glow_dark_area(s.area), mut g)
     dim_moth_palette(s, mut g)
-    if s.tick < s.blind_until {
+    if sim.blinded(s) {
         grid.fill(
             mut g,
             grid.cell(32, if t == tier.RICH then 15 else 7, if t == tier.RICH then 15 else 7, 0),
@@ -4482,7 +4482,7 @@ pub fn new_foe_status_sheet(t: int, status: int) -> grid.Grid {
         s.foes[0].x = s.x
         s.foes[0].y = s.y
         s.foes[0].phase = sim.CROUCH
-        if status == 5 { s.den = true }
+        if status == 5 { s.pouch.open = true; s.pouch.paused_at = s.tick + 1 }
         var g = grid.new(24, 80)
         render(s, t, mut g)
         return g
