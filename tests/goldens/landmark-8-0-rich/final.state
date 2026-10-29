@@ -4,3 +4,7 @@ foe 1 kind 1 health 36 phase 0 since 0 x -7552 y 11136 heading 0 gap 70 last_hit
 foe 2 kind 1 health 36 phase 0 since 0 x 7808 y 46464 heading 0 gap 63 last_hit -1 attack 0 poise 0
 foe 3 kind 1 health 36 phase 0 since 0 x 8832 y 45696 heading 0 gap 60 last_hit -1 attack 0 poise 0
 foe 4 kind 1 health 36 phase 0 since 0 x -9088 y 52608 heading 0 gap 87 last_hit -1 attack 0 poise 0
+foe 5 kind 10 health 16 phase 0 since 0 x 1920 y 13440 heading 0 gap 61 last_hit -1 attack 0 poise 0
+foe 6 kind 10 health 16 phase 0 since 0 x -2688 y 42112 heading 0 gap 47 last_hit -1 attack 0 poise 0
+foe 7 kind 11 health 5 phase 0 since 0 x -3456 y 8320 heading 0 gap 81 last_hit -1 attack 0 poise 0
+foe 8 kind 11 health 5 phase 0 since 0 x 1408 y 50304 heading 0 gap 79 last_hit -1 attack 0 poise 0
