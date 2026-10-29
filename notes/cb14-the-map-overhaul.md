@@ -15,9 +15,10 @@ alcoves from the Teeth on whose pine, shard and tuft are cb15's items (R-cb14-6 
 slain masks and the gates over cb13's wrapper and cb15's items) and `journey 6` (211 slots), cb15's CUB 6 and
 `journey 5` migrating, lore 13..31 through cb15's paths; module; plant #75; final source `0e815256` (on cub trunk
 `feb57572`: cb10's, cb12's, cb11's, cb11b's, cb13's and cb15's merges under it); the checked suite 562/0/0 and the
-memory gate green on kasumi at `079d3c5a`; the Mac and Linux gates at the PR head launched detached at the
-hand-back; before the rebase onto cb15, at `5db48d71`, both green (the walk 9369 ticks, the full golden check at
-the first attempt).
+memory gate green on kasumi at `079d3c5a`; the Mac and Linux gates green at `73ff1187` (the Mac: build, checked
+562, the walk 9369 ticks, the full golden check at the first attempt; Linux: check-linux after `tools/prepare-pty`
+archived a stale engine fixture, check-memory, native goldens, gameplay on both backends, perf at slack 1 inside
+the container); a save written by a pre-rebase cb14 build is refused, never migrated (Inputs verified, 10).
 
 ## Prediction
 
@@ -130,7 +131,20 @@ commits (`66a826fa` "Write the goldens afresh", `aecbaff8` the post-cb11 rewrite
 file at `/Users/mfwolffe/lanes/mac-build.lock` (22:19:41Z, no holder, not the `mkdir` protocol's directory) held
 every Mac lane's lock; the orchestrator removed it; (9) cb15's note says "cb14 and cb16 start at 13": cb14's
 nineteen lines take 13..31, and with `pouch.LORE_SLOTS` 32 the found-lore list is now exactly full, so cb16's
-first line needs a capacity change, a format bump (held by `cb14_items_test`: `lore.COUNT == pouch.LORE_SLOTS`).
+first line needs a capacity change, a format bump (held by `cb14_items_test`: `lore.COUNT == pouch.LORE_SLOTS`);
+(10) **a save written by any pre-rebase cb14 build** (the CUB 6 shape with thirteen slain masks and a `gates 0`
+line, fourteen lines, which this branch wrote before the rebase onto cb15) **is refused as `save_corrupt` by this
+build**: it never shipped, so it is not migrated; CUB 6 is cb13's and cb15's shape now. A playtester who ran a
+cb14 branch build starts a new journey (or keeps that file for that build); the shipped CUB 6, 5 and 4 all
+migrate. The Linux gate met exactly this: the engine's pty rows start their journey at `target/pty/engine.save`
+(`tests/lair.conf`), which persists in kasumi's clone, and the one there was such a pre-rebase save (written
+2026-10-28 02:26 local by this lane's own earlier gate) — so `quit`, `ctrl-c`, `trap` and perf-idle ended at once
+with `cub: save_corrupt`; the repo's `tools/prepare-pty`, which the game's own gates run first, archived it to
+`target/pty/engine-previous-cx7iu4yk/engine.save` (254 bytes, deleted nothing) and every row was green after. The
+lane's `job17.sh` (gate tooling under `~/lanes/cb14/`, not in the repo) left `prepare-pty` out and printed only each
+step's last line, so job17d's marker said `CB14_KASUMI_EXIT 0` over a red check-linux and a perf-idle `FAILED`;
+it now runs `prepare-pty` first, exits nonzero when any step does, and fails the perf step on any `FAILED` line
+(`gates/job17-fix.diff`).
 
 Rulings recommended and implemented, none decided (`docs/DESIGN.md`, "The map overhaul"):
 
@@ -274,14 +288,30 @@ with the same toolchain on kasumi.
   (reached 3 of 11), `test_cb14_the_howe_s_spine_portals_and_mouths_are_open ... FAILED (trap(assert))` and the
   Howe's texture row, `wolf test: 560 passed; 2 failed` (`plant/plant-run.txt`, kasumi at `1a612e19`). Never
   merged.
-- **The walk** (item 5): `walk/walk.pk` (9369 ticks, written on the Mac by `cub --make-walk` at `5db48d71`: the
+- **The walk** (item 5): `walk/walk.pk` (9369 ticks, written on the Mac by `cub --make-walk`, last at `73ff1187`
+  in the Mac gate: its keys, its ticks and its first 44 snapshot values are identical to the capture at
+  `5db48d71`, which carried the pre-rebase `journey 5` of 44 slots; it now begins `journey 6` with all 211; the
   alpha fixture's growth at the Shingle's start, every shortcut open, the gates shut) and `walk/walk.txt` with
   each area's entry tick — Cinderwick 548, Bramblehold 1645, the Stand 2808, Larkmeadow 3480, the Burn 4378, the
   Teeth 5092, the Mere 6122, the Shallows 6991, the Hush 7888, the Howe 8673, the stone mouth opened at 9369 (9076
   before cb11's merge) — and the frame at each entry on both tiers (`walk/entry-<area>-{rich,plain}.txt`).
-- **The gates at the PR head** (over cb15): the Linux job on kasumi cores 12–15 and the Mac gate behind the
-  lock, launched detached at the hand-back; their pids, logs and markers are in the hand-back, their verdicts
-  the orchestrator's to read. Before the rebase onto cb15, both were green at `5db48d71`:
+- **The gates at the PR head** (over cb15, `73ff1187`; this note's later commit touches `notes/` only):
+  the Mac (`gates/mac-gate-73ff1187.log`, behind the lock, the floor clear at 19.4 GB): `build 0`, `walk 0` (the
+  stone mouth at 9369, every entry tick and entry frame as before), `test 0` with `wolf test: 562 passed; 0
+  failed; 0 rejected; 0 unsupported; 0 filtered out` and 0 SKIP, `goldens attempt 1 exit 0` (507 `ok`, 0
+  `DIFFERS`), `CB14_MAC_GATE_EXIT 0`. Linux, kasumi cores 12–15 in the engine's container: job17d
+  (`gates/linux-gate-73ff1187.log`) `check-memory 0 memory gate: green, crash checkpoint and fresh seed; budget 4096
+  bytes/tick`, `goldens native 0`, `gameplay native 0 gameplay: green (0 skips)`, `gameplay release 0 gameplay:
+  green (0 skips)`; its check-linux (`quit`, `ctrl-c`, `trap` red on `cub: save_corrupt`) and perf (`perf-idle:
+  latency FAILED: the game ended after 0 keys`) met the stale engine fixture (Inputs verified, 10); job21
+  (`gates/linux-check2-73ff1187.log`), after `prepare-pty 0` archived it: `check-linux 0 check-linux: green`
+  (`check-fmt: canonical`, `wolf test: 562 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out`, 507
+  goldens `ok`, 87 pty rows `ok` and 0 `FAILED`, `pty: quit ok`, `pty: ctrl-c ok`, `pty: trap ok (… exit 134 …)`),
+  `perf slack 1 0` run as `in-container env LAIR_PERF_SLACK=1 .lair/tools/perf` (`perf: host Linux x86_64, slack
+  x1`; 80x24 306 / 300 us, 200x60 2223 / 2211 us; `perf-idle: idle 301 voluntary context switches in 10 s at a
+  standstill (bar 240..360) ok`; `perf-idle: latency median 23.2 ms p90 33.7 ms max 33.7 ms over 20 keys (bars
+  median 40, p90 70 ms) ok`), `CB14_LINUX_CHECK2_DONE 2026-10-29T00:13:08Z fail=0`. Before the rebase onto cb15,
+  both were green at `5db48d71`:
 - **The Linux gate** (kasumi cores 12–15, the engine's container, `5db48d71`, `gates/linux-gate.log`):
   `check-linux 0 check-linux: green` (`check-fmt: canonical`, `wolf test: 509 passed; 0 failed; 0 rejected; 0
   unsupported; 0 filtered out`, 481 goldens `ok` and 0 `DIFFERS`, 82 pty rows `ok` and 0 `FAILED`, among them
@@ -316,6 +346,6 @@ with the same toolchain on kasumi.
 - [x] The rebase onto cb15: CUB 7 and journey 6 over theirs with the trunk writer's migration witnesses, lore
       13..31 through cb15's paths, R-cb14-6 A, the cases and goldens regenerated once with every changed key's
       cause, the plant red again.
-- [ ] The full gauntlet at the PR head: launched detached at the hand-back (Linux: check-linux, check-memory,
-      native goldens, gameplay on both backends, perf at slack 1 inside the container; Mac: build, checked, walk,
-      the full golden check under the three-attempt rule). At `5db48d71`, before the rebase onto cb15: both green.
+- [x] The full gauntlet at `73ff1187`: Linux green (check-linux after `tools/prepare-pty`, check-memory, native
+      goldens, gameplay on both backends, perf at slack 1 inside the container); Mac green (build, checked 562,
+      walk, the full golden check at the first attempt). At `5db48d71`, before the rebase onto cb15: both green.
