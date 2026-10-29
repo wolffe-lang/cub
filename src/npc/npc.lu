@@ -1,0 +1,409 @@
+//! npc — the nine who speak (cb16; the-proposals.md section 5, the bible's
+//! sections 15 and 16): three animals (Quill the raven, Dunmoss the badger,
+//! Ember the fox), three ashen humans (the Charcoal-burner, the Ferryman,
+//! the Hermit: ash in the shape of the people who burned the forest, grey,
+//! slow, harmless) and the lost (Fenn, Bracken, Loam: shades that were pack
+//! wolves). Who they are, what they say (section 5's lines, verbatim; the
+//! maintainer changes a line by a line), where each stands per seed (cb14's
+//! anchors), what the traders sell and for how much. Pure data and rules on
+//! plain numbers: the simulation (`sim`) keeps their state and applies them,
+//! `talk` draws the speech frame and the trade list, `folk` the sprites.
+//!
+//! The cub cannot hurt the six and they cannot hurt it; the lost never
+//! attack, and a bite can kill one (the bible's section 14: *Alone*). None
+//! is a foe: no NPC is in the simulation's foe list, the hit census or the
+//! foe census, and none is solid (R-cb16-6 A).
+
+use forest
+use world
+
+/// Quill, the raven: the merchant (Larkmeadow's perch, then the last den
+/// the cub rested at).
+pub const QUILL: int = 0
+
+/// Dunmoss, the badger: the sett at the Teeth's foot; digs the way under.
+pub const DUNMOSS: int = 1
+
+/// Ember, the fox: Bramblehold, then Larkmeadow, then her den.
+pub const EMBER: int = 2
+
+/// The Charcoal-burner (ashen): the Burn's kiln.
+pub const BURNER: int = 3
+
+/// The Ferryman (ashen): the Mere's causeway, on a log raft.
+pub const FERRYMAN: int = 4
+
+/// The Hermit (ashen): the Stand's lookout, in the cutters' ruin.
+pub const HERMIT: int = 5
+
+/// Fenn, the first of the lost (the Hush).
+pub const FENN: int = 6
+
+/// Bracken, the second of the lost.
+pub const BRACKEN: int = 7
+
+/// Loam, the third of the lost.
+pub const LOAM: int = 8
+
+/// The number of NPCs (ids 0..8, stable save-format values).
+pub const COUNT: int = 9
+
+/// The journey's NPC flags (`sim.Sim.npc_flags`): Dunmoss has dug the sett.
+pub const DUG: int = 1
+
+/// Ember has given the first tuft (or, for a journey from before cb16,
+/// cb15's provisional tuft was already placed: the same tuft).
+pub const TUFT_GIVEN: int = 2
+
+/// Ember has taken her mouthful.
+pub const STOLEN: int = 4
+
+/// The Hermit has told his story for a marrow.
+pub const STORY: int = 8
+
+/// Quill has sold his one tuft.
+pub const TUFT_SOLD: int = 16
+
+/// One past the widest flags word.
+pub const FLAGS_LIMIT: int = 32
+
+/// One past the widest dead mask (a bit an NPC).
+pub const DEAD_LIMIT: int = 512
+
+/// The cell a fixed-point coordinate lies in (floor division).
+fn cell(v: int) -> int {
+    if v >= 0 { return v / forest.FP }
+    0 - (0 - v + forest.FP - 1) / forest.FP
+}
+
+/// The bit an NPC holds in the dead mask.
+pub fn bit(who: int) -> int {
+    var b = 1
+    var i = 0
+    while i < who { b *= 2; i += 1 }
+    b
+}
+
+/// A name for the speech frame.
+pub fn name(who: int) -> str {
+    match who {
+        0 => "Quill",
+        1 => "Dunmoss",
+        2 => "Ember",
+        3 => "The Charcoal-burner",
+        4 => "The Ferryman",
+        5 => "The Hermit",
+        6 => "Fenn",
+        7 => "Bracken",
+        _ => "Loam",
+    }
+}
+
+/// Whether an NPC is one of the ashen humans (grey and slow, `folk`).
+pub fn ashen(who: int) -> bool {
+    who == BURNER || who == FERRYMAN || who == HERMIT
+}
+
+/// Whether an NPC is one of the lost (the Hush's shades).
+pub fn lost(who: int) -> bool {
+    who >= FENN && who < COUNT
+}
+
+/// How many lines an NPC has (section 5's table).
+pub fn lines(who: int) -> int {
+    if who == QUILL || who == DUNMOSS { return 4 }
+    if who == BURNER { return 2 }
+    if lost(who) { return 1 }
+    3
+}
+
+/// Line `k` of an NPC, section 5's words exactly.
+pub fn line(who: int, k: int) -> str {
+    if who == QUILL {
+        return match k {
+            0 => "You are small for a wolf. That is not an insult; small things live.",
+            1 =>
+                "Yarrow for the bleeding, pine for the ones that smell you coming. I take scent. Everyone does.",
+            2 => "The lynx drops from above. It is above you now. I am not joking.",
+            _ => "I do not go past the gate of the Hush. Nothing with wings does.",
+        }
+    }
+    if who == DUNMOSS {
+        return match k {
+            0 => "Go away.",
+            1 =>
+                "The cat is dead? Then the way under is open for the price of a winter's bones. One hundred and fifty.",
+            2 => "Mind the worms. They are lights, not food.",
+            _ => "When you come back from the dark, if you come back, I will be at the ford.",
+        }
+    }
+    if who == EMBER {
+        return match k {
+            0 => "The boar breaks what it runs through. Do not be what it runs through.",
+            1 => "That was mine. The water. I mean the water was mine.",
+            _ => "You followed me. Fine. Take the tuft. It was your mother's; I only kept it dry.",
+        }
+    }
+    if who == BURNER {
+        return if k == 0 {
+            "We cut the Stand for the kiln and the kiln took the wood and the wood took the year. We are what is left of a dry year."
+        } else {
+            "The ash hides your trail. It hid ours too. That is why we are still here."
+        }
+    }
+    if who == FERRYMAN {
+        return match k {
+            0 => "The Mere is deeper than the forest is wide. I pole the top of it.",
+            1 => "Sixty. Or the stones. The stones sink; I do not.",
+            _ => "The ice that took you was mine, once. I was crossing too.",
+        }
+    }
+    if who == HERMIT {
+        return match k {
+            0 =>
+                "I stayed when they went down to burn. The hawks are the only ones who talk to me. Now you.",
+            1 =>
+                "Marrow for a story: the alpha before yours was called Ashgrim, and he did not die. Ask the elk.",
+            _ =>
+                "From here you can see the whole of it. You are going into the dark part. Everyone does.",
+        }
+    }
+    if who == FENN { return "Sedge's. You have her ears. Go home." }
+    if who == BRACKEN { return "I went under the same ice. I did not wake on the bank." }
+    "If you kill me you keep walking with it. Walk past."
+}
+
+/// The line a visit says, given how many the NPC has said: the next in
+/// order, the last repeating (section 5); Dunmoss says his first ("Go
+/// away.") while Whisper lives (the bible's section 15: he refuses while
+/// the lynx lives), then goes on from his second.
+pub fn next_line(who: int, said: int, lynx_beaten: bool) -> int {
+    if who == DUNMOSS && !lynx_beaten { return 0 }
+    let last = lines(who) - 1
+    if said > last then last else if said < 0 then 0 else said
+}
+
+/// The said-count after a visit says line `k`: at least `k + 1`, never past
+/// the NPC's number of lines (the save's bound).
+pub fn said_after(who: int, said: int, k: int) -> int {
+    let n = if said > k + 1 then said else k + 1
+    if n > lines(who) then lines(who) else n
+}
+
+/// The wares: yarrow (Quill, 20).
+pub const W_YARROW: int = 0
+
+/// Pine (Quill, 50).
+pub const W_PINE: int = 1
+
+/// The mother's tuft (Quill, 600, one).
+pub const W_TUFT: int = 2
+
+/// The way under dug (Dunmoss, 150, after Whisper).
+pub const W_DIG: int = 3
+
+/// Marrow (Dunmoss, 35).
+pub const W_MARROW: int = 4
+
+/// The crossing (the Ferryman, 60).
+pub const W_CROSS: int = 5
+
+/// A story (the Hermit, for a marrow).
+pub const W_STORY: int = 6
+
+/// Prices in scent (the-proposals.md section 4: yarrow 20, pine 50, the
+/// tuft 600; section 5: the dig 150, the toll 60; marrow at Dunmoss the
+/// bible's section 15 price, 35, R-cb16-5 A). The story costs no scent: a
+/// marrow.
+pub fn price(ware: int) -> int {
+    match ware {
+        0 => 20,
+        1 => 50,
+        2 => 600,
+        3 => 150,
+        4 => 35,
+        5 => 60,
+        _ => 0,
+    }
+}
+
+/// A ware's row text in the list.
+pub fn ware_name(ware: int) -> str {
+    match ware {
+        0 => "Yarrow",
+        1 => "Pine",
+        2 => "The mother's tuft",
+        3 => "Dig the way under",
+        4 => "Marrow",
+        5 => "Cross the Mere",
+        _ => "A story",
+    }
+}
+
+/// How many wares a trader lists (0 for one who does not trade).
+pub fn ware_count(who: int) -> int {
+    if who == QUILL { return 3 }
+    if who == DUNMOSS { return 2 }
+    if who == FERRYMAN || who == HERMIT { return 1 }
+    0
+}
+
+/// A trader's ware `k` (`ware_count`).
+pub fn ware(who: int, k: int) -> int {
+    if who == QUILL { return if k == 0 then W_YARROW else if k == 1 then W_PINE else W_TUFT }
+    if who == DUNMOSS { return if k == 0 then W_DIG else W_MARROW }
+    if who == FERRYMAN { return W_CROSS }
+    W_STORY
+}
+
+/// The size of an NPC's drawing in pixels, north (`folk`): the raven two
+/// cells by two, the badger four by three, the fox the foxes' four by
+/// three, the ashen two by three (the Ashen's; the Ferryman three by
+/// three with his pole), the lost the grown wolf's six by six.
+pub fn size(who: int) -> (int, int) {
+    if who == QUILL { return (4, 8) }
+    if who == DUNMOSS || who == EMBER { return (8, 12) }
+    if who == FERRYMAN { return (6, 12) }
+    if ashen(who) { return (4, 12) }
+    (12, 24)
+}
+
+/// The rows of the Hush where the lost stand: a third, a half and two
+/// thirds of the way to the Howe's side, never in the pocket's rows.
+pub fn lost_row(who: int) -> int {
+    match who {
+        6 => 40,
+        7 => 82,
+        _ => 132,
+    }
+}
+
+/// Ember's second place: Larkmeadow, before her den (the pocket off the
+/// way on, row 210), so the cub that follows her walks on to it.
+pub const EMBER_MEADOW_ROW: int = 176
+
+/// Ember's first place: Bramblehold's entry, where cb02's story bit was.
+pub const EMBER_THICKET_ROW: int = 24
+
+/// Whether Quill perches at den `den` (R-cb16-7 A): any den the cub can
+/// rest at but the Hush's and the Underteeth's (his fourth line: nothing
+/// with wings goes past the gate of the Hush; the Underteeth is a cave).
+pub fn perch_den(den: int) -> bool {
+    forest.den_exists(den) &&
+        forest.den_area(den) != forest.HUSH &&
+        forest.den_area(den) != forest.UNDERTEETH
+}
+
+/// Quill's perch at a den, world cells: two rows north of it, two cells
+/// toward the route's middle (on the route, open ground in every seed:
+/// the npc census, `--npc-audit`).
+pub fn den_perch(seed: int, den: int) -> (int, int) {
+    let (dx, dy) = forest.den_position(seed, den)
+    let cx = cell(dx)
+    let cy = cell(dy)
+    let area = forest.den_area(den)
+    if area == forest.SHINGLE || area == forest.TOWN { return (cx + 2, cy - 2) }
+    let c = forest.spine(seed, area, cy - 2 - forest.origin(seed, area))
+    (if cx > c then cx - 2 else cx + 2, cy - 2)
+}
+
+/// Where an NPC stands: `(area, x, y)` in world cells, `area` -1 for
+/// nowhere. Quill's place follows his perch (`perch` -1 for Larkmeadow's,
+/// else a den id); Ember's her said-count (Bramblehold, Larkmeadow, her
+/// den at the end of Larkmeadow's pocket); the rest stand at cb14's
+/// anchors: Dunmoss east of his sett's mouth, the Charcoal-burner on the
+/// route side of the kiln, the Ferryman on the causeway's post's patch,
+/// the Hermit inside the cutters' ruin, the lost along the Hush's route.
+pub fn place(seed: int, field: int, who: int, said: int, perch: int) -> (int, int, int) {
+    if who == QUILL {
+        if perch >= 0 && perch_den(perch) {
+            let (x, y) = den_perch(seed, perch)
+            return (forest.den_area(perch), x, y)
+        }
+        let (_, lx, ly) = forest.landmark(seed, field, forest.LARKMEADOW, 0)
+        return (forest.LARKMEADOW, lx, ly - 1)
+    }
+    if who == DUNMOSS {
+        let (px, py) = forest.portal(seed, forest.CRAGS, forest.EDGE_SETT)
+        return (forest.CRAGS, cell(px) + 4, cell(py))
+    }
+    if who == EMBER {
+        if said <= 0 {
+            let at = EMBER_THICKET_ROW
+            let c = forest.spine(seed, forest.BRAMBLEHOLD, at)
+            return (forest.BRAMBLEHOLD, c - forest.half(seed, forest.BRAMBLEHOLD, at) + 2, at)
+        }
+        if said == 1 {
+            let at = EMBER_MEADOW_ROW
+            let c = forest.spine(seed, forest.LARKMEADOW, at)
+            return (forest.LARKMEADOW, c + forest.half(seed, forest.LARKMEADOW, at) - 2, at)
+        }
+        let (ex, ey) = forest.pocket_end(seed, forest.LARKMEADOW, 0)
+        return (forest.LARKMEADOW, ex, ey)
+    }
+    if who == BURNER {
+        let (_, kx, ky) = forest.landmark(seed, field, forest.BURN, 0)
+        return (forest.BURN, kx - 4, ky)
+    }
+    if who == FERRYMAN {
+        let (_, px, py) = forest.landmark(seed, field, forest.MERE, 0)
+        return (forest.MERE, px + 2, py)
+    }
+    if who == HERMIT {
+        let (_, rx, ry) = forest.landmark(seed, field, forest.STAND, 1)
+        return (forest.STAND, rx, ry)
+    }
+    if lost(who) {
+        let at = lost_row(who)
+        let c = forest.spine(seed, forest.HUSH, at)
+        let side = if who == BRACKEN then 1 else -1
+        return (forest.HUSH, c + side * (forest.half(seed, forest.HUSH, at) - 2), at)
+    }
+    (-1, 0, 0)
+}
+
+/// Whether an NPC's place can change during a journey (Quill's perch,
+/// Ember's three places); the rest stand where the seed puts them.
+pub fn moves(who: int) -> bool {
+    who == QUILL || who == EMBER
+}
+
+/// The Mere's crossing (the Ferryman's toll): from the post's row to the
+/// far causeway's first rows, `CROSS_TICKS` long, the cub carried along
+/// the route's middle.
+pub const CROSS_TO: int = 168
+
+/// The crossing's length in ticks: three seconds on the water.
+pub const CROSS_TICKS: int = 90
+
+/// Ember's feint: the ticks from her dart to the speech frame, the
+/// mouthful taken at the middle.
+pub const FEINT_TICKS: int = 12
+
+/// The scent a killed one of the lost leaves (the bible's section 15).
+pub const LOST_SCENT: int = 30
+
+/// A lost one's health: three bites of a fresh cub's (a shade's).
+pub const LOST_HEALTH: int = 24
+
+/// Ticks the cub stands still beside an NPC before it speaks.
+pub const STILL_TICKS: int = 20
+
+/// The clear cells between the bodies within which an NPC turns to face
+/// the cub (section 5: within 4 cells).
+pub const FACE_GAP: int = 4
+
+/// The clear cells between the bodies within which the cub is beside an
+/// NPC (touching, or one cell between; NPCs are not solid, so an overlap
+/// counts too).
+pub const BESIDE_GAP: int = 1
+
+/// The clear cells within which a boss led to an NPC kills it (the
+/// bible's section 15).
+pub const BOSS_GAP: int = 1
+
+/// A seeded idle facing for an NPC when the cub is not near: 0..3.
+pub fn idle_facing(seed: int, who: int) -> int {
+    if who == QUILL { return 2 }
+    world.hash(seed, 520, who, 4)
+}
