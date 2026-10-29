@@ -1,0 +1,279 @@
+//! member: false
+
+use controls
+use hitcensus
+use journey
+use forest
+use pouch
+use sim
+
+fn contact(mut s: sim.Sim) {
+    s.foes[0].heading = 128
+    s.foes[0].phase = sim.STRIKE
+    s.foes[0].since = s.tick
+    let fb = sim.foe_body(s.foes[0])
+    let cb = sim.cub_body_at(s, 0, 0, 0)
+    s.x = s.foes[0].x
+    s.y = (fb.y1 + 1 - cb.y0) * sim.FP
+}
+
+fn test_cb18_marten_takes_one_item_bleeds_and_returns_at_the_trunk() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    let _ = sim.give_item(mut s, pouch.MARROW)
+    s.scent = 17
+    contact(mut s)
+    sim.new_foe_step(mut s, 0)
+    assert(
+        sim.item_count(s, pouch.YARROW) == 0 && sim.item_count(s, pouch.MARROW) == 1,
+        "exactly one held item",
+    )
+    assert(
+        s.foes[0].stolen_item == pouch.YARROW && s.pouch.bleeding == 60,
+        "real item tag and cb15 bleed API",
+    )
+    assert(s.flasks == 3 && s.scent == 17, "neither water nor scent is stolen")
+    let before = s.pouch.pickups.len
+    s.tick = 103
+    s.started = 100
+    s.action = sim.BITE
+    s.combo = 3
+    s.attack_heading = 0
+    s.action_x = s.x
+    s.action_y = s.y
+    s.foes[0].phase = sim.RETREAT
+    sim.strike_foes(mut s)
+    assert(
+        s.foes[0].stolen_item == -1 && s.pouch.pickups.len == before + 1,
+        "a landing bite returns the item",
+    )
+    let drop = copy s.pouch.pickups[before]
+    assert(
+        drop.kind == pouch.YARROW &&
+            drop.area == s.area &&
+            drop.x == sim.floor_div(s.foes[0].home_x, sim.FP) &&
+            drop.y == sim.floor_div(s.foes[0].home_y, sim.FP),
+        "the trunk's foot, not a duplicated held stack",
+    )
+}
+
+fn test_cb18_empty_pouch_never_falls_back_to_scent_or_water() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+    s.scent = 17
+    contact(mut s)
+    sim.new_foe_step(mut s, 0)
+    assert(s.foes[0].stolen_item == -1 && s.scent == 17 && s.flasks == 3, "empty means no theft")
+}
+
+// R-cb18-2: the lynx is not a new foe, so cb18 leaves its bite as trunk
+// has it (no bleeding); the boss census and the lynx cases stay trunk's.
+fn test_cb18_lynx_bite_stays_trunks_and_does_not_bleed() {
+    for action in [sim.IDLE, sim.PARRY, sim.DODGE] {
+        region encounter {
+            var s = hitcensus.fixture(sim.LYNX)
+            s.tick = 0
+            s.foes[0].attack = 0
+            contact(mut s)
+            s.action = action
+            s.started = 0
+            let before = s.health
+            sim.step(mut s, List[int]())
+            assert((s.health < before) == (action == sim.IDLE), "only the idle cub is bitten")
+            assert(s.pouch.bleeding == 0, "a lynx bite starts no bleeding in cb18")
+        }
+    }
+}
+
+fn test_cb18_adder_burn_is_not_bleed_and_yarrow_cures_both() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.ASH_ADDER)
+    contact(mut s)
+    sim.new_foe_step(mut s, 0)
+    assert(
+        s.burn_left == 40 && s.pouch.bleeding == 0,
+        "forty-tick burn variant, not sixty-tick bleeding",
+    )
+    sim.bleed(mut s)
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    assert(
+        sim.consume_item(mut s, pouch.YARROW) && s.burn_left == 0 && s.pouch.bleeding == 0,
+        "one public yarrow use cures both",
+    )
+}
+
+fn test_cb18_ice_fallback_skips_only_a_snuffed_wisp() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.WISP)
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y - 3 * sim.FP
+    s.foes[0].phase = sim.SNUFFED
+    (mut s.foes).push(sim.make_ashen(s.x, s.y - 5 * sim.FP))
+    let _ = sim.give_item(mut s, pouch.ICE)
+    assert(
+        sim.consume_item(mut s, pouch.ICE) &&
+            s.foes[0].slow_until == 0 &&
+            s.foes[1].slow_until == 90,
+        "the sentry, not its invisible guide",
+    )
+    let _ = (mut s.foes).pop()
+    let _ = sim.give_item(mut s, pouch.ICE)
+    assert(
+        !sim.consume_item(mut s, pouch.ICE) && sim.item_count(s, pouch.ICE) == 1,
+        "no shard spent on a lone snuffed wisp",
+    )
+    s.foes[0].phase = sim.HUNT
+    assert(
+        sim.consume_item(mut s, pouch.ICE) && s.foes[0].slow_until == 90,
+        "a visible wisp remains targetable",
+    )
+}
+
+fn test_cb18_inventory_pauses_burn_and_flash_until_close() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+    sim.apply_burn(mut s)
+    s.blind_until = 6
+    sim.step(mut s, [controls.KEY_INVENTORY])
+    var n = 0
+    while n < 10 { sim.step(mut s, List[int]()); n += 1 }
+    assert(s.burn_left == 40 && sim.blinded(s), "paused status clocks")
+    sim.step(mut s, [controls.KEY_INVENTORY])
+    assert(s.burn_left == 40 && sim.blinded(s), "closing is paused too")
+    (mut s.foes).reset()
+    n = 0
+    while n < 6 { sim.step(mut s, List[int]()); n += 1 }
+    assert(!sim.blinded(s) && s.burn_left == 34, "six real world updates resume the clocks")
+}
+
+fn test_cb18_save_reload_discards_only_transient_status_and_held_theft() {
+    var s = sim.new(1, 80, 24)
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    let tag = sim.take_one(mut s, pouch.YARROW)
+    (mut s.foes).reset()
+    var thief = sim.make_new_foe(sim.MARTEN, s.x + 6 * sim.FP, s.y)
+    thief.stolen_item = tag
+    thief.phase = sim.STAGGER
+    (mut s.foes).push(thief)
+    sim.apply_burn(mut s)
+    sim.bleed(mut s)
+    s.blind_until = 6
+    let saved = journey.encode(s)
+    assert(saved.starts_with("CUB 7\n"), "no new persisted field or schema bump")
+    let loaded = journey.decode(saved, 80, 24) else {
+        assert(false, "unchanged CUB7 writer remains readable")
+        sim.new(1, 80, 24)
+    }
+    assert(
+        loaded.burn_left == 0 && loaded.blind_until == 0 && loaded.pouch.bleeding == 0,
+        "timed effects are transient",
+    )
+    assert(
+        sim.item_count(loaded, pouch.YARROW) == 0,
+        "R-cb18-3 A: an unreturned theft is lost on reset",
+    )
+    for f in loaded.foes {
+        assert(f.stolen_item == -1 && f.phase != sim.STAGGER, "foe modes begin fresh")
+    }
+}
+
+fn test_cb18_full_ground_pool_retains_then_retries_a_bitten_martens_item() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    contact(mut s)
+    sim.new_foe_step(mut s, 0)
+    while s.pouch.pickups.len < pouch.PICKUPS {
+        let _ = pouch.leave(mut s.pouch, s.area, 0, 0, pouch.MARROW)
+    }
+    s.tick = 103
+    s.started = 100
+    s.action = sim.BITE
+    s.combo = 3
+    s.attack_heading = 0
+    s.action_x = s.x
+    s.action_y = s.y
+    s.foes[0].phase = sim.RETREAT
+    s.foes[0].health = 8
+    sim.strike_foes(mut s)
+    assert(
+        s.foes[0].health == 0 &&
+            s.foes[0].stolen_item == pouch.YARROW &&
+            s.pouch.pickups.len == pouch.PICKUPS,
+        "a full pool never deletes or duplicates the held return",
+    )
+    pouch.remove(mut s.pouch, 0)
+    sim.new_foe_status(mut s)
+    assert(
+        s.foes[0].stolen_item == -1 && s.pouch.pickups.len == pouch.PICKUPS,
+        "return retries after a slot frees",
+    )
+}
+
+fn burn_boundary(area: int) {
+    var s = sim.new(7, 80, 24)
+    var kind = 0
+    while kind < pouch.KINDS { let _ = sim.give_item(mut s, kind); kind += 1 }
+    var n = 0
+    while n < 2 {
+        sim.enter_area(
+            mut s,
+            area,
+            forest.spine(7, area, 20) * sim.FP,
+            (forest.origin(7, area) + 20) * sim.FP,
+        )
+        kind = 0
+        while kind < pouch.KINDS {
+            assert(
+                sim.item_count(s, kind) ==
+                    (if area == forest.BURN && kind == pouch.ICE then 0 else 1),
+                "only Burn entry melts ice; all other items and repeated entries retain their counts",
+            )
+            kind += 1
+        }
+        n += 1
+    }
+}
+
+fn test_cb18_burn_entry_boundary_area_0() { burn_boundary(0) }
+
+fn test_cb18_burn_entry_boundary_area_1() { burn_boundary(1) }
+
+fn test_cb18_burn_entry_boundary_area_2() { burn_boundary(2) }
+
+fn test_cb18_burn_entry_boundary_area_3() { burn_boundary(3) }
+
+fn test_cb18_burn_entry_boundary_area_4() { burn_boundary(4) }
+
+fn test_cb18_burn_entry_boundary_area_5() { burn_boundary(5) }
+
+fn test_cb18_burn_entry_boundary_area_6() { burn_boundary(6) }
+
+fn test_cb18_burn_entry_boundary_area_7() { burn_boundary(7) }
+
+fn test_cb18_burn_entry_boundary_area_8() { burn_boundary(8) }
+
+fn test_cb18_burn_entry_boundary_area_9() { burn_boundary(9) }
+
+fn test_cb18_burn_entry_boundary_area_10() { burn_boundary(10) }
+
+fn test_cb18_burn_entry_boundary_area_11() { burn_boundary(11) }
+
+fn test_cb18_burn_entry_boundary_area_12() { burn_boundary(12) }
+
+fn test_cb18_save_before_burn_entry_preserves_the_same_melt_boundary() {
+    var s = sim.new(1, 80, 24)
+    let _ = sim.give_item(mut s, pouch.ICE)
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    let text = journey.encode(s)
+    var loaded = journey.decode(text, 80, 24) else {
+        assert(false, "real CUB7 core/items wrapper")
+        sim.new(1, 80, 24)
+    }
+    for area in [forest.LARKMEADOW, forest.BURN] {
+        let x = forest.spine(1, area, 20) * sim.FP
+        sim.enter_area(mut s, area, x, 20 * sim.FP)
+        sim.enter_area(mut loaded, area, x, 20 * sim.FP)
+        assert(
+            sim.item_count(s, pouch.ICE) == sim.item_count(loaded, pouch.ICE) &&
+                sim.item_count(loaded, pouch.YARROW) == 1,
+            "save/load does not move the boundary",
+        )
+    }
+    assert(sim.item_count(loaded, pouch.ICE) == 0, "melt occurs on actual entry after loading")
+}
