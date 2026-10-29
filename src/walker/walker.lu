@@ -10,6 +10,7 @@ use controls
 use forest
 use replay
 use sim
+use pouch
 
 /// Press `keys` this tick: recorded in `r`, applied to `s`.
 pub fn press(mut s: sim.Sim, mut r: replay.Replay, keys: List[int]) {
@@ -146,6 +147,91 @@ pub fn drive(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int) {
     drive_as(mut s, mut r, x, y, false)
 }
 
+// Harness only: old kinds never enter this dispatch. These are the same
+// public tells, motion and resource windows the arena fighter reads.
+fn new_kind_tactics(s: sim.Sim, mut keys: List[int]) -> bool {
+    var present = false
+    for f in s.foes { if sim.is_new_foe(f.kind) { present = true } }
+    if !present { return false }
+    if s.pouch.open {
+        if s.pouch.bleeding > 0 && sim.item_count(s, pouch.YARROW) > 0 {
+            (mut keys).push(controls.KEY_BITE)
+        } else {
+            (mut keys).push(controls.KEY_INVENTORY)
+        }
+        return true
+    }
+    if s.pouch.bleeding > 0 && sim.item_count(s, pouch.YARROW) > 0 {
+        (mut keys).push(controls.KEY_INVENTORY)
+        return true
+    }
+    if s.action != sim.IDLE { return false }
+    var i = 0
+    while i < s.foes.len {
+        let f = copy s.foes[i]
+        if f.health > 0 && sim.is_new_foe(f.kind) {
+            let m = sim.new_foe_move(f.kind)
+            let gap = sim.body_gap(s, i)
+            let travel_reach = (m.travel * m.active + sim.FP - 1) / sim.FP
+            if m.damage > 0 && gap <= m.reach - 1 + travel_reach {
+                let active = f.phase == sim.STRIKE && !f.hit
+                let remaining = m.windup - (s.tick - f.since) + 1
+                let extra = if gap > m.reach - 1 then gap - (m.reach - 1) else 0
+                let arrives = remaining + (if m.travel > 0 then extra * sim.FP / m.travel else 0)
+                if m.parryable &&
+                    s.stamina >= 10 &&
+                    !s.exhausted &&
+                    (active || f.phase == sim.CROUCH && arrives <= 6) {
+                    (mut keys).push(controls.KEY_PARRY)
+                    return true
+                }
+                if !m.parryable &&
+                    s.stamina >= 18 &&
+                    !s.exhausted &&
+                    (active || f.phase == sim.CROUCH && remaining <= 2) {
+                    var side = (f.heading + 64) % sim.TURN
+                    let x = sim.floor_div(s.x + 3 * sim.sin(side), sim.FP)
+                    let y = sim.floor_div(s.y - 3 * sim.cos(side), sim.FP)
+                    if sim.blocked(s, x, y) { side = (side + 128) % sim.TURN }
+                    aim(mut keys, sim.sin(side), 0 - sim.cos(side))
+                    (mut keys).push(controls.KEY_DODGE)
+                    return true
+                }
+            }
+        }
+        i += 1
+    }
+    if s.pouch.bleeding > 0 {
+        var safe = true
+        i = 0
+        while i < s.foes.len {
+            let f = copy s.foes[i]
+            let harmless = f.kind == sim.WISP ||
+                f.kind == sim.CINDER_MOTHS ||
+                f.kind == sim.GLOW_WORMS ||
+                f.kind == sim.MARTEN &&
+                    (
+                        f.phase == sim.RETREAT ||
+                            f.phase == sim.STAGGER ||
+                            f.phase == sim.PERCHED ||
+                            f.phase == sim.CROUCH
+                    )
+            if f.health > 0 && !harmless && sim.body_gap(s, i) <= 4 { safe = false }
+            i += 1
+        }
+        if safe {
+            // A visible bleed is licked at rest. Explicit releases stop
+            // inferred arrows too; no position or health is assigned.
+            var d = 0
+            while d < 4 { (mut keys).push(controls.KEY_ARROW_RELEASE + d); d += 1 }
+            (mut keys).push(controls.KEY_CTRL_UP)
+            (mut keys).push(controls.KEY_SHIFT_UP)
+            return true
+        }
+    }
+    false
+}
+
 /// One tick toward `(x, y)`; `passive` never bites (the natural-death
 /// witness lets the fox win).
 pub fn drive_as(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int, passive: bool) {
@@ -177,11 +263,17 @@ pub fn drive_as(mut s: sim.Sim, mut r: replay.Replay, x: int, y: int, passive: b
             return
         }
     }
+    if !passive && new_kind_tactics(s, mut keys) {
+        press(mut s, mut r, keys)
+        return
+    }
     var fighting = false
     var i = 0
     while i < s.foes.len {
         let foe = copy s.foes[i]
-        if foe.health > 0 {
+        if foe.health > 0 &&
+            !(foe.kind == sim.WISP && foe.phase == sim.SNUFFED) &&
+            !(foe.kind == sim.MARTEN && (foe.phase == sim.PERCHED || foe.phase == sim.CROUCH)) {
             if foe.kind == sim.HAWK &&
                 foe.phase == sim.CROUCH &&
                 sim.near(s.x, s.y, foe.target_x, foe.target_y, sim.FP) {
@@ -278,7 +370,12 @@ pub fn walk_stop(
 // A target beaten during a close-approach replan is a completed hand-off,
 // not another route goal. No movement or combat input follows its death.
 fn stop_beaten(s: sim.Sim, stop_foe: int) -> bool {
-    stop_foe >= 0 && stop_foe < s.foes.len && s.foes[stop_foe].health <= 0
+    stop_foe >= 0 &&
+        stop_foe < s.foes.len &&
+        (
+            s.foes[stop_foe].health <= 0 ||
+                s.foes[stop_foe].kind == sim.WISP && s.foes[stop_foe].phase == sim.SNUFFED
+        )
 }
 
 fn walk_stop_as(
@@ -472,7 +569,10 @@ fn walk_once_as(
             var engaged = s.action != sim.IDLE
             var k = 0
             while k < s.foes.len && !passive {
-                if s.foes[k].health > 0 && s.foes[k].kind != sim.HAWK && sim.in_reach(s, k, 2) {
+                if s.foes[k].health > 0 &&
+                    s.foes[k].kind != sim.HAWK &&
+                    !(s.foes[k].kind == sim.WISP && s.foes[k].phase == sim.SNUFFED) &&
+                    sim.in_reach(s, k, 2) {
                     engaged = true
                 }
                 k += 1
