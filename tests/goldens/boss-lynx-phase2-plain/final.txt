@@ -1,5 +1,5 @@
 O#O#O#O#O#O#O#O#O#O#    . :    .  , .      . "" ..| " , . .  ' '|"  .   O O#    
-#healthO#========O#  .  ,             .O .#Whisper [########............] ! "   
+#healthO#==------O#  .  ,             .O .#Whisper [########............] ! "   
 O#O#O#O#O#O#O#O#O#                      .   O"'"     '"   |  ", :"|  , .   " '  
 #stamina#=--------        :    :  .    ..  "#  ' ' ||         " '   '."||" " : O
 O#O#O#O#O#O#O#O# :        .        : . . . '    O . '.   ,.|' ...   : '  #"  ".#
@@ -9,7 +9,7 @@ O#O#O#O#O#O#O#O ,       .        ,,        .' .|| ' .    "  '"O , "    : "   #O#
 O#O#O#O#O#O#O#        O#      . #####  .:::::  # ' ' "      O  "' O:    ' .#O#O#
 #O#O#O#O#O#O#O , .    #O   ,  :  ### \#####O#O#O,   ' :,'    :    ' # "O  'O#O#O
 O#O#O#O#O#O#O# .    .    . .     ___  ######O#O#O#O  '  |#',O   : O   '".#O#O#O#
-#O#O#O#O#O#O#O  .                 :   #######O#O#O#O#O#O '   O  ":   .  #O#O#O#O
+#O#O#O#O#O#O#O  .                 :   , #####O#O#O#O#O#O '   O  ":   .  #O#O#O#O
 O#O#O#O#O#O#O :  :  O#   :     .       :: ##,#O#O#O#O#O#O#O  ",      #O#O#O#O#O#
 .'  .O  .  | O      #O    .   .    ,    :O#O#O#O#O#O#O#O#O#O#O#O O O#O#O#O#O#O#O
    # | 'O    ,     .:             , , .  #O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#
