@@ -16,6 +16,7 @@
 //! stamina, the tail for health) are the cub's variants; the scaffold
 //! draws the fresh band and names the others.
 
+use folk
 use grid
 use silhouette
 use tier
@@ -442,6 +443,8 @@ pub const CP_EYE: int = 9679
 /// and PAX's font row's specification for cub.
 pub fn rich_code_points() -> List[int] {
     var cps = silhouette.all_code_points()
+    // The NPCs' drawings (cb16): the raven's, the badger's, the ashen's.
+    folk.code_points(mut cps)
     // Shifted/shaken head composition can form cells absent from a whole
     // unshifted pose. The rendered-art audit checks these against GLYPHS.
     for cp in [0x2831, 0x2851, 0x2861, 0x287c, 0x288a, 0x288c] {

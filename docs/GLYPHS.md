@@ -152,6 +152,7 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+285A | ⡚ | BRAILLE PATTERN DOTS-2457 | Braille Patterns | E2 A1 9A | a silhouette cell (braille of its lit pixels) |
 | U+285B | ⡛ | BRAILLE PATTERN DOTS-12457 | Braille Patterns | E2 A1 9B | a silhouette cell (braille of its lit pixels) |
 | U+285C | ⡜ | BRAILLE PATTERN DOTS-3457 | Braille Patterns | E2 A1 9C | a silhouette cell (braille of its lit pixels) |
+| U+285D | ⡝ | BRAILLE PATTERN DOTS-13457 | Braille Patterns | E2 A1 9D | an NPC's cell (braille of its lit pixels; cb16) |
 | U+285F | ⡟ | BRAILLE PATTERN DOTS-123457 | Braille Patterns | E2 A1 9F | a silhouette cell (braille of its lit pixels) |
 | U+2860 | ⡠ | BRAILLE PATTERN DOTS-67 | Braille Patterns | E2 A1 A0 | a silhouette cell (braille of its lit pixels) |
 | U+2861 | ⡡ | BRAILLE PATTERN DOTS-167 | Braille Patterns | E2 A1 A1 | a silhouette cell (braille of its lit pixels) |
@@ -177,6 +178,7 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+2876 | ⡶ | BRAILLE PATTERN DOTS-23567 | Braille Patterns | E2 A1 B6 | a silhouette cell (braille of its lit pixels) |
 | U+2877 | ⡷ | BRAILLE PATTERN DOTS-123567 | Braille Patterns | E2 A1 B7 | a silhouette cell (braille of its lit pixels) |
 | U+2878 | ⡸ | BRAILLE PATTERN DOTS-4567 | Braille Patterns | E2 A1 B8 | a silhouette cell (braille of its lit pixels) |
+| U+2879 | ⡹ | BRAILLE PATTERN DOTS-14567 | Braille Patterns | E2 A1 B9 | an NPC's cell (braille of its lit pixels; cb16) |
 | U+287A | ⡺ | BRAILLE PATTERN DOTS-24567 | Braille Patterns | E2 A1 BA | a silhouette cell (braille of its lit pixels) |
 | U+287B | ⡻ | BRAILLE PATTERN DOTS-124567 | Braille Patterns | E2 A1 BB | a silhouette cell (braille of its lit pixels) |
 | U+287C | ⡼ | BRAILLE PATTERN DOTS-34567 | Braille Patterns | E2 A1 BC | a silhouette cell (braille of its lit pixels) |
@@ -252,6 +254,7 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+28C9 | ⣉ | BRAILLE PATTERN DOTS-1478 | Braille Patterns | E2 A3 89 | a silhouette cell (braille of its lit pixels) |
 | U+28CB | ⣋ | BRAILLE PATTERN DOTS-12478 | Braille Patterns | E2 A3 8B | a silhouette cell (braille of its lit pixels) |
 | U+28CC | ⣌ | BRAILLE PATTERN DOTS-3478 | Braille Patterns | E2 A3 8C | a silhouette cell (braille of its lit pixels) |
+| U+28CE | ⣎ | BRAILLE PATTERN DOTS-23478 | Braille Patterns | E2 A3 8E | an NPC's cell (braille of its lit pixels; cb16) |
 | U+28CF | ⣏ | BRAILLE PATTERN DOTS-123478 | Braille Patterns | E2 A3 8F | a silhouette cell (braille of its lit pixels) |
 | U+28D0 | ⣐ | BRAILLE PATTERN DOTS-578 | Braille Patterns | E2 A3 90 | a silhouette cell (braille of its lit pixels) |
 | U+28D2 | ⣒ | BRAILLE PATTERN DOTS-2578 | Braille Patterns | E2 A3 92 | a silhouette cell (braille of its lit pixels) |
@@ -260,6 +263,7 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 | U+28D7 | ⣗ | BRAILLE PATTERN DOTS-123578 | Braille Patterns | E2 A3 97 | a silhouette cell (braille of its lit pixels) |
 | U+28DA | ⣚ | BRAILLE PATTERN DOTS-24578 | Braille Patterns | E2 A3 9A | a silhouette cell (braille of its lit pixels) |
 | U+28DB | ⣛ | BRAILLE PATTERN DOTS-124578 | Braille Patterns | E2 A3 9B | a silhouette cell (braille of its lit pixels) |
+| U+28DC | ⣜ | BRAILLE PATTERN DOTS-34578 | Braille Patterns | E2 A3 9C | an NPC's cell (braille of its lit pixels; cb16) |
 | U+28DD | ⣝ | BRAILLE PATTERN DOTS-134578 | Braille Patterns | E2 A3 9D | a silhouette cell (braille of its lit pixels) |
 | U+28DE | ⣞ | BRAILLE PATTERN DOTS-234578 | Braille Patterns | E2 A3 9E | a silhouette cell (braille of its lit pixels) |
 | U+28DF | ⣟ | BRAILLE PATTERN DOTS-1234578 | Braille Patterns | E2 A3 9F | a silhouette cell (braille of its lit pixels) |
@@ -297,7 +301,7 @@ not a hand-picked few. The list is generated from `sprites.rich_code_points()` (
 
 158 code points in six blocks: one each in Latin-1 Supplement, General Punctuation, Mathematical Operators
 and Box Drawing, six Block Elements (the gravel's light shade and the five silhouette fills) and 148 Braille
-Patterns (the ground's seven and the silhouettes' rest; cb02c's tail frames added U+287D and U+28DE; cb14's ground added U+281B, U+2847, U+28B8 and U+28E4). The ground is pack's forest and the Shingle's
+Patterns (the ground's seven and the silhouettes' rest; cb02c's tail frames added U+287D and U+28DE; cb14's ground added U+281B, U+2847, U+28B8 and U+28E4; cb16's NPCs (the raven, the badger, the ashen, `src/folk/folk.lu`) U+285D, U+2879, U+28CE and U+28DC). The ground is pack's forest and the Shingle's
 marks; the creatures are one drawing each, turned.
 
 The outlined health/stamina bars add eight box-drawing glyphs (cb03a).

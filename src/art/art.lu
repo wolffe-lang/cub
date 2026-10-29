@@ -23,6 +23,7 @@ use motionart
 use silhouette
 use sim
 use sprites
+use talk
 use terrain
 use tier
 use town
@@ -815,7 +816,8 @@ pub fn counter_partial(
                 c.row < s.rows &&
                 c.col >= left &&
                 c.col < s.cols - 1 &&
-                !inventory.covers(s, c.row, c.col) {
+                !inventory.covers(s, c.row, c.col) &&
+                !talk.covers(s, c.row, c.col) {
                 grid.put(
                     mut patch,
                     c.row - top,
@@ -899,6 +901,7 @@ fn frame(s: sim.Sim, extra: Extra, t: int, mut g: grid.Grid, hud: bool, scent: i
     }
     if sim.revealing(s) { draw_reveal(s, t, mut g) }
     if s.pouch.open { inventory.render(s, t, mut g) }
+    talk.render(s, t, mut g)
 }
 
 /// The lookout's reveal (cb14, the Stand): for sixty ticks the frame
@@ -1488,7 +1491,6 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
     } else if s.area == forest.BRAMBLEHOLD {
         world_prop(s, t, mut g, 0, way_on, props.PINES, false)
         world_prop(s, t, mut g, 12, forest.BOAR_ROW - 2, props.BOAR, false)
-        world_prop(s, t, mut g, -10, 24, props.EMBER, false)
         world_prop(s, t, mut g, -4, 18, props.BONES, false)
     } else if s.area == forest.LARKMEADOW {
         world_prop(s, t, mut g, 10, 24, props.TREE, false)
@@ -1552,6 +1554,8 @@ fn draw_world_marks(s: sim.Sim, t: int, mut g: grid.Grid) {
         }
         edge += 1
     }
+    // The NPCs (cb16) stand over the landmarks they keep, under the foes.
+    talk.draw_npcs(s, t, mut g)
     if s.mark &&
         s.mark_area == s.area &&
         sim.near(s.x, s.y, s.mark_x, s.mark_y, sim.scent_reach(s.nose) * sim.FP) {
@@ -1992,9 +1996,8 @@ fn landmark_line(area: int, kind: int, k: int) -> str {
             },
         )
     }
-    if kind == forest.LM_PERCH {
-        return "Quill: A cub, walking the burn alone. Bring me scent when you have some; I know what the ash remembers."
-    }
+    // Quill speaks his own lines at his perch now (cb16), in the frame.
+    if kind == forest.LM_PERCH { return "" }
     if kind == forest.LM_COALS {
         return lore.line(lore.LOW_EMBERS)
     }
@@ -2836,7 +2839,9 @@ fn later_hint(s: sim.Sim, edge: int) -> str {
         if open { return "r squeeze through the sett" }
         return if s.area == forest.CRAGS {
             (
-                if s.paw >= sim.UNDERTEETH_PAW {
+                if !sim.sett_dug(s) {
+                    "Dunmoss's sett: the badger keeps the way under"
+                } else if s.paw >= sim.UNDERTEETH_PAW {
                     "r squeeze into Dunmoss's sett; the way under"
                 } else {
                     "Dunmoss's sett: too narrow yet; grow your paw"
@@ -3588,6 +3593,8 @@ fn end_frame(s: sim.Sim, t: int, mut g: grid.Grid) {
                 "Dawn at Moonford. On the far bank, the pack is waiting."
             } else if frame == 1 {
                 "It is not a cub any more that crosses."
+            } else if sim.alone(s) {
+                "The pack howls. You walk with what you killed."
             } else {
                 "The pack howls. Home."
             },
@@ -3610,7 +3617,7 @@ fn end_frame(s: sim.Sim, t: int, mut g: grid.Grid) {
     let style = ink(t, true)
     let soft = ink(t, false)
     draw.fill(mut g, top, mid - 22, 12, 44, grid.cell(32, style.fg, style.bg, 0))
-    draw.put_text(mut g, top + 1, mid - 2, "Home", style)
+    draw.put_text(mut g, top + 1, mid - 2, if sim.alone(s) then "Alone" else "Home", style)
     let secs = sim.played_ticks(s) / 30
     let mins = secs / 60
     let rest = secs % 60
