@@ -1,0 +1,47 @@
+cb17 prediction, before any change, base ed180ef5 (cb14's note on trunk)
+
+The gaps, read from src/score/score.lu and src/forest/forest.lu at the base:
+`score.area_part` answers a name the bank has no part for in ten of the
+thirteen areas (the Teeth `crags`, the Shallows `river`, the Hush `old-den`,
+Cinderwick `cinderwick`, and `none` for the Stand, the Burn, the Mere, the
+Underteeth, the Howe and Gravehollow), and `score.step` turns every one into
+the silence. The end (`sim.SCENE_END`, the ford at dawn) plays the title's
+part, because `score.scene_of` reads every nonzero scene as the title. The
+lookout's reveal (`sim.revealing`), the Mere's crossing and the Howe's walk
+cue nothing of their own. So: ten area parts, Moonford, and three trigger
+parts, fourteen new parts; twenty-five parts and the silence, twenty-six
+cues.
+
+The engine's mixer refuses a bank over sixteen (`sound.mixer`, lair
+74b89744). `score.replay_pcm` builds its mixer from the whole bank, so with
+twenty-six cues `--score-replay` would exit 2. I expect to recommend
+R-cb17-2 A: a replay's mixer holds the cues its own scenes can reach (at
+most sixteen, refused by name over that), the live sink keeps one WAV per
+part; B (a lair change raising the bound) moves the pin and is
+cross-cutting. The six-second replay's PCM stays byte-equal under A: the
+mixer reads only cued slots, so a smaller bank with the same names mixes
+the same bytes.
+
+Byte-equal expected: every existing part's golden (eleven sha256 lines and
+heads), replay.pcm, every frame golden on both tiers, the hit and boss
+censuses, the den-memory census. Expected to move, named: the score list
+(25 parts), `tools/score-check`'s listing, the `sound-live` row's WAV list
+(12 -> 26), `src/score_test.lu`'s count and area rows, the README's score
+sentence, docs/SCORE.md.
+
+Numbers predicted: the new parts 6-30 s each, about 270 s of music added to
+the 191 s there is; the live prepare on nomad release 0.43 s -> about 1.1 s;
+the WAVs under the sound directory 35 MB -> about 90 MB while the game runs.
+Every new loop's last tick under the seam bar (peak <= 256). The memory
+gate's two rows (muted) unchanged under 4096 bytes/tick; a sound-on row
+(the OSS backend: silent, every WAV written) under the same budget, with
+the prepare's peak lower once `write_wavs` renders and writes one part at a
+time instead of holding the whole bank (R-cb17-3 A, expected new).
+
+R-cb17-1 A (the contract's): the Hush's entry is silent for 300 ticks while
+its cold den (den 6) is unlit, then the shadows' motif; once the den is lit
+the motif at once. The motif (D, E flat, D, the A below) is shared by the
+Hush, the Howe, the walk and Gravehollow. Moonford is the title's call in D
+major. The plant: a branch off the lane's head that drops one part from the
+bank; the cue-schedule golden of its scene red by name and the unit row
+"every trigger's part is in the bank" red.
