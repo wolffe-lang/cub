@@ -1826,7 +1826,32 @@ columns keep cb04's meaning (a strike that resolved that step and was not
 parried), and an appended `damage_events` column (per world, and before
 `arena_breaches` on each `fairness` line) counts every step the health fell
 for any cause, the old counter's rule. **A** would keep the one column and
-name it damage events, changing what cb04's table means.
+name it damage events, changing what cb04's table means. A strike is told
+from a bleed tick by its size: a fall past the bleed ticks the step could
+hold (one health each) is a strike (ten at least).
+
+**A killing bleed tick.** `sim.step` ends the tick when the bleed (or any
+consumable's status) fells the cub, as it does after a foe's blow: before,
+the action step stood the fallen cub up, and each later bleed tick killed it
+again (twenty-six deaths in one fall of the lynx's beaten witness, the cub
+fighting on at no health between them).
+
+### R-cb18-5 — the lynx's bleeding and its answer
+
+With the bleed's deaths counted as one fall each, the lynx's sixty-tick
+bleeding left one world unwon within five lives (seed 1 at 80 columns, the
+beaten witness's own world) and 34 of 100 needing more than one life, against
+cb04's gate. The bible names the answer (§9: "the parry …, yarrow, sneaking
+to break its tracking"). Recommend **A**, implemented: the lynx's fixture
+(`fight.journey_at`) brings a full stack of yarrow, which grows in the
+meadow on the way (cb15), and the fighter eats one on a bleed through the
+paused pouch; every world is won in one life again (`fairness lynx attempts
+1:100 … hits 107 20 32 unparryable_hits 32 … damage_events 208`). **B** would
+shorten or narrow the bleed (a balance change, the maintainer's); **C**
+would let the witness and the gate admit the falls. A fighter that licks
+(still twenty ticks) was tried twice: never safe within the lynx's 18-tick
+recoveries, and backing out past its ledge range first left four worlds
+unwon (`notes/cb18-evidence/pickup/lick-trials.txt`).
 
 ### R-cb18-3 — an unreturned theft on reset
 
