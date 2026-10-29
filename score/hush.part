@@ -1,0 +1,33 @@
+# The Hush — the deep wood: D minor darkening to E flat, no wind, no birds; low strings, voices on
+# an open fifth, the shadows' motif (D, E flat, D, the A below) on a low clarinet. Original, cb17
+# (2026-10-29). 6 bars of 4/4 at 60: 24 s, a loop; its first 300 ticks are the silence while the
+# cold den is unlit (R-cb17-1 A).
+title The Hush
+cue replace fade 9
+tempo 60
+meter 4/4
+part deep strings pp pan -15 gain 10
+part voices choir pp pan 15 gain 7
+part shadow clarinet p pan 30 gain 7
+bar 1
+deep D2,A2/1~
+voices D4,A4/1~
+bar 2
+deep D2,A2/1
+voices D4,A4/2 Eb4,A4/2
+shadow D4/4 Eb4/4 D4/2
+bar 3
+deep D2,A2/1
+voices D4,A4/1
+shadow A3/1
+bar 4
+deep Bb1,F2/1
+voices Bb3,F4/1
+bar 5
+deep A1,E2/1
+voices A3,E4/2 A3,Eb4/2
+shadow D4/4 Eb4/4 F4/4 Eb4/4
+bar 6
+deep D2,A2/2. r/4
+voices D4,A4/2. r/4
+shadow D4/2. r/4
