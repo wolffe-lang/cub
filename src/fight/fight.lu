@@ -14,6 +14,7 @@
 use controls
 use forest
 use journey
+use pouch
 use replay
 use sim
 use walker
@@ -158,6 +159,12 @@ pub fn journey_at(seed: int, cols: int, rows: int, kind: int) -> sim.Sim {
     // cb14: a journey past Larkmeadow pushed the burnt oak over on its
     // way through the Burn; the stone mouth is the alpha fight's to open.
     s.gates = if kind > sim.BOAR then sim.GATE_OAK else 0
+    // R-cb18-5 A: the bible's answer to the lynx's bleeding is yarrow (§9);
+    // the cub comes to the Teeth through the meadow, where it grows (cb15),
+    // with a full stack of it.
+    if kind == sim.LYNX {
+        while sim.give_item(mut s, pouch.YARROW) {}
+    }
     let text = journey.encode(s)
     journey.decode(text, cols, rows) else |e| {
         assert(false, "fight.journey_at: the fixture is not a valid save: {e}")
@@ -253,6 +260,20 @@ fn side_of(s: sim.Sim, i: int, mut st: Fighter) -> int {
 pub fn fight_keys(s: sim.Sim, i: int, mut st: Fighter) -> List[int] {
     var keys = List[int]()
     if s.action == sim.FALL || s.den { return keys }
+    // R-cb18-5 A: bleeding with yarrow in the pouch, the paused pouch, the
+    // yarrow, its Consume (the walker's own keys for a new foe's bleeding).
+    if s.pouch.open {
+        if s.pouch.bleeding > 0 && sim.item_count(s, pouch.YARROW) > 0 {
+            (mut keys).push(controls.KEY_BITE)
+        } else {
+            (mut keys).push(controls.KEY_INVENTORY)
+        }
+        return keys
+    }
+    if s.pouch.bleeding > 0 && sim.item_count(s, pouch.YARROW) > 0 && s.action == sim.IDLE {
+        (mut keys).push(controls.KEY_INVENTORY)
+        return keys
+    }
     let f = copy s.foes[i]
     let m = if sim.is_new_foe(f.kind) {
         sim.new_foe_move(f.kind)
