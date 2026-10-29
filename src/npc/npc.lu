@@ -180,7 +180,9 @@ pub fn line(who: int, k: int) -> str {
 pub fn next_line(who: int, said: int, lynx_beaten: bool) -> int {
     if who == DUNMOSS && !lynx_beaten { return 0 }
     let last = lines(who) - 1
-    if said > last then last else if said < 0 then 0 else said
+    // PLANT (cb16, never merged): the lines cycle back to the first
+    // instead of the last repeating; the line-order row must go red.
+    if said > last then 0 else if said < 0 then 0 else said
 }
 
 /// The said-count after a visit says line `k`: at least `k + 1`, never past
