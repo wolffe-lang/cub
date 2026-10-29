@@ -340,11 +340,30 @@ pub struct Schedule {
     current: str,
     since: int,
     cues: List[Cue],
+    area: int,
+    pending: str,
+    pending_since: int,
 }
 
 /// A schedule over `cues`, nothing sounding yet.
 pub fn schedule(cues: List[Cue]) -> Schedule {
-    Schedule { current: "", since: 0, cues: copy cues }
+    Schedule { current: "", since: 0, cues: copy cues, area: -1, pending: "", pending_since: 0 }
+}
+
+/// Ticks a change between an area's ground parts must hold before it
+/// sounds (cb17): the Mere's part and its crossing, the Howe's and its
+/// walk. The sound census found the walker's sway across the fourth
+/// stone's row restarting the walk and the Howe's part within eight
+/// ticks; a second's settle keeps the line from chattering.
+pub const SETTLE: int = 30
+
+/// Whether `name` is one of `area`'s ground parts: its own, or the
+/// moment its ground gives (the crossing in the Mere, the walk in the
+/// Howe).
+pub fn ground(name: str, area: int) -> bool {
+    name == area_part(area) ||
+        name == "crossing" && area == forest.MERE ||
+        name == "walk" && area == forest.HOWE
 }
 
 /// A known cue's length in ticks, 0 for a name the bank has no part for.
@@ -372,17 +391,37 @@ pub fn sounding(sch: Schedule, tick: int) -> bool {
 pub fn restart(mut sch: Schedule) {
     sch.current = ""
     sch.since = 0
+    sch.pending = ""
 }
 
 /// Step the schedule at `tick`: the cue to start now, or "" for none. A
 /// loop restarts when its length is up; a once-cue that holds (the
 /// sting, the reveal: `holds`) is never cut short — the scene's next part
 /// waits for its end, so the area's loop resumes at the den once the
-/// sting has sounded; only a fall cuts the reveal. A part the schedule
-/// does not know is the silence.
+/// sting has sounded; only a fall cuts the reveal. A change between an
+/// area's ground parts settles first (`SETTLE`). A part the schedule does
+/// not know is the silence.
 pub fn step(mut sch: Schedule, sc: Scene, tick: int) -> str {
     var w = want(sc)
     if ticks_of(sch, w) == 0 { w = "silence" }
+    // A change between the area's ground parts waits `SETTLE` ticks; an
+    // area change, a den, a boss, a fall or the reveal does not.
+    var settling = false
+    if w != sch.current &&
+        sc.area == sch.area &&
+        ground(sch.current, sc.area) &&
+        ground(w, sc.area) {
+        if sch.pending != w {
+            sch.pending = copy w
+            sch.pending_since = tick
+        }
+        if tick - sch.pending_since < SETTLE {
+            w = copy sch.current
+            settling = true
+        }
+    }
+    if !settling { sch.pending = "" }
+    sch.area = sc.area
     if w == sch.current {
         if !sounding(sch, tick) && !once_of(sch, w) {
             sch.since = tick
