@@ -98,38 +98,45 @@ fn test_cb04_every_telegraph_is_at_least_the_parry_window() {
     assert(sim.trot_at(1) * 15 >= 3 * sim.FP, "a dodge fits in the tell")
 }
 
-fn test_cb04_a_boss_never_leaves_its_arena() {
+// One boss a test since cb16: the four in one test had used the checked
+// machine's whole step budget, and cb16's NPC step (a box test a tick)
+// tipped it over; the rule and the ticks are cb04's, unchanged.
+fn boss_stays_in_its_arena(kind: int) {
     // The cub stands outside the arena, three cells past its edge, in the
     // boss's sight; the boss hunts it to the edge and no further, two
     // hundred ticks, in every arena.
-    var kind = sim.BOAR
-    while kind <= sim.ALPHA {
-        var s = arena_with(kind, 1)
-        let (cx, cy, r) = forest.arena(s.seed, s.field, s.area)
-        let o = forest.origin(s.seed, s.area)
-        // Up the route, outside the circle (the boar's clearing: west, at
-        // its mouth's row).
-        if kind == sim.BOAR {
-            s.x = (cx - r - 3) * sim.FP + sim.FP / 2
-            s.y = (o + cy) * sim.FP + sim.FP / 2
-        } else {
-            s.x = forest.spine(s.seed, s.area, cy - r - 3) * sim.FP + sim.FP / 2
-            s.y = (o + cy - r - 3) * sim.FP + sim.FP / 2
-        }
-        s.foes[0].engaged = true
-        var n = 0
-        while n < 200 {
-            sim.step(mut s, keys(0))
-            assert(
-                sim.in_arena_at(s, s.foes[0].x, s.foes[0].y),
-                "boss {kind} left its arena at tick {n}: {s.foes[0].x},{s.foes[0].y}",
-            )
-            assert(!sim.overlap(sim.cub_body(s), sim.foe_body(s.foes[0])), "no overlap {kind} {n}")
-            n += 1
-        }
-        kind += 1
+    var s = arena_with(kind, 1)
+    let (cx, cy, r) = forest.arena(s.seed, s.field, s.area)
+    let o = forest.origin(s.seed, s.area)
+    // Up the route, outside the circle (the boar's clearing: west, at
+    // its mouth's row).
+    if kind == sim.BOAR {
+        s.x = (cx - r - 3) * sim.FP + sim.FP / 2
+        s.y = (o + cy) * sim.FP + sim.FP / 2
+    } else {
+        s.x = forest.spine(s.seed, s.area, cy - r - 3) * sim.FP + sim.FP / 2
+        s.y = (o + cy - r - 3) * sim.FP + sim.FP / 2
+    }
+    s.foes[0].engaged = true
+    var n = 0
+    while n < 200 {
+        sim.step(mut s, keys(0))
+        assert(
+            sim.in_arena_at(s, s.foes[0].x, s.foes[0].y),
+            "boss {kind} left its arena at tick {n}: {s.foes[0].x},{s.foes[0].y}",
+        )
+        assert(!sim.overlap(sim.cub_body(s), sim.foe_body(s.foes[0])), "no overlap {kind} {n}")
+        n += 1
     }
 }
+
+fn test_cb04_a_boss_never_leaves_its_arena_the_boar() { boss_stays_in_its_arena(sim.BOAR) }
+
+fn test_cb04_a_boss_never_leaves_its_arena_the_lynx() { boss_stays_in_its_arena(sim.LYNX) }
+
+fn test_cb04_a_boss_never_leaves_its_arena_the_elk() { boss_stays_in_its_arena(sim.ELK) }
+
+fn test_cb04_a_boss_never_leaves_its_arena_the_alpha() { boss_stays_in_its_arena(sim.ALPHA) }
 
 fn test_cb04_the_boar_gore_is_parried_and_the_charge_dodged() {
     var s = arena_with(sim.BOAR, 1)
