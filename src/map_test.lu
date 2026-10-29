@@ -12,6 +12,7 @@
 use controls
 use forest
 use journey
+use npc
 use lands
 use lore
 use sim
@@ -411,6 +412,9 @@ fn test_cb14_the_sett_is_a_growth_gate_of_paw_two() {
     )
     assert(s.paw == 1, "a fresh cub's paw")
     assert(sim.blocked(s, px / sim.FP, py / sim.FP), "the squeeze holds a cub of paw one")
+    // cb16 (R-cb16-4 A): Dunmoss digs the sett first; the paw is still the
+    // squeeze's own gate.
+    s.npc_flags = npc.DUG
     s.x = px
     s.y = py
     var rest = List[int]()
@@ -577,10 +581,10 @@ fn test_cb14_schema_seven_carries_thirteen_masks_and_older_schemas_migrate() {
     s.shortcuts = 16 + 32
     let text = journey.encode(s)
     assert(
-        text.starts_with("CUB 7\n") && text.contains("\ngates 1\nname journey\n"),
-        "schema seven",
+        text.starts_with("CUB 8\n") && text.contains("\ngates 1\nname journey\n"),
+        "schema seven's lines (CUB 8 since cb16)",
     )
-    assert(journey.snapshot(s).len == journey.SNAPSHOT && journey.SNAPSHOT == 211, "the snapshot")
+    assert(journey.snapshot(s).len == journey.SNAPSHOT && journey.SNAPSHOT == 239, "the snapshot")
     assert(journey.snapshot(s)[43] == 1, "the gates after the thirteen masks")
     let back = journey.decode(text, 80, 24) else |e| { assert(false, "valid {e}"); return }
     assert(back.gates == 1 && back.shortcuts == 48, "round trip")
@@ -595,7 +599,7 @@ fn test_cb14_schema_seven_carries_thirteen_masks_and_older_schemas_migrate() {
     }
     let fresh = journey.encode(migrated)
     assert(
-        fresh.starts_with("CUB 7\n") &&
+        fresh.starts_with("CUB 8\n") &&
             fresh.contains("slain 0 0 0 0 0 0 0 0 0 0 0 0 0\ngates 0\n"),
         "written as seven with empty new masks",
     )
@@ -605,8 +609,12 @@ fn test_cb14_schema_seven_carries_thirteen_masks_and_older_schemas_migrate() {
     var five_values = List[int]()
     var i = 0
     while i < 37 { (mut five_values).push(if i < 30 then v[i] else 0); i += 1 }
+    // The pouch's seven scalars and first 32 lore slots, then its 128
+    // pickups (cb16's 16 further lore slots and the NPCs' 12 dropped).
     i = 44
-    while i < v.len { (mut five_values).push(v[i]); i += 1 }
+    while i < 44 + 7 + 32 { (mut five_values).push(v[i]); i += 1 }
+    i = 44 + 7 + 48
+    while i < 44 + 7 + 48 + 128 { (mut five_values).push(v[i]); i += 1 }
     assert(five_values.len == journey.SNAPSHOT_V5, "a journey 5 shape")
     let from_five = journey.from_snapshot(five_values, 80, 24) else |e| {
         assert(false, "journey 5 read: {e}")
@@ -621,5 +629,5 @@ fn test_cb14_schema_seven_carries_thirteen_masks_and_older_schemas_migrate() {
         return
     }
     assert(from.seed == 3 && from.gates == 0, "the old snapshot")
-    assert(journey.JOURNEY == 6, "this build writes journey 6")
+    assert(journey.JOURNEY == 7, "this build writes journey 7 (cb16)")
 }

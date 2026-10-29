@@ -5,13 +5,14 @@ use sim
 use pouch
 use std.fs
 
-/// A CUB 5 (or CUB 6 core) payload as CUB 7 writes it (cb14): the version,
-/// six empty masks for the new areas after the seven, no gate opened.
+/// A CUB 5 (or CUB 6 core) payload as CUB 8 writes it (cb14's CUB 7 shape,
+/// cb16's version): the version, six empty masks for the new areas after
+/// the seven, no gate opened (cb16's `npcs` line follows the items).
 fn seven(core: str) -> str {
     var out = ""
     for line in core.lines() {
         if line == "CUB 5" || line == "CUB 6" {
-            out += "CUB 7\n"
+            out += "CUB 8\n"
         } else if line.starts_with("slain ") {
             out += line + " 0 0 0 0 0 0\ngates 0\n"
         } else {
@@ -28,7 +29,9 @@ fn test_cb13_cub5_fixture_migrates_byte_for_byte_to_cub7() {
     }
     let s = journey.decode(text, 80, 24) else |e| { assert(false, "CUB 5 fixture {e}"); return }
     let cut = text.find("check ") else 0
-    let payload = seven(text[0..cut]) + "name journey\nplayed_ms 0\nitems 0 0 0 0 0 0 0\n"
+    let payload = seven(text[0..cut]) +
+        "name journey\nplayed_ms 0\nitems 0 0 0 0 0 0 0\n" +
+        "npcs 0 0 0 0 0 0 0 0 0 dead 0 perch -1 flags 0\n"
     let expected = payload + "check {journey.checksum(payload)}\n"
     assert(journey.encode(s) == expected, "exact migrated bytes, not merely semantic equality")
     let resumed = journey.decode(expected, 120, 40) else |_| {
@@ -74,7 +77,9 @@ fn test_cb15_cb13_original_cub6_wrapper_migrates_with_empty_items() {
     let old = payload + "check {journey.checksum(payload)}\n"
     let s = journey.decode(old, 80, 24) else |_| { assert(false, "original CUB6"); return }
     let meta = journey.metadata(old) else |_| { assert(false, "old metadata"); return }
-    let extended = seven(text[0..cut]) + "name birch_7\nplayed_ms 123456\nitems 0 0 0 0 0 0 0\n"
+    let extended = seven(text[0..cut]) +
+        "name birch_7\nplayed_ms 123456\nitems 0 0 0 0 0 0 0\n" +
+        "npcs 0 0 0 0 0 0 0 0 0 dead 0 perch -1 flags 0\n"
     assert(
         journey.encode_named(s, meta) == extended + "check {journey.checksum(extended)}\n",
         "exact extension migration",

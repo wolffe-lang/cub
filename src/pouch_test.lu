@@ -127,26 +127,22 @@ fn test_cb15_caps_and_full_pickup_refusal() {
     assert(sim.pickup_item(mut s) && s.pouch.pickups.len == 1, "full stack leaves ground item")
 }
 
-fn test_cb15_provisional_tuft_is_at_the_first_den_not_the_checkpoint_den() {
+// cb15's provisional tuft (four cells east of Bramblehold's first den) is
+// Ember's since cb16 (R-cb16-3 A): her den holds the first tuft and her
+// third line gives it (`npc_test`); Bramblehold seeds its six marrow alone.
+fn test_cb16_bramblehold_seeds_six_marrow_and_the_first_tuft_is_embers() {
     var s = quiet()
     s.area = forest.BRAMBLEHOLD
     s.pouch.seeded = 0
     wait(mut s, 1)
-    let (x, y) = forest.den_position(s.seed, 1)
     var tufts = 0
     for p in s.pouch.pickups {
-        if p.kind == pouch.TUFT {
-            assert(
-                p.x == sim.floor_div(x, sim.FP) + 4 && p.y == sim.floor_div(y, sim.FP),
-                "first den's east cell",
-            )
-            assert(!forest.blocked(s.seed, s.field, s.area, p.x, p.y), "reachable ground")
-            tufts += 1
-        }
+        if p.kind == pouch.TUFT { tufts += 1 }
+        assert(!forest.blocked(s.seed, s.field, s.area, p.x, p.y), "reachable ground")
     }
-    assert(tufts == 1 && s.pouch.pickups.len == 7, "six marrow, one finite tuft")
+    assert(tufts == 0 && s.pouch.pickups.len == 6, "six marrow, no tuft")
     wait(mut s, 1)
-    assert(s.pouch.pickups.len == 7, "seed only once")
+    assert(s.pouch.pickups.len == 6, "seed only once")
 }
 
 fn test_cb15_r_at_a_den_recovers_a_dropped_item_and_still_rests() {
@@ -217,7 +213,7 @@ fn test_cb15_a_found_frame_appends_its_existing_words_without_r() {
     )
     assert(
         lore.ASH_SHELTER == 11 &&
-            lore.COUNT == 32 &&
+            lore.COUNT == 33 &&
             lore.line(11).starts_with("The charred frame"),
         "append-only words (cb14 appends 13..31)",
     )
