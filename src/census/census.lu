@@ -167,6 +167,7 @@ pub fn counts() -> Counts {
 }
 
 fn solid(f: sim.Foe) -> bool {
+    if sim.is_new_foe(f.kind) { return sim.solid(f) }
     f.health > 0 && f.kind != sim.HAWK
 }
 
