@@ -167,9 +167,21 @@ def main():
     for tier in ("release", "native"):
         binary = ROOT / "target" / tier / "cub"
         listed, scenes = names(binary)
+        assert scenes == SCENES, scenes
+        # The cue schedules first (cb17): a part missing from the bank is
+        # its scene's red line by name before any listing or render row.
+        played = {}
+        for name, ticks in SCENES:
+            played[name] = check_scene(binary, tier, name, ticks, update)
+        s = played["hush"]
+        # R-cb17-1 A: the Shallows fade out over their 9 ticks from tick 45;
+        # from tick 55 to the wait's end (tick 345) nothing.
+        quiet = peak(s[55 * TICK:345 * TICK])
+        assert quiet == 0, "score-hush %s FAILED: the first entry's wait peaks at %d" % (tier, quiet)
+        assert peak(s[346 * TICK:405 * TICK]) > 0, "score-hush %s FAILED: no motif after the wait" % tier
+        print("score-hush %s ok ticks 55-344 silent, the motif from 345" % tier, flush=True)
         assert [n for n, _, _ in listed] == NAMES, listed
         assert [n for n, _, once in listed if once] == ONCE, listed
-        assert scenes == SCENES, scenes
         for name, seconds, once in listed:
             check_part(binary, tier, name, seconds, once, update)
         replay = OUT / ("replay-%s.pcm" % tier)
@@ -185,18 +197,8 @@ def main():
                 first = next(i for i in range(min(len(b), len(want))) if b[i] != want[i])
                 raise AssertionError("score-golden replay/%s FAILED at byte %d" % (tier, first))
             print("score-golden replay/%s ok %s" % (tier, hashlib.sha256(b).hexdigest()), flush=True)
-        for name, ticks in SCENES:
-            s = check_scene(binary, tier, name, ticks, update)
-            if name == "six":
-                assert s == b, "score-scene six/%s FAILED: not the replay's bytes" % tier
-                print("score-scene six/%s is replay.pcm" % tier, flush=True)
-            if name == "hush":
-                # R-cb17-1 A: the Shallows fade out over their 9 ticks from
-                # tick 45; from tick 55 to the wait's end (tick 345) nothing.
-                quiet = peak(s[55 * TICK:345 * TICK])
-                assert quiet == 0, "score-hush %s FAILED: the first entry's wait peaks at %d" % (tier, quiet)
-                assert peak(s[346 * TICK:405 * TICK]) > 0, "score-hush %s FAILED: no motif after the wait" % tier
-                print("score-hush %s ok ticks 55-344 silent, the motif from 345" % tier, flush=True)
+        assert played["six"] == b, "score-scene six/%s FAILED: not the replay's bytes" % tier
+        print("score-scene six/%s is replay.pcm" % tier, flush=True)
         # The replay's shape: silent before the title's fade-in completes
         # its first tick is quiet; the sting's bytes louder than the den's.
         wave = OUT / ("den-%s.wav" % tier)
