@@ -1,0 +1,23 @@
+# cb18 R-cb18-2 B, step A (kasumi cores 0-3, the engine's container, 2026-10-29): the head ae074563 with the lynx's
+# bleed line restored and nothing else changed, against the Sol lane's WIP bytes (cb18-wip-1029, 5473eac5)
+END build exit=0
+END world-proof exit=0
+END case-boss-lynx-windup-vs-wip exit=0
+END case-boss-lynx-phase2-vs-wip exit=0
+END case-boss-lynx-beaten-vs-wip exit=0
+END other-cases-vs-wip exit=0
+RUN boss-lynx-windup-rich exit=0
+RUN boss-lynx-windup-plain exit=0
+RUN boss-lynx-phase2-rich exit=0
+RUN boss-lynx-phase2-plain exit=0
+RUN boss-lynx-beaten-rich exit=0
+RUN boss-lynx-beaten-plain exit=0
+RUN boss-census exit=0
+END golden-boss-lynx-windup-rich-vs-wip exit=0
+END golden-boss-lynx-windup-plain-vs-wip exit=0
+END golden-boss-lynx-phase2-rich-vs-wip exit=0
+END golden-boss-lynx-phase2-plain-vs-wip exit=0
+END golden-boss-lynx-beaten-rich-vs-wip exit=0
+END golden-boss-lynx-beaten-plain-vs-wip exit=0
+END boss-census-vs-sol-bleed exit=0
+STEP_A done 2026-10-29T21:41:35Z

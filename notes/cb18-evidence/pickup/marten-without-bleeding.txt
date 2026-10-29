@@ -1,0 +1,6 @@
+# cb18: the marten's bite steals without bleeding (contract item 2, §6; the bible §5: bleeding is the lynx's and the shades')
+# the six's arena replay, marten row, kasumi container: with the Sol lane's marten bleed (nomad, 6c675e25), then without (kasumi)
+encounter 9 ticks 74 done 1 parity 1 bites 2 dodges 0 theft 1 returned 1 dim 0 flash 0 health 60 foe_health 0 phase 3 died 74
+encounter 9 ticks 74 done 1 parity 1 bites 2 dodges 0 theft 1 returned 1 dim 0 flash 0 health 75 foe_health 0 phase 3 died 74
+# the six's arena census (--new-foe-census, 600 rows) without the marten's bleed against the Sol lane's with it (arena-ed180-bleed.txt): byte-identical (diff exit 0)
+# every generated case unchanged by it (the three moved cases are the lynx's); the goldens check: 505 ok, 4 DIFFERS, all lynx; of the six's arena records only the marten's two final frames (foe-9-{0,1}-final, the health bar) moved

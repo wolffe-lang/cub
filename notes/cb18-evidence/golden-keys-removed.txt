@@ -1,3 +1,15 @@
+tests/goldens/boss-lynx-beaten-plain/frame-0960.sty
+tests/goldens/boss-lynx-beaten-plain/frame-0960.txt
+tests/goldens/boss-lynx-beaten-plain/frame-0975.sty
+tests/goldens/boss-lynx-beaten-plain/frame-0975.txt
+tests/goldens/boss-lynx-beaten-plain/frame-0990.sty
+tests/goldens/boss-lynx-beaten-plain/frame-0990.txt
+tests/goldens/boss-lynx-beaten-rich/frame-0960.sty
+tests/goldens/boss-lynx-beaten-rich/frame-0960.txt
+tests/goldens/boss-lynx-beaten-rich/frame-0975.sty
+tests/goldens/boss-lynx-beaten-rich/frame-0975.txt
+tests/goldens/boss-lynx-beaten-rich/frame-0990.sty
+tests/goldens/boss-lynx-beaten-rich/frame-0990.txt
 tests/goldens/hawk-shadow-plain/frame-3963.sty
 tests/goldens/hawk-shadow-plain/frame-3963.txt
 tests/goldens/hawk-shadow-plain/frame-3964.sty
