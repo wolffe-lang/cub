@@ -1,0 +1,38 @@
+# The Marked Stones — the Teeth: A Phrygian (the shared key's), the ledge's edge in staccato
+# strings, the pack's call worn into the stone on a horn, a timpani under, scree on a cymbal.
+# Original, cb17 (2026-10-29). 6 bars of 4/4 at 90: 16 s, a loop.
+title The Marked Stones
+cue replace fade 9
+tempo 90
+meter 4/4
+part ledge strings mp pan -20 gain 5
+part stone timpani p pan 10 gain 5
+part mark horn mp pan 25 gain 2
+part height strings pp pan 40 gain 2
+part scree cymbal pp pan -35 gain 2
+bar 1
+ledge A2/8' A2/8' Bb2/8' A2/8' r/8 A2/8' Bb2/8' A2/8'
+stone A1/4 r/2.
+bar 2
+ledge A2/8' A2/8' Bb2/8' A2/8' r/8 A2/8' Bb2/8' A2/8'
+stone A1/4 r/2 A1/4'
+mark r/4 A3/4 E4/2
+bar 3
+ledge Bb2/8' Bb2/8' C3/8' Bb2/8' r/8 Bb2/8' C3/8' Bb2/8'
+stone Bb1/4 r/2.
+mark C4/2 Bb3/4 A3/4
+height < E5/1*
+bar 4
+ledge G2/8' G2/8' A2/8' G2/8' r/8 G2/8' A2/8' G2/8'
+stone G1/4 r/2 G1/4'
+mark r/4 G3/4 D4/2
+height > D5/1* pp
+bar 5
+ledge F2/8' F2/8' G2/8' F2/8' r/8 F2/8' G2/8' A2/8'
+stone F1/4 r/2.
+mark F4/2 E4/4 D4/4
+scree r/2. C4/4
+bar 6
+ledge A2/8' A2/8' Bb2/8' A2/8' r/2
+stone A1/4 r/2.
+mark A3/2 r/2
