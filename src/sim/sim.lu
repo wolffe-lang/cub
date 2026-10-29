@@ -2042,6 +2042,10 @@ fn step_tick(mut s: Sim, keys: List[int]) {
     if s.den || was_menu || s.pouch.open || s.pouch.lore_open || talking(s) { return }
     seed_items(mut s)
     consumables_step(mut s)
+    // A bleed tick can kill (cb18 wires the lynx's bleeding): the fall ends
+    // the tick, as a foe's blow does below, or the action step would stand
+    // the fallen cub up and the next bleed tick kill it again.
+    if s.action == FALL { return }
     if s.locked >= 0 {
         let f = copy s.foes[s.locked]
         if f.health <= 0 {
