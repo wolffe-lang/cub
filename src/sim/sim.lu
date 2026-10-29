@@ -3380,6 +3380,7 @@ pub fn enter_area(mut s: Sim, area: int, x: int, y: int) {
     s.away_loot[s.area].drops = copy s.drops
     s.away_loot[s.area].meat = copy s.meat
     s.area = area
+    if area == forest.BURN { melt_ice(mut s) }
     s.x = x
     s.y = y
     s.entered = s.tick
