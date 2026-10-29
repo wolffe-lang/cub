@@ -227,7 +227,8 @@ target/cub --den-spacing       the route walk between dens over fifty seeds (cb0
                                --bends-audit, --spurs-audit and --gen-bench)
 target/cub --boss-census       fight every boss in fifty seeds at both sizes; a fairness line a boss
 target/cub --new-foe-census    six new foes in fifty seeds at both sizes, with chase/contact measurements
-target/cub --new-foe-spawn-census  complete real-area distribution at both sizes in fifty seeds
+target/cub --new-foe-spawn-census  complete real-area distribution at both sizes in fifty seeds,
+                               none within an NPC's four-cell talk radius
 target/cub --new-foe-hit-census  the six new foes' complete bite/snuff rings, kept separate from inherited rows
 target/cub --new-foe-proof DIR  record and independently replay the six disclosed test-arena encounters
 target/cub --fight-trace 7 1   narrate one scripted fight (the alpha, seed 1; a third number picks 80 or 200 columns)
@@ -264,13 +265,14 @@ over the cub, but underneath the HUD and menus.
 The Stand has three trunk martens; the Burn has two adders and two swarms
 of five moths; the Mere has its last-stone heron. Eight three-worm clusters
 light the Underteeth, and two wisps follow the Howe's barrow-side branches
-to real sentries. Every spawn keeps the den refuge clear. Bite a thief to
+to real sentries. Every spawn keeps the den refuge clear and stays out of
+every NPC's four-cell talk radius. Bite a thief to
 return its one stolen pouch item at the trunk's foot; leaving, resting or
 loading before that return loses the unreturned theft. The lynx's swipe
 bleeds; the marten only steals. The adder burns for forty health ticks; water or yarrow cures
 it, and yarrow also stops bleeding. Ice melts on entering the Burn.
-These timed effects and foe modes are transient; CUB 7 / journey 6 and
-the full 32-line lore capacity are unchanged.
+These timed effects and foe modes are transient; CUB 8 / journey 7 and
+the 48-line lore capacity (cb16's) are unchanged.
 
 The arena census uses ordinary player keys over 50 seeds at both sizes,
 recording chase travel, contacts, overlaps and dodge counts. The art study

@@ -1752,20 +1752,20 @@ before Ember's second line, the story before the Hermit's first or Quill's tuft 
 replay's `journey 7` carries 239 values: journey 6's 211 with the lore slots widened by 16 and the NPCs' 12 last.
 ## Six foes (cb18)
 
-The new kinds are append-only after the Ashen: marten9, ash adder10,
-cinder moths11, heron12, glow-worm13 and wisp14. Existing pink floating
+The new kinds are append-only after the Ashen: marten 9, ash adder 10,
+cinder moths 11, heron 12, glow-worm 13 and wisp 14. Existing pink floating
 foes remain hawks: their low bite windows and parry kill are unchanged.
 
 | foe | health | tell / active / recovery ticks | scent | answer |
 |---|---:|---|---:|---|
 | marten |16|20 /3 /36|15|bite at landing/recovery; perched on a trunk it is not biteable|
-| ash adder |16|12 /3 /36|18|parry the committed range3 line for a kill, or bite the coil's recovery|
-| cinder moths |5 live moths|12 /2 /24|4 each|one bite removes two; proximity within6 cells dims the entire palette|
-| heron |72|8 /3 /42|60|dodge the downward range3 spear, then pass its stone or use three lunges in recovery|
+| ash adder |16|12 /3 /36|18|parry the committed range 3 line for a kill, or bite the coil's recovery|
+| cinder moths |5 live moths|12 /2 /24|4 each|one bite removes two; proximity within 6 cells dims the entire palette|
+| heron |72|8 /3 /42|60|dodge the downward range 3 spear, then pass its stone or use three lunges in recovery|
 | glow-worm |8|12 /2 /24|6|one starting bite; touch consumes one, flashes six white frames, scatters its neighbours|
-| wisp |unkillable|12 /1 /24|0|bite snuffs it300 ticks; otherwise its brightening drift leads toward an assigned sentry post|
+| wisp |unkillable|12 /1 /24|0|bite snuffs it 300 ticks; otherwise its brightening drift leads toward an assigned sentry post|
 
-The adder's burn deals one health each tick for40 ticks, including during a
+The adder's burn deals one health each tick for 40 ticks, including during a
 roll. Drinking or standing in water extinguishes it before its next tick;
 licking does not. The status is transient and den reset extinguishes it.
 A landed lynx swipe (its attack 0) calls the public bleeding API, the
@@ -1790,21 +1790,35 @@ and heron use narrow committed lines, not a centre-facing attack cone.
 Martens use ordinary terrain/body clearance, never a boss arena boundary.
 
 `--new-foe-census` runs the real-key fighter in a disclosed test arena for
-50 seeds at80 and200 columns, with contact/overlap/unreachable/chase travel
+50 seeds at 80 and 200 columns, with contact/overlap/unreachable/chase travel
 and dodge counts. Passing the heron and snuffing the wisp are successful
-nonkill resolutions. Recovery below12 ticks is explicitly red even if an
+nonkill resolutions. Recovery below 12 ticks is explicitly red even if an
 instrument can win faster than a human. `--new-foe-proof DIR` records keys,
 replays them independently from the initial arena and compares outcomes.
 Real placements append after the old cache guards, preserving their saved
-slain ordinals: Stand3 martens; Burn2 adders and2 five-moth swarms; Mere1
-heron at row198; Underteeth8 clusters of3 (den-clear positions near the
-mapped glow rows); Howe2 carved branch guides ending on actual sentries.
-The Teeth and Hush receive no new kinds. The appended distribution has500
+slain ordinals: Stand 3 martens; Burn 2 adders and 2 five-moth swarms; Mere 1
+heron at row 198; Underteeth 8 clusters of 3 (den-clear positions near the
+mapped glow rows); Howe 2 carved branch guides ending on actual sentries.
+The Teeth and Hush receive no new kinds. The appended distribution has 500
 rows (50 seeds,2 fields,5 areas); moth counts are swarm bodies, five each.
 All old-area foe-census rows retain their bytes; only the new areas' total
-counts move. Their cap32 admits the24 worms plus inherited guards, never
+counts move. Their cap 32 admits the 24 worms plus inherited guards, never
 changes old-area bands. New species have their stated scent rewards and
 no additional consumable roll; the marten returns its actual stolen item.
+
+**The NPCs' talk radius** (cb16's anchors, after the rebase onto it): no
+spawn of the six lies within `npc.FACE_GAP` (four) clear cells of an NPC's
+body, at any place the NPC can stand and any facing of either body. The
+NPCs never move for it; a slot search rejects such a cell as it rejects a
+blocked one. Before the rule, the Stand's last marten (row 192, the
+spine's east side) spawned two to four cells from the Hermit's ruin in 94
+of the census's 100 worlds; it now takes the nearest slot outside, and
+`--new-foe-spawn-census` ends on the verdict (`new-foe-npc-gap: green,
+3400 spawns ..., the nearest 5 clear cells`), which the gameplay gate
+requires. The inherited Hush foes are not the six's to move: the fox
+pairs at rows 40 and 136-140 share cells with Fenn and Loam, and the
+weasel pair at rows 74-76 comes within four cells of Bracken, in every
+world (`notes/cb18-evidence/pickup/inherited-near-npcs.txt`).
 
 ### R-cb18-2 — the lynx's bite and bleeding (ruled B by the orchestrator)
 
@@ -1861,10 +1875,11 @@ The player sees one held stack decrease on contact and a real pickup at
 the nearest trunk foot when the landing/recovery bite connects; recover it
 before resetting the encounter. A full ground pool retains the tag and
 retries after space opens rather than deleting or duplicating the return.
-**B** would persist held thefts, requiring CUB8 / journey7 and migrations
-from the real trunk CUB7 writer. A keeps the existing living-foe reset rule
+**B** would persist held thefts, requiring CUB 9 / journey 8 and migrations
+from the real trunk CUB 8 writer (cb16's). A keeps the existing living-foe reset rule
 and avoids extending persistent state; the final choice belongs to the maintainer; this recommendation is not a ruling.
 
 Burn/flash, held theft, branch progress and attack modes are transient;
-save/load resets them. CUB7's17 lines, journey6's211 slots and lore32 stay
-unchanged. Existing CUB7 masks keep old guard ordinals; new foes append.
+save/load resets them. CUB 8 (cb16's: CUB 7's lines and the `npcs` line),
+journey 7's 239 values and the 48 lore slots stay unchanged; cb18 adds no
+saved state. Existing masks keep old guard ordinals; new foes append.
