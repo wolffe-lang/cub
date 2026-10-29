@@ -45,7 +45,7 @@ pub const FOES_LATE_MAX: int = 14
 pub const FOES_NEW_MIN: int = 3
 
 /// ... and at most.
-pub const FOES_NEW_MAX: int = 6
+pub const FOES_NEW_MAX: int = 32
 
 /// An area's map as text (cb14's instrument): one character a cell over
 /// the whole width and length at a field, the route and every carved
@@ -533,8 +533,10 @@ pub fn foe_census() -> int {
                 for f in foes {
                     if !sim.is_boss(f.kind) {
                         n += 1
-                        let k = if f.kind == sim.ASHEN then 4 else f.kind
-                        kinds[k] += 1
+                        if !sim.is_new_foe(f.kind) {
+                            let k = if f.kind == sim.ASHEN then 4 else f.kind
+                            kinds[k] += 1
+                        }
                     }
                 }
                 print(
@@ -558,6 +560,7 @@ pub fn foe_census() -> int {
         }
         seed += 1
     }
+    let _ = new_foe_distribution()
     print("foe-census: green")
     0
 }
@@ -777,5 +780,28 @@ pub fn gen_bench() -> int {
     let _ = town.PLOTS
     if slow > 0 { print("gen-bench: RED {slow} areas over {GEN_MS} ms at field 200"); return 1 }
     print("gen-bench: green, every area under {GEN_MS} ms at field 200")
+    0
+}
+
+/// Complete appended distribution, also callable without repeating legacy rows.
+pub fn new_foe_distribution() -> int {
+    // Appended distribution, never insert columns into inherited rows.
+    print("new-foes seed field area martens adders moth_swarms herons glow_worms wisps")
+    var new_seed = 0
+    while new_seed < 50 {
+        for field in [80, 200] {
+            var area = forest.STAND
+            while area <= forest.HOWE {
+                let fs = sim.area_foes(new_seed, field, area, 0)
+                var counts = [0, 0, 0, 0, 0, 0]
+                for f in fs { if sim.is_new_foe(f.kind) { counts[f.kind - sim.MARTEN] += 1 } }
+                print(
+                    "new-foes {new_seed} {field} {area} {counts[0]} {counts[1]} {counts[2]} {counts[3]} {counts[4]} {counts[5]}",
+                )
+                area += 1
+            }
+        }
+        new_seed += 1
+    }
     0
 }
