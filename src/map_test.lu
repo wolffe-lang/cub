@@ -337,12 +337,17 @@ fn test_cb14_every_alcove_has_its_own_bit_and_a_named_slot() {
         assert(lore.line(id).len > 20, "line {id} written")
         id += 1
     }
-    // The new areas' foe tables are cb18's and empty; their guards stand.
+    // The new areas have no route groups; their guards stand, and cb18's
+    // six kinds are appended after them (their own rows: newfoe_areas_test).
     for a in [7, 8, 9, 10, 11, 12] {
         assert(sim.group_count(a) == 0, "no route groups in area {a}")
         var guards = 0
+        var appended = false
         for f in sim.area_foes(1, 80, a, 0) {
-            if !sim.is_boss(f.kind) {
+            if sim.is_new_foe(f.kind) {
+                appended = true
+            } else if !sim.is_boss(f.kind) {
+                assert(!appended, "the guards keep their saved ordinals in area {a}")
                 assert(f.kind == sim.FOX && f.health == sim.ALCOVE_GUARD_HEALTH, "a guard")
                 guards += 1
             }
