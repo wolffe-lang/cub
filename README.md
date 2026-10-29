@@ -227,6 +227,7 @@ target/cub --den-spacing       the route walk between dens over fifty seeds (cb0
                                --bends-audit, --spurs-audit and --gen-bench)
 target/cub --boss-census       fight every boss in fifty seeds at both sizes; a fairness line a boss
 target/cub --new-foe-census    six new foes in fifty seeds at both sizes, with chase/contact measurements
+target/cub --new-foe-spawn-census  complete real-area distribution at both sizes in fifty seeds
 target/cub --new-foe-hit-census  the six new foes' complete bite/snuff rings, kept separate from inherited rows
 target/cub --new-foe-proof DIR  record and independently replay the six disclosed test-arena encounters
 target/cub --fight-trace 7 1   narrate one scripted fight (the alpha, seed 1; a third number picks 80 or 200 columns)
@@ -260,14 +261,23 @@ remain hawks, with their stopped-shadow tell and low bite windows. The
 marten stays overhead during its warning; falling needles remain visible
 over the cub, but underneath the HUD and menus.
 
-The six are first exercised in disclosed test arenas. The arena census
-uses ordinary player keys over 50 seeds at both sizes, and records chase
-travel, contacts, overlaps and dodge counts. Their new-area placement and
-pouch/bleeding integration follow the connected-forest and pouch APIs.
-The art study also pins moth dimming, the six-frame contact flash and
-live/extinguished cave light on both tiers. Both shipping-binary gameplay
-gates run the complete 600-world arena census, independent new hit rings,
-replayed encounter outcomes and their both-tier frame goldens.
+The Stand has three trunk martens; the Burn has two adders and two swarms
+of five moths; the Mere has its last-stone heron. Eight three-worm clusters
+light the Underteeth, and two wisps follow the Howe's barrow-side branches
+to real sentries. Every spawn keeps the den refuge clear. Bite a thief to
+return its one stolen pouch item at the trunk's foot; leaving, resting or
+loading before that return loses the unreturned theft. A marten's bite
+bleeds. The adder burns for forty health ticks; water or yarrow cures
+it, and yarrow also stops bleeding. Ice melts on entering the Burn.
+These timed effects and foe modes are transient; CUB 7 / journey 6 and
+the full 32-line lore capacity are unchanged.
+
+The arena census uses ordinary player keys over 50 seeds at both sizes,
+recording chase travel, contacts, overlaps and dodge counts. The art study
+pins moth dimming, contact flash, live/extinguished cave light and needles
+under the UI on both tiers. Both shipping-binary gameplay gates run all
+600 arena encounters, the 500 real-area distribution rows, independent hit
+rings and six replay outcomes with their both-tier final frames.
 
 ## Tests
 
