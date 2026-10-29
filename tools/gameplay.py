@@ -561,10 +561,32 @@ def validate_new_foe_encounters(text):
     return rows
 
 
+def validate_new_foe_spawns(text):
+    lines = text.splitlines()
+    assert lines and lines[0] == 'new-foes seed field area martens adders moth_swarms herons glow_worms wisps'
+    counts = {7: (3, 0, 0, 0, 0, 0), 8: (0, 2, 2, 0, 0, 0),
+              9: (0, 0, 0, 1, 0, 0), 10: (0, 0, 0, 0, 24, 0),
+              11: (0, 0, 0, 0, 0, 2)}
+    seen = set()
+    for line in lines[1:]:
+        words = line.split()
+        assert len(words) == 10 and words[0] == 'new-foes', ('distribution row', line)
+        seed, field, area, *values = map(int, words[1:])
+        key = seed, field, area
+        assert key not in seen, ('duplicate distribution', key)
+        assert area in counts and tuple(values) == counts[area], ('new foe missing or misplaced', key, values)
+        seen.add(key)
+    assert seen == {(seed, field, area) for seed in range(50) for field in (80, 200) for area in counts}, 'incomplete real-area distribution'
+    return seen
+
+
 def new_foes(binary):
     import runpy
     import shutil
     name = Path(binary).parent.name
+    spawns = subprocess.run([str(binary), '--new-foe-spawn-census'], text=True, capture_output=True, check=True)
+    (OUT / (name + '-new-foe-spawns.txt')).write_text(spawns.stdout)
+    validate_new_foe_spawns(spawns.stdout)
     census = subprocess.run([str(binary), '--new-foe-census'], text=True,
                             capture_output=True, check=True)
     (OUT / (name + '-new-foe-census.txt')).write_text(census.stdout)

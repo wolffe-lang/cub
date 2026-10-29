@@ -76,6 +76,24 @@ class NewFoeGateTests(unittest.TestCase):
                 GAMEPLAY['validate_new_foe_encounters']('\n'.join(bad))
 
 
+class NewSpawnTests(unittest.TestCase):
+    def fixture(self):
+        header = 'new-foes seed field area martens adders moth_swarms herons glow_worms wisps'
+        values = {7: (3, 0, 0, 0, 0, 0), 8: (0, 2, 2, 0, 0, 0), 9: (0, 0, 0, 1, 0, 0),
+                  10: (0, 0, 0, 0, 24, 0), 11: (0, 0, 0, 0, 0, 2)}
+        return header + '\n' + '\n'.join('new-foes ' + ' '.join(map(str, (seed, field, area, *count)))
+          for seed in range(50) for field in (80, 200) for area, count in values.items())
+
+    def test_complete_distribution(self):
+        self.assertEqual(len(GAMEPLAY['validate_new_foe_spawns'](self.fixture())), 500)
+
+    def test_missing_world_and_missing_kind_are_red(self):
+        lines = self.fixture().splitlines()
+        for bad in (lines[:-1], [*lines[:1], lines[1].replace('3 0 0 0 0 0', '0 0 0 0 0 0'), *lines[2:]]):
+            with self.assertRaises(AssertionError):
+                GAMEPLAY['validate_new_foe_spawns']('\n'.join(bad))
+
+
 class NewFoeRingTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
