@@ -56,3 +56,28 @@ class MemoryProbeTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         for name in ['check', 'check-linux']:
             self.assertIn('sh tools/check-memory target/release/cub', (root / 'tools' / name).read_text())
+
+
+class GameCommandTests(unittest.TestCase):
+    """cb17: the probe's command, muted by default, music on through a named backend."""
+
+    def args(self, **kw):
+        import argparse
+        base = dict(bin='/x/cub', save=None, seed=7, ticks=600, sample_seconds=1,
+                    no_trace=False, sound_backend='')
+        base.update(kw)
+        return argparse.Namespace(**base)
+
+    def test_default_is_muted_with_no_backend(self):
+        cmd, env = probe.game_command(self.args(), Path('/w'))
+        self.assertIn('--mute', cmd)
+        self.assertNotIn('CUB_SOUND_BACKEND', env)
+        self.assertEqual(cmd[cmd.index('--seed') + 1], '7')
+        self.assertIn('--trace', cmd)
+
+    def test_a_named_backend_loads_the_parts(self):
+        cmd, env = probe.game_command(self.args(sound_backend='oss'), Path('/w'))
+        self.assertNotIn('--mute', cmd)
+        self.assertEqual(env['CUB_SOUND_BACKEND'], 'oss')
+        self.assertEqual(cmd[cmd.index('--sound-dir') + 1], '/w/sound')
+        self.assertEqual(env['HOME'], '/w')

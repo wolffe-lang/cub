@@ -4,6 +4,11 @@
 macOS ps reports KiB; Linux /proc reports pages (the pinned image needs no
 procps package). Trace supplies actual simulation ticks;
 its cost is deliberately included. All saves/ghosts are private disposable copies.
+
+The game runs muted unless --sound-backend names one (cb17): then every part
+is rendered and written as a WAV before the loop, as a player's start does,
+and the schedule cues every tick; `oss` is the engine's stub, which refuses
+by name and starts no player, so the probe is silent on every host.
 """
 import argparse
 import errno
@@ -53,6 +58,25 @@ def evaluate(samples, budget=None, estimated=False):
             'budget_bytes_per_tick': budget}
 
 
+def game_command(a, work):
+    """The game's argument vector and the environment it adds."""
+    cmd = [str(Path(a.bin).resolve())]
+    env = {'TERM': 'xterm-256color', 'COLUMNS': '120', 'LINES': '40', 'HOME': str(work)}
+    if a.sound_backend:
+        env['CUB_SOUND_BACKEND'] = a.sound_backend
+    else:
+        cmd += ['--mute']
+    cmd += ['--no-title',
+            '--save', str(work / 'save'), '--ghost-dir', str(work / 'ghosts'),
+            '--sound-dir', str(work / 'sound'),
+            '--ticks', str(a.ticks + int(a.sample_seconds * 30) + 60)]
+    if not a.save:
+        cmd += ['--seed', str(a.seed)]
+    if not a.no_trace:
+        cmd += ['--trace']
+    return cmd, env
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--bin', required=True)
@@ -67,6 +91,8 @@ def main():
     p.add_argument('--ceiling', type=int, default=805306368)
     p.add_argument('--timeout', type=float, default=120)
     p.add_argument('--no-trace', action='store_true')
+    p.add_argument('--sound-backend', default='',
+                   help='music on through this backend (oss: the silent stub); default muted')
     a = p.parse_args()
     if a.ticks <= a.warmup or a.warmup < 1:
         p.error('ticks must exceed positive warmup')
@@ -82,18 +108,10 @@ def main():
             shutil.copyfile(a.save, work / 'save')
         if a.ghost_dir:
             shutil.copytree(a.ghost_dir, work / 'ghosts')
-        cmd = [str(Path(a.bin).resolve()), '--mute', '--no-title',
-               '--save', str(work / 'save'), '--ghost-dir', str(work / 'ghosts'),
-               '--sound-dir', str(work / 'sound'),
-               '--ticks', str(a.ticks + int(a.sample_seconds * 30) + 60)]
-        if not a.save:
-            cmd += ['--seed', str(a.seed)]
-        if not a.no_trace:
-            cmd += ['--trace']
+        cmd, env = game_command(a, work)
         pid, fd = pty.fork()
         if pid == 0:
-            os.environ.update(TERM='xterm-256color', COLUMNS='120', LINES='40',
-                              HOME=str(work))
+            os.environ.update(env)
             fcntl.ioctl(0, termios.TIOCSWINSZ, struct.pack('HHHH', 40, 120, 0, 0))
             os.execv(cmd[0], cmd)
         start = time.monotonic()
