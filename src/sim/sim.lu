@@ -20,6 +20,7 @@ use lands
 use meadow
 use input
 use lore
+use npc
 use pouch
 use silhouette
 use terrain
@@ -401,6 +402,35 @@ pub struct Sim {
     flare_y: int,
     flare_at: int,
     reveal_at: int,
+    // cb16, the NPCs (`npc`): what each has said, the dead (a bit an NPC),
+    // Quill's perch (-1 Larkmeadow's, else a den), the flags (`npc.DUG`
+    // ...): the journey's, saved. The rest is transient: the speech frame
+    // (`talk` the NPC speaking, -1 none, `talk_line` its line), the trade
+    // list (`trade`, `trade_row`, `trade_note` the last purchase's
+    // answer), the still ticks beside an NPC, the NPCs that have spoken
+    // this visit (a bit an NPC), the lost's health and last bite, the
+    // Ferryman's crossing and Ember's feint (their start ticks, -1 none).
+    npc_said: List[int],
+    npc_dead: int,
+    npc_perch: int,
+    npc_flags: int,
+    talk: int,
+    talk_line: int,
+    trade: bool,
+    trade_row: int,
+    trade_note: int,
+    npc_still: int,
+    npc_spoken: int,
+    lost_health: List[int],
+    lost_hit: List[int],
+    ferry_at: int,
+    feint_at: int,
+    npc_cached: int,
+    npc_cx: List[int],
+    npc_cy: List[int],
+    npc_here: List[int],
+    npc_bodies: List[Body],
+    npc_box: Body,
 }
 
 /// A stepping stone of the Mere the cub has stepped on (cb14): the
@@ -570,6 +600,27 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         flare_y: 0,
         flare_at: -100,
         reveal_at: -1,
+        npc_said: npc_zeros(npc.COUNT),
+        npc_dead: 0,
+        npc_perch: -1,
+        npc_flags: 0,
+        talk: -1,
+        talk_line: 0,
+        trade: false,
+        trade_row: 0,
+        trade_note: 0,
+        npc_still: 0,
+        npc_spoken: 0,
+        lost_health: npc_full_lost(),
+        lost_hit: npc_lost_hits(),
+        ferry_at: -1,
+        feint_at: -1,
+        npc_cached: -1,
+        npc_cx: npc_zeros(npc.COUNT),
+        npc_cy: npc_zeros(npc.COUNT),
+        npc_here: List[int](),
+        npc_bodies: List[Body](),
+        npc_box: Body { x0: 0, y0: 0, x1: -1, y1: -1 },
         end: false,
         played: 0,
         played_at: 0,
@@ -1037,7 +1088,7 @@ pub fn blocked(s: Sim, x: int, y: int) -> bool {
 pub fn gate_passable(s: Sim) -> bool {
     if s.area == forest.STAND { return s.sneaking }
     if s.area == forest.BURN { return s.gates / GATE_OAK % 2 == 1 }
-    if s.area == forest.CRAGS { return s.paw >= UNDERTEETH_PAW }
+    if s.area == forest.CRAGS { return s.paw >= UNDERTEETH_PAW && sett_dug(s) }
     if s.area == forest.HOWE { return s.gates / GATE_MOUTH % 2 == 1 }
     true
 }
@@ -1375,6 +1426,7 @@ fn start_action(mut s: Sim, action: int, cost: int) {
 
 fn action_keys(mut s: Sim, keys: List[int]) {
     for k in keys {
+        if talking(s) { talk_key(mut s, k); continue }
         if s.pouch.open { inventory_key(mut s, k); continue }
         if s.pouch.lore_open { lore_key(mut s, k); continue }
         if k == controls.KEY_INVENTORY {
@@ -1418,6 +1470,7 @@ fn action_keys(mut s: Sim, keys: List[int]) {
             let _ = pickup_item(mut s)
             s.last_den = den_here(s)
             s.lit_dens = light_den(s.lit_dens, s.last_den)
+            perch_quill(mut s)
             mark_time(mut s)
             reset_world(mut s)
             s.den = true
@@ -1599,6 +1652,7 @@ pub fn strike_foes(mut s: Sim) {
         }
         i += 1
     }
+    strike_lost(mut s, reach)
 }
 
 /// Run ground foe `i` one tick toward `(tx, ty)` as it pursues, its turn
@@ -1953,9 +2007,11 @@ fn step_tick(mut s: Sim, keys: List[int]) {
         s.action = IDLE
         s.sprinting = false
     }
-    let was_menu = s.pouch.open || s.pouch.lore_open
+    // The Ferryman's crossing (cb16) carries the cub; nothing else moves.
+    if s.ferry_at >= 0 { ferry_step(mut s); return }
+    let was_menu = s.pouch.open || s.pouch.lore_open || talking(s)
     action_keys(mut s, keys)
-    if s.den || was_menu || s.pouch.open || s.pouch.lore_open { return }
+    if s.den || was_menu || s.pouch.open || s.pouch.lore_open || talking(s) { return }
     seed_items(mut s)
     consumables_step(mut s)
     if s.locked >= 0 {
@@ -1998,6 +2054,7 @@ fn step_tick(mut s: Sim, keys: List[int]) {
     trail_step(mut s, ox, oy)
     drops_step(mut s)
     healing_pickups(mut s)
+    npc_step(mut s)
     if s.mark && s.mark_area == s.area && pickup_near(s, s.mark_x, s.mark_y) {
         pickup_flash(mut s, s.mark_x, s.mark_y)
         s.scent += s.mark_scent
@@ -3347,7 +3404,9 @@ fn opens_from_here(s: Sim, edge: int) -> bool {
     if edge == forest.EDGE_SCREE { return s.area == forest.STAND }
     if edge == forest.EDGE_STREAMBED { return s.area == forest.BURN }
     if edge == forest.EDGE_RAFT { return s.area == forest.MERE }
-    if edge == forest.EDGE_SETT { return s.area == forest.CRAGS && s.paw >= UNDERTEETH_PAW }
+    if edge == forest.EDGE_SETT {
+        return s.area == forest.CRAGS && s.paw >= UNDERTEETH_PAW && sett_dug(s)
+    }
     if edge == forest.EDGE_ROOTS { return s.area == forest.UNDERTEETH }
     false
 }
@@ -4788,7 +4847,9 @@ pub fn melt_ice(mut s: Sim) {
 /// Public hook for the lost shades' tracking rule and the Burn's ash.
 pub fn trail_hidden(s: Sim) -> bool { s.pouch.hidden > item_tick(s) }
 
-fn item_tick(s: Sim) -> int { if s.pouch.open then s.pouch.paused_at - 1 else s.tick }
+fn item_tick(s: Sim) -> int {
+    if s.pouch.open || s.talk >= 0 || s.ferry_at >= 0 then s.pouch.paused_at - 1 else s.tick
+}
 
 /// Movement alone is halved; telegraphs and recovery retain their tick lengths.
 pub fn foe_speed(s: Sim, i: int, speed: int) -> int {
@@ -4897,10 +4958,8 @@ fn seed_items(mut s: Sim) {
         }
         i += 1
     }
-    if s.area == forest.BRAMBLEHOLD {
-        let (x, y) = forest.den_position(s.seed, 1)
-        let _ = seed_alcove(mut s, s.area, floor_div(x, FP) + 4, floor_div(y, FP), pouch.TUFT)
-    }
+    // cb15's provisional tuft at Bramblehold's first den is Ember's now
+    // (R-cb16-3 A): her den holds the first tuft (`ember_gives`).
 }
 
 fn clear_menu_holds(mut s: Sim) {
@@ -4913,6 +4972,15 @@ fn clear_menu_holds(mut s: Sim) {
 }
 
 fn inventory_close(mut s: Sim) {
+    resume_after_pause(mut s)
+    s.pouch.open = false
+    s.pouch.aiming = false
+    clear_menu_holds(mut s)
+}
+
+/// Every clock the world keeps moves on by the ticks a pause took (cb15's
+/// inventory; cb16's speech frame, trade list and crossing share it).
+fn resume_after_pause(mut s: Sim) {
     // Opening and closing both return before a world update; include both.
     let elapsed = s.tick - s.pouch.paused_at + 1
     s.started += elapsed
@@ -4954,9 +5022,6 @@ fn inventory_close(mut s: Sim) {
         }
         area += 1
     }
-    s.pouch.open = false
-    s.pouch.aiming = false
-    clear_menu_holds(mut s)
 }
 
 fn inventory_key(mut s: Sim, key: int) {
@@ -5032,4 +5097,459 @@ pub fn combat_witness(mut s: Sim) {
     s.speed = 0
     s.health = health_max(s.heart)
     s.stamina = stamina_max(s.wind)
+}
+
+// ---- cb16: the NPCs (`npc`; the-proposals.md section 5) ----------------
+
+fn npc_zeros(n: int) -> List[int] {
+    var v = List[int]()
+    var i = 0
+    while i < n { (mut v).push(0); i += 1 }
+    v
+}
+
+fn npc_full_lost() -> List[int] {
+    var v = List[int]()
+    var i = npc.FENN
+    while i < npc.COUNT { (mut v).push(npc.LOST_HEALTH); i += 1 }
+    v
+}
+
+fn npc_lost_hits() -> List[int] {
+    var v = List[int]()
+    var i = npc.FENN
+    while i < npc.COUNT { (mut v).push(-100); i += 1 }
+    v
+}
+
+/// Whether the speech frame or the trade list holds the forest still.
+pub fn talking(s: Sim) -> bool { s.talk >= 0 }
+
+/// Whether a journey flag of the NPCs' is set (`npc.DUG` ...).
+pub fn npc_flag(s: Sim, flag: int) -> bool { s.npc_flags / flag % 2 == 1 }
+
+fn set_npc_flag(mut s: Sim, flag: int) {
+    if !npc_flag(s, flag) { s.npc_flags += flag }
+}
+
+/// Whether Dunmoss has dug the sett (cb16, R-cb16-4 A: the dig opens it;
+/// the squeeze still wants the paw, R-cb14-2 A).
+pub fn sett_dug(s: Sim) -> bool { npc_flag(s, npc.DUG) }
+
+/// Whether an NPC lives (a boss led to it kills it; a bite kills one of
+/// the lost).
+pub fn npc_alive(s: Sim, who: int) -> bool { s.npc_dead / npc.bit(who) % 2 == 0 }
+
+/// The journey is *Alone* (the bible's section 14): one of the lost was
+/// killed. (Its other half, the elk killed, waits for the elk's choice.)
+pub fn alone(s: Sim) -> bool {
+    var who = npc.FENN
+    while who < npc.COUNT {
+        if !npc_alive(s, who) { return true }
+        who += 1
+    }
+    false
+}
+
+/// Whether Whisper is beaten (Dunmoss's condition).
+pub fn lynx_beaten(s: Sim) -> bool { s.bosses / boss_bit(LYNX) % 2 == 1 }
+
+/// The area an NPC is in now, cheaply (no route evaluated).
+pub fn npc_area(s: Sim, who: int) -> int {
+    if who == npc.QUILL {
+        return if s.npc_perch >= 0 && npc.perch_den(s.npc_perch) {
+            forest.den_area(s.npc_perch)
+        } else {
+            forest.LARKMEADOW
+        }
+    }
+    if who == npc.DUNMOSS { return forest.CRAGS }
+    if who == npc.EMBER {
+        return if s.npc_said[npc.EMBER] <= 0 then forest.BRAMBLEHOLD else forest.LARKMEADOW
+    }
+    if who == npc.BURNER { return forest.BURN }
+    if who == npc.FERRYMAN { return forest.MERE }
+    if who == npc.HERMIT { return forest.STAND }
+    forest.HUSH
+}
+
+/// Where an NPC stands now: `(area, x, y)` in world cells.
+pub fn npc_place(s: Sim, who: int) -> (int, int, int) {
+    npc.place(s.seed, s.field, who, s.npc_said[who], s.npc_perch)
+}
+
+fn npc_body_facing(who: int, x: int, y: int, facing: int) -> Body {
+    let (w, h) = npc.size(who)
+    rect(w, h, facing, x, y)
+}
+
+/// The quarter an NPC faces: toward the cub within `npc.FACE_GAP` clear
+/// cells (section 5), else its seeded idle facing.
+pub fn npc_facing(s: Sim, who: int) -> int {
+    let idle = npc.idle_facing(s.seed, who)
+    if npc_area(s, who) != s.area { return idle }
+    let (_, x, y) = npc_place(s, who)
+    if gap(cub_body(s), npc_body_facing(who, x, y, idle)) > npc.FACE_GAP { return idle }
+    quarter(heading_to(x * FP + FP / 2, y * FP + FP / 2, s.x, s.y))
+}
+
+/// An NPC's body where it stands, as the frame draws it.
+pub fn npc_body(s: Sim, who: int) -> Body {
+    let (_, x, y) = npc_place(s, who)
+    npc_body_facing(who, x, y, npc_facing(s, who))
+}
+
+/// The NPCs of the cub's area, kept while the area, the said-counts and
+/// the perch stay (a route evaluation an NPC otherwise, each tick: the
+/// checked machine's budget): their ids (`npc_here`), their bodies at
+/// their idle facing and a box round them all, grown by the facing gap and
+/// a body (`npc_box`: a cub or a boss outside it is near none of them). An
+/// area change also ends every visit elsewhere and heals the lost.
+fn npc_cache(mut s: Sim) {
+    if s.npc_cached == s.area { return }
+    (mut s.npc_here).reset()
+    (mut s.npc_bodies).reset()
+    s.npc_box = Body { x0: 0, y0: 0, x1: -1, y1: -1 }
+    let grow = npc.FACE_GAP + 6
+    var who = 0
+    while who < npc.COUNT {
+        if npc_area(s, who) == s.area {
+            let (_, x, y) = npc_place(s, who)
+            s.npc_cx[who] = x
+            s.npc_cy[who] = y
+            (mut s.npc_here).push(who)
+            let b = npc_body_facing(who, x, y, npc.idle_facing(s.seed, who))
+            if s.npc_here.len == 1 {
+                s.npc_box = Body {
+                    x0: b.x0 - grow,
+                    y0: b.y0 - grow,
+                    x1: b.x1 + grow,
+                    y1: b.y1 + grow,
+                }
+            } else {
+                if b.x0 - grow < s.npc_box.x0 { s.npc_box.x0 = b.x0 - grow }
+                if b.y0 - grow < s.npc_box.y0 { s.npc_box.y0 = b.y0 - grow }
+                if b.x1 + grow > s.npc_box.x1 { s.npc_box.x1 = b.x1 + grow }
+                if b.y1 + grow > s.npc_box.y1 { s.npc_box.y1 = b.y1 + grow }
+            }
+            (mut s.npc_bodies).push(b)
+        } else if s.npc_spoken / npc.bit(who) % 2 == 1 {
+            s.npc_spoken -= npc.bit(who)
+        }
+        who += 1
+    }
+    var i = 0
+    while i < s.lost_health.len { s.lost_health[i] = npc.LOST_HEALTH; i += 1 }
+    s.npc_cached = s.area
+}
+
+/// A tick of the NPCs (cb16), after the world's: Ember's feint runs on;
+/// a boss within `npc.BOSS_GAP` of an NPC kills it; a visit ends when the
+/// cub is more than `npc.FACE_GAP` clear cells away (or in another area);
+/// standing still (no speed, no action, no arrow held) beside one that
+/// has not spoken this visit `npc.STILL_TICKS` ticks opens the speech
+/// frame.
+fn npc_step(mut s: Sim) {
+    if s.feint_at >= 0 {
+        let age = s.tick - s.feint_at
+        if age == npc.FEINT_TICKS / 2 { ember_takes(mut s) }
+        if age >= npc.FEINT_TICKS {
+            s.feint_at = -1
+            open_talk(mut s, npc.EMBER)
+        }
+        return
+    }
+    npc_cache(mut s)
+    if s.npc_here.len == 0 { return }
+    // Far from every NPC (and no engaged boss near one): nothing to do but
+    // end the visits.
+    if !in_npc_box(s, s.x, s.y) && !boss_in_npc_box(s) {
+        s.npc_still = 0
+        if s.npc_spoken != 0 {
+            for who in s.npc_here {
+                if s.npc_spoken / npc.bit(who) % 2 == 1 { s.npc_spoken -= npc.bit(who) }
+            }
+        }
+        return
+    }
+    let cb = cub_body(s)
+    var beside = -1
+    var k = 0
+    while k < s.npc_here.len {
+        let who = s.npc_here[k]
+        let b = npc.bit(who)
+        if s.npc_dead / b % 2 == 0 {
+            let nb = copy s.npc_bodies[k]
+            let spoken = s.npc_spoken / b % 2 == 1
+            // Only an engaged boss is led anywhere (`boss_step`'s `s.boss`).
+            if s.boss >= 0 && boss_beside(s, nb) {
+                s.npc_dead += b
+                if spoken { s.npc_spoken -= b }
+            } else {
+                let g = gap(cb, nb)
+                if g > npc.FACE_GAP {
+                    if spoken { s.npc_spoken -= b }
+                } else if g <= npc.BESIDE_GAP && !spoken && beside < 0 {
+                    beside = who
+                }
+            }
+        }
+        k += 1
+    }
+    // Still: no speed, no action, no direction held (a cub pushing against
+    // a body or a trunk is not standing still); never while the lookout's
+    // reveal runs (the Hermit waits for the view to end).
+    if beside < 0 || s.speed != 0 || s.action != IDLE || revealing(s) || held_direction(s) >= 0 {
+        s.npc_still = 0
+        return
+    }
+    s.npc_still += 1
+    if s.npc_still < npc.STILL_TICKS { return }
+    s.npc_still = 0
+    let said = s.npc_said[beside]
+    if beside == npc.EMBER &&
+        npc.next_line(npc.EMBER, said, lynx_beaten(s)) == 1 &&
+        !npc_flag(s, npc.STOLEN) {
+        // Ember's feint (the bible's section 15): she darts, takes her
+        // mouthful, and says so.
+        s.feint_at = s.tick
+        s.npc_spoken += npc.bit(npc.EMBER)
+        return
+    }
+    open_talk(mut s, beside)
+}
+
+fn in_npc_box(s: Sim, x: int, y: int) -> bool {
+    let cx = floor_div(x, FP)
+    let cy = floor_div(y, FP)
+    cx >= s.npc_box.x0 && cx <= s.npc_box.x1 && cy >= s.npc_box.y0 && cy <= s.npc_box.y1
+}
+
+fn boss_in_npc_box(s: Sim) -> bool {
+    if s.boss < 0 { return false }
+    for f in s.foes {
+        if is_boss(f.kind) && f.health > 0 && in_npc_box(s, f.x, f.y) { return true }
+    }
+    false
+}
+
+fn boss_beside(s: Sim, nb: Body) -> bool {
+    for f in s.foes {
+        if is_boss(f.kind) && f.health > 0 && gap(foe_body(f), nb) <= npc.BOSS_GAP { return true }
+    }
+    false
+}
+
+/// Ember's mouthful (R-cb16-2 A): one charge of water, once, the line
+/// that follows naming it; nothing when the cub carries none.
+fn ember_takes(mut s: Sim) {
+    if s.flasks > 0 { s.flasks -= 1 }
+    set_npc_flag(mut s, npc.STOLEN)
+}
+
+/// Ember's den holds the first tuft (R-cb16-3 A): her third line gives it,
+/// into the pouch, or onto the cub's cell when the stack is full.
+fn ember_gives(mut s: Sim) {
+    if !give_item(mut s, pouch.TUFT) {
+        let _ = pouch.leave(mut s.pouch, s.area, cell_x(s), cell_y(s), pouch.TUFT)
+    }
+    set_npc_flag(mut s, npc.TUFT_GIVEN)
+}
+
+/// Open the speech frame on an NPC's next line (in order, the last
+/// repeating; `npc.next_line`) and count it said. The forest is paused
+/// from the next tick (the frame opens after this tick's world update).
+pub fn open_talk(mut s: Sim, who: int) {
+    let k = npc.next_line(who, s.npc_said[who], lynx_beaten(s))
+    s.npc_said[who] = npc.said_after(who, s.npc_said[who], k)
+    s.npc_cached = -1
+    s.talk = who
+    s.talk_line = k
+    s.trade = false
+    s.trade_row = 0
+    s.trade_note = 0
+    s.npc_still = 0
+    if s.npc_spoken / npc.bit(who) % 2 == 0 { s.npc_spoken += npc.bit(who) }
+    s.pouch.paused_at = s.tick + 1
+    if who == npc.EMBER && k == 2 && !npc_flag(s, npc.TUFT_GIVEN) { ember_gives(mut s) }
+}
+
+fn close_talk(mut s: Sim) {
+    resume_after_pause(mut s)
+    s.talk = -1
+    s.trade = false
+    clear_menu_holds(mut s)
+}
+
+/// The speech frame's keys (cb02's frame): Space advances (to the wares,
+/// for a trader), Esc leaves; nothing else acts.
+fn talk_key(mut s: Sim, key: int) {
+    if s.trade { trade_key(mut s, key); return }
+    if key == controls.KEY_RELEASE { close_talk(mut s); return }
+    if key == controls.KEY_BITE {
+        if npc.ware_count(s.talk) > 0 {
+            s.trade = true
+            s.trade_row = 0
+            s.trade_note = 0
+        } else {
+            close_talk(mut s)
+        }
+    }
+}
+
+/// The trade list's answers (`trade_note`): bought.
+pub const NOTE_BOUGHT: int = 1
+
+/// Not enough scent.
+pub const NOTE_SHORT: int = 2
+
+/// The pouch holds no more of it.
+pub const NOTE_FULL: int = 3
+
+/// Sold already (the one tuft, the dig, the story).
+pub const NOTE_GONE: int = 4
+
+/// The story wants a marrow the cub does not have.
+pub const NOTE_NO_MARROW: int = 5
+
+/// Dunmoss dug the way under.
+pub const NOTE_DUG: int = 6
+
+/// The Hermit told his story.
+pub const NOTE_TOLD: int = 7
+
+/// Not while Whisper lives (the dig).
+pub const NOTE_NOT_YET: int = 8
+
+/// The trade list's keys (the inventory's pattern): arrows move, Space
+/// buys, Esc leaves.
+fn trade_key(mut s: Sim, key: int) {
+    let n = npc.ware_count(s.talk)
+    if key == controls.KEY_RELEASE { close_talk(mut s); return }
+    if key == controls.KEY_UP || key == controls.KEY_LEFT {
+        s.trade_row = (s.trade_row + n - 1) % n
+        s.trade_note = 0
+    }
+    if key == controls.KEY_DOWN || key == controls.KEY_RIGHT {
+        s.trade_row = (s.trade_row + 1) % n
+        s.trade_note = 0
+    }
+    if key == controls.KEY_BITE { buy(mut s, npc.ware(s.talk, s.trade_row)) }
+}
+
+/// Why a ware is not for sale now (a `NOTE_*`), or 0.
+pub fn ware_refused(s: Sim, ware: int) -> int {
+    if ware == npc.W_TUFT && npc_flag(s, npc.TUFT_SOLD) { return NOTE_GONE }
+    if ware == npc.W_DIG {
+        if !lynx_beaten(s) { return NOTE_NOT_YET }
+        if sett_dug(s) { return NOTE_GONE }
+    }
+    if ware == npc.W_STORY && npc_flag(s, npc.STORY) { return NOTE_GONE }
+    0
+}
+
+/// The pouch kind a ware is, or -1 (the dig, the crossing, the story).
+pub fn ware_item(ware: int) -> int {
+    if ware == npc.W_YARROW { return pouch.YARROW }
+    if ware == npc.W_PINE { return pouch.PINE }
+    if ware == npc.W_TUFT { return pouch.TUFT }
+    if ware == npc.W_MARROW { return pouch.MARROW }
+    -1
+}
+
+/// Buy a ware: the scent paid only when the ware is given (a full stack
+/// refuses before any scent moves); the story costs a marrow; the dig
+/// opens the sett's way; the toll starts the crossing.
+pub fn buy(mut s: Sim, ware: int) {
+    let why = ware_refused(s, ware)
+    if why > 0 { s.trade_note = why; return }
+    if ware == npc.W_STORY {
+        if s.marrow <= 0 { s.trade_note = NOTE_NO_MARROW; return }
+        s.marrow -= 1
+        remember_lore(mut s, lore.HERMIT_STORY)
+        set_npc_flag(mut s, npc.STORY)
+        s.trade_note = NOTE_TOLD
+        return
+    }
+    let cost = npc.price(ware)
+    if s.scent < cost { s.trade_note = NOTE_SHORT; return }
+    let kind = ware_item(ware)
+    if kind >= 0 {
+        if !give_item(mut s, kind) { s.trade_note = NOTE_FULL; return }
+        s.scent -= cost
+        if ware == npc.W_TUFT { set_npc_flag(mut s, npc.TUFT_SOLD) }
+        s.trade_note = NOTE_BOUGHT
+        return
+    }
+    s.scent -= cost
+    if ware == npc.W_DIG {
+        set_npc_flag(mut s, npc.DUG)
+        s.trade_note = NOTE_DUG
+        return
+    }
+    // The toll: the frame closes and the Ferryman poles the cub across;
+    // the pause runs on through the crossing (`ferry_step`).
+    s.talk = -1
+    s.trade = false
+    s.ferry_at = s.tick
+}
+
+/// The crossing's tick: the cub carried along the route's middle from the
+/// Ferryman's post to the far causeway (`npc.CROSS_TO`) in
+/// `npc.CROSS_TICKS`; the stones untouched, no trail laid, nothing else
+/// moving. At its end the world's clocks move on by the whole pause.
+fn ferry_step(mut s: Sim) {
+    let age = s.tick - s.ferry_at
+    let o = forest.origin(s.seed, s.area)
+    let (_, _, from) = npc_place(s, npc.FERRYMAN)
+    let to = o + npc.CROSS_TO
+    let done = if age > npc.CROSS_TICKS then npc.CROSS_TICKS else age
+    let y = from + (to - from) * done / npc.CROSS_TICKS
+    s.x = forest.spine(s.seed, s.area, y - o) * FP + FP / 2
+    s.y = y * FP + FP / 2
+    s.heading = TURN / 2
+    s.heading_target = TURN / 2
+    s.speed = 0
+    if age >= npc.CROSS_TICKS {
+        s.ferry_at = -1
+        resume_after_pause(mut s)
+        clear_menu_holds(mut s)
+        (mut s.stones).reset()
+    }
+}
+
+/// Quill's perch follows the cub's rests after the meeting (section 5),
+/// never into the Hush or the Underteeth (R-cb16-7 A).
+fn perch_quill(mut s: Sim) {
+    if s.npc_said[npc.QUILL] > 0 && npc.perch_den(s.last_den) && npc_alive(s, npc.QUILL) {
+        s.npc_perch = s.last_den
+        s.npc_cached = -1
+    }
+}
+
+/// A strike on the lost (cb16): they never attack; a bite, a lunge or a
+/// heavy that reaches one's body (as a foe's is reached) hurts it, and the
+/// killing one leaves `npc.LOST_SCENT` and makes the journey *Alone*.
+fn strike_lost(mut s: Sim, reach: int) {
+    if s.area != forest.HUSH { return }
+    var who = npc.FENN
+    while who < npc.COUNT {
+        let i = who - npc.FENN
+        if npc_alive(s, who) && s.lost_hit[i] != s.started {
+            if jaws_reach_body(s, cub_body(s), npc_body(s, who), reach) {
+                var damage = bite_damage(s.fang)
+                if s.action == LUNGE { damage *= 3 }
+                if s.action == HEAVY { damage *= HEAVY_DAMAGE }
+                if s.action == DASH { damage *= 2 }
+                s.lost_hit[i] = s.started
+                s.lost_health[i] -= damage
+                if s.lost_health[i] <= 0 {
+                    s.npc_dead += npc.bit(who)
+                    let (_, x, y) = npc_place(s, who)
+                    leave_drop(mut s, x * FP + FP / 2, y * FP + FP / 2, npc.LOST_SCENT)
+                }
+            }
+        }
+        who += 1
+    }
 }
