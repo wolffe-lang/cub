@@ -1,0 +1,105 @@
+# cb18 pickup: the control build with sim.area_foes's one placement call (append_new_area_foes) removed
+# built from the lane tree at the pickup (lynx line out) by ~/lanes/cb18/opus/noplace-build.sh, nomad, behind the lock
+# 1) its --make-world-proof against trunk ed180ef5's own generator; 2) the old moved cases on trunk's keys against trunk's goldens
+END noplace-proof exit=0
+GEN noplace-vs-trunk diffs=0
+case stand-rich ok
+case stand-plain ok
+case burn-rich ok
+case burn-plain ok
+case mere-rich ok
+case mere-plain ok
+case underteeth-rich DIFFERS
+diff -r tests/goldens/underteeth-rich/final.sty target/opus-noplace-cases/underteeth-rich/final.sty
+1,24c1,24
+< 232,232,0*80
+< 232,232,0*1 250,232,0*6 232,232,0*2 203,232,0*9 232,232,0*62
+< 232,232,0*80
+< 232,232,0*1 250,232,0*7 232,232,0*1 84,232,0*10 232,232,0*61
+case underteeth-plain DIFFERS
+diff -r tests/goldens/underteeth-plain/final.sty target/opus-noplace-cases/underteeth-plain/final.sty
+1,24c1,24
+< 0,0,0*80
+< 0,0,0*1 7,0,0*6 0,0,0*2 12,0,0*9 0,0,0*62
+< 0,0,0*80
+< 0,0,0*1 7,0,0*7 0,0,0*1 10,0,0*10 0,0,0*61
+case howe-rich ok
+case howe-plain ok
+case landmark-7-0-rich ok
+case landmark-7-0-plain ok
+case landmark-7-1-rich ok
+case landmark-7-1-plain ok
+case landmark-8-0-rich ok
+case landmark-8-0-plain ok
+case landmark-9-0-rich ok
+case landmark-9-0-plain ok
+case landmark-10-0-rich DIFFERS
+diff -r tests/goldens/landmark-10-0-rich/final.sty target/opus-noplace-cases/landmark-10-0-rich/final.sty
+1,24c1,24
+< 232,232,0*43 180,240,1*14 232,232,0*23
+< 232,232,0*1 250,232,0*6 232,232,0*2 203,232,0*9 232,232,0*62
+< 232,232,0*80
+< 232,232,0*1 250,232,0*7 232,232,0*1 84,232,0*10 232,232,0*61
+case landmark-10-0-plain DIFFERS
+diff -r tests/goldens/landmark-10-0-plain/final.sty target/opus-noplace-cases/landmark-10-0-plain/final.sty
+1,24c1,24
+< 0,0,0*43 11,8,1*14 0,0,0*23
+< 0,0,0*1 7,0,0*6 0,0,0*2 12,0,0*9 0,0,0*62
+< 0,0,0*80
+< 0,0,0*1 7,0,0*7 0,0,0*1 10,0,0*10 0,0,0*61
+case landmark-11-0-rich ok
+case landmark-11-0-plain ok
+case landmark-11-1-rich ok
+case landmark-11-1-plain ok
+case landmark-11-2-rich ok
+case landmark-11-2-plain ok
+case landmark-11-3-rich ok
+case landmark-11-3-plain ok
+case landmark-11-4-rich ok
+case landmark-11-4-plain ok
+case landmark-11-5-rich ok
+case landmark-11-5-plain ok
+case rest-stand-80x24-rich ok
+case rest-stand-80x24-plain ok
+case rest-stand-120x40-rich ok
+case rest-stand-120x40-plain ok
+case rest-burn-80x24-rich ok
+case rest-burn-80x24-plain ok
+case rest-burn-120x40-rich ok
+case rest-burn-120x40-plain ok
+case rest-mere-80x24-rich ok
+case rest-mere-80x24-plain ok
+case rest-mere-120x40-rich ok
+case rest-mere-120x40-plain ok
+case rest-underteeth-80x24-rich ok
+case rest-underteeth-80x24-plain ok
+case rest-underteeth-120x40-rich ok
+case rest-underteeth-120x40-plain ok
+case world-meadow-rich ok
+case world-meadow-plain ok
+case hawk-shadow-rich ok
+case hawk-shadow-plain ok
+case hawk-stoop-rich ok
+case hawk-stoop-plain ok
+case world-hawk-rich ok
+case world-hawk-plain ok
+case world-recovered-rich ok
+case world-recovered-plain ok
+case world-return-rich ok
+case world-return-plain ok
+case coast-cache-0-rich ok
+case coast-cache-0-plain ok
+case coast-cache-1-rich ok
+case coast-cache-1-plain ok
+case coast-cache-2-rich ok
+case coast-cache-2-plain ok
+case coast-cache-3-rich ok
+case coast-cache-3-plain ok
+case boss-lynx-windup-rich ok
+case boss-lynx-windup-plain ok
+case boss-lynx-phase2-rich ok
+case boss-lynx-phase2-plain ok
+case boss-lynx-beaten-rich ok
+case boss-lynx-beaten-plain ok
+CASES fail=4
+END noplace-cases exit=1

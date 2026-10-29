@@ -1,0 +1,8 @@
+# cb18 pickup: the first whole checked suite over the Sol lane's tree (lynx line out), nomad, before the pickup's fixes
+test src/bosses_test.lu::test_cb04_a_boss_never_leaves_its_arena ... unsupported (step budget exhausted)
+test src/cb14_migration_test.lu::test_cb14_the_older_fixtures_still_read ... unsupported (step budget exhausted)
+test src/denmemory_test.lu::test_cb04f_rest_and_death_reset_every_area_but_not_bosses ... unsupported (step budget exhausted)
+test src/journey_test.lu::test_cb02_all_dens_restore_with_growth_and_water ... unsupported (step budget exhausted)
+test src/map_test.lu::test_cb14_every_alcove_has_its_own_bit_and_a_named_slot ... FAILED (trap(assert))
+test src/map_test.lu::test_cb14_the_burnt_oak_and_the_stone_mouth_open_to_a_lunge_and_save ... unsupported (step budget exhausted)
+wolf test: 634 passed; 1 failed; 0 rejected; 5 unsupported; 0 filtered out
