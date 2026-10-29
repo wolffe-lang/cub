@@ -1,0 +1,14 @@
+# cb18 R-cb18-5: the lynx's bleeding and its answer, 2026-10-29 (the boss census's lynx fairness line at each step)
+# 1. the bleed's deaths fixed (6d96fd22), no answer: kasumi container, its fairness line and the unwon world as printed
+fairness lynx attempts 1:66 2:16 3:13 4:4 5:0 unwon:1 hits 164 33 40 unparryable_hits 40 tells 10 12 15 parry_window 9 damage_events 5804 arena_breaches 0
+lynx 1 80 0 0 10 0 1 1 10 12 15 0 238
+proof: the fighter did not beat the lynx: attempts 0
+# 2. trial A1, lick when the boss's recovery or a far hunt leaves twenty ticks (nomad, before the bleed-death fix): never triggered, the lynx line unchanged
+fairness lynx attempts 1:71 2:16 3:11 4:2 5:0 unwon:0 hits 147 38 36 unparryable_hits 36 tells 10 12 15 parry_window 9 damage_events 5243 arena_breaches 0
+# 3. trial A2, back out past nine cells then lick (nomad, before the bleed-death fix): worse
+fairness lynx attempts 1:67 2:21 3:4 4:3 5:1 unwon:4 hits 141 57 15 unparryable_hits 15 tells 10 12 15 parry_window 9 damage_events 4806 arena_breaches 0
+# 4. A, implemented (b2d18fda): the fixture's yarrow, eaten on a bleed (kasumi container)
+fairness boar attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 68 46 22 unparryable_hits 68 tells 12 24 12 parry_window 9 damage_events 136 arena_breaches 0
+fairness lynx attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 107 20 32 unparryable_hits 32 tells 10 12 15 parry_window 9 damage_events 208 arena_breaches 0
+fairness elk attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 18 0 3 unparryable_hits 0 tells 16 24 18 parry_window 9 damage_events 21 arena_breaches 0
+fairness alpha attempts 1:100 2:0 3:0 4:0 5:0 unwon:0 hits 89 0 0 unparryable_hits 0 tells 9 12 20 parry_window 9 damage_events 89 arena_breaches 0

@@ -1,0 +1,14 @@
+# cb18 after the rebase onto 40c6410b (cb17's merge): kasumi cores 0-3, the engine's container, over the rebased tree (435202e0's source)
+END build exit=0
+END goldens exit=0 ok=509 differs=0
+END score-check exit=0
+score-census ok: sound-census entries 12 ok, cues 30, reveal 1 crossing 2 walk 1, ticks 9952, ends in area 12
+score-memory ok 320.2 bytes/tick over 550 ticks (budget 4096), sound on (oss), first sample 18120 KiB, 14995456 to 15171584 bytes
+score-check: green
+END gen-world-proof exit=0
+END gen-den-proof exit=0
+END gen-den-memory exit=0
+END gen-area-proof exit=0
+END gen-walk exit=0
+END gen-compare exit=0
+REBASE_VERIFY done 2026-10-29T22:11:45Z

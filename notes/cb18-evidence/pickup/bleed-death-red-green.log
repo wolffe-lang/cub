@@ -1,0 +1,7 @@
+# cb18: a killing bleed tick is one death (6d96fd22), nomad: the witness red on the sim before the fix, green on it
+test src/newfoe_items_test.lu::test_cb18_a_killing_bleed_tick_is_one_death_and_a_fall ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 22 filtered out
+test src/newfoe_items_test.lu::test_cb18_a_killing_bleed_tick_is_one_death_and_a_fall ... ok
+wolf test: 1 passed; 0 failed; 0 rejected; 0 unsupported; 22 filtered out
+# what found it: the lynx's beaten witness on the head before the fix, through gameplay.py's own trace parser (deaths by tick)
+tick 1 deaths 0 area 3 health 76 action 0 ... tick 805 deaths 1 health 0 action 0 ... tick 829 deaths 25 health 0 action 0; tick 830 deaths 27 health 0 action 6 (FALL)

@@ -1,0 +1,12 @@
+# cb18: the body census's witness for the six's drawn footprint, nomad, 2026-10-29
+# red on the census before the fix (git show HEAD~1 of census.lu: silhouette.foe drew a boss for kinds 9..14), green on the fix
+test src/newfoe_areas_test.lu::test_cb18_body_census_draws_the_six_as_art_draws_them ... FAILED (trap(assert))
+wolf test: 0 passed; 1 failed; 0 rejected; 0 unsupported; 15 filtered out
+wolf test: 89 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+# the kasumi gate at 435202e0 that found it (native-gameplay, gameplay.bodies over every case):
+AssertionError: {'ticks': 152970, 'overlap_ticks': 714, 'overlap': 714, 'overlap_unreachable': 2, 'overlap_behind': 618, 'contact': 5724, 'contact_unreachable': 59, 'contact_behind': 1922, 'foe_overlap': 0}
+ci-stage native-gameplay END utc=2026-10-29T22:34:53Z elapsed_seconds=44 status=1
+CB18_KASUMI_GATE_EXIT 1 2026-10-29T22:34:53Z
+note (cb18, 2026-10-29T22:40:45Z): this gate had already ended red at 22:34:53Z (CB18_KASUMI_GATE_EXIT 1 above); the marker holds that exit
+# the body census over every case on the fix (nomad native):
+census total ticks 152970 overlap_ticks 0 overlap 0 overlap_unreachable 0 overlap_behind 0 contact 5389 contact_unreachable 0 contact_behind 1618 foe_overlap 0
