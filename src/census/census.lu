@@ -12,6 +12,7 @@
 //! the silhouettes, never the simulation's collision, so it is a witness
 //! of the collision rule and not a copy of it.
 
+use art
 use silhouette
 use sim
 
@@ -95,6 +96,17 @@ pub fn cub_box(s: sim.Sim) -> Box {
 
 /// A ground foe's footprint where the frame draws it.
 pub fn foe_box(f: sim.Foe) -> Box {
+    if sim.is_new_foe(f.kind) {
+        // cb18's six are drawn from art's own bitmaps, not the engine's
+        // silhouettes (`silhouette.foe` falls through to a boss's drawing
+        // for any kind past the Ashen): the census reads those drawings.
+        return placed(
+            art.new_foe_bitmap(f.kind, 0),
+            quarter(f.heading),
+            sim.floor_div(f.x, sim.FP),
+            sim.floor_div(f.y, sim.FP),
+        )
+    }
     placed(
         silhouette.foe(f.kind, 0, -1),
         quarter(f.heading),
