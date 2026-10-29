@@ -9,8 +9,17 @@
 //! den's rest sounds while the cub rests, a slot without a part is the
 //! silence. The checked machine renders no audio here: the renders are
 //! tools/score-check's, over the binaries.
+//!
+//! cb17's rows: every area and every moment names a part the bank holds
+//! (a missing part is a red row here and a red cue-schedule golden in
+//! tools/score-check), the new parts' written lengths, the moments read
+//! from the game (the reveal, the crossing, the walk, the Hush's wait,
+//! R-cb17-1 A), the end's Moonford, the reveal held to its end, and every
+//! scene script's bank inside the engine's sixteen (R-cb17-2 A).
 
+use forest
 use score
+use sim
 use sound
 use std.fs
 
@@ -34,7 +43,7 @@ fn test_cb03_every_part_parses_at_its_written_length() {
     assert(length_of("death") == 12, "the sting: a bar of 4/4 at 60 and two silent")
     assert(length_of("crack") == 5, "crack: three bars at 144")
     assert(length_of("silence") == 2, "the silence: one bar at 120")
-    assert(score.names().len == 11, "eleven parts")
+    assert(score.names().len == 25, "twenty-five parts since cb17")
     var seen = List[str]()
     for n in score.names() {
         for s in seen { assert(s != n, "{n} named twice") }
@@ -75,19 +84,21 @@ fn test_cb03_each_part_names_its_cue_fade() {
 fn test_cb03_the_areas_and_bosses_have_their_parts_and_slots() {
     assert(score.area_part(0) == "shingle" && score.area_part(1) == "bramblehold", "areas")
     assert(score.area_part(2) == "larkmeadow", "the meadow")
+    // cb17: cb04's slots (`crags`, `river`, `old-den`), cb05's and cb14's
+    // `none`s are parts now, named for the areas.
     assert(
-        score.area_part(3) == "crags" &&
-            score.area_part(4) == "river" &&
-            score.area_part(5) == "old-den",
-        "cb04's slots are named",
+        score.area_part(3) == "teeth" &&
+            score.area_part(4) == "shallows" &&
+            score.area_part(5) == "hush",
+        "cb04's areas have their parts",
     )
     assert(
-        score.area_part(6) == "cinderwick" && score.area_part(7) == "none",
-        "cb05's slot; cb14's areas `none` until cb17",
+        score.area_part(6) == "cinderwick" && score.area_part(7) == "stand",
+        "the town's part; the Stand's",
     )
     assert(
-        score.area_part(12) == "none" && score.area_part(13) == "none",
-        "the end's slot, no fourteenth",
+        score.area_part(12) == "gravehollow" && score.area_part(13) == "none",
+        "Gravehollow's part, no fourteenth area",
     )
     assert(score.boss_part(0) == "boss-boar" && score.boss_part(3) == "boss-alpha", "bosses")
     assert(score.boss_part(-1) == "" && score.boss_part(4) == "", "no fifth boss")
@@ -108,7 +119,7 @@ fn cues() -> List[score.Cue] {
 }
 
 fn scene(area: int) -> score.Scene {
-    score.Scene { opening_age: -1, title: false, fallen: false, den: false, boss: -1, area: area }
+    score.in_area(area)
 }
 
 fn test_cb03_want_decides_in_order() {
@@ -226,8 +237,11 @@ fn test_cb03_the_title_plays_over_the_opening() {
 fn test_cb03_a_slot_without_a_part_is_the_silence() {
     var sch = score.schedule(cues())
     let _first = score.step(mut sch, scene(0), 0)
-    assert(score.step(mut sch, scene(3), 4) == "silence", "the crags' slot is silent until cb04")
-    assert(score.step(mut sch, scene(3), 5) == "", "silence holds")
+    // An area id past the thirteen is `none`; a part the schedule does
+    // not know (these test cues have no `teeth`) is the silence too.
+    assert(score.step(mut sch, scene(13), 4) == "silence", "no fourteenth area: the silence")
+    assert(score.step(mut sch, scene(13), 5) == "", "silence holds")
+    assert(score.step(mut sch, scene(3), 6) == "", "a part the schedule lacks is the same silence")
     assert(score.step(mut sch, scene(0), 8) == "shingle", "back in the Shingle")
     score.restart(mut sch)
     assert(score.step(mut sch, scene(0), 9) == "shingle", "a restart cues the scene's part afresh")
@@ -247,5 +261,225 @@ fn test_cb03_the_replay_scenes_cover_the_schedule() {
     assert(
         cued == " title shingle den shingle boss-boar death shingle",
         "the replay's cues in order:{cued}",
+    )
+}
+
+fn has(names: List[str], name: str) -> bool {
+    for n in names {
+        if n == name { return true }
+    }
+    false
+}
+
+fn test_cb17_every_area_and_moment_has_a_part_in_the_bank() {
+    let bank = score.names()
+    var area = 0
+    while area < forest.AREAS {
+        let p = score.area_part(area)
+        assert(has(bank, p), "area {area} ({forest.name(area)}) cues {p}, a part the bank holds")
+        area += 1
+    }
+    var m = score.MOMENT_REVEAL
+    while m <= score.MOMENT_WALK {
+        assert(
+            has(bank, score.moment_part(m)),
+            "moment {m}'s part {score.moment_part(m)} is in the bank",
+        )
+        m += 1
+    }
+    assert(score.moment_part(score.MOMENT_HUSH_WAIT) == "silence", "the Hush's wait is the silence")
+    assert(has(bank, "moonford"), "Moonford's part is in the bank")
+    assert(score.wav_names().len == 26, "the live sink writes 25 parts and the silence")
+}
+
+fn test_cb17_the_new_parts_parse_at_their_written_lengths() {
+    assert(length_of("cinderwick") == 20, "Cinderwick: 8 bars of 3/4 at 72")
+    assert(length_of("stand") == 24, "the Stand: 6 bars of 4/4 at 60")
+    assert(length_of("burn") == 21, "the Burn: 7 bars of 4/4 at 80")
+    assert(length_of("teeth") == 16, "the Teeth: 6 bars of 4/4 at 90")
+    assert(length_of("underteeth") == 24, "the Underteeth: 5 bars of 4/4 at 50")
+    assert(length_of("mere") == 24, "the Mere: 6 bars of 4/4 at 60")
+    assert(length_of("shallows") == 20, "the Shallows: 12 bars of 3/4 at 108")
+    assert(length_of("hush") == 24, "the Hush: 6 bars of 4/4 at 60")
+    assert(length_of("howe") == 20, "the Howe: 8 bars of 3/4 at 72")
+    assert(length_of("gravehollow") == 20, "Gravehollow: 5 bars of 4/4 at 60")
+    assert(length_of("moonford") == 20, "Moonford: 6 bars of 4/4 at 72")
+    assert(length_of("reveal") == 8, "the reveal: 3 bars of 4/4 at 90")
+    assert(length_of("crossing") == 12, "the crossing: 3 bars of 4/4 at 60")
+    assert(length_of("walk") == 16, "the walk: 4 bars of 4/4 at 60")
+    assert(score.plays_once("reveal") && score.holds("reveal"), "the reveal plays once and holds")
+    assert(score.plays_once("crack") && !score.holds("crack"), "the crack is cut by a skip")
+    assert(!score.plays_once("moonford") && !score.plays_once("walk"), "Moonford and the walk loop")
+}
+
+fn play(area: int) -> sim.Sim {
+    var s = sim.new(1, 80, 24)
+    s.scene = 0
+    s.area = area
+    s.tick = 1000
+    s.entered = 0
+    s
+}
+
+fn at_row(mut s: sim.Sim, row: int) {
+    s.y = (forest.origin(s.seed, s.area) + row) * sim.FP + sim.FP / 2
+}
+
+fn test_cb17_the_moments_are_read_from_the_ground() {
+    // The lookout's reveal: sixty ticks from the cub's arrival.
+    var stand = play(forest.STAND)
+    assert(score.moment_of(stand) == score.MOMENT_NONE, "the Stand before the lookout")
+    stand.reveal_at = stand.tick
+    assert(score.moment_of(stand) == score.MOMENT_REVEAL, "the reveal")
+    assert(score.want(score.scene_of(stand)) == "reveal", "the reveal's part")
+    stand.tick += sim.REVEAL_TICKS
+    assert(score.moment_of(stand) == score.MOMENT_NONE, "the reveal over")
+    // The Mere's crossing: between the causeways (60 rows each end).
+    var mere = play(forest.MERE)
+    at_row(mut mere, 60)
+    assert(score.want(score.scene_of(mere)) == "mere", "the first causeway is the Mere's")
+    at_row(mut mere, 61)
+    assert(score.want(score.scene_of(mere)) == "crossing", "the first stone row is the crossing")
+    at_row(mut mere, 110)
+    assert(score.want(score.scene_of(mere)) == "crossing", "the dry island is on the way across")
+    at_row(mut mere, forest.length(forest.MERE) - 61)
+    assert(score.want(score.scene_of(mere)) == "crossing", "the last row short of the causeway")
+    at_row(mut mere, forest.length(forest.MERE) - 60)
+    assert(score.want(score.scene_of(mere)) == "mere", "the far causeway")
+    // The Howe's walk: from the fourth standing stone to the mouth.
+    var howe = play(forest.HOWE)
+    at_row(mut howe, forest.menhir_row(3) - 1)
+    assert(score.want(score.scene_of(howe)) == "howe", "the barrows")
+    at_row(mut howe, forest.menhir_row(3))
+    assert(score.want(score.scene_of(howe)) == "walk", "the walk past the fourth stone")
+    let (gate, _) = forest.gate_rows(forest.HOWE)
+    at_row(mut howe, gate)
+    assert(score.want(score.scene_of(howe)) == "walk", "the walk at the stone mouth")
+    // The other areas have no moment.
+    var shingle = play(forest.SHINGLE)
+    at_row(mut shingle, 100)
+    assert(score.moment_of(shingle) == score.MOMENT_NONE, "the Shingle has none")
+}
+
+fn test_cb17_the_hush_waits_in_silence_while_its_den_is_unlit() {
+    // R-cb17-1 A: 300 ticks of the silence after an entry while the cold
+    // den is unlit, then the shadows' motif; once lit, the motif at once.
+    var s = play(forest.HUSH)
+    s.entered = s.tick
+    assert(!score.den_lit(s.lit_dens, score.HUSH_DEN), "the cold den starts unlit")
+    assert(score.want(score.scene_of(s)) == "silence", "the first entry is silent")
+    s.tick = s.entered + score.HUSH_WAIT - 1
+    assert(score.want(score.scene_of(s)) == "silence", "silent through tick 299")
+    s.tick = s.entered + score.HUSH_WAIT
+    assert(score.want(score.scene_of(s)) == "hush", "then the shadows' motif")
+    s.lit_dens = sim.light_den(s.lit_dens, score.HUSH_DEN)
+    s.entered = s.tick
+    assert(score.den_lit(s.lit_dens, score.HUSH_DEN), "lit")
+    assert(score.want(score.scene_of(s)) == "hush", "with the den lit, the motif at once")
+    var other = play(forest.HOWE)
+    other.entered = other.tick
+    assert(score.want(score.scene_of(other)) == "howe", "no wait outside the Hush")
+}
+
+fn test_cb17_the_end_is_moonford_not_the_title() {
+    var s = play(forest.GRAVEHOLLOW)
+    assert(score.want(score.scene_of(s)) == "gravehollow", "Gravehollow outside the fight")
+    s.scene = sim.SCENE_END
+    s.scene_started = s.tick
+    let sc = score.scene_of(s)
+    assert(sc.end && !sc.title, "the end is not the title")
+    assert(score.want(sc) == "moonford", "the end plays Moonford")
+    s.scene = sim.SCENE_TITLE
+    assert(score.want(score.scene_of(s)) == "title", "the title is still the title")
+}
+
+fn test_cb17_the_reveal_holds_to_its_end_and_a_fall_cuts_it() {
+    let cs = [
+        score.Cue { name: "stand", ticks: 30, once: false },
+        score.Cue { name: "reveal", ticks: 24, once: true },
+        score.Cue { name: "death", ticks: 12, once: true },
+        score.Cue { name: "silence", ticks: 6, once: false },
+    ]
+    var sch = score.schedule(cs)
+    let stand = scene(forest.STAND)
+    var reveal = scene(forest.STAND)
+    reveal.moment = score.MOMENT_REVEAL
+    assert(score.step(mut sch, stand, 0) == "stand", "the Stand")
+    assert(score.step(mut sch, reveal, 5) == "reveal", "the reveal replaces the Stand")
+    assert(score.step(mut sch, stand, 10) == "", "the camera is back; the reveal holds")
+    assert(score.step(mut sch, stand, 28) == "", "and sounds through its 24 ticks")
+    assert(score.step(mut sch, stand, 29) == "stand", "then the Stand's loop returns")
+    var sch2 = score.schedule(cs)
+    let _first = score.step(mut sch2, reveal, 0)
+    var fallen = scene(forest.STAND)
+    fallen.fallen = true
+    assert(score.step(mut sch2, fallen, 3) == "death", "a fall cuts the reveal")
+}
+
+fn test_cb17_every_scene_script_fits_the_mixer_and_cues_its_part() {
+    let cs = score.cues() else |_| {
+        assert(false, "every part parses")
+        List[score.Cue]()
+    }
+    for name in score.scene_names() {
+        assert(score.scene_ticks(name) > 0, "{name} has ticks")
+        let bank = score.scene_bank_with(name, cs)
+        assert(
+            bank.len >= 1 && bank.len <= score.BANK_MAX,
+            "{name}'s bank fits the mixer: {bank.len}",
+        )
+        if name != "six" { assert(has(bank, name), "{name}'s script cues {name}") }
+    }
+    let six = score.scene_bank_with("six", cs)
+    assert(six.len == 5, "the six-second replay reaches five cues: {six.len}")
+    assert(score.scene_ticks("none") == 0 && score.script("none").len == 0, "no such script")
+}
+
+fn joined(lines: List[str]) -> str {
+    var out = ""
+    for l in lines { out = out + l + ";" }
+    out
+}
+
+fn test_cb17_the_trigger_scripts_cue_in_order() {
+    let cs = score.cues() else |_| {
+        assert(false, "every part parses")
+        List[score.Cue]()
+    }
+    let reveal = joined(score.scene_cues_with("reveal", cs))
+    assert(
+        reveal == "tick 0 cue stand;tick 30 cue reveal;tick 270 cue stand;",
+        "the reveal holds its eight seconds: {reveal}",
+    )
+    assert(
+        joined(score.scene_cues_with("crossing", cs)) ==
+            "tick 0 cue mere;tick 45 cue crossing;tick 135 cue mere;",
+        "the crossing in and out",
+    )
+    assert(
+        joined(score.scene_cues_with("walk", cs)) ==
+            "tick 0 cue howe;tick 45 cue walk;tick 135 cue gravehollow;",
+        "the walk to the mouth",
+    )
+    assert(
+        joined(score.scene_cues_with("gravehollow", cs)) ==
+            "tick 0 cue walk;tick 30 cue gravehollow;tick 120 cue boss-alpha;tick 180 cue gravehollow;",
+        "Gravehollow around the alpha's fight",
+    )
+    assert(
+        joined(score.scene_cues_with("moonford", cs)) ==
+            "tick 0 cue gravehollow;tick 30 cue moonford;",
+        "the end",
+    )
+    let hush = joined(score.scene_cues_with("hush", cs))
+    assert(
+        hush ==
+            "tick 0 cue shallows;tick 45 cue silence;tick 105 cue silence;tick 165 cue silence;tick 225 cue silence;tick 285 cue silence;tick 345 cue hush;tick 405 cue den;tick 450 cue hush;",
+        "the Hush's first entry, its den, and leaving it lit: {hush}",
+    )
+    assert(
+        joined(score.scene_cues_with("cinderwick", cs)) ==
+            "tick 0 cue shingle;tick 45 cue cinderwick;",
+        "an area's entry",
     )
 }
