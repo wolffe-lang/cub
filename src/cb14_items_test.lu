@@ -3,7 +3,9 @@
 //! cb14 over cb15 (the rebase of 2026-10-28): cb15's provisional pickups on
 //! the new map's open ground, the alcoves' pine, shard and tuft as cb15's
 //! items (R-cb14-6 A), cb14's lines registered through cb15's lore paths
-//! (ids 13..31, which fill the pouch's 32 lore slots).
+//! (ids 13..31, which filled the pouch's 32 lore slots; cb16 widened them
+//! to 48 for the Hermit's story, 32, and moved cb15's provisional tuft
+//! from Bramblehold's first den to Ember's gift, R-cb16-3 A).
 
 use controls
 use forest
@@ -38,7 +40,13 @@ fn test_cb14_cb15s_provisional_pickups_stand_on_open_ground_in_the_new_map() {
             s.area = area
             s.pouch.seeded = 0
             wait(mut s, 1)
-            let want = if area == forest.RIVER then 5 else 7
+            let want = if area == forest.RIVER {
+                5
+            } else if area == forest.BRAMBLEHOLD {
+                6
+            } else {
+                7
+            }
             assert(
                 s.pouch.pickups.len == want,
                 "seed {seed} area {area}: {s.pouch.pickups.len} placed",
@@ -95,12 +103,11 @@ fn test_cb14_lines_are_registered_through_cb15s_paths_and_fill_the_slots() {
         lore.STAND_LINE == 13 &&
             lore.MENHIR_FIRST == 18 &&
             lore.ALCOVE_FIRST == 23 &&
-            lore.COUNT == 32,
-        "cb14's ids append at 13 after cb15's 10..12",
+            lore.COUNT == 33,
+        "cb14's ids append at 13 after cb15's 10..12 (cb16's 32 after them)",
     )
-    // The ids fill the pouch's lore slots exactly: a further line needs a
-    // wider save.
-    assert(lore.COUNT == pouch.LORE_SLOTS, "the lore slots are full")
+    // Every id has a slot (cb16 widened the slots past cb14's full 32).
+    assert(lore.COUNT <= pouch.LORE_SLOTS && pouch.LORE_SLOTS == 48, "every line fits")
     // The Stand's lookout: standing within four cells registers its line.
     var s = quiet(1)
     s.area = forest.STAND

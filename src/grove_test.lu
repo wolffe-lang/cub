@@ -159,7 +159,7 @@ fn test_cb02b_the_field_is_saved_and_never_moves() {
     assert(small.field == 80, "the floor")
     let text = journey.encode(s)
     assert(
-        text.starts_with("CUB 7\n") && text.contains("\nfield 200\n"),
+        text.starts_with("CUB 8\n") && text.contains("\nfield 200\n"),
         "the schema names the field",
     )
     let resumed = journey.decode(text, 80, 24) else |e| { assert(false, "resume {e}"); return }
@@ -169,7 +169,7 @@ fn test_cb02b_the_field_is_saved_and_never_moves() {
         "the replay carries it",
     )
     var old = false
-    let _ = journey.decode(text.replace("CUB 7", "CUB 1"), 80, 24) else |e| {
+    let _ = journey.decode(text.replace("CUB 8", "CUB 1"), 80, 24) else |e| {
         old = "{e}" == "save_version"
         sim.new(1, 80, 24)
     }
