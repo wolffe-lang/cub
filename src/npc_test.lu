@@ -7,13 +7,38 @@
 //! NPC, and every anchor on open ground (two seeds here; fifty at both
 //! fields in `--npc-audit`).
 
+use art
 use controls
 use forest
+use grid
 use journey
 use lore
 use npc
 use pouch
 use sim
+use tier
+
+/// Whether `text` stands at `(row, col)` of a frame.
+fn says(g: grid.Grid, row: int, col: int, text: str) -> bool {
+    var i = 0
+    for b in text.bytes() {
+        if grid.at(g, row, col + i).cp != b as int { return false }
+        i += 1
+    }
+    true
+}
+
+fn test_cb16_the_end_card_names_alone_after_one_of_the_lost_is_killed() {
+    var s = sim.new(1, 80, 24)
+    s.scene = sim.SCENE_END
+    s.scene_started = s.tick - sim.END_CARD_AT
+    var g = grid.new(24, 80)
+    art.render(s, tier.PLAIN, mut g)
+    assert(says(g, 7, 38, "Home"), "Home with the lost alive")
+    s.npc_dead = npc.bit(npc.BRACKEN)
+    art.render(s, tier.PLAIN, mut g)
+    assert(says(g, 7, 38, "Alone"), "Alone with one killed")
+}
 
 fn press(mut s: sim.Sim, key: int) {
     var keys = List[int]()
