@@ -1,0 +1,13 @@
+cb18 mac gate source 6c675e25fa7ba38be4811eac055ead612bba9878 2026-10-29T21:15:16Z
+END build exit=0 2026-10-29T21:15:44Z
+END selftest exit=0 2026-10-29T21:15:45Z
+END test exit=0 2026-10-29T21:20:09Z
+wolf test: 643 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+test: 0 SKIP lines
+END new-foes exit=0 2026-10-29T21:20:10Z
+gameplay: six foes 600 arena resolutions, complete hit rings, six replay outcomes and both-tier frames green
+END generators exit=0 2026-10-29T21:21:05Z
+END generators-compare exit=0 2026-10-29T21:21:08Z
+END generators-same-as-recorded exit=0
+END goldens attempt 1 exit=0 ok=509 differs=0 2026-10-29T21:21:45Z
+CB18_MAC_GATE_EXIT 0 2026-10-29T21:21:45Z
