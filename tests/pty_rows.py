@@ -260,8 +260,12 @@ def sound_live(binary, ctx):
     s, mine, wavs, left, sound_dir = _sound_session(binary, ctx, [])
     problems = []
     ctx.common_checks(s, 0, problems)
-    want = ['boss-alpha.wav', 'boss-boar.wav', 'boss-elk.wav', 'boss-lynx.wav', 'bramblehold.wav',
-            'crack.wav', 'death.wav', 'den.wav', 'larkmeadow.wav', 'shingle.wav', 'silence.wav', 'title.wav']
+    # Every part and the silence (cb03's eleven, cb17's fourteen).
+    want = sorted(n + '.wav' for n in [
+        'title', 'shingle', 'bramblehold', 'larkmeadow', 'boss-boar', 'boss-lynx', 'boss-elk',
+        'boss-alpha', 'den', 'death', 'crack', 'cinderwick', 'stand', 'burn', 'teeth',
+        'underteeth', 'mere', 'shallows', 'hush', 'howe', 'gravehollow', 'moonford', 'reveal',
+        'crossing', 'walk', 'silence'])
     if wavs != want:
         problems.append('the WAVs under --sound-dir during the run: %r' % wavs)
     if sound_dir.exists() and list(sound_dir.glob('*.wav')):
