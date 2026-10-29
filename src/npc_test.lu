@@ -1,0 +1,326 @@
+//! member: false
+//!
+//! cb16, the NPCs: section 5's lines in order with the last repeating, the
+//! speech frame's trigger and keys, the trade's scent and pouch arithmetic,
+//! the toll and the crossing, Dunmoss's dig, the Hermit's story, Ember's
+//! mouthful and tuft, Quill's perch, the lost and *Alone*, a boss led to an
+//! NPC, and every anchor on open ground (two seeds here; fifty at both
+//! fields in `--npc-audit`).
+
+use controls
+use forest
+use journey
+use lore
+use npc
+use pouch
+use sim
+
+fn press(mut s: sim.Sim, key: int) {
+    var keys = List[int]()
+    (mut keys).push(key)
+    sim.step(mut s, keys)
+}
+
+fn wait(mut s: sim.Sim, ticks: int) {
+    var keys = List[int]()
+    var n = 0
+    while n < ticks { sim.step(mut s, keys); n += 1 }
+}
+
+/// A cub in `area` on the NPC `who`'s own cell (NPCs are not solid), no
+/// foes, every area already seeded.
+fn at_npc(seed: int, who: int) -> sim.Sim {
+    var s = sim.new(seed, 80, 24)
+    s.gate_open = true
+    s.pouch.seeded = pouch.bit(forest.AREAS) - 1
+    let area = sim.npc_area(s, who)
+    let (_, x, y) = sim.npc_place(s, who)
+    sim.enter_area(mut s, area, x * sim.FP + sim.FP / 2, y * sim.FP + sim.FP / 2)
+    (mut s.foes).reset()
+    s.speed = 0
+    s
+}
+
+fn test_cb16_every_npc_s_lines_go_in_order_and_the_last_repeats() {
+    var who = 0
+    while who < npc.COUNT {
+        var said = 0
+        var visit = 0
+        while visit < npc.lines(who) + 3 {
+            let k = npc.next_line(who, said, true)
+            let want = if visit < npc.lines(who) then visit else npc.lines(who) - 1
+            assert(k == want, "{npc.name(who)} visit {visit}: line {k}, not {want}")
+            said = npc.said_after(who, said, k)
+            visit += 1
+        }
+        assert(said == npc.lines(who), "{npc.name(who)} said all and no more")
+        who += 1
+    }
+}
+
+fn test_cb16_dunmoss_holds_at_go_away_while_whisper_lives() {
+    var said = 0
+    var visit = 0
+    while visit < 3 {
+        let k = npc.next_line(npc.DUNMOSS, said, false)
+        assert(k == 0, "go away, visit {visit}")
+        said = npc.said_after(npc.DUNMOSS, said, k)
+        visit += 1
+    }
+    assert(said == 1, "one line counted")
+    assert(npc.next_line(npc.DUNMOSS, said, true) == 1, "the cat dead: the price")
+}
+
+fn test_cb16_section_5_s_lines_word_for_word() {
+    assert(npc.lines(npc.QUILL) == 4 && npc.lines(npc.DUNMOSS) == 4, "four each")
+    assert(npc.lines(npc.EMBER) == 3 && npc.lines(npc.BURNER) == 2, "three, two")
+    assert(npc.lines(npc.FERRYMAN) == 3 && npc.lines(npc.HERMIT) == 3, "three each")
+    assert(npc.lines(npc.FENN) == 1 && npc.lines(npc.LOAM) == 1, "the lost one each")
+    assert(
+        npc.line(npc.QUILL, 0) ==
+            "You are small for a wolf. That is not an insult; small things live.",
+        "Quill's first",
+    )
+    assert(
+        npc.line(npc.FERRYMAN, 1) == "Sixty. Or the stones. The stones sink; I do not.",
+        "the toll",
+    )
+    assert(npc.line(npc.FENN, 0) == "Sedge's. You have her ears. Go home.", "Fenn")
+    assert(npc.line(npc.LOAM, 0) == "If you kill me you keep walking with it. Walk past.", "Loam")
+    assert(
+        npc.line(npc.EMBER, 2) ==
+            "You followed me. Fine. Take the tuft. It was your mother's; I only kept it dry.",
+        "Ember's third",
+    )
+}
+
+fn test_cb16_standing_still_beside_quill_opens_one_line_and_esc_leaves() {
+    var s = at_npc(1, npc.QUILL)
+    wait(mut s, npc.STILL_TICKS - 1)
+    assert(s.talk == -1, "not before twenty still ticks")
+    wait(mut s, 1)
+    assert(s.talk == npc.QUILL && s.talk_line == 0 && s.npc_said[npc.QUILL] == 1, "the first line")
+    let tick = s.tick
+    let health = s.health
+    wait(mut s, 5)
+    assert(s.talk == npc.QUILL && s.health == health, "the forest waits under the frame")
+    press(mut s, controls.KEY_RELEASE)
+    assert(s.talk == -1 && s.tick == tick + 6, "Esc leaves")
+    wait(mut s, 40)
+    assert(s.talk == -1, "one line a visit")
+    // Away past the facing gap, back: the next visit, the next line.
+    let (_, x, y) = sim.npc_place(s, npc.QUILL)
+    s.y = (y + 12) * sim.FP + sim.FP / 2
+    wait(mut s, 1)
+    s.y = y * sim.FP + sim.FP / 2
+    s.x = x * sim.FP + sim.FP / 2
+    wait(mut s, npc.STILL_TICKS)
+    assert(s.talk == npc.QUILL && s.talk_line == 1, "the second line on the second visit")
+    press(mut s, controls.KEY_BITE)
+    assert(s.trade && s.talk == npc.QUILL, "Space opens a trader's wares")
+    press(mut s, controls.KEY_RELEASE)
+    assert(s.talk == -1 && !s.trade, "Esc leaves the wares")
+}
+
+fn test_cb16_a_purchase_pays_scent_and_fills_the_pouch_or_refuses_whole() {
+    var s = sim.new(7, 80, 24)
+    s.talk = npc.QUILL
+    s.trade = true
+    s.scent = 100
+    sim.buy(mut s, npc.W_YARROW)
+    assert(s.scent == 80 && s.yarrow == 1 && s.trade_note == sim.NOTE_BOUGHT, "yarrow 20")
+    sim.buy(mut s, npc.W_PINE)
+    assert(s.scent == 30 && s.pouch.pine == 1, "pine 50")
+    sim.buy(mut s, npc.W_TUFT)
+    assert(s.scent == 30 && s.pouch.tuft == 0 && s.trade_note == sim.NOTE_SHORT, "short")
+    s.scent = 1000
+    sim.buy(mut s, npc.W_TUFT)
+    assert(s.scent == 400 && s.pouch.tuft == 1 && sim.npc_flag(s, npc.TUFT_SOLD), "tuft 600")
+    s.pouch.tuft = 0
+    sim.buy(mut s, npc.W_TUFT)
+    assert(s.scent == 400 && s.pouch.tuft == 0 && s.trade_note == sim.NOTE_GONE, "one tuft")
+    s.yarrow = pouch.cap(pouch.YARROW)
+    sim.buy(mut s, npc.W_YARROW)
+    assert(s.scent == 400 && s.trade_note == sim.NOTE_FULL, "a full stack pays nothing")
+    s.talk = npc.DUNMOSS
+    sim.buy(mut s, npc.W_MARROW)
+    assert(s.scent == 365 && s.marrow == 1, "marrow 35")
+}
+
+fn test_cb16_the_toll_poles_the_cub_across_the_mere() {
+    var s = at_npc(1, npc.FERRYMAN)
+    s.scent = 59
+    sim.open_talk(mut s, npc.FERRYMAN)
+    press(mut s, controls.KEY_BITE)
+    press(mut s, controls.KEY_BITE)
+    assert(s.trade_note == sim.NOTE_SHORT && s.scent == 59 && s.ferry_at < 0, "fifty-nine is short")
+    s.scent = 70
+    press(mut s, controls.KEY_BITE)
+    assert(s.scent == 10 && s.ferry_at >= 0 && s.talk == -1, "sixty paid, the crossing begun")
+    wait(mut s, npc.CROSS_TICKS - 1)
+    assert(s.ferry_at >= 0 && s.area == forest.MERE, "on the water")
+    wait(mut s, 1)
+    let at = sim.cell_y(s) - forest.origin(s.seed, s.area)
+    assert(s.ferry_at < 0 && at == npc.CROSS_TO && s.area == forest.MERE, "landed at {at}")
+    assert(!sim.blocked(s, sim.cell_x(s), sim.cell_y(s)), "on open ground")
+}
+
+fn test_cb16_dunmoss_digs_the_way_under_after_whisper_for_150() {
+    var s = sim.new(1, 80, 24)
+    s.talk = npc.DUNMOSS
+    s.scent = 200
+    sim.buy(mut s, npc.W_DIG)
+    assert(s.trade_note == sim.NOTE_NOT_YET && s.scent == 200 && !sim.sett_dug(s), "the cat lives")
+    s.bosses = sim.boss_bit(sim.LYNX) + sim.boss_bit(sim.BOAR)
+    sim.buy(mut s, npc.W_DIG)
+    assert(s.scent == 50 && sim.sett_dug(s) && s.trade_note == sim.NOTE_DUG, "dug for 150")
+    sim.buy(mut s, npc.W_DIG)
+    assert(s.scent == 50 && s.trade_note == sim.NOTE_GONE, "dug once")
+    s.area = forest.CRAGS
+    assert(!sim.gate_passable(s), "the squeeze still wants the paw")
+    s.paw = sim.UNDERTEETH_PAW
+    assert(sim.gate_passable(s), "dug and grown: through")
+}
+
+fn test_cb16_the_hermit_tells_his_story_for_a_marrow() {
+    var s = sim.new(1, 80, 24)
+    s.talk = npc.HERMIT
+    sim.buy(mut s, npc.W_STORY)
+    assert(s.trade_note == sim.NOTE_NO_MARROW && s.pouch.lore.len == 0, "no marrow, no story")
+    s.marrow = 1
+    s.scent = 9
+    sim.buy(mut s, npc.W_STORY)
+    assert(s.marrow == 0 && s.scent == 9 && sim.npc_flag(s, npc.STORY), "a marrow, no scent")
+    assert(s.pouch.lore.len == 1 && s.pouch.lore[0] == lore.HERMIT_STORY, "the story found")
+    s.marrow = 1
+    sim.buy(mut s, npc.W_STORY)
+    assert(s.marrow == 1 && s.trade_note == sim.NOTE_GONE, "told once")
+    assert(lore.line(lore.HERMIT_STORY).starts_with("The Hermit's story"), "its own words")
+}
+
+fn test_cb16_ember_feints_a_mouthful_then_gives_the_tuft_at_her_den() {
+    var s = at_npc(1, npc.EMBER)
+    assert(s.area == forest.BRAMBLEHOLD, "Ember first in Bramblehold")
+    s.flasks = 3
+    wait(mut s, npc.STILL_TICKS)
+    assert(s.talk == npc.EMBER && s.talk_line == 0 && s.flasks == 3, "the warning, no theft")
+    press(mut s, controls.KEY_BITE)
+    assert(s.talk == -1, "Space ends a line that sells nothing")
+    var m = at_npc(1, npc.EMBER)
+    m.npc_said[npc.EMBER] = 1
+    let (area, x, y) = sim.npc_place(m, npc.EMBER)
+    assert(area == forest.LARKMEADOW, "then Larkmeadow")
+    sim.enter_area(mut m, area, x * sim.FP + sim.FP / 2, y * sim.FP + sim.FP / 2)
+    (mut m.foes).reset()
+    m.flasks = 3
+    wait(mut m, npc.STILL_TICKS)
+    assert(m.feint_at >= 0 && m.talk == -1 && m.flasks == 3, "the feint begins")
+    wait(mut m, npc.FEINT_TICKS)
+    assert(m.flasks == 2 && sim.npc_flag(m, npc.STOLEN), "one mouthful taken")
+    assert(m.talk == npc.EMBER && m.talk_line == 1, "and she says so")
+    press(mut m, controls.KEY_RELEASE)
+    // Her den, the pocket's end: the first tuft, once.
+    sim.open_talk(mut m, npc.EMBER)
+    assert(m.talk_line == 2 && m.pouch.tuft == 1 && sim.npc_flag(m, npc.TUFT_GIVEN), "the tuft")
+    press(mut m, controls.KEY_RELEASE)
+    m.pouch.tuft = 0
+    sim.open_talk(mut m, npc.EMBER)
+    assert(m.talk_line == 2 && m.pouch.tuft == 0, "no second tuft")
+}
+
+fn test_cb16_quill_perches_at_the_last_rest_after_the_meeting_never_in_the_hush() {
+    assert(
+        npc.perch_den(3) && !npc.perch_den(6) && !npc.perch_den(15),
+        "the Hush and the cave are not",
+    )
+    assert(!npc.perch_den(8) && !npc.perch_den(16), "a retired den or none is not")
+    var s = sim.new(1, 80, 24)
+    let (a0, _, _) = sim.npc_place(s, npc.QUILL)
+    assert(a0 == forest.LARKMEADOW && s.npc_perch == -1, "Larkmeadow's perch first")
+    s.npc_said[npc.QUILL] = 1
+    s.npc_perch = 4
+    let (a1, _, _) = sim.npc_place(s, npc.QUILL)
+    assert(a1 == forest.CRAGS && sim.npc_area(s, npc.QUILL) == forest.CRAGS, "the ledge cleft's")
+}
+
+fn test_cb16_the_lost_never_attack_and_a_killed_one_is_alone() {
+    var s = at_npc(1, npc.FENN)
+    let (_, fx, fy) = sim.npc_place(s, npc.FENN)
+    // North of Fenn, touching his body, facing south.
+    s.x = fx * sim.FP + sim.FP / 2
+    s.y = (fy - 5) * sim.FP + sim.FP / 2
+    s.heading = 128
+    s.heading_target = 128
+    s.attack_heading = 128
+    s.body_facing = 4
+    let health = s.health
+    wait(mut s, 60)
+    assert(s.health == health && !sim.alone(s), "sixty ticks beside him: no harm")
+    var bites = 0
+    while sim.npc_alive(s, npc.FENN) && bites < 6 {
+        s.action = sim.BITE
+        s.started = s.tick - 3
+        s.attack_heading = 128
+        s.body_facing = 4
+        sim.strike_foes(mut s)
+        s.action = sim.IDLE
+        s.tick += 1
+        bites += 1
+    }
+    assert(!sim.npc_alive(s, npc.FENN) && bites == 3, "three bites: {bites}")
+    assert(
+        sim.alone(s) && s.drops.len == 1 && s.drops[0].value == npc.LOST_SCENT,
+        "Alone, 30 scent",
+    )
+    let text = journey.encode(s)
+    let back = journey.decode(text, 80, 24) else |e| { assert(false, "valid {e}"); return }
+    assert(sim.alone(back) && back.npc_dead == npc.bit(npc.FENN), "the save remembers")
+}
+
+fn test_cb16_a_boss_led_to_an_npc_kills_it() {
+    var s = sim.new(1, 80, 24)
+    s.gate_open = true
+    s.pouch.seeded = pouch.bit(forest.AREAS) - 1
+    let (area, x, y) = sim.npc_place(s, npc.DUNMOSS)
+    // The cub at the sett, the lynx led to it: within four cells of the
+    // cub a boss is engaged wherever it stands.
+    sim.enter_area(mut s, area, x * sim.FP + sim.FP / 2, (y - 4) * sim.FP + sim.FP / 2)
+    var boss = -1
+    var i = 0
+    while i < s.foes.len { if sim.is_boss(s.foes[i].kind) { boss = i }; i += 1 }
+    assert(boss >= 0, "Whisper is in the Teeth")
+    s.foes[boss].x = (x + 3) * sim.FP + sim.FP / 2
+    s.foes[boss].y = y * sim.FP + sim.FP / 2
+    wait(mut s, 1)
+    assert(!sim.npc_alive(s, npc.DUNMOSS), "the lynx led to the sett kills Dunmoss")
+    let text = journey.encode(s)
+    let back = journey.decode(text, 80, 24) else |e| { assert(false, "valid {e}"); return }
+    assert(
+        !sim.npc_alive(back, npc.DUNMOSS) && sim.npc_alive(back, npc.QUILL),
+        "the save records it",
+    )
+}
+
+fn test_cb16_every_anchor_stands_on_open_ground() {
+    for seed in [1, 7] {
+        var s = sim.new(seed, 80, 24)
+        var who = 0
+        while who < npc.COUNT {
+            var said = 0
+            while said < (if who == npc.EMBER then 3 else 1) {
+                let (area, x, y) = npc.place(seed, 80, who, said, -1)
+                assert(
+                    !forest.blocked(seed, 80, area, x, y),
+                    "{npc.name(who)} ({said}) seed {seed} at {x},{y} in {area}",
+                )
+                said += 1
+            }
+            who += 1
+        }
+        s.npc_said[npc.QUILL] = 1
+        for den in [1, 3, 4] {
+            let (x, y) = npc.den_perch(seed, den)
+            assert(!forest.blocked(seed, 80, forest.den_area(den), x, y), "Quill at den {den}")
+        }
+    }
+}
