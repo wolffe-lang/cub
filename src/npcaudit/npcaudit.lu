@@ -1,0 +1,90 @@
+//! npcaudit — the NPCs' census (cb16, `cub --npc-audit`): every place an
+//! NPC can stand (Ember's three, Quill's Larkmeadow perch and his perch at
+//! each den he perches at, the rest at their anchors) over seeds 0..49 at
+//! both fields, held to open ground the area's own flood reaches from its
+//! entry (`forest.flood`, the world audit's instrument), with the distance
+//! to the area's arena where it has one (a boss is held to its arena, so
+//! an NPC far outside one is never met by a boss). One row a place, a
+//! verdict line; exit 1 on any place shut or cut off.
+
+use forest
+use npc
+
+/// The places an NPC can stand: `(said, perch)` pairs `npc.place` takes.
+fn places(who: int) -> List[(int, int)] {
+    var out = List[(int, int)]()
+    if who == npc.EMBER {
+        (mut out).push((0, -1))
+        (mut out).push((1, -1))
+        (mut out).push((2, -1))
+        return out
+    }
+    (mut out).push((0, -1))
+    if who == npc.QUILL {
+        var den = 0
+        while den < forest.DEN_LIMIT {
+            if npc.perch_den(den) { (mut out).push((1, den)) }
+            den += 1
+        }
+    }
+    out
+}
+
+/// The census; prints its rows and verdict, returns the exit status.
+pub fn run() -> int {
+    print("seed field npc said perch area x y open reached arena_gap")
+    var bad = 0
+    var rows = 0
+    var nearest = 100000
+    var seed = 0
+    while seed < 50 {
+        var size = 0
+        while size < 2 {
+            let field = if size == 0 then 80 else 200
+            var area = 0
+            while area < forest.AREAS {
+                var floods = List[List[int]]()
+                var who = 0
+                while who < npc.COUNT {
+                    for p in places(who) {
+                        let (said, perch) = p
+                        let (a, x, y) = npc.place(seed, field, who, said, perch)
+                        if a == area {
+                            if floods.len == 0 {
+                                (mut floods).push(forest.flood(seed, field, area))
+                            }
+                            let at = y - forest.origin(seed, area)
+                            let open = !forest.blocked(seed, field, area, x, y)
+                            let reached = forest.reached(floods[0], field, area, x, at)
+                            var arena_gap = -1
+                            if forest.has_arena(area) {
+                                let (cx, cy, r) = forest.arena(seed, field, area)
+                                let dx = if x > cx then x - cx else cx - x
+                                let dy = if at > cy then at - cy else cy - at
+                                arena_gap = (if dx > dy then dx else dy) - r
+                                if arena_gap < nearest { nearest = arena_gap }
+                            }
+                            print(
+                                "{seed} {field} {who} {said} {perch} {area} {x} {y} {if open then 1 else 0} {if reached then 1 else 0} {arena_gap}",
+                            )
+                            if !open || !reached { bad += 1 }
+                            rows += 1
+                        }
+                    }
+                    who += 1
+                }
+                area += 1
+            }
+            size += 1
+        }
+        seed += 1
+    }
+    if bad > 0 {
+        print("npc-audit: RED, {bad} of {rows} places shut or cut off")
+        return 1
+    }
+    print(
+        "npc-audit: green, {rows} places over 50 seeds at both fields on open, reached ground; nearest to an arena {nearest} cells past its edge",
+    )
+    0
+}

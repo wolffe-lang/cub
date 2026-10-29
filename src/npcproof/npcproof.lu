@@ -1,0 +1,156 @@
+//! npcproof — cb16's real-key witnesses (`cub --make-npc-proof DIR`): a
+//! conversation (Quill's first line at his Larkmeadow perch, the frame
+//! opened by standing still, his wares by Space, Esc), a purchase (the
+//! same walk with a disclosed 100-scent fixture: pine for 50 and yarrow
+//! for 20, Esc) and the toll (the Ferryman's post walked to from the dry
+//! island with a disclosed 70-scent fixture: sixty paid, the crossing, the
+//! far causeway). Every key is the walker's or one pressed here, recorded;
+//! the only fixture inputs are the journey snapshot's (the den, the
+//! growth and the bosses of `fight.journey_at`, the scent named here).
+
+use controls
+use fight
+use forest
+use journey
+use npc
+use replay
+use sim
+use std.fs
+use walker
+
+fn snapshot_replay(s: sim.Sim) -> replay.Replay {
+    var r = replay.new(s.seed, 1, s.cols, s.rows)
+    replay.push_arg(mut r, 0, controls.EV_JOURNEY, journey.JOURNEY)
+    let v = journey.snapshot(s)
+    var i = 0
+    while i < v.len { replay.push_arg(mut r, 0, controls.saved_event(i), v[i]); i += 1 }
+    r
+}
+
+fn write_case(dir: str, name: str, r: replay.Replay, to: int, every: int, from: int) -> () ! {io} {
+    var bytes = List[byte]()
+    replay.format(r, controls.vocab(), mut bytes)
+    fs.write_bytes(dir + "/" + name + ".pk", bytes) else |_| { return io }
+    fs.append_text(
+        dir + "/" + name + ".pk",
+        "\n# frames {to} every {every} from {from}\n",
+    ) else |_| {
+        return io
+    }
+    print("witness {name} frames {to} every {every} from {from}")
+}
+
+/// A journey resting at `den` with a boss fight's growth (`kind`'s, the
+/// bosses before it beaten) and `scent` carried, validated by the save's
+/// own decoder.
+fn journey_at_den(seed: int, kind: int, den: int, scent: int) -> sim.Sim {
+    var s = fight.journey_at(seed, 80, 24, kind)
+    s.last_den = den
+    s.lit_dens = sim.light_den(s.lit_dens, den)
+    s.scent = scent
+    let text = journey.encode(s)
+    journey.decode(text, 80, 24) else |e| {
+        assert(false, "npcproof: den {den} is not a valid save: {e}")
+        s
+    }
+}
+
+/// Walk to the cell three rows south of an NPC (its body and the cub's
+/// touching: beside, both drawn; the NPC's own cell when that one
+/// is shut) and stand still until it speaks (at most 90 ticks); false when
+/// the walk fails or it never speaks.
+fn walk_and_wait(mut s: sim.Sim, mut r: replay.Replay, who: int) -> bool {
+    let (area, x, y0) = sim.npc_place(s, who)
+    let y = if forest.blocked(s.seed, s.field, area, x, y0 + 3) then y0 else y0 + 3
+    if !walker.walk(mut s, mut r, x * sim.FP + sim.FP / 2, y * sim.FP + sim.FP / 2) {
+        eprint("npcproof: the walk to {npc.name(who)}")
+        return false
+    }
+    var n = 0
+    while n < 90 && s.talk != who {
+        walker.press(mut s, mut r, walker.key(0))
+        n += 1
+    }
+    if s.talk != who {
+        eprint(
+            "npcproof: {npc.name(who)} never spoke: the cub at {sim.cell_x(s)},{sim.cell_y(s)}, it at {x},{y0}, gap {sim.gap(sim.cub_body(s), sim.npc_body(s, who))}, speed {s.speed}, spoken {s.npc_spoken}",
+        )
+    }
+    s.talk == who
+}
+
+/// The three witnesses on seed 1, 80 by 24.
+pub fn generate(dir: str) -> int {
+    fs.create_dir_all(dir) else |_| { return 2 }
+    let seed = 1
+    // The conversation: Quill at his perch, from the grass nest.
+    let t0 = journey_at_den(seed, sim.LYNX, 3, 0)
+    var t = copy t0
+    var tr = snapshot_replay(t0)
+    walker.press(mut t, mut tr, walker.key(controls.KEY_RELEASE))
+    if !walk_and_wait(mut t, mut tr, npc.QUILL) { return 1 }
+    let opened = t.tick
+    var n = 0
+    while n < 10 { walker.press(mut t, mut tr, walker.key(0)); n += 1 }
+    walker.press(mut t, mut tr, walker.key(controls.KEY_BITE))
+    n = 0
+    while n < 5 { walker.press(mut t, mut tr, walker.key(0)); n += 1 }
+    walker.press(mut t, mut tr, walker.key(controls.KEY_RELEASE))
+    n = 0
+    while n < 5 { walker.press(mut t, mut tr, walker.key(0)); n += 1 }
+    print(
+        "npc-talk: frame at {opened} line {t.talk_line} said {t.npc_said[npc.QUILL]} talk {t.talk}",
+    )
+    write_case(dir, "npc-talk", tr, t.tick, 4, opened - 2) else |_| { return 2 }
+    // The purchase: the same walk with 100 scent; pine, then yarrow.
+    let p0 = journey_at_den(seed, sim.LYNX, 3, 100)
+    var p = copy p0
+    var pr = snapshot_replay(p0)
+    walker.press(mut p, mut pr, walker.key(controls.KEY_RELEASE))
+    if !walk_and_wait(mut p, mut pr, npc.QUILL) { return 1 }
+    let shop = p.tick
+    for k in [
+        controls.KEY_BITE,
+        0,
+        controls.KEY_DOWN,
+        0,
+        controls.KEY_BITE,
+        0,
+        0,
+        controls.KEY_UP,
+        0,
+        controls.KEY_BITE,
+        0,
+        0,
+        controls.KEY_RELEASE,
+        0,
+        0,
+    ] {
+        walker.press(mut p, mut pr, walker.key(k))
+    }
+    print("npc-trade: wares at {shop} scent {p.scent} pine {p.pouch.pine} yarrow {p.yarrow}")
+    if p.scent != 30 || p.pouch.pine != 1 || p.yarrow != 1 {
+        eprint("npcproof: the purchase did not happen")
+        return 1
+    }
+    write_case(dir, "npc-trade", pr, p.tick, 1, shop) else |_| { return 2 }
+    // The toll: the Ferryman's post from the dry island with 70 scent.
+    let f0 = journey_at_den(seed, sim.ELK, 14, 70)
+    var f = copy f0
+    var fr = snapshot_replay(f0)
+    walker.press(mut f, mut fr, walker.key(controls.KEY_RELEASE))
+    if !walk_and_wait(mut f, mut fr, npc.FERRYMAN) { return 1 }
+    let post = f.tick
+    walker.press(mut f, mut fr, walker.key(controls.KEY_BITE))
+    walker.press(mut f, mut fr, walker.key(controls.KEY_BITE))
+    n = 0
+    while n < npc.CROSS_TICKS + 10 { walker.press(mut f, mut fr, walker.key(0)); n += 1 }
+    let at = sim.cell_y(f) - forest.origin(seed, f.area)
+    print("npc-toll: post at {post} scent {f.scent} row {at} ferry {f.ferry_at}")
+    if f.scent != 10 || at != npc.CROSS_TO {
+        eprint("npcproof: the crossing did not land")
+        return 1
+    }
+    write_case(dir, "npc-toll", fr, f.tick, 15, post) else |_| { return 2 }
+    0
+}
