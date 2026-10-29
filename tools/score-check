@@ -12,6 +12,18 @@ tick under the bar, the first tick's attack rising from near silence), a
 WAV carries the canonical header over the same bytes, and a part that does
 not parse is refused by name with no output written. --update writes the
 goldens afresh from the release binary.
+
+cb17: every scene script (`cub --score-scene NAME OUT`, one for each part
+cb17 wrote, and `six`, the replay above) pins its cue schedule as text
+(tests/goldens/score/scene-<name>.cues: a `tick T cue NAME` line for every
+cue it starts) and its mixer's PCM by sha256 and length (scene-<name>.sha256);
+`six` renders the very bytes of replay.pcm; the Hush's first entry is silent
+from the Shallows' fade to its 300th tick (R-cb17-1 A). A part dropped from
+the bank turns its scene's cue into the silence: a red golden by name.
+And the memory gate's budget with every part loaded: tools/memory-probe.py
+over the release binary's real loop with the music on through the OSS stub
+(silent on every host: the stub refuses by name, no player starts), seed 7,
+4096 bytes a tick, as tools/check-memory holds the muted game.
 """
 import hashlib
 import os
@@ -25,9 +37,18 @@ OUT = ROOT / "target" / "score"
 GOLD = ROOT / "tests" / "goldens" / "score"
 HEAD_BYTES = 48000 * 4
 SEAM_BAR = 256
-LOOPS = ["title", "shingle", "bramblehold", "larkmeadow", "boss-boar", "boss-lynx",
-         "boss-elk", "boss-alpha", "den"]
-ONCE = ["death", "crack"]
+# The bank's order (`score.names`): cb03's eleven, then cb17's fourteen.
+NAMES = ["title", "shingle", "bramblehold", "larkmeadow", "boss-boar", "boss-lynx",
+         "boss-elk", "boss-alpha", "den", "death", "crack",
+         "cinderwick", "stand", "burn", "teeth", "underteeth", "mere", "shallows", "hush",
+         "howe", "gravehollow", "moonford", "reveal", "crossing", "walk"]
+ONCE = ["death", "crack", "reveal"]
+# The scene scripts (`score.scene_names`) and their ticks.
+SCENES = [("six", 180), ("cinderwick", 150), ("stand", 150), ("reveal", 330), ("burn", 150),
+          ("teeth", 150), ("underteeth", 150), ("mere", 150), ("crossing", 180),
+          ("shallows", 150), ("hush", 510), ("howe", 150), ("walk", 195),
+          ("gravehollow", 240), ("moonford", 180)]
+TICK = 1600 * 4
 
 
 def run(binary, *args, ok=0):
@@ -38,13 +59,18 @@ def run(binary, *args, ok=0):
 
 
 def names(binary):
+    """The listing: every part with its length, then every scene script."""
     p = run(binary, "--score-list")
-    out = []
+    parts, scenes = [], []
     for line in p.stdout.decode().splitlines():
         w = line.split()
-        assert w[0] == "part" and w[2] == "seconds", line
-        out.append((w[1], int(w[3]), w[5] == "1"))
-    return out
+        if w[0] == "scene":
+            assert w[2] == "ticks", line
+            scenes.append((w[1], int(w[3])))
+            continue
+        assert w[0] == "part" and w[2] == "seconds" and not scenes, line
+        parts.append((w[1], int(w[3]), w[5] == "1"))
+    return parts, scenes
 
 
 def peak(b):
@@ -85,14 +111,65 @@ def check_part(binary, tier, name, seconds, once, update):
     return b
 
 
+def check_scene(binary, tier, name, ticks, update):
+    """A scene script's cue schedule (text) and its mixer's PCM (sha256)."""
+    pcm = OUT / ("scene-%s-%s.pcm" % (name, tier))
+    p = run(binary, "--score-scene", name, pcm)
+    cued = p.stdout.decode()
+    b = pcm.read_bytes()
+    assert len(b) == ticks * TICK, (name, len(b))
+    digest = hashlib.sha256(b).hexdigest()
+    line = "%s %d\n" % (digest, len(b))
+    if update and tier == "release":
+        (GOLD / ("scene-%s.cues" % name)).write_text(cued)
+        (GOLD / ("scene-%s.sha256" % name)).write_text(line)
+        print("score-scene %s written %s" % (name, digest), flush=True)
+    else:
+        want = (GOLD / ("scene-%s.cues" % name)).read_text()
+        if cued != want:
+            got_lines, want_lines = cued.splitlines(), want.splitlines()
+            first = next((i for i in range(max(len(got_lines), len(want_lines)))
+                          if i >= len(got_lines) or i >= len(want_lines) or got_lines[i] != want_lines[i]), 0)
+            raise AssertionError("score-scene %s/%s FAILED: the cue schedule differs at line %d: %r, golden %r" % (
+                name, tier, first + 1,
+                got_lines[first] if first < len(got_lines) else None,
+                want_lines[first] if first < len(want_lines) else None))
+        if line != (GOLD / ("scene-%s.sha256" % name)).read_text():
+            raise AssertionError("score-scene %s/%s FAILED: the mixer's PCM %s, golden %s" % (
+                name, tier, line.strip(), (GOLD / ("scene-%s.sha256" % name)).read_text().strip()))
+        print("score-scene %s/%s ok %d cues %s" % (name, tier, len(cued.splitlines()), digest), flush=True)
+    return b
+
+
+def check_memory():
+    """The resident growth over the real loop with every part prepared."""
+    import json
+    p = subprocess.run([sys.executable, "-I", str(ROOT / "tools" / "memory-probe.py"),
+                        "--bin", str(ROOT / "target" / "release" / "cub"),
+                        "--work", str(ROOT / "target" / "memory-probes"),
+                        "--seed", "7", "--warmup", "60", "--ticks", "600", "--timeout", "120",
+                        "--ceiling", "2147483648", "--budget", "4096", "--sound-backend", "oss"],
+                       capture_output=True, text=True)
+    rows = [json.loads(l) for l in p.stdout.splitlines() if l.startswith("{")]
+    verdict = rows[-1] if rows else {}
+    if p.returncode != 0 or verdict.get("status") != "GREEN":
+        raise AssertionError("score-memory FAILED (exit %d): %s %s" % (p.returncode, verdict, p.stderr[-300:]))
+    start = rows[0]["rss_bytes"] if rows else 0
+    print("score-memory ok %.1f bytes/tick over %d ticks (budget 4096), sound on (oss), first sample %d KiB, %d to %d bytes" % (
+        verdict["bytes_per_tick"], verdict["ticks"], start // 1024,
+        verdict["start"]["rss_bytes"], verdict["end"]["rss_bytes"]), flush=True)
+
+
 def main():
     update = "--update" in sys.argv[1:]
     OUT.mkdir(parents=True, exist_ok=True)
     GOLD.mkdir(parents=True, exist_ok=True)
     for tier in ("release", "native"):
         binary = ROOT / "target" / tier / "cub"
-        listed = names(binary)
-        assert [n for n, _, _ in listed] == LOOPS + ONCE, listed
+        listed, scenes = names(binary)
+        assert [n for n, _, _ in listed] == NAMES, listed
+        assert [n for n, _, once in listed if once] == ONCE, listed
+        assert scenes == SCENES, scenes
         for name, seconds, once in listed:
             check_part(binary, tier, name, seconds, once, update)
         replay = OUT / ("replay-%s.pcm" % tier)
@@ -108,6 +185,18 @@ def main():
                 first = next(i for i in range(min(len(b), len(want))) if b[i] != want[i])
                 raise AssertionError("score-golden replay/%s FAILED at byte %d" % (tier, first))
             print("score-golden replay/%s ok %s" % (tier, hashlib.sha256(b).hexdigest()), flush=True)
+        for name, ticks in SCENES:
+            s = check_scene(binary, tier, name, ticks, update)
+            if name == "six":
+                assert s == b, "score-scene six/%s FAILED: not the replay's bytes" % tier
+                print("score-scene six/%s is replay.pcm" % tier, flush=True)
+            if name == "hush":
+                # R-cb17-1 A: the Shallows fade out over their 9 ticks from
+                # tick 45; from tick 55 to the wait's end (tick 345) nothing.
+                quiet = peak(s[55 * TICK:345 * TICK])
+                assert quiet == 0, "score-hush %s FAILED: the first entry's wait peaks at %d" % (tier, quiet)
+                assert peak(s[346 * TICK:405 * TICK]) > 0, "score-hush %s FAILED: no motif after the wait" % tier
+                print("score-hush %s ok ticks 55-344 silent, the motif from 345" % tier, flush=True)
         # The replay's shape: silent before the title's fade-in completes
         # its first tick is quiet; the sting's bytes louder than the den's.
         wave = OUT / ("den-%s.wav" % tier)
@@ -123,6 +212,7 @@ def main():
         failure = run(binary, "--score-render", "no-such-part", bad, ok=2)
         assert b"no-such-part" in failure.stderr and not bad.exists()
         print("score-refusal %s ok" % tier, flush=True)
+    check_memory()
     print("score-check: green")
 
 
