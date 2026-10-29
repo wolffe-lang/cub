@@ -17,7 +17,18 @@
 //! streams none (lair's docs/SOUND.md), so the live path carries a cut
 //! where the mixer carries a fade: R-cb03-1 B; the note says so and names
 //! the lair need. The music is original to cub.
+//!
+//! cb17 wrote a part for every area and scene that had none: the ten
+//! later areas, Moonford at the end, and three moments the schedule reads
+//! from the game (`moment_of`): the lookout's reveal, the Mere's crossing,
+//! the Howe's walk to the stone mouth; the Hush's first entry waits in the
+//! silence (R-cb17-1 A). Twenty-five parts and the silence outnumber the
+//! engine's sixteen-cue mixer, so a replay's mixer holds only the cues its
+//! own scenes reach (`scene_bank_with`, R-cb17-2 A); the live sink writes every
+//! part's WAV, one part at a time (R-cb17-3 A).
 
+use forest
+use lands
 use sim
 use sound
 use std.fs
@@ -26,8 +37,10 @@ use std.process
 /// The ticks a second, the engine's (`sound.TICK_FRAMES` of `sound.RATE`).
 pub const TICK_HZ: int = 30
 
-/// The parts, in the bank's order: the title, the three areas, the four
-/// boss themes (cb04 wires the fights), the den's rest, the death sting.
+/// The parts, in the bank's order: the title, the three first areas, the
+/// four boss themes (cb04 wires the fights), the den's rest, the death
+/// sting, the crack (cb06); then cb17's: the ten later areas in the
+/// journey's order, Moonford, and the three moments.
 pub fn names() -> List[str] {
     [
         "title",
@@ -41,8 +54,25 @@ pub fn names() -> List[str] {
         "den",
         "death",
         "crack",
+        "cinderwick",
+        "stand",
+        "burn",
+        "teeth",
+        "underteeth",
+        "mere",
+        "shallows",
+        "hush",
+        "howe",
+        "gravehollow",
+        "moonford",
+        "reveal",
+        "crossing",
+        "walk",
     ]
 }
+
+/// The engine's bound on a mixer's bank (`sound.mixer`, lair 74b89744).
+pub const BANK_MAX: int = 16
 
 /// The silent part: one bar of rest, the cue that stops the music (a
 /// replace cue fades every slot out; the live player stops its child).
@@ -50,20 +80,24 @@ pub fn silence_text() -> str {
     "title silence\ncue replace fade 6\ntempo 120\npart hush flute ppp\nbar 1\nhush r/1\n"
 }
 
-/// The area's part: the Shingle, Bramblehold, Larkmeadow; the crags, the
-/// river and the old den are named slots for cb04's areas, silent until
-/// their parts exist (`docs/SCORE.md`).
+/// The area's part, by the area's id (`forest`): every one of the
+/// thirteen has its own since cb17; an id past them is `none`, the
+/// silence.
 pub fn area_part(area: int) -> str {
-    // cb14's five areas and the split Gravehollow are `none` until cb17
-    // writes their parts; the Hush keeps cb04's `old-den` slot (silent).
     match area {
         0 => "shingle",
         1 => "bramblehold",
         2 => "larkmeadow",
-        3 => "crags",
-        4 => "river",
-        5 => "old-den",
+        3 => "teeth",
+        4 => "shallows",
+        5 => "hush",
         6 => "cinderwick",
+        7 => "stand",
+        8 => "burn",
+        9 => "mere",
+        10 => "underteeth",
+        11 => "howe",
+        12 => "gravehollow",
         _ => "none",
     }
 }
@@ -80,9 +114,17 @@ pub fn boss_part(boss: int) -> str {
     }
 }
 
-/// The death and crack stings play once; every other part loops.
+/// The death and crack stings and the lookout's reveal play once; every
+/// other part loops.
 pub fn plays_once(name: str) -> bool {
-    name == "death" || name == "crack"
+    name == "death" || name == "crack" || name == "reveal"
+}
+
+/// The once-cues that are never cut short: the sting, and the reveal,
+/// which sounds to its end after the camera has come back (only a fall
+/// cuts it). The crack is a once-cue a skip may cut.
+pub fn holds(name: str) -> bool {
+    name == "death" || name == "reveal"
 }
 
 /// A part's text without lair's `cue` line: the musical reader's input.
@@ -123,11 +165,16 @@ pub fn load(name: str) -> sound.Part ! {invalid} {
     sound.prepare(name, part_text(name), seconds)
 }
 
-/// The whole bank, prepared: the parts and the silence.
-pub fn bank() -> List[sound.Part] ! {invalid} {
+/// A bank of the named parts, prepared, for one mixer: at most
+/// `BANK_MAX` (the engine refuses more; `invalid` says so here first,
+/// on stderr, with the count).
+pub fn bank_of(wanted: List[str]) -> List[sound.Part] ! {invalid} {
+    if wanted.len > BANK_MAX {
+        eprint("score: a mixer's bank holds {BANK_MAX} cues; this one asks {wanted.len}")
+        return invalid
+    }
     var out = List[sound.Part]()
-    for n in names() { (mut out).push(load(n)?) }
-    (mut out).push(load("silence")?)
+    for n in wanted { (mut out).push(load(n)?) }
     out
 }
 
@@ -151,7 +198,9 @@ pub fn cues() -> List[Cue] ! {invalid} {
     out
 }
 
-/// What the score reads of the game, once a tick.
+/// What the score reads of the game, once a tick. `end` is the ford at
+/// dawn (`sim.SCENE_END`); `moment` one of the `MOMENT_*` the area's
+/// ground gives (`moment_of`).
 pub struct Scene {
     title: bool,
     opening_age: int,
@@ -159,17 +208,107 @@ pub struct Scene {
     den: bool,
     boss: int,
     area: int,
+    end: bool,
+    moment: int,
+}
+
+/// No moment: the area's own part.
+pub const MOMENT_NONE: int = 0
+
+/// The lookout's reveal (the Stand, `sim.revealing`): the reveal's part,
+/// held to its end.
+pub const MOMENT_REVEAL: int = 1
+
+/// The Mere's crossing: the cub between the two causeways, over the
+/// stones and the islands they join.
+pub const MOMENT_CROSSING: int = 2
+
+/// The Howe's walk: from the fourth standing stone to the stone mouth.
+pub const MOMENT_WALK: int = 3
+
+/// The Hush's wait (R-cb17-1 A): the silence for `HUSH_WAIT` ticks after
+/// an entry while the cold den is unlit.
+pub const MOMENT_HUSH_WAIT: int = 4
+
+/// The Hush's silence at a first entry, ticks (ten seconds).
+pub const HUSH_WAIT: int = 300
+
+/// The Hush's den: the cold den at its entry (`forest.den_area(6)`).
+pub const HUSH_DEN: int = 6
+
+/// Whether the den `den` is lit in `lit` (`sim.light_den`'s bits).
+pub fn den_lit(lit: int, den: int) -> bool {
+    var mask = 1
+    var i = 0
+    while i < den { mask *= 2; i += 1 }
+    lit / mask % 2 == 1
+}
+
+/// Whether local row `at` of the Mere is the crossing: past the first
+/// causeway and short of the last (`lands.CAUSEWAY` rows each).
+pub fn crossing_row(at: int) -> bool {
+    at > lands.CAUSEWAY && at < forest.length(forest.MERE) - lands.CAUSEWAY
+}
+
+/// The first row of the Howe's walk: the fourth standing stone's.
+pub fn walk_from() -> int {
+    forest.menhir_row(3)
+}
+
+/// The moment of the scene, from the area's ground: read-only over the
+/// simulation (the reveal's clock is `sim.revealing`; the cub's local row
+/// is its cell less the area's origin; the Hush's wait reads the area's
+/// entry tick and the cold den's lit bit).
+pub fn moment_of(s: sim.Sim) -> int {
+    if sim.revealing(s) { return MOMENT_REVEAL }
+    if s.area == forest.MERE || s.area == forest.HOWE {
+        let at = sim.cell_y(s) - forest.origin(s.seed, s.area)
+        if s.area == forest.MERE && crossing_row(at) { return MOMENT_CROSSING }
+        if s.area == forest.HOWE && at >= walk_from() { return MOMENT_WALK }
+        return MOMENT_NONE
+    }
+    if s.area == forest.HUSH && !den_lit(s.lit_dens, HUSH_DEN) && s.tick - s.entered < HUSH_WAIT {
+        return MOMENT_HUSH_WAIT
+    }
+    MOMENT_NONE
 }
 
 /// The scene the simulation is in.
 pub fn scene_of(s: sim.Sim) -> Scene {
     Scene {
-        title: s.scene != 0,
+        title: s.scene != 0 && s.scene != sim.SCENE_END,
         opening_age: if s.scene == 1 then s.tick - s.scene_started else -1,
         fallen: s.action == sim.FALL,
         den: s.den,
         boss: sim.boss_theme(s),
         area: s.area,
+        end: s.scene == sim.SCENE_END,
+        moment: if s.scene == 0 then moment_of(s) else MOMENT_NONE,
+    }
+}
+
+/// A scene in an area with nothing else happening: its own part.
+pub fn in_area(area: int) -> Scene {
+    Scene {
+        title: false,
+        opening_age: -1,
+        fallen: false,
+        den: false,
+        boss: -1,
+        area: area,
+        end: false,
+        moment: MOMENT_NONE,
+    }
+}
+
+/// The part a moment cues, "" for none (the area's).
+pub fn moment_part(moment: int) -> str {
+    match moment {
+        1 => "reveal",
+        2 => "crossing",
+        3 => "walk",
+        4 => "silence",
+        _ => "",
     }
 }
 
@@ -181,13 +320,18 @@ pub fn opening_part(age: int) -> str {
     "shingle"
 }
 
-/// Choose the scene cue, with the opening driven by its simulation age.
+/// Choose the scene cue, with the opening driven by its simulation age:
+/// a fall over everything, the opening, the end (Moonford), the title, a
+/// den's rest, a boss, a moment of the area's ground, the area's part.
 pub fn want(sc: Scene) -> str {
     if sc.fallen { return "death" }
     if sc.opening_age >= 0 { return opening_part(sc.opening_age) }
+    if sc.end { return "moonford" }
     if sc.title { return "title" }
     if sc.den { return "den" }
     if sc.boss >= 0 { return boss_part(sc.boss) }
+    let m = moment_part(sc.moment)
+    if m != "" { return m }
     area_part(sc.area)
 }
 
@@ -231,10 +375,11 @@ pub fn restart(mut sch: Schedule) {
 }
 
 /// Step the schedule at `tick`: the cue to start now, or "" for none. A
-/// loop restarts when its length is up; a cue that plays once (the
-/// sting) is never cut short — the scene's next part waits for its end,
-/// so the area's loop resumes at the den once the sting has sounded. A
-/// part the bank lacks (a slot cb04 fills) is the silence.
+/// loop restarts when its length is up; a once-cue that holds (the
+/// sting, the reveal: `holds`) is never cut short — the scene's next part
+/// waits for its end, so the area's loop resumes at the den once the
+/// sting has sounded; only a fall cuts the reveal. A part the schedule
+/// does not know is the silence.
 pub fn step(mut sch: Schedule, sc: Scene, tick: int) -> str {
     var w = want(sc)
     if ticks_of(sch, w) == 0 { w = "silence" }
@@ -245,7 +390,9 @@ pub fn step(mut sch: Schedule, sc: Scene, tick: int) -> str {
         }
         return ""
     }
-    if sch.current == "death" && once_of(sch, sch.current) && sounding(sch, tick) { return "" }
+    if holds(sch.current) && once_of(sch, sch.current) && w != "death" && sounding(sch, tick) {
+        return ""
+    }
     sch.current = w
     sch.since = tick
     w
@@ -255,25 +402,17 @@ pub fn step(mut sch: Schedule, sc: Scene, tick: int) -> str {
 /// the title, the Shingle, a den, the Shingle again, the boar's theme, a
 /// fall, and the wake at the den, over 180 ticks (six seconds).
 pub fn replay_scene(t: int) -> Scene {
+    var sc = in_area(0)
     if t < 15 {
-        return Scene { opening_age: -1, title: true, fallen: false, den: false, boss: -1, area: 0 }
+        sc.title = true
+    } else if t >= 45 && t < 60 {
+        sc.den = true
+    } else if t >= 75 && t < 105 {
+        sc.boss = 0
+    } else if t >= 105 && t < 135 {
+        sc.fallen = true
     }
-    if t < 45 {
-        return Scene { opening_age: -1, title: false, fallen: false, den: false, boss: -1, area: 0 }
-    }
-    if t < 60 {
-        return Scene { opening_age: -1, title: false, fallen: false, den: true, boss: -1, area: 0 }
-    }
-    if t < 75 {
-        return Scene { opening_age: -1, title: false, fallen: false, den: false, boss: -1, area: 0 }
-    }
-    if t < 105 {
-        return Scene { opening_age: -1, title: false, fallen: false, den: false, boss: 0, area: 0 }
-    }
-    if t < 135 {
-        return Scene { opening_age: -1, title: false, fallen: true, den: false, boss: -1, area: 0 }
-    }
-    Scene { opening_age: -1, title: false, fallen: false, den: false, boss: -1, area: 0 }
+    sc
 }
 
 /// The replay's ticks.
@@ -281,14 +420,208 @@ pub const REPLAY_TICKS: int = 180
 
 /// The schedule through the engine's mixer over `replay_scene`: the PCM
 /// the golden pins, every cue's fade and the sting's hold in the bytes.
+/// Its mixer holds only the cues the replay reaches (R-cb17-2 A); the
+/// mixer reads only cued slots, so the bytes are the whole bank's.
 pub fn replay_pcm() -> List[byte] ! {invalid} {
-    let b = bank()?
+    scene_pcm("six")
+}
+
+/// A shot of a scene script: from tick `from`, the scene `sc` (until the
+/// next shot).
+pub struct Shot {
+    from: int,
+    sc: Scene,
+}
+
+fn in_moment(area: int, moment: int) -> Scene {
+    var sc = in_area(area)
+    sc.moment = moment
+    sc
+}
+
+fn shot(from: int, sc: Scene) -> Shot {
+    Shot { from: from, sc: sc }
+}
+
+/// An area's entry from its neighbour on the journey's line: the
+/// neighbour's part for a second and a half, then the area's.
+fn entry(was: int, now: int) -> List[Shot] {
+    [shot(0, in_area(was)), shot(45, in_area(now))]
+}
+
+/// The scene scripts behind the cue-schedule goldens (cb17), one for
+/// each new part: its trigger from the scene before it, through the real
+/// schedule. `six` is the 180-tick replay above (`replay.pcm`).
+pub fn scene_names() -> List[str] {
+    [
+        "six",
+        "cinderwick",
+        "stand",
+        "reveal",
+        "burn",
+        "teeth",
+        "underteeth",
+        "mere",
+        "crossing",
+        "shallows",
+        "hush",
+        "howe",
+        "walk",
+        "gravehollow",
+        "moonford",
+    ]
+}
+
+/// A script's shots, in order; empty for no such script.
+pub fn script(name: str) -> List[Shot] {
+    if name == "cinderwick" { return entry(forest.SHINGLE, forest.TOWN) }
+    if name == "stand" { return entry(forest.BRAMBLEHOLD, forest.STAND) }
+    if name == "burn" { return entry(forest.LARKMEADOW, forest.BURN) }
+    if name == "teeth" { return entry(forest.BURN, forest.CRAGS) }
+    if name == "underteeth" { return entry(forest.CRAGS, forest.UNDERTEETH) }
+    if name == "mere" { return entry(forest.CRAGS, forest.MERE) }
+    if name == "shallows" { return entry(forest.MERE, forest.RIVER) }
+    if name == "howe" { return entry(forest.HUSH, forest.HOWE) }
+    if name == "reveal" {
+        // The lookout: the reveal's sixty ticks, then the Stand again;
+        // the reveal holds to its end (eight seconds), then the Stand's
+        // loop returns.
+        return [
+            shot(0, in_area(forest.STAND)),
+            shot(30, in_moment(forest.STAND, MOMENT_REVEAL)),
+            shot(90, in_area(forest.STAND)),
+        ]
+    }
+    if name == "crossing" {
+        // The first causeway, the crossing, the far causeway.
+        return [
+            shot(0, in_area(forest.MERE)),
+            shot(45, in_moment(forest.MERE, MOMENT_CROSSING)),
+            shot(135, in_area(forest.MERE)),
+        ]
+    }
+    if name == "hush" {
+        // The first entry from the Shallows: the wait's 300 ticks of
+        // silence, the shadows' motif, the cold den's rest, and leaving it
+        // lit: the motif at once (R-cb17-1 A).
+        var den = in_area(forest.HUSH)
+        den.den = true
+        return [
+            shot(0, in_area(forest.RIVER)),
+            shot(45, in_moment(forest.HUSH, MOMENT_HUSH_WAIT)),
+            shot(45 + HUSH_WAIT, in_area(forest.HUSH)),
+            shot(405, den),
+            shot(450, in_area(forest.HUSH)),
+        ]
+    }
+    if name == "walk" {
+        // The barrows, the walk past the fourth stone, the stone mouth
+        // into Gravehollow.
+        return [
+            shot(0, in_area(forest.HOWE)),
+            shot(45, in_moment(forest.HOWE, MOMENT_WALK)),
+            shot(135, in_area(forest.GRAVEHOLLOW)),
+        ]
+    }
+    if name == "gravehollow" {
+        // Through the mouth, the hollow, the alpha's fight, the hollow
+        // again as he fades.
+        var fight = in_area(forest.GRAVEHOLLOW)
+        fight.boss = 3
+        return [
+            shot(0, in_moment(forest.HOWE, MOMENT_WALK)),
+            shot(30, in_area(forest.GRAVEHOLLOW)),
+            shot(120, fight),
+            shot(180, in_area(forest.GRAVEHOLLOW)),
+        ]
+    }
+    if name == "moonford" {
+        // The hollow after the fight, then the end: the ford at dawn.
+        var end = in_area(forest.GRAVEHOLLOW)
+        end.end = true
+        return [shot(0, in_area(forest.GRAVEHOLLOW)), shot(30, end)]
+    }
+    List[Shot]()
+}
+
+/// A script's length in ticks, 0 for no such script.
+pub fn scene_ticks(name: str) -> int {
+    if name == "six" { return REPLAY_TICKS }
+    if name == "reveal" { return 330 }
+    if name == "crossing" { return 180 }
+    if name == "hush" { return 510 }
+    if name == "walk" { return 195 }
+    if name == "gravehollow" { return 240 }
+    if name == "moonford" { return 180 }
+    if script(name).len > 0 { return 150 }
+    0
+}
+
+/// The scene at tick `t` of script `name`: its last shot from at or
+/// before `t`.
+pub fn scene_at(name: str, t: int) -> Scene {
+    if name == "six" { return replay_scene(t) }
+    var sc = in_area(-1)
+    for sh in script(name) {
+        if sh.from <= t { sc = copy sh.sc }
+    }
+    sc
+}
+
+fn has(names: List[str], name: str) -> bool {
+    for n in names {
+        if n == name { return true }
+    }
+    false
+}
+
+/// The cue schedule over a script: a line `tick T cue NAME` for every cue
+/// it starts (the cue-schedule golden's text), against the cues `cs`.
+pub fn scene_cues_with(name: str, cs: List[Cue]) -> List[str] {
+    var sch = schedule(cs)
+    var out = List[str]()
+    var t = 0
+    while t < scene_ticks(name) {
+        let c = step(mut sch, scene_at(name, t), t)
+        if c != "" { (mut out).push("tick {t} cue {c}") }
+        t += 1
+    }
+    out
+}
+
+/// The same against every part's length; `invalid` for no such script.
+pub fn scene_cues(name: str) -> List[str] ! {invalid} {
+    if scene_ticks(name) == 0 { return invalid }
+    scene_cues_with(name, cues()?)
+}
+
+/// The bank a script's mixer needs: every cue its schedule starts over
+/// the cues `cs`, once, in the order first started.
+pub fn scene_bank_with(name: str, cs: List[Cue]) -> List[str] {
+    var sch = schedule(cs)
+    var out = List[str]()
+    var t = 0
+    while t < scene_ticks(name) {
+        let c = step(mut sch, scene_at(name, t), t)
+        if c != "" && !has(out, c) { (mut out).push(copy c) }
+        t += 1
+    }
+    out
+}
+
+/// A script's schedule through the engine's mixer over a bank of the cues
+/// it reaches: the PCM its golden pins (`cub --score-scene NAME OUT`).
+pub fn scene_pcm(name: str) -> List[byte] ! {invalid} {
+    let n = scene_ticks(name)
+    if n == 0 { return invalid }
+    let cs = cues()?
+    let b = bank_of(scene_bank_with(name, cs))?
     var m = sound.mixer(b) else |_| { return invalid }
-    var sch = schedule(cues()?)
+    var sch = schedule(cs)
     var all = List[byte]()
     var t = 0
-    while t < REPLAY_TICKS {
-        let c = step(mut sch, replay_scene(t), t)
+    while t < n {
+        let c = step(mut sch, scene_at(name, t), t)
         if c != "" { let _ok = sound.cue(mut m, c) }
         for x in sound.tick(mut m) { (mut all).push(x) }
         t += 1
@@ -332,34 +665,50 @@ pub fn wav_path(p: Player, name: str) -> str {
     "{p.dir}/{name}.wav"
 }
 
+/// Every part the live sink writes: the bank's and the silence.
+pub fn wav_names() -> List[str] {
+    var out = names()
+    (mut out).push("silence")
+    out
+}
+
 /// Render every part and write its WAV under the player's directory:
-/// loading work, measured by the caller. The bank dies with this call's
-/// region; the files are the sink. 0, or 2 with the fault named on stderr.
+/// loading work, measured by the caller. Every part is read first, so a
+/// part that does not parse writes nothing; then one part at a time is
+/// rendered, written and dropped with its region (R-cb17-3 A: the
+/// prepare's peak is one part's PCM, not the bank's). The files are the
+/// sink. 0, or 2 with the fault named on stderr.
 pub fn write_wavs(p: Player) -> int {
-    var status = 0
-    region prepare {
-        let b = bank() else |_| {
+    for n in wav_names() {
+        let _seconds = seconds_of(n) else |_| {
             eprint("cub: score: a part does not parse; no sound")
-            status = 2
-            List[sound.Part]()
+            return 2
         }
+    }
+    fs.create_dir_all(p.dir) else |_| {
+        eprint("cub: sound: cannot create {p.dir}; no sound")
+        return 2
+    }
+    var status = 0
+    for n in wav_names() {
         if status == 0 {
-            fs.create_dir_all(p.dir) else |_| {
-                eprint("cub: sound: cannot create {p.dir}; no sound")
-                status = 2
-            }
-        }
-        if status == 0 {
-            for part in b {
-                let w = sound.wav(part.pcm) else |_| {
-                    eprint("cub: sound: {part.name}: not a WAV's worth of PCM")
+            region prepare {
+                let part = load(n) else |_| {
+                    eprint("cub: score: {n} does not render; no sound")
                     status = 2
-                    List[byte]()
+                    sound.Part { name: "", pcm: List[byte](), layer: false, fade: 1 }
                 }
                 if status == 0 {
-                    fs.write_bytes(wav_path(p, part.name), w) else |_| {
-                        eprint("cub: sound: cannot write {wav_path(p, part.name)}; no sound")
+                    let w = sound.wav(part.pcm) else |_| {
+                        eprint("cub: sound: {n}: not a WAV's worth of PCM")
                         status = 2
+                        List[byte]()
+                    }
+                    if status == 0 {
+                        fs.write_bytes(wav_path(p, n), w) else |_| {
+                            eprint("cub: sound: cannot write {wav_path(p, n)}; no sound")
+                            status = 2
+                        }
                     }
                 }
             }
