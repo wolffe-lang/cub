@@ -1,0 +1,183 @@
+//! member: false
+//!
+//! cb16's schema 8 and journey 7 over cb14's schema 7 and journey 6. The
+//! save and the recording a binary built at cub trunk ed180ef5 wrote
+//! (`tests/saves/cb14-v7.save`, `cb14-journey6.pk`; how, in
+//! `tests/saves/provenance.json`) migrate: nothing said, none dead, Quill at
+//! Larkmeadow, the sett's open shortcut as Dunmoss's dig (that journey went
+//! through it before the dig existed); CUB 8 round-trips byte-exact; a
+//! rechecksummed CUB 8 with a bad `npcs` line is refused; the found-lore
+//! list holds 48 lines now, a CUB 7's at most 32.
+
+use journey
+use lore
+use npc
+use pouch
+use sim
+use std.fs
+
+/// A CUB 7 file's text as CUB 8 writes the same journey: the version, the
+/// lines kept, the NPCs' line after the items (`flags` the migration's),
+/// its check.
+fn eight(old: str, flags: int) -> str {
+    let cut = old.find("check ") else 0
+    var out = old[0..cut].replace("CUB 7\n", "CUB 8\n")
+    out += "npcs 0 0 0 0 0 0 0 0 0 dead 0 perch -1 flags {flags}\n"
+    out + "check {journey.checksum(out)}\n"
+}
+
+/// A recording's initial `saved-K` values, `count` of them.
+fn saved_values(path: str, count: int) -> List[int] {
+    var v = List[int]()
+    let text = fs.read_text(path) else |_| { return v }
+    var i = 0
+    while i < count { (mut v).push(0); i += 1 }
+    for line in text.lines() {
+        if line.starts_with("t 0 saved-") {
+            var w = List[str]()
+            for word in line.words() { (mut w).push(word) }
+            let k = w[2][6..w[2].len].to_int() else |_| { return List[int]() }
+            let n = w[3].to_int() else |_| { return List[int]() }
+            if k < count { v[k] = n }
+        }
+    }
+    v
+}
+
+fn test_cb16_the_trunk_writers_cub7_migrates_to_cub8_with_the_sett_dug() {
+    let text = fs.read_text("tests/saves/cb14-v7.save") else |_| {
+        assert(false, "fixture missing")
+        return
+    }
+    assert(
+        text.starts_with("CUB 7\n") && text.contains("\nshortcuts 135\n"),
+        "a CUB 7, the sett open",
+    )
+    let s = journey.decode(text, 80, 24) else |e| { assert(false, "CUB 7 reads: {e}"); return }
+    assert(s.last_den == 15 && sim.sett_dug(s), "the bone cache's journey: the sett counted dug")
+    var who = 0
+    while who < npc.COUNT { assert(s.npc_said[who] == 0, "nothing said"); who += 1 }
+    assert(s.npc_dead == 0 && s.npc_perch == -1 && !sim.alone(s), "none dead, Quill at home")
+    let meta = journey.metadata(text) else |_| { assert(false, "metadata"); return }
+    let written = journey.encode_named(s, meta)
+    assert(written == eight(text, npc.DUG), "the exact CUB 8 bytes")
+    let back = journey.decode(written, 120, 40) else |e| {
+        assert(false, "CUB 8 reads: {e}")
+        return
+    }
+    let again = journey.metadata(written) else |_| { assert(false, "CUB 8 metadata"); return }
+    assert(journey.encode_named(back, again) == written, "CUB 8 round-trips byte-exact")
+}
+
+fn test_cb16_the_trunk_writers_journey6_snapshot_reads_into_journey7() {
+    let v = saved_values("tests/saves/cb14-journey6.pk", journey.SNAPSHOT_V6)
+    assert(v.len == journey.SNAPSHOT_V6 && v[0] == 1, "the trunk writer's 211 slots")
+    let s = journey.from_snapshot(v, 80, 24) else |e| {
+        assert(false, "journey 6 reads: {e}")
+        return
+    }
+    assert(s.last_den == 15 && sim.sett_dug(s), "the sett dug by migration")
+    let seven = journey.snapshot(s)
+    assert(seven.len == journey.SNAPSHOT && journey.SNAPSHOT == 239, "written as journey 7")
+    var i = 0
+    while i < 44 + 7 + 32 { assert(seven[i] == v[i], "slot {i} kept"); i += 1 }
+    while i < 44 + 7 + 48 { assert(seven[i] == 0, "a new lore slot {i} empty"); i += 1 }
+    while i < 44 + 7 + 48 + 128 { assert(seven[i] == v[i - 16], "pickup slot {i} kept"); i += 1 }
+    let at = 44 + 7 + 48 + 128
+    assert(seven.len == at + journey.NPC_SLOTS, "the NPCs' twelve last")
+    assert(seven[at + npc.COUNT + 1] == -1 && seven[at + npc.COUNT + 2] == npc.DUG, "perch, flags")
+    assert(journey.JOURNEY == 7, "this build writes journey 7")
+}
+
+fn test_cb16_cub8_round_trips_every_npc_value() {
+    var s = sim.new(4, 80, 24)
+    s.gate_open = true
+    s.lit_dens = sim.light_den(s.lit_dens, 3)
+    s.npc_said[npc.QUILL] = 2
+    s.npc_said[npc.EMBER] = 3
+    s.npc_said[npc.HERMIT] = 1
+    s.npc_said[npc.LOAM] = 1
+    s.npc_perch = 3
+    s.npc_dead = npc.bit(npc.LOAM)
+    s.npc_flags = npc.STOLEN + npc.TUFT_GIVEN + npc.STORY + npc.TUFT_SOLD
+    sim.remember_lore(mut s, lore.HERMIT_STORY)
+    let text = journey.encode(s)
+    assert(
+        text.contains("\nnpcs 2 0 3 0 0 1 0 0 1 dead 256 perch 3 flags 30\ncheck "),
+        "the NPCs' line, last before the check",
+    )
+    let back = journey.decode(text, 80, 24) else |e| { assert(false, "valid {e}"); return }
+    assert(journey.encode(back) == text, "byte-exact")
+    assert(back.npc_perch == 3 && back.npc_dead == 256 && back.npc_flags == 30, "the values")
+    assert(sim.alone(back) && back.pouch.lore[0] == lore.HERMIT_STORY, "Alone; the story found")
+    let v = journey.snapshot(s)
+    let from = journey.from_snapshot(v, 80, 24) else |e| { assert(false, "snapshot {e}"); return }
+    assert(journey.same_snapshot(journey.snapshot(from), v), "the snapshot round trip")
+}
+
+fn test_cb16_a_rechecksummed_cub8_with_a_bad_npcs_line_is_refused() {
+    var s = sim.new(7, 80, 24)
+    s.gate_open = true
+    let good = journey.payload(s)
+    let none = "npcs 0 0 0 0 0 0 0 0 0 dead 0 perch -1 flags 0\n"
+    assert(good.starts_with("CUB 8\n") && good.ends_with(none), "the shape")
+    for line in [
+        "npcs 5 0 0 0 0 0 0 0 0 dead 0 perch -1 flags 0\n",
+        "npcs 0 0 0 0 0 0 0 0 -1 dead 0 perch -1 flags 0\n",
+        "npcs 0 0 0 0 0 0 0 0 0 dead 512 perch -1 flags 0\n",
+        "npcs 0 0 0 0 0 0 0 0 0 dead 0 perch 3 flags 0\n",
+        "npcs 1 0 0 0 0 0 0 0 0 dead 0 perch 6 flags 0\n",
+        "npcs 0 0 0 0 0 0 0 0 0 dead 0 perch -1 flags 32\n",
+        "npcs 0 0 1 0 0 0 0 0 0 dead 0 perch -1 flags 4\n",
+        "npcs 0 0 0 0 0 0 0 0 0 dead 0 perch -1 flags 8\n",
+        "npcs 0 0 0 0 0 0 0 0 dead 0 perch -1 flags 0\n",
+        "npcs 0 0 0 0 0 0 0 0 0 dead 0 perch -1 flags 0 0\n",
+        "",
+        none + none,
+    ] {
+        let body = good.replace(none, line)
+        var rejected = false
+        let _ = journey.decode(body + "check {journey.checksum(body)}\n", 80, 24) else |_| {
+            rejected = true
+            sim.new(7, 80, 24)
+        }
+        assert(rejected, "a rechecksummed bad npcs line is refused: {line}")
+    }
+    // The sett's shortcut open without Dunmoss's dig is not a CUB 8 journey.
+    var u = sim.new(7, 80, 24)
+    u.gate_open = true
+    u.paw = sim.UNDERTEETH_PAW
+    u.shortcuts = 128
+    var refused = false
+    let _ = journey.decode(journey.encode(u), 80, 24) else |_| {
+        refused = true
+        sim.new(7, 80, 24)
+    }
+    assert(refused, "the sett open undug is refused")
+    u.npc_flags = npc.DUG
+    let _ = journey.decode(journey.encode(u), 80, 24) else |e| {
+        assert(false, "dug, it reads: {e}")
+        sim.new(7, 80, 24)
+    }
+}
+
+fn test_cb16_the_found_lore_holds_48_lines_and_a_cub7_at_most_32() {
+    var s = sim.new(7, 80, 24)
+    s.gate_open = true
+    var id = 0
+    while id < 50 { sim.remember_lore(mut s, id); id += 1 }
+    assert(s.pouch.lore.len == pouch.LORE_SLOTS && pouch.LORE_SLOTS == 48, "48 kept, no more")
+    let text = journey.encode(s)
+    let back = journey.decode(text, 80, 24) else |e| { assert(false, "48 lines read: {e}"); return }
+    assert(back.pouch.lore.len == 48, "all 48 saved")
+    // The same lines in a CUB 7's shape (no npcs line) are more than a CUB 7
+    // could hold.
+    let cut = text.find("npcs ") else 0
+    let seven = text[0..cut].replace("CUB 8\n", "CUB 7\n")
+    var refused = false
+    let _ = journey.decode(seven + "check {journey.checksum(seven)}\n", 80, 24) else |_| {
+        refused = true
+        sim.new(7, 80, 24)
+    }
+    assert(refused, "a CUB 7 with 48 lines is refused")
+}
