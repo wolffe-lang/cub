@@ -1,0 +1,12 @@
+cb14 kasumi job bash /home/mfwolffe/lanes/cb14/job17.sh start 2026-10-28T23:07:49Z
+cb14 holds cores 12-15 2026-10-28T23:07:49Z
+cb14 source 73ff1187dd7c4d5b8624ac46e7ac3128f86c7d37
+build: target/native/cub
+check-linux 1 pty: cb13-registry-files ok (linux x86_64, exit 0, 6428 bytes captured)
+check-memory 0 memory gate: green, crash checkpoint and fresh seed; budget 4096 bytes/tick
+goldens native 0 goldens: art ok
+gameplay native 0 gameplay: green (0 skips)
+gameplay release 0 gameplay: green (0 skips)
+perf slack 1 0 perf-idle: latency FAILED: the game ended after 0 keys (exit 2, stderr b'cub: save_corrupt\n')
+CB14_LINUX_GATE_DONE 2026-10-28T23:50:19Z
+CB14_KASUMI_EXIT 0 2026-10-28T23:50:19Z

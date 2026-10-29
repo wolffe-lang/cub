@@ -1,0 +1,52 @@
+cb14 Mac floor clear 19411681280 bytes 2026-10-28T23:08:30Z
+cb14 Mac gate source 73ff1187dd7c4d5b8624ac46e7ac3128f86c7d37 2026-10-28T23:08:30Z
+build 0
+build: target/native/cub
+walk 0
+walk area 0 tick 0
+walk area 6 tick 548
+walk area 1 tick 1645
+walk area 7 tick 2808
+walk area 2 tick 3480
+walk area 8 tick 4378
+walk area 3 tick 5092
+walk area 9 tick 6122
+walk area 4 tick 6991
+walk area 5 tick 7888
+walk area 11 tick 8673
+walk at the stone mouth tick 9369 gates 1
+witness walk frames 9369 every 300 from 1
+entry 0 rich tick 0 0
+entry 0 plain tick 0 0
+entry 6 rich tick 548 0
+entry 6 plain tick 548 0
+entry 1 rich tick 1645 0
+entry 1 plain tick 1645 0
+entry 7 rich tick 2808 0
+entry 7 plain tick 2808 0
+entry 2 rich tick 3480 0
+entry 2 plain tick 3480 0
+entry 8 rich tick 4378 0
+entry 8 plain tick 4378 0
+entry 3 rich tick 5092 0
+entry 3 plain tick 5092 0
+entry 9 rich tick 6122 0
+entry 9 plain tick 6122 0
+entry 4 rich tick 6991 0
+entry 4 plain tick 6991 0
+entry 5 rich tick 7888 0
+entry 5 plain tick 7888 0
+entry 11 rich tick 8673 0
+entry 11 plain tick 8673 0
+test 0
+wolf test: 562 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+CB14_MAC_WALK_DONE
+CB14_MAC_FRAMES_DONE
+goldens attempt 1 exit 0 2026-10-28T23:12:58Z
+goldens 0
+goldens ok 507 DIFFERS 0
+goldens: yard-cache-plain ok
+diagonal-study: 410 states, 75 unique drawings, four facings, both fields and tiers
+goldens: art ok
+CB14_MAC_GATE_DONE
+CB14_MAC_GATE_EXIT 0 2026-10-28T23:12:58Z

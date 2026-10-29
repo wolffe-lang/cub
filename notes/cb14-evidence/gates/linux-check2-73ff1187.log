@@ -1,0 +1,30 @@
+cb14 kasumi job bash /home/mfwolffe/lanes/cb14/job21.sh start 2026-10-28T23:53:10Z
+cb14 holds cores 12-15 2026-10-28T23:53:10Z
+cb14 source 73ff1187dd7c4d5b8624ac46e7ac3128f86c7d37
+build: target/native/cub
+engine fixture before: -rw-r--r-- 1 mfwolffe mfwolffe 254 Oct 28 02:26 target/pty/engine.save
+CUB 6
+14
+prepare-pty 0
+prepare-pty: retained previous engine fixture in /work/target/pty/engine-previous-cx7iu4yk
+archive target/pty/engine-previous-cx7iu4yk
+drwxr-xr-x 1 mfwolffe mfwolffe   22 Oct 28 19:53 .
+drwxr-xr-x 1 mfwolffe mfwolffe 6234 Oct 28 19:53 ..
+-rw-r--r-- 1 mfwolffe mfwolffe  254 Oct 28 02:26 engine.save
+check-linux 0 check-linux: green
+check-fmt: canonical
+wolf test: 562 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+pty ok 87 pty failed 0 goldens ok 507
+pty: quit ok (linux x86_64, exit 0, 21177 bytes captured)
+pty: ctrl-c ok (linux x86_64, exit 0, 15530 bytes captured)
+pty: trap ok (linux x86_64, exit 134, 14074 bytes captured)
+perf slack 1 0
+perf: host Linux x86_64, slack x1, bench args: (none)
+perf: 80x24 rich avg 306 us < 1000 us ok
+perf: 80x24 plain avg 300 us < 1000 us ok
+perf: 200x60 rich avg 2223 us < 4000 us ok
+perf: 200x60 plain avg 2211 us < 4000 us ok
+perf-idle: idle 301 voluntary context switches in 10 s at a standstill (bar 240..360) ok
+perf-idle: latency median 23.2 ms p90 33.7 ms max 33.7 ms over 20 keys (bars median 40, p90 70 ms) ok
+CB14_LINUX_CHECK2_DONE 2026-10-29T00:13:08Z fail=0
+CB14_KASUMI_EXIT 0 2026-10-29T00:13:08Z

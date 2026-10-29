@@ -1,0 +1,49 @@
+--- job17.sh as job17d ran it (lane tooling under ~/lanes/cb14/, not in the repo)
++++ job17.sh fixed (prepare-pty first; nonzero exit on any failed step; a FAILED perf line fails perf)
+@@ -2,20 +2,39 @@
+ # cb14 job17 (after kasumi-run.sh's native build): the Linux gate as CI
+ # runs it — check-linux (fmt, tests, both builds, sound, input, goldens,
+ # pty), the memory gate, the native goldens and gameplay semantics on both
+-# backends, the perf pass at slack 1.
++# backends, the perf pass at slack 1. The engine's pty rows and perf-idle
++# start a fresh journey at target/pty/engine.save (tests/lair.conf), which
++# persists in the clone: tools/prepare-pty archives a previous one first, as
++# the game's own gates do (a fixture an older build wrote is no migration
++# oracle). The job's exit is nonzero when ANY step exits nonzero, and a perf
++# line that says FAILED fails the perf step even when the tool exits 0.
+ set -u
+ lane=/home/mfwolffe/lanes/cb14
+ logs=$lane/logs
++fail=0
++step() {
++    # step NAME STATUS LOG: print the step's line, remember a failure.
++    echo "$1 $2 $(tail -1 "$3" | cut -c1-160)"
++    if [ "$2" != 0 ]; then fail=1; fi
++}
++.lair/tools/in-container python3 -I tools/prepare-pty > "$logs/prepare-pty.log" 2>&1
++step prepare-pty $? "$logs/prepare-pty.log"
+ .lair/tools/in-container .lair/tools/check-linux > "$logs/check-linux.log" 2>&1
+-echo "check-linux $? $(tail -1 "$logs/check-linux.log" | cut -c1-120)"
++step check-linux $? "$logs/check-linux.log"
+ .lair/tools/in-container sh tools/check-memory target/release/cub > "$logs/check-memory.log" 2>&1
+-echo "check-memory $? $(tail -1 "$logs/check-memory.log" | cut -c1-160)"
++step check-memory $? "$logs/check-memory.log"
+ .lair/tools/in-container .lair/tools/goldens --bin target/native/cub > "$logs/goldens-native.log" 2>&1
+-echo "goldens native $? $(tail -1 "$logs/goldens-native.log" | cut -c1-120)"
++step "goldens native" $? "$logs/goldens-native.log"
+ for bin in native release; do
+     .lair/tools/in-container python3 -I tools/gameplay.py --bin target/$bin/cub > "$logs/gameplay-$bin.log" 2>&1
+-    echo "gameplay $bin $? $(tail -1 "$logs/gameplay-$bin.log" | cut -c1-120)"
++    step "gameplay $bin" $? "$logs/gameplay-$bin.log"
+ done
+ .lair/tools/in-container env LAIR_PERF_SLACK=1 .lair/tools/perf > "$logs/perf.log" 2>&1
+-echo "perf slack 1 $? $(tail -1 "$logs/perf.log" | cut -c1-160)"
+-echo "CB14_LINUX_GATE_DONE $(date -u +%FT%TZ)"
++status=$?
++if grep -aq "FAILED" "$logs/perf.log"; then
++    grep -a "FAILED" "$logs/perf.log" | cut -c1-200
++    if [ "$status" = 0 ]; then status=1; fi
++fi
++step "perf slack 1" "$status" "$logs/perf.log"
++echo "CB14_LINUX_GATE_DONE $(date -u +%FT%TZ) fail=$fail"
++exit "$fail"
