@@ -1,0 +1,35 @@
+# Wind in the Pines — the Stand: C Mixolydian (the shared key's), the wind in the strings swelling
+# and falling, the pack's call far off on a horn, a flute above the ridge. Original, cb17
+# (2026-10-29). 6 bars of 4/4 at 60: 24 s, a loop.
+title Wind in the Pines
+cue replace fade 9
+tempo 60
+meter 4/4
+part gust strings pp pan -35 gain 12
+part ridge strings pp pan 20 gain 9
+part far horn p pan 45 gain 3
+part whistle flute pp pan -10 gain 6
+bar 1
+gust < G4,C5/2* > G4,C5/2* pp
+ridge C3,G3/1~
+bar 2
+gust < F4,Bb4/2* > F4,D5/2* pp
+ridge C3,G3/1
+far r/4 C4/4 G4/2
+bar 3
+gust < G4,C5/2* > E4,C5/2* pp
+ridge Bb2,F3/1
+far E4/2 D4/4 C4/4
+bar 4
+gust < F4,A4/2* > F4,C5/2* pp
+ridge F2,C3/1
+whistle r/2 G5/4 F5/4
+bar 5
+gust < F4,Bb4/2* > D4,Bb4/2* pp
+ridge Bb2,F3/1
+far r/2 Bb3/4 C4/4
+whistle D5/2. r/4
+bar 6
+gust < E4,G4/2* > E4,G4/4* pp r/4
+ridge C3,G3/2. r/4
+far C4/2. r/4
