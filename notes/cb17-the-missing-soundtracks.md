@@ -15,8 +15,8 @@ the end plays Moonford, not the title; `score.moment_of` reads the reveal, the c
 from the ground; a replay's mixer holds only its own cues (R-cb17-2 A) and the live prepare renders one part at a
 time (R-cb17-3 A: peak 270 MB → 50 MB on nomad); `--score-scene` and fifteen scene goldens; `--sound-census` over
 cb14's walk, and a second's settle between an area's part and its moment (R-cb17-7 A); module; plant #83; final source `92793546`; the Linux gauntlet green at `35e561af` (check-linux 2485 s, perf at slack 3), every pty row
-and score row on both tiers; the final gauntlets on both hosts at the PR head run detached (their pids, logs and
-markers in the hand-back and below).
+and score row on both tiers; the final gauntlets on both hosts at `c983a7c1` (the source of `92793546`, the evidence and this note; the head
+adds a notes-only fix) run detached (their pids, logs and markers in the hand-back and below).
 
 ## Prediction
 
@@ -130,7 +130,7 @@ to D major.
 
 ## Evidence index
 
-Commits, each its own chunk: `49a69b4e` the prediction; the fourteen parts one commit each (`59227291`'s successors,
+Commits, each its own chunk: `49a69b4e` the prediction; the fourteen parts one commit each (`0b5ed2be` .. `5298e9c4`,
 `Add score/<name>.part: <title>`); `c057adb9` the embed; `ace68187` the score module (the parts, the moments, the
 scene scripts, the per-scene bank, the one-at-a-time prepare); `45657ee2` `--score-scene` and the listing;
 `222d4ded` the unit rows; `07ef26e5` the probe's `--sound-backend`; `e4a7b880` and `35e561af` score-check's rows;
@@ -178,8 +178,8 @@ note and its evidence.
   `sound-live` (26 WAVs, `:1266`) and `mute-key`, native goldens, score-check with `score-hush`, `score-memory` 300.1
   bytes a tick, gameplay on both backends, the memory gate — then perf at slack 3, latency median 13.5 ms).
   The Mac's run then (`gates/mac-pre-census.log`, every step `exit=0`, the pty rows but the two audible ones) was on
-  a tree with the census half-written, so it is a signal, not the gate. The final gauntlets at the PR head, both
-  detached, the wrappers stopping at the first nonzero step: Linux `/mnt/steamlib/lanes/cb17/logs/gauntlet.log`,
+  a tree with the census half-written, so it is a signal, not the gate. The final gauntlets at `c983a7c1` (the
+  source of `92793546`; the head adds a notes-only fix), both detached, the wrappers stopping at the first nonzero step: Linux `/mnt/steamlib/lanes/cb17/logs/gauntlet.log`,
   marker `/mnt/steamlib/lanes/cb17/gauntlet.exit`, pid file `gauntlet.pid` beside it; the Mac
   `/Users/mfwolffe/lanes/cb17/mac-gauntlet.log`, marker `mac-gauntlet.exit`, pid file `mac-gauntlet.pid` beside it.
 - **Tools** (scratch, kept for the record, never run by a gate): `notes/cb17-evidence/tools/` — `audition.lu` (the
@@ -212,4 +212,4 @@ goldens are only a local row (a `.github/` change, cross-cutting); cub — `tool
 - [x] `--score-list` with every length; the PCM goldens byte-exact on both platforms and tiers; a cue-schedule golden
       per trigger; the sound census; the memory gate green with the new parts loaded.
 - [x] The note, the plant red by name (#83), the census and its finding fixed (R-cb17-7 A).
-- [ ] The full gauntlet on both hosts at the PR head: running detached at hand-back (Linux green at `35e561af`).
+- [ ] The full gauntlet on both hosts at `c983a7c1`: running detached at hand-back (Linux green at `35e561af`).
