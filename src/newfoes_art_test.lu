@@ -392,5 +392,30 @@ fn test_cb18_rest_menu_covers_the_foreground_needles() {
     }
 }
 
-// Pending after cb15's announced merge: its inventory overlay gets the
-// same under-trunk visibility/coverage row, not only this rest-menu control.
+fn test_cb18_inventory_overlay_covers_the_foreground_needles() {
+    for t in [tier.RICH, tier.PLAIN] {
+        var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+        s.foes[0].x = s.x
+        s.foes[0].y = s.y
+        s.foes[0].phase = sim.CROUCH
+        s.pouch.open = true
+        s.pouch.paused_at = s.tick + 1
+        var shown = grid.new(24, 80)
+        art.render(s, t, mut shown)
+        (mut s.foes).reset()
+        var empty = grid.new(24, 80)
+        art.render(s, t, mut empty)
+        var row = 0
+        while row < shown.rows {
+            var col = 0
+            while col < shown.cols {
+                assert(
+                    grid.same(grid.at(shown, row, col), grid.at(empty, row, col)),
+                    "inventory stays above all needle pixels",
+                )
+                col += 1
+            }
+            row += 1
+        }
+    }
+}
