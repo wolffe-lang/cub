@@ -159,15 +159,24 @@ pub fn journey_at(seed: int, cols: int, rows: int, kind: int) -> sim.Sim {
     // cb14: a journey past Larkmeadow pushed the burnt oak over on its
     // way through the Burn; the stone mouth is the alpha fight's to open.
     s.gates = if kind > sim.BOAR then sim.GATE_OAK else 0
-    // R-cb18-5 A: the bible's answer to the lynx's bleeding is yarrow (§9);
-    // the cub comes to the Teeth through the meadow, where it grows (cb15),
-    // with a full stack of it.
-    if kind == sim.LYNX {
-        while sim.give_item(mut s, pouch.YARROW) {}
-    }
     let text = journey.encode(s)
     journey.decode(text, cols, rows) else |e| {
         assert(false, "fight.journey_at: the fixture is not a valid save: {e}")
+        s
+    }
+}
+
+/// The journey a boss's fight starts from: `journey_at`'s, and for the
+/// lynx a full stack of yarrow (R-cb18-5 A: the bible's answer to its
+/// bleeding, §9; the cub comes to the Teeth through the meadow, where it
+/// grows, cb15). The dens' journeys (`proof`) keep `journey_at`'s pouch.
+pub fn fight_journey(seed: int, cols: int, rows: int, kind: int) -> sim.Sim {
+    var s = journey_at(seed, cols, rows, kind)
+    if kind != sim.LYNX { return s }
+    while sim.give_item(mut s, pouch.YARROW) {}
+    let text = journey.encode(s)
+    journey.decode(text, cols, rows) else |e| {
+        assert(false, "fight.fight_journey: the fixture is not a valid save: {e}")
         s
     }
 }
@@ -456,7 +465,7 @@ pub fn fight_world_narrated(
     mut r: replay.Replay,
     narrate: bool,
 ) -> Outcome {
-    var s = journey_at(seed, cols, rows, kind)
+    var s = fight_journey(seed, cols, rows, kind)
     var last = ""
     var out = Outcome {
         attempts: 0,

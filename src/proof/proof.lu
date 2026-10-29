@@ -629,7 +629,7 @@ pub fn bosses(dir: str) -> int {
         } else {
             "alpha"
         }
-        let s0 = fight.journey_at(1, 80, 24, kind)
+        let s0 = fight.fight_journey(1, 80, 24, kind)
         var r = snapshot_replay(s0)
         let o = fight.fight_world(1, 80, 24, kind, mut r)
         if o.attempts == 0 || o.first_windup < 0 || o.beaten_at < 0 {
