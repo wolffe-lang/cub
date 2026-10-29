@@ -86,8 +86,8 @@ if any; a fall wins over everything, then the opening, the end, the title, the d
 | the den (`r`) | `den`, looping while the cub rests; the area's loop on leaving |
 | the end (`sim.SCENE_END`, the ford at dawn) | `moonford`, looping under the three frames and the card (the title's part before cb17) |
 | the lookout's reveal (the Stand, `sim.revealing`, 60 ticks) | `reveal` at once; it plays its eight seconds to the end, held like the sting (only a fall cuts it), then the Stand's loop |
-| the Mere between its causeways (local rows 61–163) | `crossing`, looping; the Mere's part on either causeway |
-| the Howe from its fourth standing stone (local row 150) to the stone mouth | `walk`, looping; Gravehollow's part through the mouth |
+| the Mere between its causeways (local rows 61–163) | `crossing`, looping; the Mere's part on either causeway; each change between the two once it has held 30 ticks (`score.SETTLE`) |
+| the Howe from its fourth standing stone (local row 150) to the stone mouth | `walk`, looping, settled the same way (the sound census found the walker's sway across the row chattering); Gravehollow's part through the mouth at once |
 | the Hush's entry while its cold den (den 6) is unlit | the silence for 300 ticks, then `hush` (R-cb17-1 A); once the den is lit, `hush` at once |
 | `m` | the music off (the player's child ended); `m` again cues the scene's part afresh |
 
@@ -121,6 +121,7 @@ cub --score-render NAME OUT.pcm      a part's PCM at its own length (stereo S16_
 cub --score-wav NAME OUT.wav         the same bytes in a WAV
 cub --score-replay OUT.pcm           the schedule through the mixer, 180 ticks
 cub --score-scene NAME OUT.pcm       a scene script through the mixer; its cues on stdout (cb17)
+cub --sound-census                   the schedule over cb14's walk to Gravehollow, its rows (cb17)
 python3 -I tools/score-check         the goldens, the seams, the WAV header, the refusal, both backends
 python3 -I tools/score-check --update   write the goldens afresh (the release binary)
 ```
@@ -131,5 +132,8 @@ bank is about 26 MB), and the whole replay's PCM. cb17 added a script for every 
 schedule as text (`scene-NAME.cues`, a `tick T cue NAME` line a cue) and its mixer's PCM by sha256 and
 length (`scene-NAME.sha256`); `six` is the replay and renders `replay.pcm`'s bytes; the Hush's script is
 silent from the Shallows' fade to its 300th tick. A part dropped from the bank turns its scene's cue into
-the silence, a red golden by name. `score-check` also runs the memory probe over the real loop with every
-part prepared (the OSS stub's silent backend), under the memory gate's 4096 bytes a tick.
+the silence, a red golden by name. `score-check` also runs the sound census (cb14's walk from the Shingle
+to Gravehollow with the Stand's lookout, replayed through the schedule: every area entered cues its own
+part, the lookout the reveal, the Mere's water the crossing, the Howe the walk, the Hush its wait and its
+motif) and the memory probe over the real loop with every part prepared (the OSS stub's silent backend),
+under the memory gate's 4096 bytes a tick.

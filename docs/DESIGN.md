@@ -1669,7 +1669,8 @@ title's call in D major, where the title played before), and three moments the s
 ground (`score.moment_of`, read-only over the simulation): **the reveal** (`sim.revealing`'s sixty ticks;
 the part is eight seconds and holds to its end like the sting, only a fall cutting it), **the crossing**
 (the Mere's local rows 61..163, between its sixty-row causeways), **the walk** (the Howe from its fourth
-standing stone, local row 150, to the stone mouth). **The Hush's wait** (R-cb17-1 A): 300 ticks of the
+standing stone, local row 150, to the stone mouth); a change between an area's part and its moment sounds once
+it has held 30 ticks (`score.SETTLE`). **The Hush's wait** (R-cb17-1 A): 300 ticks of the
 silence after an entry while the cold den (den 6) is unlit, then the shadows' motif; once lit, the motif at
 once. **The bank** (R-cb17-2 A): a replay's mixer holds the cues its own scenes reach, at most the engine's
 sixteen. **The prepare** (R-cb17-3 A): one part rendered, written and dropped at a time. The numbers (300
