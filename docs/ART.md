@@ -639,8 +639,8 @@ carry three-cell light pools, and their death extinguishes that light.
 The standard art study includes `foe-9` through `foe-14` on both tiers:
 four facings in the first row, four tells below. `foe-status-0` through
 `foe-status-3` are full-frame moth dim, white flash, live cave light and
-extinguished cave light. The latter two deliberately exercise the pending
-new-area lighting hook on the disclosed test arena. Status 4 shows the
+extinguished cave light. The latter two exercise the Underteeth
+lighting rule on the disclosed test arena. Status 4 shows the
 falling needles over a cub standing below the trunk; status 5 is the menu
 coverage control. Only needle pixels are repainted after the cub, before
 all HUD, overlay, dialogue and menu layers; neither a marten body nor any

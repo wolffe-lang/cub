@@ -336,7 +336,7 @@ all movement and attacks are ordinary keys. Each record is parsed through
 the existing pk1 vocabulary and replayed from that same initial fixture;
 position, health, scent and foe outcome must match the recorded run.
 
-The marten fixture starts with20 scent until the pouch integration and
+The marten fixture starts with one real held yarrow and
 waits for an actual theft before answering. The moth fixture must observe
 dimming; the heron fixture must use a dodge and pass; the glow-worm fixture
 walks into contact and retains every white frame; the wisp fixture snuffs

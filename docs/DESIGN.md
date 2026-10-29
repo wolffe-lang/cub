@@ -1768,8 +1768,10 @@ foes remain hawks: their low bite windows and parry kill are unchanged.
 The adder's burn deals one health each tick for40 ticks, including during a
 roll. Drinking or standing in water extinguishes it before its next tick;
 licking does not. The status is transient and den reset extinguishes it.
-The bleeding and yarrow hooks are activated with the pouch API integration;
-its named pending rows are not reported as passed before then.
+The marten's landed bite calls the public bleeding API; the lynx's bite
+stays as trunk has it, with no bleeding (R-cb18-2, the orchestrator's).
+Yarrow cures bleeding and burn; water extinguishes burn alone. Entering the
+Burn calls the already documented melt_ice hook; other entries do not.
 
 The marten remains overhead and unbiteable throughout the falling needles,
 not a ground blocker until landing. Its drop advances 128 FP (half a cell)
@@ -1779,7 +1781,7 @@ clearance; if no legal ground body fits, it stays on the trunk rather than
 appearing inside the cub. Damaging moth bites keep normal counter-hit
 rally; snuffing an undamaged wisp gives neither rally nor scent.
 
-The heron's spear cannot be parried. It stays at its post facing down and
+The heron's downward spear cannot be parried. It faces the arrival side and
 leaves without a kill reward when the cub is three cells past it. The adder
 and heron use narrow committed lines, not a centre-facing attack cone.
 Martens use ordinary terrain/body clearance, never a boss arena boundary.
@@ -1790,4 +1792,39 @@ and dodge counts. Passing the heron and snuffing the wisp are successful
 nonkill resolutions. Recovery below12 ticks is explicitly red even if an
 instrument can win faster than a human. `--new-foe-proof DIR` records keys,
 replays them independently from the initial arena and compares outcomes.
-New-area placements stay hooks until the forest integration.
+Real placements append after the old cache guards, preserving their saved
+slain ordinals: Stand3 martens; Burn2 adders and2 five-moth swarms; Mere1
+heron at row198; Underteeth8 clusters of3 (den-clear positions near the
+mapped glow rows); Howe2 carved branch guides ending on actual sentries.
+The Teeth and Hush receive no new kinds. The appended distribution has500
+rows (50 seeds,2 fields,5 areas); moth counts are swarm bodies, five each.
+All old-area foe-census rows retain their bytes; only the new areas' total
+counts move. Their cap32 admits the24 worms plus inherited guards, never
+changes old-area bands. New species have their stated scent rewards and
+no additional consumable roll; the marten returns its actual stolen item.
+
+### R-cb18-2 — the lynx's bite and bleeding (the orchestrator's)
+
+Contract item 2 named the lynx's bite as the bible's bleeding intent; the
+pickup addendum (2026-10-29) holds the lynx out of scope: it is not a new
+foe, and its bleeding moved every lynx row of the boss census and the three
+lynx cases. Recommend **A**, implemented: cb18 leaves the lynx as trunk has
+it, and the lynx's bleeding lands as its own change with its own census
+comparison. **B** wires it here (the one line in `boss_hit` and the lynx
+cases regenerated, kept on the local branch `cb18-wip-1029`).
+
+### R-cb18-3 — an unreturned theft on reset
+
+Recommend **A**, implemented: the held item tag belongs to the runtime foe.
+Leaving/resting/loading resets that foe and loses an item not yet returned.
+The player sees one held stack decrease on contact and a real pickup at
+the nearest trunk foot when the landing/recovery bite connects; recover it
+before resetting the encounter. A full ground pool retains the tag and
+retries after space opens rather than deleting or duplicating the return.
+**B** would persist held thefts, requiring CUB8 / journey7 and migrations
+from the real trunk CUB7 writer. A keeps the existing living-foe reset rule
+and avoids extending persistent state; the final choice belongs to the maintainer; this recommendation is not a ruling.
+
+Burn/flash, held theft, branch progress and attack modes are transient;
+save/load resets them. CUB7's17 lines, journey6's211 slots and lore32 stay
+unchanged. Existing CUB7 masks keep old guard ordinals; new foes append.
