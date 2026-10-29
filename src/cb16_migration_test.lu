@@ -50,7 +50,7 @@ fn test_cb16_the_trunk_writers_cub7_migrates_to_cub8_with_the_sett_dug() {
         return
     }
     assert(
-        text.starts_with("CUB 7\n") && text.contains("\nshortcuts 135\n"),
+        text.starts_with("CUB 7\n") && text.contains("\nden 15 lit 32831 shortcuts 135\n"),
         "a CUB 7, the sett open",
     )
     let s = journey.decode(text, 80, 24) else |e| { assert(false, "CUB 7 reads: {e}"); return }
