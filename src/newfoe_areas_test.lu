@@ -1,0 +1,251 @@
+//! member: false
+
+use census
+use forest
+use lands
+use sim
+use terrain
+use replay
+use walker
+
+fn placed(area: int, wanted: List[int]) {
+    for field in [80, 200] {
+        region world {
+            let fs = sim.area_foes(7, field, area, 0)
+            var counts = [0, 0, 0, 0, 0, 0]
+            assert(fs.len < 32, "existing saved slain mask has room for every new ordinal")
+            for f in fs {
+                assert(
+                    !forest.blocked(
+                        7,
+                        field,
+                        area,
+                        sim.floor_div(f.x, sim.FP),
+                        sim.floor_div(f.y, sim.FP),
+                    ),
+                    "walkable spawn",
+                )
+                if sim.is_new_foe(f.kind) { counts[f.kind - sim.MARTEN] += 1 }
+                var den = 0
+                while den < forest.DEN_LIMIT {
+                    if forest.den_area(den) == area {
+                        let (x, y) = forest.den_position(7, den)
+                        assert(
+                            !sim.near(f.x, f.y, x, y, (forest.FIRST_FOE_CELLS - 1) * sim.FP),
+                            "den refuge retained",
+                        )
+                    }
+                    den += 1
+                }
+            }
+            var k = 0
+            while k < 6 { assert(counts[k] == wanted[k], "new kind has its area row"); k += 1 }
+        }
+    }
+}
+
+fn test_cb18_stand_has_three_trunk_martens() { placed(forest.STAND, [3, 0, 0, 0, 0, 0]) }
+
+fn test_cb18_burn_has_adders_and_five_moth_swarms() { placed(forest.BURN, [0, 2, 2, 0, 0, 0]) }
+
+fn test_cb18_mere_has_its_last_stone_heron() { placed(forest.MERE, [0, 0, 0, 1, 0, 0]) }
+
+fn test_cb18_underteeth_has_eight_three_worm_clusters() {
+    assert(lands.GLOWS == 8, "eight mapped light clusters")
+    placed(forest.UNDERTEETH, [0, 0, 0, 0, 24, 0])
+}
+
+fn test_cb18_howe_has_two_sentry_guides() { placed(forest.HOWE, [0, 0, 0, 0, 0, 2]) }
+
+fn test_cb18_real_heron_leaves_only_after_southbound_passage() {
+    var s = sim.new(7, 80, 24)
+    sim.enter_area(mut s, forest.MERE, 0, 10 * sim.FP)
+    var i = 0
+    while i < s.foes.len && s.foes[i].kind != sim.HERON { i += 1 }
+    assert(
+        i < s.foes.len && s.foes[i].heading == 0 && s.foes[i].attack == 1,
+        "faces the real arrival direction",
+    )
+    s.x = s.foes[i].x
+    s.y = s.foes[i].home_y - 5 * sim.FP
+    sim.new_foe_step(mut s, i)
+    assert(s.foes[i].health > 0, "not gone before the cub approaches")
+    s.y = s.foes[i].home_y + 4 * sim.FP
+    sim.new_foe_step(mut s, i)
+    assert(
+        s.foes[i].health == 0 && s.foes[i].died < 0 && s.drops.len == 0,
+        "passed, not killed for scent",
+    )
+}
+
+fn test_cb18_body_census_keeps_every_legacy_solid_verdict() {
+    var kind = sim.WEASEL
+    while kind <= sim.ASHEN {
+        region actor {
+            var s = sim.new(1, 80, 24)
+            (mut s.foes).reset()
+            var f = sim.make_ashen(s.x, s.y)
+            f.kind = kind
+            (mut s.foes).push(f)
+            var c = census.counts()
+            census.observe(mut c, s)
+            assert(
+                (c.overlap > 0) == (kind != sim.HAWK),
+                "hawk and all eight old ground kinds retain their old verdict",
+            )
+        }
+        kind += 1
+    }
+}
+
+fn test_cb18_body_census_respects_new_floaters_and_trunk_modes() {
+    for kind in [sim.MARTEN, sim.CINDER_MOTHS, sim.GLOW_WORMS, sim.WISP] {
+        region actor {
+            var s = sim.new_foe_arena(1, 80, 24, kind)
+            s.foes[0].x = s.x
+            s.foes[0].y = s.y
+            var c = census.counts()
+            census.observe(mut c, s)
+            assert(c.overlap == 0, "an overhead or floating body is intentionally nonsolid")
+        }
+    }
+}
+
+fn test_cb18_glow_contact_scatters_only_its_nearby_cluster() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.GLOW_WORMS)
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y
+    (mut s.foes).push(sim.make_new_foe(sim.GLOW_WORMS, s.x + 4 * sim.FP, s.y))
+    (mut s.foes).push(sim.make_new_foe(sim.GLOW_WORMS, s.x + 20 * sim.FP, s.y))
+    sim.new_foe_step(mut s, 0)
+    assert(
+        s.foes[1].phase == sim.RETREAT && s.foes[2].phase == sim.HUNT,
+        "not every cluster in the cave scatters at once",
+    )
+    assert(
+        sim.glow_dark_area(forest.UNDERTEETH) && !sim.glow_dark_area(forest.CRAGS),
+        "only the new cave's light rule changes",
+    )
+}
+
+fn test_cb18_ice_halves_new_ground_and_air_movement_only() {
+    for kind in [sim.MARTEN, sim.GLOW_WORMS] {
+        region actor {
+            var normal = sim.new_foe_arena(1, 80, 24, kind)
+            normal.foes[0].phase = sim.STRIKE
+            normal.foes[0].heading = 64
+            normal.foes[0].target_x = normal.foes[0].x + 4 * sim.FP
+            normal.foes[0].target_y = normal.foes[0].y
+            normal.x = normal.foes[0].x + 6 * sim.FP
+            normal.y = normal.foes[0].y
+            var slow = copy normal
+            slow.foes[0].slow_until = 90
+            let x = normal.foes[0].x
+            sim.new_foe_step(mut normal, 0)
+            sim.new_foe_step(mut slow, 0)
+            assert(normal.foes[0].x - x == 2 * (slow.foes[0].x - x), "half locomotion")
+            assert(
+                normal.foes[0].phase == slow.foes[0].phase &&
+                    normal.foes[0].since == slow.foes[0].since,
+                "no retimed tell or recovery",
+            )
+        }
+    }
+}
+
+fn test_cb18_snuffed_wisp_is_absent_to_walker_and_terminal_stop() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.WISP)
+    s.foes[0].phase = sim.SNUFFED
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y - 3 * sim.FP
+    var r = replay.new(1, 1, 80, 24)
+    let x = s.x
+    let y = s.y
+    walker.drive(mut s, mut r, x + 4 * sim.FP, y)
+    assert(s.x > x && s.action != sim.BITE, "take the branch, never fight an invisible living wisp")
+    let tick = s.tick
+    assert(
+        walker.walk_stop(mut s, mut r, x + 8 * sim.FP, y, 0, false) && s.tick == tick,
+        "snuff completes a targeted hand-off without another key",
+    )
+}
+
+fn test_cb18_howe_wisps_end_on_actual_alcove_sentries() {
+    let fs = sim.area_foes(7, 80, forest.HOWE, 0)
+    var guides = 0
+    for f in fs {
+        if f.kind == sim.WISP {
+            let (x, y) = forest.branch_point(7, 80, forest.HOWE, f.attack - 1, f.poise_at)
+            var sentry = false
+            for g in fs {
+                if g.kind == sim.FOX &&
+                    g.home_x == x * sim.FP + sim.FP / 2 &&
+                    g.home_y == y * sim.FP + sim.FP / 2 {
+                    sentry = true
+                }
+            }
+            assert(
+                sentry && f.poise < f.poise_at,
+                "a carved branch guide, not an arbitrary point or invented extra foe",
+            )
+            guides += 1
+        }
+    }
+    assert(guides == 2, "both barrow-side guides have a destination")
+}
+
+fn test_cb18_burn_ash_drift_dismisses_the_remaining_moths() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.CINDER_MOTHS)
+    s.area = forest.BURN
+    var found = false
+    var y = 24
+    while y < 64 && !found {
+        var x = -20
+        while x <= 20 && !found {
+            if forest.kind(s.seed, s.field, s.area, x, y) == terrain.DRIFT {
+                s.foes[0].x = x * sim.FP
+                s.foes[0].y = y * sim.FP
+                found = true
+            }
+            x += 1
+        }
+        y += 1
+    }
+    assert(found, "real Burn drift")
+    s.foes[0].health = 3
+    sim.new_foe_step(mut s, 0)
+    assert(
+        s.foes[0].health == 0 && s.drops.len == 1 && s.drops[0].value == 12,
+        "running into drift releases four scent per remaining moth",
+    )
+}
+
+fn test_cb18_proof_walker_parries_the_visible_marten_drop() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+    s.foes[0].phase = sim.CROUCH
+    s.foes[0].since = 0
+    s.foes[0].x = s.x
+    s.foes[0].y = s.y - 3 * sim.FP
+    s.tick = 17
+    var r = replay.new(1, 1, 80, 24)
+    walker.drive(mut s, mut r, s.x + 4 * sim.FP, s.y)
+    assert(
+        s.action == sim.PARRY && s.pouch.bleeding == 0,
+        "defend the public drop tell, do not spend bites on the trunk",
+    )
+}
+
+fn test_cb18_proof_walker_licks_new_foe_bleed_before_resuming() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+    s.foes[0].health = 0
+    sim.bleed(mut s)
+    let x = s.x
+    let y = s.y
+    var r = replay.new(1, 1, 80, 24)
+    var n = 0
+    while n < 25 { walker.drive(mut s, mut r, x + 6 * sim.FP, y); n += 1 }
+    assert(
+        s.pouch.bleeding == 0 && s.health > 0 && s.x > x,
+        "actual release/rest keys lick, then the walk resumes",
+    )
+}
