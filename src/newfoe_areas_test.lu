@@ -98,6 +98,29 @@ fn test_cb18_body_census_keeps_every_legacy_solid_verdict() {
     }
 }
 
+// The census reads art's drawings of the six, never the engine's
+// silhouettes (whose `foe` drew a boss for any kind past the Ashen, so the
+// Stand's martens read as overlapping the cub in every walk past them).
+// The drawn footprint is the body the simulation collides with.
+fn test_cb18_body_census_draws_the_six_as_art_draws_them() {
+    var kind = sim.MARTEN
+    while kind <= sim.WISP {
+        for heading in [0, 64, 128, 192] {
+            region actor {
+                var f = sim.make_new_foe(kind, 40 * sim.FP + sim.FP / 2, 50 * sim.FP + sim.FP / 2)
+                f.heading = heading
+                let b = census.foe_box(f)
+                let body = sim.foe_body(f)
+                assert(
+                    b.x0 == body.x0 && b.y0 == body.y0 && b.x1 == body.x1 && b.y1 == body.y1,
+                    "kind {kind} heading {heading}: the drawing is the body",
+                )
+            }
+        }
+        kind += 1
+    }
+}
+
 fn test_cb18_body_census_respects_new_floaters_and_trunk_modes() {
     for kind in [sim.MARTEN, sim.CINDER_MOTHS, sim.GLOW_WORMS, sim.WISP] {
         region actor {
