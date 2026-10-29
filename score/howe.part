@@ -1,0 +1,48 @@
+# The Barrows — the Howe: D minor in three, an elegy for the alphas under the mounds; the shadows'
+# motif on a horn, voices, a standing stone's bell, a wisp's flute. Original, cb17 (2026-10-29).
+# 8 bars of 3/4 at 72: 20 s, a loop.
+title The Barrows
+cue replace fade 9
+tempo 72
+meter 3/4
+part elegy horn mp pan -10 gain 2
+part mound choir pp pan 20 gain 5
+part turf strings p pan -25 gain 5
+part stones bells pp pan 35 gain 2
+part wisp flute pp pan -35 gain 2
+bar 1
+elegy D4/4 Eb4/4 D4/4
+mound D3,A3/2.~
+turf D2/2.~
+stones A4/4 r/2
+bar 2
+elegy A3/2.
+mound D3,A3/2.
+turf D2/2.
+bar 3
+elegy Bb3/4 D4/4 G4/4
+mound G3,D4/2.
+turf G2/2.
+wisp r/4 r/8 A5/16 Bb5/16 A5/4
+bar 4
+elegy F4/2 E4/4
+mound F3,C4/2.
+turf F2/2.
+bar 5
+elegy D4/4 Eb4/4 D4/4
+mound D3,A3/2.
+turf D2/2.
+stones D5/4 r/2
+bar 6
+elegy Bb3/2 A3/4
+mound Bb2,F3/2.
+turf Bb1/2.
+wisp r/2 D6/8 r/8
+bar 7
+elegy C4/4 Bb3/4 A3/4
+mound A2,E3/2.
+turf A1/2.
+bar 8
+elegy D4/2 r/4
+mound D3,A3/2 r/4
+turf D2/2 r/4
