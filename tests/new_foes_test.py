@@ -82,14 +82,27 @@ class NewSpawnTests(unittest.TestCase):
         values = {7: (3, 0, 0, 0, 0, 0), 8: (0, 2, 2, 0, 0, 0), 9: (0, 0, 0, 1, 0, 0),
                   10: (0, 0, 0, 0, 24, 0), 11: (0, 0, 0, 0, 0, 2)}
         return header + '\n' + '\n'.join('new-foes ' + ' '.join(map(str, (seed, field, area, *count)))
-          for seed in range(50) for field in (80, 200) for area, count in values.items())
+          for seed in range(50) for field in (80, 200) for area, count in values.items()) + '\n' + self.VERDICT
+
+    VERDICT = ('new-foe-npc-gap: green, 3400 spawns over 50 seeds at both fields, '
+               'the nearest 5 clear cells from an NPC (talk radius 4)')
 
     def test_complete_distribution(self):
         self.assertEqual(len(GAMEPLAY['validate_new_foe_spawns'](self.fixture())), 500)
 
     def test_missing_world_and_missing_kind_are_red(self):
         lines = self.fixture().splitlines()
-        for bad in (lines[:-1], [*lines[:1], lines[1].replace('3 0 0 0 0 0', '0 0 0 0 0 0'), *lines[2:]]):
+        for bad in ([*lines[:-2], lines[-1]], [*lines[:1], lines[1].replace('3 0 0 0 0 0', '0 0 0 0 0 0'), *lines[2:]]):
+            with self.assertRaises(AssertionError):
+                GAMEPLAY['validate_new_foe_spawns']('\n'.join(bad))
+
+    def test_a_spawn_in_an_npc_talk_radius_is_red(self):
+        # cb16's NPCs: the verdict line is required, and a near row or a
+        # red verdict (the Stand's last marten by the Hermit) fails it.
+        lines = self.fixture().splitlines()
+        near = 'new-foe-near-npc 0 80 7 9 20 192 2'
+        red = 'new-foe-npc-gap: RED, 94 of 3400 spawns within 4 clear cells of an NPC'
+        for bad in (lines[:-1], [*lines[:-1], red], [*lines[:2], near, *lines[2:]]):
             with self.assertRaises(AssertionError):
                 GAMEPLAY['validate_new_foe_spawns']('\n'.join(bad))
 

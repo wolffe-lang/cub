@@ -9,6 +9,7 @@
 
 use clock
 use forest
+use npc
 use sim
 use terrain
 use town
@@ -787,14 +788,33 @@ pub fn gen_bench() -> int {
 pub fn new_foe_distribution() -> int {
     // Appended distribution, never insert columns into inherited rows.
     print("new-foes seed field area martens adders moth_swarms herons glow_worms wisps")
+    var six = 0
+    var near = 0
+    var nearest = 1000
     var new_seed = 0
     while new_seed < 50 {
         for field in [80, 200] {
             var area = forest.STAND
             while area <= forest.HOWE {
                 let fs = sim.area_foes(new_seed, field, area, 0)
+                let folk = sim.folk(new_seed, field, area)
                 var counts = [0, 0, 0, 0, 0, 0]
-                for f in fs { if sim.is_new_foe(f.kind) { counts[f.kind - sim.MARTEN] += 1 } }
+                for f in fs {
+                    if sim.is_new_foe(f.kind) {
+                        counts[f.kind - sim.MARTEN] += 1
+                        // cb16's NPCs: none of the six spawns within an
+                        // NPC's talk radius (`npc.FACE_GAP` clear cells).
+                        let g = sim.folk_gap(f, folk)
+                        if g < nearest { nearest = g }
+                        if g <= npc.FACE_GAP {
+                            print(
+                                "new-foe-near-npc {new_seed} {field} {area} {f.kind} {f.x / sim.FP} {f.y / sim.FP} {g}",
+                            )
+                            near += 1
+                        }
+                        six += 1
+                    }
+                }
                 print(
                     "new-foes {new_seed} {field} {area} {counts[0]} {counts[1]} {counts[2]} {counts[3]} {counts[4]} {counts[5]}",
                 )
@@ -803,5 +823,14 @@ pub fn new_foe_distribution() -> int {
         }
         new_seed += 1
     }
+    if near > 0 {
+        print(
+            "new-foe-npc-gap: RED, {near} of {six} spawns within {npc.FACE_GAP} clear cells of an NPC",
+        )
+        return 1
+    }
+    print(
+        "new-foe-npc-gap: green, {six} spawns over 50 seeds at both fields, the nearest {nearest} clear cells from an NPC (talk radius {npc.FACE_GAP})",
+    )
     0
 }

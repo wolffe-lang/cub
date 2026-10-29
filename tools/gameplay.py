@@ -567,8 +567,13 @@ def validate_new_foe_spawns(text):
     counts = {7: (3, 0, 0, 0, 0, 0), 8: (0, 2, 2, 0, 0, 0),
               9: (0, 0, 0, 1, 0, 0), 10: (0, 0, 0, 0, 24, 0),
               11: (0, 0, 0, 0, 0, 2)}
+    # cb16's NPCs: the last line is the talk-radius verdict, no spawn of
+    # the six within four clear cells of an NPC at any place or facing.
+    assert re.match(r'new-foe-npc-gap: green, 3400 spawns over 50 seeds at both fields, '
+                    r'the nearest \d+ clear cells from an NPC \(talk radius 4\)$', lines[-1]), \
+        ('a new foe in an NPC talk radius', lines[-1])
     seen = set()
-    for line in lines[1:]:
+    for line in lines[1:-1]:
         words = line.split()
         assert len(words) == 10 and words[0] == 'new-foes', ('distribution row', line)
         seed, field, area, *values = map(int, words[1:])
