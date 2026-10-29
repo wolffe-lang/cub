@@ -1,0 +1,24 @@
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#        O#      .     ,  .:      # ' ' "      
+#healthO#=======-O#O#O#O#O#O#O#O#O , .    #O   ,  :         .O#O#O#O,   ' :,'   
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O# .    .    . .            ,#O#O#O#O#O  '  |#',
+#stamina#==-------#O#O#O#O#O#O#O#O  .                 :   ,  O#O#O#O#O#O#O#O '  
+O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O#O :  :  O#   :     .          O#O#O#O#O#O#O#O#O 
+#Water#3/3#Ow'drink .'  .O  .  | O      #O    .   .    ,     O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#|:  "  "   # | 'O    ,     ..             , , .  #O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O  " # ' ''# #  " ' O'O      .   ,                O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#      O#   ".#|    #'    ,  .  # ## ## .O#   .,  #O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O .#' "      # .    '#  : .  .!!#######, #O :    ,O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#O  :,." O  ', O.'" #   .    :  # ## ##     .    O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O   .  "O  "'"' " ' O " .    / ///.      , .     #O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#    .', '||  .O"  O| :"    ######    :    .,., #O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O         '"O" '    O      ######.       .     #O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O#""       #  '":#"   O.   ,,,, .  ,           #O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O  "''O  #   :   '' |  " " " ...        :.   #O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O# , |" '#  ' "  .     ."     ..        . :  #O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O   ' O   |  '  . O#'  ,  O ::       . ,   #O#O#O#O#O#O#O#O#O#O#O#O#O
+O#O#O#O#O#O# '"      ": : '   "  "       | |   ,O  ,    O#O#O#O#O#O#O#O#O#O#O#O#
+#O#O#O#O#O#O" "'  '  O  ' "O.  . '  ""# . ,"# |O#O     , O#O#O#O#O#O###O###O###O
+O#O#O#O#O#O# ,     '   #   " "   # ' |   .   |O#O#O : . . O#O#O#O#O###O#O#######
+#O#O#O#O#O#O''" ""  " "',  "  'O#    O|'   O|"#O#O#O,      O#OscentO###O###O#O#O
+O#O#O#O#O#O#    |   O :#':" '  .  |      ' "  O#O#O#O     , O#O#O#O#O#O#O#O#####
+#O#O#O#O#O#O#    .| ,O "    '"  .O" #'  #  O O#O#O#O#O       O#O#O#O###O###O###O
