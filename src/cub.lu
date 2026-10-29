@@ -26,6 +26,8 @@ use measure
 use memprobe
 use motionproof
 use narrowaudit
+use npcaudit
+use npcproof
 use look
 use clock
 use controls
@@ -37,6 +39,7 @@ use diagonalstudy
 use denproof
 use doorproof
 use fight
+use folk
 use faultproof
 use ghost
 use grid
@@ -91,6 +94,7 @@ struct Options {
     save_cut: bool,
     save_delay: int,
     world_audit: bool,
+    npc_audit: bool,
     make_proof: str,
     mute: bool,
     sound_dir: str,
@@ -144,6 +148,8 @@ fn usage_text() -> str {
         "  --den-spacing / --foe-census / --bends-audit / --spurs-audit / --gen-bench  the wide forest's censuses (cb05)\n" +
         "  --crossing-census / --hitbox-audit  Cinderwick crossed by a scripted cub; a bite from eight aims (cb05)\n" +
         "  --world-audit                     graph/density census over seeds 0..49\n" +
+        "  --npc-audit                       every NPC's place on open, reached ground, 50 seeds, both fields\n" +
+        "  --make-npc-proof DIR              the conversation, purchase and toll witnesses (cb16)\n" +
         "  --area-map SEED AREA FIELD        an area's map as text (cb14)\n" +
         "  --make-walk DIR                   the walk from the Shingle to the stone mouth (cb14)\n" +
         "  --make-area-proof DIR             the areas' first screens alone (cb14)\n" +
@@ -194,6 +200,7 @@ fn options_default() -> Options {
         save_cut: false,
         save_delay: 1,
         world_audit: false,
+        npc_audit: false,
         make_proof: "",
         mute: false,
         sound_dir: "",
@@ -246,6 +253,8 @@ fn parse_args(args: List[str]) -> Options ! {usage, parse} {
             i += 2
         } else if a == "--world-audit" {
             o.world_audit = true
+        } else if a == "--npc-audit" {
+            o.npc_audit = true
         } else if a == "--menu" {
             o.menu = true
         } else if a == "--no-title" {
@@ -578,6 +587,8 @@ fn run_art_study(o: Options) -> int {
     headless.write_frame(o.dump, "boss-plain", art.boss_sheet(tier.PLAIN)) else |_| { return 2 }
     headless.write_frame(o.dump, "wolf-rich", art.wolf_sheet(tier.RICH)) else |_| { return 2 }
     headless.write_frame(o.dump, "wolf-plain", art.wolf_sheet(tier.PLAIN)) else |_| { return 2 }
+    headless.write_frame(o.dump, "npcs-rich", folk.sheet(tier.RICH)) else |_| { return 2 }
+    headless.write_frame(o.dump, "npcs-plain", folk.sheet(tier.PLAIN)) else |_| { return 2 }
     for field in [80, 200] {
         headless.write_frame(
             o.dump,
@@ -1432,6 +1443,7 @@ fn main() -> int {
     }
     if args.len == 2 && args[0] == "--make-walk" { return proof.walk(args[1]) }
     if args.len == 2 && args[0] == "--make-area-proof" { return proof.areas(args[1]) }
+    if args.len == 2 && args[0] == "--make-npc-proof" { return npcproof.generate(args[1]) }
     if args.len == 6 && args[0] == "--route-view" {
         return pathaudit.view(
             args[1].to_int() else 0,
@@ -1492,6 +1504,7 @@ fn main() -> int {
     }
     if o.make_proof != "" { return proof.generate(o.make_proof) }
     if o.world_audit { return run_world_audit() }
+    if o.npc_audit { return npcaudit.run() }
     if o.score_list || o.score_render != "" || o.score_wav != "" || o.score_replay != "" {
         return run_score(o)
     }
@@ -1745,10 +1758,10 @@ fn replay_initial(r: replay.Replay, fallback: sim.Sim) -> sim.Sim ! {
 } {
     let version = replay.args_at(r, 0, controls.EV_JOURNEY)
     if version == 0 { return copy fallback }
-    // `journey 6` (cb14: 211 values), `journey 5` (cb15: 204), `journey 4`
-    // (cb05: 37) and `journey 3` (30) are all read: a committed case keeps
-    // replaying.
-    if version != journey.JOURNEY && version != 5 && version != 4 && version != 3 {
+    // `journey 7` (cb16: 239 values), `journey 6` (cb14: 211), `journey 5`
+    // (cb15: 204), `journey 4` (cb05: 37) and `journey 3` (30) are all
+    // read: a committed case keeps replaying.
+    if version != journey.JOURNEY && version != 6 && version != 5 && version != 4 && version != 3 {
         return save_version
     }
     let count = if version == 3 {
@@ -1757,6 +1770,8 @@ fn replay_initial(r: replay.Replay, fallback: sim.Sim) -> sim.Sim ! {
         journey.SNAPSHOT_V4
     } else if version == 5 {
         journey.SNAPSHOT_V5
+    } else if version == 6 {
+        journey.SNAPSHOT_V6
     } else {
         journey.SNAPSHOT
     }

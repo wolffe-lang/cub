@@ -7,6 +7,7 @@ use controls
 use fight
 use forest
 use journey
+use npc
 use replay
 use sim
 use town
@@ -288,8 +289,12 @@ fn den_journey(seed: int, den: int) -> sim.Sim {
     var s = fight.journey_at(seed, 80, 24, kind)
     s.last_den = den
     s.lit_dens = sim.light_den(s.lit_dens, den)
-    // The bone cache lies through the sett: its journey squeezed through.
-    if den == 15 { s.shortcuts += forest.shortcut_bit(forest.EDGE_SETT) }
+    // The bone cache lies through the sett: its journey squeezed through
+    // (and Dunmoss dug it first, cb16).
+    if den == 15 {
+        s.shortcuts += forest.shortcut_bit(forest.EDGE_SETT)
+        s.npc_flags += npc.DUG
+    }
     let text = journey.encode(s)
     journey.decode(text, 80, 24) else |e| {
         assert(false, "proof.den_journey: den {den} is not a valid save: {e}")
