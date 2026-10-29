@@ -206,52 +206,6 @@ fn test_cb18_heron_dodge_answers_the_unparryable_spear() {
     assert(s.health == before && s.foes[0].hit, "the spear happened, but the dodge evaded it")
 }
 
-// Pending-by-name until cb15's announced merge, not skipped green tests:
-// test_cb18_lynx_bite_starts_cb15_bleeding — sim.bleed(mut s).
-// test_cb18_marten_bite_starts_cb15_bleeding — sim.bleed(mut s).
-// test_cb18_marten_takes_one_pouch_item_and_returns_it_at_the_trunk — take_one/leave.
-// test_cb18_empty_pouch_does_not_steal_water_or_scent — take_one returns none.
-// test_cb18_yarrow_extinguishes_the_adder_burn — cb15's cure-use signal.
-// The adder's status is burn (40), not bleed (60); this distinction is
-// asserted here after the API exists and the boss/fairness baselines compare.
-
-fn test_cb18_pre_pouch_scent_hook_is_bounded_and_returns_without_extra_meat() {
-    var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
-    s.foes[0].phase = sim.STRIKE
-    s.foes[0].heading = 128
-    let fb = sim.foe_body(s.foes[0])
-    let cb = sim.cub_body_at(s, 0, 0, 0)
-    s.x = s.foes[0].x
-    s.y = (fb.y1 + 1 - cb.y0) * sim.FP
-    s.scent = 3
-    sim.new_foe_step(mut s, 0)
-    assert(
-        s.scent == 0 && s.foes[0].stolen_scent == 3 && s.flasks == 3,
-        "at most the carried three scent, never water or underflow",
-    )
-    s.tick = 103
-    s.started = 100
-    s.action = sim.BITE
-    s.combo = 3
-    s.attack_heading = 0
-    s.action_x = s.x
-    s.action_y = s.y
-    s.foes[0].phase = sim.RETREAT
-    sim.strike_foes(mut s)
-    assert(
-        s.foes[0].health == 8 && s.foes[0].stolen_scent == 0,
-        "a surviving landing bite returns the payload",
-    )
-    assert(
-        s.drops.len == 1 && s.drops[0].value == 3 && s.meat.len == 0,
-        "return is currency, not a new animal killed for meat",
-    )
-    assert(
-        s.drops[0].x == s.foes[0].home_x && s.drops[0].y == s.foes[0].home_y,
-        "the stolen payload drops at the trunk foot, not at the cub",
-    )
-}
-
 fn test_cb18_legacy_alpha_dodge_is_not_mistaken_for_a_snuffed_wisp() {
     var s = hitcensus.fixture(sim.ALPHA)
     s.foes[0].phase = sim.FOE_DODGE

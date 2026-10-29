@@ -1007,7 +1007,6 @@ pub struct Foe {
     slow_until: int,
     slow_lag: int,
     /// Loot held by a marten until bitten at its landing or trunk foot.
-    stolen_scent: int,
     stolen_item: int,
 }
 
@@ -1060,7 +1059,6 @@ pub fn spawn_foes(seed: int) -> List[Foe] {
             chasing: false,
             slow_until: 0,
             slow_lag: 0,
-            stolen_scent: 0,
             stolen_item: -1,
         })
         i += 1
@@ -2925,6 +2923,7 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
         }
         cache += 1
     }
+    append_new_area_foes(seed, field, area, mut foes)
     foes
 }
 
@@ -3369,7 +3368,6 @@ fn make_foe(kind: int, x: int, y: int) -> Foe {
         chasing: false,
         slow_until: 0,
         slow_lag: 0,
-        stolen_scent: 0,
         stolen_item: -1,
     }
 }
@@ -4822,7 +4820,10 @@ fn next_item(s: Sim, from: int, direction: int) -> int {
 
 /// Nearest foe in the forward ninety-degree cone, unless a living lock exists.
 pub fn ice_target(s: Sim) -> int {
-    if s.locked >= 0 && s.locked < s.foes.len && s.foes[s.locked].health > 0 {
+    if s.locked >= 0 &&
+        s.locked < s.foes.len &&
+        s.foes[s.locked].health > 0 &&
+        !(s.foes[s.locked].kind == WISP && s.foes[s.locked].phase == SNUFFED) {
         let f = copy s.foes[s.locked]
         return if near(s.x, s.y, f.x, f.y, 6 * FP) then s.locked else -1
     }
@@ -4834,6 +4835,7 @@ pub fn ice_target(s: Sim) -> int {
         let dy = f.y - s.y
         let d = dx * dx + dy * dy
         if f.health > 0 &&
+            !(f.kind == WISP && f.phase == SNUFFED) &&
             d < distance &&
             d <= 36 * FP * FP &&
             in_front(s.x, s.y, s.heading, f.x, f.y) {
@@ -4854,6 +4856,7 @@ pub fn consume_item(mut s: Sim, kind: int) -> bool {
         s.foes[target].slow_until = item_tick(s) + 90
     } else if kind == pouch.YARROW {
         s.pouch.bleeding = 0
+        s.burn_left = 0
         s.health += 10
         if s.health > health_max(s.heart) { s.health = health_max(s.heart) }
     } else if kind == pouch.MARROW {
@@ -4949,8 +4952,11 @@ pub fn pickup_item(mut s: Sim) -> bool {
     found
 }
 
-/// Deterministic species rolls: boar's kin and otters gain hooks with cb18.
+/// Deterministic species rolls; the six cb18 kinds have no unproposed bonus item rate.
 pub fn foe_item_drop(mut s: Sim, spawn_id: int, kind: int, x: int, y: int) {
+    // cb18: their rewards are scent; the marten returns its real stolen
+    // item separately. No unproposed bonus consumable rate is invented.
+    if is_new_foe(kind) { return }
     let item = if kind == WEASEL || kind == HAWK then pouch.YARROW else pouch.MARROW
     let rate = if kind == WEASEL {
         10
@@ -5038,6 +5044,7 @@ fn resume_after_pause(mut s: Sim) {
     s.gate_hint_until += elapsed
     s.lore_until += elapsed
     if s.pouch.hidden > 0 { s.pouch.hidden += elapsed }
+    if s.blind_until > 0 { s.blind_until += elapsed }
     var i = 0
     while i < s.foes.len {
         s.foes[i].since += elapsed
@@ -5665,7 +5672,7 @@ pub fn make_new_foe(kind: int, x: int, y: int) -> Foe {
 
 /// An explicitly staged, existing open boss arena, with no journey/save
 /// mutation after setup. All encounter motion/damage uses ordinary keys.
-/// New-area placement remains separate until cb14's announced merge.
+/// Real-area placements use the same constructor with inherited guard ordinals retained.
 pub fn new_foe_arena(seed: int, cols: int, rows: int, kind: int) -> Sim {
     var s = new(seed, cols, rows)
     let (x, y, _) = forest.arena(seed, s.field, forest.BRAMBLEHOLD)
@@ -5695,8 +5702,15 @@ pub fn apply_burn(mut s: Sim) { s.burn_left = 40 }
 
 /// Status tick, paused by the same den/scene early returns as the foes.
 /// Water extinguishes at the first drinking tick, before burn can cancel
-/// the mouthful. Yarrow's cure hook is attached at cb15's announced merge.
+/// the mouthful. The existing public yarrow action cures this status too.
 pub fn new_foe_status(mut s: Sim) {
+    var i = 0
+    while i < s.foes.len {
+        if s.foes[i].kind == MARTEN && s.foes[i].health <= 0 && s.foes[i].stolen_item >= 0 {
+            marten_return(mut s, i)
+        }
+        i += 1
+    }
     if s.burn_left <= 0 { return }
     if s.action == DRINK || in_shallows(s, s.x, s.y) {
         s.burn_left = 0
@@ -5736,21 +5750,21 @@ fn new_foe_die(mut s: Sim, i: int) {
     s.foes[i].health = 0
     s.foes[i].died = s.tick
     leave_drop(mut s, f.x, f.y, new_foe_scent(f.kind))
+    foe_item_drop(mut s, i, f.kind, f.x, f.y)
 }
 
 fn marten_return(mut s: Sim, i: int) {
     let f = copy s.foes[i]
-    if f.stolen_scent > 0 {
-        (mut s.drops).push(Drop {
-            x: f.home_x,
-            y: f.home_y,
-            value: f.stolen_scent,
-            until: s.tick + DROP_TICKS,
-        })
-        s.foes[i].stolen_scent = 0
+    if f.stolen_item >= 0 &&
+        pouch.leave(
+            mut s.pouch,
+            s.area,
+            floor_div(f.home_x, FP),
+            floor_div(f.home_y, FP),
+            f.stolen_item,
+        ) {
+        s.foes[i].stolen_item = -1
     }
-    // Pending-by-name: cb15's item_count/item_set and pouch.leave supply
-    // one-item theft/return here at its announced merge, not a fake API.
 }
 
 fn new_foe_bitten(mut s: Sim, i: int) {
@@ -5802,13 +5816,14 @@ fn drift_foe(mut s: Sim, i: int, tx: int, ty: int, speed: int) {
     let f = copy s.foes[i]
     let h = heading_to(f.x, f.y, tx, ty)
     if h < 0 { s.foes[i].speed = 0; return }
-    let nx = f.x + speed * sin(h) / FP
-    let ny = f.y - speed * cos(h) / FP
+    let v = foe_speed(s, i, speed)
+    let nx = f.x + v * sin(h) / FP
+    let ny = f.y - v * cos(h) / FP
     if !blocked(s, floor_div(nx, FP), floor_div(ny, FP)) {
         s.foes[i].x = nx
         s.foes[i].y = ny
         s.foes[i].heading = h
-        s.foes[i].speed = speed
+        s.foes[i].speed = v
     } else {
         s.foes[i].speed = 0
     }
@@ -5817,7 +5832,10 @@ fn drift_foe(mut s: Sim, i: int, tx: int, ty: int, speed: int) {
 fn scatter_glow_worms(mut s: Sim, from: int) {
     var j = 0
     while j < s.foes.len {
-        if j != from && s.foes[j].kind == GLOW_WORMS && s.foes[j].health > 0 {
+        if j != from &&
+            s.foes[j].kind == GLOW_WORMS &&
+            s.foes[j].health > 0 &&
+            near(s.foes[from].x, s.foes[from].y, s.foes[j].x, s.foes[j].y, 6 * FP) {
             let f = copy s.foes[j]
             s.foes[j].phase = RETREAT
             s.foes[j].since = s.tick
@@ -5837,6 +5855,27 @@ pub fn new_foe_step(mut s: Sim, i: int) {
     let f = copy s.foes[i]
     let age = s.tick - f.since
     let m = new_foe_move(f.kind)
+    if f.kind == CINDER_MOTHS &&
+        s.area == forest.BURN &&
+        forest.kind(s.seed, s.field, s.area, floor_div(f.x, FP), floor_div(f.y, FP)) ==
+            terrain.DRIFT {
+        s.foes[i].health = 0
+        s.foes[i].died = s.tick
+        leave_drop(mut s, f.x, f.y, 4 * f.health)
+        return
+    }
+    if f.kind == WISP &&
+        s.area == forest.HOWE &&
+        f.attack > 0 &&
+        f.phase != SNUFFED &&
+        f.poise < f.poise_at &&
+        near(f.x, f.y, f.target_x, f.target_y, FP / 2) {
+        let next = f.poise + 1
+        let (x, y) = forest.branch_point(s.seed, s.field, s.area, f.attack - 1, next)
+        s.foes[i].poise = next
+        s.foes[i].target_x = x * FP + FP / 2
+        s.foes[i].target_y = y * FP + FP / 2
+    }
     if f.kind == WISP {
         if f.phase == SNUFFED {
             if s.locked == i { s.locked = -1 }
@@ -5897,7 +5936,8 @@ pub fn new_foe_step(mut s: Sim, i: int) {
         }
         return
     }
-    if f.kind == HERON && s.y < f.home_y - 3 * FP {
+    if f.kind == HERON &&
+        (if f.attack == 1 then s.y > f.home_y + 3 * FP else s.y < f.home_y - 3 * FP) {
         // Passing the last stone is an answer: no compulsory kill/reward.
         s.foes[i].health = 0
         s.foes[i].died = -1
@@ -5951,8 +5991,8 @@ pub fn new_foe_step(mut s: Sim, i: int) {
                 hurt(mut s, m.damage)
                 if f.kind == ASH_ADDER { apply_burn(mut s) }
                 if f.kind == MARTEN {
-                    // Pre-cb15 bounded scent theft; its one-item API is
-                    // attached at the announced merge, never water.
+                    bleed(mut s)
+                    nearest_marten_trunk(mut s, i)
                     marten_steal(mut s, i)
                 }
             }
@@ -5975,21 +6015,22 @@ pub fn new_foe_step(mut s: Sim, i: int) {
             let h = (age * 8 + s.seed * 17) % TURN
             drift_foe(mut s, i, s.x + 2 * sin(h), s.y - 2 * cos(h), 24)
         }
-        if age >= m.recovery {
+        if age >= m.recovery &&
+            (f.kind != MARTEN || near(s.foes[i].x, s.foes[i].y, f.home_x, f.home_y, FP)) {
             s.foes[i].phase = if f.kind == MARTEN then PERCHED else HUNT
             s.foes[i].since = s.tick
         }
     }
 }
 
-// Named pre-cb15 hook; replaced with its public take_one/leave pair at
-// the announced merge. A second hit cannot steal another held payload.
+// Public pouch APIs only. A second hit cannot steal another held payload.
 fn marten_steal(mut s: Sim, i: int) {
-    let f = copy s.foes[i]
-    if f.stolen_scent == 0 && f.stolen_item < 0 {
-        let taken = if s.scent < 5 then s.scent else 5
-        s.scent -= taken
-        s.foes[i].stolen_scent = taken
+    if s.foes[i].stolen_item >= 0 { return }
+    var kind = 0
+    while kind < pouch.KINDS {
+        let taken = take_one(mut s, kind)
+        if taken >= 0 { s.foes[i].stolen_item = taken; return }
+        kind += 1
     }
 }
 
@@ -6001,21 +6042,21 @@ fn new_ground_run(mut s: Sim, i: int, tx: int, ty: int, speed: int) {
     if h < 0 { s.foes[i].speed = 0; return }
     turn_foe(mut s, i, h)
     let heading = s.foes[i].heading
-    let nx = f.x + speed * sin(heading) / FP
-    let ny = f.y - speed * cos(heading) / FP
+    let v = foe_speed(s, i, speed)
+    let nx = f.x + v * sin(heading) / FP
+    let ny = f.y - v * cos(heading) / FP
     if !blocked(s, floor_div(nx, FP), floor_div(ny, FP)) &&
         !foe_blocked_by_body(s, i, nx, ny, heading) {
         s.foes[i].x = nx
         s.foes[i].y = ny
-        s.foes[i].speed = speed
+        s.foes[i].speed = v
     } else {
         s.foes[i].speed = 0
     }
 }
 
-/// Area hook: no existing cave is silently repopulated/re-darkened.
-/// Replaced with cb14's UNDERTEETH id only at its announced merge.
-pub fn glow_dark_area(area: int) -> bool { area == -1 }
+/// Only the newly populated Underteeth uses the live-worm light rule.
+pub fn glow_dark_area(area: int) -> bool { area == forest.UNDERTEETH }
 
 /// A live worm lights cells within three cells of its drifting body.
 pub fn glow_lights(s: Sim, x: int, y: int) -> bool {
@@ -6061,4 +6102,226 @@ fn marten_lands(mut s: Sim, i: int) -> bool {
         }
     }
     true
+}
+
+/// The existing pouch pause clock also freezes the six-frame flash.
+pub fn blinded(s: Sim) -> bool { s.blind_until > 0 && item_tick(s) < s.blind_until }
+
+// cb18 placements append after the inherited guards, preserving their
+// saved slain ordinals. Every new anchor keeps the existing den margin.
+/// Where a search's den refuge is: the den of the four new den-bearing
+/// areas (these public den ids), read once per search, not per cell.
+struct Refuge {
+    has: bool,
+    x: int,
+    y: int,
+}
+
+fn refuge(seed: int, area: int) -> Refuge {
+    if area < forest.STAND || area > forest.UNDERTEETH { return Refuge { has: false, x: 0, y: 0 } }
+    let (x, y) = forest.den_position(seed, 12 + area - forest.STAND)
+    Refuge { has: true, x: x, y: y }
+}
+
+fn new_spawn_clear(seed: int, field: int, area: int, x: int, row: int, den: Refuge) -> bool {
+    if row < 8 || row >= forest.length(area) - 8 { return false }
+    // Reject the cheap distance first, before evaluating terrain hashes.
+    if den.has {
+        let ox = (x * FP + FP / 2 - den.x) / FP
+        let oy = ((forest.origin(seed, area) + row) * FP + FP / 2 - den.y) / FP
+        if ox * ox + oy * oy < forest.FIRST_FOE_CELLS * forest.FIRST_FOE_CELLS { return false }
+    }
+    !forest.blocked(seed, field, area, x, forest.origin(seed, area) + row)
+}
+
+fn trunk_beside(seed: int, field: int, area: int, x: int, row: int) -> bool {
+    for dx in [-1, 0, 1] {
+        for dy in [-1, 0, 1] {
+            let k = forest.kind(seed, field, area, x + dx, forest.origin(seed, area) + row + dy)
+            if k == terrain.PINE || k == terrain.TRUNK { return true }
+        }
+    }
+    false
+}
+
+fn new_slot_ok(
+    seed: int,
+    field: int,
+    area: int,
+    kind: int,
+    x: int,
+    row: int,
+    foes: List[Foe],
+    den: Refuge,
+) -> bool {
+    if !new_spawn_clear(seed, field, area, x, row, den) { return false }
+    if kind == MARTEN && !trunk_beside(seed, field, area, x, row) { return false }
+    if kind == GLOW_WORMS {
+        if !new_spawn_clear(seed, field, area, x - 1, row, den) ||
+            !new_spawn_clear(seed, field, area, x + 1, row, den) {
+            return false
+        }
+        for f in foes {
+            if f.kind == GLOW_WORMS &&
+                near(f.x, f.y, x * FP, (forest.origin(seed, area) + row) * FP, 8 * FP) {
+                return false
+            }
+        }
+    }
+    true
+}
+
+fn new_slot(seed: int, field: int, area: int, kind: int, x: int, row: int, foes: List[Foe]) -> (
+    int,
+    int,
+) {
+    // Ascending Manhattan rings stop at the first valid slot rather than
+    // hashing every cell in a forty-row rectangle for every spawn.
+    let den = refuge(seed, area)
+    var radius = 0
+    while radius <= 48 {
+        var dy = 0 - (if radius < 40 then radius else 40)
+        let end = if radius < 40 then radius else 40
+        while dy <= end {
+            let dx = radius - abs(dy)
+            if dx <= 8 {
+                if new_slot_ok(seed, field, area, kind, x - dx, row + dy, foes, den) {
+                    return (x - dx, row + dy)
+                }
+                if dx > 0 && new_slot_ok(seed, field, area, kind, x + dx, row + dy, foes, den) {
+                    return (x + dx, row + dy)
+                }
+            } else if dy < 0 {
+                // Every row up to radius - 8 has an offset past eight.
+                dy = radius - 8
+                continue
+            }
+            dy += 1
+        }
+        radius += 1
+    }
+    assert(false, "cb18: a new foe needs a walkable den-clear spawn")
+    (x, row)
+}
+
+fn append_new_area_foes(seed: int, field: int, area: int, mut foes: List[Foe]) {
+    if area == forest.STAND {
+        for row in [56, 144, 192] {
+            let (x, at) = new_slot(
+                seed,
+                field,
+                area,
+                MARTEN,
+                forest.spine(seed, area, row) + 4,
+                row,
+                foes,
+            )
+            (mut foes).push(
+                make_new_foe(
+                    MARTEN,
+                    x * FP + FP / 2,
+                    (forest.origin(seed, area) + at) * FP + FP / 2,
+                ),
+            )
+        }
+    } else if area == forest.BURN {
+        for row in [52, 164] {
+            let (x, at) = new_slot(
+                seed,
+                field,
+                area,
+                ASH_ADDER,
+                forest.spine(seed, area, row) + 2,
+                row,
+                foes,
+            )
+            (mut foes).push(make_new_foe(ASH_ADDER, x * FP + FP / 2, at * FP + FP / 2))
+        }
+        for row in [32, 196] {
+            let (x, at) = new_slot(
+                seed,
+                field,
+                area,
+                CINDER_MOTHS,
+                forest.spine(seed, area, row) - 3,
+                row,
+                foes,
+            )
+            (mut foes).push(make_new_foe(CINDER_MOTHS, x * FP + FP / 2, at * FP + FP / 2))
+        }
+    } else if area == forest.MERE {
+        let row = 198
+        let (x, at) = new_slot(
+            seed,
+            field,
+            area,
+            HERON,
+            forest.spine(seed, area, row) + 2,
+            row,
+            foes,
+        )
+        var f = make_new_foe(HERON, x * FP + FP / 2, at * FP + FP / 2)
+        f.heading = 0
+        f.attack = 1
+        (mut foes).push(f)
+    } else if area == forest.UNDERTEETH {
+        var k = 0
+        while k < lands.GLOWS {
+            let row = lands.glow_row(k)
+            let gx = lands.glow_x(seed, k, forest.spine(seed, area, row))
+            let (x, at) = new_slot(seed, field, area, GLOW_WORMS, gx, row, foes)
+            for dx in [-1, 0, 1] {
+                (mut foes).push(make_new_foe(GLOW_WORMS, (x + dx) * FP + FP / 2, at * FP + FP / 2))
+            }
+            k += 1
+        }
+    } else if area == forest.HOWE {
+        // The barrow-side alcove branches already end at living sentries.
+        // Follow their carved curve, not a straight line through a tree.
+        var cache = 0
+        while cache < 2 {
+            let len = forest.branch_len(seed, field, area, cache)
+            let start = if len > 18 then len - 18 else 0
+            let (x, row) = forest.branch_point(seed, field, area, cache, start)
+            var f = make_new_foe(WISP, x * FP + FP / 2, row * FP + FP / 2)
+            f.attack = cache + 1
+            f.poise = start
+            f.poise_at = len - 3
+            f.target_x = f.x
+            f.target_y = f.y
+            (mut foes).push(f)
+            cache += 1
+        }
+    }
+}
+
+fn nearest_marten_trunk(mut s: Sim, i: int) {
+    let f = copy s.foes[i]
+    let cx = floor_div(f.x, FP)
+    let cy = floor_div(f.y, FP)
+    var best = 1000000000
+    var bx = f.home_x
+    var by = f.home_y
+    var dy = -8
+    while dy <= 8 {
+        var dx = -8
+        while dx <= 8 {
+            let x = cx + dx
+            let y = cy + dy
+            if !blocked(s, x, y) &&
+                trunk_beside(s.seed, s.field, s.area, x, y - forest.origin(s.seed, s.area)) {
+                let distance = (x * FP + FP / 2 - f.x) * (x * FP + FP / 2 - f.x) +
+                    (y * FP + FP / 2 - f.y) * (y * FP + FP / 2 - f.y)
+                if distance < best {
+                    best = distance
+                    bx = x * FP + FP / 2
+                    by = y * FP + FP / 2
+                }
+            }
+            dx += 1
+        }
+        dy += 1
+    }
+    s.foes[i].home_x = bx
+    s.foes[i].home_y = by
 }

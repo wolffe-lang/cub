@@ -20,7 +20,7 @@ pub fn generate(dir: str) -> int {
     while kind <= sim.WISP {
         region encounter {
             var s = sim.new_foe_arena(1, 80, 24, kind)
-            if kind == sim.MARTEN { s.scent = 20 }
+            if kind == sim.MARTEN { let _ = sim.give_item(mut s, 0) }
             var r = replay.new(1, tier.RICH, 80, 24)
             var st = fight.fighter()
             var tick = 0
@@ -47,8 +47,8 @@ pub fn generate(dir: str) -> int {
                     if key == controls.KEY_DODGE { dodges += 1 }
                 }
                 sim.step(mut s, keys)
-                if s.foes[0].stolen_scent > 0 || s.foes[0].stolen_item >= 0 { theft = true }
-                if theft && s.foes[0].stolen_scent == 0 && s.foes[0].stolen_item < 0 {
+                if s.foes[0].stolen_item >= 0 { theft = true }
+                if theft && s.foes[0].stolen_item < 0 {
                     returned = true
                 }
                 if sim.moths_near(s) { dim = true }
@@ -108,7 +108,7 @@ pub fn generate(dir: str) -> int {
 /// fighter involved; keys alone must reproduce the complete outcome.
 pub fn replay_arena(kind: int, r: replay.Replay, ticks: int) -> sim.Sim {
     var s = sim.new_foe_arena(r.seed, r.cols, r.rows, kind)
-    if kind == sim.MARTEN { s.scent = 20 }
+    if kind == sim.MARTEN { let _ = sim.give_item(mut s, 0) }
     var at = 0
     while at < ticks {
         var keys = List[int]()
