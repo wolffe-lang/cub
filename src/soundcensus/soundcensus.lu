@@ -1,0 +1,185 @@
+//! soundcensus — the sound census (cb17): the cue schedule over the
+//! journey as a player walks it. The walk is cb14's (`proof.walk`'s
+//! fixture: the alpha's growth at the hollow log, every boss's shortcut
+//! open, every gate shut, only the first den lit) along the way on from
+//! the Shingle to Gravehollow, with a detour to the Stand's lookout for
+//! its reveal, driven by the fighter's walker and recorded; then the
+//! recording is replayed tick by tick from the same start with
+//! `score.step` reading `score.scene_of` each tick: the cues a player
+//! hears, in order, with the area each starts in. The rows: every area
+//! the walk enters cues its own part on the tick it enters (the Hush its
+//! silence, then the shadows' motif 300 ticks on: R-cb17-1 A); the lookout
+//! cues the reveal; the Mere's water the crossing; the Howe past its
+//! fourth standing stone the walk; the replay ends where the walk did.
+//! `cub --sound-census`: a line a cue, then the summary; exit 1 names the
+//! first row that does not hold.
+
+use controls
+use fight
+use forest
+use journey
+use replay
+use score
+use sim
+use walker
+
+/// A cue the census heard: the tick it started, the area, the name.
+struct Heard {
+    tick: int,
+    area: int,
+    cue: str,
+}
+
+/// The walk's way on (cb14's order), Gravehollow through the stone mouth
+/// at its end.
+fn way_on() -> List[int] {
+    [
+        forest.TOWN,
+        forest.BRAMBLEHOLD,
+        forest.STAND,
+        forest.LARKMEADOW,
+        forest.BURN,
+        forest.CRAGS,
+        forest.MERE,
+        forest.RIVER,
+        forest.HUSH,
+        forest.HOWE,
+        forest.GRAVEHOLLOW,
+    ]
+}
+
+fn idle(mut s: sim.Sim, mut r: replay.Replay, ticks: int) {
+    var w = 0
+    while w < ticks {
+        walker.press(mut s, mut r, walker.key(controls.KEY_NONE))
+        w += 1
+    }
+}
+
+/// The walk, recorded into `r` from `s`: false (named on stderr) when the
+/// walker cannot go on.
+fn walk(mut s: sim.Sim, mut r: replay.Replay) -> bool {
+    for next in way_on() {
+        if next == forest.LARKMEADOW {
+            // The Stand's lookout before its way on: the reveal.
+            let (lx, ly) = forest.lookout(s.seed)
+            let wx = lx * sim.FP + sim.FP / 2
+            let wy = (forest.origin(s.seed, forest.STAND) + ly) * sim.FP + sim.FP / 2
+            if !walker.walk(mut s, mut r, wx, wy) {
+                eprint("sound-census: the walk did not reach the Stand's lookout")
+                return false
+            }
+            // The reveal holds its part to its end; wait it out, so the
+            // Stand's loop is back before the way on.
+            let reveal = score.seconds_of("reveal") else |_| { 0 }
+            idle(mut s, mut r, reveal * score.TICK_HZ + 30)
+        }
+        if !fight.walk_on(mut s, mut r, next) {
+            eprint("sound-census: the walk failed on the way to area {next}, in area {s.area}")
+            return false
+        }
+    }
+    idle(mut s, mut r, 90)
+    true
+}
+
+fn heard_in(heard: List[Heard], area: int, cue: str) -> int {
+    var n = 0
+    for h in heard {
+        if h.area == area && h.cue == cue { n += 1 }
+    }
+    n
+}
+
+/// The census: 0 when every row holds, 1 naming the first that does not.
+pub fn run() -> int {
+    var s0 = fight.journey_at(1, 80, 24, sim.ALPHA)
+    s0.last_den = 0
+    s0.lit_dens = 1
+    s0.gates = 0
+    let s1 = journey.decode(journey.encode(s0), 80, 24) else |e| {
+        eprint("sound-census: the walk's fixture is not a valid save: {e}")
+        return 1
+    }
+    var s = copy s1
+    var r = replay.new(s1.seed, 1, s1.cols, s1.rows)
+    if !walk(mut s, mut r) { return 1 }
+    let cs = score.cues() else |_| {
+        eprint("sound-census: a part does not parse")
+        return 1
+    }
+    // The replay: the recorded keys from the same start, the schedule over
+    // every tick's scene.
+    var t = copy s1
+    var sch = score.schedule(cs)
+    var keys = List[int]()
+    var heard = List[Heard]()
+    var entries = List[Heard]()
+    var area = -1
+    var e = 0
+    while t.tick < s.tick {
+        (mut keys).reset()
+        while e < r.events.len && r.events[e].tick < t.tick { e += 1 }
+        while e < r.events.len && r.events[e].tick == t.tick {
+            let k = r.events[e].key
+            if k != replay.EV_SIZE && k < replay.EV_ARG { (mut keys).push(k) }
+            e += 1
+        }
+        sim.step(mut t, keys)
+        if t.area != area {
+            area = t.area
+            (mut entries).push(Heard { tick: t.tick, area: area, cue: score.area_part(area) })
+        }
+        let c = score.step(mut sch, score.scene_of(t), t.tick)
+        if c != "" {
+            print("sound-census tick {t.tick} area {t.area} {forest.name(t.area)} cue {c}")
+            (mut heard).push(Heard { tick: t.tick, area: t.area, cue: copy c })
+        }
+    }
+    if t.tick != s.tick || t.area != s.area || t.x != s.x || t.y != s.y {
+        eprint(
+            "sound-census FAILED: the replay ended at tick {t.tick} area {t.area}, the walk at {s.tick} area {s.area}",
+        )
+        return 1
+    }
+    // Every entry cues its area's part on its own tick; the Hush its
+    // silence, and the motif HUSH_WAIT ticks on.
+    for en in entries {
+        var want = copy en.cue
+        if en.area == forest.HUSH { want = "silence" }
+        var at = -1
+        for h in heard {
+            if h.tick == en.tick && at < 0 { at = h.tick; if h.cue != want { at = -2 } }
+        }
+        if at != en.tick {
+            eprint(
+                "sound-census FAILED: entering area {en.area} ({forest.name(en.area)}) at tick {en.tick} did not cue {want}",
+            )
+            return 1
+        }
+        if en.area == forest.HUSH {
+            var motif = false
+            for h in heard {
+                if h.area == forest.HUSH && h.cue == "hush" && h.tick == en.tick + score.HUSH_WAIT {
+                    motif = true
+                }
+            }
+            if !motif {
+                eprint(
+                    "sound-census FAILED: the Hush's motif did not follow its wait at tick {en.tick + score.HUSH_WAIT}",
+                )
+                return 1
+            }
+        }
+    }
+    let reveal = heard_in(heard, forest.STAND, "reveal")
+    let crossing = heard_in(heard, forest.MERE, "crossing")
+    let walked = heard_in(heard, forest.HOWE, "walk")
+    if reveal < 1 { eprint("sound-census FAILED: the lookout cued no reveal"); return 1 }
+    if crossing < 1 { eprint("sound-census FAILED: the Mere's water cued no crossing"); return 1 }
+    if walked < 1 { eprint("sound-census FAILED: the Howe cued no walk"); return 1 }
+    print(
+        "sound-census entries {entries.len} ok, cues {heard.len}, reveal {reveal} crossing {crossing} walk {walked}, ticks {s.tick - s1.tick}, ends in area {s.area}",
+    )
+    0
+}
