@@ -20,6 +20,10 @@ cue it starts) and its mixer's PCM by sha256 and length (scene-<name>.sha256);
 `six` renders the very bytes of replay.pcm; the Hush's first entry is silent
 from the Shallows' fade to its 300th tick (R-cb17-1 A). A part dropped from
 the bank turns its scene's cue into the silence: a red golden by name.
+The sound census (`cub --sound-census`, the release binary): cb14's walk from
+the Shingle to Gravehollow, with the Stand's lookout, replayed through the
+schedule; every area entered cues its own part, the lookout the reveal, the
+Mere's water the crossing, the Howe the walk, the Hush its wait and motif.
 And the memory gate's budget with every part loaded: tools/memory-probe.py
 over the release binary's real loop with the music on through the OSS stub
 (silent on every host: the stub refuses by name, no player starts), seed 7,
@@ -160,6 +164,14 @@ def check_memory():
         verdict["start"]["rss_bytes"], verdict["end"]["rss_bytes"]), flush=True)
 
 
+def check_census():
+    """The schedule over the real walk: the binary's own rows, exit 0."""
+    p = run(ROOT / "target" / "release" / "cub", "--sound-census")
+    lines = p.stdout.decode().splitlines()
+    assert lines and lines[-1].startswith("sound-census entries"), lines[-3:]
+    print("score-census ok: %s" % lines[-1], flush=True)
+
+
 def main():
     update = "--update" in sys.argv[1:]
     OUT.mkdir(parents=True, exist_ok=True)
@@ -214,6 +226,7 @@ def main():
         failure = run(binary, "--score-render", "no-such-part", bad, ok=2)
         assert b"no-such-part" in failure.stderr and not bad.exists()
         print("score-refusal %s ok" % tier, flush=True)
+    check_census()
     check_memory()
     print("score-check: green")
 
