@@ -95,6 +95,23 @@ fn test_cb18_landed_lynx_swipe_bleeds_and_yarrow_cures_it() {
     }
 }
 
+// A bleed tick that kills is one death: the fall ends the tick (before the
+// fix the action step stood the cub up and every later bleed tick killed it
+// again, twenty-six deaths in the lynx's beaten witness).
+fn test_cb18_a_killing_bleed_tick_is_one_death_and_a_fall() {
+    var s = sim.new(1, 80, 24)
+    (mut s.foes).reset()
+    sim.bleed(mut s)
+    s.health = 1
+    let deaths = s.deaths
+    sim.step(mut s, List[int]())
+    assert(s.health == 0 && s.action == sim.FALL, "the bleed tick fells the cub")
+    assert(s.deaths == deaths + 1, "one death")
+    var n = 0
+    while n < 10 { sim.step(mut s, List[int]()); n += 1 }
+    assert(s.action == sim.FALL && s.deaths == deaths + 1, "still fallen, still one death")
+}
+
 fn test_cb18_adder_burn_is_not_bleed_and_yarrow_cures_both() {
     var s = sim.new_foe_arena(1, 80, 24, sim.ASH_ADDER)
     contact(mut s)
