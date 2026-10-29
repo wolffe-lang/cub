@@ -293,3 +293,12 @@ at a cb14 mouth (the scree, the dry streambed, the raft, the sett, the
 roots) opens it from its own side and crosses it, as the log and the hedge
 are opened; `r` at an alcove's hollow or burrow digs it as a cache. The
 sett's squeeze needs paw 2 and says so on the bottom row.
+
+## The NPCs (cb16)
+
+No new key, no new replay word. Standing still beside an NPC (no arrow
+held) for twenty ticks opens its speech frame; while it is open the forest
+is paused and only Space and Esc act: Space opens a trader's wares (or
+closes the frame), Esc leaves. In the wares the arrows move the cursor,
+Space buys, Esc leaves. Every other key is recorded and inert there, as in
+the pouch. `q` and Ctrl-C quit and interrupt as everywhere.

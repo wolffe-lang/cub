@@ -588,3 +588,29 @@ wet walls with the glow-worms' pink and bones in rows.
 The props atlas (`props-rich`/`props-plain`) grew from 24 drawings to 40 (eight rows of five, the opened forms on
 the ninth); `docs/GLYPHS.md` gained `⠛` U+281B, `⡇` U+2847, `⢸` U+28B8 and `⣤` U+28E4, all inside PAX's console
 extent (gm01's `font/extent.txt` draws every braille pattern and block element).
+
+## The NPCs (cb16, 2026-10-29)
+
+Nine who speak (`src/folk/folk.lu`; who and where in `docs/DESIGN.md`, "The NPCs"), drawn in the house grammar:
+on the rich tier a silhouette bitmap facing north, turned by quarters to face the cub when it is within four
+cells; on the plain tier a few ASCII cells, the same in every facing. The study is the art goldens' `npcs-rich`
+and `npcs-plain`: each NPC north, east, at its second animation frame and south (Ember's south her feint).
+
+| who | rich drawing (pixels, cells north) | plain | colour rich / plain | moves |
+|---|---|---|---|---|
+| Quill, the raven | a folded bird from above, the tail split, 4 by 8 (two by two) | `\v/` over `/V\` | 61 bold / 12 bold | the wings stir every 12 ticks (`-v-`) |
+| Dunmoss, the badger | a broad low body, the face's stripe a gap down the head, 8 by 12 (four by three) | `/==\` `(##)` `/  \` | 252 bold / 15 bold | the feet every 12 ticks |
+| Ember, the fox | the foxes' own drawing (`silhouette.foe`), her feint its feint | `/^^\` `####` ` /\ `; the feint `____` ` ?? ` | 208 bold / 11 bold: brighter than the foes' 166 / 9 | the feint darts two cells at the cub and back |
+| the Charcoal-burner | a person from above, the arm out to the kiln, 4 by 12 (two by three) | `oo` `\|=` `/\` | 245 / 7, not bold (ash) | the arm every 60 ticks (slow) |
+| the Ferryman | a person with the pole beside him, 6 by 12 (three by three) | `\|oo` `\|\|\|` `\|/\` | 245 / 7 | the hands on the pole every 60 ticks; on the crossing he poles beside the cub on the raft (`─` logs, `=` plain) |
+| the Hermit | a person, the arms opening to the hawks, 4 by 12 | `oo` `\|\|` `/\` | 245 / 7 | the arms every 60 ticks |
+| Fenn, Bracken, Loam | the grown wolf's drawing (`silhouette.wolf`), 12 by 24 (six by six) | ` ^^ ` `(~~)` ` ~~ ` | 97 / 5, not bold (shades) | every 60 ticks |
+
+The speech frame is a box over the bottom of the paused field (seven rows, the width less four up to 76; the
+inventory's bone-on-dark box): the speaker's name bold, the line wrapped, `Space wares   Esc leaves` for a trader,
+`Space / Esc` otherwise. The trade list is the inventory's twenty-row panel titled `Quill's wares` (`Dunmoss's
+wares`, `The Ferryman's wares`, `The Hermit's story`): a ware a row with its price and what the pouch holds, the
+scent carried and the last purchase's answer under it. The goldens `npc-talk`, `npc-trade` and `npc-toll` show both
+on both tiers. `docs/GLYPHS.md` gained four braille patterns the raven, the badger and the ashen draw: `⡝` U+285D,
+`⡹` U+2879, `⣎` U+28CE and `⣜` U+28DC. cb02's Ember prop (`props.EMBER`, a fox's head at Bramblehold (-10, 24)) is
+no longer drawn there: Ember herself stands near it; Quill's perch says nothing of its own now (he speaks).

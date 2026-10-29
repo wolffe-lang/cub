@@ -300,3 +300,30 @@ comment routes existing up/down/bite/confirm/release/quit keys into the menu
 state machine, using fixed `/fixture/` registry and recording data, never
 files under the viewer's HOME. `final.state` appends the page, row and action.
 The menu fixtures pin both tiers; existing title and den goldens are unchanged.
+
+## The NPCs: CUB 8 and journey 7 (cb16)
+
+Key ids 0..37 are unchanged and no key is added. A live recording begins
+with `journey 7` and `saved-0` through `saved-238`: journey 6's thirty
+values, thirteen masks and the gates word, then the pouch's seven scalars,
+**48** padded lore slots (32 before) and the 128 pickups, then the NPCs'
+twelve: what each of the nine has said, the dead mask, Quill's perch (-1
+for Larkmeadow's) and the NPCs' flags. `saved-211`..`saved-238` are the
+appended numeric events 225..252 (`EV_COUNT` 253). `journey 6`, 5, 4 and 3
+are still read: a journey 6 snapshot's pouch takes 32 lore slots, and every
+older snapshot meets the NPCs as a CUB 7 save does (nothing said, the sett's
+open shortcut as Dunmoss's dig, a seeded Bramblehold as Ember's tuft given).
+The speech frame, the trade list, Ember's feint and the crossing are
+transient and replayed from the keys; `final.state` gains nothing (its
+existing integers are byte-equal for every committed case).
+
+CUB 8 text is CUB 7's lines and one `npcs` line between `items` and `check`:
+`npcs S0 .. S8 dead D perch P flags F`. A CUB 7, 6, 5 or 4 file migrates on
+its next write; a CUB 7 holds at most 32 found lore lines, a CUB 8 48.
+
+`--make-npc-proof DIR` writes `npc-talk` (Quill's first line at his perch,
+from the grass nest: the walk, twenty still ticks, the frame, Space to the
+wares, Esc), `npc-trade` (the same walk with a disclosed 100-scent fixture:
+pine 50 and yarrow 20 bought) and `npc-toll` (the Ferryman's post from the
+dry island with a disclosed 70-scent fixture: sixty paid, ninety ticks on
+the water, the far causeway). Every key is the walker's or pressed by name.

@@ -1660,3 +1660,78 @@ the kiln (the Charcoal-burner), the causeway's post (the Ferryman), the sett (Du
 **Measured** (fifty seeds, both fields; `notes/cb14-evidence/`): see the note's tables (the world audit's 1300
 rows, the den spacing, the foe census, the bends, the spurs, the journey's length before and after, the boss
 census, the generation and render costs).
+
+## The NPCs, 2026-10-29 (cb16, proposed)
+
+The maintainer's word on the second playtest (`the-maintainer-s-notes.md` item 14): "There are no NPCs like were
+originally planned. Scatter a few around the map ... propose the lore and ideas for animal / ashen human characters
+to talk to and their dialogue." The orchestrator's proposals (`the-proposals.md` section 5, the bible's sections 15
+and 16) name the nine, where they stand, their roles and their lines; this section is what was built (`src/npc`,
+the rules in `src/sim/sim.lu`'s cb16 block, the drawings in `src/folk`, the frames in `src/talk`). The lines are
+section 5's, word for word (`npc.line`); every number is proposed; every ruling is a recommendation the lane
+implemented, the maintainer's to change by a line.
+
+| who | where (`npc.place`, per seed) | role | lines |
+|---|---|---|---|
+| Quill, the raven | Larkmeadow's perch (`LM_PERCH`), on it; after his first line, two rows north of the last den the cub rested at | sells yarrow 20, pine 50, the one tuft 600 | 4 |
+| Dunmoss, the badger | four cells east of his sett's mouth in the Teeth (`EDGE_SETT`'s portal) | "Go away." while Whisper lives; then digs the way under for 150, sells marrow 35 | 4 |
+| Ember, the fox | Bramblehold row 24 (where cb02's story bit was), then Larkmeadow row 176, then her den: the end of Larkmeadow's pocket (row 210) | warns; feints a mouthful of water; gives the first tuft | 3 |
+| the Charcoal-burner (ashen) | four cells route-side of the Burn's kiln | the fire's witness | 2 |
+| the Ferryman (ashen) | on the Mere's causeway post's patch, two cells east of the post | poles the cub to the far causeway (row 168) for 60 | 3 |
+| the Hermit (ashen) | inside the cutters' ruin at the Stand's lookout | a story (a lore line) for a marrow | 3 |
+| Fenn, Bracken, Loam (the lost) | the Hush, rows 40 / 82 / 132, at the route's edge (west / east / west) | never attack; a kill leaves 30 scent and makes the journey *Alone* | 1 each |
+
+**Speech.** An NPC within `npc.FACE_GAP` (4) clear cells turns to the cub; the cub standing still (no speed, no
+action, no arrow held; never during the lookout's reveal) with its body within `npc.BESIDE_GAP` (1) of the NPC's for
+`npc.STILL_TICKS` (20) ticks opens the speech frame on the NPC's next line: in order, one a visit, the last
+repeating (`npc.next_line`; Dunmoss holds at his first while Whisper lives). The frame pauses the forest as the
+pouch does (cb15's clock shift, `sim.resume_after_pause`). Space advances (to the wares, for a trader; otherwise it
+closes), Esc leaves. A visit ends when the cub is more than `FACE_GAP` away or leaves the area. The save keeps what
+each has said (`npc_said`, bounded by the NPC's lines).
+
+**Trade** (the inventory's list pattern): arrows move, Space buys, Esc leaves. The scent moves only when the ware
+is given: a full stack (`NOTE_FULL`), too little scent (`NOTE_SHORT`) or a ware gone (the one tuft, the dig, the
+story: `NOTE_GONE`) leaves every number as it was. The story costs a marrow and no scent and writes the Hermit's
+story (`lore.HERMIT_STORY`, 32) to the found-lore list. The crossing closes the frame and carries the cub along the
+route's middle from the post to row `npc.CROSS_TO` (168) in `npc.CROSS_TICKS` (90); nothing else moves, the stones
+are not stepped on, no trail is laid; the clocks move on by the whole pause at the landing.
+
+**NPCs are not foes**: none is in the foe list, the hit census (byte-identical at cb16), the foe census or the body
+audit; none is solid (R-cb16-6). A boss led to an NPC kills it (the bible's section 15): an engaged boss whose
+body comes within `npc.BOSS_GAP` (1) of an NPC's; the save's dead mask records it. Every NPC's place stands 27 or
+more cells outside every arena (`--npc-audit`), and a boss never leaves its arena (the boss census), so today no
+boss can be led to one; the rule waits for a lane that moves either.
+
+- **R-cb16-1 (recommended A, implemented): the lost speak section 5's three lines.** cb04's Hush built no lost at
+  all (no NPC, no line; the `scene.ending.alone` hook is a name only), so B (cb04's lines) has nothing to keep.
+- **R-cb16-2 (recommended A, implemented): Ember's feint takes one mouthful of water, once**, at her Larkmeadow
+  place, before the line that says so ("That was mine. The water."); nothing when the cub carries none. It is the
+  one exception to cb10's "only drinking spends water" (R-cb10-3 A, which made the foxes' feints steal scent), and
+  it is told on the screen by the line and the counter. B: she steals up to five scent as the foxes do, the line
+  kept as written.
+- **R-cb16-3 (recommended A, implemented): the first tuft is Ember's.** cb15's provisional tuft four cells east of
+  Bramblehold's first den is gone; Ember's third line, at her den, gives it (into the pouch, or onto the cub's cell
+  with a full stack), once (`npc.TUFT_GIVEN`). A journey from before cb16 whose Bramblehold is seeded already holds
+  or held that tuft, so the migration sets the flag. B: keep cb15's ground tuft, and her den gives nothing.
+- **R-cb16-4 (recommended A, implemented): Dunmoss's dig and the paw squeeze are both the sett's gates.** The dig
+  (150 scent, after Whisper) opens the sett; the squeeze still wants paw 2 (R-cb14-2 A). A journey through the sett
+  before cb16 migrates as dug. B: the dig replaces the paw gate.
+- **R-cb16-5 (recommended A, implemented): Dunmoss's marrow costs 35**, the bible's section 15 price (section 4
+  names Dunmoss as the seller and gives no price).
+- **R-cb16-6 (recommended A, implemented): NPCs are not solid.** The cub may stand on one (the one drawn over);
+  making them solid would change the movement, body and narrow-passage censuses and could close a route where an
+  NPC stands on it.
+- **R-cb16-7 (recommended A, implemented): Quill never perches in the Hush or the Underteeth** (his fourth line:
+  "I do not go past the gate of the Hush. Nothing with wings does."; the Underteeth is a cave). A rest there leaves
+  him at his last perch. B: the bible's "its last perch is the wood's den".
+- **R-cb16-8 (recommended A, implemented): the found-lore list grows to 48 slots** (CUB 8 reads up to 48 lines, a
+  CUB 7 or older at most 32): cb14's lines filled cb15's 32 and the Hermit's story is the 33rd.
+- **R-cb16-9 (recommended A, implemented): the Alone card.** The end card names *Alone* (and its last frame's line
+  says "The pack howls. You walk with what you killed.") when one of the lost was killed; the elk's half of the
+  bible's rule waits for the elk's choice, which no lane has built.
+
+**The save** is CUB 8: CUB 7's lines and one `npcs` line after the items: the nine said-counts, `dead` (a bit an NPC),
+`perch` (-1 for Larkmeadow's, else a den id Quill perches at, lit, after his first line), `flags` (dug 1, the tuft
+given 2, the mouthful 4, the story 8, Quill's tuft sold 16); the sett's shortcut open without the dig, the mouthful
+before Ember's second line, the story before the Hermit's first or Quill's tuft before his first are corrupt. The
+replay's `journey 7` carries 239 values: journey 6's 211 with the lore slots widened by 16 and the NPCs' 12 last.
