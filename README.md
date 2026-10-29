@@ -45,8 +45,9 @@ three strikes a person sees: a lunge a cell forward and to the left, a
 lunge forward and to the right, then a leap two cells straight forward
 with the head shaking left and right twice, each strike held for ticks
 and eased back. An original score plays through the engine's mixer: a part for each
-area, a rest at the den, a sting at a fall, the title over the crossing, a sharp crack cue, and
-a theme for each boss (`docs/SCORE.md`). Thirteen areas: the Shingle, Cinderwick, Bramblehold, the Stand,
+of the thirteen areas, a rest at the den, a sting at a fall, the title over the crossing, a sharp crack cue,
+a theme for each boss, the lookout's reveal, the Mere's crossing, the Howe's walk to the stone mouth, and
+the title's call in the major at Moonford (`docs/SCORE.md`). Thirteen areas: the Shingle, Cinderwick, Bramblehold, the Stand,
 Larkmeadow, the Burn, the Teeth, the Mere, the Shallows, the Hush, the Howe and Gravehollow, with the
 Underteeth a branch under the Teeth; each but the Howe and Gravehollow has its den and (the town and the
 last two apart) a shortcut back; each way on past Bramblehold is held by a gate (a windthrown pine sneaked
@@ -216,7 +217,7 @@ target/cub --narrow-audit 6 240  walk Cinderwick's single-file edges with diagon
 
 `cub --help` lists the rest: the headless mode that writes frames for the goldens, `--trace` (one line a
 tick on standard error), `--apply`, the glyph probe, the selftest, `--bench` for render/diff timings, and
-the score's paths (`--score-list`, `--score-render`, `--score-wav`, `--score-replay`).
+the score's paths (`--score-list`, `--score-render`, `--score-wav`, `--score-replay`, `--score-scene`).
 Headless `--script` fixtures skip death cards after their minimum word hold;
 `--full-death` keeps the full scene. Live play and production `--replay` keep
 recorded key timing. A script's `# counter-frames` comment emits every integer
@@ -227,8 +228,8 @@ as its own golden frame, without advancing the simulation again.
 `tools/check` runs the complete local gate: formatting, checked-machine
 tests, native and release builds, decoder selftest, both-tier replay goldens
 (including pickup sprites, inventory actions, drop/re-pickup, and scrollable lore)
-and posture sheets, every combo/roll frame, scaled bars and rally, the score's PCM goldens and loop seams on both backends
-(`tools/score-check`), shipping-binary gameplay and persistence assertions,
+and posture sheets, every combo/roll frame, scaled bars and rally, the score's PCM goldens, loop seams and
+scene scripts' cue schedules on both backends, with a sound-on memory row (`tools/score-check`), shipping-binary gameplay and persistence assertions,
 pty restoration and replay agreement, death-word/half-closed/closed-eye goldens,
 every integer of gains and spending with replay-deterministic batches, the real
 terminal's1000-frame count at both sizes and tiers, exact held-key and eight-direction chord rows,
