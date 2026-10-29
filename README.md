@@ -266,8 +266,8 @@ of five moths; the Mere has its last-stone heron. Eight three-worm clusters
 light the Underteeth, and two wisps follow the Howe's barrow-side branches
 to real sentries. Every spawn keeps the den refuge clear. Bite a thief to
 return its one stolen pouch item at the trunk's foot; leaving, resting or
-loading before that return loses the unreturned theft. A marten's bite
-bleeds. The adder burns for forty health ticks; water or yarrow cures
+loading before that return loses the unreturned theft. The lynx's swipe
+bleeds; the marten only steals. The adder burns for forty health ticks; water or yarrow cures
 it, and yarrow also stops bleeding. Ice melts on entering the Burn.
 These timed effects and foe modes are transient; CUB 7 / journey 6 and
 the full 32-line lore capacity are unchanged.
