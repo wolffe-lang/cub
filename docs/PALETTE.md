@@ -177,3 +177,13 @@ a categorical-series hue. The water charge colour remains117/plain14.
 The new areas' paths are needles (the Stand), ash (the Burn), reeds (the Mere's causeway), gravel (the
 Underteeth's floor, the Howe's worn track) and grass (Gravehollow); `--world-audit`'s `path_off` holds every area to
 `art.path_styles` as before. The Mere's stones and every gate's cells are not path: they draw as themselves.
+
+## The NPCs (cb16, 2026-10-29, proposed)
+
+| role | rich | plain |
+|---|---|---|
+| Quill / Dunmoss / Ember (bold) | 61 / 252 / 208 | 12 / 15 / 11 |
+| the ashen: the Charcoal-burner, the Ferryman, the Hermit (not bold) | 245 | 7 |
+| the lost (not bold) | 97 | 5 |
+| the raft's logs on the crossing | 137 | 3 |
+| the speech frame and the trade list: bone on dark (the pouch's) | 230 on 232 | 15 on 0 |
