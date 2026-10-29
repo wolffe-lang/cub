@@ -1,0 +1,56 @@
+cb16 prediction, before the first change, base cub trunk ed180ef5 (cb14 + its note)
+
+What the base has (read, not yet changed): no NPC of any kind. cb02's Ember is
+a prop (`props.EMBER` at Bramblehold (-10, 24)) and a `story` bit set by walking
+past it; Quill is a landmark line at Larkmeadow's perch (`LM_PERCH`); the lost
+(Fenn, Bracken, Loam) exist nowhere in the code, so cb04's Hush does not speak
+them (R-cb16-1 A by default: section 5's three lines). cb04 built no ending
+flags: the end card always says "Home"; the `scene.ending.alone` hook is a
+name only. The fox's feint exists (cb04) and steals scent since R-cb10-3 A,
+never water. cb14's anchors: the perch, the ruin (the Stand), the kiln (the
+Burn), the causeway's post (the Mere), the sett's portal (the Teeth), the Hush.
+The found-lore list is exactly full (32 ids in 32 slots, cb14's correction 9).
+
+The plan:
+1. A new `npc` module (the nine: who, lines verbatim from the-proposals.md
+   section 5, places per seed from cb14's anchors, wares and prices), a
+   `folk` module (the sprites, both tiers), a `talk` module (the speech
+   frame and the trade list, drawn over the paused field like cb15's pouch),
+   and the rules in `sim.lu` as appended functions with three small hooks
+   (the step, the keys, the pause).
+2. Speech: the cub within 4 cells turns the NPC to it; standing still beside
+   it (3 cells) 20 ticks opens the frame with the next line (one a visit, in
+   order, the last repeating); Space advances (to the wares where there are
+   any), Esc leaves. NPCs are not foes and not solid: the hit census, the
+   foe census and the body audit unchanged.
+3. Roles: Quill sells yarrow 20, pine 50 and one tuft 600 and perches at the
+   cub's last rest after the meeting; Dunmoss refuses until Whisper is
+   beaten, then digs the sett for 150 and sells marrow; Ember warns, feints a
+   mouthful of water at Larkmeadow, and gives the first tuft at her den (the
+   cb15 provisional tuft at Bramblehold's first den moves to her); the
+   Ferryman poles the cub over the Mere for 60; the Hermit tells a story (a
+   new lore line, id 32) for a marrow; the lost never attack, a bite kills
+   one for 30 scent and sets Alone (the end card's word); a boss within 3
+   cells of an NPC kills it.
+4. Save CUB 8: one `npcs` line after `items` (nine said-counts, the dead mask,
+   Quill's perch, the flags); CUB 7, 6, 5 and 4 migrate with empty NPC state,
+   the sett's open bit migrating as dug and a seeded Bramblehold as Ember's
+   tuft given. LORE_SLOTS 32 -> 48. Replay `journey 7`: 239 values (211 +
+   16 lore slots + 12 NPC values), journeys 6, 5, 4 and 3 still read; key ids
+   unchanged, no new key.
+
+Numbers I expect:
+- Checked tests: 562 at the base, about 580 after (some 15-20 new rows).
+- Goldens: 508 directories at the base; 2-4 new cases (a conversation, a
+  purchase, the toll, both tiers) and the art study's NPC sheet; changed
+  directories only where an NPC or the moved tuft is in view: the Bramblehold,
+  Larkmeadow, Teeth, Stand, Burn, Mere and Hush cases and their landmarks,
+  about 40-70 directories; final.state changes only where a recorded cub stood
+  still beside an NPC (a landmark case at the perch, likely) or met the moved
+  tuft: at most 10 cases.
+- The hit census byte-identical (sha256 79039792...). The world audit, den
+  spacing, bends, spurs, the foe census and the boss census unchanged (no NPC
+  is in an arena; I will report if the boss census moves).
+- The memory gate green under its 4096 bytes/tick budget (nine small records).
+- The plant: the line-order row red by name on a cb16-plant-* branch (a
+  deliberate break: the last line not repeating).
