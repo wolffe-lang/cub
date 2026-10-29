@@ -1,0 +1,9 @@
+The hit census (`cub --hit-census`), the base and the branch, nomad's native builds behind the Mac lock:
+
+base cub ed180ef5 (the native build, sha256 24a8dfc7832a729d26b5f78aaac7c3ba96b8475578fb1be9967c05f9eb10bb92):
+  53234a37bb94711dddbc1d4d84a0c6e5fa1579f96f45b0734a7e92931e340055  29281 lines (29,280 pairs and the header)
+cb16 (the native build of the sources at d7e177c1, unchanged since in src/):
+  53234a37bb94711dddbc1d4d84a0c6e5fa1579f96f45b0734a7e92931e340055  29281 lines
+
+Byte-identical: the NPCs are not foes. Both gauntlets hold the release build's census to the same digest
+(mac-gauntlet.sh's `hit-census` step, linux-gauntlet.sh's `hit-census` step).

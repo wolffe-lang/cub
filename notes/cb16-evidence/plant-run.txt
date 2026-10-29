@@ -1,0 +1,19 @@
+cb16 kasumi job bash -c cd /mnt/steamlib/lanes/cb16/plant && git log --oneline -1 && .lair/tools/in-container .wolf-bin/wolf test --deny-warnings --nocapture src/npc_test.lu start 2026-10-29T21:46:26Z
+cb16 holds cores 8-11 2026-10-29T21:46:26Z
+683d38dc PLANT, never merge: the NPCs' lines cycle instead of the last repeating
+test src/npc_test.lu::test_cb16_the_end_card_names_alone_after_one_of_the_lost_is_killed ... ok
+test src/npc_test.lu::test_cb16_every_npc_s_lines_go_in_order_and_the_last_repeats ... FAILED (trap(assert))
+test src/npc_test.lu::test_cb16_dunmoss_holds_at_go_away_while_whisper_lives ... ok
+test src/npc_test.lu::test_cb16_section_5_s_lines_word_for_word ... ok
+test src/npc_test.lu::test_cb16_standing_still_beside_quill_opens_one_line_and_esc_leaves ... ok
+test src/npc_test.lu::test_cb16_a_purchase_pays_scent_and_fills_the_pouch_or_refuses_whole ... ok
+test src/npc_test.lu::test_cb16_the_toll_poles_the_cub_across_the_mere ... ok
+test src/npc_test.lu::test_cb16_dunmoss_digs_the_way_under_after_whisper_for_150 ... ok
+test src/npc_test.lu::test_cb16_the_hermit_tells_his_story_for_a_marrow ... ok
+test src/npc_test.lu::test_cb16_ember_feints_a_mouthful_then_gives_the_tuft_at_her_den ... FAILED (trap(assert))
+test src/npc_test.lu::test_cb16_quill_perches_at_the_last_rest_after_the_meeting_never_in_the_hush ... ok
+test src/npc_test.lu::test_cb16_the_lost_never_attack_and_a_killed_one_is_alone ... ok
+test src/npc_test.lu::test_cb16_a_boss_led_to_an_npc_kills_it ... ok
+test src/npc_test.lu::test_cb16_every_anchor_stands_on_open_ground ... ok
+wolf test: 12 passed; 2 failed; 0 rejected; 0 unsupported; 0 filtered out
+CB16_KASUMI_EXIT 1 2026-10-29T21:46:28Z

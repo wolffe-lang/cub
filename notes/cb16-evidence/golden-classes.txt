@@ -1,0 +1,37 @@
+art	frames	4 files	
+burn-plain	frames	2 files	
+burn-rich	frames	2 files	
+hawk-shadow-plain	frames	8 files	
+hawk-shadow-rich	frames	8 files	
+hawk-stoop-plain	frames	6 files	
+hawk-stoop-rich	frames	6 files	
+hush-plain	frames	6 files	
+hush-rich	frames	6 files	
+landmark-1-1-plain	frames	2 files	
+landmark-1-2-plain	frames	2 files	
+landmark-1-2-rich	frames	2 files	
+landmark-2-0-plain	frames	2 files	
+landmark-2-0-rich	frames	2 files	
+landmark-3-1-plain	frames	2 files	
+landmark-3-1-rich	frames	2 files	
+landmark-5-0-plain	frames	2 files	
+landmark-5-0-rich	frames	2 files	
+landmark-7-0-plain	frames	2 files	
+landmark-7-0-rich	frames	2 files	
+landmark-7-1-plain	frames	2 files	
+landmark-7-1-rich	frames	2 files	
+landmark-8-0-plain	frames	2 files	
+landmark-8-0-rich	frames	2 files	
+landmark-9-0-plain	frames	2 files	
+landmark-9-0-rich	frames	2 files	
+npc-talk-plain	NEW		
+npc-talk-rich	NEW		
+npc-toll-plain	NEW		
+npc-toll-rich	NEW		
+npc-trade-plain	NEW		
+npc-trade-rich	NEW		
+world-hawk-plain	frames	2 files	
+world-hawk-rich	frames	2 files	
+world-recovered-plain	frames	2 files	
+world-recovered-rich	frames	2 files	
+total 36 state 0
