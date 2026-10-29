@@ -1,0 +1,32 @@
+# Under the Fallen Oak — Gravehollow before the fight: D minor; the shadows' motif slowed on an
+# organ over the roots' tremolo, voices on the fifth, one bell tolling. Original, cb17
+# (2026-10-29). 5 bars of 4/4 at 60: 20 s, a loop; the alpha's theme replaces it in the fight.
+title Under the Fallen Oak
+cue replace fade 9
+tempo 60
+meter 4/4
+part roots strings pp pan -20 gain 10
+part voices choir pp pan 20 gain 7
+part shadow organ p pan 10 gain 7
+part toll bells p pan -35 gain 3
+bar 1
+roots D2,A2/1*
+voices D4,A4/1~
+shadow D4/2 Eb4/2
+toll D3/4 r/2.
+bar 2
+roots D2,A2/1*
+voices D4,A4/1
+shadow D4/2 A3/2
+bar 3
+roots Bb1,F2/1*
+voices D4,A4/2 Eb4,A4/2
+toll D3/4 r/2.
+bar 4
+roots A1,E2/1*
+voices D4,A4/1
+shadow F4/2 Eb4/2
+bar 5
+roots D2,A2/2.* r/4
+voices D4,A4/2. r/4
+shadow D4/2. r/4
