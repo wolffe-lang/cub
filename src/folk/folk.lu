@@ -1,0 +1,248 @@
+//! folk — the NPCs' drawings (cb16), in the house grammar (cb02b's
+//! silhouettes): on the rich tier a bitmap of braille pixels, two across
+//! and four down a cell, drawn facing north and turned by quarters, one
+//! drawing a creature; on the plain tier a few ASCII cells, the same for
+//! every facing. Original shapes:
+//!
+//! - Quill, the raven: a folded bird from above, two cells by two, the
+//!   tail split; slate on the forest, the wings stirring every half second;
+//! - Dunmoss, the badger: a broad low body four cells by three, the face's
+//!   stripe a gap down the head; bone grey;
+//! - Ember, the fox: the foxes' own drawing (`silhouette.foe`), her feint
+//!   its feint, in a brighter orange than the foes', so a person tells her
+//!   from them;
+//! - the ashen humans: the shape of people from above, two cells by three
+//!   (the Ferryman three, his pole beside him), grey and not bold, their
+//!   one movement every two seconds (slow): the Charcoal-burner's arm to
+//!   the kiln, the Ferryman's hands on the pole, the Hermit's arms out to
+//!   the hawks;
+//! - the lost: the wolf's drawing (`silhouette.wolf`, a grown pack wolf)
+//!   in a shade's dim violet.
+
+use grid
+use npc
+use silhouette
+use tier
+
+fn row(s: str, mut out: List[str]) {
+    (mut out).push(s)
+}
+
+/// The NPC's rich drawing at animation frame `frame` (0 or 1), north;
+/// `feint` the fox's feint pose (Ember's dart).
+pub fn bitmap(who: int, frame: int, feint: bool) -> silhouette.Bitmap {
+    if who == npc.EMBER { return silhouette.foe(1, if feint then 5 else 0, -1) }
+    if npc.lost(who) { return silhouette.wolf(0, 0) }
+    var r = List[str]()
+    if who == npc.QUILL {
+        row(".##.", mut r)
+        row(".##.", mut r)
+        row(if frame == 0 then "####" else "#..#", mut r)
+        row("####", mut r)
+        row("####", mut r)
+        row(".##.", mut r)
+        row(".##.", mut r)
+        row("#..#", mut r)
+    } else if who == npc.DUNMOSS {
+        row("..####..", mut r)
+        row(".##..##.", mut r)
+        row(".##..##.", mut r)
+        row(".######.", mut r)
+        row("########", mut r)
+        row("########", mut r)
+        row("########", mut r)
+        row("########", mut r)
+        row(".######.", mut r)
+        row(".######.", mut r)
+        row(if frame == 0 then ".##..##." else "##....##", mut r)
+        row(if frame == 0 then "##....##" else ".##..##.", mut r)
+    } else if who == npc.FERRYMAN {
+        row("#..##.", mut r)
+        row("#..##.", mut r)
+        row(if frame == 0 then "######" else "#.####", mut r)
+        row(if frame == 0 then "#.###." else "######", mut r)
+        row("#..##.", mut r)
+        row("#..##.", mut r)
+        row("#..##.", mut r)
+        row("#..##.", mut r)
+        row("#.#..#", mut r)
+        row("#.#..#", mut r)
+        row("#.#..#", mut r)
+        row("#.....", mut r)
+    } else {
+        // The Charcoal-burner and the Hermit: a head, the shoulders, a
+        // long thin body, the legs; the burner's arm reaches out to the
+        // kiln, the Hermit's arms open to the hawks, each in its turn.
+        let burner = who == npc.BURNER
+        row(".##.", mut r)
+        row(".##.", mut r)
+        row(
+            if burner {
+                "####"
+            } else if frame == 0 {
+                ".##."
+            } else {
+                "#..#"
+            },
+            mut r,
+        )
+        row(
+            if burner && frame == 1 {
+                "####"
+            } else if burner {
+                "##.#"
+            } else if frame == 0 {
+                "####"
+            } else {
+                "####"
+            },
+            mut r,
+        )
+        row(".##.", mut r)
+        row(".##.", mut r)
+        row(".##.", mut r)
+        row(".##.", mut r)
+        row("#..#", mut r)
+        row("#..#", mut r)
+        row(if burner then "#..#" else "....", mut r)
+        row("....", mut r)
+    }
+    silhouette.parse(r)
+}
+
+/// The NPC's plain cells: rows of ASCII, the same in every facing.
+pub fn plain(who: int, frame: int, feint: bool) -> List[str] {
+    var r = List[str]()
+    if who == npc.QUILL {
+        row(if frame == 0 then "\\v/" else "-v-", mut r)
+        row("/V\\", mut r)
+    } else if who == npc.DUNMOSS {
+        row("/==\\", mut r)
+        row("(##)", mut r)
+        row(if frame == 0 then "/  \\" else "\\  /", mut r)
+    } else if who == npc.EMBER {
+        row(if feint then "____" else "/^^\\", mut r)
+        row("####", mut r)
+        row(if feint then " ?? " else " /\\ ", mut r)
+    } else if who == npc.BURNER {
+        row("oo", mut r)
+        row(if frame == 0 then "|=" else "|-", mut r)
+        row("/\\", mut r)
+    } else if who == npc.FERRYMAN {
+        row("|oo", mut r)
+        row(if frame == 0 then "|||" else "+||", mut r)
+        row("|/\\", mut r)
+    } else if who == npc.HERMIT {
+        row("oo", mut r)
+        row(if frame == 0 then "||" else "\\/", mut r)
+        row("/\\", mut r)
+    } else {
+        row(" ^^ ", mut r)
+        row("(~~)", mut r)
+        row(" ~~ ", mut r)
+    }
+    r
+}
+
+/// The NPC's colour on a tier (`docs/PALETTE.md`, cb16's rows).
+pub fn colour(t: int, who: int) -> int {
+    if t == tier.RICH {
+        if who == npc.QUILL { return 61 }
+        if who == npc.DUNMOSS { return 252 }
+        if who == npc.EMBER { return 208 }
+        if npc.ashen(who) { return 245 }
+        return 97
+    }
+    if who == npc.QUILL { return 12 }
+    if who == npc.DUNMOSS { return 15 }
+    if who == npc.EMBER { return 11 }
+    if npc.ashen(who) { return 7 }
+    5
+}
+
+/// Whether the NPC is drawn bold: the animals are, the ashen and the lost
+/// (ash, shades) are not.
+pub fn bold(who: int) -> bool {
+    who == npc.QUILL || who == npc.DUNMOSS || who == npc.EMBER
+}
+
+/// The NPC's animation frame at a tick: the animals every 12 ticks, the
+/// ashen and the lost every 60 (slow).
+pub fn frame_at(who: int, tick: int) -> int {
+    if bold(who) then tick / 12 % 2 else tick / 60 % 2
+}
+
+/// Draw an NPC with its own cell at `(row, col)` facing `facing` (0..3).
+pub fn draw(
+    mut g: grid.Grid,
+    t: int,
+    row: int,
+    col: int,
+    who: int,
+    facing: int,
+    tick: int,
+    feint: bool,
+) {
+    let frame = frame_at(who, tick)
+    let style = grid.cell(
+        32,
+        colour(t, who),
+        grid.COLOR_DEFAULT,
+        if bold(who) then grid.ATTR_BOLD else 0,
+    )
+    if t == tier.RICH {
+        silhouette.draw_at(mut g, row, col, bitmap(who, frame, feint), facing, style)
+        return
+    }
+    let rows = plain(who, frame, feint)
+    let h = rows.len
+    let w = rows[0].len
+    let top = row - (h - 1) / 2
+    let left = col - (w - 1) / 2
+    var i = 0
+    while i < h {
+        var j = 0
+        for b in rows[i].bytes() {
+            if b as int != 32 {
+                var cell = copy style
+                cell.cp = b as int
+                cell.bg = grid.at(g, top + i, left + j).bg
+                grid.put(mut g, top + i, left + j, cell)
+            }
+            j += 1
+        }
+        i += 1
+    }
+}
+
+/// Every code point the rich drawings use, in every facing and frame,
+/// appended to `cps` once each (`sprites.rich_code_points`; the fox's and
+/// the wolf's are the foes' and the wolf's own, listed already).
+pub fn code_points(mut cps: List[int]) {
+    for who in [npc.QUILL, npc.DUNMOSS, npc.BURNER, npc.FERRYMAN, npc.HERMIT] {
+        silhouette.code_points(bitmap(who, 0, false), mut cps)
+        silhouette.code_points(bitmap(who, 1, false), mut cps)
+    }
+}
+
+/// The NPC study for the art goldens (`--art-study`): every NPC north
+/// and east, both animation frames, Ember's feint, on one tier.
+pub fn sheet(t: int) -> grid.Grid {
+    var g = grid.new(40, 80)
+    var who = 0
+    while who < npc.COUNT {
+        let top = 3 + who / 3 * 13
+        let left = 6 + who % 3 * 26
+        draw(mut g, t, top, left, who, 0, 0, false)
+        draw(mut g, t, top, left + 9, who, 1, 0, false)
+        draw(mut g, t, top + 7, left, who, 0, if bold(who) then 12 else 60, false)
+        draw(mut g, t, top + 7, left + 9, who, 2, 0, who == npc.EMBER)
+        var i = 0
+        for b in npc.name(who).bytes() {
+            grid.put(mut g, top - 3, left - 4 + i, grid.cell(b as int, 7, grid.COLOR_DEFAULT, 0))
+            i += 1
+        }
+        who += 1
+    }
+    g
+}

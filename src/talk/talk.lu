@@ -1,0 +1,256 @@
+//! talk — the NPCs in the field, the speech frame and the trade list
+//! (cb16). The frame is cb02's cutscene register (the opening's bone text
+//! on the forest's dark) in a box over the bottom of the paused field: the
+//! speaker's name, the one line, and what Space and Esc do. The trade list
+//! is the inventory's pattern (cb15): a panel over the paused field, the
+//! wares by row with their prices in scent and what the pouch holds, a
+//! cursor the arrows move, Space buying, Esc leaving; the scent carried and
+//! the last purchase's answer under the list. Both tiers.
+
+use draw
+use folk
+use forest
+use grid
+use npc
+use pouch
+use sim
+use tier
+
+fn bone(t: int) -> int { if t == tier.PLAIN then 15 else 230 }
+
+fn ground(t: int) -> int { if t == tier.PLAIN then 0 else 232 }
+
+fn screen_row(s: sim.Sim, y: int) -> int { y - sim.camera_y(s) + sim.screen_row(s) }
+
+fn screen_col(s: sim.Sim, x: int) -> int { x - sim.camera_x(s) + sim.screen_col(s) }
+
+/// Every NPC of the cub's area where it stands, facing the cub when near;
+/// Ember mid-feint darting at the cub; during the crossing the raft under
+/// the cub and the Ferryman poling beside it (not at his post).
+pub fn draw_npcs(s: sim.Sim, t: int, mut g: grid.Grid) {
+    var who = 0
+    while who < npc.COUNT {
+        if sim.npc_area(s, who) == s.area && sim.npc_alive(s, who) {
+            if who == npc.FERRYMAN && s.ferry_at >= 0 {
+                who += 1
+                continue
+            }
+            let (_, x, y) = sim.npc_place(s, who)
+            var dx = 0
+            var dy = 0
+            let feint = who == npc.EMBER && s.feint_at >= 0
+            if feint {
+                // A dart of up to two cells toward the cub, and back.
+                let age = s.tick - s.feint_at
+                let reach = if age < npc.FEINT_TICKS / 2 {
+                    age / 3
+                } else {
+                    (npc.FEINT_TICKS - age) / 3
+                }
+                let cx = sim.cell_x(s)
+                let cy = sim.cell_y(s)
+                dx = if cx > x then reach else if cx < x then 0 - reach else 0
+                dy = if cy > y then reach else if cy < y then 0 - reach else 0
+            }
+            folk.draw(
+                mut g,
+                t,
+                screen_row(s, y + dy),
+                screen_col(s, x + dx),
+                who,
+                sim.npc_facing(s, who),
+                s.tick,
+                feint,
+            )
+        }
+        who += 1
+    }
+    if s.ferry_at >= 0 && s.area == forest.MERE {
+        let cx = sim.cell_x(s)
+        let cy = sim.cell_y(s)
+        raft(mut g, t, screen_row(s, cy), screen_col(s, cx))
+        folk.draw(
+            mut g,
+            t,
+            screen_row(s, cy),
+            screen_col(s, cx + 4),
+            npc.FERRYMAN,
+            2,
+            s.tick,
+            false,
+        )
+    }
+}
+
+/// The Ferryman's log raft under the crossing cub: logs across, seven
+/// cells by three.
+fn raft(mut g: grid.Grid, t: int, row: int, col: int) {
+    let style = grid.cell(32, if t == tier.RICH then 137 else 3, grid.COLOR_DEFAULT, 0)
+    let log = if t == tier.RICH then 0x2500 else 61
+    var r = -1
+    while r <= 1 {
+        var c = -3
+        while c <= 3 {
+            var cell = copy style
+            cell.cp = log
+            cell.bg = grid.at(g, row + r, col + c).bg
+            grid.put(mut g, row + r, col + c, cell)
+            c += 1
+        }
+        r += 1
+    }
+}
+
+fn frame_width(s: sim.Sim) -> int { if s.cols > 80 then 76 else s.cols - 4 }
+
+fn frame_top(s: sim.Sim) -> int { if s.rows > 12 then s.rows - 9 else 1 }
+
+fn panel_width(s: sim.Sim) -> int { if s.cols > 94 then 90 else s.cols - 4 }
+
+/// Whether the speech frame or the trade list covers a screen cell (the
+/// scent counter's partial repaint leaves those cells alone).
+pub fn covers(s: sim.Sim, row: int, col: int) -> bool {
+    if !sim.talking(s) { return false }
+    if s.trade {
+        let w = panel_width(s)
+        let left = (s.cols - w) / 2
+        let top = (s.rows - 20) / 2
+        return row >= top && row < top + 20 && col >= left && col < left + w
+    }
+    let w = frame_width(s)
+    let left = (s.cols - w) / 2
+    let top = frame_top(s)
+    row >= top && row < top + 7 && col >= left && col < left + w
+}
+
+fn boxed(mut g: grid.Grid, t: int, top: int, left: int, rows: int, cols: int) {
+    draw.frame(
+        mut g,
+        top,
+        left,
+        rows,
+        cols,
+        grid.cell(if t == tier.PLAIN then 45 else 0x2500, bone(t), ground(t), 0),
+        grid.cell(if t == tier.PLAIN then 45 else 0x2500, bone(t), ground(t), 0),
+        grid.cell(if t == tier.PLAIN then 124 else 0x2502, bone(t), ground(t), 0),
+        grid.cell(32, bone(t), ground(t), 0),
+    )
+}
+
+/// `text` broken into lines of at most `width` cells at its spaces.
+pub fn wrap(text: str, width: int) -> List[str] {
+    var out = List[str]()
+    var line = ""
+    for word in text.words() {
+        if line.len > 0 && line.len + 1 + word.len > width {
+            (mut out).push(line)
+            line = ""
+        }
+        if line.len > 0 { line += " " }
+        line += word
+    }
+    if line.len > 0 { (mut out).push(line) }
+    out
+}
+
+/// The speech frame or the trade list, over the paused field; during the
+/// crossing, its caption.
+pub fn render(s: sim.Sim, t: int, mut g: grid.Grid) {
+    if s.ferry_at >= 0 {
+        draw.put_text(
+            mut g,
+            s.rows - 2,
+            1,
+            "The Ferryman poles you across the Mere.",
+            grid.cell(32, bone(t), ground(t), 0),
+        )
+        return
+    }
+    if !sim.talking(s) { return }
+    if s.trade { wares(s, t, mut g); return }
+    let w = frame_width(s)
+    let left = (s.cols - w) / 2
+    let top = frame_top(s)
+    boxed(mut g, t, top, left, 7, w)
+    let style = grid.cell(32, bone(t), ground(t), 0)
+    draw.put_text(
+        mut g,
+        top + 1,
+        left + 2,
+        npc.name(s.talk),
+        grid.cell(32, bone(t), ground(t), grid.ATTR_BOLD),
+    )
+    var r = top + 2
+    for line in wrap(npc.line(s.talk, s.talk_line), w - 4) {
+        if r < top + 5 { draw.put_text(mut g, r, left + 2, line, style) }
+        r += 1
+    }
+    draw.put_text(
+        mut g,
+        top + 5,
+        left + 2,
+        if npc.ware_count(s.talk) > 0 then "Space wares   Esc leaves" else "Space / Esc",
+        style,
+    )
+}
+
+/// A ware's price as the list shows it.
+pub fn price_text(ware: int) -> str {
+    if ware == npc.W_STORY then "one marrow" else "{npc.price(ware)} scent"
+}
+
+/// What a refused or answered purchase says.
+pub fn note_text(note: int) -> str {
+    match note {
+        1 => "Bought.",
+        2 => "Not enough scent.",
+        3 => "The pouch holds no more of that.",
+        4 => "Gone already.",
+        5 => "The story wants a marrow.",
+        6 => "Dunmoss digs. The way under is open; the squeeze wants a grown paw.",
+        7 => "The story is yours: read it at a den (Lore).",
+        8 => "Not while the cat lives.",
+        _ => "",
+    }
+}
+
+fn wares(s: sim.Sim, t: int, mut g: grid.Grid) {
+    let w = panel_width(s)
+    let left = (s.cols - w) / 2
+    let top = (s.rows - 20) / 2
+    boxed(mut g, t, top, left, 20, w)
+    let style = grid.cell(32, bone(t), ground(t), 0)
+    draw.put_text(
+        mut g,
+        top + 1,
+        left + 3,
+        npc.name(s.talk) + (if s.talk == npc.HERMIT then "'s story" else "'s wares"),
+        grid.cell(32, bone(t), ground(t), grid.ATTR_BOLD),
+    )
+    var k = 0
+    var row = top + 3
+    while k < npc.ware_count(s.talk) {
+        let ware = npc.ware(s.talk, k)
+        var text = npc.ware_name(ware)
+        while text.len < 20 { text += " " }
+        text += price_text(ware)
+        while text.len < 34 { text += " " }
+        let kind = sim.ware_item(ware)
+        if kind >= 0 {
+            text += "held {sim.item_count(s, kind)}/{pouch.cap(kind)}"
+        } else if ware == npc.W_STORY {
+            text += "marrow held {s.marrow}"
+        }
+        let refused = sim.ware_refused(s, ware)
+        if refused == sim.NOTE_GONE { text += "  (gone)" }
+        if refused == sim.NOTE_NOT_YET { text += "  (after the lynx)" }
+        draw.put_text(mut g, row, left + 3, if s.trade_row == k then ">" else " ", style)
+        draw.put_text(mut g, row, left + 5, text, style)
+        row += 2
+        k += 1
+    }
+    draw.put_text(mut g, top + 13, left + 3, "Your scent: {s.scent}", style)
+    let note = note_text(s.trade_note)
+    if note != "" { draw.put_text(mut g, top + 15, left + 3, note, style) }
+    draw.put_text(mut g, top + 18, left + 3, "Arrows choose   Space buys   Esc leaves", style)
+}
