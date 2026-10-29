@@ -1768,8 +1768,11 @@ foes remain hawks: their low bite windows and parry kill are unchanged.
 The adder's burn deals one health each tick for40 ticks, including during a
 roll. Drinking or standing in water extinguishes it before its next tick;
 licking does not. The status is transient and den reset extinguishes it.
-The marten's landed bite calls the public bleeding API; the lynx's bite
-stays as trunk has it, with no bleeding (R-cb18-2, the orchestrator's).
+A landed lynx swipe (its attack 0) calls the public bleeding API, the
+bible's bleeding (§5: the lynx and the shades cause it; R-cb18-2 B); a
+parried or dodged one starts none. The marten's landed bite steals and
+does not bleed (§6). The boss census counts a bleed tick as a damage
+event, never as a strike landed (R-cb18-4 B, below).
 Yarrow cures bleeding and burn; water extinguishes burn alone. Entering the
 Burn calls the already documented melt_ice hook; other entries do not.
 
@@ -1803,15 +1806,27 @@ counts move. Their cap32 admits the24 worms plus inherited guards, never
 changes old-area bands. New species have their stated scent rewards and
 no additional consumable roll; the marten returns its actual stolen item.
 
-### R-cb18-2 — the lynx's bite and bleeding (the orchestrator's)
+### R-cb18-2 — the lynx's bite and bleeding (ruled B by the orchestrator)
 
-Contract item 2 named the lynx's bite as the bible's bleeding intent; the
-pickup addendum (2026-10-29) holds the lynx out of scope: it is not a new
-foe, and its bleeding moved every lynx row of the boss census and the three
-lynx cases. Recommend **A**, implemented: cb18 leaves the lynx as trunk has
-it, and the lynx's bleeding lands as its own change with its own census
-comparison. **B** wires it here (the one line in `boss_hit` and the lynx
-cases regenerated, kept on the local branch `cb18-wip-1029`).
+Contract item 2 gives the lynx's bleeding to cb18 ("the lynx's bite bleeds
+(the bible's intent)"); the pickup asked whether the addendum's "the lynx
+is not a new foe" took it out, and the orchestrator ruled **B** on
+2026-10-29: wired here. A landed swipe starts sixty ticks of bleeding; the
+boss census's lynx rows move by it (`notes/cb18-evidence/bleed-boss-changes.tsv`,
+every moved row with its reason).
+
+### R-cb18-4 — the boss census's hit columns and bleeding
+
+cb04 defined `hits0..2` and `unparryable_hits` as the strikes taken by
+attack (this file's table: "hits taken by attack"); the census counted every
+step the cub's health fell, which was the same thing until a bite could
+bleed: then each bleed tick counted as a hit of whatever attack the boss was
+in, unparryable when that attack was. Recommend **B**, implemented: the hit
+columns keep cb04's meaning (a strike that resolved that step and was not
+parried), and an appended `damage_events` column (per world, and before
+`arena_breaches` on each `fairness` line) counts every step the health fell
+for any cause, the old counter's rule. **A** would keep the one column and
+name it damage events, changing what cb04's table means.
 
 ### R-cb18-3 — an unreturned theft on reset
 
