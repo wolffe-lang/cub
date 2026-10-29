@@ -534,6 +534,8 @@ def main():
     runpy.run_path(str(ROOT / 'tools/counter-check.py'))['check'](Path(args.bin).resolve())
     pouch = runpy.run_path(str(ROOT / 'tools/pouch_checks.py'))
     pouch['check'](Path(args.bin).resolve())
+    npcs = runpy.run_path(str(ROOT / 'tools/npc_checks.py'))
+    npcs['check'](Path(args.bin).resolve())
     readable(OUT)
     print('gameplay: green (0 skips)')
 
