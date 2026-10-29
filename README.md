@@ -78,6 +78,22 @@ tuft keeps scent through one death. `i` opens the paused inventory; arrows
 select, Space opens Consume / Drop / Discard, and Esc or `i` closes. Dropped
 items glow on their cell and can be taken again with `r`. Found lore is kept
 in discovery order and read from the rest menu's Lore row.
+Nine speak (cb16): Quill the raven at Larkmeadow's perch, then at the last den
+the cub rested at; Dunmoss the badger at his sett in the Teeth; Ember the fox
+in Bramblehold, then Larkmeadow, then her den; three ashen, the people who
+burned the forest, grey and slow: the Charcoal-burner at the Burn's kiln, the
+Ferryman on the Mere's causeway, the Hermit in the Stand's ruin; and the lost,
+Fenn, Bracken and Loam, in the Hush. Each turns to the cub within four cells;
+stand still beside one for twenty ticks and it says its next line in a frame
+over the paused forest (one a visit, in order, the last repeating; the save
+keeps what each has said). Space goes on to a trader's wares, Esc leaves; in
+the wares arrows choose, Space buys, Esc leaves. Quill sells yarrow 20, pine
+50 and one mother's tuft 600; Dunmoss refuses until Whisper is beaten, then
+digs the way under for 150 and sells marrow 35; the Ferryman poles the cub
+across the Mere for 60; the Hermit tells a story (a lore line) for a marrow;
+Ember feints a mouthful of water, then gives the first tuft at her den. The cub
+cannot hurt the six and they cannot hurt it; the lost never attack, and
+killing one leaves 30 scent and makes the end card say *Alone*.
 Enter a den with `r` within three cells: a resting cub breathes beside an
 animated fire, with different surroundings in all eleven dens' regions. A larger
 ledger sits one sixth of the screen width left of centre, vertically
@@ -94,8 +110,8 @@ unclaimed scent and meat are not carried through a save reload; consumable
 pickups are, including dropped items and finite seeded discoveries.
 Water must first be found at the Shingle spring (two mouthfuls), with a
 third found later; the counter below the bars shows the charges, and
-every rest refills them. Only drinking spends water; a fox's landed feint
-steals up to five carried scent instead. Death leaves a recoverable mark, even across area edges; a
+every rest refills them. Only drinking spends water (and Ember, once, says
+so); a fox's landed feint steals up to five carried scent instead. Death leaves a recoverable mark, even across area edges; a
 second death replaces it. After the thirty-tick fade to black, a fourteen-row red
 `FALLEN` appears, followed by the opening's blinking eyes in reverse. Any key
 skips once the word has shown for twenty ticks; without a skip the eyes close
@@ -118,11 +134,13 @@ registers a file anywhere. The old `~/.cub/save` is imported as journey without
 deleting or rewriting it on import. Resume wakes at the last den with slain
 foes still gone, keeping growth, shortcuts, caches, pouch contents, the mark,
 bosses, end and original world field. Corrupt files fail by name, never reset.
-This build writes CUB 7: thirteen slain masks (one an area) and the gates
-(the burnt oak, the stone mouth), then a name and elapsed `played_ms`. CUB 6
-migrates with empty masks for the six new areas and no gate opened, keeping its
-items, lore, name and time; CUB 5 also with name journey and zero elapsed time,
-and CUB 4 with an empty slain set. Earlier schemas fail as `save_version`. A
+This build writes CUB 8: thirteen slain masks (one an area) and the gates
+(the burnt oak, the stone mouth), then a name and elapsed `played_ms`, the
+items, and the NPCs' line (what each has said, the dead, Quill's perch, the
+flags). CUB 7 migrates with nothing said, its open sett counted dug and a
+seeded Bramblehold's tuft counted Ember's; CUB 6 also with empty masks for the
+six new areas and no gate opened, keeping its items, lore, name and time; CUB 5
+also with name journey and zero elapsed time, and CUB 4 with an empty slain set. Earlier schemas fail as `save_version`. A
 quit before a staged write's commit tick preserves the previous gameplay save;
 an already-due stage commits.
 Live sessions record under `~/.cub/replays/` unless `--record FILE` chooses
@@ -131,10 +149,10 @@ another path. Deaths also leave self-contained archives under `~/.cub/ghosts/`
 date, length and ending, or accepts a typed path; Esc returns to the fire.
 The New journey prompts offer the seed and wolf, the playable difficulty in
 this build. Every tuning proposal is in `docs/DESIGN.md`.
-Pouch stacks cap at5/3/3/3/1, with at most128 saved ground pickups and32
-discovered lore lines (every id 0..31 now has a line: the next line needs a
-wider save). The item extension follows name/played_ms in CUB 7 and CUB 6;
-CUB 4/5 and earlier CUB 6 wrappers migrate with empty new item fields.
+Pouch stacks cap at5/3/3/3/1, with at most128 saved ground pickups and48
+discovered lore lines (32 in a CUB 7 or older; ids 0..32 have lines). The item
+extension follows name/played_ms in CUB 8, CUB 7 and CUB 6; CUB 4/5 and earlier
+CUB 6 wrappers migrate with empty new item fields.
 
 ## Where it runs
 
@@ -168,6 +186,8 @@ The terminal must be at least 80 columns by 24 rows; the field grows to fill a l
 | arrows / Space at the fire | select / choose Continue, New journey, Load, Playback or Quit |
 | Enter / Backspace in a path or seed | accept / edit; Esc returns; q quits outside text entry |
 | `r` on the end card | keep playing as the wolf (`q` leaves) |
+| stand still beside an NPC | twenty ticks open its line; Space goes on to the wares (or closes), Esc leaves |
+| arrows / Space / Esc in the wares | choose / buy / leave |
 
 On terminals supporting the negotiated keyboard protocol, arrows stay
 held until release and can form diagonal chords. Space and c use the held
@@ -202,6 +222,7 @@ target/cub --no-title          historical name: skip title and menu, straight in
 target/cub --menu              skip the title, land on the fire menu
 target/cub --ghost-dir DIR     read and write the death archives there (default ~/.cub/ghosts)
 target/cub --den-census        flood fifty seeds for den distance and every thorn-gate face
+target/cub --npc-audit         every NPC's place on open, flood-reached ground, fifty seeds at both fields
 target/cub --den-spacing       the route walk between dens over fifty seeds (cb05, with --foe-census,
                                --bends-audit, --spurs-audit and --gen-bench)
 target/cub --boss-census       fight every boss in fifty seeds at both sizes; a fairness line a boss
@@ -228,7 +249,8 @@ as its own golden frame, without advancing the simulation again.
 
 `tools/check` runs the complete local gate: formatting, checked-machine
 tests, native and release builds, decoder selftest, both-tier replay goldens
-(including pickup sprites, inventory actions, drop/re-pickup, and scrollable lore)
+(including pickup sprites, inventory actions, drop/re-pickup, scrollable lore,
+and an NPC's speech frame, a purchase and the Mere's crossing)
 and posture sheets, every combo/roll frame, scaled bars and rally, the score's PCM goldens, loop seams and
 scene scripts' cue schedules on both backends, the sound census and a sound-on memory row (`tools/score-check`), shipping-binary gameplay and persistence assertions,
 pty restoration and replay agreement, death-word/half-closed/closed-eye goldens,
