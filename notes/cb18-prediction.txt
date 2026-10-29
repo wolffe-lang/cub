@@ -15,3 +15,18 @@ keep their current low bite windows: cb10 introduced no glow-worm hook.
 Approved shared surfaces are foe/status hooks in sim, the six drawings and moth
 dim path in art, additive arena CLI/fixture in cub, appended fight/hitcensus rows,
 and appended docs. No forest/save/menu/inventory function is owned here.
+
+cb18 pickup (Opus, 2026-10-29) — prediction before the first change, at 344ba786
+over cub trunk ed180ef5, the Sol lane's dirty tree saved first to cb18-wip-1029.
+
+The lynx bite's bleed is the Sol lane's own uncommitted line in boss_hit (trunk's
+sim.bleed has no caller), not cb15's. The lynx is not a new foe: the line comes
+out (R-cb18-2 to the orchestrator), and then boss-lynx-windup, -phase2 and
+-beaten (the cases and both tiers' goldens) are byte-equal to ed180ef5 and the
+boss census equals trunk's on every row (the other three bosses never moved).
+Every other old case and golden that moved does so because cb18 places its foes
+in the Stand, the Burn, the Mere, the Underteeth and the Howe: those areas'
+final states and frames (the area scenes, the landmarks 7..11, the rests), and
+the world walk's keys through the Stand's martens (world-meadow onward, the hawk,
+the coast caches). Regenerated from the final code they reproduce the dirty
+tree's bytes; every other old golden stays byte-equal to trunk.
