@@ -246,7 +246,7 @@ pub const EV_GHOST_AREA: int = 40
 pub const EV_GHOST_DEATH: int = 41
 
 /// The number of numeric events.
-pub const EV_COUNT: int = 225
+pub const EV_COUNT: int = 253
 
 /// Explicit disclosed empty-arena setup for live input witnesses.
 pub const EV_COMBAT_WITNESS: int = 50
@@ -280,9 +280,10 @@ pub fn vocab() -> replay.Vocab {
     (mut args).push("combat-witness")
     // Slots 37..203 follow pace and the witness flag (cb15's journey 5);
     // 204..210 are appended for cb14's journey 6, which carries thirteen
-    // masks and the gates word before the pouch's 167 slots.
+    // masks and the gates word before the pouch's 167 slots; 211..238 for
+    // cb16's journey 7 (the lore widened by sixteen, the NPCs' twelve).
     part = 37
-    while part < 211 { (mut args).push("saved-{part}"); part += 1 }
+    while part < 239 { (mut args).push("saved-{part}"); part += 1 }
     replay.vocab(take names, take args)
 }
 
@@ -297,9 +298,10 @@ pub const KEY_MUTE: int = 26
 pub const KEY_CONFIRM: int = 27
 
 /// Snapshot event slots 30..36 are appended, never renumbering older events
-/// (30..35 cb04f's six slain masks, 36 the seventh area's, cb05); 37..210
+/// (30..35 cb04f's six slain masks, 36 the seventh area's, cb05); 37..238
 /// follow pace and the witness flag (cb15's 167 pouch slots in journey 5,
-/// cb14's six masks, the gates word and the pouch's slots in journey 6).
+/// cb14's six masks, the gates word and the pouch's slots in journey 6,
+/// cb16's 28 more in journey 7: events 225..252).
 pub fn saved_event(part: int) -> int {
     if part < 30 then EV_SAVED + part else if part < 37 then 42 + part - 30 else 51 + part - 37
 }
