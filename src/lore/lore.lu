@@ -4,7 +4,8 @@
 //! bottom row for `LINE_TICKS` when it is dug; a landmark's line shows
 //! while the cub stands near it. The ids are stable: a replay that dug a
 //! cache shows the same words. Ids are append-only: cb15 registers the
-//! existing coals/frame/stump words at10/11/12; cb14 and cb16 start at13.
+//! existing coals/frame/stump words at10/11/12; cb14's run 13..31 and
+//! cb16's Hermit's story is 32 (the found-lore list widened to 48 slots).
 
 /// How long a found line stays on the bottom row.
 pub const LINE_TICKS: int = 240
@@ -73,8 +74,11 @@ pub const MENHIR_FIRST: int = 18
 /// then the Stand's through Gravehollow's.
 pub const ALCOVE_FIRST: int = 23
 
-/// The number of lines; future ids append at 32.
-pub const COUNT: int = 32
+/// The Hermit's story (cb16), told for a marrow at the cutters' ruin.
+pub const HERMIT_STORY: int = 32
+
+/// The number of lines; future ids append at 33.
+pub const COUNT: int = 33
 
 /// The line itself.
 pub fn line(id: int) -> str {
@@ -141,6 +145,8 @@ fn later_line(id: int) -> str {
             "A badger's bone cache: a winter's worth, laid in rows. One of the skulls is a wolf's.",
         30 =>
             "A barrow's side, fallen in. Under the turf a wolf's ribs, and over them a mark the pack still uses.",
+        32 =>
+            "The Hermit's story, for a marrow: the cutters saw a grey wolf walk out of the fire and not burn. They cut no more after that.",
         _ => "Roots over an old bed. The scent on it is Ashgrim's, and it is not old at all.",
     }
 }

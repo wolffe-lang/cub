@@ -22,11 +22,19 @@ pub const KINDS: int = 5
 /// Maximum world pickups; a full pool refuses inventory drops.
 pub const PICKUPS: int = 128
 
-/// Maximum discovered lore lines, in discovery order.
-pub const LORE_SLOTS: int = 32
+/// Maximum discovered lore lines, in discovery order (cb16: 48; cb15's
+/// 32 were exactly full at cb14's last line, and `journey 6` and earlier
+/// snapshots carry 32, `LORE_SLOTS_V6`).
+pub const LORE_SLOTS: int = 48
 
-/// Seven scalars, thirty-two lore ids and one hundred twenty-eight pickups.
-pub const SAVE_SLOTS: int = 167
+/// The lore slots a `journey 5` or `journey 6` snapshot carries.
+pub const LORE_SLOTS_V6: int = 32
+
+/// Seven scalars, forty-eight lore ids and one hundred twenty-eight pickups.
+pub const SAVE_SLOTS: int = 183
+
+/// A `journey 5` or `journey 6` snapshot's pouch: thirty-two lore ids.
+pub const SAVE_SLOTS_V6: int = 167
 
 /// Cell coordinates, never a second actor or a fractional position.
 pub struct Pickup { area: int, x: int, y: int, kind: int }
@@ -200,7 +208,13 @@ pub fn snapshot_into(p: Pouch, mut v: List[int]) {
 
 /// Refuse invalid bounds, duplicate lore, bad padding or out-of-world areas.
 pub fn from_values(v: List[int], at: int, areas: int) -> Pouch ! {invalid} {
-    if at < 0 || v.len < at + SAVE_SLOTS { return invalid }
+    from_values_sized(v, at, areas, LORE_SLOTS)?
+}
+
+/// `from_values` over a snapshot whose lore takes `slots` slots (cb16:
+/// `LORE_SLOTS`, or `LORE_SLOTS_V6` for a `journey 5` or `journey 6`).
+pub fn from_values_sized(v: List[int], at: int, areas: int, slots: int) -> Pouch ! {invalid} {
+    if at < 0 || v.len < at + 7 + slots + PICKUPS { return invalid }
     if v[at] < 0 ||
         v[at] > 3 ||
         v[at + 1] < 0 ||
@@ -212,7 +226,7 @@ pub fn from_values(v: List[int], at: int, areas: int) -> Pouch ! {invalid} {
         v[at + 4] < 0 ||
         v[at + 4] >= bit(areas) ||
         v[at + 5] < 0 ||
-        v[at + 5] > LORE_SLOTS ||
+        v[at + 5] > slots ||
         v[at + 6] < 0 ||
         v[at + 6] > PICKUPS {
         return invalid
@@ -224,7 +238,7 @@ pub fn from_values(v: List[int], at: int, areas: int) -> Pouch ! {invalid} {
     p.uses = v[at + 3]
     p.seeded = v[at + 4]
     var i = 0
-    while i < LORE_SLOTS {
+    while i < slots {
         let n = v[at + 7 + i]
         if i < v[at + 5] {
             if n < 1 || n > 1000 { return invalid }
@@ -237,7 +251,7 @@ pub fn from_values(v: List[int], at: int, areas: int) -> Pouch ! {invalid} {
     }
     i = 0
     while i < PICKUPS {
-        let n = v[at + 7 + LORE_SLOTS + i]
+        let n = v[at + 7 + slots + i]
         if i < v[at + 6] {
             if n <= 0 || n > areas * 5 * 20001 * 200001 { return invalid }
             let item = unpack(n)
