@@ -22,5 +22,17 @@
     "writer_sha256": "15f5b9315a0cb1d1cbf2fd735381f37df0f815943735555121027b81abc9c89f",
     "fixture_sha256": "927f516054a9aa5b9645172b167aa4e69882c5f23bed8d8343bb395acc5d067b",
     "method": "The third run of cb15-v6's: live in a pty with --save <dir>/birch_7.save --record <dir>/journey5.pk, Space, then q; its initial journey 5 snapshot (204 slots) is the loaded save; the recording copied byte-for-byte."
+  },
+  "cb14-v7": {
+    "writer_binary": "cub-ed180ef5 (cub trunk ed180ef5, cb14 + its note; the native build on nomad)",
+    "writer_sha256": "24a8dfc7832a729d26b5f78aaac7c3ba96b8475578fb1be9967c05f9eb10bb92",
+    "fixture_sha256": "8aab02f4eda4a0443212d070235eeeb6aacfcd87437e264f240b52d007346947",
+    "method": "Three real runs of that binary, nothing edited (notes/cb16-evidence/make-cb14-fixtures.py): live in a pty with --no-title --mute --tier plain --seed 1 --save <dir>/sett_1.save, Space twice, q; headless --script tests/cases/underteeth.pk --save that file --frames 2 (the bone cache's den 15, the sett's shortcut open, paw 3; the wrapper's name and time kept); live in a pty again with --record (cb14-journey6), Space, q; the save copied byte-for-byte."
+  },
+  "cb14-journey6": {
+    "writer_binary": "cub-ed180ef5 (as cb14-v7)",
+    "writer_sha256": "24a8dfc7832a729d26b5f78aaac7c3ba96b8475578fb1be9967c05f9eb10bb92",
+    "fixture_sha256": "7a949d1ade73d54c334b738daf4e80541cd38e82203718a8aab70e40a758fc55",
+    "method": "The third run of cb14-v7's: live in a pty with --save <dir>/sett_1.save --record <dir>/journey6.pk, Space, then q; its initial journey 6 snapshot (211 slots) is the loaded save; the recording copied byte-for-byte."
   }
 }
