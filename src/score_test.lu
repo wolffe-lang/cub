@@ -453,13 +453,13 @@ fn test_cb17_the_trigger_scripts_cue_in_order() {
     )
     assert(
         joined(score.scene_cues_with("crossing", cs)) ==
-            "tick 0 cue mere;tick 45 cue crossing;tick 135 cue mere;",
-        "the crossing in and out",
+            "tick 0 cue mere;tick 75 cue crossing;tick 165 cue mere;",
+        "the crossing in and out, each change settled",
     )
     assert(
         joined(score.scene_cues_with("walk", cs)) ==
-            "tick 0 cue howe;tick 45 cue walk;tick 135 cue gravehollow;",
-        "the walk to the mouth",
+            "tick 0 cue howe;tick 75 cue walk;tick 135 cue gravehollow;",
+        "the walk to the mouth: settled in, the mouth at once",
     )
     assert(
         joined(score.scene_cues_with("gravehollow", cs)) ==
@@ -481,5 +481,50 @@ fn test_cb17_the_trigger_scripts_cue_in_order() {
         joined(score.scene_cues_with("cinderwick", cs)) ==
             "tick 0 cue shingle;tick 45 cue cinderwick;",
         "an area's entry",
+    )
+}
+
+fn test_cb17_a_ground_change_settles_before_it_sounds() {
+    // The census's finding: the walker's sway across the fourth stone's
+    // row cued walk, howe, walk within eight ticks. A change between an
+    // area's ground parts sounds only when it has held SETTLE ticks; an
+    // area change sounds at once.
+    let cs = [
+        score.Cue { name: "howe", ticks: 30, once: false },
+        score.Cue { name: "walk", ticks: 30, once: false },
+        score.Cue { name: "gravehollow", ticks: 30, once: false },
+        score.Cue { name: "silence", ticks: 6, once: false },
+    ]
+    var sch = score.schedule(cs)
+    let howe = scene(forest.HOWE)
+    var walk = scene(forest.HOWE)
+    walk.moment = score.MOMENT_WALK
+    assert(score.step(mut sch, howe, 0) == "howe", "the barrows")
+    assert(score.step(mut sch, walk, 5) == "", "past the stone: settling")
+    assert(score.step(mut sch, howe, 8) == "", "back over the line: no restart")
+    var t = 10
+    while t < 40 {
+        let want = if t == 30 then "howe" else ""
+        assert(
+            score.step(mut sch, walk, t) == want,
+            "settling at {t}: the Howe's loop only at its length",
+        )
+        t += 1
+    }
+    assert(
+        score.step(mut sch, walk, 40) == "walk",
+        "the walk once it has held {score.SETTLE} ticks",
+    )
+    assert(
+        score.step(mut sch, scene(forest.GRAVEHOLLOW), 41) == "gravehollow",
+        "an area change at once",
+    )
+    assert(
+        score.ground("crossing", forest.MERE) && !score.ground("crossing", forest.HOWE),
+        "the crossing is the Mere's",
+    )
+    assert(
+        score.ground("hush", forest.HUSH) && !score.ground("silence", forest.HUSH),
+        "the Hush's wait is no ground part",
     )
 }
