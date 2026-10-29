@@ -6131,6 +6131,111 @@ fn refuge(seed: int, area: int) -> Refuge {
     Refuge { has: true, x: x, y: y }
 }
 
+/// The NPCs who can stand in an area (cb16's anchors, `npc.place`), at
+/// every place and facing, read once per search, and a box round them all
+/// grown by the talk radius and a body: no new foe spawns within
+/// `npc.FACE_GAP` clear cells of one (the orchestrator's rule after cb16:
+/// the six move, the NPCs never).
+pub struct Folk {
+    bodies: List[Body],
+    near: Body,
+}
+
+/// The places an NPC can stand, as `(said, perch)`: Quill's Larkmeadow
+/// perch and each den's, Ember's three, the rest their one.
+fn folk_places(who: int) -> List[(int, int)] {
+    var out = List[(int, int)]()
+    (mut out).push((0, -1))
+    if who == npc.EMBER {
+        (mut out).push((1, -1))
+        (mut out).push((2, -1))
+    }
+    if who == npc.QUILL {
+        var den = 0
+        while den < forest.DEN_LIMIT {
+            if npc.perch_den(den) { (mut out).push((0, den)) }
+            den += 1
+        }
+    }
+    out
+}
+
+/// The area of an NPC's place, without placing it (`npc_area`'s rule).
+fn folk_area(who: int, said: int, perch: int) -> int {
+    if who == npc.QUILL { return if perch >= 0 then forest.den_area(perch) else forest.LARKMEADOW }
+    if who == npc.DUNMOSS { return forest.CRAGS }
+    if who == npc.EMBER { return if said <= 0 then forest.BRAMBLEHOLD else forest.LARKMEADOW }
+    if who == npc.BURNER { return forest.BURN }
+    if who == npc.FERRYMAN { return forest.MERE }
+    if who == npc.HERMIT { return forest.STAND }
+    forest.HUSH
+}
+
+/// The NPCs' bodies in an area, every place and facing.
+pub fn folk(seed: int, field: int, area: int) -> Folk {
+    var k = Folk { bodies: List[Body](), near: Body { x0: 0, y0: 0, x1: -1, y1: -1 } }
+    let grow = npc.FACE_GAP + 12
+    var who = 0
+    while who < npc.COUNT {
+        for p in folk_places(who) {
+            let (said, perch) = p
+            if folk_area(who, said, perch) == area {
+                let (_, x, y) = npc.place(seed, field, who, said, perch)
+                var q = 0
+                while q < 4 {
+                    let b = npc_body_facing(who, x, y, q)
+                    if k.bodies.len == 0 {
+                        k.near = Body {
+                            x0: b.x0 - grow,
+                            y0: b.y0 - grow,
+                            x1: b.x1 + grow,
+                            y1: b.y1 + grow,
+                        }
+                    } else {
+                        if b.x0 - grow < k.near.x0 { k.near.x0 = b.x0 - grow }
+                        if b.y0 - grow < k.near.y0 { k.near.y0 = b.y0 - grow }
+                        if b.x1 + grow > k.near.x1 { k.near.x1 = b.x1 + grow }
+                        if b.y1 + grow > k.near.y1 { k.near.y1 = b.y1 + grow }
+                    }
+                    (mut k.bodies).push(b)
+                    q += 1
+                }
+            }
+        }
+        who += 1
+    }
+    k
+}
+
+/// The nearest clear cells between a foe's body (at any quarter, where it
+/// stands) and an NPC's in `k`; `npc.FACE_GAP + 12` when none is near.
+pub fn folk_gap(f: Foe, k: Folk) -> int {
+    let far = npc.FACE_GAP + 12
+    let x = floor_div(f.x, FP)
+    let y = floor_div(f.y, FP)
+    if k.bodies.len == 0 || x < k.near.x0 || x > k.near.x1 || y < k.near.y0 || y > k.near.y1 {
+        return far
+    }
+    var best = far
+    var q = 0
+    while q < 4 {
+        let fb = foe_body_at(f, f.x, f.y, q * 64)
+        for b in k.bodies {
+            let g = gap(fb, b)
+            if g < best { best = g }
+        }
+        q += 1
+    }
+    best
+}
+
+/// Whether a new foe of `kind` at cell `(x, y)` keeps out of every NPC's
+/// talk radius in `k`.
+fn folk_clear(kind: int, x: int, y: int, k: Folk) -> bool {
+    if k.bodies.len == 0 { return true }
+    folk_gap(make_foe(kind, x * FP + FP / 2, y * FP + FP / 2), k) > npc.FACE_GAP
+}
+
 fn new_spawn_clear(seed: int, field: int, area: int, x: int, row: int, den: Refuge) -> bool {
     if row < 8 || row >= forest.length(area) - 8 { return false }
     // Reject the cheap distance first, before evaluating terrain hashes.
@@ -6161,12 +6266,17 @@ fn new_slot_ok(
     row: int,
     foes: List[Foe],
     den: Refuge,
+    folk: Folk,
 ) -> bool {
     if !new_spawn_clear(seed, field, area, x, row, den) { return false }
+    let y = forest.origin(seed, area) + row
+    if !folk_clear(kind, x, y, folk) { return false }
     if kind == MARTEN && !trunk_beside(seed, field, area, x, row) { return false }
     if kind == GLOW_WORMS {
         if !new_spawn_clear(seed, field, area, x - 1, row, den) ||
-            !new_spawn_clear(seed, field, area, x + 1, row, den) {
+            !new_spawn_clear(seed, field, area, x + 1, row, den) ||
+            !folk_clear(kind, x - 1, y, folk) ||
+            !folk_clear(kind, x + 1, y, folk) {
             return false
         }
         for f in foes {
@@ -6179,10 +6289,16 @@ fn new_slot_ok(
     true
 }
 
-fn new_slot(seed: int, field: int, area: int, kind: int, x: int, row: int, foes: List[Foe]) -> (
-    int,
-    int,
-) {
+fn new_slot(
+    seed: int,
+    field: int,
+    area: int,
+    kind: int,
+    x: int,
+    row: int,
+    foes: List[Foe],
+    folk: Folk,
+) -> (int, int) {
     // Ascending Manhattan rings stop at the first valid slot rather than
     // hashing every cell in a forty-row rectangle for every spawn.
     let den = refuge(seed, area)
@@ -6193,10 +6309,11 @@ fn new_slot(seed: int, field: int, area: int, kind: int, x: int, row: int, foes:
         while dy <= end {
             let dx = radius - abs(dy)
             if dx <= 8 {
-                if new_slot_ok(seed, field, area, kind, x - dx, row + dy, foes, den) {
+                if new_slot_ok(seed, field, area, kind, x - dx, row + dy, foes, den, folk) {
                     return (x - dx, row + dy)
                 }
-                if dx > 0 && new_slot_ok(seed, field, area, kind, x + dx, row + dy, foes, den) {
+                if dx > 0 &&
+                    new_slot_ok(seed, field, area, kind, x + dx, row + dy, foes, den, folk) {
                     return (x + dx, row + dy)
                 }
             } else if dy < 0 {
@@ -6208,11 +6325,14 @@ fn new_slot(seed: int, field: int, area: int, kind: int, x: int, row: int, foes:
         }
         radius += 1
     }
-    assert(false, "cb18: a new foe needs a walkable den-clear spawn")
+    assert(false, "cb18: a new foe needs a walkable den-clear spawn out of the NPCs' talk radius")
     (x, row)
 }
 
 fn append_new_area_foes(seed: int, field: int, area: int, mut foes: List[Foe]) {
+    // cb16's NPCs stand where they stand; the six's spawns keep out of
+    // their talk radius (the Stand's last marten from the Hermit's ruin).
+    let near = folk(seed, field, area)
     if area == forest.STAND {
         for row in [56, 144, 192] {
             let (x, at) = new_slot(
@@ -6223,6 +6343,7 @@ fn append_new_area_foes(seed: int, field: int, area: int, mut foes: List[Foe]) {
                 forest.spine(seed, area, row) + 4,
                 row,
                 foes,
+                near,
             )
             (mut foes).push(
                 make_new_foe(
@@ -6242,6 +6363,7 @@ fn append_new_area_foes(seed: int, field: int, area: int, mut foes: List[Foe]) {
                 forest.spine(seed, area, row) + 2,
                 row,
                 foes,
+                near,
             )
             (mut foes).push(make_new_foe(ASH_ADDER, x * FP + FP / 2, at * FP + FP / 2))
         }
@@ -6254,6 +6376,7 @@ fn append_new_area_foes(seed: int, field: int, area: int, mut foes: List[Foe]) {
                 forest.spine(seed, area, row) - 3,
                 row,
                 foes,
+                near,
             )
             (mut foes).push(make_new_foe(CINDER_MOTHS, x * FP + FP / 2, at * FP + FP / 2))
         }
@@ -6267,6 +6390,7 @@ fn append_new_area_foes(seed: int, field: int, area: int, mut foes: List[Foe]) {
             forest.spine(seed, area, row) + 2,
             row,
             foes,
+            near,
         )
         var f = make_new_foe(HERON, x * FP + FP / 2, at * FP + FP / 2)
         f.heading = 0
@@ -6277,7 +6401,7 @@ fn append_new_area_foes(seed: int, field: int, area: int, mut foes: List[Foe]) {
         while k < lands.GLOWS {
             let row = lands.glow_row(k)
             let gx = lands.glow_x(seed, k, forest.spine(seed, area, row))
-            let (x, at) = new_slot(seed, field, area, GLOW_WORMS, gx, row, foes)
+            let (x, at) = new_slot(seed, field, area, GLOW_WORMS, gx, row, foes, near)
             for dx in [-1, 0, 1] {
                 (mut foes).push(make_new_foe(GLOW_WORMS, (x + dx) * FP + FP / 2, at * FP + FP / 2))
             }
