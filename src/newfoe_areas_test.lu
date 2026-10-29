@@ -3,6 +3,7 @@
 use census
 use forest
 use lands
+use npc
 use sim
 use terrain
 use replay
@@ -56,6 +57,30 @@ fn test_cb18_underteeth_has_eight_three_worm_clusters() {
 }
 
 fn test_cb18_howe_has_two_sentry_guides() { placed(forest.HOWE, [0, 0, 0, 0, 0, 2]) }
+
+fn test_cb18_no_new_foe_spawns_in_an_npc_talk_radius() {
+    // cb16's anchors: before the rule the Stand's last marten (row 192)
+    // spawned within four clear cells of the Hermit's ruin in 94 of the
+    // spawn census's 100 worlds, these among them; the census holds all.
+    for w in [(0, 80), (2, 80), (0, 200)] {
+        let (seed, field) = w
+        region world {
+            let near = sim.folk(seed, field, forest.STAND)
+            assert(near.bodies.len > 0, "the Hermit stands in the Stand")
+            var six = 0
+            for f in sim.area_foes(seed, field, forest.STAND, 0) {
+                if sim.is_new_foe(f.kind) {
+                    assert(
+                        sim.folk_gap(f, near) > npc.FACE_GAP,
+                        "a marten in the Hermit's talk radius",
+                    )
+                    six += 1
+                }
+            }
+            assert(six == 3, "the Stand keeps its three martens")
+        }
+    }
+}
 
 fn test_cb18_real_heron_leaves_only_after_southbound_passage() {
     var s = sim.new(7, 80, 24)
