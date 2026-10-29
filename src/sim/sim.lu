@@ -5994,7 +5994,8 @@ pub fn new_foe_step(mut s: Sim, i: int) {
                 hurt(mut s, m.damage)
                 if f.kind == ASH_ADDER { apply_burn(mut s) }
                 if f.kind == MARTEN {
-                    bleed(mut s)
+                    // §6: the marten's bite steals; bleeding is the lynx's
+                    // and the shades' (the bible, §5), not the thief's.
                     nearest_marten_trunk(mut s, i)
                     marten_steal(mut s, i)
                 }
