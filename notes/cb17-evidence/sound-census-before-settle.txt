@@ -1,0 +1,33 @@
+sound-census tick 1 area 0 The Shingle cue shingle
+sound-census tick 548 area 6 Cinderwick cue cinderwick
+sound-census tick 1148 area 6 Cinderwick cue cinderwick
+sound-census tick 1645 area 1 Bramblehold cue bramblehold
+sound-census tick 2365 area 1 Bramblehold cue bramblehold
+sound-census tick 2808 area 7 The Stand cue stand
+sound-census tick 3431 area 7 The Stand cue reveal
+sound-census tick 3671 area 7 The Stand cue stand
+sound-census tick 3810 area 2 Larkmeadow cue larkmeadow
+sound-census tick 4530 area 2 Larkmeadow cue larkmeadow
+sound-census tick 4671 area 8 The Burn cue burn
+sound-census tick 5301 area 8 The Burn cue burn
+sound-census tick 5385 area 3 The Teeth cue teeth
+sound-census tick 5865 area 3 The Teeth cue teeth
+sound-census tick 6345 area 3 The Teeth cue teeth
+sound-census tick 6421 area 9 The Mere cue mere
+sound-census tick 6669 area 9 The Mere cue crossing
+sound-census tick 7029 area 9 The Mere cue crossing
+sound-census tick 7096 area 9 The Mere cue mere
+sound-census tick 7290 area 4 The Shallows cue shallows
+sound-census tick 7890 area 4 The Shallows cue shallows
+sound-census tick 8133 area 5 The Hush cue silence
+sound-census tick 8193 area 5 The Hush cue silence
+sound-census tick 8253 area 5 The Hush cue silence
+sound-census tick 8313 area 5 The Hush cue silence
+sound-census tick 8373 area 5 The Hush cue silence
+sound-census tick 8433 area 5 The Hush cue hush
+sound-census tick 8918 area 11 The Howe cue howe
+sound-census tick 9389 area 11 The Howe cue walk
+sound-census tick 9391 area 11 The Howe cue howe
+sound-census tick 9397 area 11 The Howe cue walk
+sound-census tick 9661 area 12 Gravehollow cue gravehollow
+sound-census entries 12 ok, cues 32, reveal 1 crossing 2 walk 2, ticks 9751, ends in area 12

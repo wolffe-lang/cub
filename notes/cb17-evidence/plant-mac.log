@@ -1,0 +1,51 @@
+cb17 maclock: holds the lock; floor clear at 14325 MiB 2026-10-29T20:13:20Z
+cb17 plant source e15fe924d46d024882f02ad596cfdfcf8b3a7797 branch cb17-plant-missing-part
+build: target/native/cub
+build: target/release/cub
+END build exit=0
+test src/score_test.lu::test_cb03_every_part_parses_at_its_written_length ... FAILED (trap(assert))
+test src/score_test.lu::test_cb03_the_binary_carries_the_committed_parts ... ok
+test src/score_test.lu::test_cb03_each_part_names_its_cue_fade ... ok
+test src/score_test.lu::test_cb03_the_areas_and_bosses_have_their_parts_and_slots ... ok
+test src/score_test.lu::test_cb03_want_decides_in_order ... ok
+test src/score_test.lu::test_cb03_an_area_loop_restarts_at_its_length ... ok
+test src/score_test.lu::test_cb03_an_area_change_crossfades ... ok
+test src/score_test.lu::test_cb03_a_boss_theme_ducks_the_area_loop ... ok
+test src/score_test.lu::test_cb03_the_death_sting_stops_the_loop_and_is_never_cut ... ok
+test src/score_test.lu::test_cb03_the_den_rests_and_the_loop_resumes ... ok
+test src/score_test.lu::test_cb03_the_title_plays_over_the_opening ... ok
+test src/score_test.lu::test_cb03_a_slot_without_a_part_is_the_silence ... ok
+test src/score_test.lu::test_cb03_the_replay_scenes_cover_the_schedule ... ok
+test src/score_test.lu::test_cb17_every_area_and_moment_has_a_part_in_the_bank ... FAILED (trap(assert))
+test src/score_test.lu::test_cb17_the_new_parts_parse_at_their_written_lengths ... ok
+test src/score_test.lu::test_cb17_the_moments_are_read_from_the_ground ... ok
+test src/score_test.lu::test_cb17_the_hush_waits_in_silence_while_its_den_is_unlit ... ok
+test src/score_test.lu::test_cb17_the_end_is_moonford_not_the_title ... ok
+test src/score_test.lu::test_cb17_the_reveal_holds_to_its_end_and_a_fall_cuts_it ... ok
+test src/score_test.lu::test_cb17_every_scene_script_fits_the_mixer_and_cues_its_part ... FAILED (trap(assert))
+test src/score_test.lu::test_cb17_the_trigger_scripts_cue_in_order ... FAILED (trap(assert))
+wolf test: 17 passed; 4 failed; 0 rejected; 0 unsupported; 0 filtered out
+END score-test exit=1
+score-scene six/release ok 6 cues ed2aa4ee79063d4a03c1b47bafff403601c560801d42d8b2cccc85e3a81da638
+score-scene cinderwick/release ok 2 cues 4390600fa430804b0da92608979549cec3d9c1077b06b8ea704f5216021e7f9d
+score-scene stand/release ok 2 cues 4eacfb50edb92158bbb5a0423e96f9146aa6e1ae689ff4a4cfe266429c9923e3
+score-scene reveal/release ok 3 cues 8e4c88cfa5d85530d8e3743b30df7f93cd8d040b27186a64813c843c546b923d
+score-scene burn/release ok 2 cues 2575d6984ac41f84efbabf0465bb6d4d7ec5689b9d9ddb40ceb3b52d22c17002
+score-scene teeth/release ok 2 cues 339dde8e7ef218c410bad6cad8c5a6bde6dcce7328c03d67dfd6d2e18a5f4de7
+score-scene underteeth/release ok 2 cues 6f923dd3cc2ada1b7b41c7eeb424855f1c58fa502cae1c97ee1e502ac8dd7e51
+score-scene mere/release ok 2 cues af50555181ee03c2b889088f4d9022b2dde0d06cd95fed5d8069ec2bed4e4135
+score-scene crossing/release ok 3 cues b67400eb1b1dc55db160904bcb7fb584e4adca1922c4dc6be5958410e930977a
+score-scene shallows/release ok 2 cues dc396cc57bb4c7d03860a43db1990d10f9998ec81a81650bb42a292fdfe66e9c
+score-scene hush/release ok 9 cues 2bcb50bd045852d6ff4eddd8ab7fed31d976d12f2bb9bfca93b3786e95ac94a0
+score-scene howe/release ok 2 cues 9e04d654ff81b5e54f1e9c5ecd7add0eae7a5e56c6648183e7872553ce52e7fc
+Traceback (most recent call last):
+  File "/Users/mfwolffe/lanes/cb17/plant/tools/score-check", line 222, in <module>
+    main()
+  File "/Users/mfwolffe/lanes/cb17/plant/tools/score-check", line 175, in main
+    played[name] = check_scene(binary, tier, name, ticks, update)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mfwolffe/lanes/cb17/plant/tools/score-check", line 133, in check_scene
+    raise AssertionError("score-scene %s/%s FAILED: the cue schedule differs at line %d: %r, golden %r" % (
+AssertionError: score-scene walk/release FAILED: the cue schedule differs at line 2: 'tick 45 cue silence', golden 'tick 45 cue walk'
+END score-check exit=1
+cb17 maclock: END exit=0 2026-10-29T20:13:48Z

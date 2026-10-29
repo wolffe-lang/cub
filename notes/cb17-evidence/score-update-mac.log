@@ -1,0 +1,137 @@
+cb17 maclock: holds the lock; floor clear at 10817 MiB 2026-10-29T20:02:00Z
+score-golden title written e5160e772a86490395cc0a358ea0385ed95a518c37ca0a4643790086c42238ec
+score-seam title/release ok last-tick peak 163
+score-golden shingle written 1ff982172c4765e1f8b95a0bfd649f0be7c4ca14940370c3da74797b26b7e677
+score-seam shingle/release ok last-tick peak 86
+score-golden bramblehold written ad2f9d3290b785cdb2c9d70b5973ed3cca2a82b438ee943a5c5f9ccc50053aee
+score-seam bramblehold/release ok last-tick peak 36
+score-golden larkmeadow written 51265355be1a35dae20477038aa478a61c643e0ccfc991e9913fd3a1f3293d3c
+score-seam larkmeadow/release ok last-tick peak 179
+score-golden boss-boar written ee0bda89cd3f0ed5bc096be8476337ab9c76f008521f46a8456f05c823a6b3de
+score-seam boss-boar/release ok last-tick peak 172
+score-golden boss-lynx written d1228efc697f53cb262f5aee3869a112b71fe93ff018c4757e4cdbefc4c15a49
+score-seam boss-lynx/release ok last-tick peak 53
+score-golden boss-elk written 4e078f56aca0c34302a90503747715caa59e4e880da1d004c8f131d8fca1efaf
+score-seam boss-elk/release ok last-tick peak 65
+score-golden boss-alpha written eee00ef583405f37751711630d5ab5ab1460105b7e9c9c57dfadeb9585a204d7
+score-seam boss-alpha/release ok last-tick peak 46
+score-golden den written 6352836cfde6c6f7aafbcb711e67f39b9851e4a563cbfdf90b651cd2591c7d7b
+score-seam den/release ok last-tick peak 100
+score-golden death written 7dd20a74bf69c65d5d698e317886e60a964c8ee26d3fecc03741668e9d6e8846
+score-golden crack written da3b1bd8ef026208c81adb8247057406467adbd19515efa3460db4356c9e7e5f
+score-golden cinderwick written 21066a9c090643b9a4f8c88d3140e5ec0236c80a8c91dc73718c6e819072545a
+score-seam cinderwick/release ok last-tick peak 147
+score-golden stand written 348b4200954c8281e2a31f1928f79cfac71da829123bfcf2f5429594e8714791
+score-seam stand/release ok last-tick peak 0
+score-golden burn written 397504c80bb21f6a38ae8f9e2aed4e0b267c50063e208840e328e3b6e3578da2
+score-seam burn/release ok last-tick peak 0
+score-golden teeth written 617e7b72fd83152667019da46fb8c06a24e61a01087ada1f4e1e10b015c6a044
+score-seam teeth/release ok last-tick peak 177
+score-golden underteeth written 7bf738cfe3eb41452b546b08fc27bf746cc67de540fb19146e10e5325b360e12
+score-seam underteeth/release ok last-tick peak 93
+score-golden mere written ed3f6e6ca866dbe8d5d3d5553fa5500eaa6ea74790a46c596d0fc26be4057b5b
+score-seam mere/release ok last-tick peak 110
+score-golden shallows written 2fd24b8ee0899a416475eb3ff8263f33e5df692858ab76a0a1b5a449277e05d8
+score-seam shallows/release ok last-tick peak 241
+score-golden hush written bb91bc5264bc34b0451ce3fd6e731a6fe9cc5db78ae941fe4f384c9d9351cffb
+score-seam hush/release ok last-tick peak 0
+score-golden howe written d57af7c22880c0cc4231f995ce0aea96412f1fae60c9e4e5603528e0f68ed973
+score-seam howe/release ok last-tick peak 38
+score-golden gravehollow written b16491ec8596ed9c291bcc1d405dc65b183d6a0793c6dc9292f02429dcf32b90
+score-seam gravehollow/release ok last-tick peak 10
+score-golden moonford written 5fb297f9739dbf81d25baed20b531026dd6dfc4216c513a59955d06ea3983280
+score-seam moonford/release ok last-tick peak 175
+score-golden reveal written 50e4220408beab02435387cb2c71a60632f94aefe964630ccbecd631bed31532
+score-golden crossing written 8502a059afeba1ba4c02ac3129d51dbf35ec62cb6a822c5c907fc00b37f250c5
+score-seam crossing/release ok last-tick peak 163
+score-golden walk written b70df2a5c768f3a3baf11b611124cf93617e69ddb075eba8e2ba535527222ef5
+score-seam walk/release ok last-tick peak 0
+score-golden replay written
+score-scene six written ed2aa4ee79063d4a03c1b47bafff403601c560801d42d8b2cccc85e3a81da638
+score-scene six/release is replay.pcm
+score-scene cinderwick written 4390600fa430804b0da92608979549cec3d9c1077b06b8ea704f5216021e7f9d
+score-scene stand written 4eacfb50edb92158bbb5a0423e96f9146aa6e1ae689ff4a4cfe266429c9923e3
+score-scene reveal written 8e4c88cfa5d85530d8e3743b30df7f93cd8d040b27186a64813c843c546b923d
+score-scene burn written 2575d6984ac41f84efbabf0465bb6d4d7ec5689b9d9ddb40ceb3b52d22c17002
+score-scene teeth written 339dde8e7ef218c410bad6cad8c5a6bde6dcce7328c03d67dfd6d2e18a5f4de7
+score-scene underteeth written 6f923dd3cc2ada1b7b41c7eeb424855f1c58fa502cae1c97ee1e502ac8dd7e51
+score-scene mere written af50555181ee03c2b889088f4d9022b2dde0d06cd95fed5d8069ec2bed4e4135
+score-scene crossing written b67400eb1b1dc55db160904bcb7fb584e4adca1922c4dc6be5958410e930977a
+score-scene shallows written dc396cc57bb4c7d03860a43db1990d10f9998ec81a81650bb42a292fdfe66e9c
+score-scene hush written 2bcb50bd045852d6ff4eddd8ab7fed31d976d12f2bb9bfca93b3786e95ac94a0
+score-hush release ok ticks 55-344 silent, the motif from 345
+score-scene howe written 9e04d654ff81b5e54f1e9c5ecd7add0eae7a5e56c6648183e7872553ce52e7fc
+score-scene walk written 7c849d1c60f2a7c594b9b8d07e780a469ae31b8cc3d0f0776457319ab791563b
+score-scene gravehollow written d8db532cb41e03c20355aa52ded18b8ff7fb04e1dfc86699c3a1366e04ddbf11
+score-scene moonford written dde08dd3f78efedf9dccf57bba9b1fe2dc5687b1b54d2fa4852f59ebe18cb5dd
+score-wav release ok
+score-refusal release ok
+score-golden title/native ok e5160e772a86490395cc0a358ea0385ed95a518c37ca0a4643790086c42238ec
+score-seam title/native ok last-tick peak 163
+score-golden shingle/native ok 1ff982172c4765e1f8b95a0bfd649f0be7c4ca14940370c3da74797b26b7e677
+score-seam shingle/native ok last-tick peak 86
+score-golden bramblehold/native ok ad2f9d3290b785cdb2c9d70b5973ed3cca2a82b438ee943a5c5f9ccc50053aee
+score-seam bramblehold/native ok last-tick peak 36
+score-golden larkmeadow/native ok 51265355be1a35dae20477038aa478a61c643e0ccfc991e9913fd3a1f3293d3c
+score-seam larkmeadow/native ok last-tick peak 179
+score-golden boss-boar/native ok ee0bda89cd3f0ed5bc096be8476337ab9c76f008521f46a8456f05c823a6b3de
+score-seam boss-boar/native ok last-tick peak 172
+score-golden boss-lynx/native ok d1228efc697f53cb262f5aee3869a112b71fe93ff018c4757e4cdbefc4c15a49
+score-seam boss-lynx/native ok last-tick peak 53
+score-golden boss-elk/native ok 4e078f56aca0c34302a90503747715caa59e4e880da1d004c8f131d8fca1efaf
+score-seam boss-elk/native ok last-tick peak 65
+score-golden boss-alpha/native ok eee00ef583405f37751711630d5ab5ab1460105b7e9c9c57dfadeb9585a204d7
+score-seam boss-alpha/native ok last-tick peak 46
+score-golden den/native ok 6352836cfde6c6f7aafbcb711e67f39b9851e4a563cbfdf90b651cd2591c7d7b
+score-seam den/native ok last-tick peak 100
+score-golden death/native ok 7dd20a74bf69c65d5d698e317886e60a964c8ee26d3fecc03741668e9d6e8846
+score-golden crack/native ok da3b1bd8ef026208c81adb8247057406467adbd19515efa3460db4356c9e7e5f
+score-golden cinderwick/native ok 21066a9c090643b9a4f8c88d3140e5ec0236c80a8c91dc73718c6e819072545a
+score-seam cinderwick/native ok last-tick peak 147
+score-golden stand/native ok 348b4200954c8281e2a31f1928f79cfac71da829123bfcf2f5429594e8714791
+score-seam stand/native ok last-tick peak 0
+score-golden burn/native ok 397504c80bb21f6a38ae8f9e2aed4e0b267c50063e208840e328e3b6e3578da2
+score-seam burn/native ok last-tick peak 0
+score-golden teeth/native ok 617e7b72fd83152667019da46fb8c06a24e61a01087ada1f4e1e10b015c6a044
+score-seam teeth/native ok last-tick peak 177
+score-golden underteeth/native ok 7bf738cfe3eb41452b546b08fc27bf746cc67de540fb19146e10e5325b360e12
+score-seam underteeth/native ok last-tick peak 93
+score-golden mere/native ok ed3f6e6ca866dbe8d5d3d5553fa5500eaa6ea74790a46c596d0fc26be4057b5b
+score-seam mere/native ok last-tick peak 110
+score-golden shallows/native ok 2fd24b8ee0899a416475eb3ff8263f33e5df692858ab76a0a1b5a449277e05d8
+score-seam shallows/native ok last-tick peak 241
+score-golden hush/native ok bb91bc5264bc34b0451ce3fd6e731a6fe9cc5db78ae941fe4f384c9d9351cffb
+score-seam hush/native ok last-tick peak 0
+score-golden howe/native ok d57af7c22880c0cc4231f995ce0aea96412f1fae60c9e4e5603528e0f68ed973
+score-seam howe/native ok last-tick peak 38
+score-golden gravehollow/native ok b16491ec8596ed9c291bcc1d405dc65b183d6a0793c6dc9292f02429dcf32b90
+score-seam gravehollow/native ok last-tick peak 10
+score-golden moonford/native ok 5fb297f9739dbf81d25baed20b531026dd6dfc4216c513a59955d06ea3983280
+score-seam moonford/native ok last-tick peak 175
+score-golden reveal/native ok 50e4220408beab02435387cb2c71a60632f94aefe964630ccbecd631bed31532
+score-golden crossing/native ok 8502a059afeba1ba4c02ac3129d51dbf35ec62cb6a822c5c907fc00b37f250c5
+score-seam crossing/native ok last-tick peak 163
+score-golden walk/native ok b70df2a5c768f3a3baf11b611124cf93617e69ddb075eba8e2ba535527222ef5
+score-seam walk/native ok last-tick peak 0
+score-golden replay/native ok ed2aa4ee79063d4a03c1b47bafff403601c560801d42d8b2cccc85e3a81da638
+score-scene six/native ok 6 cues ed2aa4ee79063d4a03c1b47bafff403601c560801d42d8b2cccc85e3a81da638
+score-scene six/native is replay.pcm
+score-scene cinderwick/native ok 2 cues 4390600fa430804b0da92608979549cec3d9c1077b06b8ea704f5216021e7f9d
+score-scene stand/native ok 2 cues 4eacfb50edb92158bbb5a0423e96f9146aa6e1ae689ff4a4cfe266429c9923e3
+score-scene reveal/native ok 3 cues 8e4c88cfa5d85530d8e3743b30df7f93cd8d040b27186a64813c843c546b923d
+score-scene burn/native ok 2 cues 2575d6984ac41f84efbabf0465bb6d4d7ec5689b9d9ddb40ceb3b52d22c17002
+score-scene teeth/native ok 2 cues 339dde8e7ef218c410bad6cad8c5a6bde6dcce7328c03d67dfd6d2e18a5f4de7
+score-scene underteeth/native ok 2 cues 6f923dd3cc2ada1b7b41c7eeb424855f1c58fa502cae1c97ee1e502ac8dd7e51
+score-scene mere/native ok 2 cues af50555181ee03c2b889088f4d9022b2dde0d06cd95fed5d8069ec2bed4e4135
+score-scene crossing/native ok 3 cues b67400eb1b1dc55db160904bcb7fb584e4adca1922c4dc6be5958410e930977a
+score-scene shallows/native ok 2 cues dc396cc57bb4c7d03860a43db1990d10f9998ec81a81650bb42a292fdfe66e9c
+score-scene hush/native ok 9 cues 2bcb50bd045852d6ff4eddd8ab7fed31d976d12f2bb9bfca93b3786e95ac94a0
+score-hush native ok ticks 55-344 silent, the motif from 345
+score-scene howe/native ok 2 cues 9e04d654ff81b5e54f1e9c5ecd7add0eae7a5e56c6648183e7872553ce52e7fc
+score-scene walk/native ok 3 cues 7c849d1c60f2a7c594b9b8d07e780a469ae31b8cc3d0f0776457319ab791563b
+score-scene gravehollow/native ok 4 cues d8db532cb41e03c20355aa52ded18b8ff7fb04e1dfc86699c3a1366e04ddbf11
+score-scene moonford/native ok 2 cues dde08dd3f78efedf9dccf57bba9b1fe2dc5687b1b54d2fa4852f59ebe18cb5dd
+score-wav native ok
+score-refusal native ok
+score-check: green
+cb17 maclock: END exit=0 2026-10-29T20:02:08Z

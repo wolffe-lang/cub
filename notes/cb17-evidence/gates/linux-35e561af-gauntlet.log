@@ -1,0 +1,7 @@
+cb17 gauntlet start 2026-10-29T20:16:22Z pid 1861147
+cb17 holds cores 4-7 2026-10-29T20:16:22Z
+cb17 source 35e561afb10a499bd0d28b598a8f3d893c0794ef
+END prepare-pty exit=0 elapsed=0s 2026-10-29T20:16:24Z | prepare-pty: engine fixture already fresh
+END check-linux exit=0 elapsed=2485s 2026-10-29T20:57:49Z | cub check-linux: green
+END perf exit=0 elapsed=65s 2026-10-29T20:58:54Z | perf-idle: latency median 13.5 ms p90 32.6 ms max 33.8 ms over 20 keys (bars median 120, p90 210 ms) ok
+CB17_LINUX_GAUNTLET_DONE exit=0 2026-10-29T20:58:54Z

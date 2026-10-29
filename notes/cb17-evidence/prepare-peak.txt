@@ -1,0 +1,17 @@
+cb17: the live prepare's peak resident set, base vs cb17 (R-cb17-3 A)
+
+nomad (macOS arm64), release binaries, 2026-10-29 ~20:12 UTC; tools/peak.py here:
+/usr/bin/time -l over a pty run, a fresh seed-7 journey, --no-title, 90 ticks,
+CUB_SOUND_BACKEND=oss (the engine's stub refuses by name: no player starts,
+nothing is heard), every part rendered and written as a WAV before the loop.
+
+base ed180ef5 (11 parts + silence, the whole bank held in one region):
+exit 0 peak_rss_bytes 270041088 sound on backend oss answers 0 prepared 467667 us starts 0 stops 0 cue title
+exit 0 peak_rss_bytes 270090240 sound on backend oss answers 0 prepared 452013 us starts 0 stops 0 cue title
+
+cb17, the source committed as 35e561af (25 parts + silence, one part rendered, written and dropped at a time):
+exit 0 peak_rss_bytes 50151424 sound on backend oss answers 0 prepared 1070664 us starts 0 stops 0 cue title
+exit 0 peak_rss_bytes 50151424 sound on backend oss answers 0 prepared 1037025 us starts 0 stops 0 cue title
+
+So: 2.3 times the music (191 s -> 460 s of PCM, 26 WAVs, about 89 MB on disk while
+the game runs), the peak 270 MB -> 50 MB, the prepare 0.46 s -> 1.05 s.
