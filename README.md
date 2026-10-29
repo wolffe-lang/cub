@@ -217,7 +217,8 @@ target/cub --narrow-audit 6 240  walk Cinderwick's single-file edges with diagon
 
 `cub --help` lists the rest: the headless mode that writes frames for the goldens, `--trace` (one line a
 tick on standard error), `--apply`, the glyph probe, the selftest, `--bench` for render/diff timings, and
-the score's paths (`--score-list`, `--score-render`, `--score-wav`, `--score-replay`, `--score-scene`).
+the score's paths (`--score-list`, `--score-render`, `--score-wav`, `--score-replay`, `--score-scene`,
+`--sound-census`).
 Headless `--script` fixtures skip death cards after their minimum word hold;
 `--full-death` keeps the full scene. Live play and production `--replay` keep
 recorded key timing. A script's `# counter-frames` comment emits every integer
@@ -229,7 +230,7 @@ as its own golden frame, without advancing the simulation again.
 tests, native and release builds, decoder selftest, both-tier replay goldens
 (including pickup sprites, inventory actions, drop/re-pickup, and scrollable lore)
 and posture sheets, every combo/roll frame, scaled bars and rally, the score's PCM goldens, loop seams and
-scene scripts' cue schedules on both backends, with a sound-on memory row (`tools/score-check`), shipping-binary gameplay and persistence assertions,
+scene scripts' cue schedules on both backends, the sound census and a sound-on memory row (`tools/score-check`), shipping-binary gameplay and persistence assertions,
 pty restoration and replay agreement, death-word/half-closed/closed-eye goldens,
 every integer of gains and spending with replay-deterministic batches, the real
 terminal's1000-frame count at both sizes and tiers, exact held-key and eight-direction chord rows,
