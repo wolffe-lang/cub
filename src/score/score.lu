@@ -67,7 +67,6 @@ pub fn names() -> List[str] {
         "moonford",
         "reveal",
         "crossing",
-        "walk",
     ]
 }
 
