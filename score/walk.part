@@ -1,0 +1,35 @@
+# To the Stone Mouth — the Howe's walk, its last stretch to the gate: D minor, a slow tread on a
+# muffled drum, the shadows' motif low in a trombone, voices rising toward the mouth. Original,
+# cb17 (2026-10-29). 4 bars of 4/4 at 60: 16 s, a loop.
+title To the Stone Mouth
+cue replace fade 9
+tempo 60
+meter 4/4
+part tread drum p pan -10 gain 5
+part toll timpani pp pan 10 gain 5
+part shadow trombone p pan 0 gain 2
+part rising choir pp pan 25 gain 5
+part roots strings ppp pan -30 gain 8
+bar 1
+tread C2/2 C2/2
+toll D2/4 r/2.
+shadow D3/4 Eb3/4 D3/2
+rising D4,A4/1
+roots D2,A2/1*
+bar 2
+tread C2/2 C2/2
+toll D2/4 r/2.
+shadow A2/1
+rising < D4,A4/1
+roots D2,A2/1*
+bar 3
+tread C2/2 C2/2
+toll D2/4 r/2.
+shadow D3/4 Eb3/4 F3/2
+rising Eb4,A4/1 mp
+roots D2,A2/1*
+bar 4
+tread C2/2 r/2
+shadow D3/2. r/4
+rising > D4,A4/2. pp r/4
+roots D2,A2/2* r/2
