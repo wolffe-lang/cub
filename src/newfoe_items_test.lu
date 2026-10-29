@@ -17,7 +17,7 @@ fn contact(mut s: sim.Sim) {
     s.y = (fb.y1 + 1 - cb.y0) * sim.FP
 }
 
-fn test_cb18_marten_takes_one_item_bleeds_and_returns_at_the_trunk() {
+fn test_cb18_marten_takes_one_item_without_bleeding_and_returns_at_the_trunk() {
     var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
     let _ = sim.give_item(mut s, pouch.YARROW)
     let _ = sim.give_item(mut s, pouch.MARROW)
@@ -29,8 +29,8 @@ fn test_cb18_marten_takes_one_item_bleeds_and_returns_at_the_trunk() {
         "exactly one held item",
     )
     assert(
-        s.foes[0].stolen_item == pouch.YARROW && s.pouch.bleeding == 60,
-        "real item tag and cb15 bleed API",
+        s.foes[0].stolen_item == pouch.YARROW && s.pouch.bleeding == 0,
+        "real item tag; the thief's bite steals and starts no bleeding (§6)",
     )
     assert(s.flasks == 3 && s.scent == 17, "neither water nor scent is stolen")
     let before = s.pouch.pickups.len
@@ -65,9 +65,10 @@ fn test_cb18_empty_pouch_never_falls_back_to_scent_or_water() {
     assert(s.foes[0].stolen_item == -1 && s.scent == 17 && s.flasks == 3, "empty means no theft")
 }
 
-// R-cb18-2: the lynx is not a new foe, so cb18 leaves its bite as trunk
-// has it (no bleeding); the boss census and the lynx cases stay trunk's.
-fn test_cb18_lynx_bite_stays_trunks_and_does_not_bleed() {
+// R-cb18-2 B (the orchestrator's, contract item 2): a landed lynx swipe
+// starts the bible's bleeding; a parried or dodged one starts none, and
+// one yarrow stops it.
+fn test_cb18_landed_lynx_swipe_bleeds_and_yarrow_cures_it() {
     for action in [sim.IDLE, sim.PARRY, sim.DODGE] {
         region encounter {
             var s = hitcensus.fixture(sim.LYNX)
@@ -78,8 +79,18 @@ fn test_cb18_lynx_bite_stays_trunks_and_does_not_bleed() {
             s.started = 0
             let before = s.health
             sim.step(mut s, List[int]())
-            assert((s.health < before) == (action == sim.IDLE), "only the idle cub is bitten")
-            assert(s.pouch.bleeding == 0, "a lynx bite starts no bleeding in cb18")
+            let landed = action == sim.IDLE
+            assert((s.health < before) == landed, "only the idle cub is bitten")
+            assert((s.pouch.bleeding > 0) == landed, "only a landed swipe starts bleeding")
+            if landed {
+                let bitten = s.health
+                let _ = sim.give_item(mut s, pouch.YARROW)
+                assert(
+                    sim.consume_item(mut s, pouch.YARROW) && s.pouch.bleeding == 0,
+                    "one yarrow stops the lynx's bleeding",
+                )
+                assert(s.health > bitten, "and heals")
+            }
         }
     }
 }
