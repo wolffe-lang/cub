@@ -1660,3 +1660,17 @@ the kiln (the Charcoal-burner), the causeway's post (the Ferryman), the sett (Du
 **Measured** (fifty seeds, both fields; `notes/cb14-evidence/`): see the note's tables (the world audit's 1300
 rows, the den spacing, the foe census, the bends, the spurs, the journey's length before and after, the boss
 census, the generation and render costs).
+
+## The missing soundtracks, 2026-10-29 (cb17, proposed)
+
+`docs/SCORE.md`: fourteen original parts, a part for every area (the Teeth, the Shallows, the Hush,
+Cinderwick, the Stand, the Burn, the Mere, the Underteeth, the Howe, Gravehollow), Moonford at the end (the
+title's call in D major, where the title played before), and three moments the schedule reads from the
+ground (`score.moment_of`, read-only over the simulation): **the reveal** (`sim.revealing`'s sixty ticks;
+the part is eight seconds and holds to its end like the sting, only a fall cutting it), **the crossing**
+(the Mere's local rows 61..163, between its sixty-row causeways), **the walk** (the Howe from its fourth
+standing stone, local row 150, to the stone mouth). **The Hush's wait** (R-cb17-1 A): 300 ticks of the
+silence after an entry while the cold den (den 6) is unlit, then the shadows' motif; once lit, the motif at
+once. **The bank** (R-cb17-2 A): a replay's mixer holds the cues its own scenes reach, at most the engine's
+sixteen. **The prepare** (R-cb17-3 A): one part rendered, written and dropped at a time. The numbers (300
+ticks, row 150, the 60-row causeways, the parts' lengths and levels) are the maintainer's to change by play.
