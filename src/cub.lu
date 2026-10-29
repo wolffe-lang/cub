@@ -97,6 +97,7 @@ struct Options {
     score_render: str,
     score_wav: str,
     score_replay: str,
+    score_scene: str,
     score_out: str,
     score_list: bool,
     no_title: bool,
@@ -133,6 +134,7 @@ fn usage_text() -> str {
         "  --score-render NAME OUT           a part as raw stereo S16_LE PCM, its own length\n" +
         "  --score-wav NAME OUT              the same PCM in a WAV\n" +
         "  --score-replay OUT                the cue schedule through the mixer, 180 ticks of PCM\n" +
+        "  --score-scene NAME OUT            a scene script's schedule through the mixer; its cues on stdout\n" +
         "  --allocation-probe N SAVE MODE     named-region allocation census; SAVE '-' is fresh seed 7\n" +
         "                                    MODE sim|render|terrain|actor|hud|history|save|all\n" +
         "  --bench                           render/diff timings for the performance gate\n" +
@@ -200,6 +202,7 @@ fn options_default() -> Options {
         score_render: "",
         score_wav: "",
         score_replay: "",
+        score_scene: "",
         score_out: "",
         score_list: false,
         no_title: false,
@@ -242,6 +245,10 @@ fn parse_args(args: List[str]) -> Options ! {usage, parse} {
             i += 2
         } else if two && a == "--score-wav" {
             o.score_wav = args[i + 1]
+            o.score_out = args[i + 2]
+            i += 2
+        } else if two && a == "--score-scene" {
+            o.score_scene = args[i + 1]
             o.score_out = args[i + 2]
             i += 2
         } else if a == "--world-audit" {
@@ -878,6 +885,8 @@ fn fire_menu(o: Options, mut menu: mainmenu.Menu) -> int {
                 den: menu.page != -1,
                 boss: -1,
                 area: 1,
+                end: false,
+                moment: score.MOMENT_NONE,
             }
             let cue = score.step(mut sch, sc, s.tick)
             if cue != "" { score.play(mut player, cue) }
@@ -1492,7 +1501,11 @@ fn main() -> int {
     }
     if o.make_proof != "" { return proof.generate(o.make_proof) }
     if o.world_audit { return run_world_audit() }
-    if o.score_list || o.score_render != "" || o.score_wav != "" || o.score_replay != "" {
+    if o.score_list ||
+        o.score_render != "" ||
+        o.score_wav != "" ||
+        o.score_replay != "" ||
+        o.score_scene != "" {
         return run_score(o)
     }
     if o.help {
@@ -1525,14 +1538,35 @@ fn main() -> int {
 /// The score's evidence paths (cb03): `--score-list` every part's name
 /// and length; `--score-render NAME OUT` and `--score-wav NAME OUT` one
 /// part at its own length, deterministic bytes; `--score-replay OUT` the
-/// cue schedule through the engine's mixer. Exit 2 names a part that does
-/// not parse (the engine's reader says where).
+/// cue schedule through the engine's mixer; `--score-scene NAME OUT` a
+/// scene script's (cb17), its cues on stdout. Exit 2 names a part that
+/// does not parse (the engine's reader says where) or a scene there is
+/// not.
 fn run_score(o: Options) -> int {
     if o.score_list {
         for n in score.names() {
             let seconds = score.seconds_of(n) else |_| { return 2 }
             print("part {n} seconds {seconds} once {if score.plays_once(n) then 1 else 0}")
         }
+        for n in score.scene_names() {
+            print("scene {n} ticks {score.scene_ticks(n)}")
+        }
+        return 0
+    }
+    if o.score_scene != "" {
+        let cued = score.scene_cues(o.score_scene) else |_| {
+            eprint("cub: score: {o.score_scene}: no such scene, or a part does not parse")
+            return 2
+        }
+        let pcm = score.scene_pcm(o.score_scene) else |_| {
+            eprint("cub: score: {o.score_scene}: the mixer refused its bank")
+            return 2
+        }
+        fs.write_bytes(o.score_out, pcm) else |_| {
+            eprint("cub: cannot write {o.score_out}")
+            return 2
+        }
+        for line in cued { print(line) }
         return 0
     }
     if o.score_replay != "" {
