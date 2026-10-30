@@ -1815,10 +1815,11 @@ spine's east side) spawned two to four cells from the Hermit's ruin in 94
 of the census's 100 worlds; it now takes the nearest slot outside, and
 `--new-foe-spawn-census` ends on the verdict (`new-foe-npc-gap: green,
 3400 spawns ..., the nearest 5 clear cells`), which the gameplay gate
-requires. The inherited Hush foes are not the six's to move: the fox
-pairs at rows 40 and 136-140 share cells with Fenn and Loam, and the
-weasel pair at rows 74-76 comes within four cells of Bracken, in every
-world (`notes/cb18-evidence/pickup/inherited-near-npcs.txt`).
+requires. The inherited Hush foes are not the six's to move: a fox pair
+stands within four cells of Fenn (rows 40-44) and one of Loam (rows
+136-140) in every world, sharing cells with them in many (gaps -4 to 3),
+and weasels at rows 74-76 come within four cells of Bracken in 58 of the
+100 (`notes/cb18-evidence/pickup/inherited-near-npcs.txt`).
 
 **A decode counts the six; it never places them.** `journey.decode` holds
 each of the thirteen slain masks to the area's foe count. It used to place
