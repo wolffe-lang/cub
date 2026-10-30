@@ -2851,8 +2851,35 @@ pub fn restore_foes(mut s: Sim) {
 /// centre unless the journey has beaten it (`bosses`, the save's bits).
 /// The list's order is the seed's alone (cb04f's slain-set rule indexes
 /// it): the boss first, then the groups in row order, then the guards
-/// cache by cache.
+/// cache by cache, then cb18's six appended (`append_new_area_foes`).
 pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
+    var foes = inherited_area_foes(seed, field, area, bosses)
+    append_new_area_foes(seed, field, area, mut foes)
+    foes
+}
+
+/// How many foes `area_foes` starts an area with, without placing cb18's
+/// six (a constant an area, `new_foe_count`): a save's slain masks are
+/// held to it on every decode, all thirteen areas (the checked machine's
+/// budget; the spawn census holds it to `area_foes` in fifty seeds).
+pub fn area_foe_count(seed: int, field: int, area: int, bosses: int) -> int {
+    inherited_area_foes(seed, field, area, bosses).len + new_foe_count(area)
+}
+
+/// The six `append_new_area_foes` appends to an area: the Stand's three
+/// martens, the Burn's two adders and two moth swarms, the Mere's heron,
+/// the Underteeth's eight clusters of three worms, the Howe's two wisps.
+pub fn new_foe_count(area: int) -> int {
+    if area == forest.STAND { return 3 }
+    if area == forest.BURN { return 4 }
+    if area == forest.MERE { return 1 }
+    if area == forest.UNDERTEETH { return 3 * lands.GLOWS }
+    if area == forest.HOWE { return 2 }
+    0
+}
+
+/// The foes the areas had before cb18: the boss, the groups, the guards.
+fn inherited_area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
     var foes = List[Foe]()
     if forest.has_arena(area) {
         let kind = boss_of(area)
@@ -2927,7 +2954,6 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
         }
         cache += 1
     }
-    append_new_area_foes(seed, field, area, mut foes)
     foes
 }
 
@@ -6332,6 +6358,9 @@ fn new_slot(
 fn append_new_area_foes(seed: int, field: int, area: int, mut foes: List[Foe]) {
     // cb16's NPCs stand where they stand; the six's spawns keep out of
     // their talk radius (the Stand's last marten from the Hermit's ruin).
+    // Read only where the six are placed: an area without them (the
+    // Shingle of every `sim.new`) pays nothing.
+    if new_foe_count(area) == 0 { return }
     let near = folk(seed, field, area)
     if area == forest.STAND {
         for row in [56, 144, 192] {
