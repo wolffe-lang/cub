@@ -1820,6 +1820,18 @@ pairs at rows 40 and 136-140 share cells with Fenn and Loam, and the
 weasel pair at rows 74-76 comes within four cells of Bracken, in every
 world (`notes/cb18-evidence/pickup/inherited-near-npcs.txt`).
 
+**A decode counts the six; it never places them.** `journey.decode` holds
+each of the thirteen slain masks to the area's foe count. It used to place
+every area's foes to count them, and with the six placed in five areas and
+cb16's NPC rows decoding a dozen saves a test, two checked rows ran out of
+the step budget over cb16 (`cb16_migration_test`'s bad `npcs` lines, and,
+once the NPC rule read the anchors for every area, `grove_test`'s
+texture row through `sim.new`). `sim.area_foe_count` is the inherited
+foes' length plus `sim.new_foe_count` (3, 4, 1, 24 and 2 in the Stand, the
+Burn, the Mere, the Underteeth and the Howe), the spawn census holds it to
+`area_foes` in every world and the checked suite in one; the NPC anchors
+are read only in those five areas.
+
 ### R-cb18-2 — the lynx's bite and bleeding (ruled B by the orchestrator)
 
 Contract item 2 gives the lynx's bleeding to cb18 ("the lynx's bite bleeds
