@@ -18,7 +18,8 @@ the 500 distribution rows: byte-identical before and after (counts unchanged)
 npc-audit: green, 2200 places over 50 seeds at both fields on open, reached ground; nearest to an arena 27 cells past its edge
 npc-audit output: byte-identical before and after (the NPCs never move)
 
-## the test, red without the rule and green with it (wolf test src/newfoe_areas_test.lu, checked machine)
+## the test, red without the rule and green with it (wolf test src/newfoe_areas_test.lu, checked machine;
+## these two runs used PATH's wolf 0.2.36: the pinned 0.2.35's red and green are in checked-suite-over-cb16.txt)
 rule off (folk_clear always true):
 test src/newfoe_areas_test.lu::test_cb18_no_new_foe_spawns_in_an_npc_talk_radius ... FAILED (trap(assert))
 wolf test: 16 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out

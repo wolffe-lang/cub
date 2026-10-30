@@ -1,0 +1,40 @@
+# cb18 over cub 763616eb: the checked suite's three reds after the rebase, and the fixes (nomad, the pinned wolf 0.2.35)
+
+## the Mac gauntlet at caf8acd3 stopped at its test step (kasumi's gate the same: gate-caf8acd3.log, exit 1)
+test src/cb16_migration_test.lu::test_cb16_a_rechecksummed_cub8_with_a_bad_npcs_line_is_refused ... unsupported (step budget exhausted)
+test src/grove_test.lu::test_cb02b_forest_texture_everywhere ... unsupported (step budget exhausted)
+test src/newfoe_items_test.lu::test_cb18_save_reload_discards_only_transient_status_and_held_theft ... FAILED (trap(assert))
+wolf test: 671 passed; 1 failed; 0 rejected; 2 unsupported; 0 filtered out
+
+## the budget rows, the head (caf8acd3) and the same tree with the NPC rule's anchors never read (budget-probe.sh)
+-- head:
+test src/cb16_migration_test.lu::test_cb16_a_rechecksummed_cub8_with_a_bad_npcs_line_is_refused ... unsupported (step budget exhausted)
+test src/grove_test.lu::test_cb02b_forest_texture_everywhere ... unsupported (step budget exhausted)
+test src/newfoe_areas_test.lu::test_cb18_no_new_foe_spawns_in_an_npc_talk_radius ... ok
+wolf test: 30 passed; 0 failed; 0 rejected; 2 unsupported; 0 filtered out
+-- the NPC rule off:
+test src/cb16_migration_test.lu::test_cb16_a_rechecksummed_cub8_with_a_bad_npcs_line_is_refused ... unsupported (step budget exhausted)
+test src/newfoe_areas_test.lu::test_cb18_no_new_foe_spawns_in_an_npc_talk_radius ... FAILED (trap(assert))
+wolf test: 30 passed; 1 failed; 0 rejected; 1 unsupported; 0 filtered out
+grove_test's row fits without the rule's anchors (read for every area, the Shingle of every sim.new among them);
+cb16_migration_test's does not fit either way: a decode placed every area's foes, the six among them, to count them.
+The rule's own test, red without it and green with it, on the pinned toolchain (the first red/green in
+npc-talk-radius.txt ran on PATH's wolf 0.2.36; these two runs are 0.2.35's).
+
+## the fixes: 755b2388 (sim.area_foe_count, the anchors read only where the six stand), c181afee (journey.decode
+## holds the masks to the count), 48a2b510 (the spawn census holds count to placement in every world),
+## 15801703 (its checked test), 82e92afe (cb18's save rows to CUB 8)
+the targeted rows at c72268e7 with the fixes in the worktree (committed unchanged as 755b2388..82e92afe) 2026-10-30T00:14:31Z
+ M src/journey/journey.lu  M src/newfoe_areas_test.lu  M src/newfoe_items_test.lu  M src/sim/sim.lu  M src/wide/wide.lu 
+END test exit=0
+wolf test: 675 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+test: 0 SKIP lines
+END build exit=0
+END spawn-census exit=0 new-foe-npc-gap: green, 3400 spawns over 50 seeds at both fields, the nearest 5 clear cells from an NPC (talk radius 4)
+END npc-audit exit=0 npc-audit: green, 2200 places over 50 seeds at both fields on open, reached ground; nearest to an arena 27 cells past its edge
+END goldens exit=0 ok=515 differs=0
+END generators exit=0
+END generators-vs-tree differs-past-header=0 header-only=81
+boss census equal to the caf8acd3 run
+foe census equal to the caf8acd3 run
+TARGETED2 done 2026-10-30T00:19:34Z
