@@ -58,6 +58,25 @@ fn test_cb18_underteeth_has_eight_three_worm_clusters() {
 
 fn test_cb18_howe_has_two_sentry_guides() { placed(forest.HOWE, [0, 0, 0, 0, 0, 2]) }
 
+fn test_cb18_a_decode_counts_the_six_without_placing_them() {
+    // journey.decode holds each slain mask to `area_foe_count`, which adds
+    // the six's constant per area to the inherited foes; it is the length
+    // `area_foes` places (the spawn census checks fifty seeds).
+    var placed_six = 0
+    for area in [forest.STAND, forest.BURN, forest.MERE, forest.UNDERTEETH, forest.HOWE] {
+        let fs = sim.area_foes(7, 80, area, 15)
+        assert(
+            sim.area_foe_count(7, 80, area, 15) == fs.len,
+            "the count is the placement's in area {area}",
+        )
+        placed_six += sim.new_foe_count(area)
+    }
+    assert(
+        placed_six == 34 && sim.new_foe_count(forest.SHINGLE) == 0,
+        "the six's 34 in their five areas",
+    )
+}
+
 fn test_cb18_no_new_foe_spawns_in_an_npc_talk_radius() {
     // cb16's anchors: before the rule the Stand's last marten (row 192)
     // spawned within four clear cells of the Hermit's ruin in 94 of the
