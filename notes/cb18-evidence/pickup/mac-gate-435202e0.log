@@ -1,0 +1,18 @@
+cb18 mac gate source 435202e06c9858cded84264eec1ec3d6e8e8d210 2026-10-29T22:32:51Z
+END build exit=0 2026-10-29T22:33:18Z
+END selftest exit=0 2026-10-29T22:33:18Z
+END test exit=0 2026-10-29T22:37:32Z
+wolf test: 652 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+test: 0 SKIP lines
+END new-foes exit=0 2026-10-29T22:37:33Z
+gameplay: six foes 600 arena resolutions, complete hit rings, six replay outcomes and both-tier frames green
+END generators exit=0 2026-10-29T22:38:37Z
+END generators-compare exit=0 2026-10-29T22:38:41Z
+walk.pk equals cb18-walk.pk
+END generators-explained exit=0
+END boss-census-equals-kasumi exit=0
+fairness lynx attempts 1:71 2:16 3:11 4:2 5:0 unwon:0 hits 147 38 36 unparryable_hits 36 tells 10 12 15 parry_window 9 damage_events 5243 arena_breaches 0
+goldens attempt 1 refused by the floor: 6139789312 bytes 2026-10-29T22:38:41Z
+cb18 waits 60 s before goldens attempt 2
+END goldens attempt 2 exit=0 ok=509 differs=0 2026-10-29T22:40:12Z
+CB18_MAC_GATE_EXIT 0 2026-10-29T22:40:12Z

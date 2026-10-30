@@ -1,0 +1,110 @@
+# cb18 over cub 763616eb (cb16): the regeneration after the one rebase, nomad, the native build at ac6e7097
+# (the code of caf8acd3: the commits after it are cases and goldens only)
+
+## the generators (gens.sh: world-proof, den-proof, den-memory, area-proof, walk, boss and foe census)
+END world-proof exit=0
+END den-proof exit=0
+END den-memory exit=0
+END area-proof exit=0
+END walk exit=0
+END boss-census exit=0
+END foe-census exit=0
+generated cases: 117; equal to the tree: 30; differing only in the snapshot header (t 0 journey / saved-): 87; differing past it: 0
+of the 87: 81 are trunk 763616eb's bytes, kept (the legacy-fixture rule, cb16's own: its generator writes journey 7 over them too);
+6 were cb18's imports with journey 6 headers (cb18-walk, boss-lynx-{beaten,phase2,windup}, landmark-7-{0,1}): re-imported (4d71189f), the same keys
+
+## the goldens before the update (.lair/tools/goldens --bin target/native/cub): 497 ok, 18 DIFFERS
+goldens: cb18-walk-rich DIFFERS
+goldens: cb18-walk-plain DIFFERS
+goldens: hawk-shadow-rich DIFFERS
+goldens: hawk-shadow-plain DIFFERS
+goldens: hawk-stoop-rich DIFFERS
+goldens: hawk-stoop-plain DIFFERS
+goldens: landmark-7-1-rich DIFFERS
+goldens: landmark-7-1-plain DIFFERS
+goldens: npc-toll-rich DIFFERS
+goldens: npc-toll-plain DIFFERS
+goldens: rest-stand-120x40-rich DIFFERS
+goldens: rest-stand-120x40-plain DIFFERS
+goldens: rest-stand-80x24-rich DIFFERS
+goldens: rest-stand-80x24-plain DIFFERS
+goldens: world-hawk-rich DIFFERS
+goldens: world-hawk-plain DIFFERS
+goldens: world-recovered-rich DIFFERS
+goldens: world-recovered-plain DIFFERS
+
+## each differing file: the new bytes against cb16's trunk and cb18's pre-rebase branch (cb18-pre-rebase-2 = 06e2ffc0), and what the tree held
+cb18-walk-rich/frame-3600.sty new!=cb16 new!=cb18 tree=cb18
+cb18-walk-rich/frame-3600.txt new!=cb16 new!=cb18 tree=cb18
+cb18-walk-rich/frame-4800.sty new!=cb16 new!=cb18 tree=cb18
+cb18-walk-rich/frame-4800.txt new!=cb16 new!=cb18 tree=cb18
+cb18-walk-rich/frame-6300.sty new!=cb16 new!=cb18 tree=cb18
+cb18-walk-rich/frame-6300.txt new!=cb16 new!=cb18 tree=cb18
+cb18-walk-rich/frame-8400.sty new!=cb16 new!=cb18 tree=cb18
+cb18-walk-rich/frame-8400.txt new!=cb16 new!=cb18 tree=cb18
+cb18-walk-rich/frame-8700.sty new!=cb16 new!=cb18 tree=cb18
+cb18-walk-rich/frame-8700.txt new!=cb16 new!=cb18 tree=cb18
+cb18-walk-plain/frame-3600.sty new!=cb16 new!=cb18 tree=cb18
+cb18-walk-plain/frame-3600.txt new!=cb16 new!=cb18 tree=cb18
+cb18-walk-plain/frame-4800.sty new!=cb16 new!=cb18 tree=cb18
+cb18-walk-plain/frame-4800.txt new!=cb16 new!=cb18 tree=cb18
+cb18-walk-plain/frame-6300.sty new!=cb16 new!=cb18 tree=cb18
+cb18-walk-plain/frame-6300.txt new!=cb16 new!=cb18 tree=cb18
+cb18-walk-plain/frame-8400.sty new!=cb16 new!=cb18 tree=cb18
+cb18-walk-plain/frame-8400.txt new!=cb16 new!=cb18 tree=cb18
+cb18-walk-plain/frame-8700.sty new!=cb16 new!=cb18 tree=cb18
+cb18-walk-plain/frame-8700.txt new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-rich/final.sty new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-rich/final.txt new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-rich/frame-4030.sty new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-rich/frame-4030.txt new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-rich/frame-4031.sty new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-rich/frame-4031.txt new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-rich/frame-4032.sty new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-rich/frame-4032.txt new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-plain/final.sty new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-plain/final.txt new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-plain/frame-4030.sty new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-plain/frame-4030.txt new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-plain/frame-4031.sty new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-plain/frame-4031.txt new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-plain/frame-4032.sty new!=cb16 new!=cb18 tree=cb18
+hawk-shadow-plain/frame-4032.txt new!=cb16 new!=cb18 tree=cb18
+hawk-stoop-rich/final.sty new!=cb16 new!=cb18 tree=cb18
+hawk-stoop-rich/final.txt new!=cb16 new!=cb18 tree=cb18
+hawk-stoop-rich/frame-4046.sty new!=cb16 new!=cb18 tree=cb18
+hawk-stoop-rich/frame-4046.txt new!=cb16 new!=cb18 tree=cb18
+hawk-stoop-rich/frame-4047.sty new!=cb16 new!=cb18 tree=cb18
+hawk-stoop-rich/frame-4047.txt new!=cb16 new!=cb18 tree=cb18
+hawk-stoop-plain/final.sty new!=cb16 new!=cb18 tree=cb18
+hawk-stoop-plain/final.txt new!=cb16 new!=cb18 tree=cb18
+hawk-stoop-plain/frame-4046.sty new!=cb16 new!=cb18 tree=cb18
+hawk-stoop-plain/frame-4046.txt new!=cb16 new!=cb18 tree=cb18
+hawk-stoop-plain/frame-4047.sty new!=cb16 new!=cb18 tree=cb18
+hawk-stoop-plain/frame-4047.txt new!=cb16 new!=cb18 tree=cb18
+landmark-7-1-rich/final.sty new!=cb16 new!=cb18 tree=cb18
+landmark-7-1-rich/final.txt new!=cb16 new!=cb18 tree=cb18
+landmark-7-1-plain/final.txt new!=cb16 new!=cb18 tree=cb18
+npc-toll-rich/final.state new!=cb16 new!=cb18 tree=cb16
+npc-toll-plain/final.state new!=cb16 new!=cb18 tree=cb16
+rest-stand-120x40-rich/final.state new!=cb16 new!=cb18 tree=cb18
+rest-stand-120x40-plain/final.state new!=cb16 new!=cb18 tree=cb18
+rest-stand-80x24-rich/final.state new!=cb16 new!=cb18 tree=cb18
+rest-stand-80x24-plain/final.state new!=cb16 new!=cb18 tree=cb18
+world-hawk-rich/final.sty new!=cb16 new!=cb18 tree=cb18
+world-hawk-rich/final.txt new!=cb16 new!=cb18 tree=cb18
+world-hawk-plain/final.sty new!=cb16 new!=cb18 tree=cb18
+world-hawk-plain/final.txt new!=cb16 new!=cb18 tree=cb18
+world-recovered-rich/final.sty new!=cb16 new!=cb18 tree=cb18
+world-recovered-rich/final.txt new!=cb16 new!=cb18 tree=cb18
+world-recovered-plain/final.sty new!=cb16 new!=cb18 tree=cb18
+world-recovered-plain/final.txt new!=cb16 new!=cb18 tree=cb18
+
+## the control with the NPC rule off (pickup/npc-talk-radius.txt): only the four rest-stand final.state files depend on the rule;
+## the rest moved with cb16's merge (its NPCs drawn in cb18's re-keyed frames; the toll's foe list with cb18's heron)
+
+## the update (goldens --update) and the recheck
+the recheck (u-goldens-check): 515 ok, 0 DIFFERS; its last line: goldens: art ok
+new-foe-proof (the six's arena records) against tests/goldens/new-foe-arenas: 0 differing files
+boss census: equal to the pre-rebase final (pickup/boss-census-final.txt.gz) on all 405 rows
+foe census: equal to the pre-rebase final but for the appended talk-radius verdict line (pickup/foe-census-trunk-vs-final.diff.gz)
