@@ -797,6 +797,15 @@ pub fn new_foe_distribution() -> int {
             var area = forest.STAND
             while area <= forest.HOWE {
                 let fs = sim.area_foes(new_seed, field, area, 0)
+                // A decode counts the six without placing them.
+                if sim.area_foe_count(new_seed, field, area, 0) != fs.len ||
+                    sim.area_foe_count(new_seed, field, area, 15) !=
+                        sim.area_foes(new_seed, field, area, 15).len {
+                    print(
+                        "new-foe-count: RED {new_seed} {field} {area}: the decode's count is not area_foes'",
+                    )
+                    return 1
+                }
                 let folk = sim.folk(new_seed, field, area)
                 var counts = [0, 0, 0, 0, 0, 0]
                 for f in fs {
