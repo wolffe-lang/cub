@@ -489,9 +489,14 @@ fn decode_core(text: str, cols: int, rows: int, lore_max: int) -> sim.Sim ! Deco
         var area = 0
         while area < areas {
             let mask = words[54 + area].to_int() else |_| { return save_corrupt }
-            let foes = sim.area_foes(s.seed, s.field, area, 15)
+            // The count alone (cb18: placing the six in every area of
+            // every decode ran the checked machine's budget out).
+            var n = sim.area_foe_count(s.seed, s.field, area, 15)
             var limit = 1
-            for _ in foes { limit *= 2 }
+            while n > 0 {
+                limit *= 2
+                n -= 1
+            }
             if mask < 0 || mask >= limit { return save_corrupt }
             s.slain[area] = mask
             area += 1
