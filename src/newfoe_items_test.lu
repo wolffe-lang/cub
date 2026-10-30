@@ -183,9 +183,10 @@ fn test_cb18_save_reload_discards_only_transient_status_and_held_theft() {
     sim.bleed(mut s)
     s.blind_until = 6
     let saved = journey.encode(s)
-    assert(saved.starts_with("CUB 7\n"), "no new persisted field or schema bump")
+    // cb18 adds no saved state: the writer is cb16's CUB 8 as it was.
+    assert(saved.starts_with("CUB 8\n"), "no new persisted field or schema bump")
     let loaded = journey.decode(saved, 80, 24) else {
-        assert(false, "unchanged CUB7 writer remains readable")
+        assert(false, "the unchanged CUB 8 writer remains readable")
         sim.new(1, 80, 24)
     }
     assert(
@@ -290,7 +291,7 @@ fn test_cb18_save_before_burn_entry_preserves_the_same_melt_boundary() {
     let _ = sim.give_item(mut s, pouch.YARROW)
     let text = journey.encode(s)
     var loaded = journey.decode(text, 80, 24) else {
-        assert(false, "real CUB7 core/items wrapper")
+        assert(false, "the real CUB 8 core/items wrapper")
         sim.new(1, 80, 24)
     }
     for area in [forest.LARKMEADOW, forest.BURN] {
