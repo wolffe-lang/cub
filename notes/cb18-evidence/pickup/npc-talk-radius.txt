@@ -1,0 +1,54 @@
+# cb18: the six's spawns against cb16's NPC anchors (cub 763616eb), nomad, native build
+# rule: no spawn of the six within npc.FACE_GAP (4) clear cells of an NPC body, any place, any facing (sim.folk_gap)
+
+## before the rule (the head over 763616eb with the census's verdict, no placement rule; probe build)
+new-foe-near-npc 0 80 7 9 20 192 2
+new-foe-near-npc 0 200 7 9 20 192 2
+new-foe-near-npc 2 80 7 9 13 192 3
+new-foe-near-npc 2 200 7 9 13 192 3
+new-foe-near-npc 3 80 7 9 10 192 3
+... (94 rows: seed field area kind x y gap; all area 7 kind 9, the Stand's row-192 marten by the Hermit)
+new-foe-npc-gap: RED, 94 of 3400 spawns within 4 clear cells of an NPC
+gaps: 2 cells x20; 3 cells x62; 4 cells x12; 
+npc-audit: green, 2200 places over 50 seeds at both fields on open, reached ground; nearest to an arena 27 cells past its edge
+
+## after (9b5cc29e: new_slot rejects a cell in an NPC's talk radius)
+new-foe-npc-gap: green, 3400 spawns over 50 seeds at both fields, the nearest 5 clear cells from an NPC (talk radius 4)
+the 500 distribution rows: byte-identical before and after (counts unchanged)
+npc-audit: green, 2200 places over 50 seeds at both fields on open, reached ground; nearest to an arena 27 cells past its edge
+npc-audit output: byte-identical before and after (the NPCs never move)
+
+## the test, red without the rule and green with it (wolf test src/newfoe_areas_test.lu, checked machine)
+rule off (folk_clear always true):
+test src/newfoe_areas_test.lu::test_cb18_no_new_foe_spawns_in_an_npc_talk_radius ... FAILED (trap(assert))
+wolf test: 16 passed; 1 failed; 0 rejected; 0 unsupported; 0 filtered out
+rule on:
+test src/newfoe_areas_test.lu::test_cb18_no_new_foe_spawns_in_an_npc_talk_radius ... ok
+wolf test: 17 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+
+## the control: the rule off, the nine golden cases that moved over cb16, both tiers, against the head's regenerated goldens
+vs the pre-update tree: case cb18-walk-rich DIFFERS
+vs the pre-update tree: case cb18-walk-plain DIFFERS
+vs the pre-update tree: case hawk-shadow-rich DIFFERS
+vs the pre-update tree: case hawk-shadow-plain DIFFERS
+vs the pre-update tree: case hawk-stoop-rich DIFFERS
+vs the pre-update tree: case hawk-stoop-plain DIFFERS
+vs the pre-update tree: case landmark-7-1-rich DIFFERS
+vs the pre-update tree: case landmark-7-1-plain DIFFERS
+vs the pre-update tree: case npc-toll-rich DIFFERS
+vs the pre-update tree: case npc-toll-plain DIFFERS
+vs the pre-update tree: case rest-stand-120x40-rich ok
+vs the pre-update tree: case rest-stand-120x40-plain ok
+vs the pre-update tree: case rest-stand-80x24-rich ok
+vs the pre-update tree: case rest-stand-80x24-plain ok
+vs the pre-update tree: case world-hawk-rich DIFFERS
+vs the pre-update tree: case world-hawk-plain DIFFERS
+vs the pre-update tree: case world-recovered-rich DIFFERS
+vs the pre-update tree: case world-recovered-plain DIFFERS
+rule-off output vs the head's (rule on) regenerated goldens: only rest-stand-80x24-{rich,plain}/final.state and rest-stand-120x40-{rich,plain}/final.state differ (the marten's spawn); every other moved file is the same with the rule off, so cb16's merge moved it, not the rule
+rule-off spawn census: new-foe-npc-gap: RED, 94 of 3400 spawns within 4 clear cells of an NPC
+
+## rest-stand-80x24-rich/final.state, the one foe line that moved
++foe 7 kind 9 health 16 phase 9 since 0 x 2944 y 48256 heading 0 gap 88 last_hit -1 attack 0 poise 0
+before the rule: foe 7 kind 9 health 16 phase 9 since 0 x 3456 y 49280 heading 0 gap 92 last_hit -1 attack 0 poise 0
+after the rule:  foe 7 kind 9 health 16 phase 9 since 0 x 2944 y 48256 heading 0 gap 88 last_hit -1 attack 0 poise 0
