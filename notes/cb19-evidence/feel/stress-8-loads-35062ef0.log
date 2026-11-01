@@ -1,0 +1,46 @@
+cb19 holds hasu block B 2026-11-01T02:30:40Z
+stress2 build exit=0 359640c897e1d426 2026-11-01T02:31:17Z
+stress2 loads 8 on cpu 6, pids 209 210 211 212 213 214 215 216 2026-11-01T02:31:17Z
+stress2 trunk run 1 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich se did not commit the injected aim 2026-11-01T02:31:48Z
+stress2 trunk run 2 exit=0 pty: feel-controls ok (linux x86_64, exit 0, 8904 bytes captured)  2026-11-01T02:32:19Z
+stress2 trunk run 3 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich lock-empty did not commit the injected aim 2026-11-01T02:32:51Z
+stress2 trunk run 4 exit=0 pty: feel-controls ok (linux x86_64, exit 0, 8904 bytes captured)  2026-11-01T02:33:22Z
+stress2 trunk run 5 exit=1 pty: feel-controls FAILED (linux x86_64):   - plain s did not start heavy 2026-11-01T02:33:54Z
+stress2 trunk run 6 exit=1 pty: feel-controls FAILED (linux x86_64):   - plain live combo missing 1 2026-11-01T02:34:27Z
+stress2 trunk run 7 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich ne did not commit the injected aim 2026-11-01T02:35:00Z
+stress2 trunk run 8 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich lock-empty did not commit the injected aim 2026-11-01T02:35:35Z
+stress2 trunk run 9 exit=1 pty: feel-controls FAILED (linux x86_64):   - plain lock-empty did not commit the injected aim 2026-11-01T02:36:09Z
+stress2 trunk run 10 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich sw did not commit the injected aim 2026-11-01T02:36:43Z
+stress2 trunk run 11 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich nw did not commit the injected aim 2026-11-01T02:37:17Z
+stress2 trunk run 12 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich ne did not commit the injected aim 2026-11-01T02:37:53Z
+stress2 trunk run 13 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T02:38:31Z
+stress2 trunk run 14 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T02:39:09Z
+stress2 trunk run 15 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T02:39:49Z
+stress2 trunk run 16 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T02:40:30Z
+stress2 trunk run 17 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T02:41:13Z
+stress2 trunk run 18 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T02:41:58Z
+stress2 trunk run 19 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T02:42:44Z
+stress2 trunk run 20 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T02:43:32Z
+stress2 trunk red 18 of 20
+stress2 cb19 run 1 exit=0 pty: feel-controls ok (linux x86_64, exit 0, 11218 bytes captured)  2026-11-01T02:43:56Z
+stress2 cb19 run 2 exit=0 pty: feel-controls ok (linux x86_64, exit 0, 11218 bytes captured)  2026-11-01T02:44:20Z
+stress2 cb19 run 3 exit=0 pty: feel-controls ok (linux x86_64, exit 0, 11218 bytes captured)  2026-11-01T02:44:46Z
+stress2 cb19 run 4 exit=0 pty: feel-controls ok (linux x86_64, exit 0, 11218 bytes captured)  2026-11-01T02:45:14Z
+stress2 cb19 run 5 exit=0 pty: feel-controls ok (linux x86_64, exit 0, 11322 bytes captured)  2026-11-01T02:45:42Z
+stress2 cb19 run 6 exit=0 pty: feel-controls ok (linux x86_64, exit 0, 11218 bytes captured)  2026-11-01T02:46:09Z
+stress2 cb19 run 7 exit=0 pty: feel-controls ok (linux x86_64, exit 0, 11342 bytes captured)  2026-11-01T02:46:40Z
+stress2 cb19 run 8 exit=0 pty: feel-controls ok (linux x86_64, exit 0, 11322 bytes captured)  2026-11-01T02:47:13Z
+stress2 cb19 run 9 exit=0 pty: feel-controls ok (linux x86_64, exit 0, 11342 bytes captured)  2026-11-01T02:47:45Z
+stress2 cb19 run 10 exit=0 pty: feel-controls ok (linux x86_64, exit 0, 11342 bytes captured)  2026-11-01T02:48:18Z
+stress2 cb19 run 11 exit=0 pty: feel-controls ok (linux x86_64, exit 0, 11342 bytes captured)  2026-11-01T02:48:52Z
+stress2 cb19 run 12 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 2 2026-11-01T02:49:49Z
+stress2 cb19 run 13 exit=0 pty: feel-controls ok (linux x86_64, exit 0, 11394 bytes captured)  2026-11-01T02:50:28Z
+stress2 cb19 run 14 exit=1 pty: feel-controls FAILED (linux x86_64):   - plain combo: DELIVERY no traced tick with strike 2 2026-11-01T02:51:28Z
+stress2 cb19 run 15 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 2 2026-11-01T02:52:47Z
+stress2 cb19 run 16 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 2 2026-11-01T02:54:08Z
+stress2 cb19 run 17 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 2 2026-11-01T02:55:31Z
+stress2 cb19 run 18 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 2 2026-11-01T02:56:55Z
+stress2 cb19 run 19 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 2 2026-11-01T02:58:21Z
+stress2 cb19 run 20 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 2 2026-11-01T02:59:49Z
+stress2 cb19 red 8 of 20
+CB19_STRESS2_DONE 2026-11-01T02:59:49Z

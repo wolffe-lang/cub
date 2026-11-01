@@ -1,0 +1,3 @@
+theft-proof: slot 0 theft 176 death 216 wake 266 held 1 returned 571 recovered 701 final x 1669 y 14274 health 76 yarrow 1
+theft-replay: slot 0 theft 176 death 216 wake 266 held 1 returned 571 recovered 701 parity 1
+theft-proof: green, steal at 176, death at 216, wake at 266 holding it, bitten back at 571, recovered at 701, 711 ticks

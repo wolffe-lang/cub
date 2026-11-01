@@ -1,0 +1,21 @@
+## the checked suite at 35062ef0 (nomad, .lair/tools/test)
+test src/cb19_thefts_test.lu::test_cb19_a_theft_survives_a_rest ... unsupported (step budget exhausted)
+test src/cb19_thefts_test.lu::test_cb19_a_theft_survives_a_death ... unsupported (step budget exhausted)
+test src/cb19_thefts_test.lu::test_cb19_a_theft_survives_leaving_the_stand_and_coming_back ... unsupported (step budget exhausted)
+test src/cb19_thefts_test.lu::test_cb19_a_theft_survives_save_and_reload_in_cub9 ... unsupported (step budget exhausted)
+test src/cb19_thefts_test.lu::test_cb19_the_bite_drops_it_at_the_trunk_s_foot_and_clears_the_record ... unsupported (step budget exhausted)
+test src/cb19_thefts_test.lu::test_cb19_journey8_carries_the_thefts_and_journey7_reads_none ... unsupported (step budget exhausted)
+test src/grove_test.lu::test_cb02b_forest_texture_everywhere ... unsupported (step budget exhausted)
+test src/journey_test.lu::test_cb02_save_rejects_unknown_corrupt_and_inconsistent_data ... FAILED (trap(assert))
+test src/wide_test.lu::test_cb05_the_retired_dens_are_landmarks_and_their_journeys_wake_at_a_kept_den ... FAILED (trap(assert))
+wolf test: 688 passed; 2 failed; 0 rejected; 7 unsupported; 0 filtered out
+
+## the checked suite at 660006ab (nomad, .lair/tools/test)
+test src/cb19_thefts_test.lu::test_cb19_a_theft_survives_save_and_reload_in_cub9 ... unsupported (step budget exhausted)
+test src/cb19_thefts_test.lu::test_cb19_journey8_carries_the_thefts ... unsupported (step budget exhausted)
+test src/grove_test.lu::test_cb02b_forest_texture_everywhere ... unsupported (step budget exhausted)
+wolf test: 695 passed; 0 failed; 0 rejected; 3 unsupported; 0 filtered out
+
+## the checked suite at ab2330b1 (nomad, .lair/tools/test)
+wolf test: 698 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+test: 0 SKIP lines

@@ -1,0 +1,11 @@
+cb19 Mac floor clear 11266899968 bytes 2026-11-01T01:49:13Z
+plant head 35d6a4469190d05d417329dd5daf2e37297c7834 2026-11-01T01:49:14Z
+build: target/release/cub
+END build exit=0
+END foe-npc-census exit=1
+foe-npc-gap: RED, 100 of 16600 foes within 4 clear cells of an NPC, the nearest -4
+100
+gate: RED a foe inside an NPC talk radius
+END gate exit=1
+CB19_PLANT_DONE 2026-11-01T01:49:36Z
+cb19 heavy exit=0 2026-11-01T01:49:36Z

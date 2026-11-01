@@ -1,0 +1,51 @@
+START pty-head 2026-11-01T02:03:26Z
+pty: cb19-old-save-default ok (darwin arm64, exit 0, 3460 bytes captured)
+pty: cb19-old-save-named ok (darwin arm64, exit 0, 10136 bytes captured)
+pty: feel-controls ok (darwin arm64, exit 0, 11102 bytes captured)
+END pty-head exit=0 2026-11-01T02:03:43Z
+START pty-base 2026-11-01T02:03:43Z
+pty: cb19-old-save-default FAILED (darwin arm64):
+  - DELIVERY no traced tick on the title
+  - exit status 2, wanted 0
+  - the alternate screen was never entered
+  - the alternate screen was never left
+  - the cursor was not hidden and shown
+  - the leave bytes are not the last output (tail b'')
+  - not one line naming the kept file: []
+  - the old save is still at ~/.cub/save
+  - the old save was not kept byte for byte as save.cub1-old
+  - the offered new journey was not written as this cub's save
+  - DELIVERY no traced tick on the second title
+  - exit status 2, wanted 0
+  - the alternate screen was never entered
+  - the alternate screen was never left
+  - the cursor was not hidden and shown
+  - the leave bytes are not the last output (tail b'')
+  - the first kept save was overwritten
+  - the second old save was not kept as save.cub1-old-2
+  - DELIVERY no traced tick on the third title
+  - exit status 2, wanted 0
+  - the alternate screen was never entered
+  - the alternate screen was never left
+  - the cursor was not hidden and shown
+  - the leave bytes are not the last output (tail b'')
+  - the newer save had not one warning: []
+pty: cb19-old-save-named FAILED (darwin arm64):
+  - DELIVERY no traced tick on the title
+  - exit status 2, wanted 0
+  - the alternate screen was never entered
+  - the alternate screen was never left
+  - the cursor was not hidden and shown
+  - the leave bytes are not the last output (tail b'')
+  - not one warning naming the legacy file and its version: []
+  - --save NAME did not start its journey
+  - the legacy save was registered, or nothing was
+  - DELIVERY no traced tick on the title for an old NAME
+  - exit status 2, wanted 0
+  - the alternate screen was never entered
+  - the alternate screen was never left
+  - the cursor was not hidden and shown
+  - the leave bytes are not the last output (tail b'')
+  - the old NAME was not kept byte for byte
+  - the new journey did not start at the old NAME
+END pty-base exit=1 2026-11-01T02:03:45Z

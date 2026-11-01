@@ -1,0 +1,16 @@
+cb19 holds hasu block B 2026-11-01T02:59:49Z
+head ab2330b1c7ef386a886cf35132d4f005ae92dda3
+START build 2026-11-01T02:59:49Z
+END build exit=0 2026-11-01T03:00:37Z
+START test 2026-11-01T03:00:37Z
+wolf test: 698 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+END test exit=0 2026-11-01T03:07:12Z
+wolf test: 698 passed; 0 failed; 0 rejected; 0 unsupported; 0 filtered out
+census exit=0 foe-npc-gap: green, 16600 foes over 50 seeds at both fields in 13 areas, 574 moved by the gap, the nearest 5 clear cells from an NPC (talk radius 4)
+START census-equal 2026-11-01T03:07:12Z
+END census-equal exit=0 2026-11-01T03:07:12Z
+START theft-proof 2026-11-01T03:07:12Z
+END theft-proof exit=0 2026-11-01T03:07:12Z
+START theft-case 2026-11-01T03:07:12Z
+END theft-case exit=0 2026-11-01T03:07:12Z
+CB19_CHECK_DONE 2026-11-01T03:07:12Z
