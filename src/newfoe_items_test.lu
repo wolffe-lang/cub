@@ -1,6 +1,7 @@
 //! member: false
 
 use controls
+use fight
 use hitcensus
 use journey
 use forest
@@ -171,22 +172,40 @@ fn test_cb18_inventory_pauses_burn_and_flash_until_close() {
 }
 
 fn test_cb18_save_reload_discards_only_transient_status_and_held_theft() {
-    var s = sim.new(1, 80, 24)
+    // cb19 (R-cb18-3 B, the maintainer's ruling): the reload still discards
+    // the transient statuses and now keeps the theft, given back to the
+    // Stand's marten that took it (by its spawn, the journey's `thefts`).
+    var j = fight.journey_at(1, 80, 24, sim.LYNX)
+    j.last_den = 12
+    j.lit_dens = sim.light_den(j.lit_dens, 12)
+    var s = journey.decode(journey.encode(j), 80, 24) else {
+        assert(false, "a journey at the Stand's den")
+        sim.new(1, 80, 24)
+    }
+    assert(s.area == forest.STAND, "in the Stand")
     let _ = sim.give_item(mut s, pouch.YARROW)
     let tag = sim.take_one(mut s, pouch.YARROW)
-    (mut s.foes).reset()
-    var thief = sim.make_new_foe(sim.MARTEN, s.x + 6 * sim.FP, s.y)
-    thief.stolen_item = tag
-    thief.phase = sim.STAGGER
-    (mut s.foes).push(thief)
+    var thief = -1
+    var i = 0
+    while i < s.foes.len && thief < 0 {
+        if s.foes[i].kind == sim.MARTEN { thief = i }
+        i += 1
+    }
+    assert(thief >= 0 && sim.marten_slot(s, thief) == 0, "the Stand's first marten")
+    s.foes[thief].stolen_item = tag
+    s.thefts[0] = tag
+    s.foes[thief].phase = sim.STAGGER
     sim.apply_burn(mut s)
     sim.bleed(mut s)
     s.blind_until = 6
     let saved = journey.encode(s)
-    // cb18 adds no saved state: the writer is cb16's CUB 8 as it was.
-    assert(saved.starts_with("CUB 8\n"), "no new persisted field or schema bump")
+    // cb19 saves the theft: CUB 9's `thefts` line.
+    assert(
+        saved.starts_with("CUB 9\n") && saved.contains("\nthefts {tag} -1 -1\n"),
+        "CUB 9 keeps it",
+    )
     let loaded = journey.decode(saved, 80, 24) else {
-        assert(false, "the unchanged CUB 8 writer remains readable")
+        assert(false, "the CUB 9 writer is readable")
         sim.new(1, 80, 24)
     }
     assert(
@@ -194,12 +213,16 @@ fn test_cb18_save_reload_discards_only_transient_status_and_held_theft() {
         "timed effects are transient",
     )
     assert(
-        sim.item_count(loaded, pouch.YARROW) == 0,
-        "R-cb18-3 A: an unreturned theft is lost on reset",
+        sim.item_count(loaded, pouch.YARROW) == 0 && loaded.thefts[0] == tag,
+        "R-cb18-3 B: an unreturned theft is kept, not refunded",
     )
     for f in loaded.foes {
-        assert(f.stolen_item == -1 && f.phase != sim.STAGGER, "foe modes begin fresh")
+        assert(f.phase != sim.STAGGER, "foe modes begin fresh")
+        if f.kind == sim.MARTEN && f.stolen_item >= 0 {
+            assert(f.stolen_item == tag, "the marten holds what it took")
+        }
     }
+    assert(loaded.foes[thief].stolen_item == tag, "the same marten, by its spawn")
 }
 
 fn test_cb18_full_ground_pool_retains_then_retries_a_bitten_martens_item() {
@@ -291,7 +314,7 @@ fn test_cb18_save_before_burn_entry_preserves_the_same_melt_boundary() {
     let _ = sim.give_item(mut s, pouch.YARROW)
     let text = journey.encode(s)
     var loaded = journey.decode(text, 80, 24) else {
-        assert(false, "the real CUB 8 core/items wrapper")
+        assert(false, "the real CUB 9 core/items wrapper")
         sim.new(1, 80, 24)
     }
     for area in [forest.LARKMEADOW, forest.BURN] {

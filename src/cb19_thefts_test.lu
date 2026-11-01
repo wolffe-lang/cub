@@ -1,0 +1,265 @@
+//! member: false
+//! cb19 (R-cb18-3 B): the marten keeps what it stole. A theft by one of the
+//! Stand's three martens is the journey's (`sim.thefts`, a slot a marten by
+//! its spawn): rest, death, re-entry and reload respawn the marten holding
+//! it; the cub's bite drops it at the trunk's foot as before; CUB 9 saves it
+//! and a CUB 8 reads holding none; journey 8 carries it in a replay.
+//! R-cb19-3 A (no second theft) and R-cb19-4 A (a marten dead of anything
+//! drops its item) are rows here too.
+
+use controls
+use fight
+use forest
+use journey
+use pouch
+use sim
+
+/// A valid journey resting at the Stand's root hollow (den 12), the cub at
+/// the den, the Stand's foes placed (their martens perched).
+fn stand() -> sim.Sim {
+    var s = fight.journey_at(1, 80, 24, sim.LYNX)
+    s.last_den = 12
+    s.lit_dens = sim.light_den(s.lit_dens, 12)
+    let text = journey.encode(s)
+    journey.decode(text, 80, 24) else |e| {
+        assert(false, "the Stand's journey: {e}")
+        s
+    }
+}
+
+fn marten(s: sim.Sim, k: int) -> int {
+    var n = 0
+    var i = 0
+    while i < s.foes.len {
+        if s.foes[i].kind == sim.MARTEN {
+            if n == k { return i }
+            n += 1
+        }
+        i += 1
+    }
+    -1
+}
+
+/// Marten `i` lands its bite on a cub standing just below its body, by the
+/// real step (the theft's own path).
+fn landed(mut s: sim.Sim, i: int) {
+    s.foes[i].heading = 128
+    s.foes[i].phase = sim.STRIKE
+    s.foes[i].since = s.tick
+    s.foes[i].hit = false
+    let fb = sim.foe_body(s.foes[i])
+    let cb = sim.cub_body_at(s, 0, 0, 0)
+    s.x = s.foes[i].x
+    s.y = (fb.y1 + 1 - cb.y0) * sim.FP
+    s.action = sim.IDLE
+    sim.new_foe_step(mut s, i)
+}
+
+/// A journey whose second marten has taken its yarrow.
+fn robbed() -> sim.Sim {
+    var s = stand()
+    assert(s.area == forest.STAND && s.last_den == 12, "at the root hollow")
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    let i = marten(s, 1)
+    assert(i >= 0 && sim.marten_slot(s, i) == 1, "the Stand's second marten, slot 1")
+    landed(mut s, i)
+    assert(s.foes[i].stolen_item == pouch.YARROW, "the bite stole the yarrow")
+    assert(sim.item_count(s, pouch.YARROW) == 0, "the pouch is short of it")
+    s
+}
+
+fn kept(s: sim.Sim) -> bool {
+    let i = marten(s, 1)
+    s.thefts.len == sim.MARTEN_SLOTS &&
+        s.thefts[0] == -1 &&
+        s.thefts[1] == pouch.YARROW &&
+        s.thefts[2] == -1 &&
+        i >= 0 &&
+        s.foes[i].stolen_item == pouch.YARROW &&
+        s.foes[i].health > 0 &&
+        s.foes[marten(s, 0)].stolen_item == -1 &&
+        s.foes[marten(s, 2)].stolen_item == -1 &&
+        sim.item_count(s, pouch.YARROW) == 0
+}
+
+fn test_cb19_a_theft_is_the_journey_s_by_the_marten_s_spawn() {
+    let s = robbed()
+    assert(kept(s), "slot 1 holds the yarrow, the others none")
+}
+
+fn test_cb19_a_theft_survives_a_rest() {
+    var s = robbed()
+    let (x, y) = forest.den_position(s.seed, 12)
+    s.x = x
+    s.y = y
+    s.action = sim.IDLE
+    sim.step(mut s, [controls.KEY_REST])
+    assert(s.den, "the rest began")
+    assert(kept(s), "the respawned marten holds what it stole")
+    let i = marten(s, 1)
+    assert(s.foes[i].phase == sim.PERCHED, "it is back up its trunk")
+}
+
+fn test_cb19_a_theft_survives_a_death() {
+    var s = robbed()
+    sim.hurt(mut s, 10000)
+    assert(s.action == sim.FALL, "the cub fell")
+    var n = 0
+    while n < sim.DEATH_FADE + sim.DEATH_HOLD + 2 && s.action == sim.FALL {
+        sim.step(
+            mut s,
+            if n < sim.DEATH_FADE + sim.DEATH_HOLD then List[int]() else [controls.KEY_BITE],
+        )
+        n += 1
+    }
+    assert(s.action != sim.FALL && s.last_den == 12 && s.area == forest.STAND, "awake at the den")
+    assert(kept(s), "death's reset respawns the marten holding it")
+}
+
+fn test_cb19_a_theft_survives_leaving_the_stand_and_coming_back() {
+    var s = robbed()
+    let x = forest.spine(s.seed, forest.LARKMEADOW, 20) * sim.FP
+    sim.enter_area(mut s, forest.LARKMEADOW, x, 20 * sim.FP)
+    assert(s.thefts[1] == pouch.YARROW, "kept away from the Stand")
+    sim.enter_area(
+        mut s,
+        forest.STAND,
+        forest.spine(s.seed, forest.STAND, 20) * sim.FP,
+        20 * sim.FP,
+    )
+    assert(kept(s), "re-entry gives it back to the marten")
+}
+
+fn test_cb19_a_theft_survives_save_and_reload_in_cub9() {
+    let s = robbed()
+    let text = journey.encode(s)
+    assert(text.starts_with("CUB 9\n"), "CUB 9")
+    assert(text.contains("\nthefts -1 {pouch.YARROW} -1\ncheck "), "the thefts line, last")
+    let back = journey.decode(text, 80, 24) else |e| { assert(false, "CUB 9 reads: {e}"); return }
+    assert(kept(back), "the reloaded marten holds it")
+    assert(journey.encode(back) == text, "byte-exact")
+}
+
+fn test_cb19_the_bite_drops_it_at_the_trunk_s_foot_and_clears_the_record() {
+    var s = robbed()
+    let text = journey.encode(s)
+    var back = journey.decode(text, 80, 24) else |e| { assert(false, "reads: {e}"); return }
+    let i = marten(back, 1)
+    let before = back.pouch.pickups.len
+    back.tick = 103
+    back.started = 100
+    back.action = sim.BITE
+    back.combo = 3
+    back.attack_heading = 0
+    let fb = sim.foe_body(back.foes[i])
+    let cb = sim.cub_body_at(back, 0, 0, 0)
+    back.x = back.foes[i].x
+    back.y = (fb.y1 + 1 - cb.y0) * sim.FP
+    back.action_x = back.x
+    back.action_y = back.y
+    back.foes[i].phase = sim.RETREAT
+    sim.strike_foes(mut back)
+    assert(back.foes[i].stolen_item == -1 && back.thefts[1] == -1, "bitten back, no longer kept")
+    assert(back.pouch.pickups.len == before + 1, "a real pickup")
+    let drop = copy back.pouch.pickups[before]
+    assert(
+        drop.kind == pouch.YARROW &&
+            drop.area == forest.STAND &&
+            drop.x == sim.floor_div(back.foes[i].home_x, sim.FP) &&
+            drop.y == sim.floor_div(back.foes[i].home_y, sim.FP),
+        "at the trunk's foot",
+    )
+    assert(journey.encode(back).contains("\nthefts -1 -1 -1\n"), "the save keeps none")
+}
+
+fn test_cb19_a_cub8_save_migrates_holding_no_theft() {
+    let s = stand()
+    let nine = journey.encode(s)
+    let cut = nine.find("thefts ") else 0
+    let body = nine[0..cut].replace("CUB 9\n", "CUB 8\n")
+    let eight = body + "check {journey.checksum(body)}\n"
+    let back = journey.decode(eight, 80, 24) else |e| { assert(false, "CUB 8 reads: {e}"); return }
+    for k in back.thefts { assert(k == -1, "no theft kept") }
+    assert(journey.encode(back) == nine, "written as CUB 9 on its next write")
+}
+
+fn test_cb19_a_rechecksummed_bad_thefts_line_is_refused() {
+    let good = journey.payload(sim.new(7, 80, 24))
+    let none = "thefts -1 -1 -1\n"
+    assert(good.ends_with(none), "the thefts line last")
+    for line in [
+        "thefts 5 -1 -1\n",
+        "thefts -2 -1 -1\n",
+        "thefts -1 -1\n",
+        "thefts -1 -1 -1 -1\n",
+        "theft -1 -1 -1\n",
+        "thefts a -1 -1\n",
+        "",
+        none + none,
+    ] {
+        let body = good.replace(none, line)
+        var rejected = false
+        let _ = journey.decode(body + "check {journey.checksum(body)}\n", 80, 24) else |_| {
+            rejected = true
+            sim.new(7, 80, 24)
+        }
+        assert(rejected, "a bad thefts line is refused: {line}")
+    }
+}
+
+fn test_cb19_journey8_carries_the_thefts_and_journey7_reads_none() {
+    let s = robbed()
+    let v = journey.snapshot(s)
+    assert(v.len == journey.SNAPSHOT && journey.SNAPSHOT == 242, "journey 8's 242 values")
+    assert(v[239] == -1 && v[240] == pouch.YARROW && v[241] == -1, "the thefts last")
+    let back = journey.from_snapshot(v, 80, 24) else |e| {
+        assert(false, "journey 8 reads: {e}")
+        return
+    }
+    assert(back.thefts[1] == pouch.YARROW, "kept through the snapshot")
+    var seven = List[int]()
+    var i = 0
+    while i < journey.SNAPSHOT_V7 { (mut seven).push(v[i]); i += 1 }
+    let old = journey.from_snapshot(seven, 80, 24) else |e| {
+        assert(false, "journey 7 reads: {e}")
+        return
+    }
+    for k in old.thefts { assert(k == -1, "a journey 7 snapshot keeps no theft") }
+    assert(journey.JOURNEY == 8, "this build writes journey 8")
+}
+
+fn test_cb19_r3_a_marten_holding_an_item_cannot_steal_a_second() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    let _ = sim.give_item(mut s, pouch.MARROW)
+    landed(mut s, 0)
+    assert(s.foes[0].stolen_item == pouch.YARROW, "the first bite stole the yarrow")
+    let health = s.health
+    s.rally_pool = 0
+    landed(mut s, 0)
+    assert(s.foes[0].stolen_item == pouch.YARROW, "it still holds the yarrow")
+    assert(sim.item_count(s, pouch.MARROW) == 1, "R-cb19-3 A: no second theft")
+    assert(s.health < health, "the bite does its plain damage")
+}
+
+fn test_cb19_r4_a_marten_dead_of_anything_drops_its_item() {
+    var s = robbed()
+    let i = marten(s, 1)
+    let before = s.pouch.pickups.len
+    s.foes[i].health = 0
+    s.foes[i].died = s.tick
+    sim.new_foe_status(mut s)
+    assert(s.foes[i].stolen_item == -1 && s.thefts[1] == -1, "R-cb19-4 A: dropped and cleared")
+    assert(
+        s.pouch.pickups.len == before + 1 && s.pouch.pickups[before].kind == pouch.YARROW,
+        "the item on the ground",
+    )
+}
+
+fn test_cb19_the_arena_marten_s_theft_stays_transient() {
+    var s = sim.new_foe_arena(1, 80, 24, sim.MARTEN)
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    landed(mut s, 0)
+    assert(s.foes[0].stolen_item == pouch.YARROW && sim.marten_slot(s, 0) == -1, "no Stand slot")
+    for k in s.thefts { assert(k == -1, "a test arena's theft is not the journey's") }
+}
