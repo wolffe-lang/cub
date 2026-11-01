@@ -14,17 +14,16 @@ use journey
 use pouch
 use sim
 
-/// A valid journey resting at the Stand's root hollow (den 12), the cub at
-/// the den, the Stand's foes placed (their martens perched).
+/// The lynx fight's journey (a valid save) woken at the Stand's root
+/// hollow (den 12), the cub at the den, the Stand's foes placed (their
+/// martens perched). `sim.wake` is the decode's own last step; the rows
+/// that save decode it (the checked machine's budget: one decode a row).
 fn stand() -> sim.Sim {
     var s = fight.journey_at(1, 80, 24, sim.LYNX)
     s.last_den = 12
     s.lit_dens = sim.light_den(s.lit_dens, 12)
-    let text = journey.encode(s)
-    journey.decode(text, 80, 24) else |e| {
-        assert(false, "the Stand's journey: {e}")
-        s
-    }
+    sim.wake(mut s)
+    s
 }
 
 fn marten(s: sim.Sim, k: int) -> int {
@@ -141,9 +140,8 @@ fn test_cb19_a_theft_survives_save_and_reload_in_cub9() {
 }
 
 fn test_cb19_the_bite_drops_it_at_the_trunk_s_foot_and_clears_the_record() {
-    var s = robbed()
-    let text = journey.encode(s)
-    var back = journey.decode(text, 80, 24) else |e| { assert(false, "reads: {e}"); return }
+    // The kept theft's bite; the reload's is the CUB 9 row's.
+    var back = robbed()
     let i = marten(back, 1)
     let before = back.pouch.pickups.len
     back.tick = 103
@@ -207,7 +205,7 @@ fn test_cb19_a_rechecksummed_bad_thefts_line_is_refused() {
     }
 }
 
-fn test_cb19_journey8_carries_the_thefts_and_journey7_reads_none() {
+fn test_cb19_journey8_carries_the_thefts() {
     let s = robbed()
     let v = journey.snapshot(s)
     assert(v.len == journey.SNAPSHOT && journey.SNAPSHOT == 242, "journey 8's 242 values")
@@ -217,6 +215,21 @@ fn test_cb19_journey8_carries_the_thefts_and_journey7_reads_none() {
         return
     }
     assert(back.thefts[1] == pouch.YARROW, "kept through the snapshot")
+    assert(kept(back), "the marten woken with it")
+    assert(journey.JOURNEY == 8, "this build writes journey 8")
+}
+
+fn test_cb19_a_journey7_snapshot_reads_no_theft() {
+    // A journey 7 snapshot is journey 8's first 239 values (`REPLAY.md`);
+    // the Shingle's journey, holding a theft in its journey 8 values, keeps
+    // the row inside the checked budget.
+    var v = journey.snapshot(sim.new(1, 80, 24))
+    v[240] = pouch.YARROW
+    let eight = journey.from_snapshot(v, 80, 24) else |e| {
+        assert(false, "journey 8 reads: {e}")
+        return
+    }
+    assert(eight.thefts[1] == pouch.YARROW, "journey 8 keeps it")
     var seven = List[int]()
     var i = 0
     while i < journey.SNAPSHOT_V7 { (mut seven).push(v[i]); i += 1 }
