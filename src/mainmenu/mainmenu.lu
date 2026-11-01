@@ -30,6 +30,11 @@ pub struct Menu {
     seed: int,
     saves: List[registry.Entry],
     recordings: List[Recording],
+    /// What the start did with an old save (cb19, cub#91 A): the line the
+    /// title shows, "" for none; `offer_new` when the old file was kept
+    /// aside, so the title's key lands on New journey.
+    notice: str,
+    offer_new: bool,
 }
 
 /// Router actions: 1 saved journey, 2 new journey, 3 replay, 4 quit.
@@ -50,6 +55,8 @@ pub fn new(
         seed: seed,
         saves: copy saves,
         recordings: copy recordings,
+        notice: "",
+        offer_new: false,
     }
 }
 
@@ -183,7 +190,17 @@ pub fn key(mut m: Menu, k: int) {
         m.action = 4
         return
     }
-    if m.page == -1 { m.page = 0; return }
+    if m.page == -1 {
+        m.page = 0
+        if m.offer_new {
+            var i = 0
+            for label in items(m) {
+                if label == "New journey" { m.row = i }
+                i += 1
+            }
+        }
+        return
+    }
     if k == input.KEY_ESC {
         m.page = if m.page == 3 then m.from else if m.page == 5 then 4 else 0
         m.row = 0
@@ -238,7 +255,14 @@ pub fn key(mut m: Menu, k: int) {
     if label == "Quit" {
         m.action = 4
     } else if label == "Continue" {
-        let e = registry.recent(m.saves) else |_| { m.error = "registry_missing"; return }
+        let e = registry.recent(m.saves) else |_| {
+            m.error = registry.failure(
+                registry.root() + "/registry",
+                registry.root(),
+                "registry_missing",
+            )
+            return
+        }
         m.selected = e.path
         m.action = 1
     } else if label == "New journey" {
@@ -259,6 +283,64 @@ fn clipped(text: str, width: int) -> str {
         i += 1
     }
     str_from_utf8(bytes) else ""
+}
+
+/// `text` in lines of at most `width` cells, broken at spaces; a word
+/// longer than a line is cut at the width (cb19: a refusal names a path).
+pub fn wrap(text: str, width: int) -> List[str] {
+    var lines = List[str]()
+    if width < 1 { return lines }
+    var line = ""
+    for word in text.words() {
+        var w = copy word
+        while w.len > width {
+            if line != "" { (mut lines).push(line); line = "" }
+            (mut lines).push(w[0..width])
+            w = w[width..w.len]
+        }
+        if line == "" {
+            line = w
+        } else if line.len + 1 + w.len <= width {
+            line = line + " " + w
+        } else {
+            (mut lines).push(line)
+            line = w
+        }
+    }
+    if line != "" { (mut lines).push(line) }
+    lines
+}
+
+/// The title's notice (cb19, cub#91 A): what the start did with an old
+/// save, in the card's lower rows in place of its key line, both tiers.
+pub fn draw_notice(m: Menu, s: sim.Sim, t: int, mut g: grid.Grid) {
+    if m.page != -1 || m.notice == "" { return }
+    let top = (s.rows - 22) / 2
+    let mid = s.cols / 2
+    let width = if s.cols - 4 < 68 then s.cols - 4 else 68
+    let left = mid - width / 2
+    let card = grid.at(g, top + 21, mid)
+    let ink = grid.cell(
+        32,
+        if t == tier.PLAIN then 11 else 221,
+        card.bg,
+        if t == tier.PLAIN then grid.ATTR_BOLD else 0,
+    )
+    var r = top + 17
+    while r <= top + 21 {
+        var c = left - 1
+        while c <= left + width {
+            grid.put(mut g, r, c, grid.cell(32, card.fg, card.bg, 0))
+            c += 1
+        }
+        r += 1
+    }
+    r = top + 17
+    for line in wrap(m.notice, width) {
+        if r > top + 21 { break }
+        draw.put_text(mut g, r, left, line, ink)
+        r += 1
+    }
 }
 
 /// Same original fire composition, a bone-and-gold list on its left.
@@ -347,12 +429,23 @@ pub fn render(m: Menu, s: sim.Sim, t: int, mut g: grid.Grid) {
             i += 1
         }
     }
-    draw.put_text(
-        mut g,
-        top + height - 3,
-        left + 2,
-        clipped(m.error, width - 4),
-        grid.cell(32, if t == tier.PLAIN then 12 else 203, bg, 0),
-    )
+    // A refusal is a sentence (cb19): wrapped upward from the error row,
+    // eight lines at most, over the list's last rows.
+    let lines = wrap(m.error, width - 4)
+    let shown = if lines.len < 8 then lines.len else 8
+    var n = 0
+    while n < shown {
+        let row = top + height - 3 - shown + 1 + n
+        var c = left
+        while c < left + width { grid.put(mut g, row, c, grid.cell(32, bone, bg, 0)); c += 1 }
+        draw.put_text(
+            mut g,
+            row,
+            left + 2,
+            clipped(lines[n], width - 4),
+            grid.cell(32, if t == tier.PLAIN then 12 else 203, bg, 0),
+        )
+        n += 1
+    }
     draw.put_text(mut g, top + height - 2, left + 2, "Arrows  Space choose  Esc back", style)
 }
