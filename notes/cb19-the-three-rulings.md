@@ -37,10 +37,16 @@ it did not foresee (the list after the items):
   follows a strike (`combo_until`) continues the old combo, so the retry's first press began strike 2, not strike 1
   (a red run's `plain-combo.trace`: the late link read at tick 32 began a new strike 1, idle at 43, the retry's press
   read at 49, inside the grace, `action 1 combo 2`). `2d7291bd` waits the grace out before a fresh combo and counts a
-  link read inside the grace that continues the combo. The row as it stands (`2d7291bd`) beside the same eight loops,
-  trunk's row again in the same job: running at the hand-back (hasu, `setsid -f`, both block locks: log
-  `/home/mfwolffe/lanes/cb19/stress4-2d7291bd.log`, every run's line `stress4 <tree> run <n> exit=<N> …` and each
-  tree's `stress4 <tree> red <R> of 20`, marker `stress4-2d7291bd.exit`, pid file `stress4-2d7291bd.pid`).
+  link read inside the grace that continues the combo. But beside eight loops the game itself cannot hold real time
+  through a strike: in stress3's traces each first press is followed by a stall of about 0.7 s and one burst (a
+  `rich-combo.trace`: tick 3 began strike 1 at 0.76 s, ticks 4 to 45 at 1.4515 s), while a legacy link must be read
+  3 to 11 ticks into its strike (2 ticks after the last Space at the least), so no injector can chain one there, and
+  every retry meets the same stall. Trunk's startup race fails far below that load. The row as it stands
+  (`2d7291bd`) beside three and then two loops, 20 runs of each row at each, in one job: running at the hand-back
+  (hasu, `setsid -f`, both block locks: log `/home/mfwolffe/lanes/cb19/stress4-2d7291bd.log`, every run's line
+  `stress4 loads <L> <tree> run <n> exit=<N> …` and each level's `stress4 loads <L> <tree> red <R> of 20`, marker
+  `stress4-2d7291bd.exit`, pid file `stress4-2d7291bd.pid`). The proof is the level at which trunk's row is red at
+  least once and this row green 20 of 20.
 
 What the prediction did not foresee:
 
@@ -308,8 +314,8 @@ grace after it had ended (`feel_combo_rest` waits the grace out first).
   migration; journey 8; the witness replay; both tiers' goldens of the carrying marten (R-cb19-2..4 A).
 - [x] cub#90: `feel-controls` tick-paced; under the forced stall (eight loops on its CPU) trunk's row red 18 of 20
   and 20 of 20.
-- [ ] cub#90: the paced row as it stands green 20 of 20 under the same stall: `stress4-2d7291bd`, running at the
-  hand-back.
+- [ ] cub#90: the paced row as it stands green 20 of 20 under a stall where trunk's row is red (three or two loops):
+  `stress4-2d7291bd`, running at the hand-back.
 - [x] The plant red by name, off the line (cub#92).
 - [x] Test targets: the checked suite; both binaries' goldens; the generators against the base and the rule; the
   spacing, foe, hit, boss, fairness, new-foe, den-spacing, bend, spur, npc and world censuses compared; the old-save
