@@ -47,7 +47,7 @@ def check(binary):
     frames = int(re.search(r'# frames (\d+)', (ROOT / 'tests/cases/world-den.pk').read_text())[1])
     run('write-den', save, frames, 'world-den')
     before = save.read_bytes()
-    assert before.startswith(b'CUB 8\n') and len(before) < 512
+    assert before.startswith(b'CUB 9\n') and len(before) < 512
     run('resume-den', save)
     assert save.read_bytes() == before, 'write/resume changed persistent state'
     words = (out / 'resume-den/final.state').read_text().splitlines()[0].split()
@@ -69,10 +69,10 @@ def check(binary):
     assert pending.read_bytes() == b'another writer owns this stage'
     pending.unlink()
     for name, data, diagnostic in [
-        ('unknown', before.replace(b'CUB 8', b'CUB 9', 1), 'save_version'),
-        ('schema-1', before.replace(b'CUB 8', b'CUB 1', 1), 'save_version'),
-        ('schema-2', before.replace(b'CUB 8', b'CUB 2', 1), 'save_version'),
-        ('schema-3', before.replace(b'CUB 8', b'CUB 3', 1), 'save_version'),
+        ('unknown', before.replace(b'CUB 9', b'CUB 10', 1), 'save_version'),
+        ('schema-1', before.replace(b'CUB 9', b'CUB 1', 1), 'save_version'),
+        ('schema-2', before.replace(b'CUB 9', b'CUB 2', 1), 'save_version'),
+        ('schema-3', before.replace(b'CUB 9', b'CUB 3', 1), 'save_version'),
         ('corrupt', before[:-5], 'save_corrupt'),
         ('extra', before + b'junk\n', 'save_corrupt'),
     ]:
@@ -80,17 +80,24 @@ def check(binary):
         path.write_bytes(data)
         result = run(name, path, want=2)
         assert diagnostic in result.stderr and path.read_bytes() == data, 'invalid save silently reset'
+        # cb19 (cub#91 A (c), cub#50): a sentence, never the bare name: the
+        # file, the version found, the versions this cub reads, what to do.
+        found = re.match(rb'CUB (\d+)\n', data)
+        sentence = [l for l in result.stderr.splitlines() if diagnostic in l]
+        assert len(sentence) == 1 and path.name in sentence[0] and 'this cub reads CUB 4 to CUB 9' in sentence[0] \
+            and (not found or ('a CUB %s save' % found[1].decode()) in sentence[0]) and '--save' in sentence[0] \
+            and sentence[0].strip() != 'cub: ' + diagnostic, ('a bare refusal', name, result.stderr)
 
     # File-level schema4 migration uses an independently recomputed old checksum.
     legacy = out / 'schema-4.save'
     payload = before.decode().split('check ')[0]
-    payload = re.sub(r'^(?:slain|gates|name|played_ms|items|npcs) .*\n', '', payload, flags=re.M).replace('CUB 8\n', 'CUB 4\n', 1)
+    payload = re.sub(r'^(?:slain|gates|name|played_ms|items|npcs|thefts) .*\n', '', payload, flags=re.M).replace('CUB 9\n', 'CUB 4\n', 1)
     h = 7
     for byte in payload.encode():
         h = (h * 31 + byte) % 1000000007
     legacy.write_text(payload + 'check ' + str(h) + '\n')
     run('migrate-schema-4', legacy)
-    assert legacy.read_bytes().startswith(b'CUB 8\n') and b'slain 0 0 0 0 0 0 0 0 0 0 0 0 0\ngates 0\n' in legacy.read_bytes(), 'schema4 migration lost validation/state'
+    assert legacy.read_bytes().startswith(b'CUB 9\n') and b'slain 0 0 0 0 0 0 0 0 0 0 0 0 0\ngates 0\n' in legacy.read_bytes(), 'schema4 migration lost validation/state'
 
     # A schema-5 file (cb05's seven masks, no gates word, no wrapper) migrates
     # the same way (cb14): its masks kept, the six new areas' empty, no gate.
@@ -98,34 +105,34 @@ def check(binary):
     payload = before.decode().split('check ')[0]
     masks = re.search(r'^slain (.*)$', payload, re.M)[1].split()[:7]
     payload = re.sub(r'^slain .*\n', 'slain ' + ' '.join(masks) + '\n', payload, flags=re.M)
-    payload = re.sub(r'^(?:gates|name|played_ms|items|npcs) .*\n', '', payload, flags=re.M).replace('CUB 8\n', 'CUB 5\n', 1)
+    payload = re.sub(r'^(?:gates|name|played_ms|items|npcs|thefts) .*\n', '', payload, flags=re.M).replace('CUB 9\n', 'CUB 5\n', 1)
     h = 7
     for byte in payload.encode():
         h = (h * 31 + byte) % 1000000007
     legacy5.write_text(payload + 'check ' + str(h) + '\n')
     run('migrate-schema-5', legacy5)
     migrated = legacy5.read_bytes()
-    assert migrated.startswith(b'CUB 8\n') and b'\ngates 0\n' in migrated, 'schema5 migration lost validation/state'
+    assert migrated.startswith(b'CUB 9\n') and b'\ngates 0\n' in migrated, 'schema5 migration lost validation/state'
     assert re.search(rb'^slain (.*)$', migrated, re.M)[1].split()[:7] == [m.encode() for m in masks], 'schema5 migration lost the old masks'
 
     # cb14 over cb15: the CUB 6 save and the journey 5 recording a binary
     # built at cub 60890a49 wrote (tests/saves/provenance.json) migrate on
-    # this build's next write to CUB 8 (cb16's version), items, lore, name and time kept, the
+    # this build's next write to CUB 9 (cb19's version), items, lore, name and time kept, the
     # six new areas' masks empty, no gate opened; a resume keeps the bytes.
     kept = b'\nslain 0 0 0 0 0 0 0 0 0 0 0 0 0\ngates 0\n'
     trunk6 = out / 'cb15-v6.save'
     trunk6.write_bytes((ROOT / 'tests/saves/cb15-v6.save').read_bytes())
     run('migrate-cb15-v6', trunk6)
     migrated = trunk6.read_bytes()
-    assert migrated.startswith(b'CUB 8\n') and kept + b'name birch_7\nplayed_ms 6974\nitems 1 1 1 0 127 2 0 1 2\n' in migrated, 'the trunk CUB 6 lost state on migration'
+    assert migrated.startswith(b'CUB 9\n') and kept + b'name birch_7\nplayed_ms 6974\nitems 1 1 1 0 127 2 0 1 2\n' in migrated, 'the trunk CUB 6 lost state on migration'
     run('resume-cb15-v6', trunk6)
-    assert trunk6.read_bytes() == migrated, 'a CUB 8 resume changed the migrated bytes'
+    assert trunk6.read_bytes() == migrated, 'a CUB 9 resume changed the migrated bytes'
     fresh = out / 'cb15-journey5.save'
     fresh.unlink(missing_ok=True)
     p = subprocess.run([str(binary), '--headless', '--script', str(ROOT / 'tests/saves/cb15-journey5.pk'), '--save', str(fresh),
                         '--frames', '1', '--every', '1', '--dump', str(out / 'replay-cb15-journey5')], capture_output=True, text=True)
     assert p.returncode == 0, ('the trunk journey 5 recording', p.returncode, p.stderr)
-    assert fresh.read_bytes().startswith(b'CUB 8\n') and kept in fresh.read_bytes() and b'\nitems 1 1 1 0 127 2 0 1 2\n' in fresh.read_bytes(), 'the trunk journey 5 snapshot lost state'
+    assert fresh.read_bytes().startswith(b'CUB 9\n') and kept in fresh.read_bytes() and b'\nitems 1 1 1 0 127 2 0 1 2\n' in fresh.read_bytes(), 'the trunk journey 5 snapshot lost state'
 
     memory = out / 'slain.save'
     memory.unlink(missing_ok=True)

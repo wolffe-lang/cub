@@ -16,7 +16,7 @@ use journey
 use sim
 use std.fs
 
-/// A CUB 6 file's text as CUB 8 writes the same journey: the version, six
+/// A CUB 6 file's text as CUB 9 writes the same journey: the version, six
 /// empty masks after the seven, no gate, every other line kept, the NPCs'
 /// line after the items (nothing said; `flags` the migration's: cb16's
 /// R-cb16-3 A counts a seeded Bramblehold's tuft as Ember's), its check.
@@ -25,7 +25,7 @@ fn seven(old: str, flags: int) -> str {
     var out = ""
     for line in old[0..cut].lines() {
         if line == "CUB 6" {
-            out += "CUB 8\n"
+            out += "CUB 9\n"
         } else if line.starts_with("slain ") {
             out += line + " 0 0 0 0 0 0\ngates 0\n"
         } else {
@@ -33,6 +33,7 @@ fn seven(old: str, flags: int) -> str {
         }
     }
     out += "npcs 0 0 0 0 0 0 0 0 0 dead 0 perch -1 flags {flags}\n"
+    out += "thefts -1 -1 -1\n"
     out + "check {journey.checksum(out)}\n"
 }
 
@@ -100,7 +101,7 @@ fn test_cb14_the_trunk_writers_journey5_snapshot_reads_into_journey6() {
         "the items and the lore",
     )
     let six = journey.snapshot(s)
-    assert(six.len == journey.SNAPSHOT, "written as the current journey (7 since cb16)")
+    assert(six.len == journey.SNAPSHOT, "written as the current journey (8 since cb19)")
     var i = 0
     while i < 37 { assert(six[i] == v[i], "slot {i} kept"); i += 1 }
     while i < 43 { assert(six[i] == 0, "new area's mask {i} empty"); i += 1 }
@@ -124,8 +125,8 @@ fn test_cb14_the_older_fixtures_still_read() {
         let s = journey.decode(text, 80, 24) else |e| { assert(false, "{name} reads: {e}"); return }
         let written = journey.encode(s)
         assert(
-            written.starts_with("CUB 8\n") && written.contains("\ngates 0\n"),
-            "{name} writes CUB 8",
+            written.starts_with("CUB 9\n") && written.contains("\ngates 0\n"),
+            "{name} writes CUB 9 (cb19's version)",
         )
         var area = 7
         while area < forest.AREAS {
@@ -151,7 +152,7 @@ fn test_cb14_a_rechecksummed_cub7_with_bad_masks_or_gates_is_refused() {
     let good = journey.payload(sim.new(7, 80, 24))
     let thirteen = "slain 0 0 0 0 0 0 0 0 0 0 0 0 0\n"
     assert(
-        good.starts_with("CUB 8\n") && good.contains(thirteen + "gates 0\nname journey\n"),
+        good.starts_with("CUB 9\n") && good.contains(thirteen + "gates 0\nname journey\n"),
         "the shape",
     )
     for body in [
@@ -160,8 +161,9 @@ fn test_cb14_a_rechecksummed_cub7_with_bad_masks_or_gates_is_refused() {
         good.replace("gates 0\n", "gates -1\n"),
         good.replace(thirteen, "slain 0 0 0 0 0 0 0\n"),
         good.replace(thirteen, "slain 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n"),
-        good.replace("CUB 8\n", "CUB 6\n"),
-        good.replace("CUB 8\n", "CUB 7\n"),
+        good.replace("CUB 9\n", "CUB 6\n"),
+        good.replace("CUB 9\n", "CUB 7\n"),
+        good.replace("CUB 9\n", "CUB 8\n"),
         good.replace("gates 0\n", "gates 0\ngates 0\n"),
     ] {
         var rejected = false
@@ -172,7 +174,7 @@ fn test_cb14_a_rechecksummed_cub7_with_bad_masks_or_gates_is_refused() {
         assert(rejected, "a rechecksummed bad CUB 7 is refused")
     }
     var named = false
-    let _ = journey.decode(good.replace("CUB 8\n", "CUB 9\n") + "check 0\n", 80, 24) else |e| {
+    let _ = journey.decode(good.replace("CUB 9\n", "CUB 10\n") + "check 0\n", 80, 24) else |e| {
         named = "{e}" == "save_version"
         sim.new(7, 80, 24)
     }

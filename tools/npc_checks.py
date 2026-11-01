@@ -6,7 +6,7 @@ through the binary with a save: the conversation (Quill's first line in the
 frame, the forest paused under it, Esc closing it), the purchase (pine and
 yarrow bought, 100 - 50 - 20 = 30 scent, the pouch and the NPCs' line in the
 save), the toll (sixty paid, the cub landed on the far causeway). The trunk
-writer's CUB 7 migrates to CUB 8 at file level, the sett counted dug.
+writer's CUB 7 migrates to CUB 9 (cb19's version) at file level, the sett counted dug.
 """
 from pathlib import Path
 import re
@@ -69,15 +69,15 @@ def check(binary):
     print('gameplay: npc census green (2200 places) and the conversation, purchase and toll witnesses on both tiers')
 
     # The trunk writer's CUB 7 (cub ed180ef5; tests/saves/provenance.json):
-    # the next write is CUB 8, the sett's open shortcut counted dug.
+    # the next write is CUB 9 (cb19), the sett's open shortcut counted dug, no theft kept.
     trunk7 = out / 'cb14-v7.save'
     trunk7.write_bytes((ROOT / 'tests/saves/cb14-v7.save').read_bytes())
     p = subprocess.run([str(binary), '--headless', '--save', str(trunk7), '--frames', '1', '--every', '1',
                         '--dump', str(out / 'migrate-cb14-v7')], capture_output=True, text=True)
     assert p.returncode == 0, ('the trunk CUB 7', p.returncode, p.stderr)
     migrated = trunk7.read_bytes()
-    assert migrated.startswith(b'CUB 8\n') and b'\nname sett_1\nplayed_ms 7135\nitems 0 0 0 0 1024 0 0\nnpcs 0 0 0 0 0 0 0 0 0 dead 0 perch -1 flags 1\n' in migrated, 'the trunk CUB 7 lost state on migration'
+    assert migrated.startswith(b'CUB 9\n') and b'\nname sett_1\nplayed_ms 7135\nitems 0 0 0 0 1024 0 0\nnpcs 0 0 0 0 0 0 0 0 0 dead 0 perch -1 flags 1\nthefts -1 -1 -1\n' in migrated, 'the trunk CUB 7 lost state on migration'
     p = subprocess.run([str(binary), '--headless', '--save', str(trunk7), '--frames', '1', '--every', '1',
                         '--dump', str(out / 'resume-cb14-v7')], capture_output=True, text=True)
-    assert p.returncode == 0 and trunk7.read_bytes() == migrated, 'a CUB 8 resume changed the migrated bytes'
-    print('gameplay: the trunk CUB 7 migrates to CUB 8 with the sett dug, and resumes byte-exact')
+    assert p.returncode == 0 and trunk7.read_bytes() == migrated, 'a CUB 9 resume changed the migrated bytes'
+    print('gameplay: the trunk CUB 7 migrates to CUB 9 with the sett dug, and resumes byte-exact')
