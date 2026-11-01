@@ -85,8 +85,53 @@ def archive_failure(binary, ctx):
 ROWS = {'den-keys': den_keys, 'death-agree': death_agree, 'archive-failure': archive_failure}
 
 
+class FeelDelivery(AssertionError):
+    """The game never traced the tick an injection waited for."""
+
+
+def feel_until(session, predicate, what, timeout=20):
+    """The first traced tick that satisfies `predicate`, waiting on the
+    game's own trace (cb19, cub#90), never on wall-clock settles."""
+    import time
+    deadline = time.monotonic() + timeout
+    while True:
+        row = next((r for r in cb04b_traces(session) if predicate(r)), None)
+        if row is not None:
+            return row
+        if time.monotonic() >= deadline or session.eof:
+            raise FeelDelivery('no traced tick ' + what)
+        session.pump(.005)
+
+
+def feel_send(session, data, what):
+    """Write `data` after the newest traced tick, then wait for the tick
+    that consumed it (bytes read and keys applied, cb11's acknowledgement);
+    returns that tick."""
+    rows = cb04b_traces(session)
+    before = rows[-1]['tick'] if rows else 0
+    session.type(data, settle=0)
+    return feel_until(session, lambda r: r['tick'] > before and r.get('in', 0) > 0
+                      and r.get('keys', 0) > 0, what + ' consumed')['tick']
+
+
+def feel_open(session):
+    """The opening skipped by `?` and the skip's tick past, so the next
+    write is play's, never the scene's (cub#90: the nightly's plain-e
+    trace read the skip, the arrow and Space in one tick, and the scene
+    swallowed the Space)."""
+    feel_until(session, lambda r: True, 'at all')
+    skipped = feel_send(session, b'?', 'the skip')
+    return feel_until(session, lambda r: r['tick'] >= skipped and r['scene'] == 0,
+                      'with the opening over')['tick']
+
+
 def feel_controls(binary, ctx):
-    """Real decoder/loop path; injected bytes are not physical-key measurements."""
+    """Real decoder/loop path; injected bytes are not physical-key measurements.
+
+    Every injection waits on the game's own trace (cb19, cub#90), as cb11's
+    tick-paced rows do: the skip consumed and the opening over before the
+    chord, the chord's tick before its action is read, each combo press
+    once the strike before it has begun."""
     import re
     root = Path(ctx.ROOT) / 'target' / 'pty' / 'feel'
     root.mkdir(parents=True, exist_ok=True)
@@ -98,36 +143,53 @@ def feel_controls(binary, ctx):
               ('s', b'\x1b[B', 128), ('sw', b'\x1b[B\x1b[D', 160),
               ('w', b'\x1b[D', 192), ('nw', b'\x1b[A\x1b[D', 224),
               ('lock-empty', b'\x1b[D\t', 192)]
+
+    def run(tier, name, drive):
+        session = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)), '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
+        try:
+            drive(session)
+        except FeelDelivery as error:
+            problems.append(tier + ' ' + name + ': DELIVERY ' + str(error))
+        finally:
+            session.type(b'q', settle=0)
+            session.finish()
+        ctx.common_checks(session, 0, problems)
+        (root / (tier + '-' + name + '.trace')).write_bytes(session.err)
+        return session
+
     for tier in ('rich', 'plain'):
         for name, chord, aim in arrows:
-            session = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)), '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
-            session.type(b'?', settle=.15)
-            session.type(chord + b' ', settle=.45)
-            session.type(b'q')
-            session.finish()
-            ctx.common_checks(session, 0, problems)
-            (root / (tier + '-' + name + '.trace')).write_bytes(session.err)
+            def aimed(session):
+                feel_open(session)
+                at = feel_send(session, chord + b' ', 'the chord')
+                feel_until(session, lambda r: r['tick'] >= at and r['action'] == 1, 'with the bite begun')
+            session = run(tier, name, aimed)
             if not re.search(rb'action 1 aim ' + str(aim).encode() + rb' combo 1', session.err):
                 problems.append(tier + ' ' + name + ' did not commit the injected aim')
-        session = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)), '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
-        session.type(b'?', settle=.15)
-        session.type(b'\x1b[C ', settle=.25)
-        session.type(b' ', settle=.37)
-        session.type(b' ', settle=.60)
-        session.type(b'q')
-        session.finish()
-        ctx.common_checks(session, 0, problems)
-        (root / (tier + '-combo.trace')).write_bytes(session.err)
-        for combo in (1, 2, 3):
-            if not re.search(rb'action 1 aim 64 combo ' + str(combo).encode(), session.err):
-                problems.append(tier + ' live combo missing ' + str(combo))
-        session = ctx.Session([binary, '--seed', '7', '--save', str(fresh_save(root)), '--tier', tier, '--trace', '--mute', '--no-title'], 24, 80, env)
-        session.type(b'?', settle=.15)
-        session.type(b'\x1b[Cs', settle=.75)
-        session.type(b'q')
-        session.finish()
-        ctx.common_checks(session, 0, problems)
-        (root / (tier + '-heavy.trace')).write_bytes(session.err)
+
+        def combo(session):
+            feel_open(session)
+            # Each press once the strike before it has begun and passed its
+            # windup: inside the request window (ages 1..duration) with the
+            # six-tick grace to spare, whatever the scheduler delays.
+            at = feel_send(session, b'\x1b[C ', 'the first press')
+            for strike in (1, 2):
+                begun = feel_until(session, lambda r: r['tick'] >= at and r['action'] == 1
+                                   and r['combo'] == strike, 'with strike ' + str(strike))['tick']
+                feel_until(session, lambda r: r['tick'] >= begun + 4, 'four ticks into strike ' + str(strike))
+                at = feel_send(session, b' ', 'press ' + str(strike + 1))
+            feel_until(session, lambda r: r['tick'] >= at and r['action'] == 1 and r['combo'] == 3,
+                       'with strike 3')
+        session = run(tier, 'combo', combo)
+        for hit in (1, 2, 3):
+            if not re.search(rb'action 1 aim 64 combo ' + str(hit).encode(), session.err):
+                problems.append(tier + ' live combo missing ' + str(hit))
+
+        def heavy(session):
+            feel_open(session)
+            at = feel_send(session, b'\x1b[Cs', 'the heavy')
+            feel_until(session, lambda r: r['tick'] >= at and r['action'] == 7, 'with the heavy begun')
+        session = run(tier, 'heavy', heavy)
         if not re.search(rb'action 7 aim 64 combo 0', session.err):
             problems.append(tier + ' s did not start heavy')
     return session, problems
