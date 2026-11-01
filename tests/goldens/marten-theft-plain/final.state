@@ -1,0 +1,9 @@
+tick 711 resting 0 capacity 3 level 9 meat 0 area 7 den_id 12 shortcuts 3 caches 0 scene 0 drops 0 mark_area 7 x 1669 y 14274 heading 0 action 0 started 661 health 76 stamina 64 flasks 3 scent 15 deaths 1 mark 0 mark_scent 0 gate 1 trail 51 lock -1 aim 32 combo 0 body 0 gait 755 sprint 0 cone 32 bosses 1 end 0 arena 0 played 711 lost 0
+foe 0 kind 1 health 36 phase 0 since 0 x -9344 y 7040 heading 0 gap 39 last_hit -1 attack 0 poise 0
+foe 1 kind 1 health 36 phase 0 since 0 x -9344 y 8064 heading 0 gap 39 last_hit -1 attack 0 poise 0
+foe 2 kind 1 health 36 phase 0 since 0 x 8832 y 40064 heading 0 gap 97 last_hit -1 attack 0 poise 0
+foe 3 kind 1 health 36 phase 0 since 0 x 7808 y 40064 heading 0 gap 97 last_hit -1 attack 0 poise 0
+foe 4 kind 1 health 36 phase 0 since 0 x -7296 y 52864 heading 0 gap 147 last_hit -1 attack 0 poise 0
+foe 5 kind 9 health 0 phase 4 since 647 x 1634 y 14480 heading 0 gap -3 last_hit 661 attack 0 poise 0
+foe 6 kind 9 health 16 phase 9 since 0 x 2176 y 36992 heading 0 gap 85 last_hit -1 attack 0 poise 0
+foe 7 kind 9 health 16 phase 9 since 0 x 3200 y 48256 heading 0 gap 129 last_hit -1 attack 0 poise 0

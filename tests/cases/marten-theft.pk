@@ -1,0 +1,820 @@
+pk 1
+seed 1
+tier rich
+size 80x24
+t 0 journey 8
+t 0 saved-0 1
+t 0 saved-1 0
+t 0 saved-2 3
+t 0 saved-3 3
+t 0 saved-4 3
+t 0 saved-5 2
+t 0 saved-6 2
+t 0 saved-7 3
+t 0 saved-8 0
+t 0 saved-9 12
+t 0 saved-10 4127
+t 0 saved-11 3
+t 0 saved-12 1
+t 0 saved-13 0
+t 0 saved-14 0
+t 0 saved-15 0
+t 0 saved-16 0
+t 0 saved-17 0
+t 0 saved-18 0
+t 0 saved-19 0
+t 0 saved-20 0
+t 0 saved-21 1
+t 0 saved-22 0
+t 0 saved-23 1
+t 0 saved-24 80
+t 0 saved-25 1
+t 0 saved-26 0
+t 0 saved-27 0
+t 0 saved-28 0
+t 0 saved-29 9
+t 0 saved-30 0
+t 0 saved-31 0
+t 0 saved-32 0
+t 0 saved-33 0
+t 0 saved-34 0
+t 0 saved-35 0
+t 0 saved-36 0
+t 0 saved-37 0
+t 0 saved-38 0
+t 0 saved-39 0
+t 0 saved-40 0
+t 0 saved-41 0
+t 0 saved-42 0
+t 0 saved-43 1
+t 0 saved-44 0
+t 0 saved-45 0
+t 0 saved-46 0
+t 0 saved-47 0
+t 0 saved-48 0
+t 0 saved-49 0
+t 0 saved-50 0
+t 0 saved-51 0
+t 0 saved-52 0
+t 0 saved-53 0
+t 0 saved-54 0
+t 0 saved-55 0
+t 0 saved-56 0
+t 0 saved-57 0
+t 0 saved-58 0
+t 0 saved-59 0
+t 0 saved-60 0
+t 0 saved-61 0
+t 0 saved-62 0
+t 0 saved-63 0
+t 0 saved-64 0
+t 0 saved-65 0
+t 0 saved-66 0
+t 0 saved-67 0
+t 0 saved-68 0
+t 0 saved-69 0
+t 0 saved-70 0
+t 0 saved-71 0
+t 0 saved-72 0
+t 0 saved-73 0
+t 0 saved-74 0
+t 0 saved-75 0
+t 0 saved-76 0
+t 0 saved-77 0
+t 0 saved-78 0
+t 0 saved-79 0
+t 0 saved-80 0
+t 0 saved-81 0
+t 0 saved-82 0
+t 0 saved-83 0
+t 0 saved-84 0
+t 0 saved-85 0
+t 0 saved-86 0
+t 0 saved-87 0
+t 0 saved-88 0
+t 0 saved-89 0
+t 0 saved-90 0
+t 0 saved-91 0
+t 0 saved-92 0
+t 0 saved-93 0
+t 0 saved-94 0
+t 0 saved-95 0
+t 0 saved-96 0
+t 0 saved-97 0
+t 0 saved-98 0
+t 0 saved-99 0
+t 0 saved-100 0
+t 0 saved-101 0
+t 0 saved-102 0
+t 0 saved-103 0
+t 0 saved-104 0
+t 0 saved-105 0
+t 0 saved-106 0
+t 0 saved-107 0
+t 0 saved-108 0
+t 0 saved-109 0
+t 0 saved-110 0
+t 0 saved-111 0
+t 0 saved-112 0
+t 0 saved-113 0
+t 0 saved-114 0
+t 0 saved-115 0
+t 0 saved-116 0
+t 0 saved-117 0
+t 0 saved-118 0
+t 0 saved-119 0
+t 0 saved-120 0
+t 0 saved-121 0
+t 0 saved-122 0
+t 0 saved-123 0
+t 0 saved-124 0
+t 0 saved-125 0
+t 0 saved-126 0
+t 0 saved-127 0
+t 0 saved-128 0
+t 0 saved-129 0
+t 0 saved-130 0
+t 0 saved-131 0
+t 0 saved-132 0
+t 0 saved-133 0
+t 0 saved-134 0
+t 0 saved-135 0
+t 0 saved-136 0
+t 0 saved-137 0
+t 0 saved-138 0
+t 0 saved-139 0
+t 0 saved-140 0
+t 0 saved-141 0
+t 0 saved-142 0
+t 0 saved-143 0
+t 0 saved-144 0
+t 0 saved-145 0
+t 0 saved-146 0
+t 0 saved-147 0
+t 0 saved-148 0
+t 0 saved-149 0
+t 0 saved-150 0
+t 0 saved-151 0
+t 0 saved-152 0
+t 0 saved-153 0
+t 0 saved-154 0
+t 0 saved-155 0
+t 0 saved-156 0
+t 0 saved-157 0
+t 0 saved-158 0
+t 0 saved-159 0
+t 0 saved-160 0
+t 0 saved-161 0
+t 0 saved-162 0
+t 0 saved-163 0
+t 0 saved-164 0
+t 0 saved-165 0
+t 0 saved-166 0
+t 0 saved-167 0
+t 0 saved-168 0
+t 0 saved-169 0
+t 0 saved-170 0
+t 0 saved-171 0
+t 0 saved-172 0
+t 0 saved-173 0
+t 0 saved-174 0
+t 0 saved-175 0
+t 0 saved-176 0
+t 0 saved-177 0
+t 0 saved-178 0
+t 0 saved-179 0
+t 0 saved-180 0
+t 0 saved-181 0
+t 0 saved-182 0
+t 0 saved-183 0
+t 0 saved-184 0
+t 0 saved-185 0
+t 0 saved-186 0
+t 0 saved-187 0
+t 0 saved-188 0
+t 0 saved-189 0
+t 0 saved-190 0
+t 0 saved-191 0
+t 0 saved-192 0
+t 0 saved-193 0
+t 0 saved-194 0
+t 0 saved-195 0
+t 0 saved-196 0
+t 0 saved-197 0
+t 0 saved-198 0
+t 0 saved-199 0
+t 0 saved-200 0
+t 0 saved-201 0
+t 0 saved-202 0
+t 0 saved-203 0
+t 0 saved-204 0
+t 0 saved-205 0
+t 0 saved-206 0
+t 0 saved-207 0
+t 0 saved-208 0
+t 0 saved-209 0
+t 0 saved-210 0
+t 0 saved-211 0
+t 0 saved-212 0
+t 0 saved-213 0
+t 0 saved-214 0
+t 0 saved-215 0
+t 0 saved-216 0
+t 0 saved-217 0
+t 0 saved-218 0
+t 0 saved-219 0
+t 0 saved-220 0
+t 0 saved-221 0
+t 0 saved-222 0
+t 0 saved-223 0
+t 0 saved-224 0
+t 0 saved-225 0
+t 0 saved-226 0
+t 0 saved-227 0
+t 0 saved-228 0
+t 0 saved-229 0
+t 0 saved-230 0
+t 0 saved-231 0
+t 0 saved-232 0
+t 0 saved-233 0
+t 0 saved-234 0
+t 0 saved-235 0
+t 0 saved-236 0
+t 0 saved-237 -1
+t 0 saved-238 0
+t 0 saved-239 -1
+t 0 saved-240 -1
+t 0 saved-241 -1
+t 0 release
+t 1 right
+t 2 right
+t 3 right
+t 4 right
+t 5 right
+t 6 right
+t 7 right
+t 8 right
+t 9 right
+t 10 right
+t 11 right
+t 12 right
+t 13 right
+t 14 right
+t 15 right
+t 16 right
+t 17 right
+t 18 right
+t 19 right
+t 20 right
+t 21 right
+t 22 right
+t 23 right
+t 24 right
+t 25 right
+t 26 right
+t 27 right
+t 28 right
+t 29 up
+t 29 right
+t 30 up
+t 31 up
+t 32 up
+t 33 up
+t 34 up
+t 35 up
+t 36 up
+t 37 up
+t 38 up
+t 39 up
+t 40 up
+t 41 up
+t 42 up
+t 43 up
+t 44 up
+t 45 up
+t 46 up
+t 47 up
+t 48 up
+t 49 up
+t 50 up
+t 51 up
+t 52 up
+t 53 up
+t 53 right
+t 54 right
+t 55 right
+t 56 right
+t 57 right
+t 58 up
+t 58 right
+t 59 up
+t 60 up
+t 61 up
+t 62 up
+t 63 up
+t 64 up
+t 65 up
+t 66 up
+t 66 right
+t 67 right
+t 68 right
+t 69 up
+t 70 up
+t 71 up
+t 71 right
+t 72 right
+t 73 right
+t 74 right
+t 75 right
+t 76 right
+t 77 right
+t 78 right
+t 79 right
+t 80 right
+t 81 right
+t 82 right
+t 83 right
+t 84 right
+t 85 right
+t 86 right
+t 87 right
+t 88 right
+t 89 right
+t 90 right
+t 91 right
+t 92 right
+t 93 right
+t 94 right
+t 95 up
+t 95 right
+t 96 up
+t 97 up
+t 97 right
+t 98 right
+t 99 up
+t 99 right
+t 100 up
+t 101 up
+t 102 up
+t 103 up
+t 104 up
+t 105 up
+t 106 up
+t 107 up
+t 108 up
+t 109 up
+t 110 up
+t 111 up
+t 112 up
+t 113 up
+t 114 up
+t 115 up
+t 116 up
+t 117 up
+t 118 up
+t 119 up
+t 120 up
+t 121 up
+t 122 up
+t 123 up
+t 124 up
+t 125 up
+t 126 up
+t 127 up
+t 128 up
+t 129 up
+t 130 up
+t 131 up
+t 132 up
+t 133 up
+t 134 up
+t 135 up
+t 136 up
+t 137 up
+t 138 up
+t 139 up
+t 140 up
+t 141 up
+t 142 up
+t 143 up
+t 144 up
+t 145 up
+t 146 up
+t 147 up
+t 148 up
+t 149 up
+t 150 up
+t 151 up
+t 152 up
+t 153 up
+t 154 up
+t 155 up
+t 156 up
+t 157 up
+t 158 up
+t 159 up
+t 160 up
+t 161 up
+t 162 up
+t 163 up
+t 164 up
+t 165 up
+t 166 up
+t 167 up
+t 168 up
+t 216 health -10000
+t 265 skip
+t 286 right
+t 287 right
+t 288 right
+t 289 right
+t 290 right
+t 291 right
+t 292 right
+t 293 right
+t 294 right
+t 295 right
+t 296 right
+t 297 right
+t 298 right
+t 299 right
+t 300 right
+t 301 right
+t 302 right
+t 303 right
+t 304 right
+t 305 right
+t 306 right
+t 307 right
+t 308 right
+t 309 right
+t 310 right
+t 311 right
+t 312 right
+t 313 right
+t 314 up
+t 314 right
+t 315 up
+t 316 up
+t 317 up
+t 318 up
+t 319 up
+t 320 up
+t 321 up
+t 322 up
+t 323 up
+t 324 up
+t 325 up
+t 326 up
+t 327 up
+t 328 up
+t 329 up
+t 330 up
+t 331 up
+t 332 up
+t 333 up
+t 334 up
+t 335 up
+t 336 up
+t 337 up
+t 338 up
+t 338 right
+t 339 right
+t 340 right
+t 341 right
+t 342 right
+t 343 up
+t 343 right
+t 344 up
+t 345 up
+t 346 up
+t 347 up
+t 348 up
+t 349 up
+t 350 up
+t 351 up
+t 351 right
+t 352 right
+t 353 right
+t 354 up
+t 355 up
+t 356 up
+t 356 right
+t 357 right
+t 358 right
+t 359 right
+t 360 right
+t 361 right
+t 362 right
+t 363 right
+t 364 right
+t 365 right
+t 366 right
+t 367 right
+t 368 right
+t 369 right
+t 370 right
+t 371 right
+t 372 right
+t 373 right
+t 374 right
+t 375 right
+t 376 right
+t 377 right
+t 378 right
+t 379 right
+t 380 up
+t 380 right
+t 381 up
+t 382 up
+t 382 right
+t 383 right
+t 384 up
+t 384 right
+t 385 up
+t 386 up
+t 387 up
+t 388 up
+t 389 up
+t 390 up
+t 391 up
+t 392 up
+t 393 up
+t 394 up
+t 395 up
+t 396 up
+t 397 up
+t 398 up
+t 399 up
+t 400 up
+t 401 up
+t 402 up
+t 403 up
+t 404 up
+t 405 up
+t 406 up
+t 407 up
+t 408 up
+t 409 up
+t 410 up
+t 411 up
+t 412 up
+t 413 up
+t 414 up
+t 415 up
+t 416 up
+t 417 up
+t 418 up
+t 419 up
+t 420 up
+t 421 up
+t 422 up
+t 423 up
+t 424 up
+t 425 up
+t 426 up
+t 427 up
+t 428 up
+t 429 up
+t 430 up
+t 431 up
+t 432 up
+t 433 up
+t 434 up
+t 435 up
+t 436 up
+t 437 up
+t 438 up
+t 439 up
+t 440 up
+t 441 up
+t 442 up
+t 443 up
+t 444 up
+t 445 up
+t 446 up
+t 447 up
+t 448 up
+t 449 up
+t 450 up
+t 451 up
+t 452 up
+t 453 up
+t 454 left
+t 456 left
+t 459 parry
+t 460 left
+t 475 up
+t 475 lunge
+t 476 up
+t 477 up
+t 478 up
+t 479 up
+t 480 up
+t 481 up
+t 482 up
+t 483 up
+t 484 up
+t 485 up
+t 497 up
+t 498 up
+t 499 up
+t 500 up
+t 501 up
+t 501 bite
+t 513 up
+t 513 bite
+t 527 up
+t 527 bite
+t 528 down
+t 529 down
+t 530 down
+t 531 down
+t 531 left
+t 532 down
+t 532 left
+t 533 up
+t 533 left
+t 534 up
+t 534 left
+t 535 up
+t 535 left
+t 536 up
+t 536 left
+t 537 up
+t 537 left
+t 538 up
+t 538 left
+t 539 up
+t 539 left
+t 540 up
+t 540 left
+t 541 up
+t 541 left
+t 542 up
+t 542 left
+t 543 up
+t 543 left
+t 544 up
+t 544 left
+t 545 up
+t 545 left
+t 546 up
+t 546 left
+t 547 up
+t 547 left
+t 548 up
+t 548 left
+t 549 up
+t 549 left
+t 551 parry
+t 553 up
+t 553 left
+t 567 up
+t 567 bite
+t 590 down
+t 590 left
+t 591 down
+t 591 left
+t 592 down
+t 592 left
+t 593 down
+t 593 left
+t 594 down
+t 594 left
+t 595 down
+t 595 left
+t 596 up
+t 596 right
+t 596 bite
+t 597 down
+t 597 left
+t 598 down
+t 598 left
+t 599 down
+t 599 left
+t 600 down
+t 601 down
+t 602 down
+t 603 down
+t 604 down
+t 604 left
+t 605 down
+t 605 left
+t 606 down
+t 606 left
+t 607 down
+t 607 left
+t 608 down
+t 608 left
+t 609 down
+t 609 left
+t 610 down
+t 610 left
+t 611 down
+t 611 left
+t 612 down
+t 612 left
+t 613 down
+t 613 left
+t 614 down
+t 614 left
+t 615 down
+t 615 left
+t 616 down
+t 616 left
+t 617 down
+t 617 left
+t 618 up
+t 618 right
+t 619 up
+t 619 right
+t 620 up
+t 620 right
+t 621 up
+t 621 right
+t 622 up
+t 622 right
+t 623 up
+t 623 right
+t 623 bite
+t 624 down
+t 624 left
+t 625 down
+t 625 left
+t 626 up
+t 626 left
+t 627 up
+t 627 left
+t 628 up
+t 628 left
+t 629 up
+t 629 left
+t 630 up
+t 630 left
+t 631 up
+t 631 left
+t 632 up
+t 632 left
+t 633 up
+t 633 left
+t 634 up
+t 634 left
+t 635 up
+t 635 left
+t 636 up
+t 636 left
+t 637 up
+t 637 left
+t 638 up
+t 638 left
+t 639 up
+t 639 left
+t 640 up
+t 640 left
+t 641 up
+t 641 left
+t 642 up
+t 642 left
+t 644 parry
+t 646 up
+t 646 left
+t 660 up
+t 660 right
+t 660 bite
+t 672 up
+t 672 right
+t 673 up
+t 673 right
+t 674 up
+t 674 right
+t 675 up
+t 675 right
+t 676 right
+t 677 right
+t 678 right
+t 679 right
+t 680 right
+t 681 right
+t 682 right
+t 683 right
+t 684 right
+t 685 right
+t 686 right
+t 687 right
+t 688 right
+t 689 right
+t 690 right
+t 691 up
+t 691 right
+t 692 up
+t 693 up
+t 694 up
+t 695 up
+t 696 up
+t 697 up
+t 698 up
+t 699 up
+t 700 rest
+
+# frames 711 every 15 from 166
