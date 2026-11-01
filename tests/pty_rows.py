@@ -89,13 +89,33 @@ class FeelDelivery(AssertionError):
     """The game never traced the tick an injection waited for."""
 
 
+def feel_rows(session):
+    """The session's traced ticks, parsed once each: only the lines the
+    game wrote since the last call (under a stalled CPU, re-reading the
+    whole trace every poll was the injector's own delay)."""
+    import re
+    state = FEEL_ROWS.setdefault(id(session), [session, 0, []])
+    _, done, rows = state
+    err = session.err
+    end = err.rfind(b'\n') + 1
+    if end > done:
+        for line in err[done:end].decode(errors='replace').splitlines():
+            if line.startswith('trace tick '):
+                rows.append({k: int(v) for k, v in re.findall(r'(\w+) (-?\d+)', line)})
+        state[1] = end
+    return rows
+
+
+FEEL_ROWS = {}
+
+
 def feel_until(session, predicate, what, timeout=20):
     """The first traced tick that satisfies `predicate`, waiting on the
     game's own trace (cb19, cub#90), never on wall-clock settles."""
     import time
     deadline = time.monotonic() + timeout
     while True:
-        row = next((r for r in cb04b_traces(session) if predicate(r)), None)
+        row = next((r for r in feel_rows(session) if predicate(r)), None)
         if row is not None:
             return row
         if time.monotonic() >= deadline or session.eof:
@@ -107,7 +127,7 @@ def feel_send(session, data, what):
     """Write `data` after the newest traced tick, then wait for the tick
     that consumed it (bytes read and keys applied, cb11's acknowledgement);
     returns that tick."""
-    rows = cb04b_traces(session)
+    rows = feel_rows(session)
     before = rows[-1]['tick'] if rows else 0
     session.type(data, settle=0)
     return feel_until(session, lambda r: r['tick'] > before and r.get('in', 0) > 0
@@ -169,14 +189,17 @@ def feel_controls(binary, ctx):
 
         def combo(session):
             feel_open(session)
-            # Each press once the strike before it has begun and passed its
-            # windup: inside the request window (ages 1..duration) with the
-            # six-tick grace to spare, whatever the scheduler delays.
+            # Each press as early as the strike before it takes one: a legacy
+            # Space read within two ticks of the last is a repeat
+            # (`sim`'s bite_key_tick), so the press is written once the
+            # trace shows the strike's second tick, read at its third or
+            # later, inside the request window (ages 1..11, 1..13) with
+            # the most of it to spare, whatever the scheduler delays.
             at = feel_send(session, b'\x1b[C ', 'the first press')
             for strike in (1, 2):
                 begun = feel_until(session, lambda r: r['tick'] >= at and r['action'] == 1
                                    and r['combo'] == strike, 'with strike ' + str(strike))['tick']
-                feel_until(session, lambda r: r['tick'] >= begun + 4, 'four ticks into strike ' + str(strike))
+                feel_until(session, lambda r: r['tick'] >= begun + 2, 'two ticks into strike ' + str(strike))
                 at = feel_send(session, b' ', 'press ' + str(strike + 1))
             feel_until(session, lambda r: r['tick'] >= at and r['action'] == 1 and r['combo'] == 3,
                        'with strike 3')
