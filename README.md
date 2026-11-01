@@ -314,7 +314,10 @@ and fresh seed (`sh tools/check-memory target/release/cub`). Frame scratch is
 reclaimed after drawing; idle save checks reuse fixed-size numeric snapshots.
 `tools/check-linux`
 runs correctness inside `.lair/tools/in-container`; `tools/check-perf`
-measures rendering, idle wakes and key-to-frame latency.
+measures rendering, idle wakes and key-to-frame latency. CI's Linux leg runs
+`tools/check-linux --no-gameplay` and, beside it, `tools/check-gameplay native`
+and `tools/check-gameplay release` in their own job (the macOS gameplay gates
+too, in `macos-gameplay`), so no job nears its sixty minutes.
 
 Fresh-journey terminal rows use separate save paths. The game gates archive
 the previous engine-row save without deleting captures; before invoking
