@@ -616,6 +616,68 @@ def new_foes(binary):
           'six replay outcomes and both-tier frames green')
 
 
+def validate_foe_npc_census(text):
+    """cb19 (cub#89 A): every foe's spawn, the inherited ones included, keeps
+    more than the talk radius (4 clear cells) from every NPC, in every one of
+    the hundred worlds; no foe in the gap, every moved foe beyond it."""
+    lines = text.splitlines()
+    assert lines and lines[0] == 'foe-npc-world seed field nearest', 'spacing census header'
+    near = [l for l in lines if l.startswith('foe-near-npc ')]
+    assert not near, ('a foe inside an NPC talk radius', near[:3])
+    worlds = {}
+    for l in lines:
+        w = l.split()
+        if w[0] == 'foe-npc-world' and w[1] != 'seed':
+            seed, field, nearest = map(int, w[1:])
+            assert (seed, field) not in worlds, ('duplicate world', seed, field)
+            assert nearest > 4, ('a world with a foe in the gap', seed, field, nearest)
+            worlds[seed, field] = nearest
+        elif w[0] == 'foe-moved':
+            assert w[4] == 'ordinal' and w[6] == 'kind' and w[13] == 'to' and w[16] == 'gap' and int(w[17]) > 4, \
+                ('a moved foe still inside the gap', l)
+    assert set(worlds) == {(s, f) for s in range(50) for f in (80, 200)}, 'incomplete spacing census'
+    m = re.fullmatch(r'foe-npc-gap: green, (\d+) foes over 50 seeds at both fields in 13 areas, '
+                     r'(\d+) moved by the gap, the nearest (\d+) clear cells from an NPC '
+                     r'\(talk radius 4\)', lines[-1])
+    assert m and int(m[3]) > 4 and int(m[3]) == min(worlds.values()), ('spacing verdict', lines[-1])
+    return worlds
+
+
+def foe_spacing(binary):
+    p = subprocess.run([str(binary), '--foe-npc-census'], text=True, capture_output=True)
+    (OUT / (Path(binary).parent.name + '-foe-npc-census.txt')).write_text(p.stdout + p.stderr)
+    assert p.returncode == 0, ('spacing census', p.returncode, p.stdout[-400:])
+    worlds = validate_foe_npc_census(p.stdout)
+    print('gameplay:', p.stdout.splitlines()[-1], 'in', len(worlds), 'worlds')
+
+
+def validate_theft_proof(text):
+    """cb19 (R-cb18-3 B): the theft witness reached every milestone in order,
+    held the item across the death and replays to the same."""
+    lines = text.splitlines()
+    m = re.search(r'^theft-replay: slot (\d) theft (\d+) death (\d+) wake (\d+) held 1 returned (\d+) '
+                  r'recovered (\d+) parity 1$', text, re.M)
+    assert m, ('theft witness replay', lines[-3:])
+    theft, death, wake, returned, recovered = map(int, m.groups()[1:])
+    assert theft < death < wake < returned <= recovered, ('theft milestones out of order', m.groups())
+    assert lines[-1].startswith('theft-proof: green, '), ('theft witness verdict', lines[-1:])
+    return m.groups()
+
+
+def marten_theft(binary):
+    import shutil
+    dest = OUT / (Path(binary).parent.name + '-theft-proof')
+    if dest.exists():
+        shutil.rmtree(dest)
+    p = subprocess.run([str(binary), '--make-theft-proof', str(dest)], text=True, capture_output=True)
+    (OUT / (Path(binary).parent.name + '-theft-proof.log')).write_text(p.stdout + p.stderr)
+    assert p.returncode == 0, ('theft witness', p.returncode, p.stdout[-400:], p.stderr[-400:])
+    validate_theft_proof(p.stdout)
+    case = ROOT / 'tests/cases/marten-theft.pk'
+    assert (dest / 'marten-theft.pk').read_bytes() == case.read_bytes(), 'the theft witness is not the committed case'
+    print('gameplay:', p.stdout.splitlines()[-1])
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--bin', required=True)
@@ -623,6 +685,8 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     diagonal_censuses(Path(args.bin).resolve())
     new_foes(Path(args.bin).resolve())
+    foe_spacing(Path(args.bin).resolve())
+    marten_theft(Path(args.bin).resolve())
     den_memory(Path(args.bin).resolve())
     check(Path(args.bin).resolve())
     bodies(Path(args.bin).resolve())
