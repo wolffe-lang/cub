@@ -5,6 +5,7 @@ use forest
 use npc
 use sim
 use pouch
+use std.env
 use std.fs
 
 /// Named failures for DecodeErrors.
@@ -565,6 +566,98 @@ fn decode_core(text: str, cols: int, rows: int, lore_max: int) -> sim.Sim ! Deco
     // The CUB8 reader sets the NPCs' own values over these.
     migrate_npcs(mut s)
     s
+}
+
+/// The oldest save this cub reads (CUB 4 migrates; CUB 1 to 3 are the
+/// tutorial era's and are refused by name).
+pub const OLDEST: int = 4
+
+/// The version a save's text names on its first line (`CUB N`), or -1 when
+/// the text is not a cub save at all.
+pub fn version_of(text: str) -> int {
+    var words = List[str]()
+    for line in text.lines() {
+        for word in line.words() { (mut words).push(word) }
+        break
+    }
+    if words.len != 2 || words[0] != "CUB" { return -1 }
+    let n = words[1].to_int() else |_| { return -1 }
+    if n < 0 then -1 else n
+}
+
+/// The version found in the save at `path` (`version_of`), -1 when it
+/// cannot be read or is not a cub save.
+pub fn version_at(path: str) -> int {
+    let text = fs.read_text(path) else |_| { return -1 }
+    version_of(text)
+}
+
+/// A path as a sentence shows it (cb19): under the home directory as
+/// `~/...` (the home's resolved form too), anything else whole.
+pub fn shown(path: str) -> str {
+    let home = env.get("HOME") else ""
+    if home == "" { return path }
+    for h in [home, fs.realpath(home) else home] {
+        if path.starts_with(h + "/") { return "~" + path[h.len..path.len] }
+    }
+    path
+}
+
+/// What a save is, for a sentence: "a CUB 1 save" or "not a cub save".
+pub fn found(version: int) -> str {
+    if version < 0 then "not a cub save" else "a CUB {version} save"
+}
+
+/// The versions this cub reads, for a sentence.
+pub fn wanted() -> str { "this cub reads CUB {OLDEST} to CUB {VERSION}" }
+
+/// The sentence a refused save gets (cb19, cub#91 A (c), cub#50): the file,
+/// the version found, the versions this cub reads and what to do, never a
+/// bare error name; the name stays in brackets at the end for a search.
+/// `error` is the refusal's name (`save_version`, `save_corrupt`,
+/// `save_difficulty`, `save_io`); `path` the file refused.
+pub fn refusal(path: str, error: str) -> str { refusal_of(shown(path), version_at(path), error) }
+
+/// `refusal`'s sentence for a file shown as `file` whose first line names
+/// `v` (-1: not a cub save).
+pub fn refusal_of(file: str, v: int, error: str) -> str {
+    let what = if error == "save_version" {
+        if v >= 0 && v < OLDEST {
+            "{file} is {found(v)}, from an older cub; {wanted()}. Start a new journey with --save ANOTHER_PATH, or move the old file aside"
+        } else if v > VERSION {
+            "{file} is {found(v)}, from a newer cub; {wanted()}. Play it with that cub, or start a new journey here with --save ANOTHER_PATH"
+        } else {
+            "{file} is {found(v)}; {wanted()}. Start a new journey with --save ANOTHER_PATH, or move the file aside"
+        }
+    } else if error == "save_corrupt" {
+        "{file} is {found(v)} that does not read back whole (its check or a line is wrong); {wanted()}. Move it aside and start a new journey with --save ANOTHER_PATH"
+    } else if error == "save_difficulty" {
+        "{file} is {found(v)} on a difficulty this build does not play; {wanted()} on wolf alone. Start a new journey with --save ANOTHER_PATH"
+    } else if error == "save_io" {
+        "{file} could not be read as a file; {wanted()}. Check that it is a readable file, or start a new journey with --save ANOTHER_PATH"
+    } else {
+        "{file} was refused; {wanted()}. Start a new journey with --save ANOTHER_PATH"
+    }
+    "{what}. It was not changed. [{error}]"
+}
+
+/// The sentence a failed save write gets (cb19): the file, what happened
+/// and what to do; the previous journey on disk is named as kept when it is.
+pub fn write_failure(path: str, error: str) -> str {
+    let what = if error == "save_busy" {
+        "{shown(path)}.pending already exists: another cub is saving this journey, or one stopped mid-write. The previous save is kept; remove the .pending file once no cub is running"
+    } else if error == "save_cut" {
+        "{shown(path)} was not replaced: the write was cut on purpose (--save-cut). The previous save is kept"
+    } else if error == "save_committed_unsynced" {
+        "{shown(path)} was written, but its directory could not be synced: the new save is in place and may not survive a power cut"
+    } else if error == "save_io" {
+        "{shown(path)} could not be written. The previous save is kept; check the directory exists and is writable"
+    } else if error == "save_version" || error == "save_corrupt" || error == "save_difficulty" {
+        "{shown(path)} did not read back as a CUB {VERSION} save after it was staged. The previous save is kept"
+    } else {
+        "{shown(path)} could not be saved. The previous save is kept"
+    }
+    "{what}. [{error}]"
 }
 
 /// Missing saves alone mean new journey; every other read failure is named.
