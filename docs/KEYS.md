@@ -302,3 +302,17 @@ is paused and only Space and Esc act: Space opens a trader's wares (or
 closes the frame), Esc leaves. In the wares the arrows move the cursor,
 Space buys, Esc leaves. Every other key is recorded and inert there, as in
 the pouch. `q` and Ctrl-C quit and interrupt as everywhere.
+
+## An old save at the door (cb19)
+
+No new key. When the start keeps an old `~/.cub/save` (or a `--save NAME`)
+aside as `save.cubN-old`, the title names the file, the version found, the
+versions this cub reads and what was done, and its any-key lands on New
+journey in the fire menu (past Continue when other journeys exist); Space
+there, Enter on the seed and Enter on the difficulty start it, as always.
+A legacy save left where it is (corrupt, from a newer cub, or untouched by
+a `--save NAME` start) is named on the title and once on standard error.
+A refusal on the Load page wraps over up to eight lines above the hint.
+The `cb19-old-save-default` and `cb19-old-save-named` pty rows inject the
+keys, waiting on the menu's traced ticks; `feel-controls` waits on the
+game's own trace for every injection since cb19 (cub#90).
