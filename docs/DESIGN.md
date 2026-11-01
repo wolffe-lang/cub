@@ -2002,4 +2002,6 @@ times, and only when a link was read after its strike and the six-tick grace
 that follows it had ended (a link read inside the grace still continues the
 combo; a fresh combo waits the grace out, or its first press would continue
 the old one). Beside eight loops on the row's one CPU trunk's row was red 18
-of 20, and 20 of 20 in a second job (cb19's note).
+of 20, and 20 of 20 in a second job; there the game itself falls about 0.7 s
+behind through every strike, so no injector can chain a legacy link, and the
+proof's stall is lighter (three and two loops, cb19's note).
