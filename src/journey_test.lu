@@ -43,7 +43,7 @@ fn test_cb02_save_rejects_unknown_corrupt_and_inconsistent_data() {
     let _ = journey.decode(text + "junk", 80, 24) else |_| { rejected = true; sim.new(1, 80, 24) }
     assert(rejected, "trailing corruption")
     rejected = false
-    let _ = journey.decode("CUB 9\n", 80, 24) else |e| {
+    let _ = journey.decode("CUB 10\n", 80, 24) else |e| {
         rejected = "{e}" == "save_version"
         sim.new(1, 80, 24)
     }
