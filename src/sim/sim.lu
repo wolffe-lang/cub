@@ -2863,7 +2863,9 @@ pub fn area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
 /// held to it on every decode, all thirteen areas (the checked machine's
 /// budget; the spawn census holds it to `area_foes` in fifty seeds).
 pub fn area_foe_count(seed: int, field: int, area: int, bosses: int) -> int {
-    inherited_area_foes(seed, field, area, bosses).len + new_foe_count(area)
+    // The spacing rule moves foes, never adds or removes one (cb19), so the
+    // count is the unspaced placement's, at its old cost.
+    inherited_area_foes_as(seed, field, area, bosses, false).len + new_foe_count(area)
 }
 
 /// The six `append_new_area_foes` appends to an area: the Stand's three
@@ -2878,8 +2880,27 @@ pub fn new_foe_count(area: int) -> int {
     0
 }
 
-/// The foes the areas had before cb18: the boss, the groups, the guards.
+/// The foes the areas had before cb18: the boss, the groups, the guards,
+/// every spawn out of every NPC's talk radius (cb19, cub#89 A: the gap
+/// `folk_gap` keeps for cb18's six, applied to every foe).
 fn inherited_area_foes(seed: int, field: int, area: int, bosses: int) -> List[Foe] {
+    inherited_area_foes_as(seed, field, area, bosses, true)
+}
+
+/// The inherited placement; `spaced` false is the placement before cb19,
+/// every foe where the seed put it (the spacing census's before column and
+/// the decode's count, which the rule never changes).
+pub fn inherited_area_foes_as(
+    seed: int,
+    field: int,
+    area: int,
+    bosses: int,
+    spaced: bool,
+) -> List[Foe] {
+    // The NPCs who can stand here, every place and facing (`folk`); the
+    // bosses are not moved: every NPC stands 27 and more cells outside
+    // every arena (cb16's npc audit) and the census measures them too.
+    let near = if spaced then folk(seed, field, area) else no_folk()
     var foes = List[Foe]()
     if forest.has_arena(area) {
         let kind = boss_of(area)
@@ -2895,7 +2916,18 @@ fn inherited_area_foes(seed: int, field: int, area: int, bosses: int) -> List[Fo
     var group = 0
     while group < group_count(area) {
         let (row, count, first, rest) = group_plan(seed, area, group)
-        let at = encounter_row(seed, area, row)
+        // R-cb19-1 A: a group inside an NPC's talk radius moves along its
+        // route, together, by the fewest rows the den rule allows.
+        let at = spaced_row(
+            seed,
+            field,
+            area,
+            encounter_row(seed, area, row),
+            count,
+            first,
+            rest,
+            near,
+        )
         var member = 0
         while member < count {
             let kind = if member == 0 then first else rest
@@ -2912,7 +2944,8 @@ fn inherited_area_foes(seed: int, field: int, area: int, bosses: int) -> List[Fo
     while cache < forest.cache_count(area) {
         let (x, cy) = forest.cache_position(seed, field, area, cache)
         if area == forest.SHINGLE {
-            var foe = make_foe(FOX, x, cy - 3 * FP)
+            let (fx, fy) = spaced_cell(seed, field, area, FOX, x, cy - 3 * FP, near)
+            var foe = make_foe(FOX, fx, fy)
             foe.health = 40
             (mut foes).push(foe)
             cache += 1
@@ -2925,7 +2958,8 @@ fn inherited_area_foes(seed: int, field: int, area: int, bosses: int) -> List[Fo
             var guard = 0
             while guard < (if cache % 2 == 1 then 2 else 1) {
                 let gy = cy + (if guard == 0 then -3 else 3) * FP
-                (mut foes).push(make_foe(ASHEN, x, gy))
+                let (ax, ay) = spaced_cell(seed, field, area, ASHEN, x, gy, near)
+                (mut foes).push(make_foe(ASHEN, ax, ay))
                 guard += 1
             }
             cache += 1
@@ -2944,9 +2978,19 @@ fn inherited_area_foes(seed: int, field: int, area: int, bosses: int) -> List[Fo
         let (w, _) = silhouette.foe_size(kind)
         let (_, _, wide, _) = silhouette.footprint(w, 12, 0)
         let len = forest.branch_len(seed, field, area, cache)
+        let guards = if cache == 0 && !late then 3 else if cache <= 1 then 2 else 1
+        // R-cb19-1 A: guards inside an NPC's talk radius step back along
+        // their branch together, the fewest cells that clear it.
+        let shift = spaced_shift(seed, field, area, cache, kind, len, wide, guards, near)
         var guard = 0
-        while guard < (if cache == 0 && !late then 3 else if cache <= 1 then 2 else 1) {
-            let (gx, gy) = forest.branch_point(seed, field, area, cache, len - 3 - guard * wide)
+        while guard < guards {
+            let (gx, gy) = forest.branch_point(
+                seed,
+                field,
+                area,
+                cache,
+                len - 3 - guard * wide + shift,
+            )
             var f = make_foe(kind, gx * FP + FP / 2, (forest.origin(seed, area) + gy) * FP + FP / 2)
             if late { f.health = ALCOVE_GUARD_HEALTH }
             (mut foes).push(f)
@@ -3070,27 +3114,176 @@ fn encounter_row(seed: int, area: int, at: int) -> int {
     var row = at
     let l = forest.length(area)
     while row < l - 8 {
-        var clear = true
-        var den = 0
-        while den < forest.DEN_LIMIT {
-            if forest.den_area(den) == area {
-                let (dx, dy) = forest.den_position(seed, den)
-                for side in [-1, 1] {
-                    let x = (forest.spine(seed, area, row) + side) * FP
-                    let y = (forest.origin(seed, area) + row) * FP
-                    let ox = (x - dx) / FP
-                    let oy = (y - dy) / FP
-                    if ox * ox + oy * oy < forest.FIRST_FOE_CELLS * forest.FIRST_FOE_CELLS {
-                        clear = false
-                    }
-                }
-            }
-            den += 1
-        }
-        if clear { return row }
+        if den_clear_row(seed, area, row) { return row }
         row += 1
     }
     row
+}
+
+/// Whether both of a group's first spawn slots at `row` keep
+/// `FIRST_FOE_CELLS` from every den of the area (`encounter_row`'s test).
+fn den_clear_row(seed: int, area: int, row: int) -> bool {
+    var clear = true
+    var den = 0
+    while den < forest.DEN_LIMIT {
+        if forest.den_area(den) == area {
+            let (dx, dy) = forest.den_position(seed, den)
+            for side in [-1, 1] {
+                let x = (forest.spine(seed, area, row) + side) * FP
+                let y = (forest.origin(seed, area) + row) * FP
+                let ox = (x - dx) / FP
+                let oy = (y - dy) / FP
+                if ox * ox + oy * oy < forest.FIRST_FOE_CELLS * forest.FIRST_FOE_CELLS {
+                    clear = false
+                }
+            }
+        }
+        den += 1
+    }
+    clear
+}
+
+/// No NPC: the unspaced placement's `Folk`.
+fn no_folk() -> Folk { Folk { bodies: List[Body](), near: Body { x0: 0, y0: 0, x1: -1, y1: -1 } } }
+
+/// Whether a foe of `kind` standing at fixed-point `(x, y)` keeps more
+/// than `npc.FACE_GAP` clear cells from every NPC in `near`, at any facing
+/// of either body (`folk_gap`, cb18's rule for its six).
+pub fn spawn_keeps_gap(kind: int, x: int, y: int, near: Folk) -> bool {
+    near.bodies.len == 0 || folk_gap(make_foe(kind, x, y), near) > npc.FACE_GAP
+}
+
+/// Whether a route group placed at `row` keeps the gap, every member, and
+/// stands outside the area's arena.
+fn group_clear(
+    seed: int,
+    field: int,
+    area: int,
+    row: int,
+    count: int,
+    first: int,
+    rest: int,
+    near: Folk,
+) -> bool {
+    var member = 0
+    while member < count {
+        let kind = if member == 0 then first else rest
+        let cx = forest.spine(seed, area, row) + member * 2 - 1
+        if forest.in_arena(seed, field, area, cx, row) { return false }
+        if !spawn_keeps_gap(kind, cx * FP, (forest.origin(seed, area) + row) * FP, near) {
+            return false
+        }
+        member += 1
+    }
+    true
+}
+
+/// R-cb19-1 A, a route group: the row the den rule gave (`at`) when every
+/// member keeps the gap there; otherwise the nearest row along the same
+/// route, forward on a tie, where every member keeps it and the den rule
+/// holds. The group moves together; it keeps its area, kinds and count.
+fn spaced_row(
+    seed: int,
+    field: int,
+    area: int,
+    at: int,
+    count: int,
+    first: int,
+    rest: int,
+    near: Folk,
+) -> int {
+    if near.bodies.len == 0 || group_clear(seed, field, area, at, count, first, rest, near) {
+        return at
+    }
+    let l = forest.length(area)
+    var d = 1
+    while d < l {
+        for row in [at + d, at - d] {
+            if row >= 8 &&
+                row < l - 8 &&
+                den_clear_row(seed, area, row) &&
+                group_clear(seed, field, area, row, count, first, rest, near) {
+                return row
+            }
+        }
+        d += 1
+    }
+    assert(false, "cb19: a route group needs a row out of every NPC's talk radius")
+    at
+}
+
+/// R-cb19-1 A, a branch's guards: 0 when every guard keeps the gap where
+/// the seed put it; otherwise the fewest cells (back toward the route
+/// first) the whole set steps along its branch so every guard keeps it,
+/// still on the branch (0..len).
+fn spaced_shift(
+    seed: int,
+    field: int,
+    area: int,
+    cache: int,
+    kind: int,
+    len: int,
+    wide: int,
+    guards: int,
+    near: Folk,
+) -> int {
+    if near.bodies.len == 0 { return 0 }
+    var d = 0
+    while d <= len {
+        for shift in (if d == 0 then [0] else [0 - d, d]) {
+            var ok = true
+            var guard = 0
+            while guard < guards && ok {
+                let t = len - 3 - guard * wide + shift
+                if t < 0 || t > len {
+                    ok = false
+                } else {
+                    let (gx, gy) = forest.branch_point(seed, field, area, cache, t)
+                    ok = spawn_keeps_gap(
+                        kind,
+                        gx * FP + FP / 2,
+                        (forest.origin(seed, area) + gy) * FP + FP / 2,
+                        near,
+                    )
+                }
+                guard += 1
+            }
+            if ok { return shift }
+        }
+        d += 1
+    }
+    assert(false, "cb19: a branch's guards need a stretch out of every NPC's talk radius")
+    0
+}
+
+/// R-cb19-1 A, a guard with no route of its own (the coast's alcove fox, a
+/// yard's Ashen): the fixed-point point where the seed put it when it keeps
+/// the gap; otherwise the nearest open cell (Manhattan rings, the cell's
+/// own corner kept) that does.
+pub fn spaced_cell(seed: int, field: int, area: int, kind: int, x: int, y: int, near: Folk) -> (
+    int,
+    int,
+) {
+    if spawn_keeps_gap(kind, x, y, near) { return (x, y) }
+    var radius = 1
+    while radius <= 64 {
+        var dy = 0 - radius
+        while dy <= radius {
+            let dx = radius - abs(dy)
+            for sx in (if dx == 0 then [0] else [0 - dx, dx]) {
+                let nx = x + sx * FP
+                let ny = y + dy * FP
+                if !forest.blocked(seed, field, area, floor_div(nx, FP), floor_div(ny, FP)) &&
+                    spawn_keeps_gap(kind, nx, ny, near) {
+                    return (nx, ny)
+                }
+            }
+            dy += 1
+        }
+        radius += 1
+    }
+    assert(false, "cb19: a guard needs an open cell out of every NPC's talk radius")
+    (x, y)
 }
 
 /// What a cache holds when dug (cb05): a lore line or a consumable, by
