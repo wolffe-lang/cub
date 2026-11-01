@@ -1,0 +1,186 @@
+//! member: false
+//! cb19 (cub#91 A, cub#50): an old save never stops the start, and no save
+//! refusal is a bare error name: each sentence names the file, the version
+//! found, the versions this cub reads and what to do. A unit row a message;
+//! the file moves (the old file kept as `save.cubN-old`) are the pty rows'.
+
+use journey
+use registry
+use sim
+use std.fs
+
+fn has_all(text: str, parts: List[str]) -> bool {
+    for p in parts { if !text.contains(p) { return false } }
+    true
+}
+
+fn reads() -> str { "this cub reads CUB {journey.OLDEST} to CUB {journey.VERSION}" }
+
+fn test_cb19_a_save_names_the_version_on_its_first_line() {
+    assert(journey.version_of("CUB 1\nseed 7 difficulty 0\n") == 1, "CUB 1")
+    assert(journey.version_of("CUB 12\n") == 12, "a newer cub's")
+    assert(journey.version_of("CUB 8") == 8, "no newline")
+    assert(journey.version_of("") == -1, "empty")
+    assert(journey.version_of("hello\n") == -1, "not a cub save")
+    assert(journey.version_of("CUB x\n") == -1, "no number")
+    assert(journey.version_of("CUB -2\n") == -1, "no negative version")
+    assert(journey.version_of("CUB 1 2\n") == -1, "three words")
+    assert(journey.found(3) == "a CUB 3 save" && journey.found(-1) == "not a cub save", "found")
+}
+
+fn test_cb19_an_old_save_s_refusal_is_a_sentence() {
+    let line = journey.refusal_of("~/.cub/save", 1, "save_version")
+    assert(line != "save_version", "never the bare name")
+    assert(
+        has_all(
+            line,
+            ["~/.cub/save", "a CUB 1 save", "older cub", reads(), "--save", "[save_version]"],
+        ),
+        "the file, the version found, the versions read, what to do: {line}",
+    )
+}
+
+fn test_cb19_a_newer_save_s_refusal_says_newer() {
+    let line = journey.refusal_of("/j/x.save", journey.VERSION + 1, "save_version")
+    assert(
+        has_all(
+            line,
+            [
+                "/j/x.save",
+                "a CUB {journey.VERSION + 1} save",
+                "newer cub",
+                reads(),
+                "with that cub",
+            ],
+        ),
+        "a newer cub's save: {line}",
+    )
+}
+
+fn test_cb19_a_corrupt_save_s_refusal_is_a_sentence() {
+    let line = journey.refusal_of("/j/x.save", journey.VERSION, "save_corrupt")
+    assert(
+        has_all(
+            line,
+            [
+                "/j/x.save",
+                "a CUB {journey.VERSION} save",
+                "does not read back whole",
+                reads(),
+                "Move it aside",
+                "[save_corrupt]",
+            ],
+        ),
+        "corrupt: {line}",
+    )
+    let other = journey.refusal_of("/j/notes.txt", -1, "save_corrupt")
+    assert(has_all(other, ["/j/notes.txt", "not a cub save", reads()]), "not a save: {other}")
+}
+
+fn test_cb19_a_difficulty_and_an_unreadable_file_are_sentences() {
+    let hard = journey.refusal_of("/j/x.save", 7, "save_difficulty")
+    assert(
+        has_all(
+            hard,
+            ["/j/x.save", "a CUB 7 save", "difficulty", reads(), "--save", "[save_difficulty]"],
+        ),
+        hard,
+    )
+    let io = journey.refusal_of("/j/x.save", -1, "save_io")
+    assert(has_all(io, ["/j/x.save", "could not be read", reads(), "--save", "[save_io]"]), io)
+}
+
+fn test_cb19_the_refusal_reads_the_version_from_the_file() {
+    // The fixture is cb02's CUB 1 encoding (tests/saves/provenance.json).
+    let line = journey.refusal("tests/saves/cub1.save", "save_version")
+    assert(has_all(line, ["tests/saves/cub1.save", "a CUB 1 save", "older cub"]), line)
+    var refused = ""
+    let text = fs.read_text("tests/saves/cub1.save") else |_| {
+        assert(false, "the CUB 1 fixture")
+        return
+    }
+    let _ = journey.decode(text, 80, 24) else |e| {
+        refused = "{e}"
+        sim.new(7, 80, 24)
+    }
+    assert(refused == "save_version", "the CUB 1 fixture is refused as too old")
+}
+
+fn test_cb19_a_failed_write_is_a_sentence() {
+    for e in ["save_busy", "save_cut", "save_committed_unsynced", "save_io", "save_corrupt"] {
+        let line = journey.write_failure("/j/x.save", e)
+        assert(
+            line != e && line.contains("/j/x.save") && line.ends_with("[{e}]"),
+            "write {e}: {line}",
+        )
+    }
+    assert(journey.write_failure("/j/x.save", "save_busy").contains(".pending"), "the stage named")
+    assert(journey.write_failure("/j/x.save", "save_cut").contains("previous save is kept"), "kept")
+}
+
+fn test_cb19_the_saves_list_s_failures_are_sentences() {
+    for e in ["registry_busy", "registry_line", "registry_missing", "registry_io"] {
+        let line = registry.failure("/h/.cub/registry", "/j/x.save", e)
+        assert(line != e && line.ends_with("[{e}]"), "index {e}: {line}")
+    }
+    assert(
+        registry.failure("/h/.cub/registry", "/j/x.save", "registry_missing").contains("/j/x.save"),
+        "a missing journey names it",
+    )
+    assert(
+        registry.failure(
+            "/h/.cub/registry",
+            "/j/x.save",
+            "registry_line",
+        ).contains("/h/.cub/registry"),
+        "a bad line names the list",
+    )
+    // A save refused while registering goes to the save's own sentence.
+    assert(
+        registry.failure(
+            "/h/.cub/registry",
+            "tests/saves/cub1.save",
+            "save_version",
+        ).contains("a CUB 1 save"),
+        "a refused save keeps its version",
+    )
+}
+
+fn test_cb19_an_old_save_is_kept_under_a_new_name_never_over_one() {
+    assert(registry.kept_name("/h/.cub/save", 1, 1) == "/h/.cub/save.cub1-old", "the first")
+    assert(registry.kept_name("/h/.cub/save", 1, 2) == "/h/.cub/save.cub1-old-2", "a second")
+    assert(registry.kept_name("/j/x.save", 3, 7) == "/j/x.save.cub3-old-7", "any name, any version")
+}
+
+fn test_cb19_the_start_s_lines_name_what_was_done() {
+    let kept = registry.kept_text("~/.cub/save", 1, "~/.cub/save.cub1-old")
+    assert(
+        has_all(
+            kept,
+            [
+                "~/.cub/save",
+                "a CUB 1 save",
+                reads(),
+                "Kept as ~/.cub/save.cub1-old",
+                "nothing deleted",
+                "a new journey",
+            ],
+        ),
+        kept,
+    )
+    let left = registry.left_text("~/.cub/save", 8, "save_corrupt")
+    assert(
+        has_all(
+            left,
+            [
+                "~/.cub/save",
+                "a CUB 8 save",
+                reads(),
+                "Left where it is",
+                "this start goes on",
+                "[save_corrupt]",
+            ],
+        ),
+        left,
+    )
+}
