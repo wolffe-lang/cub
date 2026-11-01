@@ -4,7 +4,7 @@ The maintainer's rulings on cub#89 ("Apply the spacing rule to every foe"), cub#
 cub#90's flaky row. Claude lane (Opus 5.5), one agent. Base: cub trunk `c8669f2c` (cb18). Branch `cb19`, the Mac
 worktree `~/lanes/cb19/cub`; the Linux work on hasu block B (CPUs 6–11, both flocks per run), kasumi offline.
 
-Footprint: module
+Footprint: cross-cutting
 
 ## Prediction
 
@@ -42,11 +42,11 @@ it did not foresee (the list after the items):
   `rich-combo.trace`: tick 3 began strike 1 at 0.76 s, ticks 4 to 45 at 1.4515 s), while a legacy link must be read
   3 to 11 ticks into its strike (2 ticks after the last Space at the least), so no injector can chain one there, and
   every retry meets the same stall. Trunk's startup race fails far below that load. The row as it stands
-  (`2d7291bd`) beside three and then two loops, 20 runs of each row at each, in one job: running at the hand-back
-  (hasu, `setsid -f`, both block locks: log `/home/mfwolffe/lanes/cb19/stress4-2d7291bd.log`, every run's line
-  `stress4 loads <L> <tree> run <n> exit=<N> …` and each level's `stress4 loads <L> <tree> red <R> of 20`, marker
-  `stress4-2d7291bd.exit`, pid file `stress4-2d7291bd.pid`). The proof is the level at which trunk's row is red at
-  least once and this row green 20 of 20.
+  (`2d7291bd`, the same test code as this head's) beside three loops, both rows in one job (`stress4-2d7291bd`,
+  hasu): **trunk's row red 20 of 20, every one `rich n did not commit the injected aim`, cub#90's own line; the paced
+  row green 20 of 20** (`feel/stress-3-loads-2d7291bd.log`). That is the proof. The same job then runs both rows
+  beside two loops, running at the hand-back (log `/home/mfwolffe/lanes/cb19/stress4-2d7291bd.log`, each level's
+  `stress4 loads <L> <tree> red <R> of 20`, marker `stress4-2d7291bd.exit`, pid file `stress4-2d7291bd.pid`).
 
 What the prediction did not foresee:
 
@@ -97,9 +97,11 @@ What the prediction did not foresee:
 
 ## Forbidden
 
-Original work only; the bible's names. No engine, pin, CI, `.github/` or `tools/check*` change (`tools/gameplay.py`,
-`tools/world_checks.py` and `tools/npc_checks.py`, the repo's own gates, gain the new rows; the Footprint stays
-module). The save format and the replay format are versioned, not broken: CUB 9 and journey 8, CUB 4..8 and
+Original work only; the bible's names. No engine or pin change. One CI change, by the orchestrator's word after
+cub#93's run 41274530832 timed out (R-cb19-7, below): the gameplay gates move to their own jobs, so `.github/` and
+`tools/check*` change and the Footprint is cross-cutting (the orchestrator labels `full-matrix`). `tools/gameplay.py`,
+`tools/world_checks.py` and `tools/npc_checks.py`, the repo's own gates, gain the new rows. The save format and the
+replay format are versioned, not broken: CUB 9 and journey 8, CUB 4..8 and
 journey 1..7 still read (`REPLAY.md`, `DESIGN.md`). No label, merge, tag, release or issue edit; nothing in
 `~/.claude` or the planning repository. The maintainer's `~/.cub/` (its `save.cub1-20261025` included) and
 `~/lanes/play/save` were never read or written: every row and probe sets its own scratch `HOME` (the pty rows under
@@ -165,6 +167,25 @@ The CUB 1 fixture `tests/saves/cub1.save` (sha `31598ba4…`) was written by han
 - **R-cb19-5 A (new): a save from a newer cub is never renamed,** only left in place with one named warning (a
   newer cub can still read it); a `--save NAME` from a newer cub, or a corrupt one, is refused by its sentence. The
   orchestrator accepted it at the resume.
+- **R-cb19-7, recommended B and implemented: the gameplay gates in their own jobs.** cub#93's `tier pr` run
+  41274530832 at `fe577281` was cancelled at the Linux job's sixty minutes, inside `release-gameplay`, with every
+  stage before it green (`ci/stage-times.tsv`): container-provision 9 s, engine-check 1,561 s, native-goldens 57 s,
+  score-check 44 s, native-gameplay 1,522 s. Trunk's own Linux job had taken 59 min 47 s (run 40988210304: engine-check
+  1,459 s, native-gameplay 1,437 s, release-gameplay 530 s), so the leg was at its limit before this lane, and the
+  spacing rule's placements and the new rows put it over. A, by the house rule ((the peak phases + 180 s) x 1.4, as
+  px84 and vc14 did): the one leg's peak phases are 3,823 s, its timeout 5,604 s, 94 minutes, the wall clock over an
+  hour. B: `tools/check-linux --no-gameplay` is CI's Linux leg (`tools/check-linux` alone still runs everything, for a
+  lane's whole Linux gate), and a `gameplay` job (`# tier: pr`, the same exact image cache) runs `tools/check-gameplay
+  native` and `release` side by side, each building its own backend. By the same rule: the leg 1,741 s, 45 minutes,
+  its 60 stand; the native gameplay leg 1,573 s, 41 minutes (the matrix job's timeout); the release leg 659 s, 20
+  minutes. The macOS leg was near its limit the same way (trunk 2,565 to 2,876 s; scaled by this head's growth, 3,060
+  s, 76 minutes by the rule): its gameplay step moves to a `macos-gameplay` job (tier full), 42 minutes, and the leg
+  keeps its 60 (41 by the rule). B, because it also halves the wall clock (the slowest Linux job about 29 minutes
+  against 64 and more) and leaves every job a third of its limit or more. The verdict needs the two new jobs; lair's
+  planner reads them from the workflow (`tiers-test.py`: 47 PASS, 0 failures; the pr tier plans `plan-test linux
+  gameplay`, the full tier adds `macos macos-gameplay perf`). `tests/ci_container_test.py` holds the jobs, the order
+  of their cache steps, the timeouts and both scripts' stages, red first against the old workflow
+  (`ci/red-first-ci-tests.txt`: 9 errors, 2 failures at `1b758011`).
 
 The orchestrator's reading of item 2 (the resume, 2026-11-01): a legacy `~/.cub/save` never blocks any start,
 `--save NAME` included; a `--save NAME` too old for this build gets the offer and is kept as `NAME.cubN-old`; CUB 4..8
@@ -197,6 +218,9 @@ migrate as today; CUB 1..3 are kept as `save.cubN-old` with the offer. Implement
   cub#90 paragraph brought to the combo under the stall; `ec7b8d39` and `17f39359` this note and its evidence (the
   first PR head); after its red run, `4bd4a87b` the marten arena's frame 58, `2d7291bd` the combo's grace,
   `64f98dff` and `f4075bd4` DESIGN's sentences for it and for the stall levels, and this note's corrections.
+- CI (R-cb19-7 B), after the run that timed out: `1b758011` the tests of the new jobs and scripts (red first);
+  `273c44c1` `tools/check-gameplay` and `tools/check-linux --no-gameplay`; `cde1c7f4` the workflow's `gameplay` and
+  `macos-gameplay` jobs; `29dadb6f` the README's line; `02e6d957` the evidence; this note.
 
 **Item 1, every moved row with its reason** (`spacing/censuses-base-vs-7252451d.txt`, each census run by the base's
 binary and the rule's, `cmp`'d):
@@ -266,14 +290,17 @@ grace after it had ended (`feel_combo_rest` waits the grace out first).
 - `feel/nightly-41194607711-plain-e.trace` (the red: tick 1 `in 5 keys 9`, the opening's skip, the arrow and Space
   read at once) and `feel/nightly-41194607711-rich-e.trace` (the same run's green row);
   `feel/stress-1-load-35062ef0.log` and `feel/stress-8-loads-35062ef0.log` (hasu, every run's exit and first
-  problem line); the second job's are `stress3-7fa6cfb1`'s log on hasu, and the row as it stands is the running
-  `stress4-2d7291bd` (above).
+  problem line); `feel/stress-8-loads-7fa6cfb1.log` (the second eight-loop job: trunk's row and the `7fa6cfb1` row
+  red 20 of 20 each); `feel/stress-3-loads-2d7291bd.log` (the proof: trunk's row red 20 of 20, the row as it stands
+  green 20 of 20).
 - `checked-suite.txt`: the non-ok rows and the summary of each whole checked suite on nomad (`35062ef0`,
   `660006ab`, `ab2330b1`); `hasu-check-ab2330b1.log`: the code head on hasu.
 - `plant/plant-census-35d6a446.txt`, `plant/plant-run-35d6a446.log` (below).
 - `arena/red-at-17f39359.log` (the PR's run and the Mac gauntlet, both red at `new_foes`), `arena/nfp-17f39359.log`
   (both binaries twice, byte-identical, the four frames that differ, `new_foes`' own assertion) and
   `arena/foe-9-58-base-vs-proof.diff` (the one cell a tier).
+- `ci/stage-times.tsv` (every Linux stage and macOS step of trunk's runs and of cub#93's timed-out run, their peaks and
+  the house rule's sums) and `ci/red-first-ci-tests.txt`.
 
 - **The plant:** cub#92 (`cb19-plant-gap`, `35d6a446`, off the line: base + the census + the rule + the Hush's first
   fox put back where the seed put it, inside Fenn's talk radius): `foe-npc-gap: RED, 100 of 16600 foes within 4
@@ -284,8 +311,12 @@ grace after it had ended (`feel_combo_rest` waits the grace out first).
 - **The gauntlets at the first PR head `17f39359`:** the Mac gauntlet was red at `gameplay-native` (`END
   gameplay-native exit=1`, `CB19_MAC_GAUNTLET_EXIT 1 at gameplay-native`; every step before it exit 0, the checked
   suite 698 passed, both binaries' goldens, the pty rows with `sound-live` and `mute-key` skipped by name). That is
-  the arena frame above, as in the PR's run. hasu's gauntlet at that head (`gate-17f39359`) was still queued at the
-  fix.
+  the arena frame above, as in the PR's run. hasu's gauntlet at that head (`gate-17f39359`) was red at
+  `native-gameplay` too, every stage before it exit 0 (`/home/mfwolffe/lanes/cb19/gate-17f39359.log`).
+- **The gauntlets at `fe577281`** (the game's last code; the commits after it are CI, `tools/check*`, the python tests,
+  the README and this note): the Mac gauntlet green, every step `END … exit=0` through `END memory-gate exit=0`,
+  `CB19_MAC_GAUNTLET_EXIT 0 at fe577281d185bd971175c37509fabd252c8d82ab`
+  (`/Users/mfwolffe/lanes/cb19/gate/mac-gauntlet-fe577281.log`); at `ea22f1b0` (the arena's fix) it was green too.
 - **The gauntlets at the final head** (this note's head), both detached at the hand-back, each stopping at its first
   red step and printing every step's `END <step> exit=N`:
   - the Mac gauntlet (`~/lanes/cb19/mac-gauntlet.sh` behind the lock in a worktree pinned to the head: the head
@@ -314,14 +345,16 @@ grace after it had ended (`feel_combo_rest` waits the grace out first).
   migration; journey 8; the witness replay; both tiers' goldens of the carrying marten (R-cb19-2..4 A).
 - [x] cub#90: `feel-controls` tick-paced; under the forced stall (eight loops on its CPU) trunk's row red 18 of 20
   and 20 of 20.
-- [ ] cub#90: the paced row as it stands green 20 of 20 under a stall where trunk's row is red (three or two loops):
-  `stress4-2d7291bd`, running at the hand-back.
+- [x] cub#90: the paced row as it stands green 20 of 20 beside three loops, where trunk's row is red 20 of 20
+  (`stress4-2d7291bd`; its two-loop half running at the hand-back).
 - [x] The plant red by name, off the line (cub#92).
 - [x] Test targets: the checked suite; both binaries' goldens; the generators against the base and the rule; the
   spacing, foe, hit, boss, fairness, new-foe, den-spacing, bend, spur, npc and world censuses compared; the old-save
   pty rows on both binaries; the theft witness and its replay; the stress runs.
+- [x] R-cb19-7 B: the gameplay gates in their own jobs beside the Linux and macOS legs, every timeout by the house rule;
+  the planner's test and the repo's CI tests green, those red first.
 - [ ] The full gauntlets at the final head, the Mac's and hasu's: running at the hand-back (the evidence index).
 
 Closes #89, #90, #91 and #50 (by hand at the merge: the orchestrator's).
 
-Ledger: cb19 | the three rulings | module | PR: this note's PR | plant #92 | final head: this PR's head.
+Ledger: cb19 | the three rulings | cross-cutting | PR: this note's PR | plant #92 | final head: this PR's head.
