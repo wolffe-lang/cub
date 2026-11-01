@@ -1597,10 +1597,72 @@ pub fn draw_foes(s: sim.Sim, t: int, mut g: grid.Grid) {
             } else {
                 draw_foe(mut g, t, r, c, f.kind, f.phase, f.heading, fade)
             }
+            if f.kind == sim.MARTEN && f.health > 0 && f.stolen_item >= 0 {
+                draw_marten_carry(s, t, mut g, f)
+            }
             if s.locked == i { draw.put_text(mut g, r + 2, c, "[]", ink(t, true)) }
         }
         i += 1
     }
+}
+
+/// R-cb19-2 A, how the cub can tell: a marten holding a stolen item has it
+/// in its jaws, one cell ahead of its head along its facing, on both tiers
+/// (`inventory.carried`), up its trunk too.
+pub fn draw_marten_carry(s: sim.Sim, t: int, mut g: grid.Grid, f: sim.Foe) {
+    let (row, col) = carry_cell(f)
+    inventory.carried(
+        mut g,
+        t,
+        row - sim.camera_y(s) + sim.screen_row(s),
+        col - sim.camera_x(s) + sim.screen_col(s),
+        f.stolen_item,
+        s.tick,
+    )
+}
+
+/// The world cell a marten's held item is drawn in: one cell ahead of its
+/// body's leading edge, at the middle of that edge.
+pub fn carry_cell(f: sim.Foe) -> (int, int) {
+    let b = sim.foe_body(f)
+    let q = sim.quarter(f.heading)
+    if q == 0 { return (b.y0 - 1, b.x0 + (b.x1 - b.x0) / 2) }
+    if q == 1 { return (b.y0 + (b.y1 - b.y0) / 2, b.x1 + 1) }
+    if q == 2 { return (b.y1 + 1, b.x0 + (b.x1 - b.x0) / 2) }
+    (b.y0 + (b.y1 - b.y0) / 2, b.x0 - 1)
+}
+
+/// The carrying marten (cb19, R-cb19-2 A): its four facings with each of the
+/// five items in its jaws, on a plain ground, for both tiers' goldens.
+pub fn marten_carry_sheet(t: int) -> grid.Grid {
+    var g = grid.new(24, 80)
+    draw.put_text(
+        mut g,
+        0,
+        2,
+        "marten carrying: yarrow marrow pine ice tuft; N E S W",
+        ink(t, true),
+    )
+    var kind = 0
+    while kind < 5 {
+        var q = 0
+        while q < 4 {
+            var f = sim.make_new_foe(sim.MARTEN, 0, 0)
+            f.phase = sim.HUNT
+            f.heading = q * 64
+            f.stolen_item = kind
+            let row = 4 + kind * 4
+            let col = 8 + q * 18
+            draw_new_foe(mut g, t, row, col, sim.MARTEN, sim.HUNT, q * 64, -1)
+            // The foe stands at world cell (0, 0): the carry cell is the
+            // offset from the drawing's anchor, as the frame draws it.
+            let (cr, cc) = carry_cell(f)
+            inventory.carried(mut g, t, row + cr, col + cc, kind, 0)
+            q += 1
+        }
+        kind += 1
+    }
+    g
 }
 
 fn draw_posture(s: sim.Sim, t: int, mut g: grid.Grid) {

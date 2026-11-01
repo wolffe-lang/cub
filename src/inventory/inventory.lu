@@ -42,6 +42,26 @@ fn text_over(mut g: grid.Grid, row: int, col: int, text: str, fg: int) {
     for b in text.bytes() { pixel(mut g, row, col + i, b as int, fg); i += 1 }
 }
 
+/// A stolen item in a marten's jaws (cb19, R-cb19-2 A): one cell, the
+/// kind's own glyph and colour on the rich tier (the upper cell of its
+/// pickup drawing), a bold `+` in the kind's colour on the plain.
+pub fn carried(mut g: grid.Grid, t: int, row: int, col: int, kind: int, tick: int) {
+    if row < 0 || col < 0 || row >= g.rows || col >= g.cols { return }
+    let fg = colour(t, kind, tick)
+    if t == tier.PLAIN {
+        pixel(mut g, row, col, 43, fg)
+        return
+    }
+    let cp = match kind {
+        0 => 0x2584,
+        1 => 0x2588,
+        2 => 0x2580,
+        3 => 0x2584,
+        _ => 0x2580,
+    }
+    pixel(mut g, row, col, cp, fg)
+}
+
 /// Five original silhouettes; unlit cells and each painted background stay terrain.
 pub fn pickup(mut g: grid.Grid, t: int, row: int, col: int, kind: int, tick: int) {
     let fg = colour(t, kind, tick)
