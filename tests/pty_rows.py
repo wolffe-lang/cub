@@ -1936,6 +1936,14 @@ def _cb19_menu(session, page, what, timeout=20):
     return feel_until(session, lambda r: r.get('menu') == page and 'area' not in r, what, timeout)
 
 
+def _cb19_drawn(session, page, what):
+    """The menu page traced twice: the first trace's frame is written
+    before the second is traced (fire_menu traces, then writes)."""
+    first = _cb19_menu(session, page, what)
+    return feel_until(session, lambda r: r.get('menu') == page and 'area' not in r
+                      and r['tick'] > first['tick'], what + ', drawn')
+
+
 def _cb19_new_journey(session):
     """From the title: its key, New journey (Space), the seed and the
     difficulty accepted (Enter twice), play's first traced tick, then q."""
@@ -1948,6 +1956,40 @@ def _cb19_new_journey(session):
     session.type(b'\r', settle=0)
     feel_until(session, lambda r: 'area' in r, 'in play')
     return menu
+
+
+def _cb19_wrap(text, width):
+    """mainmenu.wrap's greedy lines: words at spaces, a long word cut."""
+    lines, line = [], ''
+    for word in text.split():
+        while len(word) > width:
+            if line:
+                lines.append(line)
+                line = ''
+            lines.append(word[:width])
+            word = word[width:]
+        if not line:
+            line = word
+        elif len(line) + 1 + len(word) <= width:
+            line += ' ' + word
+        else:
+            lines.append(line)
+            line = word
+    if line:
+        lines.append(line)
+    return lines
+
+
+def _cb19_on_title(screen, err, needle, problems):
+    """The title shows the start's stderr line, wrapped as the card wraps it
+    (68 columns at 80): every line of it on the screen."""
+    lines = [l[len('cub: '):] for l in err.decode(errors='replace').splitlines() if needle in l]
+    if len(lines) != 1:
+        problems.append('no single start line to find on the title: %r' % lines)
+        return
+    for part in _cb19_wrap(lines[0], 68):
+        if part not in screen:
+            problems.append('the title lacks the line ' + repr(part))
 
 
 def _cb19_reads(err):
@@ -1967,11 +2009,11 @@ def cb19_old_save_default(binary, ctx):
     base = home / '.cub'
     session = ctx.Session([binary, '--mute', '--trace', '--tier', 'plain'], 24, 80, env)
     try:
-        _cb19_menu(session, -1, 'on the title')
+        _cb19_drawn(session, -1, 'on the title')
         screen = ctx.screen_text(binary, session.out)
-        for part in ('CUB 1 save', 'this cub reads CUB 4 to CUB', 'save.cub1-old', 'a new journey'):
-            if part not in screen.replace('\n', ' '):
-                problems.append('the title does not say ' + repr(part))
+        _cb19_on_title(screen, session.err, 'is a CUB 1 save', problems)
+        if 'save.cub1-old' not in screen:
+            problems.append('the title does not name the kept file')
         menu = _cb19_new_journey(session)
         if menu['row'] != 0:
             problems.append('the title key did not land on New journey (row %d)' % menu['row'])
@@ -2010,7 +2052,7 @@ def cb19_old_save_default(binary, ctx):
             session.type(b'q', settle=0)
         session.finish()
     ctx.common_checks(session, 0, problems)
-    if (base / 'save.cub1-old').read_bytes() != fixture:
+    if not (base / 'save.cub1-old').is_file() or (base / 'save.cub1-old').read_bytes() != fixture:
         problems.append('the first kept save was overwritten')
     second = base / 'save.cub1-old-2'
     if not second.is_file() or b'seed 8 ' not in second.read_bytes():
@@ -2074,10 +2116,9 @@ def cb19_old_save_named(binary, ctx):
     old.write_bytes(fixture)
     session = ctx.Session([binary, '--save', str(old), '--mute', '--trace', '--tier', 'plain'], 24, 80, env)
     try:
-        _cb19_menu(session, -1, 'on the title for an old NAME')
+        _cb19_drawn(session, -1, 'on the title for an old NAME')
         screen = ctx.screen_text(binary, session.out)
-        if 'old.save.cub1-old' not in screen.replace('\n', ' '):
-            problems.append('the title does not name the kept NAME')
+        _cb19_on_title(screen, session.err, 'old.save is a CUB 1 save', problems)
         _cb19_new_journey(session)
     except FeelDelivery as error:
         problems.append('DELIVERY ' + str(error))
@@ -2089,7 +2130,7 @@ def cb19_old_save_named(binary, ctx):
     kept = home / 'old.save.cub1-old'
     if not kept.is_file() or kept.read_bytes() != fixture:
         problems.append('the old NAME was not kept byte for byte')
-    if current is None or not old.read_text().startswith('CUB %d\n' % current):
+    if current is None or not old.is_file() or not old.read_text().startswith('CUB %d\n' % current):
         problems.append('the new journey did not start at the old NAME')
     if (base / 'save').read_bytes() != fixture:
         problems.append('the legacy save was touched by the second start')
