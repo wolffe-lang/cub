@@ -1,0 +1,16 @@
+# tests/ci_container_test.py at 1b758011 against the workflow and tools/check-linux of fe577281 (the new tests red first), then at cde1c7f4:
+ERROR: test_check_gameplay_builds_its_backend_then_runs_its_gate (ci_container_test.ContainerCacheTests.test_check_gameplay_builds_its_backend_then_runs_its_gate) (backend='native')
+ERROR: test_check_gameplay_builds_its_backend_then_runs_its_gate (ci_container_test.ContainerCacheTests.test_check_gameplay_builds_its_backend_then_runs_its_gate) (backend='release')
+ERROR: test_check_gameplay_keeps_a_red_gate_red (ci_container_test.ContainerCacheTests.test_check_gameplay_keeps_a_red_gate_red)
+ERROR: test_check_gameplay_stops_at_a_failed_build_and_keeps_its_status (ci_container_test.ContainerCacheTests.test_check_gameplay_stops_at_a_failed_build_and_keeps_its_status)
+ERROR: test_check_gameplay_wants_a_backend (ci_container_test.ContainerCacheTests.test_check_gameplay_wants_a_backend) (backend='')
+ERROR: test_check_gameplay_wants_a_backend (ci_container_test.ContainerCacheTests.test_check_gameplay_wants_a_backend) (backend='both')
+ERROR: test_gameplay_job_runs_each_backend_beside_the_linux_leg (ci_container_test.ContainerCacheTests.test_gameplay_job_runs_each_backend_beside_the_linux_leg)
+ERROR: test_macos_gameplay_runs_beside_the_macos_leg_and_the_verdict_needs_both (ci_container_test.ContainerCacheTests.test_macos_gameplay_runs_beside_the_macos_leg_and_the_verdict_needs_both)
+ERROR: test_workflow_saves_exact_cache_before_tests_without_raising_timeout (ci_container_test.ContainerCacheTests.test_workflow_saves_exact_cache_before_tests_without_raising_timeout)
+FAIL: test_an_unknown_option_is_refused (ci_container_test.ContainerCacheTests.test_an_unknown_option_is_refused)
+FAIL: test_the_ci_leg_leaves_only_the_gameplay_gates_to_their_job (ci_container_test.ContainerCacheTests.test_the_ci_leg_leaves_only_the_gameplay_gates_to_their_job)
+Ran 22 tests in 1.562s
+FAILED (failures=2, errors=9)
+
+# at cde1c7f4: python3 -I -m unittest discover -s tests -p '*_test.py': Ran 99 tests, OK; python3 -I .lair/ci/tiers-test.py: 0 failure(s), 47 PASS

@@ -1,0 +1,44 @@
+# cb19, R-cb19-7: the Linux leg's stage times (seconds), from the jobs' own `ci-stage ... elapsed_seconds` lines, and
+# the macOS job's step times (seconds), from the jobs API's step stamps. Trunk c8669f2c's push run 40988210304
+# (2026-10-30, the Linux job 59 min 47 s) and nightly 41047553331 (46 min 58 s); cub#93 at fe577281, run 41274530832
+# (cancelled at the Linux job's 60 minutes, 04:49:14 -> 05:49:33, inside release-gameplay).
+
+linux stage	trunk 40988210304	trunk 41047553331	fe577281 41274530832	peak
+set-up to provision (runner, checkout, lair, toolchain, image restore)	-	-	8	8
+container-provision	8	14	9	14
+python-tests	0	1	1	1
+pty-fixtures	0	0	0	0
+engine-check (fmt, the checked suite, both builds, the goldens, the pty rows)	1459	1262	1561	1561
+native-goldens	43	33	57	57
+score-check	43	39	44	44
+native-gameplay	1437	1025	1522	1522
+release-gameplay	530	380	>= 414 (cancelled at 05:49:33; 560 by the phases' native-to-release ratio)	560
+memory-gate	41	41	not reached	41
+linux-tests (the whole container run)	3554	2781	cancelled	-
+
+macos step	trunk 40988210304	trunk 41047553331	nightly 41194607711	peak	x 1.06 (the head's gameplay growth over trunk's peak, 1522 / 1437)
+set-up, checkout, lair, cache, toolchain, fmt	7	9	8	9	9
+the unit tests	390	463	476	476	505
+build, both tiers	42	61	58	61	61
+resident growth (memory gate)	41	41	41	41	41
+the goldens, both tiers	16	25	29	29	31
+native goldens and gameplay semantics on both backends	1246	1440	1357	1440	1526
+the pty rows	814	818	821	821	870
+upload and post	8	17	13	17	17
+the job	2564	2874	2803	-	3060
+
+The house rule (px84, vc14): timeout = (the peak phases + 180 s) x 1.4.
+- one Linux leg as it was, at fe577281: 8 + 14 + 1 + 1561 + 57 + 44 + 1522 + 560 + 41 + 15 upload = 3823 s;
+  (3823 + 180) x 1.4 = 5604 s = 94 minutes (A: the timeout raised to 94 minutes, the wall clock unchanged, over an hour).
+- B, the Linux leg without the gameplay gates: 8 + 14 + 1 + 1561 + 57 + 44 + 41 + 15 = 1741 s; (1741 + 180) x 1.4 = 2689 s
+  = 45 minutes: its 60 stand.
+- B, `gameplay` native (the slower leg): 9 set-up + 14 image + 13 build (engine-check's native build, 05:00:48 -> 05:01:01)
+  + 1522 + 15 upload = 1573 s; (1573 + 180) x 1.4 = 2454 s = 41 minutes.
+- B, `gameplay` release: 9 + 14 + 61 build (05:01:01 -> 05:02:02) + 560 + 15 = 659 s; (659 + 180) x 1.4 = 1175 s = 20 minutes;
+  the matrix job's one timeout is the native leg's 41.
+- B, the macOS leg without its gameplay step: 9 + 505 + 61 + 41 + 31 + 31 native goldens (the Linux 57 s scaled by the
+  goldens step's mac/linux ratio, generous) + 870 + 17 = 1565 s; (1565 + 180) x 1.4 = 2443 s = 41 minutes: its 60 stand.
+- B, `macos-gameplay`: 8 set-up + 61 build + 1526 + 17 = 1612 s; (1612 + 180) x 1.4 = 2509 s = 42 minutes.
+- The macOS leg as it was, scaled: (3060 + 180) x 1.4 = 4536 s = 76 minutes, over its 60.
+Wall clock, B: the slowest Linux job about 29 min (the leg) and 26 min (gameplay native) side by side, against the
+leg's 64 min and more in one job.
