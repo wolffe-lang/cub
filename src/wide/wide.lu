@@ -784,6 +784,58 @@ pub fn gen_bench() -> int {
     0
 }
 
+/// The spacing census (cb19, cub#89 A): every foe `sim.area_foes` places,
+/// the boss, the route groups, the cache and yard guards and cb18's six,
+/// each against every place and facing of every NPC that can stand in its
+/// area (`sim.folk`, `sim.folk_gap`: the rule cb18's six keep, more than
+/// `npc.FACE_GAP` clear cells), fifty seeds at both fields, all thirteen
+/// areas. A row a foe inside the gap (`foe-near-npc seed field area kind x
+/// y gap`, cb18's probe's columns), a row a world with its nearest gap,
+/// and the verdict last. Exit 1 when any foe is inside.
+pub fn foe_npc_census() -> int {
+    print("foe-npc-world seed field nearest")
+    var foes = 0
+    var near = 0
+    var nearest = 1000
+    var seed = 0
+    while seed < 50 {
+        for field in [80, 200] {
+            var world = 1000
+            region census {
+                var area = 0
+                while area < forest.AREAS {
+                    let folk = sim.folk(seed, field, area)
+                    for f in sim.area_foes(seed, field, area, 0) {
+                        let g = sim.folk_gap(f, folk)
+                        if g < world { world = g }
+                        if g <= npc.FACE_GAP {
+                            print(
+                                "foe-near-npc {seed} {field} {area} {f.kind} {f.x / sim.FP} {f.y / sim.FP} {g}",
+                            )
+                            near += 1
+                        }
+                        foes += 1
+                    }
+                    area += 1
+                }
+            }
+            print("foe-npc-world {seed} {field} {world}")
+            if world < nearest { nearest = world }
+        }
+        seed += 1
+    }
+    if near > 0 {
+        print(
+            "foe-npc-gap: RED, {near} of {foes} foes within {npc.FACE_GAP} clear cells of an NPC, the nearest {nearest}",
+        )
+        return 1
+    }
+    print(
+        "foe-npc-gap: green, {foes} foes over 50 seeds at both fields in {forest.AREAS} areas, the nearest {nearest} clear cells from an NPC (talk radius {npc.FACE_GAP})",
+    )
+    0
+}
+
 /// Complete appended distribution, also callable without repeating legacy rows.
 pub fn new_foe_distribution() -> int {
     // Appended distribution, never insert columns into inherited rows.
