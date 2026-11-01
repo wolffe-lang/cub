@@ -2998,6 +2998,15 @@ pub fn inherited_area_foes_as(
         }
         cache += 1
     }
+    // PLANT (cb19-plant-gap, off the line, never merged): the Hush's first
+    // fox back where the seed put it, inside Fenn's talk radius; the spacing
+    // census must name it red.
+    if spaced && area == forest.HUSH && foes.len > 0 {
+        let (row, _, _, _) = group_plan(seed, area, 0)
+        let at = encounter_row(seed, area, row)
+        foes[0].x = (forest.spine(seed, area, at) - 1) * FP
+        foes[0].y = (forest.origin(seed, area) + at) * FP
+    }
     foes
 }
 
