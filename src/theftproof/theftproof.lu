@@ -104,13 +104,14 @@ fn play(mut s: sim.Sim, mut r: replay.Replay) -> Milestones {
     if i < 0 { eprint("theftproof: no marten in the Stand"); return m }
     m.slot = sim.marten_slot(s, i)
     let (cx, cy) = stand_cell(s, i, 3)
-    // Walk to it passively, then stand still until the landing bite steals.
+    // Walk to it passively (on through its first, early tell), then stand
+    // still until a landing bite reaches the cub and steals.
     if !walker.walk_stop(
         mut s,
         mut r,
         cx * sim.FP + sim.FP / 2,
         cy * sim.FP + sim.FP / 2,
-        i,
+        -1,
         true,
     ) {
         eprint("theftproof: the walk to the marten")
@@ -161,7 +162,7 @@ fn play(mut s: sim.Sim, mut r: replay.Replay) -> Milestones {
         mut r,
         bx * sim.FP + sim.FP / 2,
         by * sim.FP + sim.FP / 2,
-        i,
+        -1,
         true,
     ) {
         eprint("theftproof: the walk back to the marten")
