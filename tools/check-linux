@@ -1,8 +1,21 @@
 #!/bin/sh
 # Run inside the engine container. Its taskset selects the assigned lane CPUs.
+# `tools/check-linux` runs every Linux gate, the gameplay gates on both
+# backends included; `tools/check-linux --no-gameplay` is CI's Linux leg,
+# which leaves the gameplay gates to the parallel `gameplay` job
+# (`tools/check-gameplay native|release`, cb19's R-cb19-7 B: together the
+# two outran the leg's sixty minutes).
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 cd "$ROOT"
+case "${1:-}" in
+"") gameplay=1 ;;
+--no-gameplay) gameplay=0 ;;
+*)
+    echo "check-linux: unknown option $1 (only --no-gameplay)" >&2
+    exit 2
+    ;;
+esac
 mkdir -p target/test-home
 export HOME="$ROOT/target/test-home"
 stage() {
@@ -19,7 +32,13 @@ stage pty-fixtures python3 -I tools/prepare-pty
 stage engine-check .lair/tools/check-linux
 stage native-goldens .lair/tools/goldens --bin target/native/cub
 stage score-check python3 -I tools/score-check
-stage native-gameplay python3 -u -I tools/gameplay.py --bin target/native/cub
-stage release-gameplay python3 -u -I tools/gameplay.py --bin target/release/cub
+if [ "$gameplay" = 1 ]; then
+    stage native-gameplay python3 -u -I tools/gameplay.py --bin target/native/cub
+    stage release-gameplay python3 -u -I tools/gameplay.py --bin target/release/cub
+fi
 stage memory-gate sh tools/check-memory target/release/cub
-echo 'cub check-linux: green'
+if [ "$gameplay" = 1 ]; then
+    echo 'cub check-linux: green'
+else
+    echo 'cub check-linux --no-gameplay: green (the gameplay gates are the gameplay job'"'"'s)'
+fi

@@ -1,0 +1,30 @@
+#!/bin/sh
+# Run inside the engine container: one backend's build and its gameplay gate,
+# `tools/check-gameplay native|release`. CI's `gameplay` job runs each
+# backend in its own leg beside the Linux leg (cb19, R-cb19-7 B: the two
+# gameplay gates and the Linux leg together outran its sixty minutes);
+# `tools/check-linux` alone still runs both, for a lane's whole Linux gate.
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+cd "$ROOT"
+case "${1:-}" in
+native | release) backend=$1 ;;
+*)
+    echo "check-gameplay: usage: tools/check-gameplay native|release" >&2
+    exit 2
+    ;;
+esac
+mkdir -p target/test-home
+export HOME="$ROOT/target/test-home"
+stage() {
+    name=$1
+    shift
+    started=$(date +%s)
+    echo "ci-stage $name START utc=$(date -u +%FT%TZ)"
+    if "$@"; then status=0; else status=$?; fi
+    echo "ci-stage $name END utc=$(date -u +%FT%TZ) elapsed_seconds=$(($(date +%s) - started)) status=$status"
+    return "$status"
+}
+stage "$backend-build" .lair/tools/build "--$backend"
+stage "$backend-gameplay" python3 -u -I tools/gameplay.py --bin "target/$backend/cub"
+echo "cub check-gameplay $backend: green"
