@@ -68,9 +68,19 @@ What the prediction did not foresee:
 - **The witness's pickup.** `r` takes an item on the cub's own cell at the tick's start; the witness waited for the
   cub to stop before pressing it and the cub coasted off the drop's cell (`recovered -1` at `35062ef0`): `660006ab`
   presses it the first tick the cub stands there.
-- **The marten's arena frames did not change.** The prediction said `new-foe-arenas`' foe-9 frames would gain the
-  glyph: they are byte-identical, since in none of them does the marten hold the yarrow. The carrying marten's
-  goldens are the art study's two new sheets and the witness's case on both tiers.
+- **The marten's arena frame, missed until the PR's run.** The prediction was right: `new-foe-arenas`' foe-9 frame 58
+  gains the glyph, on both tiers, one cell, the stolen yarrow just below the marten's body facing the cub (R-cb19-2
+  A). I first wrote here that those frames had not changed. That was wrong: `.lair/tools/goldens` never writes
+  `tests/goldens/new-foe-arenas` (its frames are `cub --new-foe-proof`'s, compared by `tools/gameplay.py`'s
+  `new_foes`), and no run of mine before the final gauntlets ran `gameplay.py` whole, only its census and witness
+  steps. cub#93's `tier pr` run 41268833280 and the Mac gauntlet at `17f39359` were both red there (`new-foe
+  replay/golden differs`, `foe-9-0-58.sty`; `arena/red-at-17f39359.log`). Behind the lock in a tree pinned to
+  `17f39359`, `--new-foe-proof` by both binaries, twice each, wrote byte-identical output, and 4 of its 114 files
+  differ from the committed ones: `foe-9-0-58.txt` and `.sty`, `foe-9-1-58.txt` and `.sty`
+  (`arena/nfp-17f39359.log`, `arena/foe-9-58-base-vs-proof.diff`). The replay is deterministic and the golden was
+  stale. `4bd4a87b` takes those four files from the tool's own output, and `goldens/item3-the-carrying-marten.tsv`
+  names each one. The gauntlet already runs both gameplay gates (`gameplay-native`, `gameplay-release`); my
+  probes before a push now run `gameplay.py` whole too.
 
 ## Forbidden
 
@@ -171,7 +181,8 @@ migrate as today; CUB 1..3 are kept as `save.cubN-old` with the offer. Implement
   `869f7662…`) and the carrying marten's goldens, both tiers; `d1b07866` their ledger.
 - Docs: `c399548a` DESIGN, `1fcdc341` REPLAY, `35062ef0` KEYS, `49b8f364` the README (README only; read whole: the
   saves paragraph, the six's paragraph and the census flags are current, nothing else moved); `7508519a` DESIGN's
-  cub#90 paragraph brought to the combo under the stall; this note and its evidence.
+  cub#90 paragraph brought to the combo under the stall; `ec7b8d39` and `17f39359` this note and its evidence (the
+  first PR head); after its red run, `4bd4a87b` the marten arena's frame 58 and this note's corrections.
 
 **Item 1, every moved row with its reason** (`spacing/censuses-base-vs-7252451d.txt`, each census run by the base's
 binary and the rule's, `cmp`'d):
@@ -194,7 +205,8 @@ binary and the rule's, `cmp`'d):
   whose world moved; every one "foe moved by the gap". They were staged by the rule's binary alone, so nothing of
   items 2–4 is in them; the head's binary then moves nothing else but item 3's three directories
   (`goldens/item3-the-carrying-marten.tsv`: the art study's `marten-carry-plain` and `marten-carry-rich` sheets, the
-  new `marten-theft` case on both tiers). 519 directories at the head: the base's 517 and the two new.
+  new `marten-theft` case on both tiers). 519 directories at the head: the base's 517 and the two new. Outside
+  `.lair/tools/goldens`, the marten arena's frame 58 moves on both tiers for the same reason (`4bd4a87b`, above).
 - `bbef4837` (a group that keeps the gap at its den-rule row is not asked the arena question) and `a1df4fda` move
   nothing: the spacing census at the code head `ab2330b1` is byte-identical to the rule's (`7252451d`'s, `cmp`, on
   nomad and on hasu), its release goldens 517 `ok`, 0 `DIFFERS` (nomad), and the theft witness's record
@@ -243,6 +255,9 @@ tick and plays the combo again (at most five times) only when a link was read af
 - `checked-suite.txt`: the non-ok rows and the summary of each whole checked suite on nomad (`35062ef0`,
   `660006ab`, `ab2330b1`); `hasu-check-ab2330b1.log`: the code head on hasu.
 - `plant/plant-census-35d6a446.txt`, `plant/plant-run-35d6a446.log` (below).
+- `arena/red-at-17f39359.log` (the PR's run and the Mac gauntlet, both red at `new_foes`), `arena/nfp-17f39359.log`
+  (both binaries twice, byte-identical, the four frames that differ, `new_foes`' own assertion) and
+  `arena/foe-9-58-base-vs-proof.diff` (the one cell a tier).
 
 - **The plant:** cub#92 (`cb19-plant-gap`, `35d6a446`, off the line: base + the census + the rule + the Hush's first
   fox put back where the seed put it, inside Fenn's talk radius): `foe-npc-gap: RED, 100 of 16600 foes within 4
@@ -250,6 +265,11 @@ tick and plays the combo again (at most five times) only when a link was read af
   validator red `a foe inside an NPC talk radius` (nomad, `CB19_PLANT_DONE`). Its CI run 41262727931 is red
   earlier, at the checked suite (cb02b's texture row out of the budget, the rule without the fixes); the census red
   is nomad's, by name. It stands.
+- **The gauntlets at the first PR head `17f39359`:** the Mac gauntlet was red at `gameplay-native` (`END
+  gameplay-native exit=1`, `CB19_MAC_GAUNTLET_EXIT 1 at gameplay-native`; every step before it exit 0, the checked
+  suite 698 passed, both binaries' goldens, the pty rows with `sound-live` and `mute-key` skipped by name). That is
+  the arena frame above, as in the PR's run. hasu's gauntlet at that head (`gate-17f39359`) was still queued at the
+  fix.
 - **The gauntlets at the final head** (this note's head), both detached at the hand-back, each stopping at its first
   red step and printing every step's `END <step> exit=N`:
   - the Mac gauntlet (`~/lanes/cb19/mac-gauntlet.sh` behind the lock in a worktree pinned to the head: the head
