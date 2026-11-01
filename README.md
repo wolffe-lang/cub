@@ -131,16 +131,23 @@ recently played save; Load lists known journeys or accepts a typed path.
 New journeys live under `~/.cub/saves/`. `~/.cub/registry` keeps their absolute
 paths, names, seeds, difficulty, area, level and last-played time; `--save PATH`
 registers a file anywhere. The old `~/.cub/save` is imported as journey without
-deleting or rewriting it on import. Resume wakes at the last den with slain
-foes still gone, keeping growth, shortcuts, caches, pouch contents, the mark,
+deleting or rewriting it on import, and never stops a start, whatever it
+holds: one too old for this build (CUB 1 to CUB 3) is kept beside itself as
+`save.cubN-old` (never over an earlier one: `-old-2`, `-old-3`), the title
+says so and its key lands on New journey; one corrupt or from a newer cub is
+left where it is, unregistered, with one line naming it (a `--save NAME` too
+old is kept as `NAME.cubN-old` the same way). Every refusal names the file,
+the version found, the versions this cub reads and what to do. Resume wakes
+at the last den with slain foes still gone, keeping growth, shortcuts, caches, pouch contents, the mark,
 bosses, end and original world field. Corrupt files fail by name, never reset.
-This build writes CUB 8: thirteen slain masks (one an area) and the gates
+This build writes CUB 9: thirteen slain masks (one an area) and the gates
 (the burnt oak, the stone mouth), then a name and elapsed `played_ms`, the
-items, and the NPCs' line (what each has said, the dead, Quill's perch, the
-flags). CUB 7 migrates with nothing said, its open sett counted dug and a
-seeded Bramblehold's tuft counted Ember's; CUB 6 also with empty masks for the
+items, the NPCs' line (what each has said, the dead, Quill's perch, the
+flags) and the kept thefts (what each of the Stand's martens holds). CUB 8
+migrates holding no theft; CUB 7 with nothing said, its open sett counted dug
+and a seeded Bramblehold's tuft counted Ember's; CUB 6 also with empty masks for the
 six new areas and no gate opened, keeping its items, lore, name and time; CUB 5
-also with name journey and zero elapsed time, and CUB 4 with an empty slain set. Earlier schemas fail as `save_version`. A
+also with name journey and zero elapsed time, and CUB 4 with an empty slain set; earlier schemas are refused by a sentence. A
 quit before a staged write's commit tick preserves the previous gameplay save;
 an already-due stage commits.
 Live sessions record under `~/.cub/replays/` unless `--record FILE` chooses
@@ -151,7 +158,7 @@ The New journey prompts offer the seed and wolf, the playable difficulty in
 this build. Every tuning proposal is in `docs/DESIGN.md`.
 Pouch stacks cap at5/3/3/3/1, with at most128 saved ground pickups and48
 discovered lore lines (32 in a CUB 7 or older; ids 0..32 have lines). The item
-extension follows name/played_ms in CUB 8, CUB 7 and CUB 6; CUB 4/5 and earlier
+extension follows name/played_ms in CUB 9, CUB 8, CUB 7 and CUB 6; CUB 4/5 and earlier
 CUB 6 wrappers migrate with empty new item fields.
 
 ## Where it runs
@@ -229,6 +236,9 @@ target/cub --boss-census       fight every boss in fifty seeds at both sizes; a 
 target/cub --new-foe-census    six new foes in fifty seeds at both sizes, with chase/contact measurements
 target/cub --new-foe-spawn-census  complete real-area distribution at both sizes in fifty seeds,
                                none within an NPC's four-cell talk radius
+target/cub --foe-npc-census    every foe's spawn, the inherited ones included, against every NPC's
+                               talk radius in fifty seeds at both fields; the moved foes listed
+target/cub --make-theft-proof DIR  the marten's kept theft: steal, die, return, bite, recover
 target/cub --new-foe-hit-census  the six new foes' complete bite/snuff rings, kept separate from inherited rows
 target/cub --new-foe-proof DIR  record and independently replay the six disclosed test-arena encounters
 target/cub --fight-trace 7 1   narrate one scripted fight (the alpha, seed 1; a third number picks 80 or 200 columns)
@@ -265,14 +275,16 @@ over the cub, but underneath the HUD and menus.
 The Stand has three trunk martens; the Burn has two adders and two swarms
 of five moths; the Mere has its last-stone heron. Eight three-worm clusters
 light the Underteeth, and two wisps follow the Howe's barrow-side branches
-to real sentries. Every spawn keeps the den refuge clear and stays out of
-every NPC's four-cell talk radius. Bite a thief to
-return its one stolen pouch item at the trunk's foot; leaving, resting or
-loading before that return loses the unreturned theft. The lynx's swipe
+to real sentries. Every spawn keeps the den refuge clear, and every foe's
+spawn, the inherited ones too, stays out of every NPC's four-cell talk
+radius (a foe the rule moves keeps its route, kind and count). A marten
+keeps what it stole, in its jaws (its glyph rich, a `+` plain), across
+the cub's leaving, resting, dying and reloading until the marten is bitten
+or slain, which drops it at the trunk's foot. The lynx's swipe
 bleeds; the marten only steals. The adder burns for forty health ticks; water or yarrow cures
 it, and yarrow also stops bleeding. Ice melts on entering the Burn.
-These timed effects and foe modes are transient; CUB 8 / journey 7 and
-the 48-line lore capacity (cb16's) are unchanged.
+These timed effects and foe modes are transient; the kept thefts are CUB 9
+and journey 8's (cb19), beside cb16's 48-line lore capacity.
 
 The arena census uses ordinary player keys over 50 seeds at both sizes,
 recording chase travel, contacts, overlaps and dodge counts. The art study
