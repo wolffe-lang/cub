@@ -1997,6 +1997,9 @@ at the strike's second traced tick (the earliest a legacy Space is not a
 repeat). On a starved CPU the game itself falls behind and steps every due
 tick at one wake, reading input only at the first (38 ticks in half a
 millisecond on hasu beside eight busy loops), so a request window can pass
-with no byte readable in it: the row then plays the combo again, at most five
-times, and only when a link was read after its strike had ended. Beside eight
-loops on the row's one CPU trunk's row was red 18 of 20 (cb19's note).
+with no byte readable in it: the row then plays the combo again, at most eight
+times, and only when a link was read after its strike and the six-tick grace
+that follows it had ended (a link read inside the grace still continues the
+combo; a fresh combo waits the grace out, or its first press would continue
+the old one). Beside eight loops on the row's one CPU trunk's row was red 18
+of 20, and 20 of 20 in a second job (cb19's note).
