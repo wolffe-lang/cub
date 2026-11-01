@@ -2,11 +2,14 @@
 # from the staged .lair/; clef's shape, the house rule); a job marked
 # `# tier: pr` runs for a pull request, the rest for trunk, the nightly, a
 # dispatch and the `full-matrix` label:
-#   tier pr    the planner's test and the Linux leg (fmt, the unit tests on
+#   tier pr    the planner's test, the Linux leg (fmt, the unit tests on
 #              the checked machine, both builds, the selftest, the goldens
-#              on both tiers, the pty rows in the container);
+#              on both tiers, the pty rows in the container) and, beside
+#              it, the gameplay gates in the container, one backend a leg
+#              (the `gameplay` job, cb19's R-cb19-7 B);
 #   tier full  the above plus the macOS leg (the build, the goldens and the
-#              pty rows on a macOS runner) and performance gates.
+#              pty rows on a macOS runner), its gameplay gates in their own
+#              job (`macos-gameplay`) and performance gates.
 # Every job first stages the engine at lair.pin (tools/fetch-lair) and the
 # toolchain by digest (.lair/tools/fetch-toolchain). Every step runs bare
 # and its exit code is read directly: no pipes. A red nightly opens one
@@ -97,7 +100,7 @@ jobs:
           path: target/ci-container/image.tar
           key: ${{ steps.container-cache.outputs.cache-primary-key }}
       - name: the Linux leg, in the container
-        run: python3 -I tools/ci-container.py run -- tools/check-linux
+        run: python3 -I tools/ci-container.py run -- tools/check-linux --no-gameplay
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -106,7 +109,53 @@ jobs:
             target/goldens
             target/pty
             target/test.log
-            target/gameplay
+  gameplay:
+    # tier: pr
+    # The gameplay gates, one backend a leg, beside the Linux leg (cb19,
+    # R-cb19-7 B): with them the leg outran its sixty minutes. The timeout
+    # is the house rule's, (the peak phases + 180 s) x 1.4 for the native
+    # leg, the slower: 9 s set-up, 14 s image, 13 s build, 1,522 s gameplay,
+    # 15 s upload (cub#93's run 41274530832) -> 2,454 s, 41 minutes.
+    name: gameplay semantics, ${{ matrix.backend }} (in the container)
+    needs: plan
+    if: contains(fromJSON(needs.plan.outputs.jobs || '[]'), 'gameplay')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 41
+    strategy:
+      fail-fast: false
+      matrix:
+        backend: [native, release]
+    steps:
+      - uses: actions/checkout@v4
+      - name: the engine, at lair.pin
+        run: tools/fetch-lair
+      - uses: actions/cache@v4
+        with:
+          path: .wolf-bin
+          key: lair-toolchain-linux-${{ hashFiles('.lair/wolf-toolchain.toml') }}
+      - name: the pinned toolchain, by digest
+        run: .lair/tools/fetch-toolchain
+      - name: restore the pinned Linux image
+        id: container-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: target/ci-container/image.tar
+          key: lair-container-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.lair/ci/Containerfile') }}
+      - name: provision the pinned Linux image
+        run: python3 -I tools/ci-container.py prepare
+      - name: save the pinned Linux image
+        if: steps.container-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: target/ci-container/image.tar
+          key: ${{ steps.container-cache.outputs.cache-primary-key }}
+      - name: the build and the gameplay gate, in the container
+        run: python3 -I tools/ci-container.py run -- tools/check-gameplay ${{ matrix.backend }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: gameplay-evidence-${{ matrix.backend }}
+          path: target/gameplay
   macos:
     name: macOS arm64 (build, goldens, pty rows)
     needs: plan
@@ -139,13 +188,10 @@ jobs:
         env:
           LAIR_MEMORY_GATE: '0'
         run: .lair/tools/goldens
-      - name: native goldens and gameplay semantics on both backends
+      - name: the native goldens
         env:
           LAIR_MEMORY_GATE: '0'
-        run: |
-          .lair/tools/goldens --bin target/native/cub
-          python3 -I tools/gameplay.py --bin target/native/cub
-          python3 -I tools/gameplay.py --bin target/release/cub
+        run: .lair/tools/goldens --bin target/native/cub
       - name: the pty rows
         env:
           LAIR_MEMORY_GATE: '0'
@@ -157,6 +203,45 @@ jobs:
           path: |
             target/goldens
             target/pty
+  macos-gameplay:
+    # The gameplay gates on both backends on a macOS runner, beside the macOS
+    # leg (cb19, R-cb19-7 B, as the Linux leg's). The timeout is the house
+    # rule's, (the peak phases, scaled by cub#93's growth over trunk's,
+    # + 180 s) x 1.4: 8 s set-up, 61 s build, the gameplay step's peak
+    # 1,440 s on trunk (run 41047553331) x 1.06 = 1,526 s, 17 s upload and
+    # post -> 2,509 s, 42 minutes.
+    name: macOS arm64 gameplay semantics (both backends)
+    needs: plan
+    if: contains(fromJSON(needs.plan.outputs.jobs || '[]'), 'macos-gameplay')
+    runs-on: macos-latest
+    timeout-minutes: 42
+    steps:
+      - uses: actions/checkout@v4
+      - name: the engine, at lair.pin
+        run: tools/fetch-lair
+      - uses: actions/cache@v4
+        with:
+          path: .wolf-bin
+          key: lair-toolchain-macos-${{ hashFiles('.lair/wolf-toolchain.toml') }}
+      - name: the pinned toolchain, by digest
+        run: .lair/tools/fetch-toolchain
+      - name: build, both tiers
+        env:
+          LAIR_MEMORY_GATE: '0'
+        run: .lair/tools/build --all
+      - name: gameplay semantics, native
+        env:
+          LAIR_MEMORY_GATE: '0'
+        run: python3 -I tools/gameplay.py --bin target/native/cub
+      - name: gameplay semantics, release
+        env:
+          LAIR_MEMORY_GATE: '0'
+        run: python3 -I tools/gameplay.py --bin target/release/cub
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: macos-gameplay-evidence
+          path: target/gameplay
   perf:
     name: performance (render, idle, input latency)
     needs: plan
@@ -199,7 +284,9 @@ jobs:
       - plan
       - plan-test
       - linux
+      - gameplay
       - macos
+      - macos-gameplay
       - perf
     runs-on: ubuntu-24.04
     steps:
