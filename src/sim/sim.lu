@@ -3158,7 +3158,15 @@ fn no_folk() -> Folk { Folk { bodies: List[Body](), near: Body { x0: 0, y0: 0, x
 /// than `npc.FACE_GAP` clear cells from every NPC in `near`, at any facing
 /// of either body (`folk_gap`, cb18's rule for its six).
 pub fn spawn_keeps_gap(kind: int, x: int, y: int, near: Folk) -> bool {
-    near.bodies.len == 0 || folk_gap(make_foe(kind, x, y), near) > npc.FACE_GAP
+    if near.bodies.len == 0 { return true }
+    // `folk_gap`'s own far test, before a foe is made (the checked
+    // machine's budget: every placement of an area with an NPC asks).
+    let cx = floor_div(x, FP)
+    let cy = floor_div(y, FP)
+    if cx < near.near.x0 || cx > near.near.x1 || cy < near.near.y0 || cy > near.near.y1 {
+        return true
+    }
+    folk_gap(make_foe(kind, x, y), near) > npc.FACE_GAP
 }
 
 /// Whether a route group placed at `row` keeps the gap, every member, and
