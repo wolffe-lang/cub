@@ -1,0 +1,4 @@
+directory	changed	added	removed	case	how	cause
+art	0	4	0	art	the art study's two new sheets, marten-carry-plain and marten-carry-rich (.txt, .sty)	the carrying marten (R-cb19-2 A)
+marten-theft-plain	0	75	0	marten-theft	new case: the theft witness's record (tests/cases/marten-theft.pk, sha256 869f7662...), frames every 15 ticks from 166	the kept theft (R-cb18-3 B) and the carrying marten (R-cb19-2 A)
+marten-theft-rich	0	75	0	marten-theft	new case: the same record on the rich tier	the kept theft (R-cb18-3 B) and the carrying marten (R-cb19-2 A)
