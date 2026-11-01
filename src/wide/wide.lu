@@ -41,8 +41,10 @@ pub const FOES_LATE_MIN: int = 8
 /// ... and at most (cb14: twelve and the alcove guards, R-cb14-5).
 pub const FOES_LATE_MAX: int = 14
 
-/// The foes one of cb14's areas starts with until cb18 fills its table:
-/// its alcove guards (two pairs and one; Gravehollow's a pair and one).
+/// The fewest foes one of cb14's six areas starts with (R-cb14-5): its
+/// alcove guards (Gravehollow's two pairs, 4) and, where they stand, cb18's
+/// six on top (`sim.new_foe_count`: the Stand 8, the Burn 9, the Mere 6, the
+/// Underteeth 29, the Howe 7 in every seed); the bound below every one.
 pub const FOES_NEW_MIN: int = 3
 
 /// ... and at most.
