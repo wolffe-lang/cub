@@ -1,0 +1,12 @@
+census foe-census base_exit=0 head_exit=0 equal 2026-11-01T00:45:24Z
+census hit-census base_exit=0 head_exit=0 equal 2026-11-01T00:45:24Z
+census new-foe-spawn-census base_exit=0 head_exit=0 equal 2026-11-01T00:45:24Z
+census new-foe-census base_exit=0 head_exit=0 equal 2026-11-01T00:45:24Z
+census new-foe-hit-census base_exit=0 head_exit=0 equal 2026-11-01T00:45:24Z
+census den-spacing base_exit=0 head_exit=0 equal 2026-11-01T00:45:51Z
+census bends-audit base_exit=0 head_exit=0 equal 2026-11-01T00:45:51Z
+census spurs-audit base_exit=0 head_exit=0 equal 2026-11-01T00:45:58Z
+census world-audit base_exit=0 head_exit=0 DIFFERS 2026-11-01T00:47:06Z
+census npc-audit base_exit=0 head_exit=0 equal 2026-11-01T00:47:12Z
+census boss-census base_exit=0 head_exit=0 DIFFERS 2026-11-01T00:47:41Z
+CB19_CENSUS_DONE 2026-11-01T00:47:41Z

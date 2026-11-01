@@ -1,0 +1,662 @@
+foe-npc-world seed field nearest
+foe-near-npc 0 80 5 1 -11 40 -4
+foe-near-npc 0 80 5 1 -9 40 -3
+foe-near-npc 0 80 5 0 5 74 4
+foe-near-npc 0 80 5 0 7 74 4
+foe-near-npc 0 80 5 1 9 136 -1
+foe-near-npc 0 80 5 1 11 136 -1
+foe-npc-world 0 80 -4
+foe-near-npc 0 200 5 1 -11 40 -4
+foe-near-npc 0 200 5 1 -9 40 -3
+foe-near-npc 0 200 5 0 5 74 4
+foe-near-npc 0 200 5 0 7 74 4
+foe-near-npc 0 200 5 1 9 136 -1
+foe-near-npc 0 200 5 1 11 136 -1
+foe-npc-world 0 200 -4
+foe-near-npc 1 80 5 1 -7 41 -4
+foe-near-npc 1 80 5 1 -5 41 -3
+foe-near-npc 1 80 5 0 6 75 3
+foe-near-npc 1 80 5 0 8 75 3
+foe-near-npc 1 80 5 0 10 75 4
+foe-near-npc 1 80 5 1 5 137 0
+foe-near-npc 1 80 5 1 7 137 0
+foe-npc-world 1 80 -4
+foe-near-npc 1 200 5 1 -7 41 -4
+foe-near-npc 1 200 5 1 -5 41 -3
+foe-near-npc 1 200 5 0 6 75 3
+foe-near-npc 1 200 5 0 8 75 3
+foe-near-npc 1 200 5 0 10 75 4
+foe-near-npc 1 200 5 1 5 137 0
+foe-near-npc 1 200 5 1 7 137 0
+foe-npc-world 1 200 -4
+foe-near-npc 2 80 5 1 -10 42 -2
+foe-near-npc 2 80 5 1 -8 42 -1
+foe-near-npc 2 80 5 1 6 137 0
+foe-near-npc 2 80 5 1 8 137 0
+foe-npc-world 2 80 -2
+foe-near-npc 2 200 5 1 -10 42 -2
+foe-near-npc 2 200 5 1 -8 42 -1
+foe-near-npc 2 200 5 1 6 137 0
+foe-near-npc 2 200 5 1 8 137 0
+foe-npc-world 2 200 -2
+foe-near-npc 3 80 5 1 -7 44 0
+foe-near-npc 3 80 5 1 -5 44 1
+foe-near-npc 3 80 5 1 5 137 0
+foe-near-npc 3 80 5 1 7 137 0
+foe-npc-world 3 80 0
+foe-near-npc 3 200 5 1 -7 44 0
+foe-near-npc 3 200 5 1 -5 44 1
+foe-near-npc 3 200 5 1 5 137 0
+foe-near-npc 3 200 5 1 7 137 0
+foe-npc-world 3 200 0
+foe-near-npc 4 80 5 1 -2 43 -1
+foe-near-npc 4 80 5 1 0 43 0
+foe-near-npc 4 80 5 0 9 76 2
+foe-near-npc 4 80 5 0 11 76 2
+foe-near-npc 4 80 5 0 13 76 2
+foe-near-npc 4 80 5 1 5 137 0
+foe-near-npc 4 80 5 1 7 137 0
+foe-npc-world 4 80 -1
+foe-near-npc 4 200 5 1 -2 43 -1
+foe-near-npc 4 200 5 1 0 43 0
+foe-near-npc 4 200 5 0 9 76 2
+foe-near-npc 4 200 5 0 11 76 2
+foe-near-npc 4 200 5 0 13 76 2
+foe-near-npc 4 200 5 1 5 137 0
+foe-near-npc 4 200 5 1 7 137 0
+foe-npc-world 4 200 -1
+foe-near-npc 5 80 5 1 -8 41 -3
+foe-near-npc 5 80 5 1 -6 41 -2
+foe-near-npc 5 80 5 1 4 137 0
+foe-near-npc 5 80 5 1 6 137 0
+foe-npc-world 5 80 -3
+foe-near-npc 5 200 5 1 -8 41 -3
+foe-near-npc 5 200 5 1 -6 41 -2
+foe-near-npc 5 200 5 1 4 137 0
+foe-near-npc 5 200 5 1 6 137 0
+foe-npc-world 5 200 -3
+foe-near-npc 6 80 5 1 -7 43 -1
+foe-near-npc 6 80 5 1 -5 43 0
+foe-near-npc 6 80 5 0 2 76 2
+foe-near-npc 6 80 5 0 4 76 2
+foe-near-npc 6 80 5 0 6 76 3
+foe-near-npc 6 80 5 1 4 137 0
+foe-near-npc 6 80 5 1 6 137 0
+foe-npc-world 6 80 -1
+foe-near-npc 6 200 5 1 -7 43 -1
+foe-near-npc 6 200 5 1 -5 43 0
+foe-near-npc 6 200 5 0 2 76 2
+foe-near-npc 6 200 5 0 4 76 2
+foe-near-npc 6 200 5 0 6 76 3
+foe-near-npc 6 200 5 1 4 137 0
+foe-near-npc 6 200 5 1 6 137 0
+foe-npc-world 6 200 -1
+foe-near-npc 7 80 5 1 -9 44 0
+foe-near-npc 7 80 5 1 -7 44 1
+foe-near-npc 7 80 5 0 0 75 3
+foe-near-npc 7 80 5 0 2 75 3
+foe-near-npc 7 80 5 0 4 75 3
+foe-near-npc 7 80 5 1 4 139 2
+foe-near-npc 7 80 5 1 6 139 2
+foe-npc-world 7 80 0
+foe-near-npc 7 200 5 1 -9 44 0
+foe-near-npc 7 200 5 1 -7 44 1
+foe-near-npc 7 200 5 0 0 75 3
+foe-near-npc 7 200 5 0 2 75 3
+foe-near-npc 7 200 5 0 4 75 3
+foe-near-npc 7 200 5 1 4 139 2
+foe-near-npc 7 200 5 1 6 139 2
+foe-npc-world 7 200 0
+foe-near-npc 8 80 5 1 -4 41 -3
+foe-near-npc 8 80 5 1 -2 41 -2
+foe-near-npc 8 80 5 1 3 136 -1
+foe-near-npc 8 80 5 1 5 136 -1
+foe-npc-world 8 80 -3
+foe-near-npc 8 200 5 1 -4 41 -3
+foe-near-npc 8 200 5 1 -2 41 -2
+foe-near-npc 8 200 5 1 3 136 -1
+foe-near-npc 8 200 5 1 5 136 -1
+foe-npc-world 8 200 -3
+foe-near-npc 9 80 5 1 -9 41 -3
+foe-near-npc 9 80 5 1 -7 41 -2
+foe-near-npc 9 80 5 0 2 74 4
+foe-near-npc 9 80 5 0 4 74 4
+foe-near-npc 9 80 5 0 6 74 4
+foe-near-npc 9 80 5 1 4 139 2
+foe-near-npc 9 80 5 1 6 139 2
+foe-npc-world 9 80 -3
+foe-near-npc 9 200 5 1 -9 41 -3
+foe-near-npc 9 200 5 1 -7 41 -2
+foe-near-npc 9 200 5 0 2 74 4
+foe-near-npc 9 200 5 0 4 74 4
+foe-near-npc 9 200 5 0 6 74 4
+foe-near-npc 9 200 5 1 4 139 2
+foe-near-npc 9 200 5 1 6 139 2
+foe-npc-world 9 200 -3
+foe-near-npc 10 80 5 1 -9 40 -4
+foe-near-npc 10 80 5 1 -7 40 -3
+foe-near-npc 10 80 5 1 6 136 -1
+foe-near-npc 10 80 5 1 8 136 -1
+foe-npc-world 10 80 -4
+foe-near-npc 10 200 5 1 -9 40 -4
+foe-near-npc 10 200 5 1 -7 40 -3
+foe-near-npc 10 200 5 1 6 136 -1
+foe-near-npc 10 200 5 1 8 136 -1
+foe-npc-world 10 200 -4
+foe-near-npc 11 80 5 1 -10 42 -2
+foe-near-npc 11 80 5 1 -8 42 -1
+foe-near-npc 11 80 5 0 0 75 3
+foe-near-npc 11 80 5 0 2 75 3
+foe-near-npc 11 80 5 0 4 75 4
+foe-near-npc 11 80 5 1 3 139 2
+foe-near-npc 11 80 5 1 5 139 2
+foe-npc-world 11 80 -2
+foe-near-npc 11 200 5 1 -10 42 -2
+foe-near-npc 11 200 5 1 -8 42 -1
+foe-near-npc 11 200 5 0 0 75 3
+foe-near-npc 11 200 5 0 2 75 3
+foe-near-npc 11 200 5 0 4 75 4
+foe-near-npc 11 200 5 1 3 139 2
+foe-near-npc 11 200 5 1 5 139 2
+foe-npc-world 11 200 -2
+foe-near-npc 12 80 5 1 -3 44 0
+foe-near-npc 12 80 5 1 -1 44 1
+foe-near-npc 12 80 5 1 8 137 0
+foe-near-npc 12 80 5 1 10 137 0
+foe-npc-world 12 80 0
+foe-near-npc 12 200 5 1 -3 44 0
+foe-near-npc 12 200 5 1 -1 44 1
+foe-near-npc 12 200 5 1 8 137 0
+foe-near-npc 12 200 5 1 10 137 0
+foe-npc-world 12 200 0
+foe-near-npc 13 80 5 1 -8 41 -3
+foe-near-npc 13 80 5 1 -6 41 -2
+foe-near-npc 13 80 5 0 6 75 3
+foe-near-npc 13 80 5 0 8 75 3
+foe-near-npc 13 80 5 0 10 75 4
+foe-near-npc 13 80 5 1 5 140 3
+foe-near-npc 13 80 5 1 7 140 3
+foe-npc-world 13 80 -3
+foe-near-npc 13 200 5 1 -8 41 -3
+foe-near-npc 13 200 5 1 -6 41 -2
+foe-near-npc 13 200 5 0 6 75 3
+foe-near-npc 13 200 5 0 8 75 3
+foe-near-npc 13 200 5 0 10 75 4
+foe-near-npc 13 200 5 1 5 140 3
+foe-near-npc 13 200 5 1 7 140 3
+foe-npc-world 13 200 -3
+foe-near-npc 14 80 5 1 -7 44 0
+foe-near-npc 14 80 5 1 -5 44 1
+foe-near-npc 14 80 5 1 4 138 1
+foe-near-npc 14 80 5 1 6 138 1
+foe-npc-world 14 80 0
+foe-near-npc 14 200 5 1 -7 44 0
+foe-near-npc 14 200 5 1 -5 44 1
+foe-near-npc 14 200 5 1 4 138 1
+foe-near-npc 14 200 5 1 6 138 1
+foe-npc-world 14 200 0
+foe-near-npc 15 80 5 1 -10 40 -4
+foe-near-npc 15 80 5 1 -8 40 -3
+foe-near-npc 15 80 5 0 4 75 3
+foe-near-npc 15 80 5 0 6 75 3
+foe-near-npc 15 80 5 0 8 75 4
+foe-near-npc 15 80 5 1 5 136 -1
+foe-near-npc 15 80 5 1 7 136 -1
+foe-npc-world 15 80 -4
+foe-near-npc 15 200 5 1 -10 40 -4
+foe-near-npc 15 200 5 1 -8 40 -3
+foe-near-npc 15 200 5 0 4 75 3
+foe-near-npc 15 200 5 0 6 75 3
+foe-near-npc 15 200 5 0 8 75 4
+foe-near-npc 15 200 5 1 5 136 -1
+foe-near-npc 15 200 5 1 7 136 -1
+foe-npc-world 15 200 -4
+foe-near-npc 16 80 5 1 -8 41 -3
+foe-near-npc 16 80 5 1 -6 41 -2
+foe-near-npc 16 80 5 0 4 76 2
+foe-near-npc 16 80 5 0 6 76 2
+foe-near-npc 16 80 5 0 8 76 3
+foe-near-npc 16 80 5 1 9 136 -1
+foe-near-npc 16 80 5 1 11 136 -1
+foe-npc-world 16 80 -3
+foe-near-npc 16 200 5 1 -8 41 -3
+foe-near-npc 16 200 5 1 -6 41 -2
+foe-near-npc 16 200 5 0 4 76 2
+foe-near-npc 16 200 5 0 6 76 2
+foe-near-npc 16 200 5 0 8 76 3
+foe-near-npc 16 200 5 1 9 136 -1
+foe-near-npc 16 200 5 1 11 136 -1
+foe-npc-world 16 200 -3
+foe-near-npc 17 80 5 1 -8 44 -1
+foe-near-npc 17 80 5 1 -6 44 0
+foe-near-npc 17 80 5 0 1 75 3
+foe-near-npc 17 80 5 0 3 75 3
+foe-near-npc 17 80 5 0 5 75 4
+foe-near-npc 17 80 5 1 5 138 1
+foe-near-npc 17 80 5 1 7 138 1
+foe-npc-world 17 80 -1
+foe-near-npc 17 200 5 1 -8 44 -1
+foe-near-npc 17 200 5 1 -6 44 0
+foe-near-npc 17 200 5 0 1 75 3
+foe-near-npc 17 200 5 0 3 75 3
+foe-near-npc 17 200 5 0 5 75 4
+foe-near-npc 17 200 5 1 5 138 1
+foe-near-npc 17 200 5 1 7 138 1
+foe-npc-world 17 200 -1
+foe-near-npc 18 80 5 1 -10 43 -1
+foe-near-npc 18 80 5 1 -8 43 0
+foe-near-npc 18 80 5 1 3 137 0
+foe-near-npc 18 80 5 1 5 137 0
+foe-npc-world 18 80 -1
+foe-near-npc 18 200 5 1 -10 43 -1
+foe-near-npc 18 200 5 1 -8 43 0
+foe-near-npc 18 200 5 1 3 137 0
+foe-near-npc 18 200 5 1 5 137 0
+foe-npc-world 18 200 -1
+foe-near-npc 19 80 5 1 -7 40 -4
+foe-near-npc 19 80 5 1 -5 40 -3
+foe-near-npc 19 80 5 0 7 75 3
+foe-near-npc 19 80 5 0 9 75 3
+foe-near-npc 19 80 5 0 11 75 4
+foe-near-npc 19 80 5 1 6 139 2
+foe-near-npc 19 80 5 1 8 139 2
+foe-npc-world 19 80 -4
+foe-near-npc 19 200 5 1 -7 40 -4
+foe-near-npc 19 200 5 1 -5 40 -3
+foe-near-npc 19 200 5 0 7 75 3
+foe-near-npc 19 200 5 0 9 75 3
+foe-near-npc 19 200 5 0 11 75 4
+foe-near-npc 19 200 5 1 6 139 2
+foe-near-npc 19 200 5 1 8 139 2
+foe-npc-world 19 200 -4
+foe-near-npc 20 80 5 1 -9 43 -1
+foe-near-npc 20 80 5 1 -7 43 0
+foe-near-npc 20 80 5 1 3 138 1
+foe-near-npc 20 80 5 1 5 138 1
+foe-npc-world 20 80 -1
+foe-near-npc 20 200 5 1 -9 43 -1
+foe-near-npc 20 200 5 1 -7 43 0
+foe-near-npc 20 200 5 1 3 138 1
+foe-near-npc 20 200 5 1 5 138 1
+foe-npc-world 20 200 -1
+foe-near-npc 21 80 5 1 -9 41 -4
+foe-near-npc 21 80 5 1 -7 41 -3
+foe-near-npc 21 80 5 0 6 74 4
+foe-near-npc 21 80 5 0 8 74 4
+foe-near-npc 21 80 5 1 4 140 3
+foe-near-npc 21 80 5 1 6 140 3
+foe-npc-world 21 80 -4
+foe-near-npc 21 200 5 1 -9 41 -4
+foe-near-npc 21 200 5 1 -7 41 -3
+foe-near-npc 21 200 5 0 6 74 4
+foe-near-npc 21 200 5 0 8 74 4
+foe-near-npc 21 200 5 1 4 140 3
+foe-near-npc 21 200 5 1 6 140 3
+foe-npc-world 21 200 -4
+foe-near-npc 22 80 5 1 -5 41 -3
+foe-near-npc 22 80 5 1 -3 41 -2
+foe-near-npc 22 80 5 0 10 75 3
+foe-near-npc 22 80 5 0 12 75 3
+foe-near-npc 22 80 5 0 14 75 4
+foe-near-npc 22 80 5 1 8 136 -1
+foe-near-npc 22 80 5 1 10 136 -1
+foe-npc-world 22 80 -3
+foe-near-npc 22 200 5 1 -5 41 -3
+foe-near-npc 22 200 5 1 -3 41 -2
+foe-near-npc 22 200 5 0 10 75 3
+foe-near-npc 22 200 5 0 12 75 3
+foe-near-npc 22 200 5 0 14 75 4
+foe-near-npc 22 200 5 1 8 136 -1
+foe-near-npc 22 200 5 1 10 136 -1
+foe-npc-world 22 200 -3
+foe-near-npc 23 80 5 1 -9 40 -4
+foe-near-npc 23 80 5 1 -7 40 -3
+foe-near-npc 23 80 5 0 5 76 2
+foe-near-npc 23 80 5 0 7 76 2
+foe-near-npc 23 80 5 0 9 76 2
+foe-near-npc 23 80 5 1 3 137 0
+foe-near-npc 23 80 5 1 5 137 0
+foe-npc-world 23 80 -4
+foe-near-npc 23 200 5 1 -9 40 -4
+foe-near-npc 23 200 5 1 -7 40 -3
+foe-near-npc 23 200 5 0 5 76 2
+foe-near-npc 23 200 5 0 7 76 2
+foe-near-npc 23 200 5 0 9 76 2
+foe-near-npc 23 200 5 1 3 137 0
+foe-near-npc 23 200 5 1 5 137 0
+foe-npc-world 23 200 -4
+foe-near-npc 24 80 5 1 -5 42 -2
+foe-near-npc 24 80 5 1 -3 42 -1
+foe-near-npc 24 80 5 0 9 74 4
+foe-near-npc 24 80 5 0 11 74 4
+foe-near-npc 24 80 5 0 13 74 4
+foe-near-npc 24 80 5 1 8 138 1
+foe-near-npc 24 80 5 1 10 138 1
+foe-npc-world 24 80 -2
+foe-near-npc 24 200 5 1 -5 42 -2
+foe-near-npc 24 200 5 1 -3 42 -1
+foe-near-npc 24 200 5 0 9 74 4
+foe-near-npc 24 200 5 0 11 74 4
+foe-near-npc 24 200 5 0 13 74 4
+foe-near-npc 24 200 5 1 8 138 1
+foe-near-npc 24 200 5 1 10 138 1
+foe-npc-world 24 200 -2
+foe-near-npc 25 80 5 1 -5 40 -4
+foe-near-npc 25 80 5 1 -3 40 -3
+foe-near-npc 25 80 5 1 6 137 0
+foe-near-npc 25 80 5 1 8 137 0
+foe-npc-world 25 80 -4
+foe-near-npc 25 200 5 1 -5 40 -4
+foe-near-npc 25 200 5 1 -3 40 -3
+foe-near-npc 25 200 5 1 6 137 0
+foe-near-npc 25 200 5 1 8 137 0
+foe-npc-world 25 200 -4
+foe-near-npc 26 80 5 1 -5 41 -3
+foe-near-npc 26 80 5 1 -3 41 -2
+foe-near-npc 26 80 5 1 4 140 3
+foe-near-npc 26 80 5 1 6 140 3
+foe-npc-world 26 80 -3
+foe-near-npc 26 200 5 1 -5 41 -3
+foe-near-npc 26 200 5 1 -3 41 -2
+foe-near-npc 26 200 5 1 4 140 3
+foe-near-npc 26 200 5 1 6 140 3
+foe-npc-world 26 200 -3
+foe-near-npc 27 80 5 1 -5 43 -1
+foe-near-npc 27 80 5 1 -3 43 0
+foe-near-npc 27 80 5 1 3 139 2
+foe-near-npc 27 80 5 1 5 139 2
+foe-npc-world 27 80 -1
+foe-near-npc 27 200 5 1 -5 43 -1
+foe-near-npc 27 200 5 1 -3 43 0
+foe-near-npc 27 200 5 1 3 139 2
+foe-near-npc 27 200 5 1 5 139 2
+foe-npc-world 27 200 -1
+foe-near-npc 28 80 5 1 -10 41 -3
+foe-near-npc 28 80 5 1 -8 41 -2
+foe-near-npc 28 80 5 0 4 75 3
+foe-near-npc 28 80 5 0 6 75 3
+foe-near-npc 28 80 5 0 8 75 4
+foe-near-npc 28 80 5 1 9 136 -1
+foe-near-npc 28 80 5 1 11 136 -1
+foe-npc-world 28 80 -3
+foe-near-npc 28 200 5 1 -10 41 -3
+foe-near-npc 28 200 5 1 -8 41 -2
+foe-near-npc 28 200 5 0 4 75 3
+foe-near-npc 28 200 5 0 6 75 3
+foe-near-npc 28 200 5 0 8 75 4
+foe-near-npc 28 200 5 1 9 136 -1
+foe-near-npc 28 200 5 1 11 136 -1
+foe-npc-world 28 200 -3
+foe-near-npc 29 80 5 1 -4 42 -2
+foe-near-npc 29 80 5 1 -2 42 -1
+foe-near-npc 29 80 5 0 11 74 4
+foe-near-npc 29 80 5 0 13 74 4
+foe-near-npc 29 80 5 1 6 137 0
+foe-near-npc 29 80 5 1 8 137 0
+foe-npc-world 29 80 -2
+foe-near-npc 29 200 5 1 -4 42 -2
+foe-near-npc 29 200 5 1 -2 42 -1
+foe-near-npc 29 200 5 0 11 74 4
+foe-near-npc 29 200 5 0 13 74 4
+foe-near-npc 29 200 5 1 6 137 0
+foe-near-npc 29 200 5 1 8 137 0
+foe-npc-world 29 200 -2
+foe-near-npc 30 80 5 1 -8 42 -2
+foe-near-npc 30 80 5 1 -6 42 -1
+foe-near-npc 30 80 5 0 5 74 4
+foe-near-npc 30 80 5 0 7 74 4
+foe-near-npc 30 80 5 1 7 139 2
+foe-near-npc 30 80 5 1 9 139 2
+foe-npc-world 30 80 -2
+foe-near-npc 30 200 5 1 -8 42 -2
+foe-near-npc 30 200 5 1 -6 42 -1
+foe-near-npc 30 200 5 0 5 74 4
+foe-near-npc 30 200 5 0 7 74 4
+foe-near-npc 30 200 5 1 7 139 2
+foe-near-npc 30 200 5 1 9 139 2
+foe-npc-world 30 200 -2
+foe-near-npc 31 80 5 1 -8 42 -3
+foe-near-npc 31 80 5 1 -6 42 -2
+foe-near-npc 31 80 5 1 5 136 -1
+foe-near-npc 31 80 5 1 7 136 -1
+foe-npc-world 31 80 -3
+foe-near-npc 31 200 5 1 -8 42 -3
+foe-near-npc 31 200 5 1 -6 42 -2
+foe-near-npc 31 200 5 1 5 136 -1
+foe-near-npc 31 200 5 1 7 136 -1
+foe-npc-world 31 200 -3
+foe-near-npc 32 80 5 1 -3 43 -1
+foe-near-npc 32 80 5 1 -1 43 0
+foe-near-npc 32 80 5 0 9 74 4
+foe-near-npc 32 80 5 0 11 74 4
+foe-near-npc 32 80 5 0 13 74 4
+foe-near-npc 32 80 5 1 7 136 -1
+foe-near-npc 32 80 5 1 9 136 -1
+foe-npc-world 32 80 -1
+foe-near-npc 32 200 5 1 -3 43 -1
+foe-near-npc 32 200 5 1 -1 43 0
+foe-near-npc 32 200 5 0 9 74 4
+foe-near-npc 32 200 5 0 11 74 4
+foe-near-npc 32 200 5 0 13 74 4
+foe-near-npc 32 200 5 1 7 136 -1
+foe-near-npc 32 200 5 1 9 136 -1
+foe-npc-world 32 200 -1
+foe-near-npc 33 80 5 1 -9 41 -3
+foe-near-npc 33 80 5 1 -7 41 -2
+foe-near-npc 33 80 5 0 5 75 3
+foe-near-npc 33 80 5 0 7 75 3
+foe-near-npc 33 80 5 0 9 75 3
+foe-near-npc 33 80 5 1 5 139 2
+foe-near-npc 33 80 5 1 7 139 2
+foe-npc-world 33 80 -3
+foe-near-npc 33 200 5 1 -9 41 -3
+foe-near-npc 33 200 5 1 -7 41 -2
+foe-near-npc 33 200 5 0 5 75 3
+foe-near-npc 33 200 5 0 7 75 3
+foe-near-npc 33 200 5 0 9 75 3
+foe-near-npc 33 200 5 1 5 139 2
+foe-near-npc 33 200 5 1 7 139 2
+foe-npc-world 33 200 -3
+foe-near-npc 34 80 5 1 -4 42 -2
+foe-near-npc 34 80 5 1 -2 42 -1
+foe-near-npc 34 80 5 0 10 74 4
+foe-near-npc 34 80 5 0 12 74 4
+foe-near-npc 34 80 5 0 14 74 4
+foe-near-npc 34 80 5 1 9 136 -1
+foe-near-npc 34 80 5 1 11 136 -1
+foe-npc-world 34 80 -2
+foe-near-npc 34 200 5 1 -4 42 -2
+foe-near-npc 34 200 5 1 -2 42 -1
+foe-near-npc 34 200 5 0 10 74 4
+foe-near-npc 34 200 5 0 12 74 4
+foe-near-npc 34 200 5 0 14 74 4
+foe-near-npc 34 200 5 1 9 136 -1
+foe-near-npc 34 200 5 1 11 136 -1
+foe-npc-world 34 200 -2
+foe-near-npc 35 80 5 1 -5 44 0
+foe-near-npc 35 80 5 1 -3 44 1
+foe-near-npc 35 80 5 0 6 74 4
+foe-near-npc 35 80 5 0 8 74 4
+foe-near-npc 35 80 5 1 4 139 2
+foe-near-npc 35 80 5 1 6 139 2
+foe-npc-world 35 80 0
+foe-near-npc 35 200 5 1 -5 44 0
+foe-near-npc 35 200 5 1 -3 44 1
+foe-near-npc 35 200 5 0 6 74 4
+foe-near-npc 35 200 5 0 8 74 4
+foe-near-npc 35 200 5 1 4 139 2
+foe-near-npc 35 200 5 1 6 139 2
+foe-npc-world 35 200 0
+foe-near-npc 36 80 5 1 -6 42 -2
+foe-near-npc 36 80 5 1 -4 42 -1
+foe-near-npc 36 80 5 1 7 139 2
+foe-near-npc 36 80 5 1 9 139 2
+foe-npc-world 36 80 -2
+foe-near-npc 36 200 5 1 -6 42 -2
+foe-near-npc 36 200 5 1 -4 42 -1
+foe-near-npc 36 200 5 1 7 139 2
+foe-near-npc 36 200 5 1 9 139 2
+foe-npc-world 36 200 -2
+foe-near-npc 37 80 5 1 -9 40 -4
+foe-near-npc 37 80 5 1 -7 40 -3
+foe-near-npc 37 80 5 1 5 140 3
+foe-near-npc 37 80 5 1 7 140 3
+foe-npc-world 37 80 -4
+foe-near-npc 37 200 5 1 -9 40 -4
+foe-near-npc 37 200 5 1 -7 40 -3
+foe-near-npc 37 200 5 1 5 140 3
+foe-near-npc 37 200 5 1 7 140 3
+foe-npc-world 37 200 -4
+foe-near-npc 38 80 5 1 -6 42 -2
+foe-near-npc 38 80 5 1 -4 42 -1
+foe-near-npc 38 80 5 1 5 140 3
+foe-near-npc 38 80 5 1 7 140 3
+foe-npc-world 38 80 -2
+foe-near-npc 38 200 5 1 -6 42 -2
+foe-near-npc 38 200 5 1 -4 42 -1
+foe-near-npc 38 200 5 1 5 140 3
+foe-near-npc 38 200 5 1 7 140 3
+foe-npc-world 38 200 -2
+foe-near-npc 39 80 5 1 -5 40 -4
+foe-near-npc 39 80 5 1 -3 40 -3
+foe-near-npc 39 80 5 0 12 74 4
+foe-near-npc 39 80 5 0 14 74 4
+foe-near-npc 39 80 5 1 7 137 0
+foe-near-npc 39 80 5 1 9 137 0
+foe-npc-world 39 80 -4
+foe-near-npc 39 200 5 1 -5 40 -4
+foe-near-npc 39 200 5 1 -3 40 -3
+foe-near-npc 39 200 5 0 12 74 4
+foe-near-npc 39 200 5 0 14 74 4
+foe-near-npc 39 200 5 1 7 137 0
+foe-near-npc 39 200 5 1 9 137 0
+foe-npc-world 39 200 -4
+foe-near-npc 40 80 5 1 -7 42 -3
+foe-near-npc 40 80 5 1 -5 42 -2
+foe-near-npc 40 80 5 1 4 136 -1
+foe-near-npc 40 80 5 1 6 136 -1
+foe-npc-world 40 80 -3
+foe-near-npc 40 200 5 1 -7 42 -3
+foe-near-npc 40 200 5 1 -5 42 -2
+foe-near-npc 40 200 5 1 4 136 -1
+foe-near-npc 40 200 5 1 6 136 -1
+foe-npc-world 40 200 -3
+foe-near-npc 41 80 5 1 -9 41 -3
+foe-near-npc 41 80 5 1 -7 41 -2
+foe-near-npc 41 80 5 0 7 74 4
+foe-near-npc 41 80 5 0 9 74 4
+foe-near-npc 41 80 5 0 11 74 4
+foe-near-npc 41 80 5 1 5 136 -1
+foe-near-npc 41 80 5 1 7 136 -1
+foe-npc-world 41 80 -3
+foe-near-npc 41 200 5 1 -9 41 -3
+foe-near-npc 41 200 5 1 -7 41 -2
+foe-near-npc 41 200 5 0 7 74 4
+foe-near-npc 41 200 5 0 9 74 4
+foe-near-npc 41 200 5 0 11 74 4
+foe-near-npc 41 200 5 1 5 136 -1
+foe-near-npc 41 200 5 1 7 136 -1
+foe-npc-world 41 200 -3
+foe-near-npc 42 80 5 1 -6 41 -3
+foe-near-npc 42 80 5 1 -4 41 -2
+foe-near-npc 42 80 5 1 9 136 -1
+foe-near-npc 42 80 5 1 11 136 -1
+foe-npc-world 42 80 -3
+foe-near-npc 42 200 5 1 -6 41 -3
+foe-near-npc 42 200 5 1 -4 41 -2
+foe-near-npc 42 200 5 1 9 136 -1
+foe-near-npc 42 200 5 1 11 136 -1
+foe-npc-world 42 200 -3
+foe-near-npc 43 80 5 1 -9 40 -4
+foe-near-npc 43 80 5 1 -7 40 -3
+foe-near-npc 43 80 5 0 5 75 3
+foe-near-npc 43 80 5 0 7 75 3
+foe-near-npc 43 80 5 0 9 75 3
+foe-near-npc 43 80 5 1 6 137 0
+foe-near-npc 43 80 5 1 8 137 0
+foe-npc-world 43 80 -4
+foe-near-npc 43 200 5 1 -9 40 -4
+foe-near-npc 43 200 5 1 -7 40 -3
+foe-near-npc 43 200 5 0 5 75 3
+foe-near-npc 43 200 5 0 7 75 3
+foe-near-npc 43 200 5 0 9 75 3
+foe-near-npc 43 200 5 1 6 137 0
+foe-near-npc 43 200 5 1 8 137 0
+foe-npc-world 43 200 -4
+foe-near-npc 44 80 5 1 -2 44 -1
+foe-near-npc 44 80 5 1 0 44 0
+foe-near-npc 44 80 5 1 5 138 1
+foe-near-npc 44 80 5 1 7 138 1
+foe-npc-world 44 80 -1
+foe-near-npc 44 200 5 1 -2 44 -1
+foe-near-npc 44 200 5 1 0 44 0
+foe-near-npc 44 200 5 1 5 138 1
+foe-near-npc 44 200 5 1 7 138 1
+foe-npc-world 44 200 -1
+foe-near-npc 45 80 5 1 -4 43 -1
+foe-near-npc 45 80 5 1 -2 43 0
+foe-near-npc 45 80 5 0 8 74 4
+foe-near-npc 45 80 5 0 10 74 4
+foe-near-npc 45 80 5 1 7 139 2
+foe-near-npc 45 80 5 1 9 139 2
+foe-npc-world 45 80 -1
+foe-near-npc 45 200 5 1 -4 43 -1
+foe-near-npc 45 200 5 1 -2 43 0
+foe-near-npc 45 200 5 0 8 74 4
+foe-near-npc 45 200 5 0 10 74 4
+foe-near-npc 45 200 5 1 7 139 2
+foe-near-npc 45 200 5 1 9 139 2
+foe-npc-world 45 200 -1
+foe-near-npc 46 80 5 1 -8 41 -3
+foe-near-npc 46 80 5 1 -6 41 -2
+foe-near-npc 46 80 5 0 5 74 4
+foe-near-npc 46 80 5 0 7 74 4
+foe-near-npc 46 80 5 0 9 74 4
+foe-near-npc 46 80 5 1 3 139 2
+foe-near-npc 46 80 5 1 5 139 2
+foe-npc-world 46 80 -3
+foe-near-npc 46 200 5 1 -8 41 -3
+foe-near-npc 46 200 5 1 -6 41 -2
+foe-near-npc 46 200 5 0 5 74 4
+foe-near-npc 46 200 5 0 7 74 4
+foe-near-npc 46 200 5 0 9 74 4
+foe-near-npc 46 200 5 1 3 139 2
+foe-near-npc 46 200 5 1 5 139 2
+foe-npc-world 46 200 -3
+foe-near-npc 47 80 5 1 -10 40 -4
+foe-near-npc 47 80 5 1 -8 40 -3
+foe-near-npc 47 80 5 1 5 137 0
+foe-near-npc 47 80 5 1 7 137 0
+foe-npc-world 47 80 -4
+foe-near-npc 47 200 5 1 -10 40 -4
+foe-near-npc 47 200 5 1 -8 40 -3
+foe-near-npc 47 200 5 1 5 137 0
+foe-near-npc 47 200 5 1 7 137 0
+foe-npc-world 47 200 -4
+foe-near-npc 48 80 5 1 -7 44 -1
+foe-near-npc 48 80 5 1 -5 44 0
+foe-near-npc 48 80 5 0 2 76 2
+foe-near-npc 48 80 5 0 4 76 2
+foe-near-npc 48 80 5 0 6 76 3
+foe-near-npc 48 80 5 1 4 139 2
+foe-near-npc 48 80 5 1 6 139 2
+foe-npc-world 48 80 -1
+foe-near-npc 48 200 5 1 -7 44 -1
+foe-near-npc 48 200 5 1 -5 44 0
+foe-near-npc 48 200 5 0 2 76 2
+foe-near-npc 48 200 5 0 4 76 2
+foe-near-npc 48 200 5 0 6 76 3
+foe-near-npc 48 200 5 1 4 139 2
+foe-near-npc 48 200 5 1 6 139 2
+foe-npc-world 48 200 -1
+foe-near-npc 49 80 5 1 -8 43 -2
+foe-near-npc 49 80 5 1 -6 43 -1
+foe-near-npc 49 80 5 1 5 139 2
+foe-near-npc 49 80 5 1 7 139 2
+foe-npc-world 49 80 -2
+foe-near-npc 49 200 5 1 -8 43 -2
+foe-near-npc 49 200 5 1 -6 43 -1
+foe-near-npc 49 200 5 1 5 139 2
+foe-near-npc 49 200 5 1 7 139 2
+foe-npc-world 49 200 -2
+foe-npc-gap: RED, 560 of 16600 foes within 4 clear cells of an NPC, the nearest -4

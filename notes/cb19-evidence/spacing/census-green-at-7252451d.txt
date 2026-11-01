@@ -1,0 +1,676 @@
+foe-npc-world seed field nearest
+foe-moved 0 80 5 ordinal 0 kind 1 from -11 40 gap -4 to -1 49 gap 5
+foe-moved 0 80 5 ordinal 1 kind 1 from -9 40 gap -3 to 1 49 gap 6
+foe-moved 0 80 5 ordinal 2 kind 0 from 5 74 gap 4 to 6 73 gap 5
+foe-moved 0 80 5 ordinal 3 kind 0 from 7 74 gap 4 to 8 73 gap 5
+foe-moved 0 80 5 ordinal 4 kind 0 from 9 74 gap 5 to 10 73 gap 6
+foe-moved 0 80 5 ordinal 7 kind 1 from 9 136 gap -1 to 7 142 gap 5
+foe-moved 0 80 5 ordinal 8 kind 1 from 11 136 gap -1 to 9 142 gap 5
+foe-npc-world 0 80 5
+foe-moved 0 200 5 ordinal 0 kind 1 from -11 40 gap -4 to -1 49 gap 5
+foe-moved 0 200 5 ordinal 1 kind 1 from -9 40 gap -3 to 1 49 gap 6
+foe-moved 0 200 5 ordinal 2 kind 0 from 5 74 gap 4 to 6 73 gap 5
+foe-moved 0 200 5 ordinal 3 kind 0 from 7 74 gap 4 to 8 73 gap 5
+foe-moved 0 200 5 ordinal 4 kind 0 from 9 74 gap 5 to 10 73 gap 6
+foe-moved 0 200 5 ordinal 7 kind 1 from 9 136 gap -1 to 7 142 gap 5
+foe-moved 0 200 5 ordinal 8 kind 1 from 11 136 gap -1 to 9 142 gap 5
+foe-npc-world 0 200 5
+foe-moved 1 80 5 ordinal 0 kind 1 from -7 41 gap -4 to 2 50 gap 5
+foe-moved 1 80 5 ordinal 1 kind 1 from -5 41 gap -3 to 4 50 gap 6
+foe-moved 1 80 5 ordinal 2 kind 0 from 6 75 gap 3 to 8 73 gap 5
+foe-moved 1 80 5 ordinal 3 kind 0 from 8 75 gap 3 to 10 73 gap 5
+foe-moved 1 80 5 ordinal 4 kind 0 from 10 75 gap 4 to 12 73 gap 6
+foe-moved 1 80 5 ordinal 7 kind 1 from 5 137 gap 0 to 4 142 gap 5
+foe-moved 1 80 5 ordinal 8 kind 1 from 7 137 gap 0 to 6 142 gap 5
+foe-npc-world 1 80 5
+foe-moved 1 200 5 ordinal 0 kind 1 from -7 41 gap -4 to 2 50 gap 5
+foe-moved 1 200 5 ordinal 1 kind 1 from -5 41 gap -3 to 4 50 gap 6
+foe-moved 1 200 5 ordinal 2 kind 0 from 6 75 gap 3 to 8 73 gap 5
+foe-moved 1 200 5 ordinal 3 kind 0 from 8 75 gap 3 to 10 73 gap 5
+foe-moved 1 200 5 ordinal 4 kind 0 from 10 75 gap 4 to 12 73 gap 6
+foe-moved 1 200 5 ordinal 7 kind 1 from 5 137 gap 0 to 4 142 gap 5
+foe-moved 1 200 5 ordinal 8 kind 1 from 7 137 gap 0 to 6 142 gap 5
+foe-npc-world 1 200 5
+foe-moved 2 80 5 ordinal 0 kind 1 from -10 42 gap -2 to -3 50 gap 5
+foe-moved 2 80 5 ordinal 1 kind 1 from -8 42 gap -1 to -1 50 gap 6
+foe-moved 2 80 5 ordinal 7 kind 1 from 6 137 gap 0 to 4 142 gap 5
+foe-moved 2 80 5 ordinal 8 kind 1 from 8 137 gap 0 to 6 142 gap 5
+foe-npc-world 2 80 5
+foe-moved 2 200 5 ordinal 0 kind 1 from -10 42 gap -2 to -3 50 gap 5
+foe-moved 2 200 5 ordinal 1 kind 1 from -8 42 gap -1 to -1 50 gap 6
+foe-moved 2 200 5 ordinal 7 kind 1 from 6 137 gap 0 to 4 142 gap 5
+foe-moved 2 200 5 ordinal 8 kind 1 from 8 137 gap 0 to 6 142 gap 5
+foe-npc-world 2 200 5
+foe-moved 3 80 5 ordinal 0 kind 1 from -7 44 gap 0 to -2 49 gap 5
+foe-moved 3 80 5 ordinal 1 kind 1 from -5 44 gap 1 to 0 49 gap 6
+foe-moved 3 80 5 ordinal 7 kind 1 from 5 137 gap 0 to 4 142 gap 5
+foe-moved 3 80 5 ordinal 8 kind 1 from 7 137 gap 0 to 6 142 gap 5
+foe-npc-world 3 80 5
+foe-moved 3 200 5 ordinal 0 kind 1 from -7 44 gap 0 to -2 49 gap 5
+foe-moved 3 200 5 ordinal 1 kind 1 from -5 44 gap 1 to 0 49 gap 6
+foe-moved 3 200 5 ordinal 7 kind 1 from 5 137 gap 0 to 4 142 gap 5
+foe-moved 3 200 5 ordinal 8 kind 1 from 7 137 gap 0 to 6 142 gap 5
+foe-npc-world 3 200 5
+foe-moved 4 80 5 ordinal 0 kind 1 from -2 43 gap -1 to 5 49 gap 5
+foe-moved 4 80 5 ordinal 1 kind 1 from 0 43 gap 0 to 7 49 gap 6
+foe-moved 4 80 5 ordinal 2 kind 0 from 9 76 gap 2 to 12 73 gap 5
+foe-moved 4 80 5 ordinal 3 kind 0 from 11 76 gap 2 to 14 73 gap 5
+foe-moved 4 80 5 ordinal 4 kind 0 from 13 76 gap 2 to 16 73 gap 5
+foe-moved 4 80 5 ordinal 7 kind 1 from 5 137 gap 0 to 4 142 gap 5
+foe-moved 4 80 5 ordinal 8 kind 1 from 7 137 gap 0 to 6 142 gap 5
+foe-npc-world 4 80 5
+foe-moved 4 200 5 ordinal 0 kind 1 from -2 43 gap -1 to 5 49 gap 5
+foe-moved 4 200 5 ordinal 1 kind 1 from 0 43 gap 0 to 7 49 gap 6
+foe-moved 4 200 5 ordinal 2 kind 0 from 9 76 gap 2 to 12 73 gap 5
+foe-moved 4 200 5 ordinal 3 kind 0 from 11 76 gap 2 to 14 73 gap 5
+foe-moved 4 200 5 ordinal 4 kind 0 from 13 76 gap 2 to 16 73 gap 5
+foe-moved 4 200 5 ordinal 7 kind 1 from 5 137 gap 0 to 4 142 gap 5
+foe-moved 4 200 5 ordinal 8 kind 1 from 7 137 gap 0 to 6 142 gap 5
+foe-npc-world 4 200 5
+foe-moved 5 80 5 ordinal 0 kind 1 from -8 41 gap -3 to 0 49 gap 5
+foe-moved 5 80 5 ordinal 1 kind 1 from -6 41 gap -2 to 2 49 gap 6
+foe-moved 5 80 5 ordinal 7 kind 1 from 4 137 gap 0 to 3 142 gap 5
+foe-moved 5 80 5 ordinal 8 kind 1 from 6 137 gap 0 to 5 142 gap 5
+foe-npc-world 5 80 5
+foe-moved 5 200 5 ordinal 0 kind 1 from -8 41 gap -3 to 0 49 gap 5
+foe-moved 5 200 5 ordinal 1 kind 1 from -6 41 gap -2 to 2 49 gap 6
+foe-moved 5 200 5 ordinal 7 kind 1 from 4 137 gap 0 to 3 142 gap 5
+foe-moved 5 200 5 ordinal 8 kind 1 from 6 137 gap 0 to 5 142 gap 5
+foe-npc-world 5 200 5
+foe-moved 6 80 5 ordinal 0 kind 1 from -7 43 gap -1 to -1 50 gap 5
+foe-moved 6 80 5 ordinal 1 kind 1 from -5 43 gap 0 to 1 50 gap 6
+foe-moved 6 80 5 ordinal 2 kind 0 from 2 76 gap 2 to 5 73 gap 5
+foe-moved 6 80 5 ordinal 3 kind 0 from 4 76 gap 2 to 7 73 gap 5
+foe-moved 6 80 5 ordinal 4 kind 0 from 6 76 gap 3 to 9 73 gap 6
+foe-moved 6 80 5 ordinal 7 kind 1 from 4 137 gap 0 to 3 142 gap 5
+foe-moved 6 80 5 ordinal 8 kind 1 from 6 137 gap 0 to 5 142 gap 5
+foe-npc-world 6 80 5
+foe-moved 6 200 5 ordinal 0 kind 1 from -7 43 gap -1 to -1 50 gap 5
+foe-moved 6 200 5 ordinal 1 kind 1 from -5 43 gap 0 to 1 50 gap 6
+foe-moved 6 200 5 ordinal 2 kind 0 from 2 76 gap 2 to 5 73 gap 5
+foe-moved 6 200 5 ordinal 3 kind 0 from 4 76 gap 2 to 7 73 gap 5
+foe-moved 6 200 5 ordinal 4 kind 0 from 6 76 gap 3 to 9 73 gap 6
+foe-moved 6 200 5 ordinal 7 kind 1 from 4 137 gap 0 to 3 142 gap 5
+foe-moved 6 200 5 ordinal 8 kind 1 from 6 137 gap 0 to 5 142 gap 5
+foe-npc-world 6 200 5
+foe-moved 7 80 5 ordinal 0 kind 1 from -9 44 gap 0 to -4 49 gap 5
+foe-moved 7 80 5 ordinal 1 kind 1 from -7 44 gap 1 to -2 49 gap 6
+foe-moved 7 80 5 ordinal 2 kind 0 from 0 75 gap 3 to 2 73 gap 5
+foe-moved 7 80 5 ordinal 3 kind 0 from 2 75 gap 3 to 4 73 gap 5
+foe-moved 7 80 5 ordinal 4 kind 0 from 4 75 gap 3 to 6 73 gap 5
+foe-moved 7 80 5 ordinal 7 kind 1 from 4 139 gap 2 to 3 142 gap 5
+foe-moved 7 80 5 ordinal 8 kind 1 from 6 139 gap 2 to 5 142 gap 5
+foe-npc-world 7 80 5
+foe-moved 7 200 5 ordinal 0 kind 1 from -9 44 gap 0 to -4 49 gap 5
+foe-moved 7 200 5 ordinal 1 kind 1 from -7 44 gap 1 to -2 49 gap 6
+foe-moved 7 200 5 ordinal 2 kind 0 from 0 75 gap 3 to 2 73 gap 5
+foe-moved 7 200 5 ordinal 3 kind 0 from 2 75 gap 3 to 4 73 gap 5
+foe-moved 7 200 5 ordinal 4 kind 0 from 4 75 gap 3 to 6 73 gap 5
+foe-moved 7 200 5 ordinal 7 kind 1 from 4 139 gap 2 to 3 142 gap 5
+foe-moved 7 200 5 ordinal 8 kind 1 from 6 139 gap 2 to 5 142 gap 5
+foe-npc-world 7 200 5
+foe-moved 8 80 5 ordinal 0 kind 1 from -4 41 gap -3 to 4 48 gap 5
+foe-moved 8 80 5 ordinal 1 kind 1 from -2 41 gap -2 to 6 48 gap 5
+foe-moved 8 80 5 ordinal 7 kind 1 from 3 136 gap -1 to 1 142 gap 5
+foe-moved 8 80 5 ordinal 8 kind 1 from 5 136 gap -1 to 3 142 gap 5
+foe-npc-world 8 80 5
+foe-moved 8 200 5 ordinal 0 kind 1 from -4 41 gap -3 to 4 48 gap 5
+foe-moved 8 200 5 ordinal 1 kind 1 from -2 41 gap -2 to 6 48 gap 5
+foe-moved 8 200 5 ordinal 7 kind 1 from 3 136 gap -1 to 1 142 gap 5
+foe-moved 8 200 5 ordinal 8 kind 1 from 5 136 gap -1 to 3 142 gap 5
+foe-npc-world 8 200 5
+foe-moved 9 80 5 ordinal 0 kind 1 from -9 41 gap -3 to -2 50 gap 5
+foe-moved 9 80 5 ordinal 1 kind 1 from -7 41 gap -2 to 0 50 gap 6
+foe-moved 9 80 5 ordinal 2 kind 0 from 2 74 gap 4 to 3 73 gap 5
+foe-moved 9 80 5 ordinal 3 kind 0 from 4 74 gap 4 to 5 73 gap 5
+foe-moved 9 80 5 ordinal 4 kind 0 from 6 74 gap 4 to 7 73 gap 5
+foe-moved 9 80 5 ordinal 7 kind 1 from 4 139 gap 2 to 3 142 gap 5
+foe-moved 9 80 5 ordinal 8 kind 1 from 6 139 gap 2 to 5 142 gap 5
+foe-npc-world 9 80 5
+foe-moved 9 200 5 ordinal 0 kind 1 from -9 41 gap -3 to -2 50 gap 5
+foe-moved 9 200 5 ordinal 1 kind 1 from -7 41 gap -2 to 0 50 gap 6
+foe-moved 9 200 5 ordinal 2 kind 0 from 2 74 gap 4 to 3 73 gap 5
+foe-moved 9 200 5 ordinal 3 kind 0 from 4 74 gap 4 to 5 73 gap 5
+foe-moved 9 200 5 ordinal 4 kind 0 from 6 74 gap 4 to 7 73 gap 5
+foe-moved 9 200 5 ordinal 7 kind 1 from 4 139 gap 2 to 3 142 gap 5
+foe-moved 9 200 5 ordinal 8 kind 1 from 6 139 gap 2 to 5 142 gap 5
+foe-npc-world 9 200 5
+foe-moved 10 80 5 ordinal 0 kind 1 from -9 40 gap -4 to -1 50 gap 5
+foe-moved 10 80 5 ordinal 1 kind 1 from -7 40 gap -3 to 1 50 gap 6
+foe-moved 10 80 5 ordinal 7 kind 1 from 6 136 gap -1 to 4 142 gap 5
+foe-moved 10 80 5 ordinal 8 kind 1 from 8 136 gap -1 to 6 142 gap 5
+foe-npc-world 10 80 5
+foe-moved 10 200 5 ordinal 0 kind 1 from -9 40 gap -4 to -1 50 gap 5
+foe-moved 10 200 5 ordinal 1 kind 1 from -7 40 gap -3 to 1 50 gap 6
+foe-moved 10 200 5 ordinal 7 kind 1 from 6 136 gap -1 to 4 142 gap 5
+foe-moved 10 200 5 ordinal 8 kind 1 from 8 136 gap -1 to 6 142 gap 5
+foe-npc-world 10 200 5
+foe-moved 11 80 5 ordinal 0 kind 1 from -10 42 gap -2 to -3 50 gap 5
+foe-moved 11 80 5 ordinal 1 kind 1 from -8 42 gap -1 to -1 50 gap 6
+foe-moved 11 80 5 ordinal 2 kind 0 from 0 75 gap 3 to 2 73 gap 5
+foe-moved 11 80 5 ordinal 3 kind 0 from 2 75 gap 3 to 4 73 gap 5
+foe-moved 11 80 5 ordinal 4 kind 0 from 4 75 gap 4 to 6 73 gap 6
+foe-moved 11 80 5 ordinal 7 kind 1 from 3 139 gap 2 to 2 142 gap 5
+foe-moved 11 80 5 ordinal 8 kind 1 from 5 139 gap 2 to 4 142 gap 5
+foe-npc-world 11 80 5
+foe-moved 11 200 5 ordinal 0 kind 1 from -10 42 gap -2 to -3 50 gap 5
+foe-moved 11 200 5 ordinal 1 kind 1 from -8 42 gap -1 to -1 50 gap 6
+foe-moved 11 200 5 ordinal 2 kind 0 from 0 75 gap 3 to 2 73 gap 5
+foe-moved 11 200 5 ordinal 3 kind 0 from 2 75 gap 3 to 4 73 gap 5
+foe-moved 11 200 5 ordinal 4 kind 0 from 4 75 gap 4 to 6 73 gap 6
+foe-moved 11 200 5 ordinal 7 kind 1 from 3 139 gap 2 to 2 142 gap 5
+foe-moved 11 200 5 ordinal 8 kind 1 from 5 139 gap 2 to 4 142 gap 5
+foe-npc-world 11 200 5
+foe-moved 12 80 5 ordinal 0 kind 1 from -3 44 gap 0 to 4 49 gap 6
+foe-moved 12 80 5 ordinal 1 kind 1 from -1 44 gap 1 to 6 49 gap 6
+foe-moved 12 80 5 ordinal 7 kind 1 from 8 137 gap 0 to 6 142 gap 5
+foe-moved 12 80 5 ordinal 8 kind 1 from 10 137 gap 0 to 8 142 gap 5
+foe-npc-world 12 80 5
+foe-moved 12 200 5 ordinal 0 kind 1 from -3 44 gap 0 to 4 49 gap 6
+foe-moved 12 200 5 ordinal 1 kind 1 from -1 44 gap 1 to 6 49 gap 6
+foe-moved 12 200 5 ordinal 7 kind 1 from 8 137 gap 0 to 6 142 gap 5
+foe-moved 12 200 5 ordinal 8 kind 1 from 10 137 gap 0 to 8 142 gap 5
+foe-npc-world 12 200 5
+foe-moved 13 80 5 ordinal 0 kind 1 from -8 41 gap -3 to 0 48 gap 5
+foe-moved 13 80 5 ordinal 1 kind 1 from -6 41 gap -2 to 2 48 gap 5
+foe-moved 13 80 5 ordinal 2 kind 0 from 6 75 gap 3 to 8 73 gap 5
+foe-moved 13 80 5 ordinal 3 kind 0 from 8 75 gap 3 to 10 73 gap 5
+foe-moved 13 80 5 ordinal 4 kind 0 from 10 75 gap 4 to 12 73 gap 6
+foe-moved 13 80 5 ordinal 7 kind 1 from 5 140 gap 3 to 4 142 gap 5
+foe-moved 13 80 5 ordinal 8 kind 1 from 7 140 gap 3 to 6 142 gap 5
+foe-npc-world 13 80 5
+foe-moved 13 200 5 ordinal 0 kind 1 from -8 41 gap -3 to 0 48 gap 5
+foe-moved 13 200 5 ordinal 1 kind 1 from -6 41 gap -2 to 2 48 gap 5
+foe-moved 13 200 5 ordinal 2 kind 0 from 6 75 gap 3 to 8 73 gap 5
+foe-moved 13 200 5 ordinal 3 kind 0 from 8 75 gap 3 to 10 73 gap 5
+foe-moved 13 200 5 ordinal 4 kind 0 from 10 75 gap 4 to 12 73 gap 6
+foe-moved 13 200 5 ordinal 7 kind 1 from 5 140 gap 3 to 4 142 gap 5
+foe-moved 13 200 5 ordinal 8 kind 1 from 7 140 gap 3 to 6 142 gap 5
+foe-npc-world 13 200 5
+foe-moved 14 80 5 ordinal 0 kind 1 from -7 44 gap 0 to -2 49 gap 5
+foe-moved 14 80 5 ordinal 1 kind 1 from -5 44 gap 1 to 0 49 gap 6
+foe-moved 14 80 5 ordinal 7 kind 1 from 4 138 gap 1 to 3 142 gap 5
+foe-moved 14 80 5 ordinal 8 kind 1 from 6 138 gap 1 to 5 142 gap 5
+foe-npc-world 14 80 5
+foe-moved 14 200 5 ordinal 0 kind 1 from -7 44 gap 0 to -2 49 gap 5
+foe-moved 14 200 5 ordinal 1 kind 1 from -5 44 gap 1 to 0 49 gap 6
+foe-moved 14 200 5 ordinal 7 kind 1 from 4 138 gap 1 to 3 142 gap 5
+foe-moved 14 200 5 ordinal 8 kind 1 from 6 138 gap 1 to 5 142 gap 5
+foe-npc-world 14 200 5
+foe-moved 15 80 5 ordinal 0 kind 1 from -10 40 gap -4 to -1 49 gap 5
+foe-moved 15 80 5 ordinal 1 kind 1 from -8 40 gap -3 to 1 49 gap 6
+foe-moved 15 80 5 ordinal 2 kind 0 from 4 75 gap 3 to 6 73 gap 5
+foe-moved 15 80 5 ordinal 3 kind 0 from 6 75 gap 3 to 8 73 gap 5
+foe-moved 15 80 5 ordinal 4 kind 0 from 8 75 gap 4 to 10 73 gap 6
+foe-moved 15 80 5 ordinal 7 kind 1 from 5 136 gap -1 to 4 142 gap 5
+foe-moved 15 80 5 ordinal 8 kind 1 from 7 136 gap -1 to 6 142 gap 5
+foe-npc-world 15 80 5
+foe-moved 15 200 5 ordinal 0 kind 1 from -10 40 gap -4 to -1 49 gap 5
+foe-moved 15 200 5 ordinal 1 kind 1 from -8 40 gap -3 to 1 49 gap 6
+foe-moved 15 200 5 ordinal 2 kind 0 from 4 75 gap 3 to 6 73 gap 5
+foe-moved 15 200 5 ordinal 3 kind 0 from 6 75 gap 3 to 8 73 gap 5
+foe-moved 15 200 5 ordinal 4 kind 0 from 8 75 gap 4 to 10 73 gap 6
+foe-moved 15 200 5 ordinal 7 kind 1 from 5 136 gap -1 to 4 142 gap 5
+foe-moved 15 200 5 ordinal 8 kind 1 from 7 136 gap -1 to 6 142 gap 5
+foe-npc-world 15 200 5
+foe-moved 16 80 5 ordinal 0 kind 1 from -8 41 gap -3 to 0 49 gap 5
+foe-moved 16 80 5 ordinal 1 kind 1 from -6 41 gap -2 to 2 49 gap 6
+foe-moved 16 80 5 ordinal 2 kind 0 from 4 76 gap 2 to 7 73 gap 5
+foe-moved 16 80 5 ordinal 3 kind 0 from 6 76 gap 2 to 9 73 gap 5
+foe-moved 16 80 5 ordinal 4 kind 0 from 8 76 gap 3 to 11 73 gap 6
+foe-moved 16 80 5 ordinal 7 kind 1 from 9 136 gap -1 to 7 142 gap 5
+foe-moved 16 80 5 ordinal 8 kind 1 from 11 136 gap -1 to 9 142 gap 5
+foe-npc-world 16 80 5
+foe-moved 16 200 5 ordinal 0 kind 1 from -8 41 gap -3 to 0 49 gap 5
+foe-moved 16 200 5 ordinal 1 kind 1 from -6 41 gap -2 to 2 49 gap 6
+foe-moved 16 200 5 ordinal 2 kind 0 from 4 76 gap 2 to 7 73 gap 5
+foe-moved 16 200 5 ordinal 3 kind 0 from 6 76 gap 2 to 9 73 gap 5
+foe-moved 16 200 5 ordinal 4 kind 0 from 8 76 gap 3 to 11 73 gap 6
+foe-moved 16 200 5 ordinal 7 kind 1 from 9 136 gap -1 to 7 142 gap 5
+foe-moved 16 200 5 ordinal 8 kind 1 from 11 136 gap -1 to 9 142 gap 5
+foe-npc-world 16 200 5
+foe-moved 17 80 5 ordinal 0 kind 1 from -8 44 gap -1 to -3 50 gap 5
+foe-moved 17 80 5 ordinal 1 kind 1 from -6 44 gap 0 to -1 50 gap 6
+foe-moved 17 80 5 ordinal 2 kind 0 from 1 75 gap 3 to 2 73 gap 5
+foe-moved 17 80 5 ordinal 3 kind 0 from 3 75 gap 3 to 4 73 gap 5
+foe-moved 17 80 5 ordinal 4 kind 0 from 5 75 gap 4 to 6 73 gap 5
+foe-moved 17 80 5 ordinal 7 kind 1 from 5 138 gap 1 to 4 142 gap 5
+foe-moved 17 80 5 ordinal 8 kind 1 from 7 138 gap 1 to 6 142 gap 5
+foe-npc-world 17 80 5
+foe-moved 17 200 5 ordinal 0 kind 1 from -8 44 gap -1 to -3 50 gap 5
+foe-moved 17 200 5 ordinal 1 kind 1 from -6 44 gap 0 to -1 50 gap 6
+foe-moved 17 200 5 ordinal 2 kind 0 from 1 75 gap 3 to 2 73 gap 5
+foe-moved 17 200 5 ordinal 3 kind 0 from 3 75 gap 3 to 4 73 gap 5
+foe-moved 17 200 5 ordinal 4 kind 0 from 5 75 gap 4 to 6 73 gap 5
+foe-moved 17 200 5 ordinal 7 kind 1 from 5 138 gap 1 to 4 142 gap 5
+foe-moved 17 200 5 ordinal 8 kind 1 from 7 138 gap 1 to 6 142 gap 5
+foe-npc-world 17 200 5
+foe-moved 18 80 5 ordinal 0 kind 1 from -10 43 gap -1 to -4 50 gap 5
+foe-moved 18 80 5 ordinal 1 kind 1 from -8 43 gap 0 to -2 50 gap 6
+foe-moved 18 80 5 ordinal 7 kind 1 from 3 137 gap 0 to 2 142 gap 5
+foe-moved 18 80 5 ordinal 8 kind 1 from 5 137 gap 0 to 4 142 gap 5
+foe-npc-world 18 80 5
+foe-moved 18 200 5 ordinal 0 kind 1 from -10 43 gap -1 to -4 50 gap 5
+foe-moved 18 200 5 ordinal 1 kind 1 from -8 43 gap 0 to -2 50 gap 6
+foe-moved 18 200 5 ordinal 7 kind 1 from 3 137 gap 0 to 2 142 gap 5
+foe-moved 18 200 5 ordinal 8 kind 1 from 5 137 gap 0 to 4 142 gap 5
+foe-npc-world 18 200 5
+foe-moved 19 80 5 ordinal 0 kind 1 from -7 40 gap -4 to 2 49 gap 5
+foe-moved 19 80 5 ordinal 1 kind 1 from -5 40 gap -3 to 4 49 gap 6
+foe-moved 19 80 5 ordinal 2 kind 0 from 7 75 gap 3 to 8 73 gap 5
+foe-moved 19 80 5 ordinal 3 kind 0 from 9 75 gap 3 to 10 73 gap 5
+foe-moved 19 80 5 ordinal 4 kind 0 from 11 75 gap 4 to 12 73 gap 5
+foe-moved 19 80 5 ordinal 7 kind 1 from 6 139 gap 2 to 5 142 gap 5
+foe-moved 19 80 5 ordinal 8 kind 1 from 8 139 gap 2 to 7 142 gap 5
+foe-npc-world 19 80 5
+foe-moved 19 200 5 ordinal 0 kind 1 from -7 40 gap -4 to 2 49 gap 5
+foe-moved 19 200 5 ordinal 1 kind 1 from -5 40 gap -3 to 4 49 gap 6
+foe-moved 19 200 5 ordinal 2 kind 0 from 7 75 gap 3 to 8 73 gap 5
+foe-moved 19 200 5 ordinal 3 kind 0 from 9 75 gap 3 to 10 73 gap 5
+foe-moved 19 200 5 ordinal 4 kind 0 from 11 75 gap 4 to 12 73 gap 5
+foe-moved 19 200 5 ordinal 7 kind 1 from 6 139 gap 2 to 5 142 gap 5
+foe-moved 19 200 5 ordinal 8 kind 1 from 8 139 gap 2 to 7 142 gap 5
+foe-npc-world 19 200 5
+foe-moved 20 80 5 ordinal 0 kind 1 from -9 43 gap -1 to -3 49 gap 5
+foe-moved 20 80 5 ordinal 1 kind 1 from -7 43 gap 0 to -1 49 gap 6
+foe-moved 20 80 5 ordinal 7 kind 1 from 3 138 gap 1 to 2 142 gap 5
+foe-moved 20 80 5 ordinal 8 kind 1 from 5 138 gap 1 to 4 142 gap 5
+foe-npc-world 20 80 5
+foe-moved 20 200 5 ordinal 0 kind 1 from -9 43 gap -1 to -3 49 gap 5
+foe-moved 20 200 5 ordinal 1 kind 1 from -7 43 gap 0 to -1 49 gap 6
+foe-moved 20 200 5 ordinal 7 kind 1 from 3 138 gap 1 to 2 142 gap 5
+foe-moved 20 200 5 ordinal 8 kind 1 from 5 138 gap 1 to 4 142 gap 5
+foe-npc-world 20 200 5
+foe-moved 21 80 5 ordinal 0 kind 1 from -9 41 gap -4 to 0 49 gap 5
+foe-moved 21 80 5 ordinal 1 kind 1 from -7 41 gap -3 to 2 49 gap 6
+foe-moved 21 80 5 ordinal 2 kind 0 from 6 74 gap 4 to 7 73 gap 5
+foe-moved 21 80 5 ordinal 3 kind 0 from 8 74 gap 4 to 9 73 gap 5
+foe-moved 21 80 5 ordinal 4 kind 0 from 10 74 gap 5 to 11 73 gap 6
+foe-moved 21 80 5 ordinal 7 kind 1 from 4 140 gap 3 to 3 142 gap 5
+foe-moved 21 80 5 ordinal 8 kind 1 from 6 140 gap 3 to 5 142 gap 5
+foe-npc-world 21 80 5
+foe-moved 21 200 5 ordinal 0 kind 1 from -9 41 gap -4 to 0 49 gap 5
+foe-moved 21 200 5 ordinal 1 kind 1 from -7 41 gap -3 to 2 49 gap 6
+foe-moved 21 200 5 ordinal 2 kind 0 from 6 74 gap 4 to 7 73 gap 5
+foe-moved 21 200 5 ordinal 3 kind 0 from 8 74 gap 4 to 9 73 gap 5
+foe-moved 21 200 5 ordinal 4 kind 0 from 10 74 gap 5 to 11 73 gap 6
+foe-moved 21 200 5 ordinal 7 kind 1 from 4 140 gap 3 to 3 142 gap 5
+foe-moved 21 200 5 ordinal 8 kind 1 from 6 140 gap 3 to 5 142 gap 5
+foe-npc-world 21 200 5
+foe-moved 22 80 5 ordinal 0 kind 1 from -5 41 gap -3 to 3 48 gap 5
+foe-moved 22 80 5 ordinal 1 kind 1 from -3 41 gap -2 to 5 48 gap 5
+foe-moved 22 80 5 ordinal 2 kind 0 from 10 75 gap 3 to 12 73 gap 5
+foe-moved 22 80 5 ordinal 3 kind 0 from 12 75 gap 3 to 14 73 gap 5
+foe-moved 22 80 5 ordinal 4 kind 0 from 14 75 gap 4 to 16 73 gap 6
+foe-moved 22 80 5 ordinal 7 kind 1 from 8 136 gap -1 to 6 142 gap 5
+foe-moved 22 80 5 ordinal 8 kind 1 from 10 136 gap -1 to 8 142 gap 5
+foe-npc-world 22 80 5
+foe-moved 22 200 5 ordinal 0 kind 1 from -5 41 gap -3 to 3 48 gap 5
+foe-moved 22 200 5 ordinal 1 kind 1 from -3 41 gap -2 to 5 48 gap 5
+foe-moved 22 200 5 ordinal 2 kind 0 from 10 75 gap 3 to 12 73 gap 5
+foe-moved 22 200 5 ordinal 3 kind 0 from 12 75 gap 3 to 14 73 gap 5
+foe-moved 22 200 5 ordinal 4 kind 0 from 14 75 gap 4 to 16 73 gap 6
+foe-moved 22 200 5 ordinal 7 kind 1 from 8 136 gap -1 to 6 142 gap 5
+foe-moved 22 200 5 ordinal 8 kind 1 from 10 136 gap -1 to 8 142 gap 5
+foe-npc-world 22 200 5
+foe-moved 23 80 5 ordinal 0 kind 1 from -9 40 gap -4 to 1 49 gap 5
+foe-moved 23 80 5 ordinal 1 kind 1 from -7 40 gap -3 to 3 49 gap 6
+foe-moved 23 80 5 ordinal 2 kind 0 from 5 76 gap 2 to 8 73 gap 5
+foe-moved 23 80 5 ordinal 3 kind 0 from 7 76 gap 2 to 10 73 gap 5
+foe-moved 23 80 5 ordinal 4 kind 0 from 9 76 gap 2 to 12 73 gap 5
+foe-moved 23 80 5 ordinal 7 kind 1 from 3 137 gap 0 to 2 142 gap 5
+foe-moved 23 80 5 ordinal 8 kind 1 from 5 137 gap 0 to 4 142 gap 5
+foe-npc-world 23 80 5
+foe-moved 23 200 5 ordinal 0 kind 1 from -9 40 gap -4 to 1 49 gap 5
+foe-moved 23 200 5 ordinal 1 kind 1 from -7 40 gap -3 to 3 49 gap 6
+foe-moved 23 200 5 ordinal 2 kind 0 from 5 76 gap 2 to 8 73 gap 5
+foe-moved 23 200 5 ordinal 3 kind 0 from 7 76 gap 2 to 10 73 gap 5
+foe-moved 23 200 5 ordinal 4 kind 0 from 9 76 gap 2 to 12 73 gap 5
+foe-moved 23 200 5 ordinal 7 kind 1 from 3 137 gap 0 to 2 142 gap 5
+foe-moved 23 200 5 ordinal 8 kind 1 from 5 137 gap 0 to 4 142 gap 5
+foe-npc-world 23 200 5
+foe-moved 24 80 5 ordinal 0 kind 1 from -5 42 gap -2 to 2 48 gap 5
+foe-moved 24 80 5 ordinal 1 kind 1 from -3 42 gap -1 to 4 48 gap 5
+foe-moved 24 80 5 ordinal 2 kind 0 from 9 74 gap 4 to 10 73 gap 5
+foe-moved 24 80 5 ordinal 3 kind 0 from 11 74 gap 4 to 12 73 gap 5
+foe-moved 24 80 5 ordinal 4 kind 0 from 13 74 gap 4 to 14 73 gap 5
+foe-moved 24 80 5 ordinal 7 kind 1 from 8 138 gap 1 to 6 142 gap 5
+foe-moved 24 80 5 ordinal 8 kind 1 from 10 138 gap 1 to 8 142 gap 5
+foe-npc-world 24 80 5
+foe-moved 24 200 5 ordinal 0 kind 1 from -5 42 gap -2 to 2 48 gap 5
+foe-moved 24 200 5 ordinal 1 kind 1 from -3 42 gap -1 to 4 48 gap 5
+foe-moved 24 200 5 ordinal 2 kind 0 from 9 74 gap 4 to 10 73 gap 5
+foe-moved 24 200 5 ordinal 3 kind 0 from 11 74 gap 4 to 12 73 gap 5
+foe-moved 24 200 5 ordinal 4 kind 0 from 13 74 gap 4 to 14 73 gap 5
+foe-moved 24 200 5 ordinal 7 kind 1 from 8 138 gap 1 to 6 142 gap 5
+foe-moved 24 200 5 ordinal 8 kind 1 from 10 138 gap 1 to 8 142 gap 5
+foe-npc-world 24 200 5
+foe-moved 25 80 5 ordinal 0 kind 1 from -5 40 gap -4 to 5 48 gap 5
+foe-moved 25 80 5 ordinal 1 kind 1 from -3 40 gap -3 to 7 48 gap 6
+foe-moved 25 80 5 ordinal 7 kind 1 from 6 137 gap 0 to 5 142 gap 5
+foe-moved 25 80 5 ordinal 8 kind 1 from 8 137 gap 0 to 7 142 gap 5
+foe-npc-world 25 80 5
+foe-moved 25 200 5 ordinal 0 kind 1 from -5 40 gap -4 to 5 48 gap 5
+foe-moved 25 200 5 ordinal 1 kind 1 from -3 40 gap -3 to 7 48 gap 6
+foe-moved 25 200 5 ordinal 7 kind 1 from 6 137 gap 0 to 5 142 gap 5
+foe-moved 25 200 5 ordinal 8 kind 1 from 8 137 gap 0 to 7 142 gap 5
+foe-npc-world 25 200 5
+foe-moved 26 80 5 ordinal 0 kind 1 from -5 41 gap -3 to 3 48 gap 5
+foe-moved 26 80 5 ordinal 1 kind 1 from -3 41 gap -2 to 5 48 gap 5
+foe-moved 26 80 5 ordinal 7 kind 1 from 4 140 gap 3 to 3 142 gap 5
+foe-moved 26 80 5 ordinal 8 kind 1 from 6 140 gap 3 to 5 142 gap 5
+foe-npc-world 26 80 5
+foe-moved 26 200 5 ordinal 0 kind 1 from -5 41 gap -3 to 3 48 gap 5
+foe-moved 26 200 5 ordinal 1 kind 1 from -3 41 gap -2 to 5 48 gap 5
+foe-moved 26 200 5 ordinal 7 kind 1 from 4 140 gap 3 to 3 142 gap 5
+foe-moved 26 200 5 ordinal 8 kind 1 from 6 140 gap 3 to 5 142 gap 5
+foe-npc-world 26 200 5
+foe-moved 27 80 5 ordinal 0 kind 1 from -5 43 gap -1 to 1 49 gap 5
+foe-moved 27 80 5 ordinal 1 kind 1 from -3 43 gap 0 to 3 49 gap 6
+foe-moved 27 80 5 ordinal 7 kind 1 from 3 139 gap 2 to 3 142 gap 5
+foe-moved 27 80 5 ordinal 8 kind 1 from 5 139 gap 2 to 5 142 gap 5
+foe-npc-world 27 80 5
+foe-moved 27 200 5 ordinal 0 kind 1 from -5 43 gap -1 to 1 49 gap 5
+foe-moved 27 200 5 ordinal 1 kind 1 from -3 43 gap 0 to 3 49 gap 6
+foe-moved 27 200 5 ordinal 7 kind 1 from 3 139 gap 2 to 3 142 gap 5
+foe-moved 27 200 5 ordinal 8 kind 1 from 5 139 gap 2 to 5 142 gap 5
+foe-npc-world 27 200 5
+foe-moved 28 80 5 ordinal 0 kind 1 from -10 41 gap -3 to -1 49 gap 5
+foe-moved 28 80 5 ordinal 1 kind 1 from -8 41 gap -2 to 1 49 gap 6
+foe-moved 28 80 5 ordinal 2 kind 0 from 4 75 gap 3 to 6 73 gap 5
+foe-moved 28 80 5 ordinal 3 kind 0 from 6 75 gap 3 to 8 73 gap 5
+foe-moved 28 80 5 ordinal 4 kind 0 from 8 75 gap 4 to 10 73 gap 6
+foe-moved 28 80 5 ordinal 7 kind 1 from 9 136 gap -1 to 6 142 gap 5
+foe-moved 28 80 5 ordinal 8 kind 1 from 11 136 gap -1 to 8 142 gap 5
+foe-npc-world 28 80 5
+foe-moved 28 200 5 ordinal 0 kind 1 from -10 41 gap -3 to -1 49 gap 5
+foe-moved 28 200 5 ordinal 1 kind 1 from -8 41 gap -2 to 1 49 gap 6
+foe-moved 28 200 5 ordinal 2 kind 0 from 4 75 gap 3 to 6 73 gap 5
+foe-moved 28 200 5 ordinal 3 kind 0 from 6 75 gap 3 to 8 73 gap 5
+foe-moved 28 200 5 ordinal 4 kind 0 from 8 75 gap 4 to 10 73 gap 6
+foe-moved 28 200 5 ordinal 7 kind 1 from 9 136 gap -1 to 6 142 gap 5
+foe-moved 28 200 5 ordinal 8 kind 1 from 11 136 gap -1 to 8 142 gap 5
+foe-npc-world 28 200 5
+foe-moved 29 80 5 ordinal 0 kind 1 from -4 42 gap -2 to 3 48 gap 5
+foe-moved 29 80 5 ordinal 1 kind 1 from -2 42 gap -1 to 5 48 gap 5
+foe-moved 29 80 5 ordinal 2 kind 0 from 11 74 gap 4 to 12 73 gap 5
+foe-moved 29 80 5 ordinal 3 kind 0 from 13 74 gap 4 to 14 73 gap 5
+foe-moved 29 80 5 ordinal 4 kind 0 from 15 74 gap 5 to 16 73 gap 6
+foe-moved 29 80 5 ordinal 7 kind 1 from 6 137 gap 0 to 5 142 gap 5
+foe-moved 29 80 5 ordinal 8 kind 1 from 8 137 gap 0 to 7 142 gap 5
+foe-npc-world 29 80 5
+foe-moved 29 200 5 ordinal 0 kind 1 from -4 42 gap -2 to 3 48 gap 5
+foe-moved 29 200 5 ordinal 1 kind 1 from -2 42 gap -1 to 5 48 gap 5
+foe-moved 29 200 5 ordinal 2 kind 0 from 11 74 gap 4 to 12 73 gap 5
+foe-moved 29 200 5 ordinal 3 kind 0 from 13 74 gap 4 to 14 73 gap 5
+foe-moved 29 200 5 ordinal 4 kind 0 from 15 74 gap 5 to 16 73 gap 6
+foe-moved 29 200 5 ordinal 7 kind 1 from 6 137 gap 0 to 5 142 gap 5
+foe-moved 29 200 5 ordinal 8 kind 1 from 8 137 gap 0 to 7 142 gap 5
+foe-npc-world 29 200 5
+foe-moved 30 80 5 ordinal 0 kind 1 from -8 42 gap -2 to -1 49 gap 5
+foe-moved 30 80 5 ordinal 1 kind 1 from -6 42 gap -1 to 1 49 gap 6
+foe-moved 30 80 5 ordinal 2 kind 0 from 5 74 gap 4 to 6 73 gap 5
+foe-moved 30 80 5 ordinal 3 kind 0 from 7 74 gap 4 to 8 73 gap 5
+foe-moved 30 80 5 ordinal 4 kind 0 from 9 74 gap 5 to 10 73 gap 6
+foe-moved 30 80 5 ordinal 7 kind 1 from 7 139 gap 2 to 6 142 gap 5
+foe-moved 30 80 5 ordinal 8 kind 1 from 9 139 gap 2 to 8 142 gap 5
+foe-npc-world 30 80 5
+foe-moved 30 200 5 ordinal 0 kind 1 from -8 42 gap -2 to -1 49 gap 5
+foe-moved 30 200 5 ordinal 1 kind 1 from -6 42 gap -1 to 1 49 gap 6
+foe-moved 30 200 5 ordinal 2 kind 0 from 5 74 gap 4 to 6 73 gap 5
+foe-moved 30 200 5 ordinal 3 kind 0 from 7 74 gap 4 to 8 73 gap 5
+foe-moved 30 200 5 ordinal 4 kind 0 from 9 74 gap 5 to 10 73 gap 6
+foe-moved 30 200 5 ordinal 7 kind 1 from 7 139 gap 2 to 6 142 gap 5
+foe-moved 30 200 5 ordinal 8 kind 1 from 9 139 gap 2 to 8 142 gap 5
+foe-npc-world 30 200 5
+foe-moved 31 80 5 ordinal 0 kind 1 from -8 42 gap -3 to 0 50 gap 5
+foe-moved 31 80 5 ordinal 1 kind 1 from -6 42 gap -2 to 2 50 gap 6
+foe-moved 31 80 5 ordinal 7 kind 1 from 5 136 gap -1 to 3 142 gap 5
+foe-moved 31 80 5 ordinal 8 kind 1 from 7 136 gap -1 to 5 142 gap 5
+foe-npc-world 31 80 5
+foe-moved 31 200 5 ordinal 0 kind 1 from -8 42 gap -3 to 0 50 gap 5
+foe-moved 31 200 5 ordinal 1 kind 1 from -6 42 gap -2 to 2 50 gap 6
+foe-moved 31 200 5 ordinal 7 kind 1 from 5 136 gap -1 to 3 142 gap 5
+foe-moved 31 200 5 ordinal 8 kind 1 from 7 136 gap -1 to 5 142 gap 5
+foe-npc-world 31 200 5
+foe-moved 32 80 5 ordinal 0 kind 1 from -3 43 gap -1 to 3 48 gap 5
+foe-moved 32 80 5 ordinal 1 kind 1 from -1 43 gap 0 to 5 48 gap 5
+foe-moved 32 80 5 ordinal 2 kind 0 from 9 74 gap 4 to 10 73 gap 5
+foe-moved 32 80 5 ordinal 3 kind 0 from 11 74 gap 4 to 12 73 gap 5
+foe-moved 32 80 5 ordinal 4 kind 0 from 13 74 gap 4 to 14 73 gap 5
+foe-moved 32 80 5 ordinal 7 kind 1 from 7 136 gap -1 to 5 142 gap 5
+foe-moved 32 80 5 ordinal 8 kind 1 from 9 136 gap -1 to 7 142 gap 5
+foe-npc-world 32 80 5
+foe-moved 32 200 5 ordinal 0 kind 1 from -3 43 gap -1 to 3 48 gap 5
+foe-moved 32 200 5 ordinal 1 kind 1 from -1 43 gap 0 to 5 48 gap 5
+foe-moved 32 200 5 ordinal 2 kind 0 from 9 74 gap 4 to 10 73 gap 5
+foe-moved 32 200 5 ordinal 3 kind 0 from 11 74 gap 4 to 12 73 gap 5
+foe-moved 32 200 5 ordinal 4 kind 0 from 13 74 gap 4 to 14 73 gap 5
+foe-moved 32 200 5 ordinal 7 kind 1 from 7 136 gap -1 to 5 142 gap 5
+foe-moved 32 200 5 ordinal 8 kind 1 from 9 136 gap -1 to 7 142 gap 5
+foe-npc-world 32 200 5
+foe-moved 33 80 5 ordinal 0 kind 1 from -9 41 gap -3 to 0 49 gap 5
+foe-moved 33 80 5 ordinal 1 kind 1 from -7 41 gap -2 to 2 49 gap 6
+foe-moved 33 80 5 ordinal 2 kind 0 from 5 75 gap 3 to 7 73 gap 5
+foe-moved 33 80 5 ordinal 3 kind 0 from 7 75 gap 3 to 9 73 gap 5
+foe-moved 33 80 5 ordinal 4 kind 0 from 9 75 gap 3 to 11 73 gap 5
+foe-moved 33 80 5 ordinal 7 kind 1 from 5 139 gap 2 to 4 142 gap 5
+foe-moved 33 80 5 ordinal 8 kind 1 from 7 139 gap 2 to 6 142 gap 5
+foe-npc-world 33 80 5
+foe-moved 33 200 5 ordinal 0 kind 1 from -9 41 gap -3 to 0 49 gap 5
+foe-moved 33 200 5 ordinal 1 kind 1 from -7 41 gap -2 to 2 49 gap 6
+foe-moved 33 200 5 ordinal 2 kind 0 from 5 75 gap 3 to 7 73 gap 5
+foe-moved 33 200 5 ordinal 3 kind 0 from 7 75 gap 3 to 9 73 gap 5
+foe-moved 33 200 5 ordinal 4 kind 0 from 9 75 gap 3 to 11 73 gap 5
+foe-moved 33 200 5 ordinal 7 kind 1 from 5 139 gap 2 to 4 142 gap 5
+foe-moved 33 200 5 ordinal 8 kind 1 from 7 139 gap 2 to 6 142 gap 5
+foe-npc-world 33 200 5
+foe-moved 34 80 5 ordinal 0 kind 1 from -4 42 gap -2 to 3 48 gap 5
+foe-moved 34 80 5 ordinal 1 kind 1 from -2 42 gap -1 to 5 48 gap 5
+foe-moved 34 80 5 ordinal 2 kind 0 from 10 74 gap 4 to 11 73 gap 5
+foe-moved 34 80 5 ordinal 3 kind 0 from 12 74 gap 4 to 13 73 gap 5
+foe-moved 34 80 5 ordinal 4 kind 0 from 14 74 gap 4 to 15 73 gap 5
+foe-moved 34 80 5 ordinal 7 kind 1 from 9 136 gap -1 to 7 142 gap 5
+foe-moved 34 80 5 ordinal 8 kind 1 from 11 136 gap -1 to 9 142 gap 5
+foe-npc-world 34 80 5
+foe-moved 34 200 5 ordinal 0 kind 1 from -4 42 gap -2 to 3 48 gap 5
+foe-moved 34 200 5 ordinal 1 kind 1 from -2 42 gap -1 to 5 48 gap 5
+foe-moved 34 200 5 ordinal 2 kind 0 from 10 74 gap 4 to 11 73 gap 5
+foe-moved 34 200 5 ordinal 3 kind 0 from 12 74 gap 4 to 13 73 gap 5
+foe-moved 34 200 5 ordinal 4 kind 0 from 14 74 gap 4 to 15 73 gap 5
+foe-moved 34 200 5 ordinal 7 kind 1 from 9 136 gap -1 to 7 142 gap 5
+foe-moved 34 200 5 ordinal 8 kind 1 from 11 136 gap -1 to 9 142 gap 5
+foe-npc-world 34 200 5
+foe-moved 35 80 5 ordinal 0 kind 1 from -5 44 gap 0 to 0 49 gap 5
+foe-moved 35 80 5 ordinal 1 kind 1 from -3 44 gap 1 to 2 49 gap 6
+foe-moved 35 80 5 ordinal 2 kind 0 from 6 74 gap 4 to 7 73 gap 5
+foe-moved 35 80 5 ordinal 3 kind 0 from 8 74 gap 4 to 9 73 gap 5
+foe-moved 35 80 5 ordinal 4 kind 0 from 10 74 gap 5 to 11 73 gap 6
+foe-moved 35 80 5 ordinal 7 kind 1 from 4 139 gap 2 to 3 142 gap 5
+foe-moved 35 80 5 ordinal 8 kind 1 from 6 139 gap 2 to 5 142 gap 5
+foe-npc-world 35 80 5
+foe-moved 35 200 5 ordinal 0 kind 1 from -5 44 gap 0 to 0 49 gap 5
+foe-moved 35 200 5 ordinal 1 kind 1 from -3 44 gap 1 to 2 49 gap 6
+foe-moved 35 200 5 ordinal 2 kind 0 from 6 74 gap 4 to 7 73 gap 5
+foe-moved 35 200 5 ordinal 3 kind 0 from 8 74 gap 4 to 9 73 gap 5
+foe-moved 35 200 5 ordinal 4 kind 0 from 10 74 gap 5 to 11 73 gap 6
+foe-moved 35 200 5 ordinal 7 kind 1 from 4 139 gap 2 to 3 142 gap 5
+foe-moved 35 200 5 ordinal 8 kind 1 from 6 139 gap 2 to 5 142 gap 5
+foe-npc-world 35 200 5
+foe-moved 36 80 5 ordinal 0 kind 1 from -6 42 gap -2 to 1 48 gap 5
+foe-moved 36 80 5 ordinal 1 kind 1 from -4 42 gap -1 to 3 48 gap 5
+foe-moved 36 80 5 ordinal 7 kind 1 from 7 139 gap 2 to 5 142 gap 5
+foe-moved 36 80 5 ordinal 8 kind 1 from 9 139 gap 2 to 7 142 gap 5
+foe-npc-world 36 80 5
+foe-moved 36 200 5 ordinal 0 kind 1 from -6 42 gap -2 to 1 48 gap 5
+foe-moved 36 200 5 ordinal 1 kind 1 from -4 42 gap -1 to 3 48 gap 5
+foe-moved 36 200 5 ordinal 7 kind 1 from 7 139 gap 2 to 5 142 gap 5
+foe-moved 36 200 5 ordinal 8 kind 1 from 9 139 gap 2 to 7 142 gap 5
+foe-npc-world 36 200 5
+foe-moved 37 80 5 ordinal 0 kind 1 from -9 40 gap -4 to 1 49 gap 6
+foe-moved 37 80 5 ordinal 1 kind 1 from -7 40 gap -3 to 3 49 gap 6
+foe-moved 37 80 5 ordinal 7 kind 1 from 5 140 gap 3 to 5 142 gap 5
+foe-moved 37 80 5 ordinal 8 kind 1 from 7 140 gap 3 to 7 142 gap 5
+foe-npc-world 37 80 5
+foe-moved 37 200 5 ordinal 0 kind 1 from -9 40 gap -4 to 1 49 gap 6
+foe-moved 37 200 5 ordinal 1 kind 1 from -7 40 gap -3 to 3 49 gap 6
+foe-moved 37 200 5 ordinal 7 kind 1 from 5 140 gap 3 to 5 142 gap 5
+foe-moved 37 200 5 ordinal 8 kind 1 from 7 140 gap 3 to 7 142 gap 5
+foe-npc-world 37 200 5
+foe-moved 38 80 5 ordinal 0 kind 1 from -6 42 gap -2 to 1 49 gap 5
+foe-moved 38 80 5 ordinal 1 kind 1 from -4 42 gap -1 to 3 49 gap 6
+foe-moved 38 80 5 ordinal 7 kind 1 from 5 140 gap 3 to 5 142 gap 5
+foe-moved 38 80 5 ordinal 8 kind 1 from 7 140 gap 3 to 7 142 gap 5
+foe-npc-world 38 80 5
+foe-moved 38 200 5 ordinal 0 kind 1 from -6 42 gap -2 to 1 49 gap 5
+foe-moved 38 200 5 ordinal 1 kind 1 from -4 42 gap -1 to 3 49 gap 6
+foe-moved 38 200 5 ordinal 7 kind 1 from 5 140 gap 3 to 5 142 gap 5
+foe-moved 38 200 5 ordinal 8 kind 1 from 7 140 gap 3 to 7 142 gap 5
+foe-npc-world 38 200 5
+foe-moved 39 80 5 ordinal 0 kind 1 from -5 40 gap -4 to 4 48 gap 5
+foe-moved 39 80 5 ordinal 1 kind 1 from -3 40 gap -3 to 6 48 gap 5
+foe-moved 39 80 5 ordinal 2 kind 0 from 12 74 gap 4 to 13 73 gap 5
+foe-moved 39 80 5 ordinal 3 kind 0 from 14 74 gap 4 to 15 73 gap 5
+foe-moved 39 80 5 ordinal 4 kind 0 from 16 74 gap 5 to 17 73 gap 6
+foe-moved 39 80 5 ordinal 7 kind 1 from 7 137 gap 0 to 5 142 gap 5
+foe-moved 39 80 5 ordinal 8 kind 1 from 9 137 gap 0 to 7 142 gap 5
+foe-npc-world 39 80 5
+foe-moved 39 200 5 ordinal 0 kind 1 from -5 40 gap -4 to 4 48 gap 5
+foe-moved 39 200 5 ordinal 1 kind 1 from -3 40 gap -3 to 6 48 gap 5
+foe-moved 39 200 5 ordinal 2 kind 0 from 12 74 gap 4 to 13 73 gap 5
+foe-moved 39 200 5 ordinal 3 kind 0 from 14 74 gap 4 to 15 73 gap 5
+foe-moved 39 200 5 ordinal 4 kind 0 from 16 74 gap 5 to 17 73 gap 6
+foe-moved 39 200 5 ordinal 7 kind 1 from 7 137 gap 0 to 5 142 gap 5
+foe-moved 39 200 5 ordinal 8 kind 1 from 9 137 gap 0 to 7 142 gap 5
+foe-npc-world 39 200 5
+foe-moved 40 80 5 ordinal 0 kind 1 from -7 42 gap -3 to 0 50 gap 5
+foe-moved 40 80 5 ordinal 1 kind 1 from -5 42 gap -2 to 2 50 gap 6
+foe-moved 40 80 5 ordinal 7 kind 1 from 4 136 gap -1 to 3 142 gap 5
+foe-moved 40 80 5 ordinal 8 kind 1 from 6 136 gap -1 to 5 142 gap 5
+foe-npc-world 40 80 5
+foe-moved 40 200 5 ordinal 0 kind 1 from -7 42 gap -3 to 0 50 gap 5
+foe-moved 40 200 5 ordinal 1 kind 1 from -5 42 gap -2 to 2 50 gap 6
+foe-moved 40 200 5 ordinal 7 kind 1 from 4 136 gap -1 to 3 142 gap 5
+foe-moved 40 200 5 ordinal 8 kind 1 from 6 136 gap -1 to 5 142 gap 5
+foe-npc-world 40 200 5
+foe-moved 41 80 5 ordinal 0 kind 1 from -9 41 gap -3 to 0 49 gap 5
+foe-moved 41 80 5 ordinal 1 kind 1 from -7 41 gap -2 to 2 49 gap 6
+foe-moved 41 80 5 ordinal 2 kind 0 from 7 74 gap 4 to 8 73 gap 5
+foe-moved 41 80 5 ordinal 3 kind 0 from 9 74 gap 4 to 10 73 gap 5
+foe-moved 41 80 5 ordinal 4 kind 0 from 11 74 gap 4 to 12 73 gap 5
+foe-moved 41 80 5 ordinal 7 kind 1 from 5 136 gap -1 to 4 142 gap 5
+foe-moved 41 80 5 ordinal 8 kind 1 from 7 136 gap -1 to 6 142 gap 5
+foe-npc-world 41 80 5
+foe-moved 41 200 5 ordinal 0 kind 1 from -9 41 gap -3 to 0 49 gap 5
+foe-moved 41 200 5 ordinal 1 kind 1 from -7 41 gap -2 to 2 49 gap 6
+foe-moved 41 200 5 ordinal 2 kind 0 from 7 74 gap 4 to 8 73 gap 5
+foe-moved 41 200 5 ordinal 3 kind 0 from 9 74 gap 4 to 10 73 gap 5
+foe-moved 41 200 5 ordinal 4 kind 0 from 11 74 gap 4 to 12 73 gap 5
+foe-moved 41 200 5 ordinal 7 kind 1 from 5 136 gap -1 to 4 142 gap 5
+foe-moved 41 200 5 ordinal 8 kind 1 from 7 136 gap -1 to 6 142 gap 5
+foe-npc-world 41 200 5
+foe-moved 42 80 5 ordinal 0 kind 1 from -6 41 gap -3 to 2 48 gap 5
+foe-moved 42 80 5 ordinal 1 kind 1 from -4 41 gap -2 to 4 48 gap 5
+foe-moved 42 80 5 ordinal 7 kind 1 from 9 136 gap -1 to 6 142 gap 5
+foe-moved 42 80 5 ordinal 8 kind 1 from 11 136 gap -1 to 8 142 gap 5
+foe-npc-world 42 80 5
+foe-moved 42 200 5 ordinal 0 kind 1 from -6 41 gap -3 to 2 48 gap 5
+foe-moved 42 200 5 ordinal 1 kind 1 from -4 41 gap -2 to 4 48 gap 5
+foe-moved 42 200 5 ordinal 7 kind 1 from 9 136 gap -1 to 6 142 gap 5
+foe-moved 42 200 5 ordinal 8 kind 1 from 11 136 gap -1 to 8 142 gap 5
+foe-npc-world 42 200 5
+foe-moved 43 80 5 ordinal 0 kind 1 from -9 40 gap -4 to 0 49 gap 5
+foe-moved 43 80 5 ordinal 1 kind 1 from -7 40 gap -3 to 2 49 gap 6
+foe-moved 43 80 5 ordinal 2 kind 0 from 5 75 gap 3 to 7 73 gap 5
+foe-moved 43 80 5 ordinal 3 kind 0 from 7 75 gap 3 to 9 73 gap 5
+foe-moved 43 80 5 ordinal 4 kind 0 from 9 75 gap 3 to 11 73 gap 5
+foe-moved 43 80 5 ordinal 7 kind 1 from 6 137 gap 0 to 4 142 gap 5
+foe-moved 43 80 5 ordinal 8 kind 1 from 8 137 gap 0 to 6 142 gap 5
+foe-npc-world 43 80 5
+foe-moved 43 200 5 ordinal 0 kind 1 from -9 40 gap -4 to 0 49 gap 5
+foe-moved 43 200 5 ordinal 1 kind 1 from -7 40 gap -3 to 2 49 gap 6
+foe-moved 43 200 5 ordinal 2 kind 0 from 5 75 gap 3 to 7 73 gap 5
+foe-moved 43 200 5 ordinal 3 kind 0 from 7 75 gap 3 to 9 73 gap 5
+foe-moved 43 200 5 ordinal 4 kind 0 from 9 75 gap 3 to 11 73 gap 5
+foe-moved 43 200 5 ordinal 7 kind 1 from 6 137 gap 0 to 4 142 gap 5
+foe-moved 43 200 5 ordinal 8 kind 1 from 8 137 gap 0 to 6 142 gap 5
+foe-npc-world 43 200 5
+foe-moved 44 80 5 ordinal 0 kind 1 from -2 44 gap -1 to 4 50 gap 5
+foe-moved 44 80 5 ordinal 1 kind 1 from 0 44 gap 0 to 6 50 gap 6
+foe-moved 44 80 5 ordinal 7 kind 1 from 5 138 gap 1 to 4 142 gap 5
+foe-moved 44 80 5 ordinal 8 kind 1 from 7 138 gap 1 to 6 142 gap 5
+foe-npc-world 44 80 5
+foe-moved 44 200 5 ordinal 0 kind 1 from -2 44 gap -1 to 4 50 gap 5
+foe-moved 44 200 5 ordinal 1 kind 1 from 0 44 gap 0 to 6 50 gap 6
+foe-moved 44 200 5 ordinal 7 kind 1 from 5 138 gap 1 to 4 142 gap 5
+foe-moved 44 200 5 ordinal 8 kind 1 from 7 138 gap 1 to 6 142 gap 5
+foe-npc-world 44 200 5
+foe-moved 45 80 5 ordinal 0 kind 1 from -4 43 gap -1 to 2 49 gap 5
+foe-moved 45 80 5 ordinal 1 kind 1 from -2 43 gap 0 to 4 49 gap 6
+foe-moved 45 80 5 ordinal 2 kind 0 from 8 74 gap 4 to 9 73 gap 5
+foe-moved 45 80 5 ordinal 3 kind 0 from 10 74 gap 4 to 11 73 gap 5
+foe-moved 45 80 5 ordinal 4 kind 0 from 12 74 gap 5 to 13 73 gap 6
+foe-moved 45 80 5 ordinal 7 kind 1 from 7 139 gap 2 to 6 142 gap 5
+foe-moved 45 80 5 ordinal 8 kind 1 from 9 139 gap 2 to 8 142 gap 5
+foe-npc-world 45 80 5
+foe-moved 45 200 5 ordinal 0 kind 1 from -4 43 gap -1 to 2 49 gap 5
+foe-moved 45 200 5 ordinal 1 kind 1 from -2 43 gap 0 to 4 49 gap 6
+foe-moved 45 200 5 ordinal 2 kind 0 from 8 74 gap 4 to 9 73 gap 5
+foe-moved 45 200 5 ordinal 3 kind 0 from 10 74 gap 4 to 11 73 gap 5
+foe-moved 45 200 5 ordinal 4 kind 0 from 12 74 gap 5 to 13 73 gap 6
+foe-moved 45 200 5 ordinal 7 kind 1 from 7 139 gap 2 to 6 142 gap 5
+foe-moved 45 200 5 ordinal 8 kind 1 from 9 139 gap 2 to 8 142 gap 5
+foe-npc-world 45 200 5
+foe-moved 46 80 5 ordinal 0 kind 1 from -8 41 gap -3 to 0 49 gap 5
+foe-moved 46 80 5 ordinal 1 kind 1 from -6 41 gap -2 to 2 49 gap 6
+foe-moved 46 80 5 ordinal 2 kind 0 from 5 74 gap 4 to 6 73 gap 5
+foe-moved 46 80 5 ordinal 3 kind 0 from 7 74 gap 4 to 8 73 gap 5
+foe-moved 46 80 5 ordinal 4 kind 0 from 9 74 gap 4 to 10 73 gap 5
+foe-moved 46 80 5 ordinal 7 kind 1 from 3 139 gap 2 to 3 142 gap 5
+foe-moved 46 80 5 ordinal 8 kind 1 from 5 139 gap 2 to 5 142 gap 5
+foe-npc-world 46 80 5
+foe-moved 46 200 5 ordinal 0 kind 1 from -8 41 gap -3 to 0 49 gap 5
+foe-moved 46 200 5 ordinal 1 kind 1 from -6 41 gap -2 to 2 49 gap 6
+foe-moved 46 200 5 ordinal 2 kind 0 from 5 74 gap 4 to 6 73 gap 5
+foe-moved 46 200 5 ordinal 3 kind 0 from 7 74 gap 4 to 8 73 gap 5
+foe-moved 46 200 5 ordinal 4 kind 0 from 9 74 gap 4 to 10 73 gap 5
+foe-moved 46 200 5 ordinal 7 kind 1 from 3 139 gap 2 to 3 142 gap 5
+foe-moved 46 200 5 ordinal 8 kind 1 from 5 139 gap 2 to 5 142 gap 5
+foe-npc-world 46 200 5
+foe-moved 47 80 5 ordinal 0 kind 1 from -10 40 gap -4 to -1 48 gap 5
+foe-moved 47 80 5 ordinal 1 kind 1 from -8 40 gap -3 to 1 48 gap 5
+foe-moved 47 80 5 ordinal 7 kind 1 from 5 137 gap 0 to 4 142 gap 5
+foe-moved 47 80 5 ordinal 8 kind 1 from 7 137 gap 0 to 6 142 gap 5
+foe-npc-world 47 80 5
+foe-moved 47 200 5 ordinal 0 kind 1 from -10 40 gap -4 to -1 48 gap 5
+foe-moved 47 200 5 ordinal 1 kind 1 from -8 40 gap -3 to 1 48 gap 5
+foe-moved 47 200 5 ordinal 7 kind 1 from 5 137 gap 0 to 4 142 gap 5
+foe-moved 47 200 5 ordinal 8 kind 1 from 7 137 gap 0 to 6 142 gap 5
+foe-npc-world 47 200 5
+foe-moved 48 80 5 ordinal 0 kind 1 from -7 44 gap -1 to -1 50 gap 5
+foe-moved 48 80 5 ordinal 1 kind 1 from -5 44 gap 0 to 1 50 gap 6
+foe-moved 48 80 5 ordinal 2 kind 0 from 2 76 gap 2 to 4 73 gap 5
+foe-moved 48 80 5 ordinal 3 kind 0 from 4 76 gap 2 to 6 73 gap 5
+foe-moved 48 80 5 ordinal 4 kind 0 from 6 76 gap 3 to 8 73 gap 5
+foe-moved 48 80 5 ordinal 7 kind 1 from 4 139 gap 2 to 3 142 gap 5
+foe-moved 48 80 5 ordinal 8 kind 1 from 6 139 gap 2 to 5 142 gap 5
+foe-npc-world 48 80 5
+foe-moved 48 200 5 ordinal 0 kind 1 from -7 44 gap -1 to -1 50 gap 5
+foe-moved 48 200 5 ordinal 1 kind 1 from -5 44 gap 0 to 1 50 gap 6
+foe-moved 48 200 5 ordinal 2 kind 0 from 2 76 gap 2 to 4 73 gap 5
+foe-moved 48 200 5 ordinal 3 kind 0 from 4 76 gap 2 to 6 73 gap 5
+foe-moved 48 200 5 ordinal 4 kind 0 from 6 76 gap 3 to 8 73 gap 5
+foe-moved 48 200 5 ordinal 7 kind 1 from 4 139 gap 2 to 3 142 gap 5
+foe-moved 48 200 5 ordinal 8 kind 1 from 6 139 gap 2 to 5 142 gap 5
+foe-npc-world 48 200 5
+foe-moved 49 80 5 ordinal 0 kind 1 from -8 43 gap -2 to -1 50 gap 5
+foe-moved 49 80 5 ordinal 1 kind 1 from -6 43 gap -1 to 1 50 gap 6
+foe-moved 49 80 5 ordinal 7 kind 1 from 5 139 gap 2 to 4 142 gap 5
+foe-moved 49 80 5 ordinal 8 kind 1 from 7 139 gap 2 to 6 142 gap 5
+foe-npc-world 49 80 5
+foe-moved 49 200 5 ordinal 0 kind 1 from -8 43 gap -2 to -1 50 gap 5
+foe-moved 49 200 5 ordinal 1 kind 1 from -6 43 gap -1 to 1 50 gap 6
+foe-moved 49 200 5 ordinal 7 kind 1 from 5 139 gap 2 to 4 142 gap 5
+foe-moved 49 200 5 ordinal 8 kind 1 from 7 139 gap 2 to 6 142 gap 5
+foe-npc-world 49 200 5
+foe-npc-gap: green, 16600 foes over 50 seeds at both fields in 13 areas, 574 moved by the gap, the nearest 5 clear cells from an NPC (talk radius 4)
