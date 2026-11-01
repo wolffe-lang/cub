@@ -15,10 +15,20 @@ use terrain
 use tier
 
 /// Render terrain rows of a frame about a camera and check them: every
-/// forest cell drawn, no two adjacent foliage cells identical.
-fn textured_rows(seed: int, field: int, area: int, camera_x: int, camera_y: int, t: int) {
+/// forest cell drawn, no two adjacent foliage cells identical. `s` is a
+/// journey of `seed` at `field`'s screen, moved here (cb19: one `sim.new` a
+/// field, not one a position, since every `sim.new` places the Shingle's
+/// foes against Quill's den perch, the checked machine's budget).
+fn textured_rows(
+    mut s: sim.Sim,
+    seed: int,
+    field: int,
+    area: int,
+    camera_x: int,
+    camera_y: int,
+    t: int,
+) {
     let (cols, rows) = coast.screen_of(field)
-    var s = sim.new(seed, cols, rows)
     s.field = field
     s.area = area
     s.x = camera_x * sim.FP
@@ -58,18 +68,20 @@ fn test_cb02b_forest_texture_everywhere() {
     // One row a position keeps the checked machine inside its budget; the
     // fifty-seed, every-position census is the shipping binary's audit.
     let seed = 0
-    var area = 0
-    while area < 3 {
-        var size = 0
-        while size < 2 {
-            let field = if size == 0 then 80 else 200
+    var size = 0
+    while size < 2 {
+        let field = if size == 0 then 80 else 200
+        let (cols, rows) = coast.screen_of(field)
+        var s = sim.new(seed, cols, rows)
+        var area = 0
+        while area < 3 {
             let w = forest.bound(field, area)
-            textured_rows(seed, field, area, 0, 40, tier.RICH)
-            textured_rows(seed, field, area, w + 30, 80, tier.RICH)
-            textured_rows(seed, field, area, 0 - w - 30, -20, tier.PLAIN)
-            size += 1
+            textured_rows(mut s, seed, field, area, 0, 40, tier.RICH)
+            textured_rows(mut s, seed, field, area, w + 30, 80, tier.RICH)
+            textured_rows(mut s, seed, field, area, 0 - w - 30, -20, tier.PLAIN)
+            area += 1
         }
-        area += 1
+        size += 1
     }
     assert(coast.FLAT_MAX == 2 && coast.TEXTURED_MIN == 90, "the census bars")
 }
