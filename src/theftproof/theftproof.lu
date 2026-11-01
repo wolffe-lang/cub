@@ -197,17 +197,26 @@ fn play(mut s: sim.Sim, mut r: replay.Replay) -> Milestones {
         eprint("theftproof: the walk to the dropped yarrow")
         return m
     }
+    // `r` takes an item on the cub's own cell, read at the tick's start
+    // (before it moves): pressed the first tick the cub stands on the
+    // drop's cell, never after a coast that can carry it off again.
     n = 0
-    while n < 30 && (sim.cell_x(s) != px || sim.cell_y(s) != py) {
-        var keys = List[int]()
-        walker.aim(mut keys, px * sim.FP + sim.FP / 2 - s.x, py * sim.FP + sim.FP / 2 - s.y)
-        walker.press(mut s, mut r, keys)
+    while n < 40 && m.recovered < 0 {
+        if sim.cell_x(s) == px && sim.cell_y(s) == py {
+            walker.press(mut s, mut r, walker.key(controls.KEY_REST))
+            if sim.item_count(s, pouch.YARROW) == 1 { m.recovered = s.tick }
+        } else {
+            var keys = List[int]()
+            walker.aim(mut keys, px * sim.FP + sim.FP / 2 - s.x, py * sim.FP + sim.FP / 2 - s.y)
+            walker.press(mut s, mut r, keys)
+        }
         n += 1
     }
-    n = 0
-    while n < 12 && s.speed > 0 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
-    walker.press(mut s, mut r, walker.key(controls.KEY_REST))
-    if sim.item_count(s, pouch.YARROW) == 1 { m.recovered = s.tick }
+    if m.recovered < 0 {
+        eprint(
+            "theftproof: the yarrow at {px},{py} not taken (the cub at {sim.cell_x(s)},{sim.cell_y(s)}, speed {s.speed}, blocked {sim.blocked(s, px, py)})",
+        )
+    }
     n = 0
     while n < 10 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
     m
