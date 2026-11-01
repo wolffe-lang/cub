@@ -423,7 +423,10 @@ fn run_headless(o: Options, args: List[str]) -> int {
         return 2
     }
     var s = if o.save_path != "" {
-        journey.load(o.save_path, r.seed, r.cols, r.rows) else |e| { eprint("cub: {e}"); return 2 }
+        journey.load(o.save_path, r.seed, r.cols, r.rows) else |e| {
+            eprint("cub: {journey.refusal(o.save_path, "{e}")}")
+            return 2
+        }
     } else {
         sim.new(r.seed, r.cols, r.rows)
     }
@@ -433,10 +436,12 @@ fn run_headless(o: Options, args: List[str]) -> int {
                 replay.args_at(r, 0, controls.EV_JOURNEY) != 0 &&
                     replay.args_at(r, 0, controls.EV_SAVED) != o.seed
         ) {
-        eprint("cub: save_seed_conflict: a saved journey keeps its seed")
+        eprint(
+            "cub: {journey.shown(o.save_path)} keeps its own seed; --seed names another. Leave --seed out, or choose another --save path. [save_seed_conflict]",
+        )
         return 2
     }
-    s = replay_initial(r, s) else |e| { eprint("cub: {e}"); return 2 }
+    s = replay_initial(r, s) else |e| { eprint("cub: {replay_refusal(o.script, "{e}")}"); return 2 }
     s.pace_percent = o.pace
     if o.script == "" && o.replay_path == "" { sim.opening(mut s) }
     // The ghosts a script shows: the flag's directory, or the one a case
@@ -518,12 +523,18 @@ fn run_headless(o: Options, args: List[str]) -> int {
         k += 1
     }
     if o.save_path != "" {
-        let meta = journey.load_metadata(o.save_path) else |e| { eprint("cub: {e}"); return 2 }
-        journey.prepare_named(o.save_path, s, meta, o.save_cut) else |e| {
-            eprint("cub: {e}")
+        let meta = journey.load_metadata(o.save_path) else |e| {
+            eprint("cub: {journey.refusal(o.save_path, "{e}")}")
             return 2
         }
-        commit_save(o.save_path) else |e| { eprint("cub: {e}"); return 2 }
+        journey.prepare_named(o.save_path, s, meta, o.save_cut) else |e| {
+            eprint("cub: {save_failure(o.save_path, "{e}")}")
+            return 2
+        }
+        commit_save(o.save_path) else |e| {
+            eprint("cub: {save_failure(o.save_path, "{e}")}")
+            return 2
+        }
         s.save_status = 2
     }
     // The last frame is always `final` (the pty runner compares it).
@@ -757,6 +768,21 @@ fn run_selftest() -> int {
     1
 }
 
+/// The sentence a failed save write gets (cb19): the saves list's own
+/// failures by `registry.failure`, the rest by `journey.write_failure`.
+fn save_failure(path: str, error: str) -> str {
+    if error.starts_with("registry_") {
+        return registry.failure(registry.root() + "/registry", path, error)
+    }
+    journey.write_failure(path, error)
+}
+
+/// The sentence a replay's refused journey snapshot gets (cb19): the file,
+/// the journey version it carries, the versions this cub reads.
+fn replay_refusal(path: str, error: str) -> str {
+    "{journey.shown(path)} is a recording whose starting journey this cub cannot read: this cub reads journey 3 to journey {journey.JOURNEY} snapshots. Record it again with this cub. [{error}]"
+}
+
 /// Commit the save first, then atomically refresh its independent index.
 fn commit_save(path: str) -> () ! {
     save_io,
@@ -778,14 +804,29 @@ fn commit_save(path: str) -> () ! {
 fn run_startup(o: Options, args: List[str]) -> int {
     if o.replay_path != "" { return run_live(o, args) }
     let base = registry.root()
+    let index = base + "/registry"
     if o.save_path != "" && fs.exists(o.save_path) && !fs.is_file(o.save_path) {
-        eprint("cub: save_io: --save is not a file")
+        eprint(
+            "cub: {journey.shown(o.save_path)} is not a file; --save names a journey's file. [save_io]",
+        )
         return 2
     }
-    registry.migrate(base) else |e| { eprint("cub: {e}"); return 2 }
+    // cb19 (cub#91 A): the legacy ~/.cub/save never stops a start, whatever
+    // it holds; one line names what was done with it. A `--save NAME` save
+    // too old for this build is kept as NAME.cubN-old, as the default is,
+    // and the journey starts new at its name.
+    var notice = registry.migrate(base, o.save_path == "")
+    if notice.kind != registry.NOTICE_NONE { eprint("cub: {notice.text}") }
+    if o.save_path != "" {
+        let named = registry.keep_if_too_old(o.save_path)
+        if named.kind != registry.NOTICE_NONE {
+            eprint("cub: {named.text}")
+            notice = named
+        }
+    }
     if o.save_path != "" && fs.is_file(o.save_path) {
-        registry.register(base + "/registry", o.save_path, time.unix_ms()) else |e| {
-            eprint("cub: {e}")
+        registry.register(index, o.save_path, time.unix_ms()) else |e| {
+            eprint("cub: {registry.failure(index, o.save_path, "{e}")}")
             return 2
         }
     }
@@ -793,8 +834,8 @@ fn run_startup(o: Options, args: List[str]) -> int {
         var selected = copy o
         selected.no_title = true
         if selected.save_path == "" {
-            let entries = registry.load(base + "/registry") else |e| {
-                eprint("cub: {e}")
+            let entries = registry.load(index) else |e| {
+                eprint("cub: {registry.failure(index, base + "/save", "{e}")}")
                 return 2
             }
             let recent = registry.recent(entries) else |_| {
@@ -802,15 +843,27 @@ fn run_startup(o: Options, args: List[str]) -> int {
                 selected.save_path = base + "/save"
                 return run_live(selected, args)
             }
-            let _ = registry.find(entries, recent.path) else |e| { eprint("cub: {e}"); return 2 }
+            let _ = registry.find(entries, recent.path) else |e| {
+                eprint("cub: {registry.failure(index, recent.path, "{e}")}")
+                return 2
+            }
             selected.save_path = recent.path
         }
         return run_live(selected, args)
     }
     var title = !o.menu
     loop {
-        let saves = registry.load(base + "/registry") else |e| { eprint("cub: {e}"); return 2 }
+        let saves = registry.load(index) else |e| {
+            eprint("cub: {registry.failure(index, base + "/save", "{e}")}")
+            return 2
+        }
         var menu = mainmenu.new(saves, mainmenu.recordings(base), title, o.seed)
+        // The title names what was done with an old save; when one was kept
+        // aside it offers the new journey (its key lands on New journey).
+        if title && notice.kind != registry.NOTICE_NONE {
+            menu.notice = notice.text
+            menu.offer_new = notice.kind == registry.NOTICE_KEPT
+        }
         title = false
         let status = fire_menu(o, mut menu)
         if status != 0 { return status }
@@ -838,8 +891,8 @@ fn run_startup(o: Options, args: List[str]) -> int {
             base + "/saves/journey-{time.unix_ms()}-{env.pid()}.save"
         }
         if menu.action == 1 {
-            registry.register(base + "/registry", selected.save_path, time.unix_ms()) else |e| {
-                eprint("cub: {e}")
+            registry.register(index, selected.save_path, time.unix_ms()) else |e| {
+                eprint("cub: {registry.failure(index, selected.save_path, "{e}")}")
                 return 2
             }
         }
@@ -882,11 +935,15 @@ fn fire_menu(o: Options, mut menu: mainmenu.Menu) -> int {
         (mut raw).reset()
         if menu.action == 1 {
             if !fs.is_file(menu.selected) {
-                menu.error = "registry_missing: save not found"
+                menu.error = registry.failure(
+                    registry.root() + "/registry",
+                    menu.selected,
+                    "registry_missing",
+                )
                 menu.action = 0
             } else {
                 let _ = journey.load(menu.selected, 1, s.cols, s.rows) else |e| {
-                    menu.error = "{e}"
+                    menu.error = journey.refusal(menu.selected, "{e}")
                     menu.action = 0
                     sim.new(1, s.cols, s.rows)
                 }
@@ -909,6 +966,7 @@ fn fire_menu(o: Options, mut menu: mainmenu.Menu) -> int {
         if menu.action > 0 { break }
         if menu.page == -1 {
             art.render_with(s, extra, tr, mut back)
+            mainmenu.draw_notice(menu, s, tr, mut back)
         } else {
             mainmenu.render(menu, s, tr, mut back)
         }
@@ -1010,14 +1068,17 @@ fn run_live(o: Options, args: List[str]) -> int {
     }
     var s = if !replaying {
         journey.load(save_path, rp.seed, cols, rows) else |e| {
-            eprint("cub: {e}: {save_path}")
+            eprint("cub: {journey.refusal(save_path, "{e}")}")
             return 2
         }
     } else {
         sim.new(rp.seed, cols, rows)
     }
     var meta = if !replaying {
-        journey.load_metadata(save_path) else |e| { eprint("cub: {e}"); return 2 }
+        journey.load_metadata(save_path) else |e| {
+            eprint("cub: {journey.refusal(save_path, "{e}")}")
+            return 2
+        }
     } else {
         journey.Metadata { name: "journey", played_ms: 0 }
     }
@@ -1031,7 +1092,9 @@ fn run_live(o: Options, args: List[str]) -> int {
     if !replaying {
         replay.push_arg(mut rec, 0, controls.EV_PACE, o.pace)
         if seed_given(args) && s.seed != o.seed {
-            eprint("cub: save_seed_conflict: choose another --save path")
+            eprint(
+                "cub: {journey.shown(save_path)} keeps its own seed; --seed names another. Leave --seed out, or choose another --save path. [save_seed_conflict]",
+            )
             return 2
         }
         rp.seed = s.seed
@@ -1055,7 +1118,12 @@ fn run_live(o: Options, args: List[str]) -> int {
         sim.combat_witness(mut s)
         replay.push_arg(mut rec, 0, controls.EV_COMBAT_WITNESS, 1)
     }
-    if replaying { s = replay_initial(rp, s) else |e| { eprint("cub: {e}"); return 2 } }
+    if replaying {
+        s = replay_initial(rp, s) else |e| {
+            eprint("cub: {replay_refusal(o.replay_path, "{e}")}")
+            return 2
+        }
+    }
     // The score (cb03): the parts rendered to WAVs and the backend probed
     // before the terminal is entered, so every refusal names itself on a
     // plain stderr. Off for a replay, under --mute and under CUB_SOUND=0.
@@ -1101,12 +1169,12 @@ fn run_live(o: Options, args: List[str]) -> int {
     if !replaying && !fs.exists(save_path) {
         journey.prepare_named(save_path, s, meta, o.save_cut) else |e| {
             term.close_input(mut session)
-            eprint("cub: {e}")
+            eprint("cub: {save_failure(save_path, "{e}")}")
             return 2
         }
         commit_save(save_path) else |e| {
             term.close_input(mut session)
-            eprint("cub: {e}")
+            eprint("cub: {save_failure(save_path, "{e}")}")
             return 2
         }
     }
@@ -1255,7 +1323,7 @@ fn run_live(o: Options, args: List[str]) -> int {
             if !replaying {
                 if pending.len > 0 && s.tick - pending_at >= o.save_delay {
                     commit_save(save_path) else |e| {
-                        eprint("cub: {e}")
+                        eprint("cub: {save_failure(save_path, "{e}")}")
                         // The save may already be replaced when its index fails.
                         // Never abort a consumed stage or claim the old save survived.
                         if !fs.exists(save_path + ".pending") { (mut pending).reset() }
@@ -1275,7 +1343,7 @@ fn run_live(o: Options, args: List[str]) -> int {
                 if !quit && pending.len == 0 && !journey.same_snapshot(current, saved) {
                     meta.played_ms = played_before + (clock.now_ns() - started_ns) / 1000000
                     journey.prepare_named(save_path, s, meta, o.save_cut) else |e| {
-                        eprint("cub: {e}")
+                        eprint("cub: {save_failure(save_path, "{e}")}")
                         save_error = true
                         quit = true
                         ended = "a failed save"
@@ -1410,7 +1478,7 @@ fn run_live(o: Options, args: List[str]) -> int {
     let cancelled = pending.len > 0
     if pending.len > 0 {
         journey.abort(save_path) else |e| {
-            eprint("cub: {e} while cancelling save")
+            eprint("cub: {save_failure(save_path, "{e}")} (while cancelling the pending save)")
             save_error = true
         }
         eprint("cub: pending save cancelled; previous journey preserved")
@@ -1420,15 +1488,18 @@ fn run_live(o: Options, args: List[str]) -> int {
     if !replaying && !cancelled && !save_error {
         // Update elapsed time without persisting uncommitted gameplay changes.
         let persisted = journey.load(save_path, s.seed, cols, rows) else |e| {
-            eprint("cub: {e}")
+            eprint("cub: {journey.refusal(save_path, "{e}")}")
             return 2
         }
         meta.played_ms = played_before + (clock.now_ns() - started_ns) / 1000000
         journey.prepare_named(save_path, persisted, meta, false) else |e| {
-            eprint("cub: {e}")
+            eprint("cub: {save_failure(save_path, "{e}")}")
             return 2
         }
-        commit_save(save_path) else |e| { eprint("cub: {e}"); return 2 }
+        commit_save(save_path) else |e| {
+            eprint("cub: {save_failure(save_path, "{e}")}")
+            return 2
+        }
     }
     let record_path = if o.record_path != "" {
         o.record_path
