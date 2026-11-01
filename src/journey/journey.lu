@@ -40,7 +40,11 @@ pub error CommitErrors = {save_io, save_committed_unsynced}
 /// shortcut as Dunmoss's dig and a seeded Bramblehold as Ember's tuft given
 /// (cb15's provisional tuft was that tuft), and up to 48 found lore lines
 /// (32 before).
-pub const VERSION: int = 8
+/// Schema nine (cb19, R-cb18-3 B) appends a `thefts` line after the NPCs':
+/// the item each of the Stand's three martens holds (by spawn, -1 none),
+/// kept across rest, death and reload until the cub bites it back; a CUB 8
+/// (or older) file migrates holding no theft.
+pub const VERSION: int = 9
 
 /// The areas a schema-five or schema-six file carried masks for.
 pub const AREAS_V5: int = 7
@@ -67,7 +71,8 @@ pub fn metadata(text: str) -> Metadata ! DecodeErrors {
     var result = Metadata { name: "journey", played_ms: 0 }
     if !text.starts_with("CUB 6\n") &&
         !text.starts_with("CUB 7\n") &&
-        !text.starts_with("CUB 8\n") {
+        !text.starts_with("CUB 8\n") &&
+        !text.starts_with("CUB 9\n") {
         return result
     }
     for line in text.lines() {
@@ -97,9 +102,12 @@ pub fn load_metadata(path: str) -> Metadata ! LoadErrors {
 /// a literal: the checked machine resolves no cross-module name at comptime),
 /// the gates (cb14), 183 bounded item/lore/ground slots (cb15's, the lore
 /// widened to 48 by cb16) and the NPCs' twelve (cb16: nine said-counts, the
-/// dead, the perch, the flags). Metadata stays outside deterministic numeric
-/// replay snapshots.
-pub const SNAPSHOT: int = 239
+/// dead, the perch, the flags), then cb19's three kept thefts. Metadata
+/// stays outside deterministic numeric replay snapshots.
+pub const SNAPSHOT: int = 242
+
+/// A `journey 7` snapshot (cb16): no kept thefts.
+pub const SNAPSHOT_V7: int = 239
 
 /// A `journey 6` snapshot (cb14): thirty values, thirteen masks, the gates
 /// and cb15's 167 slots (32 lore).
@@ -115,15 +123,28 @@ pub const SNAPSHOT_V5: int = 204
 pub const SNAPSHOT_V4: int = 37
 
 /// The replay's journey event version this build writes and reads; journey
-/// 6, 5, 4 and 3 snapshots are still read.
-pub const JOURNEY: int = 7
+/// 7, 6, 5, 4 and 3 snapshots are still read (cb19: journey 8 adds the
+/// kept thefts).
+pub const JOURNEY: int = 8
 
 /// The widest field a save may name.
 pub const FIELD_MAX: int = 10000
 
 /// Canonical persistent state; health resets at the last den, slain foes do not.
 pub fn payload(s: sim.Sim) -> str {
-    payload_core(s, VERSION) + "name journey\nplayed_ms 0\n" + items_payload(s) + npcs_payload(s)
+    payload_core(s, VERSION) +
+        "name journey\nplayed_ms 0\n" +
+        items_payload(s) +
+        npcs_payload(s) +
+        thefts_payload(s)
+}
+
+/// The kept thefts' line (cb19): the Stand's martens in spawn order, each
+/// the pouch kind it holds or -1.
+fn thefts_payload(s: sim.Sim) -> str {
+    var text = "thefts"
+    for k in s.thefts { text += " {k}" }
+    text + "\n"
 }
 
 /// The NPCs' line (cb16): the said-counts, the dead mask, Quill's perch
@@ -181,13 +202,14 @@ pub fn checksum(text: str) -> int {
 /// Byte-identical encoding for the same persistent journey.
 pub fn encode(s: sim.Sim) -> str { encode_named(s, Metadata { name: "journey", played_ms: 0 }) }
 
-/// Canonical CUB8 wrapper with metadata before the persistent item and NPC
-/// extensions.
+/// Canonical CUB9 wrapper with metadata before the persistent item, NPC
+/// and theft extensions.
 pub fn encode_named(s: sim.Sim, meta: Metadata) -> str {
     let text = payload_core(s, VERSION) +
         "name {meta.name}\nplayed_ms {meta.played_ms}\n" +
         items_payload(s) +
-        npcs_payload(s)
+        npcs_payload(s) +
+        thefts_payload(s)
     text + "check {checksum(text)}\n"
 }
 
@@ -195,6 +217,7 @@ pub fn encode_named(s: sim.Sim, meta: Metadata) -> str {
 /// Only default wolf difficulty is playable in this build.
 pub fn decode(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     if text.len > 16384 { return save_corrupt }
+    if text.starts_with("CUB 9\n") { return decode_nine(text, cols, rows)? }
     if text.starts_with("CUB 8\n") { return decode_eight(text, cols, rows)? }
     if text.starts_with("CUB 7\n") { return decode_seven(text, cols, rows)? }
     if !text.starts_with("CUB 6\n") { return decode_core(text, cols, rows, pouch.LORE_SLOTS_V6)? }
@@ -275,6 +298,35 @@ fn decode_eight(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
         "\n" +
         npcs_payload(s)
     if canonical + "check {checksum(canonical)}\n" != text { return save_corrupt }
+    s
+}
+
+/// CUB9 (cb19): CUB8's lines with the `thefts` line between the NPCs' and
+/// the check. The rest is read as CUB8's (its checksum re-made), the
+/// thefts validated and given back to the Stand's martens, then the whole
+/// re-encoded must be the text.
+fn decode_nine(text: str, cols: int, rows: int) -> sim.Sim ! DecodeErrors {
+    let meta = metadata(text)?
+    var lines = List[str]()
+    for line in text.lines() { (mut lines).push(line) }
+    if lines.len != 19 { return save_corrupt }
+    var eight = "CUB 8\n"
+    var index = 1
+    while index < 17 { eight += lines[index] + "\n"; index += 1 }
+    var s = decode_eight(eight + "check {checksum(eight)}\n", cols, rows)?
+    var words = List[str]()
+    for word in lines[17].words() { (mut words).push(word) }
+    if words.len != 1 + sim.MARTEN_SLOTS || words[0] != "thefts" { return save_corrupt }
+    var thefts = List[int]()
+    var k = 0
+    while k < sim.MARTEN_SLOTS {
+        (mut thefts).push(words[1 + k].to_int() else |_| { return save_corrupt })
+        k += 1
+    }
+    if !sim.thefts_valid(thefts) { return save_corrupt }
+    s.thefts = thefts
+    sim.apply_thefts(mut s)
+    if encode_named(s, meta) != text { return save_corrupt }
     s
 }
 
@@ -769,6 +821,7 @@ pub fn snapshot_into(s: sim.Sim, mut values: List[int]) {
     (mut values).push(s.npc_dead)
     (mut values).push(s.npc_perch)
     (mut values).push(s.npc_flags)
+    for k in s.thefts { (mut values).push(k) }
 }
 
 /// One past the widest `caches` word a journey may hold: every cache bit
@@ -791,6 +844,7 @@ pub fn same_snapshot(a: List[int], b: List[int]) -> bool {
 /// Validate a complete initial replay journey before applying it.
 pub fn from_snapshot(v: List[int], cols: int, rows: int) -> sim.Sim ! DecodeErrors {
     if v.len != SNAPSHOT &&
+        v.len != SNAPSHOT_V7 &&
         v.len != SNAPSHOT_V6 &&
         v.len != SNAPSHOT_V5 &&
         v.len != SNAPSHOT_V4 &&
@@ -849,12 +903,12 @@ pub fn from_snapshot(v: List[int], cols: int, rows: int) -> sim.Sim ! DecodeErro
         var area = 0
         while area < AREAS_V5 { s.slain[area] = v[30 + area]; area += 1 }
     }
-    if v.len == SNAPSHOT || v.len == SNAPSHOT_V6 {
+    if v.len == SNAPSHOT || v.len == SNAPSHOT_V7 || v.len == SNAPSHOT_V6 {
         var area = 0
         while area < forest.AREAS { s.slain[area] = v[30 + area]; area += 1 }
         s.gates = v[30 + forest.AREAS]
     }
-    if v.len == SNAPSHOT {
+    if v.len == SNAPSHOT || v.len == SNAPSHOT_V7 {
         s.pouch = pouch.from_values(v, 31 + forest.AREAS, forest.AREAS) else |_| {
             return save_corrupt
         }
@@ -869,6 +923,15 @@ pub fn from_snapshot(v: List[int], cols: int, rows: int) -> sim.Sim ! DecodeErro
         s.npc_dead = v[at + npc.COUNT]
         s.npc_perch = v[at + npc.COUNT + 1]
         s.npc_flags = v[at + npc.COUNT + 2]
+        // A journey 8 snapshot ends with the kept thefts (cb19); a journey
+        // 7 one holds none.
+        if v.len == SNAPSHOT {
+            var thefts = List[int]()
+            var k = 0
+            while k < sim.MARTEN_SLOTS { (mut thefts).push(v[SNAPSHOT_V7 + k]); k += 1 }
+            if !sim.thefts_valid(thefts) { return save_corrupt }
+            s.thefts = thefts
+        }
     } else if v.len == SNAPSHOT_V6 {
         s.pouch = pouch.from_values_sized(
             v,

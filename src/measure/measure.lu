@@ -472,13 +472,17 @@ fn census_as(path: str, seed: int, cols: int, rows: int) -> census.Counts ! {io,
     let frames = frames_of(text)
     var s = sim.new(r.seed, r.cols, r.rows)
     let version = replay.args_at(r, 0, controls.EV_JOURNEY)
-    if version == journey.JOURNEY || version == 5 || version == 3 {
+    // cb19: journey 7 kept as it was read when it was the current version
+    // (the body census's nine journey 7 cases), journey 8 the current.
+    if version == journey.JOURNEY || version == 7 || version == 5 || version == 3 {
         var values = List[int]()
         var i = 0
         let count = if version == 3 {
             30
         } else if version == 5 {
             journey.SNAPSHOT_V5
+        } else if version == 7 {
+            journey.SNAPSHOT_V7
         } else {
             journey.SNAPSHOT
         }
