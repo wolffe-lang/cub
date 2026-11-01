@@ -435,6 +435,11 @@ pub struct Sim {
     npc_here: List[int],
     npc_bodies: List[Body],
     npc_box: Body,
+    // cb19 (R-cb18-3 B): a theft the journey keeps, a slot a marten of the
+    // Stand by its spawn (`MARTEN_SLOTS`, the area's martens in list order),
+    // the stolen pouch kind or -1: saved (CUB 9), re-given to the marten at
+    // every reset of the area, cleared when it is bitten back.
+    thefts: List[int],
 }
 
 /// A stepping stone of the Mere the cub has stepped on (cb14): the
@@ -627,6 +632,7 @@ pub fn new(seed: int, cols: int, rows: int) -> Sim {
         npc_here: List[int](),
         npc_bodies: List[Body](),
         npc_box: Body { x0: 0, y0: 0, x1: -1, y1: -1 },
+        thefts: no_thefts(),
         end: false,
         played: 0,
         played_at: 0,
@@ -1348,6 +1354,7 @@ fn reset_world(mut s: Sim) {
     s.slain = empty_slain()
     s.away_loot = empty_loot()
     s.foes = area_foes(s.seed, s.field, s.area, s.bosses)
+    apply_thefts(mut s)
     (mut s.drops).reset()
     (mut s.meat).reset()
     (mut s.trail).reset()
@@ -2832,6 +2839,7 @@ pub fn slain_mask(s: Sim, area: int) -> int {
 /// Boss permanence continues to use the separate beaten-boss bits.
 pub fn restore_foes(mut s: Sim) {
     s.foes = area_foes(s.seed, s.field, s.area, s.bosses)
+    apply_thefts(mut s)
     var bit = 1
     var i = 0
     while i < s.foes.len {
@@ -5990,6 +5998,8 @@ fn marten_return(mut s: Sim, i: int) {
             f.stolen_item,
         ) {
         s.foes[i].stolen_item = -1
+        let k = marten_slot(s, i)
+        if k >= 0 { s.thefts[k] = -1 }
     }
 }
 
@@ -6250,13 +6260,72 @@ pub fn new_foe_step(mut s: Sim, i: int) {
     }
 }
 
-// Public pouch APIs only. A second hit cannot steal another held payload.
+/// The Stand's martens (cb18's three), the slots of a journey's kept
+/// thefts (cb19, R-cb18-3 B).
+pub const MARTEN_SLOTS: int = 3
+
+/// No theft kept: every slot -1.
+pub fn no_thefts() -> List[int] {
+    var v = List[int]()
+    var k = 0
+    while k < MARTEN_SLOTS { (mut v).push(-1); k += 1 }
+    v
+}
+
+/// The kept-theft slot of foe `i`: its rank among the Stand's martens in
+/// the area's list (their spawn order, `append_new_area_foes`); -1 for a
+/// foe that is no marten of the Stand (the test arenas' stay transient).
+pub fn marten_slot(s: Sim, i: int) -> int {
+    if s.area != forest.STAND || i < 0 || i >= s.foes.len || s.foes[i].kind != MARTEN {
+        return -1
+    }
+    var k = 0
+    var j = 0
+    while j < i {
+        if s.foes[j].kind == MARTEN { k += 1 }
+        j += 1
+    }
+    if k < MARTEN_SLOTS then k else -1
+}
+
+/// Every marten of the Stand, respawned by an entry, a rest, a death or a
+/// load, holds again what the journey keeps for its spawn (R-cb18-3 B):
+/// it carries it until the cub bites it, then drops it at the trunk's foot.
+pub fn apply_thefts(mut s: Sim) {
+    if s.area != forest.STAND { return }
+    var k = 0
+    var i = 0
+    while i < s.foes.len {
+        if s.foes[i].kind == MARTEN {
+            if k < MARTEN_SLOTS { s.foes[i].stolen_item = s.thefts[k] }
+            k += 1
+        }
+        i += 1
+    }
+}
+
+/// The thefts a journey keeps, held to their bounds: `MARTEN_SLOTS` slots,
+/// each -1 or a pouch kind.
+pub fn thefts_valid(v: List[int]) -> bool {
+    if v.len != MARTEN_SLOTS { return false }
+    for k in v { if k < -1 || k >= pouch.KINDS { return false } }
+    true
+}
+
+// Public pouch APIs only. R-cb19-3 A: a marten holding an item cannot
+// steal a second; its bite does its plain damage.
 fn marten_steal(mut s: Sim, i: int) {
     if s.foes[i].stolen_item >= 0 { return }
     var kind = 0
     while kind < pouch.KINDS {
         let taken = take_one(mut s, kind)
-        if taken >= 0 { s.foes[i].stolen_item = taken; return }
+        if taken >= 0 {
+            s.foes[i].stolen_item = taken
+            // R-cb18-3 B: the journey keeps it for this marten's spawn.
+            let k = marten_slot(s, i)
+            if k >= 0 { s.thefts[k] = taken }
+            return
+        }
         kind += 1
     }
 }
