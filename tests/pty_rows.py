@@ -112,29 +112,46 @@ FEEL_ROWS = {}
 # first) and 1..13 (the second); a legacy Space read within two ticks of
 # the last is a repeat (`sim`'s bite_key_tick), so a link is pressed once
 # the trace shows the strike's second tick and read at its third or later.
-FEEL_COMBO_ATTEMPTS = 5
+# A press read up to six ticks after a strike ends still continues the
+# combo (`combo_until`); a fresh combo waits that grace out.
+FEEL_COMBO_ATTEMPTS = 8
+FEEL_COMBO_GRACE = 6
 
 
 def feel_combo_once(session):
     """One live three-strike combo by legacy presses, each paced on the
     trace. True when strike 3 began. False when a link was read only after
-    its strike had ended: under a stalled CPU the game steps every due tick
-    at one wake and reads input only at the first (cb19 saw 38 ticks
-    stepped in half a millisecond on hasu beside eight busy loops), so a
-    window can pass with no byte readable in it. A link read inside its
-    window that does not chain is never retried: its strike never comes and
-    the row fails by name."""
+    its strike and its grace had ended: under a stalled CPU the game steps
+    every due tick at one wake and reads input only at the first (cb19 saw
+    38 ticks stepped in half a millisecond on hasu beside eight busy loops),
+    so a window can pass with no byte readable in it. A link read inside its
+    window (or its grace) that does not chain is never retried: its strike
+    never comes and the row fails by name."""
     at = feel_send(session, b'\x1b[C ', 'the first press')
     for strike in (1, 2):
         begun = feel_until(session, lambda r: r['tick'] >= at and r['action'] == 1
                            and r['combo'] == strike, 'with strike ' + str(strike))['tick']
         feel_until(session, lambda r: r['tick'] >= begun + 2, 'two ticks into strike ' + str(strike))
         at = feel_send(session, b' ', 'press ' + str(strike + 1))
-        if any(begun < r['tick'] < at and r['action'] != 1 for r in feel_rows(session)):
+        rows = feel_rows(session)
+        ended = any(begun < r['tick'] < at and r['action'] != 1 for r in rows)
+        read = next(r for r in rows if r['tick'] == at)
+        if ended and not (read['action'] == 1 and read['combo'] == strike + 1):
             return False
     feel_until(session, lambda r: r['tick'] >= at and r['action'] == 1 and r['combo'] == 3,
                'with strike 3')
     return True
+
+
+def feel_combo_rest(session, full):
+    """After a lost combo: the cub idle, the combo's grace past (a press
+    inside it would continue the old combo, not begin strike 1) and its
+    stamina back to `full`."""
+    after = feel_rows(session)[-1]['tick']
+    idle = feel_until(session, lambda r: r['tick'] > after and r['action'] == 0,
+                      'idle after the lost combo')['tick']
+    feel_until(session, lambda r: r['tick'] >= idle + FEEL_COMBO_GRACE and r['action'] == 0
+               and r['stamina'] >= full, 'rested past the combo grace')
 
 
 def feel_until(session, predicate, what, timeout=20):
@@ -221,12 +238,10 @@ def feel_controls(binary, ctx):
             for attempt in range(FEEL_COMBO_ATTEMPTS):
                 if feel_combo_once(session):
                     return
-                # A link was read after its strike ended (the stall's burst):
-                # wait for the cub idle and rested, and play the combo again
-                # from its first press.
-                after = feel_rows(session)[-1]['tick']
-                feel_until(session, lambda r: r['tick'] > after and r['action'] == 0
-                           and r['stamina'] >= full, 'rested for another combo')
+                # A link was read after its strike and grace ended (the
+                # stall's burst): play the combo again from its first press
+                # once the cub is idle, rested and past the grace.
+                feel_combo_rest(session, full)
             raise FeelDelivery('every combo attempt read a link after its strike ended')
         session = run(tier, 'combo', combo)
         for hit in (1, 2, 3):
