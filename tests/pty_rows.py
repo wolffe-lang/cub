@@ -108,6 +108,34 @@ def feel_rows(session):
 
 FEEL_ROWS = {}
 
+# `sim.combo_duration`: a strike's request window is its ages 1..11 (the
+# first) and 1..13 (the second); a legacy Space read within two ticks of
+# the last is a repeat (`sim`'s bite_key_tick), so a link is pressed once
+# the trace shows the strike's second tick and read at its third or later.
+FEEL_COMBO_ATTEMPTS = 5
+
+
+def feel_combo_once(session):
+    """One live three-strike combo by legacy presses, each paced on the
+    trace. True when strike 3 began. False when a link was read only after
+    its strike had ended: under a stalled CPU the game steps every due tick
+    at one wake and reads input only at the first (cb19 saw 38 ticks
+    stepped in half a millisecond on hasu beside eight busy loops), so a
+    window can pass with no byte readable in it. A link read inside its
+    window that does not chain is never retried: its strike never comes and
+    the row fails by name."""
+    at = feel_send(session, b'\x1b[C ', 'the first press')
+    for strike in (1, 2):
+        begun = feel_until(session, lambda r: r['tick'] >= at and r['action'] == 1
+                           and r['combo'] == strike, 'with strike ' + str(strike))['tick']
+        feel_until(session, lambda r: r['tick'] >= begun + 2, 'two ticks into strike ' + str(strike))
+        at = feel_send(session, b' ', 'press ' + str(strike + 1))
+        if any(begun < r['tick'] < at and r['action'] != 1 for r in feel_rows(session)):
+            return False
+    feel_until(session, lambda r: r['tick'] >= at and r['action'] == 1 and r['combo'] == 3,
+               'with strike 3')
+    return True
+
 
 def feel_until(session, predicate, what, timeout=20):
     """The first traced tick that satisfies `predicate`, waiting on the
@@ -189,20 +217,17 @@ def feel_controls(binary, ctx):
 
         def combo(session):
             feel_open(session)
-            # Each press as early as the strike before it takes one: a legacy
-            # Space read within two ticks of the last is a repeat
-            # (`sim`'s bite_key_tick), so the press is written once the
-            # trace shows the strike's second tick, read at its third or
-            # later, inside the request window (ages 1..11, 1..13) with
-            # the most of it to spare, whatever the scheduler delays.
-            at = feel_send(session, b'\x1b[C ', 'the first press')
-            for strike in (1, 2):
-                begun = feel_until(session, lambda r: r['tick'] >= at and r['action'] == 1
-                                   and r['combo'] == strike, 'with strike ' + str(strike))['tick']
-                feel_until(session, lambda r: r['tick'] >= begun + 2, 'two ticks into strike ' + str(strike))
-                at = feel_send(session, b' ', 'press ' + str(strike + 1))
-            feel_until(session, lambda r: r['tick'] >= at and r['action'] == 1 and r['combo'] == 3,
-                       'with strike 3')
+            full = feel_rows(session)[-1]['stamina']
+            for attempt in range(FEEL_COMBO_ATTEMPTS):
+                if feel_combo_once(session):
+                    return
+                # A link was read after its strike ended (the stall's burst):
+                # wait for the cub idle and rested, and play the combo again
+                # from its first press.
+                after = feel_rows(session)[-1]['tick']
+                feel_until(session, lambda r: r['tick'] > after and r['action'] == 0
+                           and r['stamina'] >= full, 'rested for another combo')
+            raise FeelDelivery('every combo attempt read a link after its strike ended')
         session = run(tier, 'combo', combo)
         for hit in (1, 2, 3):
             if not re.search(rb'action 1 aim 64 combo ' + str(hit).encode(), session.err):
