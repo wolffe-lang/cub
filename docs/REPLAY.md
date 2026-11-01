@@ -352,3 +352,34 @@ encounter, so the absent snuffed wisp and passed heron are pinned visually,
 not inferred only from an earlier windup frame. The final diagnostics
 separate health, phase and death tick: a passed heron is not a kill and a
 snuffed wisp remains alive.
+
+## The kept theft: CUB 9 and journey 8 (cb19)
+
+Key ids 0..37 are unchanged and no key is added. A live recording begins
+with `journey 8` and `saved-0` through `saved-241`: journey 7's 239 values,
+then the three kept thefts (R-cb18-3 B, the maintainer's ruling): the
+pouch kind each of the Stand's martens holds, by its spawn (its rank among
+the area's martens, cb18's rows 56, 144, 192 order), or -1. `saved-239` ..
+`saved-241` are the appended numeric events 253..255 (`EV_COUNT` 256).
+`journey 7`, 6, 5, 4 and 3 are still read, holding no theft; the body
+census reads journey 7 as it did when it was the current version.
+
+CUB 9 text is CUB 8's lines and one `thefts K0 K1 K2` line between `npcs`
+and `check` (each -1 or a pouch kind 0..4; any other count, word or value
+is `save_corrupt`). A CUB 8 (or older) file migrates holding no theft on
+its next write. The theft is the journey's from the bite that takes it:
+leaving the Stand, a rest, a death or a reload respawns that marten
+holding it again, and the cub's bite drops it at the trunk's foot as
+before (a marten dead of anything drops it too, R-cb19-4 A). A test
+arena's marten (`--new-foe-proof`) is no marten of the Stand: its theft
+stays the runtime foe's, as cb18 built it.
+
+`--make-theft-proof DIR` writes `marten-theft.pk`: from the root hollow
+(den 12) with the lynx fight's growth and one disclosed yarrow, the walk
+to the nearest marten, its landing bite stealing the yarrow, one disclosed
+fatal `health -10000` delta, the wake at the den with the respawned marten
+holding it (drawn in its jaws, R-cb19-2 A), the walk back, the fighter's
+answer until a bite drops it, the walk onto the drop and `r`. The record
+is replayed from its own `journey 8` snapshot with the keys and the delta
+alone and must reach the same milestones and final state. Every other key
+is the walker's or the fighter's.
