@@ -3170,7 +3170,7 @@ pub fn spawn_keeps_gap(kind: int, x: int, y: int, near: Folk) -> bool {
 }
 
 /// Whether a route group placed at `row` keeps the gap, every member, and
-/// stands outside the area's arena.
+/// (`arena`) stands outside the area's arena.
 fn group_clear(
     seed: int,
     field: int,
@@ -3180,12 +3180,13 @@ fn group_clear(
     first: int,
     rest: int,
     near: Folk,
+    arena: bool,
 ) -> bool {
     var member = 0
     while member < count {
         let kind = if member == 0 then first else rest
         let cx = forest.spine(seed, area, row) + member * 2 - 1
-        if forest.in_arena(seed, field, area, cx, row) { return false }
+        if arena && forest.in_arena(seed, field, area, cx, row) { return false }
         if !spawn_keeps_gap(kind, cx * FP, (forest.origin(seed, area) + row) * FP, near) {
             return false
         }
@@ -3208,7 +3209,9 @@ fn spaced_row(
     rest: int,
     near: Folk,
 ) -> int {
-    if near.bodies.len == 0 || group_clear(seed, field, area, at, count, first, rest, near) {
+    // A group that keeps the gap where the den rule left it does not move
+    // by a cell (its row is the seed's, arena or none, as before cb19).
+    if near.bodies.len == 0 || group_clear(seed, field, area, at, count, first, rest, near, false) {
         return at
     }
     let l = forest.length(area)
@@ -3218,7 +3221,7 @@ fn spaced_row(
             if row >= 8 &&
                 row < l - 8 &&
                 den_clear_row(seed, area, row) &&
-                group_clear(seed, field, area, row, count, first, rest, near) {
+                group_clear(seed, field, area, row, count, first, rest, near, true) {
                 return row
             }
         }
