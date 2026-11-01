@@ -189,13 +189,147 @@ fn update(index: str, path: str, s: sim.Sim, name: str, stamp: int) -> () ! Erro
     write(index, next)?
 }
 
-/// First-run legacy import is non-destructive and does not keep stealing Continue.
-pub fn migrate(base: str) -> () ! Errors {
+/// What the first-run legacy import did (cb19, cub#91 A): `NOTICE_NONE`,
+/// `NOTICE_LEFT` (a legacy save it could not read, left where it is,
+/// unregistered) or `NOTICE_KEPT` (the default save too old for this build,
+/// kept beside itself as `save.cubN-old`); `text` the one line that says so,
+/// `kept` the old file's new path.
+pub struct Notice { kind: int, text: str, kept: str }
+
+/// Nothing to say: no legacy save, or it is registered.
+pub const NOTICE_NONE: int = 0
+
+/// The legacy save was left where it is, unregistered, with a warning.
+pub const NOTICE_LEFT: int = 1
+
+/// The legacy save was too old and is kept as `save.cubN-old`.
+pub const NOTICE_KEPT: int = 2
+
+/// The name a too-old save is kept under beside itself: `save.cubN-old`,
+/// then `save.cubN-old-2`, `-3` ... (`attempt` counts from 1).
+pub fn kept_name(path: str, version: int, attempt: int) -> str {
+    if attempt <= 1 then "{path}.cub{version}-old" else "{path}.cub{version}-old-{attempt}"
+}
+
+/// Keep `path` under the first `kept_name` not taken: a hard link (which
+/// never replaces an existing name) and then the old name removed, the
+/// directory synced. The new path, or "" when the file could not be kept.
+pub fn keep_old(path: str, version: int) -> str {
+    var attempt = 1
+    while attempt <= 1000 {
+        let name = kept_name(path, version, attempt)
+        fs.link(path, name) else |e| match e {
+            exists => { attempt += 1; continue },
+            not_found => { return "" },
+            denied => { return "" },
+            cross_device => { return "" },
+            io => { return "" },
+        }
+        fs.remove(path) else |_| {
+            // Both names hold the bytes; the old one stays, nothing lost.
+            fs.remove(name) else |_| {}
+            return ""
+        }
+        fs.sync_dir(fs.parent(path) else ".") else |_| {}
+        return name
+    }
+    ""
+}
+
+/// A save older than this build reads (CUB 1 to CUB 3) kept beside itself
+/// as `NAME.cubN-old` (`keep_old`) so a new journey can start at its name
+/// (cb19, cub#91 A (b), and the coordinator's ruling for `--save NAME`):
+/// `NOTICE_KEPT` and its line (the file, the version found, the versions
+/// this cub reads, what was done); `NOTICE_NONE` for any other file, which
+/// is left as it is for its reader to name.
+pub fn keep_if_too_old(path: str) -> Notice {
+    let none = Notice { kind: NOTICE_NONE, text: "", kept: "" }
+    if !fs.is_file(path) { return none }
+    let v = journey.version_at(path)
+    if v < 0 || v >= journey.OLDEST { return none }
+    let kept = keep_old(path, v)
+    if kept == "" { return none }
+    Notice {
+        kind: NOTICE_KEPT,
+        text: kept_text(journey.shown(path), v, journey.shown(kept)),
+        kept: kept,
+    }
+}
+
+/// First-run legacy import is non-destructive and does not keep stealing
+/// Continue; it never stops the start (cb19, cub#91 A): whatever the legacy
+/// `~/.cub/save` holds, `--save NAME` or not. A legacy save it cannot read
+/// stays where it is, unregistered, and the notice's one line names the
+/// file, the version found, the versions this cub reads and what was done;
+/// with `default_start` (no `--save`) a save older than this build reads is
+/// kept as `save.cubN-old` instead (`keep_if_too_old`) and the title offers
+/// a new journey; a save from a newer cub is never renamed (R-cb19-5 A).
+/// Nothing is deleted.
+pub fn migrate(base: str, default_start: bool) -> Notice {
+    let none = Notice { kind: NOTICE_NONE, text: "", kept: "" }
     let index = base + "/registry"
     let legacy = base + "/save"
-    if !fs.is_file(legacy) { return }
-    let absolute = fs.realpath(legacy) else |_| { return registry_io }
-    let entries = load(index)?
-    for e in entries { if e.path == absolute { return } }
-    register(index, absolute, fs.modified_ms(legacy) else time.unix_ms())?
+    if !fs.is_file(legacy) { return none }
+    let absolute = fs.realpath(legacy) else |_| { return left(legacy, "could not be resolved") }
+    let entries = load(index) else |e| {
+        return left(
+            legacy,
+            "was not imported: the saves list {journey.shown(index)} could not be read [{e}]",
+        )
+    }
+    for e in entries { if e.path == absolute { return none } }
+    let _ = journey.load(absolute, 1, 80, 24) else |e| {
+        if default_start && "{e}" == "save_version" {
+            let kept = keep_if_too_old(absolute)
+            if kept.kind == NOTICE_KEPT { return kept }
+        }
+        let v = journey.version_at(absolute)
+        return Notice {
+            kind: NOTICE_LEFT,
+            text: left_text(journey.shown(legacy), v, "{e}"),
+            kept: "",
+        }
+    }
+    register(index, absolute, fs.modified_ms(legacy) else time.unix_ms()) else |e| {
+        return left(legacy, "was not imported this time [{e}]")
+    }
+    none
+}
+
+/// The line for a too-old save kept aside (`NOTICE_KEPT`): the file, the
+/// version found, the versions this cub reads, its new name.
+pub fn kept_text(file: str, v: int, kept: str) -> str {
+    "{file} is {journey.found(v)}; {journey.wanted()}. Kept as {kept}, nothing deleted; a new journey starts here."
+}
+
+/// The line for a legacy save left where it is (`NOTICE_LEFT`): the file,
+/// the version found, the versions this cub reads, what was done.
+pub fn left_text(file: str, v: int, error: str) -> str {
+    "{file} is {journey.found(v)}; {journey.wanted()}. Left where it is, not in the saves list; this start goes on. [{error}]"
+}
+
+fn left(path: str, why: str) -> Notice {
+    Notice {
+        kind: NOTICE_LEFT,
+        text: "{journey.shown(path)} {why}; left where it is; this start goes on.",
+        kept: "",
+    }
+}
+
+/// The sentence a failed registration or index read gets (cb19): a save
+/// refused by name goes to `journey.refusal` (the file, the version found,
+/// the versions this cub reads, what to do); the index's own failures name
+/// the index and what to do. `path` is the save, `index` the saves list.
+pub fn failure(index: str, path: str, error: str) -> str {
+    if error.starts_with("save_") { return journey.refusal(path, error) }
+    let what = if error == "registry_busy" {
+        "the saves list {journey.shown(index)} is locked by another cub ({journey.shown(index)}.lock); start again once that cub has closed, or remove the lock if none is running"
+    } else if error == "registry_line" {
+        "the saves list {journey.shown(index)} has a line this cub cannot read; move it aside and start again (no save is touched)"
+    } else if error == "registry_missing" {
+        "{journey.shown(path)} is gone or not in the saves list; choose another journey from Load, or start a new one"
+    } else {
+        "the saves list {journey.shown(index)} could not be read or written; check that {journey.shown(fs.parent(index) else ".")} is a writable directory"
+    }
+    "{what}. [{error}]"
 }
