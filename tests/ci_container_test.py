@@ -122,9 +122,9 @@ class ContainerCacheTests(unittest.TestCase):
 
     def test_workflow_saves_exact_cache_before_tests_without_raising_timeout(self):
         workflow = (ROOT / '.github/workflows/ci.yml').read_text()
-        linux = workflow.split('\n  linux:', 1)[1].split('\n  macos:', 1)[0]
+        linux = workflow.split('\n  linux:', 1)[1].split('\n  gameplay:', 1)[0]
         markers = ['actions/cache/restore@v4', 'tools/ci-container.py prepare',
-                   'actions/cache/save@v4', 'tools/ci-container.py run -- tools/check-linux']
+                   'actions/cache/save@v4', 'tools/ci-container.py run -- tools/check-linux --no-gameplay']
         offsets = [linux.index(marker) for marker in markers]
         self.assertEqual(offsets, sorted(offsets))
         self.assertIn("hashFiles('.lair/ci/Containerfile')", linux)
@@ -132,10 +132,48 @@ class ContainerCacheTests(unittest.TestCase):
         self.assertIn('cache-primary-key', linux)
         self.assertNotIn('restore-keys:', linux)
         self.assertIn('timeout-minutes: 60', linux)
+        self.assertNotIn('tools/gameplay.py', linux)
+
+    def test_gameplay_job_runs_each_backend_beside_the_linux_leg(self):
+        # cb19, R-cb19-7 B: the gameplay gates left the Linux leg for their
+        # own job, one backend a leg, on the same exact image cache.
+        workflow = (ROOT / '.github/workflows/ci.yml').read_text()
+        linux = workflow.split('\n  linux:', 1)[1].split('\n  gameplay:', 1)[0]
+        gameplay = workflow.split('\n  gameplay:', 1)[1].split('\n  macos:', 1)[0]
+        self.assertTrue(gameplay.startswith('\n    # tier: pr\n'))
+        self.assertIn('needs: plan', gameplay)
+        self.assertIn("contains(fromJSON(needs.plan.outputs.jobs || '[]'), 'gameplay')", gameplay)
+        self.assertIn('backend: [native, release]', gameplay)
+        self.assertIn('fail-fast: false', gameplay)
+        markers = ['actions/cache/restore@v4', 'tools/ci-container.py prepare', 'actions/cache/save@v4',
+                   'tools/ci-container.py run -- tools/check-gameplay ${{ matrix.backend }}']
+        offsets = [gameplay.index(marker) for marker in markers]
+        self.assertEqual(offsets, sorted(offsets))
+        key = next(line.strip() for line in linux.splitlines() if 'key: lair-container-v1-' in line)
+        self.assertIn(key, gameplay)
+        self.assertIn('timeout-minutes: 41', gameplay)
+        self.assertIn('target/gameplay', gameplay)
+
+    def test_macos_gameplay_runs_beside_the_macos_leg_and_the_verdict_needs_both(self):
+        workflow = (ROOT / '.github/workflows/ci.yml').read_text()
+        macos = workflow.split('\n  macos:', 1)[1].split('\n  macos-gameplay:', 1)[0]
+        gameplay = workflow.split('\n  macos-gameplay:', 1)[1].split('\n  perf:', 1)[0]
+        self.assertNotIn('tools/gameplay.py', macos)
+        self.assertIn('.lair/tools/goldens --bin target/native/cub', macos)
+        self.assertIn('runs-on: macos-latest', gameplay)
+        self.assertNotIn('# tier: pr', gameplay)
+        self.assertLess(gameplay.index('.lair/tools/build --all'),
+                        gameplay.index('tools/gameplay.py --bin target/native/cub'))
+        self.assertLess(gameplay.index('tools/gameplay.py --bin target/native/cub'),
+                        gameplay.index('tools/gameplay.py --bin target/release/cub'))
+        self.assertIn('timeout-minutes: 42', gameplay)
+        tier = workflow.split('\n  tier:', 1)[1].split('\n  nightly-red:', 1)[0]
+        for job in ('linux', 'gameplay', 'macos', 'macos-gameplay', 'perf'):
+            self.assertIn('      - ' + job + '\n', tier)
 
     def test_performance_leg_reuses_the_same_exact_image_cache(self):
         workflow = (ROOT / '.github/workflows/ci.yml').read_text()
-        linux = workflow.split('\n  linux:', 1)[1].split('\n  macos:', 1)[0]
+        linux = workflow.split('\n  linux:', 1)[1].split('\n  gameplay:', 1)[0]
         perf = workflow.split('\n  perf:', 1)[1].split('\n  tier:', 1)[0]
         key = next(line.strip() for line in linux.splitlines() if 'key: lair-container-v1-' in line)
         self.assertIn(key, perf)
@@ -144,7 +182,7 @@ class ContainerCacheTests(unittest.TestCase):
                         perf.index('tools/ci-container.py run -- tools/check-perf'))
         self.assertIn('timeout-minutes: 20', perf)
 
-    def run_staged_gate(self, fail_score=False, fail_memory=False):
+    def run_staged_gate(self, fail_score=False, fail_memory=False, args=()):
         tools = self.root / 'tools'
         tools.mkdir()
         (tools / 'check-linux').write_text((ROOT / 'tools/check-linux').read_text())
@@ -163,21 +201,101 @@ class ContainerCacheTests(unittest.TestCase):
         env = dict(os.environ, PATH=str(binaries) + os.pathsep + os.environ['PATH'],
                    FAIL_SCORE='23' if fail_score else '0',
                    FAIL_MEMORY='23' if fail_memory else '0')
-        return subprocess.run(['sh', str(tools / 'check-linux')], env=env,
+        return subprocess.run(['sh', str(tools / 'check-linux'), *args], env=env,
                               capture_output=True, text=True)
 
-    def test_stage_markers_keep_every_gate(self):
-        result = self.run_staged_gate()
-        self.assertEqual(result.returncode, 0, result.stderr)
-        names = ['python-tests', 'pty-fixtures', 'engine-check', 'native-goldens',
-                 'score-check', 'native-gameplay', 'release-gameplay', 'memory-gate']
+    def assert_stages(self, result, names):
         offsets = []
         for name in names:
             offsets.extend([result.stdout.index('ci-stage ' + name + ' START'),
                             result.stdout.index('ci-stage ' + name + ' END')])
         self.assertEqual(offsets, sorted(offsets))
         self.assertEqual(result.stdout.count('status=0'), len(names))
+
+    def test_stage_markers_keep_every_gate(self):
+        result = self.run_staged_gate()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assert_stages(result, ['python-tests', 'pty-fixtures', 'engine-check', 'native-goldens',
+                                    'score-check', 'native-gameplay', 'release-gameplay', 'memory-gate'])
         self.assertIn('cub check-linux: green', result.stdout)
+
+    def test_the_ci_leg_leaves_only_the_gameplay_gates_to_their_job(self):
+        result = self.run_staged_gate(args=('--no-gameplay',))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assert_stages(result, ['python-tests', 'pty-fixtures', 'engine-check', 'native-goldens',
+                                    'score-check', 'memory-gate'])
+        self.assertNotIn('gameplay START', result.stdout)
+        self.assertIn('cub check-linux --no-gameplay: green', result.stdout)
+        self.assertNotIn('cub check-linux: green', result.stdout)
+
+    def test_an_unknown_option_is_refused(self):
+        result = self.run_staged_gate(args=('--gameplay-only',))
+        self.assertEqual(result.returncode, 2)
+        self.assertNotIn('ci-stage', result.stdout)
+
+    def run_staged_gameplay(self, backend, fail_build=False, fail_gameplay=False):
+        tools = self.root / 'tools'
+        tools.mkdir()
+        (tools / 'check-gameplay').write_text((ROOT / 'tools/check-gameplay').read_text())
+        engine_tools = self.root / '.lair/tools'
+        engine_tools.mkdir()
+        build = engine_tools / 'build'
+        build.write_text('#!/bin/sh\necho "build $*" >> "$CALLS"\nexit "${FAIL_BUILD:-0}"\n')
+        build.chmod(0o755)
+        binaries = self.root / 'bin'
+        binaries.mkdir()
+        python = binaries / 'python3'
+        python.write_text('#!/bin/sh\necho "python3 $*" >> "$CALLS"\nexit "${FAIL_GAMEPLAY:-0}"\n')
+        python.chmod(0o755)
+        calls = self.root / 'calls.txt'
+        env = dict(os.environ, PATH=str(binaries) + os.pathsep + os.environ['PATH'], CALLS=str(calls),
+                   FAIL_BUILD='23' if fail_build else '0', FAIL_GAMEPLAY='23' if fail_gameplay else '0')
+        result = subprocess.run(['sh', str(tools / 'check-gameplay'), *([backend] if backend else [])],
+                                env=env, capture_output=True, text=True)
+        return result, (calls.read_text().splitlines() if calls.exists() else [])
+
+    def test_check_gameplay_builds_its_backend_then_runs_its_gate(self):
+        for backend in ('native', 'release'):
+            with self.subTest(backend=backend):
+                self.tearDown_scratch()
+                result, calls = self.run_staged_gameplay(backend)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assert_stages(result, [backend + '-build', backend + '-gameplay'])
+                self.assertEqual(calls, ['build --' + backend,
+                                         'python3 -u -I tools/gameplay.py --bin target/' + backend + '/cub'])
+                self.assertIn('cub check-gameplay ' + backend + ': green', result.stdout)
+
+    def test_check_gameplay_stops_at_a_failed_build_and_keeps_its_status(self):
+        result, calls = self.run_staged_gameplay('native', fail_build=True)
+        self.assertEqual(result.returncode, 23)
+        self.assertRegex(result.stdout, r'ci-stage native-build END .*status=23')
+        self.assertNotIn('native-gameplay', result.stdout)
+        self.assertEqual(calls, ['build --native'])
+
+    def test_check_gameplay_keeps_a_red_gate_red(self):
+        result, _ = self.run_staged_gameplay('release', fail_gameplay=True)
+        self.assertEqual(result.returncode, 23)
+        self.assertRegex(result.stdout, r'ci-stage release-gameplay END .*status=23')
+        self.assertNotIn('green', result.stdout)
+
+    def test_check_gameplay_wants_a_backend(self):
+        for backend in ('', 'both'):
+            with self.subTest(backend=backend):
+                self.tearDown_scratch()
+                result, calls = self.run_staged_gameplay(backend)
+                self.assertEqual(result.returncode, 2)
+                self.assertEqual(calls, [])
+
+    def tearDown_scratch(self):
+        # A fresh fixture root for each subtest of one test.
+        for name in ('tools', '.lair/tools', 'bin', 'calls.txt'):
+            path = self.root / name
+            if path.is_dir():
+                for child in sorted(path.rglob('*'), reverse=True):
+                    child.unlink() if child.is_file() else child.rmdir()
+                path.rmdir()
+            elif path.exists():
+                path.unlink()
 
     def test_memory_budget_failure_is_not_a_green_stage(self):
         result = self.run_staged_gate(fail_memory=True)
