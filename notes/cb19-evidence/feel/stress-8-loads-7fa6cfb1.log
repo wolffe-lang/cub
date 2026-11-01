@@ -1,0 +1,45 @@
+cb19 holds hasu block B 2026-11-01T03:55:12Z
+stress3 build exit=0 4c2d2081e5cbb293 2026-11-01T03:55:51Z
+stress3 loads 8 on cpu 6, pids 209 210 211 212 213 214 215 216 2026-11-01T03:55:51Z
+stress3 trunk run 1 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T03:56:48Z
+stress3 trunk run 2 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T03:57:45Z
+stress3 trunk run 3 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T03:58:46Z
+stress3 trunk run 4 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T03:59:47Z
+stress3 trunk run 5 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:00:52Z
+stress3 trunk run 6 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:01:58Z
+stress3 trunk run 7 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:03:05Z
+stress3 trunk run 8 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:04:16Z
+stress3 trunk run 9 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:05:24Z
+stress3 trunk run 10 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:06:25Z
+stress3 trunk run 11 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:07:21Z
+stress3 trunk run 12 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:08:13Z
+stress3 trunk run 13 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:09:07Z
+stress3 trunk run 14 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:10:02Z
+stress3 trunk run 15 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:11:00Z
+stress3 trunk run 16 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:11:59Z
+stress3 trunk run 17 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:12:59Z
+stress3 trunk run 18 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:14:00Z
+stress3 trunk run 19 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:15:01Z
+stress3 trunk run 20 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich n did not commit the injected aim 2026-11-01T04:16:07Z
+stress3 trunk red 20 of 20
+stress3 cb19 run 1 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:17:44Z
+stress3 cb19 run 2 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:19:23Z
+stress3 cb19 run 3 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:21:04Z
+stress3 cb19 run 4 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:22:49Z
+stress3 cb19 run 5 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:24:36Z
+stress3 cb19 run 6 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:26:25Z
+stress3 cb19 run 7 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:28:17Z
+stress3 cb19 run 8 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:30:13Z
+stress3 cb19 run 9 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:32:12Z
+stress3 cb19 run 10 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:34:10Z
+stress3 cb19 run 11 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:36:11Z
+stress3 cb19 run 12 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:38:14Z
+stress3 cb19 run 13 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:40:20Z
+stress3 cb19 run 14 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:42:28Z
+stress3 cb19 run 15 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:44:39Z
+stress3 cb19 run 16 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:46:53Z
+stress3 cb19 run 17 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:49:09Z
+stress3 cb19 run 18 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:51:29Z
+stress3 cb19 run 19 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:53:52Z
+stress3 cb19 run 20 exit=1 pty: feel-controls FAILED (linux x86_64):   - rich combo: DELIVERY no traced tick with strike 1 2026-11-01T04:56:18Z
+stress3 cb19 red 20 of 20
