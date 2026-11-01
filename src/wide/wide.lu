@@ -796,6 +796,7 @@ pub fn foe_npc_census() -> int {
     print("foe-npc-world seed field nearest")
     var foes = 0
     var near = 0
+    var moved = 0
     var nearest = 1000
     var seed = 0
     while seed < 50 {
@@ -805,7 +806,8 @@ pub fn foe_npc_census() -> int {
                 var area = 0
                 while area < forest.AREAS {
                     let folk = sim.folk(seed, field, area)
-                    for f in sim.area_foes(seed, field, area, 0) {
+                    let placed = sim.area_foes(seed, field, area, 0)
+                    for f in placed {
                         let g = sim.folk_gap(f, folk)
                         if g < world { world = g }
                         if g <= npc.FACE_GAP {
@@ -815,6 +817,26 @@ pub fn foe_npc_census() -> int {
                             near += 1
                         }
                         foes += 1
+                    }
+                    // Every foe the rule moved (R-cb19-1 A), by its ordinal
+                    // in the area's list: from where the seed put it to where
+                    // it spawns, with the gap before and after.
+                    var i = 0
+                    for f in sim.inherited_area_foes_as(seed, field, area, 0, false) {
+                        let p = copy placed[i]
+                        if p.kind != f.kind {
+                            print(
+                                "foe-moved: RED {seed} {field} {area} ordinal {i}: the kind changed",
+                            )
+                            return 1
+                        }
+                        if p.x != f.x || p.y != f.y {
+                            print(
+                                "foe-moved {seed} {field} {area} ordinal {i} kind {f.kind} from {f.x / sim.FP} {f.y / sim.FP} gap {sim.folk_gap(f, folk)} to {p.x / sim.FP} {p.y / sim.FP} gap {sim.folk_gap(p, folk)}",
+                            )
+                            moved += 1
+                        }
+                        i += 1
                     }
                     area += 1
                 }
@@ -831,7 +853,7 @@ pub fn foe_npc_census() -> int {
         return 1
     }
     print(
-        "foe-npc-gap: green, {foes} foes over 50 seeds at both fields in {forest.AREAS} areas, the nearest {nearest} clear cells from an NPC (talk radius {npc.FACE_GAP})",
+        "foe-npc-gap: green, {foes} foes over 50 seeds at both fields in {forest.AREAS} areas, {moved} moved by the gap, the nearest {nearest} clear cells from an NPC (talk radius {npc.FACE_GAP})",
     )
     0
 }
