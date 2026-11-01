@@ -1992,5 +1992,11 @@ game's first traced tick reading five bytes at once (`?`, the arrow and
 Space) while the opening was still active, so the scene's skip swallowed
 the Space. Every injection now waits on the game's own trace, as cb11's
 tick-paced rows do: the skip consumed and the opening over before the chord,
-the chord's consuming tick before its action is read, each combo press once
-the strike before it has begun and passed its windup.
+the chord's consuming tick before its action is read, each combo link pressed
+at the strike's second traced tick (the earliest a legacy Space is not a
+repeat). On a starved CPU the game itself falls behind and steps every due
+tick at one wake, reading input only at the first (38 ticks in half a
+millisecond on hasu beside eight busy loops), so a request window can pass
+with no byte readable in it: the row then plays the combo again, at most five
+times, and only when a link was read after its strike had ended. Beside eight
+loops on the row's one CPU trunk's row was red 18 of 20 (cb19's note).
