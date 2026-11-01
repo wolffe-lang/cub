@@ -2,3 +2,7 @@ directory	changed	added	removed	case	how	cause
 art	0	4	0	art	the art study's two new sheets, marten-carry-plain and marten-carry-rich (.txt, .sty)	the carrying marten (R-cb19-2 A)
 marten-theft-plain	0	75	0	marten-theft	new case: the theft witness's record (tests/cases/marten-theft.pk, sha256 869f7662...), frames every 15 ticks from 166	the kept theft (R-cb18-3 B) and the carrying marten (R-cb19-2 A)
 marten-theft-rich	0	75	0	marten-theft	new case: the same record on the rich tier	the kept theft (R-cb18-3 B) and the carrying marten (R-cb19-2 A)
+new-foe-arenas/foe-9-0-58.txt	1	0	0	foe-9 (the marten's arena, plain)	frame 58 of cub --new-foe-proof (tools/gameplay.py new_foes compares it; .lair/tools/goldens never writes it): line 11, column 40 counted from 0, just below the marten's mm body facing the cub: the ground " to a bold + in the yarrow's colour	the carrying marten (R-cb19-2 A): the stolen yarrow in its jaws
+new-foe-arenas/foe-9-0-58.sty	1	0	0	foe-9 (the marten's arena, plain)	the same cell's style: 2,0,0 to 10,0,1	the carrying marten (R-cb19-2 A)
+new-foe-arenas/foe-9-1-58.txt	1	0	0	foe-9 (the marten's arena, rich)	frame 58, line 11, column 40 counted from 0: the ground U+2836 to U+2584, the yarrow's upper cell	the carrying marten (R-cb19-2 A): the stolen yarrow in its jaws
+new-foe-arenas/foe-9-1-58.sty	1	0	0	foe-9 (the marten's arena, rich)	the same cell's style	the carrying marten (R-cb19-2 A)

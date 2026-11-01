@@ -1,0 +1,16 @@
+head 17f39359c329d583530720a1b6cb9e246e273ee5
+END nfp-release-1 exit=0 2026-11-01T04:07:01Z
+END nfp-release-2 exit=0 2026-11-01T04:07:01Z
+END nfp-native-1 exit=0 2026-11-01T04:07:02Z
+END nfp-native-2 exit=0 2026-11-01T04:07:02Z
+nfp /Users/mfwolffe/lanes/cb19/nfp-17f39359/release-1: 114 files, 4 differ from the golden: foe-9-0-58.sty foe-9-0-58.txt foe-9-1-58.sty foe-9-1-58.txt
+nfp /Users/mfwolffe/lanes/cb19/nfp-17f39359/release-2: 114 files, 4 differ from the golden: foe-9-0-58.sty foe-9-0-58.txt foe-9-1-58.sty foe-9-1-58.txt
+nfp /Users/mfwolffe/lanes/cb19/nfp-17f39359/release-2 byte-identical to /Users/mfwolffe/lanes/cb19/nfp-17f39359/release-1: yes
+nfp /Users/mfwolffe/lanes/cb19/nfp-17f39359/native-1: 114 files, 4 differ from the golden: foe-9-0-58.sty foe-9-0-58.txt foe-9-1-58.sty foe-9-1-58.txt
+nfp /Users/mfwolffe/lanes/cb19/nfp-17f39359/native-1 byte-identical to /Users/mfwolffe/lanes/cb19/nfp-17f39359/release-1: yes
+nfp /Users/mfwolffe/lanes/cb19/nfp-17f39359/native-2: 114 files, 4 differ from the golden: foe-9-0-58.sty foe-9-0-58.txt foe-9-1-58.sty foe-9-1-58.txt
+nfp /Users/mfwolffe/lanes/cb19/nfp-17f39359/native-2 byte-identical to /Users/mfwolffe/lanes/cb19/nfp-17f39359/release-1: yes
+END nfp-compare exit=1
+AssertionError: ('new-foe replay/golden differs', 'foe-9-1-58.sty')
+END new-foes exit=1 2026-11-01T04:07:02Z
+CB19_NFP_DONE 2026-11-01T04:07:02Z

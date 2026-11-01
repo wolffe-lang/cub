@@ -1,0 +1,32 @@
+# cub#93 tier pr run 41268833280, the Linux leg (the orchestrator's saved log, lines near 2971)
+  File "/work/tools/gameplay.py", line 713, in <module>
+    main()
+  File "/work/tools/gameplay.py", line 687, in main
+    new_foes(Path(args.bin).resolve())
+  File "/work/tools/gameplay.py", line 614, in new_foes
+    assert actual[key] == expected[key], ('new-foe replay/golden differs', key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('new-foe replay/golden differs', 'foe-9-0-58.sty')
+ci-stage native-gameplay END utc=2026-11-01T03:50:14Z elapsed_seconds=49 status=1
+ci-stage linux-tests END utc=2026-11-01T03:50:14.416410+00:00 elapsed_seconds=1707.043 status=1
+##[error]Process completed with exit code 1.
+
+# the Mac gauntlet at 17f39359 (/Users/mfwolffe/lanes/cb19/gate/mac-gauntlet-17f39359.log)
+END head exit=0 2026-11-01T03:43:34Z
+END fmt exit=0 2026-11-01T03:43:35Z
+END python-tests exit=0 2026-11-01T03:43:37Z
+END prepare-pty exit=0 2026-11-01T03:43:37Z
+END test exit=0 2026-11-01T03:47:17Z
+END skips exit=0 2026-11-01T03:47:17Z
+END build exit=0 2026-11-01T03:47:45Z
+END selftest-native exit=0 2026-11-01T03:47:45Z
+END selftest-release exit=0 2026-11-01T03:47:45Z
+END goldens-release exit=0 2026-11-01T03:47:56Z
+END goldens-native exit=0 2026-11-01T03:48:19Z
+END pty exit=0 2026-11-01T04:01:32Z
+END score-check exit=0 2026-11-01T04:02:03Z
+END gameplay-native exit=1 2026-11-01T04:02:19Z
+CB19_MAC_GAUNTLET_EXIT 1 at gameplay-native
+    assert actual[key] == expected[key], ('new-foe replay/golden differs', key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('new-foe replay/golden differs', 'foe-9-1-58.sty')
