@@ -1911,3 +1911,190 @@ def cb13_registry_files(binary, ctx):
 
 
 ROWS['cb13-registry-files'] = cb13_registry_files
+
+
+def _cb19_home(ctx, name, legacy=None):
+    """A private HOME whose ~/.cub/save is `legacy` (the CUB 1 fixture,
+    cb02's encoding, by default). Never the maintainer's ~/.cub/."""
+    root = Path(ctx.ROOT) / 'target' / 'pty' / name
+    root.mkdir(parents=True, exist_ok=True)
+    home = Path(tempfile.mkdtemp(prefix='home-', dir=root))
+    home.chmod(0o755)
+    (home / '.cub').mkdir()
+    data = legacy if legacy is not None else (Path(ctx.ROOT) / 'tests/saves/cub1.save').read_bytes()
+    (home / '.cub' / 'save').write_bytes(data)
+    env = ctx.env_for()
+    env['HOME'] = str(home)
+    return home, env, data
+
+
+def _cb19_lines(err, needle):
+    return [l for l in err.decode(errors='replace').splitlines() if needle in l]
+
+
+def _cb19_menu(session, page, what, timeout=20):
+    return feel_until(session, lambda r: r.get('menu') == page and 'area' not in r, what, timeout)
+
+
+def _cb19_new_journey(session):
+    """From the title: its key, New journey (Space), the seed and the
+    difficulty accepted (Enter twice), play's first traced tick, then q."""
+    session.type(b' ', settle=0)
+    menu = _cb19_menu(session, 0, 'at the fire menu')
+    session.type(b' ', settle=0)
+    _cb19_menu(session, 4, 'at the seed page')
+    session.type(b'\r', settle=0)
+    _cb19_menu(session, 5, 'at the difficulty page')
+    session.type(b'\r', settle=0)
+    feel_until(session, lambda r: 'area' in r, 'in play')
+    return menu
+
+
+def _cb19_reads(err):
+    import re
+    m = re.search(rb'this cub reads CUB 4 to CUB (\d+)', err)
+    return int(m[1]) if m else None
+
+
+def cb19_old_save_default(binary, ctx):
+    """cub#91 A (b): the default start with a CUB 1 ~/.cub/save is never
+    stopped. The file is kept as ~/.cub/save.cub1-old (a second as -old-2,
+    never over the first), the title names the file, the version found, the
+    versions this cub reads and what was done, its key lands on New journey,
+    and that journey plays. A newer cub's save is never renamed (R-cb19-5)."""
+    problems = []
+    home, env, fixture = _cb19_home(ctx, 'cb19-old-save-default')
+    base = home / '.cub'
+    session = ctx.Session([binary, '--mute', '--trace', '--tier', 'plain'], 24, 80, env)
+    try:
+        _cb19_menu(session, -1, 'on the title')
+        screen = ctx.screen_text(binary, session.out)
+        for part in ('CUB 1 save', 'this cub reads CUB 4 to CUB', 'save.cub1-old', 'a new journey'):
+            if part not in screen.replace('\n', ' '):
+                problems.append('the title does not say ' + repr(part))
+        menu = _cb19_new_journey(session)
+        if menu['row'] != 0:
+            problems.append('the title key did not land on New journey (row %d)' % menu['row'])
+    except FeelDelivery as error:
+        problems.append('DELIVERY ' + str(error))
+    finally:
+        if not session.eof:
+            session.type(b'q', settle=0)
+        session.finish()
+    ctx.common_checks(session, 0, problems)
+    lines = _cb19_lines(session.err, 'is a CUB 1 save')
+    if len(lines) != 1 or 'Kept as ~/.cub/save.cub1-old,' not in lines[0]:
+        problems.append('not one line naming the kept file: %r' % lines)
+    if (base / 'save').exists():
+        problems.append('the old save is still at ~/.cub/save')
+    if not (base / 'save.cub1-old').is_file() or (base / 'save.cub1-old').read_bytes() != fixture:
+        problems.append('the old save was not kept byte for byte as save.cub1-old')
+    current = _cb19_reads(session.err)
+    saves = list((base / 'saves').glob('*.save')) if (base / 'saves').is_dir() else []
+    if current is None or len(saves) != 1 or not saves[0].read_text().startswith('CUB %d\n' % current):
+        problems.append('the offered new journey was not written as this cub\'s save')
+    # A second old save, with a journey registered now: kept as -old-2, the
+    # first never overwritten, the key on New journey past Continue.
+    (base / 'save').write_bytes(fixture.replace(b'seed 7 ', b'seed 8 '))
+    session = ctx.Session([binary, '--mute', '--trace', '--tier', 'plain'], 24, 80, env)
+    try:
+        _cb19_menu(session, -1, 'on the second title')
+        session.type(b' ', settle=0)
+        menu = _cb19_menu(session, 0, 'at the second fire menu')
+        if menu['row'] != 1:
+            problems.append('with Continue listed the key did not land on New journey (row %d)' % menu['row'])
+    except FeelDelivery as error:
+        problems.append('DELIVERY ' + str(error))
+    finally:
+        if not session.eof:
+            session.type(b'q', settle=0)
+        session.finish()
+    ctx.common_checks(session, 0, problems)
+    if (base / 'save.cub1-old').read_bytes() != fixture:
+        problems.append('the first kept save was overwritten')
+    second = base / 'save.cub1-old-2'
+    if not second.is_file() or b'seed 8 ' not in second.read_bytes():
+        problems.append('the second old save was not kept as save.cub1-old-2')
+    # R-cb19-5: a newer cub's save is left where it is, one warning.
+    newer = b'CUB 99\nseed 7 difficulty 0\ncheck 1\n'
+    (base / 'save').write_bytes(newer)
+    session = ctx.Session([binary, '--mute', '--trace', '--tier', 'plain'], 24, 80, env)
+    try:
+        _cb19_menu(session, -1, 'on the third title')
+    except FeelDelivery as error:
+        problems.append('DELIVERY ' + str(error))
+    finally:
+        if not session.eof:
+            session.type(b'q', settle=0)
+        session.finish()
+    ctx.common_checks(session, 0, problems)
+    lines = _cb19_lines(session.err, 'is a CUB 99 save')
+    if len(lines) != 1 or 'Left where it is' not in lines[0]:
+        problems.append('the newer save had not one warning: %r' % lines)
+    if (base / 'save').read_bytes() != newer or list(base.glob('save.cub99*')):
+        problems.append('the newer save was moved or renamed')
+    return session, problems
+
+
+def cb19_old_save_named(binary, ctx):
+    """cub#91 A (a): `--save NAME` with a CUB 1 ~/.cub/save starts NAME's
+    journey; the legacy file is untouched and unregistered, with one warning
+    line naming it and its version. A NAME that is itself too old is kept as
+    NAME.cub1-old and the journey starts new at NAME (the ruling of
+    2026-11-01)."""
+    problems = []
+    home, env, fixture = _cb19_home(ctx, 'cb19-old-save-named')
+    base = home / '.cub'
+    name = home / 'fresh.save'
+    session = ctx.Session([binary, '--save', str(name), '--mute', '--trace', '--tier', 'plain'], 24, 80, env)
+    try:
+        _cb19_menu(session, -1, 'on the title')
+        _cb19_new_journey(session)
+    except FeelDelivery as error:
+        problems.append('DELIVERY ' + str(error))
+    finally:
+        if not session.eof:
+            session.type(b'q', settle=0)
+        session.finish()
+    ctx.common_checks(session, 0, problems)
+    lines = _cb19_lines(session.err, 'is a CUB 1 save')
+    if len(lines) != 1 or '~/.cub/save' not in lines[0] or 'Left where it is' not in lines[0] \
+            or 'this cub reads CUB 4 to CUB' not in lines[0]:
+        problems.append('not one warning naming the legacy file and its version: %r' % lines)
+    if (base / 'save').read_bytes() != fixture or list(base.glob('save.cub*')):
+        problems.append('the legacy save was touched')
+    current = _cb19_reads(session.err)
+    if current is None or not name.is_file() or not name.read_text().startswith('CUB %d\n' % current):
+        problems.append('--save NAME did not start its journey')
+    index = base / 'registry'
+    if not index.is_file() or str(base / 'save') in index.read_text():
+        problems.append('the legacy save was registered, or nothing was')
+    # NAME itself too old: kept beside itself, the journey new at its name.
+    old = home / 'old.save'
+    old.write_bytes(fixture)
+    session = ctx.Session([binary, '--save', str(old), '--mute', '--trace', '--tier', 'plain'], 24, 80, env)
+    try:
+        _cb19_menu(session, -1, 'on the title for an old NAME')
+        screen = ctx.screen_text(binary, session.out)
+        if 'old.save.cub1-old' not in screen.replace('\n', ' '):
+            problems.append('the title does not name the kept NAME')
+        _cb19_new_journey(session)
+    except FeelDelivery as error:
+        problems.append('DELIVERY ' + str(error))
+    finally:
+        if not session.eof:
+            session.type(b'q', settle=0)
+        session.finish()
+    ctx.common_checks(session, 0, problems)
+    kept = home / 'old.save.cub1-old'
+    if not kept.is_file() or kept.read_bytes() != fixture:
+        problems.append('the old NAME was not kept byte for byte')
+    if current is None or not old.read_text().startswith('CUB %d\n' % current):
+        problems.append('the new journey did not start at the old NAME')
+    if (base / 'save').read_bytes() != fixture:
+        problems.append('the legacy save was touched by the second start')
+    return session, problems
+
+
+ROWS.update({'cb19-old-save-default': cb19_old_save_default,
+             'cb19-old-save-named': cb19_old_save_named})

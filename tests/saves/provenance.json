@@ -34,5 +34,11 @@
     "writer_sha256": "24a8dfc7832a729d26b5f78aaac7c3ba96b8475578fb1be9967c05f9eb10bb92",
     "fixture_sha256": "7a949d1ade73d54c334b738daf4e80541cd38e82203718a8aab70e40a758fc55",
     "method": "The third run of cb14-v7's: live in a pty with --save <dir>/sett_1.save --record <dir>/journey6.pk, Space, then q; its initial journey 6 snapshot (211 slots) is the loaded save; the recording copied byte-for-byte."
+  },
+  "cub1": {
+    "writer_binary": "none: written by hand in cb19 from cb02 f50b9c16 src/journey/journey.lu (payload and encode, schema 1), never from a player file",
+    "writer_sha256": "none",
+    "fixture_sha256": "31598ba45d07b43258f5b5b2715748a5929c6b7b43fc11052d35b54e87ebe191",
+    "method": "A fresh seed-7 journey in schema 1 lines (growth 1, water 3, the hollow log, the opening seen) with the rolling checksum of cb02 (seed 7, x31, mod 1000000007); the first line CUB 1 is what every reader refuses, the rest is the era's shape."
   }
 }
