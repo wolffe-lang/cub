@@ -67,6 +67,21 @@ fn robbed() -> sim.Sim {
     s
 }
 
+/// `robbed`'s journey with the theft recorded as `marten_steal` records it
+/// (the pouch's item taken, the marten's and the journey's slot set), for
+/// the rows that then decode: the bite's own step is `robbed`'s and the
+/// witness's (the checked machine's budget holds one of the two a row).
+fn held() -> sim.Sim {
+    var s = stand()
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    let i = marten(s, 1)
+    assert(i >= 0 && sim.marten_slot(s, i) == 1, "the Stand's second marten, slot 1")
+    let tag = sim.take_one(mut s, pouch.YARROW)
+    s.foes[i].stolen_item = tag
+    s.thefts[1] = tag
+    s
+}
+
 fn kept(s: sim.Sim) -> bool {
     let i = marten(s, 1)
     s.thefts.len == sim.MARTEN_SLOTS &&
@@ -130,7 +145,8 @@ fn test_cb19_a_theft_survives_leaving_the_stand_and_coming_back() {
 }
 
 fn test_cb19_a_theft_survives_save_and_reload_in_cub9() {
-    let s = robbed()
+    let s = held()
+    assert(kept(s), "held as a bite holds it")
     let text = journey.encode(s)
     assert(text.starts_with("CUB 9\n"), "CUB 9")
     assert(text.contains("\nthefts -1 {pouch.YARROW} -1\ncheck "), "the thefts line, last")
@@ -206,7 +222,7 @@ fn test_cb19_a_rechecksummed_bad_thefts_line_is_refused() {
 }
 
 fn test_cb19_journey8_carries_the_thefts() {
-    let s = robbed()
+    let s = held()
     let v = journey.snapshot(s)
     assert(v.len == journey.SNAPSHOT && journey.SNAPSHOT == 242, "journey 8's 242 values")
     assert(v[239] == -1 && v[240] == pouch.YARROW && v[241] == -1, "the thefts last")
