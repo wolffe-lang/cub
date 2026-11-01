@@ -196,7 +196,7 @@ migrate as today; CUB 1..3 are kept as `save.cubN-old` with the offer. Implement
   saves paragraph, the six's paragraph and the census flags are current, nothing else moved); `7508519a` DESIGN's
   cub#90 paragraph brought to the combo under the stall; `ec7b8d39` and `17f39359` this note and its evidence (the
   first PR head); after its red run, `4bd4a87b` the marten arena's frame 58, `2d7291bd` the combo's grace,
-  `64f98dff` DESIGN's sentence for it, and this note's corrections.
+  `64f98dff` and `f4075bd4` DESIGN's sentences for it and for the stall levels, and this note's corrections.
 
 **Item 1, every moved row with its reason** (`spacing/censuses-base-vs-7252451d.txt`, each census run by the base's
 binary and the rule's, `cmp`'d):
