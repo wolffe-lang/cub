@@ -49,6 +49,7 @@ use headless
 use input
 use probe
 use pathaudit
+use theftproof
 use wide
 use props
 use proof
@@ -159,6 +160,7 @@ fn usage_text() -> str {
         "  --world-audit                     graph/density census over seeds 0..49\n" +
         "  --npc-audit                       every NPC's place on open, reached ground, 50 seeds, both fields\n" +
         "  --make-npc-proof DIR              the conversation, purchase and toll witnesses (cb16)\n" +
+        "  --make-theft-proof DIR            the marten's kept theft: steal, die, return, bite, recover (cb19)\n" +
         "  --area-map SEED AREA FIELD        an area's map as text (cb14)\n" +
         "  --make-walk DIR                   the walk from the Shingle to the stone mouth (cb14)\n" +
         "  --sound-census                    the cue schedule over that walk, to Gravehollow (cb17)\n" +
@@ -634,6 +636,17 @@ fn run_art_study(o: Options) -> int {
             art.new_foe_sheet(tier.PLAIN, new_kind),
         ) else |_| { return 2 }
         new_kind += 1
+    }
+    // cb19 (R-cb19-2 A): the carrying marten, both tiers.
+    headless.write_frame(o.dump, "marten-carry-rich", art.marten_carry_sheet(tier.RICH)) else |_| {
+        return 2
+    }
+    headless.write_frame(
+        o.dump,
+        "marten-carry-plain",
+        art.marten_carry_sheet(tier.PLAIN),
+    ) else |_| {
+        return 2
     }
     headless.write_frame(o.dump, "hawk-rich", art.hawk_sheet(tier.RICH)) else |_| { return 2 }
     headless.write_frame(o.dump, "hawk-plain", art.hawk_sheet(tier.PLAIN)) else |_| { return 2 }
@@ -1566,6 +1579,7 @@ fn main() -> int {
     if args.len == 1 && args[0] == "--sound-census" { return soundcensus.run() }
     if args.len == 2 && args[0] == "--make-area-proof" { return proof.areas(args[1]) }
     if args.len == 2 && args[0] == "--make-npc-proof" { return npcproof.generate(args[1]) }
+    if args.len == 2 && args[0] == "--make-theft-proof" { return theftproof.generate(args[1]) }
     if args.len == 6 && args[0] == "--route-view" {
         return pathaudit.view(
             args[1].to_int() else 0,
@@ -1905,10 +1919,16 @@ fn replay_initial(r: replay.Replay, fallback: sim.Sim) -> sim.Sim ! {
 } {
     let version = replay.args_at(r, 0, controls.EV_JOURNEY)
     if version == 0 { return copy fallback }
-    // `journey 7` (cb16: 239 values), `journey 6` (cb14: 211), `journey 5`
-    // (cb15: 204), `journey 4` (cb05: 37) and `journey 3` (30) are all
-    // read: a committed case keeps replaying.
-    if version != journey.JOURNEY && version != 6 && version != 5 && version != 4 && version != 3 {
+    // `journey 8` (cb19: 242 values, the kept thefts), `journey 7` (cb16:
+    // 239), `journey 6` (cb14: 211), `journey 5` (cb15: 204), `journey 4`
+    // (cb05: 37) and `journey 3` (30) are all read: a committed case keeps
+    // replaying.
+    if version != journey.JOURNEY &&
+        version != 7 &&
+        version != 6 &&
+        version != 5 &&
+        version != 4 &&
+        version != 3 {
         return save_version
     }
     let count = if version == 3 {
@@ -1919,6 +1939,8 @@ fn replay_initial(r: replay.Replay, fallback: sim.Sim) -> sim.Sim ! {
         journey.SNAPSHOT_V5
     } else if version == 6 {
         journey.SNAPSHOT_V6
+    } else if version == 7 {
+        journey.SNAPSHOT_V7
     } else {
         journey.SNAPSHOT
     }

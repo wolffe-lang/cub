@@ -1,0 +1,314 @@
+//! theftproof — cb19's witness of the kept theft (R-cb18-3 B, `cub
+//! --make-theft-proof DIR`): in the Stand, from the root hollow (den 12)
+//! with one yarrow, the cub walks to the nearest marten and stands still
+//! until it lands its bite and steals the yarrow; a disclosed fatal health
+//! delta fells the cub; it wakes at the den and the respawned marten still
+//! holds the yarrow (drawn in its jaws, R-cb19-2 A); the cub walks back, the
+//! fighter answers the marten until a bite drops the yarrow at the trunk's
+//! foot, and the cub walks onto it and takes it with `r`. Every key is the
+//! walker's, the fighter's or one pressed here, recorded; the only fixtures
+//! are the journey snapshot's (the lynx fight's growth at the root hollow,
+//! the yarrow) and the one fatal delta. The record is then replayed from
+//! its own snapshot, keys and delta alone, and must reach the same
+//! milestones and final state.
+
+use controls
+use fight
+use forest
+use journey
+use pouch
+use replay
+use sim
+use std.fs
+use walker
+
+/// The milestones a run reaches, -1 when not reached.
+pub struct Milestones {
+    theft: int,
+    death: int,
+    wake: int,
+    held_after_wake: bool,
+    returned: int,
+    recovered: int,
+    slot: int,
+}
+
+fn none() -> Milestones {
+    Milestones {
+        theft: -1,
+        death: -1,
+        wake: -1,
+        held_after_wake: false,
+        returned: -1,
+        recovered: -1,
+        slot: -1,
+    }
+}
+
+/// The journey the witness starts from: the lynx fight's growth resting at
+/// the Stand's root hollow, one yarrow held, validated by the save's own
+/// decoder.
+pub fn start(seed: int) -> sim.Sim {
+    var s = fight.journey_at(seed, 80, 24, sim.LYNX)
+    s.last_den = 12
+    s.lit_dens = sim.light_den(s.lit_dens, 12)
+    let _ = sim.give_item(mut s, pouch.YARROW)
+    let text = journey.encode(s)
+    journey.decode(text, 80, 24) else |e| {
+        assert(false, "theftproof: the Stand's journey is not a valid save: {e}")
+        s
+    }
+}
+
+/// The marten nearest the cub (its index), -1 when none.
+fn nearest_marten(s: sim.Sim) -> int {
+    var best = -1
+    var d = 1000000000
+    var i = 0
+    while i < s.foes.len {
+        let f = copy s.foes[i]
+        if f.kind == sim.MARTEN && f.health > 0 {
+            let dx = (f.x - s.x) / sim.FP
+            let dy = (f.y - s.y) / sim.FP
+            if dx * dx + dy * dy < d {
+                d = dx * dx + dy * dy
+                best = i
+            }
+        }
+        i += 1
+    }
+    best
+}
+
+/// An open cell `rows` cells below the marten's body on its column (or the
+/// nearest open one beside it), where the cub stands to be seen and bitten.
+fn stand_cell(s: sim.Sim, i: int, rows: int) -> (int, int) {
+    let f = copy s.foes[i]
+    let b = sim.foe_body(f)
+    let x = sim.floor_div(f.x, sim.FP)
+    var dy = rows
+    while dy < rows + 6 {
+        for dx in [0, -1, 1, -2, 2] {
+            if !sim.blocked(s, x + dx, b.y1 + dy) { return (x + dx, b.y1 + dy) }
+        }
+        dy += 1
+    }
+    (x, b.y1 + rows)
+}
+
+/// The whole witness, pressing into `r` (a replay whose snapshot is `s`'s).
+fn play(mut s: sim.Sim, mut r: replay.Replay) -> Milestones {
+    var m = none()
+    walker.press(mut s, mut r, walker.key(controls.KEY_RELEASE))
+    let i = nearest_marten(s)
+    if i < 0 { eprint("theftproof: no marten in the Stand"); return m }
+    m.slot = sim.marten_slot(s, i)
+    let (cx, cy) = stand_cell(s, i, 3)
+    // Walk to it passively, then stand still until the landing bite steals.
+    if !walker.walk_stop(
+        mut s,
+        mut r,
+        cx * sim.FP + sim.FP / 2,
+        cy * sim.FP + sim.FP / 2,
+        i,
+        true,
+    ) {
+        eprint("theftproof: the walk to the marten")
+        return m
+    }
+    var n = 0
+    while n < 400 && s.foes[i].stolen_item < 0 && s.action != sim.FALL {
+        walker.press(mut s, mut r, walker.key(0))
+        n += 1
+    }
+    if s.foes[i].stolen_item != pouch.YARROW || s.thefts[m.slot] != pouch.YARROW {
+        eprint("theftproof: no theft (marten phase {s.foes[i].phase}, gap {sim.body_gap(s, i)})")
+        return m
+    }
+    m.theft = s.tick
+    // Out of its reach, then the one disclosed fixture: a fatal delta.
+    n = 0
+    while n < 40 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
+    replay.push_arg(mut r, s.tick, controls.EV_HEALTH, -10000)
+    sim.hurt(mut s, 10000)
+    m.death = s.tick
+    n = 0
+    while s.action == sim.FALL && n < sim.DEATH_TICKS + 2 {
+        walker.press(mut s, mut r, walker.key(0))
+        n += 1
+    }
+    if s.action == sim.FALL || s.last_den != 12 || s.area != forest.STAND {
+        eprint("theftproof: the cub did not wake at the root hollow")
+        return m
+    }
+    m.wake = s.tick
+    m.held_after_wake = s.foes[i].stolen_item == pouch.YARROW &&
+        s.foes[i].phase == sim.PERCHED &&
+        s.thefts[m.slot] == pouch.YARROW &&
+        sim.item_count(s, pouch.YARROW) == 0
+    if !m.held_after_wake {
+        eprint("theftproof: the respawned marten does not hold the yarrow")
+        return m
+    }
+    // A few still ticks at the den, the carrying marten in the frame's
+    // world, then back to it; the fighter answers it until a bite drops
+    // the yarrow (and, the marten felled, it cannot steal it back).
+    n = 0
+    while n < 20 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
+    let (bx, by) = stand_cell(s, i, 3)
+    if !walker.walk_stop(
+        mut s,
+        mut r,
+        bx * sim.FP + sim.FP / 2,
+        by * sim.FP + sim.FP / 2,
+        i,
+        true,
+    ) {
+        eprint("theftproof: the walk back to the marten")
+        return m
+    }
+    var st = fight.fighter()
+    n = 0
+    while n < 900 && s.foes[i].health > 0 && s.action != sim.FALL {
+        walker.press(mut s, mut r, fight.fight_keys(s, i, mut st))
+        if m.returned < 0 && s.foes[i].stolen_item < 0 { m.returned = s.tick }
+        n += 1
+    }
+    if m.returned < 0 || s.thefts[m.slot] != -1 || s.action == sim.FALL {
+        eprint("theftproof: the bite never dropped the yarrow")
+        return m
+    }
+    // The drop at the trunk's foot: walk onto its cell and take it.
+    var px = 0
+    var py = 0
+    var found = false
+    for p in s.pouch.pickups {
+        if p.area == forest.STAND && p.kind == pouch.YARROW {
+            px = p.x
+            py = p.y
+            found = true
+        }
+    }
+    if !found { eprint("theftproof: no yarrow on the ground"); return m }
+    n = 0
+    while n < 60 && s.action != sim.IDLE { walker.press(mut s, mut r, walker.key(0)); n += 1 }
+    if !walker.walk(mut s, mut r, px * sim.FP + sim.FP / 2, py * sim.FP + sim.FP / 2) {
+        eprint("theftproof: the walk to the dropped yarrow")
+        return m
+    }
+    n = 0
+    while n < 30 && (sim.cell_x(s) != px || sim.cell_y(s) != py) {
+        var keys = List[int]()
+        walker.aim(mut keys, px * sim.FP + sim.FP / 2 - s.x, py * sim.FP + sim.FP / 2 - s.y)
+        walker.press(mut s, mut r, keys)
+        n += 1
+    }
+    n = 0
+    while n < 12 && s.speed > 0 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
+    walker.press(mut s, mut r, walker.key(controls.KEY_REST))
+    if sim.item_count(s, pouch.YARROW) == 1 { m.recovered = s.tick }
+    n = 0
+    while n < 10 { walker.press(mut s, mut r, walker.key(0)); n += 1 }
+    m
+}
+
+fn snapshot_replay(s: sim.Sim) -> replay.Replay {
+    var r = replay.new(s.seed, 1, s.cols, s.rows)
+    replay.push_arg(mut r, 0, controls.EV_JOURNEY, journey.JOURNEY)
+    let v = journey.snapshot(s)
+    var i = 0
+    while i < v.len { replay.push_arg(mut r, 0, controls.saved_event(i), v[i]); i += 1 }
+    r
+}
+
+/// The record replayed from its own snapshot: keys and the delta alone,
+/// the milestones read as the run reaches them.
+pub fn replay_record(r: replay.Replay, ticks: int, slot: int) -> (sim.Sim, Milestones) {
+    var values = List[int]()
+    var i = 0
+    while i < journey.SNAPSHOT {
+        (mut values).push(replay.args_at(r, 0, controls.saved_event(i)))
+        i += 1
+    }
+    var s = journey.from_snapshot(values, r.cols, r.rows) else |e| {
+        assert(false, "theftproof: the record's snapshot: {e}")
+        sim.new(r.seed, r.cols, r.rows)
+    }
+    var m = none()
+    m.slot = slot
+    var keys = List[int]()
+    var t = 0
+    while t < ticks {
+        (mut keys).reset()
+        let (_, _, health) = replay.at(r, t, mut keys)
+        if health < 0 { sim.hurt(mut s, 0 - health); if m.death < 0 { m.death = s.tick } }
+        let falling = s.action == sim.FALL
+        sim.step(mut s, keys)
+        if m.theft < 0 && s.thefts[slot] == pouch.YARROW { m.theft = s.tick }
+        if falling && s.action != sim.FALL && m.wake < 0 {
+            m.wake = s.tick
+            var k = 0
+            var j = 0
+            while j < s.foes.len {
+                if s.foes[j].kind == sim.MARTEN {
+                    if k == slot {
+                        m.held_after_wake = s.foes[j].stolen_item == pouch.YARROW &&
+                            s.foes[j].phase == sim.PERCHED
+                    }
+                    k += 1
+                }
+                j += 1
+            }
+        }
+        if m.wake >= 0 && m.returned < 0 && s.thefts[slot] == -1 { m.returned = s.tick }
+        if m.returned >= 0 && m.recovered < 0 && sim.item_count(s, pouch.YARROW) == 1 {
+            m.recovered = s.tick
+        }
+        t += 1
+    }
+    (s, m)
+}
+
+fn line(m: Milestones) -> str {
+    "slot {m.slot} theft {m.theft} death {m.death} wake {m.wake} held {if m.held_after_wake then 1 else 0} returned {m.returned} recovered {m.recovered}"
+}
+
+/// Write `marten-theft.pk` into `dir`, replay it, compare; 0 green.
+pub fn generate(dir: str) -> int {
+    fs.create_dir_all(dir) else |_| { return 2 }
+    let s0 = start(1)
+    var s = copy s0
+    var r = snapshot_replay(s0)
+    let m = play(mut s, mut r)
+    print(
+        "theft-proof: {line(m)} final x {s.x} y {s.y} health {s.health} yarrow {sim.item_count(s, pouch.YARROW)}",
+    )
+    if m.recovered < 0 { return 1 }
+    // Frames from ten ticks before the theft, every fifteen: the carrying
+    // marten at the theft and again up its trunk after the wake.
+    let from = if m.theft > 10 then m.theft - 10 else 0
+    var bytes = List[byte]()
+    replay.format(r, controls.vocab(), mut bytes)
+    let path = dir + "/marten-theft.pk"
+    fs.write_bytes(path, bytes) else |_| { return 2 }
+    fs.append_text(path, "\n# frames {s.tick} every 15 from {from}\n") else |_| { return 2 }
+    let text = fs.read_text(path) else |_| { return 2 }
+    let decoded = replay.from_text(text, controls.vocab()) else |_| { return 2 }
+    let (again, n) = replay_record(decoded, s.tick, m.slot)
+    let parity = again.x == s.x &&
+        again.y == s.y &&
+        again.health == s.health &&
+        sim.item_count(again, pouch.YARROW) == sim.item_count(s, pouch.YARROW) &&
+        again.thefts[m.slot] == s.thefts[m.slot] &&
+        n.theft == m.theft &&
+        n.wake == m.wake &&
+        n.held_after_wake &&
+        n.returned == m.returned &&
+        n.recovered == m.recovered
+    print("theft-replay: {line(n)} parity {if parity then 1 else 0}")
+    if !parity { return 1 }
+    print(
+        "theft-proof: green, steal at {m.theft}, death at {m.death}, wake at {m.wake} holding it, bitten back at {m.returned}, recovered at {m.recovered}, {s.tick} ticks",
+    )
+    0
+}
