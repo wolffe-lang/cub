@@ -1,0 +1,81 @@
+{
+  "main": "ci.yml",
+  "main_name": "ci",
+  "root": "plan",
+  "new_router": false,
+  "router_body": "    name: plan\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n    steps:\n      - name: full job set selected\n        if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-matrix') || contains(github.event.pull_request.labels.*.name, 'ci') || contains(github.event.pull_request.labels.*.name, 'release-matrix') }}\n        run: echo 'SELECTED plan-test linux gameplay macos macos-gameplay perf tier'\n      - uses: actions/checkout@v4\n        if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-matrix') || contains(github.event.pull_request.labels.*.name, 'ci') || contains(github.event.pull_request.labels.*.name, 'release-matrix') }}\n      - name: local gate wiring proof\n        if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-matrix') || contains(github.event.pull_request.labels.*.name, 'ci') || contains(github.event.pull_request.labels.*.name, 'release-matrix') }}\n        run: python3 -I ci/local-gate-test.py\n      - name: local evidence gate\n        if: ${{ !(github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-matrix') || contains(github.event.pull_request.labels.*.name, 'ci') || contains(github.event.pull_request.labels.*.name, 'release-matrix')) }}\n        run: echo 'Local gauntlet evidence is the gate; request ci or full-matrix for CI.'\n",
+  "planner": [
+    "python3",
+    ".lair/ci/tiers.py",
+    "plan"
+  ],
+  "full": {
+    "tier": "full",
+    "jobs": [
+      "plan-test",
+      "linux",
+      "gameplay",
+      "macos",
+      "macos-gameplay",
+      "perf"
+    ]
+  },
+  "selected": [
+    "plan-test",
+    "linux",
+    "gameplay",
+    "macos",
+    "macos-gameplay",
+    "perf",
+    "tier"
+  ],
+  "module_path": "src/local-module.lu",
+  "cross_paths": [
+    ".github/workflows/ci.yml",
+    "ci/local-gate-test.py",
+    "tools/shared.sh",
+    "wolf-toolchain.toml"
+  ],
+  "push_patterns": [
+    ".github/**",
+    "ci/**",
+    "!ci/*.md",
+    "!ci/**/*.md",
+    "tools/**",
+    "spec/**",
+    "**/wolf-toolchain.toml",
+    "**/rust-toolchain.toml",
+    "**/*.pin",
+    "**/PAIRING",
+    "**/STD-PIN",
+    "vendor/tools.toml",
+    "gnu-oracle.toml",
+    ".gitmodules",
+    "Cargo.toml",
+    "Cargo.lock"
+  ],
+  "push_before": "  push:\n    branches: [trunk]\n",
+  "preserve_push": false,
+  "workflows": {
+    "ci.yml": {
+      "plan": "    runs-on: ubuntu-24.04\n    outputs:\n      tier: ${{ steps.plan.outputs.tier }}\n      jobs: ${{ steps.plan.outputs.jobs }}\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          fetch-depth: 2\n      - name: the engine, at lair.pin\n        run: tools/fetch-lair\n      - id: plan\n        env:\n          EVENT: ${{ github.event_name }}\n          ACTION: ${{ github.event.action }}\n          LABEL: ${{ github.event.label.name }}\n          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}\n          HEAD_SHA: ${{ github.event.pull_request.head.sha }}\n          IN_JOBS: ${{ inputs.jobs }}\n        run: python3 .lair/ci/tiers.py plan --merge --github-output \"$GITHUB_OUTPUT\"\n",
+      "plan-test": "    # tier: pr\n    needs: plan\n    if: contains(fromJSON(needs.plan.outputs.jobs || '[]'), 'plan-test')\n    runs-on: ubuntu-24.04\n    steps:\n      - uses: actions/checkout@v4\n      - name: the engine, at lair.pin\n        run: tools/fetch-lair\n      - run: python3 -I .lair/ci/tiers-test.py\n      - run: python3 -I .lair/ci/memgate-test.py\n",
+      "linux": "    # tier: pr\n    name: linux x86-64 (fmt, tests, builds, goldens, pty rows in the container)\n    needs: plan\n    if: contains(fromJSON(needs.plan.outputs.jobs || '[]'), 'linux')\n    runs-on: ubuntu-24.04\n    timeout-minutes: 60\n    steps:\n      - uses: actions/checkout@v4\n      - name: the engine, at lair.pin\n        run: tools/fetch-lair\n      - uses: actions/cache@v4\n        with:\n          path: .wolf-bin\n          key: lair-toolchain-linux-${{ hashFiles('.lair/wolf-toolchain.toml') }}\n      - name: the pinned toolchain, by digest\n        run: .lair/tools/fetch-toolchain\n      # Exact recipe + runner architecture: no stale-image restore fallback.\n      - name: restore the pinned Linux image\n        id: container-cache\n        uses: actions/cache/restore@v4\n        with:\n          path: target/ci-container/image.tar\n          key: lair-container-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.lair/ci/Containerfile') }}\n      - name: provision the pinned Linux image\n        run: python3 -I tools/ci-container.py prepare\n      # Save BEFORE tests: even a costly cold fill followed by a test timeout\n      # leaves the next attempt a warm cache. A failed build is never saved.\n      - name: save the pinned Linux image\n        if: steps.container-cache.outputs.cache-hit != 'true'\n        uses: actions/cache/save@v4\n        with:\n          path: target/ci-container/image.tar\n          key: ${{ steps.container-cache.outputs.cache-primary-key }}\n      - name: the Linux leg, in the container\n        run: python3 -I tools/ci-container.py run -- tools/check-linux --no-gameplay\n      - uses: actions/upload-artifact@v4\n        if: ${{ !cancelled() }}\n        with:\n          name: linux-evidence\n          path: |\n            target/goldens\n            target/pty\n            target/test.log\n",
+      "gameplay": "    # tier: pr\n    # The gameplay gates, one backend a leg, beside the Linux leg (cb19,\n    # R-cb19-7 B): with them the leg outran its sixty minutes. The timeout\n    # is the house rule's, (the peak phases + 180 s) x 1.4 for the native\n    # leg, the slower: 9 s set-up, 14 s image, 13 s build, 1,522 s gameplay,\n    # 15 s upload (cub#93's run 41274530832) -> 2,454 s, 41 minutes.\n    name: gameplay semantics, ${{ matrix.backend }} (in the container)\n    needs: plan\n    if: contains(fromJSON(needs.plan.outputs.jobs || '[]'), 'gameplay')\n    runs-on: ubuntu-24.04\n    timeout-minutes: 41\n    strategy:\n      fail-fast: false\n      matrix:\n        backend: [native, release]\n    steps:\n      - uses: actions/checkout@v4\n      - name: the engine, at lair.pin\n        run: tools/fetch-lair\n      - uses: actions/cache@v4\n        with:\n          path: .wolf-bin\n          key: lair-toolchain-linux-${{ hashFiles('.lair/wolf-toolchain.toml') }}\n      - name: the pinned toolchain, by digest\n        run: .lair/tools/fetch-toolchain\n      - name: restore the pinned Linux image\n        id: container-cache\n        uses: actions/cache/restore@v4\n        with:\n          path: target/ci-container/image.tar\n          key: lair-container-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.lair/ci/Containerfile') }}\n      - name: provision the pinned Linux image\n        run: python3 -I tools/ci-container.py prepare\n      - name: save the pinned Linux image\n        if: steps.container-cache.outputs.cache-hit != 'true'\n        uses: actions/cache/save@v4\n        with:\n          path: target/ci-container/image.tar\n          key: ${{ steps.container-cache.outputs.cache-primary-key }}\n      - name: the build and the gameplay gate, in the container\n        run: python3 -I tools/ci-container.py run -- tools/check-gameplay ${{ matrix.backend }}\n      - uses: actions/upload-artifact@v4\n        if: ${{ !cancelled() }}\n        with:\n          name: gameplay-evidence-${{ matrix.backend }}\n          path: target/gameplay\n",
+      "macos": "    name: macOS arm64 (build, goldens, pty rows)\n    needs: plan\n    if: contains(fromJSON(needs.plan.outputs.jobs || '[]'), 'macos')\n    runs-on: macos-latest\n    timeout-minutes: 60\n    steps:\n      - uses: actions/checkout@v4\n      - name: the engine, at lair.pin\n        run: tools/fetch-lair\n      - uses: actions/cache@v4\n        with:\n          path: .wolf-bin\n          key: lair-toolchain-macos-${{ hashFiles('.lair/wolf-toolchain.toml') }}\n      - name: the pinned toolchain, by digest\n        run: .lair/tools/fetch-toolchain\n      - name: wolf fmt --check\n        run: .lair/tools/check-fmt\n      - name: the unit tests\n        run: .lair/tools/test\n      # RULES section 4's memory gate is nomad's (the maintainer's Mac); the\n      # runner's free-memory figure means nothing for it (lair's lib-mem.sh).\n      - name: build, both tiers\n        env:\n          LAIR_MEMORY_GATE: '0'\n        run: .lair/tools/build --all\n      - name: resident growth, crash checkpoint and fresh seed\n        run: sh tools/check-memory target/release/cub\n      - name: the goldens, both tiers\n        env:\n          LAIR_MEMORY_GATE: '0'\n        run: .lair/tools/goldens\n      - name: the native goldens\n        env:\n          LAIR_MEMORY_GATE: '0'\n        run: .lair/tools/goldens --bin target/native/cub\n      - name: the pty rows\n        env:\n          LAIR_MEMORY_GATE: '0'\n        run: python3 -I .lair/tools/pty --bin target/release/cub\n      - uses: actions/upload-artifact@v4\n        if: ${{ !cancelled() }}\n        with:\n          name: macos-evidence\n          path: |\n            target/goldens\n            target/pty\n",
+      "macos-gameplay": "    # The gameplay gates on both backends on a macOS runner, beside the macOS\n    # leg (cb19, R-cb19-7 B, as the Linux leg's). The timeout is the house\n    # rule's, (the peak phases, scaled by cub#93's growth over trunk's,\n    # + 180 s) x 1.4: 8 s set-up, 61 s build, the gameplay step's peak\n    # 1,440 s on trunk (run 41047553331) x 1.06 = 1,526 s, 17 s upload and\n    # post -> 2,509 s, 42 minutes.\n    name: macOS arm64 gameplay semantics (both backends)\n    needs: plan\n    if: contains(fromJSON(needs.plan.outputs.jobs || '[]'), 'macos-gameplay')\n    runs-on: macos-latest\n    timeout-minutes: 42\n    steps:\n      - uses: actions/checkout@v4\n      - name: the engine, at lair.pin\n        run: tools/fetch-lair\n      - uses: actions/cache@v4\n        with:\n          path: .wolf-bin\n          key: lair-toolchain-macos-${{ hashFiles('.lair/wolf-toolchain.toml') }}\n      - name: the pinned toolchain, by digest\n        run: .lair/tools/fetch-toolchain\n      - name: build, both tiers\n        env:\n          LAIR_MEMORY_GATE: '0'\n        run: .lair/tools/build --all\n      - name: gameplay semantics, native\n        env:\n          LAIR_MEMORY_GATE: '0'\n        run: python3 -I tools/gameplay.py --bin target/native/cub\n      - name: gameplay semantics, release\n        env:\n          LAIR_MEMORY_GATE: '0'\n        run: python3 -I tools/gameplay.py --bin target/release/cub\n      - uses: actions/upload-artifact@v4\n        if: ${{ !cancelled() }}\n        with:\n          name: macos-gameplay-evidence\n          path: target/gameplay\n",
+      "perf": "    name: performance (render, idle, input latency)\n    needs: plan\n    if: contains(fromJSON(needs.plan.outputs.jobs || '[]'), 'perf')\n    runs-on: ubuntu-24.04\n    timeout-minutes: 20\n    steps:\n      - uses: actions/checkout@v4\n      - run: tools/fetch-lair\n      - uses: actions/cache@v4\n        with:\n          path: .wolf-bin\n          key: lair-toolchain-linux-${{ hashFiles('.lair/wolf-toolchain.toml') }}\n      - run: .lair/tools/fetch-toolchain\n      - name: restore the pinned Linux image\n        id: container-cache\n        uses: actions/cache/restore@v4\n        with:\n          path: target/ci-container/image.tar\n          key: lair-container-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.lair/ci/Containerfile') }}\n      - name: provision the pinned Linux image\n        run: python3 -I tools/ci-container.py prepare\n      - name: save the pinned Linux image\n        if: steps.container-cache.outputs.cache-hit != 'true'\n        uses: actions/cache/save@v4\n        with:\n          path: target/ci-container/image.tar\n          key: ${{ steps.container-cache.outputs.cache-primary-key }}\n      - name: release bench and live latency, in the container\n        run: python3 -I tools/ci-container.py run -- tools/check-perf\n      - uses: actions/upload-artifact@v4\n        if: ${{ !cancelled() }}\n        with:\n          name: perf-evidence\n          path: target/perf\n",
+      "tier": "    name: tier ${{ needs.plan.outputs.tier || 'unplanned' }}\n    if: ${{ !cancelled() }}\n    needs:\n      - plan\n      - plan-test\n      - linux\n      - gameplay\n      - macos\n      - macos-gameplay\n      - perf\n    runs-on: ubuntu-24.04\n    steps:\n      - uses: actions/checkout@v4\n      - name: the engine, at lair.pin\n        run: tools/fetch-lair\n      - env:\n          NEEDS: ${{ toJSON(needs) }}\n        run: python3 .lair/ci/tiers.py verdict\n",
+      "nightly-red": "    name: nightly red, an issue\n    needs: tier\n    if: ${{ failure() && github.event_name == 'schedule' }}\n    runs-on: ubuntu-24.04\n    permissions:\n      contents: read\n      issues: write\n    steps:\n      - uses: actions/checkout@v4\n      - name: the engine, at lair.pin\n        run: tools/fetch-lair\n      - env:\n          GH_TOKEN: ${{ github.token }}\n          REPO: ${{ github.repository }}\n          WORKFLOW: ${{ github.workflow }}\n          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n        run: .lair/ci/nightly-red.sh\n"
+    }
+  },
+  "schedules": {
+    "ci.yml": "    - cron: '17 5 * * *'"
+  },
+  "unchanged": {},
+  "exempt_jobs": [
+    "nightly-red",
+    "notify",
+    "sleep-alarm"
+  ]
+}
