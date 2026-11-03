@@ -166,7 +166,7 @@ CUB 6 wrappers migrate with empty new item fields.
 | machine | tier | state |
 |---|---|---|
 | macOS, Terminal.app or iTerm2 (arm64) | rich: block elements, braille, 256 colours, true colour where `COLORTERM` says so | pty-tested; physical-terminal glyph measurements remain open |
-| Linux, any UTF-8 terminal emulator (x86-64) | rich | the pty rows run on every pull request, inside a container |
+| Linux, any UTF-8 terminal emulator (x86-64) | rich | the pty rows run in opted-in full CI and nightly, inside a container |
 | a Linux virtual terminal (`TERM=linux`) | plain: code points 0-255 and the sixteen colours | detected from `TERM`; untested on a VT itself |
 | PAX's console | plain today; rich once PAX's font draws `docs/GLYPHS.md` | the installer row and the font row are the cb05 lane's, with pack's pk04 |
 
@@ -376,9 +376,10 @@ persisted marks. The pty rows include quit and typed Ctrl-C during a pending
 save, named save failures, and self-contained resumed recordings. Physical
 font-width and named-terminal keyboard measurements remain open.
 
-macOS loudly skips the Linux-only idle counter; Linux measures it. CI runs
-Linux correctness, including the resident-memory gate, on every PR; macOS,
-its resident-memory row and performance join it in the full tier.
+macOS loudly skips the Linux-only idle counter; Linux measures it. Unlabelled
+PRs run one cheap job. The `ci` or `full-matrix` label runs the full set:
+Linux correctness, macOS, resident-memory rows and performance. Trunk pushes
+run that set only on cross-cutting paths; the nightly still runs the full set.
 
 ## Documents
 
