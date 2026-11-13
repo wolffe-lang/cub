@@ -218,7 +218,7 @@ the Mission Control shortcut caveat.
 
 ```
 tools/fetch-lair               stage the engine at lair.pin into .lair/
-.lair/tools/fetch-toolchain    stage the pinned toolchain into .wolf-bin/ (wolf 0.2.36, lupin 0.1.58)
+.lair/tools/fetch-toolchain    stage the pinned toolchain into .wolf-bin/ (wolf 0.2.40, lupin 0.1.62)
 .lair/tools/build --release    target/release/cub (and a copy at target/cub)
 target/cub                     play/resume; --seed N picks a new journey, --tier plain forces plain
 target/cub --save journey      use a separate save file
