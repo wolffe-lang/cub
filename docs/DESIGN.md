@@ -89,7 +89,7 @@ in20 ticks with0 late/catch-up frames at80×24 and200×60, and compares the fina
 terminal model with ordinary full-frame output. Its results are in
 `target/pty/cb12-counter-cost.json`.
 
-Measured on nomad's release binary,2026-10-28, a1000 gain (50 integers/tick):
+Measured on the macOS arm64 development machine's release binary,2026-10-28, a1000 gain (50 integers/tick):
 
 | tier / size | before: max render+flush sum | after: max whole-batch wall time | after ticks / late frames |
 |---|---:|---:|---:|
@@ -1996,7 +1996,7 @@ the chord's consuming tick before its action is read, each combo link pressed
 at the strike's second traced tick (the earliest a legacy Space is not a
 repeat). On a starved CPU the game itself falls behind and steps every due
 tick at one wake, reading input only at the first (38 ticks in half a
-millisecond on hasu beside eight busy loops), so a request window can pass
+millisecond on a Linux x86-64 development host beside eight busy loops), so a request window can pass
 with no byte readable in it: the row then plays the combo again, at most eight
 times, and only when a link was read after its strike and the six-tick grace
 that follows it had ended (a link read inside the grace still continues the
