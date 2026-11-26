@@ -15,7 +15,7 @@ asks the terminal where the cursor landed (`CSI 6 n`); the column it answers, le
 glyph took on that terminal. Run it in the terminal you want to know about and paste the table into the
 matching column below with the date. A pseudo-terminal has no font, so the pty runner cannot measure this.
 
-| | Terminal.app | iTerm2 | Linux VT (kasumi's kernel) | PAX's console |
+| | Terminal.app | iTerm2 | Linux VT (a development host's kernel) | PAX's console |
 |---|---|---|---|---|
 | measured | owed: run `cub --probe-glyphs` here and record the date | owed, the same way | owed | draws `?` for every code point at or above U+0100 today; the font row |
 
